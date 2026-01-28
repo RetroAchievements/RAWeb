@@ -186,6 +186,41 @@ describe('Redirects', function () {
         ]));
     });
 
+    it('given the game is a "subset game" linked to multiple parents, redirects to the first parent by creation date', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+
+        $subsetGame = createGameWithAchievements($system, 'Dragon Quest III [Subset - Bonus]', 6);
+        $firstBaseGame = createGameWithAchievements($system, 'Dragon Quest III', 10);
+        $secondBaseGame = createGameWithAchievements($system, 'Dragon Quest III (Japan)', 10);
+
+        (new AssociateAchievementSetToGameAction())->execute(
+            $firstBaseGame,
+            $subsetGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+        (new AssociateAchievementSetToGameAction())->execute(
+            $secondBaseGame,
+            $subsetGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+
+        $subsetCoreSet = GameAchievementSet::where('game_id', $subsetGame->id)
+            ->where('type', AchievementSetType::Core)
+            ->first();
+
+        // ACT
+        $response = get(route('game.show', ['game' => $subsetGame]));
+
+        // ASSERT
+        $response->assertRedirect(route('game.show', [
+            'game' => $firstBaseGame,
+            'set' => $subsetCoreSet->achievement_set_id,
+        ]));
+    });
+
     it('given a set query param is already provided, does not redirect', function () {
         // ARRANGE
         $system = System::factory()->create();
@@ -2550,7 +2585,7 @@ describe('Set Request Data Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 0]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['points_hardcore' => 10000]);
 
         // ACT
         $response = actingAs($user)->get(route('game.show', ['game' => $game]));

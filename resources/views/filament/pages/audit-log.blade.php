@@ -33,6 +33,7 @@ use \Illuminate\Support\Js;
 
                     $releaseIdentifier = data_get($properties, 'release_identifier');
                     $hashIdentifier = data_get($properties, 'hash_identifier');
+                    $creditIdentifier = data_get($properties, 'credit_identifier');
 
                     // Pre-filter to only the fields that actually have changes.
                     $displayableFields = collect(data_get($changes, 'attributes', []))->filter(function ($value, $field) use ($changes) {
@@ -48,7 +49,7 @@ use \Illuminate\Support\Js;
                 @if ($releaseIdentifier)
                     <div @class([
                         $identifierBaseClasses,
-                        'border-b dark:border-gray-700' => $hashIdentifier || $displayableFields->isNotEmpty(),
+                        'border-b dark:border-gray-700' => $hashIdentifier || $creditIdentifier || $displayableFields->isNotEmpty(),
                     ])>
                         <strong>Release:</strong> {{ $releaseIdentifier }}
                     </div>
@@ -57,9 +58,18 @@ use \Illuminate\Support\Js;
                 @if ($hashIdentifier)
                     <div @class([
                         $identifierBaseClasses,
-                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                        'border-b dark:border-gray-700' => $creditIdentifier || $displayableFields->isNotEmpty(),
                     ])>
                         <strong>Hash:</strong> <code class="font-mono text-xs">{{ $hashIdentifier }}</code>
+                    </div>
+                @endif
+
+                @if ($creditIdentifier)
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                    ])>
+                        <strong>Credit:</strong> {{ $creditIdentifier }}
                     </div>
                 @endif
 

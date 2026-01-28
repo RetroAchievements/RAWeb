@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Concerns\IndexesComments;
-use App\Community\Data\CommentData;
-use App\Community\Data\UserCommentsPagePropsData;
+use App\Community\Actions\BuildCommentPageAction;
 use App\Community\Enums\CommentableType;
-use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\UserComment;
-use App\Policies\UserCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -22,28 +18,16 @@ use Inertia\Response as InertiaResponse;
 
 class UserCommentController extends CommentController
 {
-    use IndexesComments;
-
-    public function index(User $user): InertiaResponse|RedirectResponse
+    public function index(User $user, BuildCommentPageAction $action): InertiaResponse|RedirectResponse
     {
-        return $this->handleCommentIndex(
-            commentable: $user,
-            policy: UserComment::class,
-            routeName: 'user.comment.index',
-            routeParam: 'user',
+        $this->authorize('viewAny', [UserComment::class, $user]);
+
+        return $action->execute(
+            $user,
             view: 'user/[user]/comments',
-            createPropsData: function ($user, $paginatedComments, $isSubscribed, $me) {
-                return new UserCommentsPagePropsData(
-                    targetUser: UserData::fromUser($user)->include('id'),
-                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                        $paginatedComments,
-                        total: $paginatedComments->total(),
-                        items: CommentData::fromCollection($paginatedComments->getCollection())
-                    ),
-                    isSubscribed: $isSubscribed,
-                    canComment: $me ? (new UserCommentPolicy())->create($me, $user) : false
-                );
-            }
+            policyClass: UserComment::class,
+            entityKey: 'targetUser',
+            createEntityData: fn ($u) => UserData::fromUser($u)->include('id'),
         );
     }
 
