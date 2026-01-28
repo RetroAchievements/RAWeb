@@ -186,6 +186,8 @@ class TicketListService
             $tickets = Ticket::query();
         }
 
+        $tickets->whereHas('achievement'); // don't include tickets where the achievement is hard deleted
+
         $this->totalTickets = $tickets->count();
 
         switch ($filterOptions['status']) {
