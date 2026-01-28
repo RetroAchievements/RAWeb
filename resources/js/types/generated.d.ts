@@ -7,12 +7,6 @@ declare namespace App.Community.Data {
     player: App.Data.User;
     groups: Array<App.Community.Data.AchievementChecklistGroup>;
   };
-  export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    achievement: App.Platform.Data.Achievement;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type ActivePlayer = {
     user: App.Data.User;
     game: App.Platform.Data.Game;
@@ -29,6 +23,16 @@ declare namespace App.Community.Data {
     canReport: boolean;
     isAutomated: boolean;
     url: string | null;
+  };
+  export type CommentPageProps<TItems = App.Community.Data.Comment> = {
+    achievement: App.Platform.Data.Achievement | undefined;
+    game: App.Platform.Data.Game | undefined;
+    leaderboard: App.Platform.Data.Leaderboard | undefined;
+    targetUser: App.Data.User | undefined;
+    can: App.Data.UserPermissions;
+    canComment: boolean;
+    isSubscribed: boolean;
+    paginatedComments: App.Data.PaginatedData<TItems>;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
     developer: App.Data.User;
@@ -50,18 +54,6 @@ declare namespace App.Community.Data {
     player: App.Data.User;
     groups: Array<App.Community.Data.GameGroup>;
   };
-  export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
-  export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type GameGroup = {
     header: string;
     masteredCount: number;
@@ -70,29 +62,11 @@ declare namespace App.Community.Data {
     beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
-  export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
-  export type GameModificationsCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type GameSetRequestsPageProps = {
     game: App.Platform.Data.Game;
     initialRequestors: Array<App.Data.User>;
     deferredRequestors: any | any;
     totalCount: number;
-  };
-  export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    leaderboard: App.Platform.Data.Leaderboard;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type Message = {
     id: number;
@@ -191,12 +165,6 @@ declare namespace App.Community.Data {
     descriptionParams: Record<string, string> | null;
     undoToken: string | null;
   };
-  export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    targetUser: App.Data.User;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
@@ -204,12 +172,6 @@ declare namespace App.Community.Data {
     persistenceCookieName: string;
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
-  };
-  export type UserModerationCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    targetUser: App.Data.User;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;

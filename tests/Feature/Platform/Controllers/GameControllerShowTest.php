@@ -2585,7 +2585,7 @@ describe('Set Request Data Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 0]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['points_hardcore' => 10000]);
 
         // ACT
         $response = actingAs($user)->get(route('game.show', ['game' => $game]));

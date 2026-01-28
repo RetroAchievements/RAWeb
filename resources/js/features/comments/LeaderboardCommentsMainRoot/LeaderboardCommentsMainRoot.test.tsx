@@ -22,7 +22,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.LeaderboardCommentsPageProps>(
+    const { container } = render<App.Community.Data.CommentPageProps>(
       <LeaderboardCommentsMainRoot />,
       {
         pageProps: {
@@ -45,7 +45,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
     const game = createGame({ system });
     const leaderboard = createLeaderboard({ game, title: 'Any%' });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         leaderboard,
         auth: null,
@@ -68,7 +68,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
     const game = createGame({ system, title: 'Sonic the Hedgehog' });
     const leaderboard = createLeaderboard({ game, title: 'Any%' });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         leaderboard,
         auth: null,
@@ -98,7 +98,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -116,7 +116,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         auth: null,
         leaderboard: createLeaderboard(),
@@ -146,7 +146,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -187,7 +187,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
@@ -228,7 +228,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.LeaderboardCommentsPageProps>(<LeaderboardCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<LeaderboardCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in
