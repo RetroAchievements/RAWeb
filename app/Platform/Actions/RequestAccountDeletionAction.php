@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Mail\RequestAccountDeleteMail;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -34,6 +35,8 @@ class RequestAccountDeletionAction
         $user->delete_requested_at = Carbon::now();
         $user->saveQuietly();
 
+        $this->cleanOldDeletionComments($user);
+
         addArticleComment('Server', CommentableType::UserModeration, $user->id,
             $user->display_name . ' requested account deletion'
         );
@@ -41,5 +44,51 @@ class RequestAccountDeletionAction
         Mail::to($user)->queue(new RequestAccountDeleteMail($user));
 
         return true;
+    }
+
+    /**
+     * Soft delete old account deletion comments, keeping only the first and last pairs.
+     */
+    private function cleanOldDeletionComments(User $user): void
+    {
+        $baseQuery = fn () => Comment::query()
+            ->where('commentable_type', CommentableType::UserModeration)
+            ->where('commentable_id', $user->id)
+            ->where('user_id', Comment::SYSTEM_USER_ID);
+
+        // Find the first and last pairs to preserve.
+        $keepIds = [];
+        foreach (['%requested account deletion%', '%canceled account deletion%'] as $pattern) {
+            $first = $baseQuery()
+                ->where('body', 'like', $pattern)
+                ->orderBy('created_at')
+                ->value('id');
+
+            $last = $baseQuery()
+                ->where('body', 'like', $pattern)
+                ->orderByDesc('created_at')
+                ->value('id');
+
+            if ($first !== null) {
+                $keepIds[] = $first;
+            }
+            if ($last !== null) {
+                $keepIds[] = $last;
+            }
+        }
+
+        $keepIds = array_unique($keepIds);
+        if (empty($keepIds)) {
+            return;
+        }
+
+        // Soft delete all account deletion comments except the first and last pairs.
+        $baseQuery()
+            ->where(function ($query) {
+                $query->where('body', 'like', '%requested account deletion%')
+                    ->orWhere('body', 'like', '%canceled account deletion%');
+            })
+            ->whereNotIn('id', $keepIds)
+            ->update(['deleted_at' => now()]);
     }
 }

@@ -3,6 +3,7 @@
     'commentableId' => 0,
     'article' => null,
     'embedded' => true,
+    'showAll' => false,
 ])
 
 @php
@@ -23,7 +24,9 @@ $comments = Comment::where('commentable_type', $commentableType)
 $totalComments = $comments->count();
 $totalPages = floor(($totalComments + $perPage - 1) / $perPage);
 
-if ($embedded) {
+if ($showAll) {
+    $comments = $comments->get();
+} elseif ($embedded) {
     // in embedded mode, return the $perPage most recent comments
     if ($totalComments > $perPage) {
         $comments = $comments->offset($totalComments - $perPage)->limit($perPage)->get();
@@ -62,7 +65,7 @@ $route = match($commentableType) {
     CommentableType::Achievement => route('achievement.comment.index', ['achievement' => $commentableId]),
     CommentableType::Leaderboard => route('leaderboard.comment.index', ['leaderboard' => $commentableId]),
     CommentableType::User => route('user.comment.index', ['user' => $article ?? User::find($commentableId)]),
-    CommentableType::UserModeration => route('user.moderation-comment.index', ['user' => $article ?? User::find($commentableId)]),
+    CommentableType::UserModeration => null,
     default => 'unsupported type ' . $commentableType?->value,
 };
 
@@ -79,7 +82,7 @@ $route = match($commentableType) {
                         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
                     </div>
                 @endif
-            @elseif ($totalComments > count($comments))
+            @elseif ($totalComments > count($comments) && $route)
                 <div class="hidden sm:block">
                     Recent comments: <span class="smalltext">(<a href="{{ $route }}">All {{ $totalComments }}</a>)</span>
                 </div>
@@ -88,6 +91,8 @@ $route = match($commentableType) {
                     <p>Recent comments</p>
                     <p class="smalltext">(<a href="{{ $route }}">See all {{ $totalComments }}</a>)</p>
                 </div>
+            @elseif ($totalComments > count($comments))
+                Recent comments:
             @else
                 Comments:
             @endif
