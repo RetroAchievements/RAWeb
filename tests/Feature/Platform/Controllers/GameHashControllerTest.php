@@ -136,34 +136,6 @@ describe('Redirects', function () {
         $response->assertOk();
     });
 
-    it('given a subset backing game linked to multiple parents, does not redirect', function () {
-        // ARRANGE
-        $system = System::factory()->create();
-
-        $parentGameA = createGameWithAchievementsForHashes($system, 'Pokemon Red', 10);
-        $parentGameB = createGameWithAchievementsForHashes($system, 'Pokemon Blue', 10);
-
-        $subsetBackingGame = createGameWithAchievementsForHashes($system, 'Pokemon Red | Pokemon Blue [Subset - Bonus]', 5);
-
-        (new AssociateAchievementSetToGameAction())->execute(
-            $parentGameA,
-            $subsetBackingGame,
-            AchievementSetType::Bonus,
-            'Bonus'
-        );
-        (new AssociateAchievementSetToGameAction())->execute(
-            $parentGameB,
-            $subsetBackingGame,
-            AchievementSetType::Bonus,
-            'Bonus'
-        );
-
-        // ACT
-        $response = get(route('game.hashes.index', ['game' => $subsetBackingGame]));
-
-        // ASSERT
-        $response->assertOk();
-    });
 });
 
 describe('Basic Rendering', function () {

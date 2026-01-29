@@ -4,6 +4,7 @@ import type { FC } from 'react';
 
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 
+import { ResetEventContent } from './ResetEventContent';
 import { RichPresenceEventContent } from './RichPresenceEventContent';
 import { UnlockEventContent } from './UnlockEventContent';
 
@@ -43,6 +44,18 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
 
       {sessionEvent.type === 'rich-presence' && sessionEvent.description ? (
         <RichPresenceEventContent label={sessionEvent.description} />
+      ) : null}
+
+      {sessionEvent.type === 'reset' && sessionEvent.description ? (
+        <ResetEventContent label={sessionEvent.description} />
+      ) : null}
+
+      {sessionEvent.type === 'custom' && sessionEvent.description ? (
+        <div className="flex items-center gap-1.5 text-text">
+          <p className="line-clamp-1" title={sessionEvent.description}>
+            {sessionEvent.description}
+          </p>
+        </div>
       ) : null}
     </div>
   );

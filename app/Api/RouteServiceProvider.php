@@ -116,7 +116,10 @@ class RouteServiceProvider extends ServiceProvider
 
                             $server->resource('leaderboards', LeaderboardController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('entries')->readOnly();
+                                });
 
                             $server->resource('systems', SystemController::class)
                                 ->only('index', 'show')

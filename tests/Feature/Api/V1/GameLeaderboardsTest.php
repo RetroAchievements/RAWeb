@@ -407,12 +407,12 @@ class GameLeaderboardsTest extends TestCase
             'state' => LeaderboardState::Disabled,
         ]);
 
-        /** @var Leaderboard $unpublishedLeaderboard */
-        $unpublishedLeaderboard = Leaderboard::factory()->create([
+        /** @var Leaderboard $unpromotedLeaderboard */
+        $unpromotedLeaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'title' => "Unpublished Leaderboard ",
-            'description' => "I am an unpublished leaderboard",
-            'state' => LeaderboardState::Unpublished,
+            'title' => "Unpromoted Leaderboard ",
+            'description' => "I am an unpromoted leaderboard",
+            'state' => LeaderboardState::Unpromoted,
         ]);
 
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id]))
@@ -430,8 +430,8 @@ class GameLeaderboardsTest extends TestCase
                         'State' => LeaderboardState::Disabled->value,
                     ],
                     [
-                        'ID' => $unpublishedLeaderboard->id,
-                        'State' => LeaderboardState::Unpublished->value,
+                        'ID' => $unpromotedLeaderboard->id,
+                        'State' => LeaderboardState::Unpromoted->value,
                     ],
                 ],
             ]);
