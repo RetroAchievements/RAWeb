@@ -16,7 +16,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.GameCommentsPageProps>(
+    const { container } = render<App.Community.Data.CommentPageProps>(
       <GameHashesCommentsMainRoot />,
       {
         pageProps: {
@@ -38,7 +38,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -59,7 +59,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -89,7 +89,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         game: createGame(),
@@ -107,7 +107,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -123,7 +123,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -153,7 +153,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -194,7 +194,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
@@ -235,7 +235,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameHashesCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in

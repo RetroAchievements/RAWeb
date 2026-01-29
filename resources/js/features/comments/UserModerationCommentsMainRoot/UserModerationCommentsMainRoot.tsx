@@ -11,23 +11,23 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const UserModerationCommentsMainRoot: FC = memo(() => {
   const { canComment, paginatedComments, targetUser } =
-    usePageProps<App.Community.Data.UserModerationCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: targetUser.id!,
+      entityId: targetUser!.id!,
       commentableType: 'user-moderation.comment',
       routeName: 'user.moderation-comment.index',
-      displayName: targetUser.displayName,
+      displayName: targetUser!.displayName,
     });
 
   return (
     <div>
-      <UserBreadcrumbs user={targetUser} t_currentPageLabel={t('Moderation Comments')} />
-      <UserHeading user={targetUser} wrapperClassName="!mb-1">
+      <UserBreadcrumbs user={targetUser!} t_currentPageLabel={t('Moderation Comments')} />
+      <UserHeading user={targetUser!} wrapperClassName="!mb-1">
         {t('Moderation Comments')}
       </UserHeading>
 
@@ -41,11 +41,11 @@ export const UserModerationCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={targetUser.id!}
+        commentableId={targetUser!.id!}
         commentableType="user-moderation.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
-        targetUserDisplayName={targetUser.displayName}
+        targetUserDisplayName={targetUser!.displayName}
       />
 
       <div className="mt-8 flex justify-center sm:mt-3 sm:justify-start">
