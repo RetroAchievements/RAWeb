@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardEntryFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -73,4 +75,19 @@ class LeaderboardEntry extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<LeaderboardEntry> $query
+     * @return Builder<LeaderboardEntry>
+     */
+    public function scopeForUserIdentifier(Builder $query, string $identifier): Builder
+    {
+        $user = app(FindUserByIdentifierAction::class)->execute($identifier);
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0'); // no match, return no results
+        }
+
+        return $query->where('user_id', $user->id);
+    }
 }

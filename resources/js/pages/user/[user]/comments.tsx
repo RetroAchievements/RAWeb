@@ -5,15 +5,15 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { UserCommentsMainRoot } from '@/features/comments/UserCommentsMainRoot';
 
-const UserComments: AppPage<App.Community.Data.UserCommentsPageProps> = ({ targetUser }) => {
+const UserComments: AppPage<App.Community.Data.CommentPageProps> = ({ targetUser }) => {
   const { t } = useTranslation();
 
   return (
     <>
       <SEO
-        title={t('Comments - {{user}}', { user: targetUser.displayName })}
-        description={`Comments left on ${targetUser.displayName}'s wall`}
-        ogImage={targetUser.avatarUrl}
+        title={t('Comments - {{user}}', { user: targetUser!.displayName })}
+        description={`Comments left on ${targetUser!.displayName}'s wall`}
+        ogImage={targetUser!.avatarUrl}
       />
 
       <AppLayout.Main>
