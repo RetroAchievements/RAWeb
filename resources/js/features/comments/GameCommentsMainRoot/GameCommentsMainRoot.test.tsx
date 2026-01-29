@@ -16,18 +16,15 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.GameCommentsPageProps>(
-      <GameCommentsMainRoot />,
-      {
-        pageProps: {
-          auth: null,
-          game: createGame(),
-          paginatedComments: createPaginatedData([]),
-          isSubscribed: false,
-          canComment: false,
-        },
+    const { container } = render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
+      pageProps: {
+        auth: null,
+        game: createGame(),
+        paginatedComments: createPaginatedData([]),
+        isSubscribed: false,
+        canComment: false,
       },
-    );
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -38,7 +35,7 @@ describe('Component: GameCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -59,7 +56,7 @@ describe('Component: GameCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -89,7 +86,7 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -107,7 +104,7 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given the user is currently authenticated, displays a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         game: createGame(),
@@ -123,7 +120,7 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given the user is not currently authenticated, does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -139,7 +136,7 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -169,7 +166,7 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -207,7 +204,7 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
@@ -248,7 +245,7 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in

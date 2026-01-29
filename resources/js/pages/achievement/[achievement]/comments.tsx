@@ -5,17 +5,15 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { AchievementCommentsMainRoot } from '@/features/comments/AchievementCommentsMainRoot';
 
-const AchievementComments: AppPage<App.Community.Data.AchievementCommentsPageProps> = ({
-  achievement,
-}) => {
+const AchievementComments: AppPage<App.Community.Data.CommentPageProps> = ({ achievement }) => {
   const { t } = useTranslation();
 
   return (
     <>
       <SEO
-        title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}
-        description={`General discussion about the achievement ${achievement.title}`}
-        ogImage={achievement.badgeUnlockedUrl}
+        title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement!.title })}
+        description={`General discussion about the achievement ${achievement!.title}`}
+        ogImage={achievement!.badgeUnlockedUrl}
       />
 
       <AppLayout.Main>
