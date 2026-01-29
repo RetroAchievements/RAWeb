@@ -169,9 +169,9 @@ class LeaderboardsTest extends JsonApiResourceTestCase
             'state' => LeaderboardState::Disabled,
             'order_column' => 2,
         ]);
-        $unpublishedLeaderboard = Leaderboard::factory()->create([
+        $unpromotedLeaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'state' => LeaderboardState::Unpublished,
+            'state' => LeaderboardState::Unpromoted,
             'order_column' => 3,
         ]);
 
@@ -186,7 +186,7 @@ class LeaderboardsTest extends JsonApiResourceTestCase
         $ids = collect($response->json('data'))->pluck('id')->toArray();
         $this->assertContains((string) $activeLeaderboard->id, $ids);
         $this->assertContains((string) $disabledLeaderboard->id, $ids);
-        $this->assertNotContains((string) $unpublishedLeaderboard->id, $ids);
+        $this->assertNotContains((string) $unpromotedLeaderboard->id, $ids);
     }
 
     public function testItFiltersByStateAll(): void
@@ -206,9 +206,9 @@ class LeaderboardsTest extends JsonApiResourceTestCase
             'state' => LeaderboardState::Disabled,
             'order_column' => 2,
         ]);
-        $unpublishedLeaderboard = Leaderboard::factory()->create([
+        $unpromotedLeaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'state' => LeaderboardState::Unpublished,
+            'state' => LeaderboardState::Unpromoted,
             'order_column' => 3,
         ]);
 
@@ -223,7 +223,7 @@ class LeaderboardsTest extends JsonApiResourceTestCase
         $ids = collect($response->json('data'))->pluck('id')->toArray();
         $this->assertContains((string) $activeLeaderboard->id, $ids);
         $this->assertContains((string) $disabledLeaderboard->id, $ids);
-        $this->assertContains((string) $unpublishedLeaderboard->id, $ids);
+        $this->assertContains((string) $unpromotedLeaderboard->id, $ids);
     }
 
     public function testItExcludesHubGameLeaderboards(): void

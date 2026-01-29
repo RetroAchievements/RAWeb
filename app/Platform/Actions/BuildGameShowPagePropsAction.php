@@ -761,7 +761,7 @@ class BuildGameShowPagePropsAction
 
         $allowedLeaderboardStates = match (true) {
             $shouldIncludeActiveOnly => [LeaderboardState::Active],
-            $showUnpublished => [LeaderboardState::Unpublished],
+            $showUnpublished => [LeaderboardState::Unpromoted],
             default => [LeaderboardState::Active, LeaderboardState::Disabled],
         };
 
@@ -770,7 +770,7 @@ class BuildGameShowPagePropsAction
             ->values();
 
         if (!$shouldIncludeActiveOnly) {
-            // Sort: Active/Unpublished first, Disabled last, then by order_column.
+            // Sort: Active/Unpromoted first, Disabled last, then by order_column.
             $leaderboards = $leaderboards->sortBy([
                 fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
                 fn ($a, $b) => $a->order_column <=> $b->order_column,
@@ -817,7 +817,7 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards
-            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
+            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpromoted)
             ->count();
     }
 

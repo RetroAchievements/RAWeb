@@ -34,6 +34,7 @@ use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\RebuildAllSearchIndexes;
+use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\RecalculateMultisetGameMetricsForResets;
 use App\Platform\Commands\ResetPlayerAchievement;
@@ -74,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Achievements
                 FixUnversionedPromotedTriggers::class,
+                RecalculateAchievementWeightedPoints::class,
 
                 // Games
                 PruneDuplicateSubsetNotes::class,
@@ -141,11 +143,11 @@ class AppServiceProvider extends ServiceProvider
 
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
-                $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
                 $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
+                $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
             }
         });
 
