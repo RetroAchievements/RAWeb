@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\GetUrlToForumTopicCommentDestinationAction;
 use App\Community\Actions\ReplaceBackingGameShortcodesWithGameUrlsAction;
 use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Data\EditForumTopicCommentPagePropsData;
@@ -17,13 +16,13 @@ use Inertia\Response as InertiaResponse;
 
 class ForumTopicCommentController extends Controller
 {
-    public function show(
-        ForumTopicComment $comment,
-        GetUrlToForumTopicCommentDestinationAction $getUrlToForumTopicCommentDestinationAction,
-    ): RedirectResponse {
-        abort_if($comment->trashed(), 404);
+    public function show(ForumTopicComment $comment): RedirectResponse
+    {
+        abort_if($comment->trashed() || $comment->forumTopic === null, 404);
 
-        return redirect($getUrlToForumTopicCommentDestinationAction->execute($comment));
+        $url = route('forum-topic.show', ['topic' => $comment->forumTopic, 'comment' => $comment->id]);
+
+        return redirect("{$url}#{$comment->id}");
     }
 
     public function edit(ForumTopicComment $comment): InertiaResponse
