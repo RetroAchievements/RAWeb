@@ -394,6 +394,14 @@ class GameSet extends BaseModel implements HasPermalink
     }
 
     /**
+     * @return BelongsToMany<GameSet, $this>
+     */
+    public function linkedHubs(): BelongsToMany
+    {
+        return $this->children();
+    }
+
+    /**
      * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo

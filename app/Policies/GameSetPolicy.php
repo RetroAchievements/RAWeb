@@ -58,12 +58,7 @@ class GameSetPolicy
         return true;
     }
 
-    public function viewChildren(): bool
-    {
-        return true;
-    }
-
-    public function viewParents(): bool
+    public function viewLinks(): bool
     {
         return true;
     }

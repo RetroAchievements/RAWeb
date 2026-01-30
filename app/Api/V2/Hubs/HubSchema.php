@@ -56,8 +56,7 @@ class HubSchema extends Schema
             Boolean::make('hasMatureContent', 'has_mature_content')->readOnly(),
 
             Number::make('gamesCount')->readOnly(),
-            Number::make('childHubsCount')->readOnly(),
-            Number::make('parentHubsCount')->readOnly(),
+            Number::make('linkedHubsCount')->readOnly(),
             Boolean::make('isEventHub')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
@@ -65,12 +64,10 @@ class HubSchema extends Schema
 
             // These relationships are available via paginated endpoints:
             // - /hubs/{id}/games
-            // - /hubs/{id}/children
-            // - /hubs/{id}/parents
+            // - /hubs/{id}/links (linked hubs)
             // cannotEagerLoad() prevents ?include= on index/show, forcing clients to use the paginated relationship endpoints.
             BelongsToMany::make('games')->cannotEagerLoad()->readOnly(),
-            BelongsToMany::make('parents')->type('hubs')->cannotEagerLoad()->readOnly(),
-            BelongsToMany::make('children')->type('hubs')->cannotEagerLoad()->readOnly(),
+            BelongsToMany::make('links', 'linkedHubs')->type('hubs')->cannotEagerLoad()->readOnly(),
         ];
     }
 
@@ -93,8 +90,7 @@ class HubSchema extends Schema
     {
         return [
             SortWithCount::make('games', 'gamesCount'),
-            SortWithCount::make('children', 'childHubsCount')->countAs('child_hubs_count'),
-            SortWithCount::make('parents', 'parentHubsCount')->countAs('parent_hubs_count'),
+            SortWithCount::make('linkedHubs', 'linkedHubsCount')->countAs('linked_hubs_count'),
         ];
     }
 
@@ -118,6 +114,6 @@ class HubSchema extends Schema
     {
         return $query
             ->where('type', GameSetType::Hub)
-            ->withCount(['games', 'children as child_hubs_count', 'parents as parent_hubs_count']);
+            ->withCount(['games', 'linkedHubs as linked_hubs_count']);
     }
 }

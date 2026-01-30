@@ -120,8 +120,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('games')->readOnly();
-                                    $relationships->hasMany('children')->readOnly();
-                                    $relationships->hasMany('parents')->readOnly();
+                                    $relationships->hasMany('links')->readOnly();
                                 });
 
                             $server->resource('leaderboards', LeaderboardController::class)

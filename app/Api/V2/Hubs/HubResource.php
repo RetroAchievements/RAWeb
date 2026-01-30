@@ -22,11 +22,8 @@ class HubResource extends BaseJsonApiResource
      */
     public function attributes($request): iterable
     {
-        $areCountsLoaded = isset($this->resource->games_count)
-            && isset($this->resource->child_hubs_count)
-            && isset($this->resource->parent_hubs_count);
-        if (!$areCountsLoaded) {
-            $this->resource->loadCount(['games', 'children as child_hubs_count', 'parents as parent_hubs_count']);
+        if (!isset($this->resource->games_count) || !isset($this->resource->linked_hubs_count)) {
+            $this->resource->loadCount(['games', 'linkedHubs as linked_hubs_count']);
         }
 
         return [
@@ -37,8 +34,7 @@ class HubResource extends BaseJsonApiResource
             'hasMatureContent' => $this->resource->has_mature_content,
 
             'gamesCount' => $this->resource->games_count,
-            'childHubsCount' => $this->resource->child_hubs_count,
-            'parentHubsCount' => $this->resource->parent_hubs_count,
+            'linkedHubsCount' => $this->resource->linked_hubs_count,
             'isEventHub' => $this->resource->is_event_hub,
 
             'createdAt' => $this->resource->created_at,
@@ -55,8 +51,7 @@ class HubResource extends BaseJsonApiResource
     {
         return [
             'games' => $this->relation('games')->withoutLinks(),
-            'parents' => $this->relation('parents')->withoutLinks(),
-            'children' => $this->relation('children')->withoutLinks(),
+            'links' => $this->relation('links')->withoutLinks(),
         ];
     }
 
