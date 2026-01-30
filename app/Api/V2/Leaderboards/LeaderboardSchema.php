@@ -13,6 +13,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\Where;
@@ -63,6 +64,8 @@ class LeaderboardSchema extends Schema
 
             BelongsTo::make('games', 'game')->type('games')->readOnly(),
             BelongsTo::make('developer')->type('users')->readOnly(),
+
+            HasMany::make('entries')->type('leaderboard-entries')->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /leaderboards/{id}/game

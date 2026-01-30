@@ -5,7 +5,7 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameSetRequestsRoot } from '@/features/games/components/+requests';
 
-const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps> = ({ game }) => {
+const SetRequestorsPage: AppPage<App.Community.Data.GameSetRequestsPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
   return (

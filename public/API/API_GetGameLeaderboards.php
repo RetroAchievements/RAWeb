@@ -22,7 +22,7 @@
  *      string     FormattedScore           formatted string value of current leader's score
  *    string     Author                     user responsible for the leaderboard's trigger code
  *    string     AuthorULID                 queryable stable unique identifier of the author
- *    string     State                      the state of the leaderboard (active, disabled, unpublished)
+ *    string     State                      the state of the leaderboard (active, disabled, unpromoted)
  */
 
 use App\Models\Game;

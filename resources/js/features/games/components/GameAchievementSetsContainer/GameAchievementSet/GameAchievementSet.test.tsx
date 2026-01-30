@@ -889,13 +889,13 @@ describe('Component: GameAchievementSet', () => {
     expect(screen.getByTestId('disabled-separator')).toBeVisible();
   });
 
-  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+  it('given a leaderboard view, shows unpromoted leaderboards without disabled leaderboards or separator', () => {
     // ARRANGE
     const game = createGame();
     const achievements = [createAchievement()];
     const allLeaderboards = [
-      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
-      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 1, title: 'Unpromoted Leaderboard 1', state: 'unpromoted' }),
+      createLeaderboard({ id: 2, title: 'Unpromoted Leaderboard 2', state: 'unpromoted' }),
       createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
     ];
     const gameAchievementSet = createGameAchievementSet({
@@ -923,9 +923,9 @@ describe('Component: GameAchievementSet', () => {
     );
 
     // ASSERT
-    // ... only unpublished leaderboards should be visible with no separator ...
-    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
-    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    // ... only unpromoted leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpromoted Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpromoted Leaderboard 2')).toBeVisible();
     expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
 
     expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
