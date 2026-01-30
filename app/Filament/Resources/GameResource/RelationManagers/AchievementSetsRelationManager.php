@@ -37,6 +37,14 @@ class AchievementSetsRelationManager extends RelationManager
     protected static ?string $title = 'Sets';
     protected static string|BackedEnum|null $icon = 'heroicon-o-rectangle-stack';
 
+    /**
+     * Maps WillBe* types to their final equivalents when multiset is enabled.
+     */
+    private const WILL_BE_TO_FINAL_TYPE_MAP = [
+        AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->value,
+        AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->value,
+    ];
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
@@ -312,7 +320,17 @@ class AchievementSetsRelationManager extends RelationManager
                         ];
                     })
                     ->action(function (AchievementSet $record, array $data): void {
-                        $newType = AchievementSetType::tryFrom($data['type']);
+                        /** @var Game $currentGame */
+                        $currentGame = $this->getOwnerRecord();
+
+                        // If multiset is enabled (no WillBe types exist), convert WillBe* to final types.
+                        // Otherwise, keep WillBe* types as-is.
+                        $isMultisetEnabled = !$this->hasWillBeTypes($currentGame);
+                        $typeToSave = $isMultisetEnabled
+                            ? (self::WILL_BE_TO_FINAL_TYPE_MAP[$data['type']] ?? $data['type'])
+                            : $data['type'];
+
+                        $newType = AchievementSetType::tryFrom($typeToSave);
                         $isChangingToSpecialty = in_array($newType, [
                             AchievementSetType::Specialty,
                             AchievementSetType::WillBeSpecialty,
@@ -320,9 +338,6 @@ class AchievementSetsRelationManager extends RelationManager
 
                         // Specialty sets can only be linked to one parent game.
                         if ($isChangingToSpecialty) {
-                            /** @var Game $currentGame */
-                            $currentGame = $this->getOwnerRecord();
-
                             if (!$record->canBeLinkedAsSpecialtyTo($currentGame)) {
                                 Notification::make()
                                     ->danger()
@@ -335,10 +350,10 @@ class AchievementSetsRelationManager extends RelationManager
                         }
 
                         $record->games()->updateExistingPivot(
-                            $this->getOwnerRecord()->id,
+                            $currentGame->id,
                             [
                                 'title' => $data['title'],
-                                'type' => $data['type'],
+                                'type' => $typeToSave,
                                 'updated_at' => now(),
                             ]
                         );
@@ -395,14 +410,10 @@ class AchievementSetsRelationManager extends RelationManager
 
     private function toggleMultisetTypes(Game $game): void
     {
-        $willBeToFinal = [
-            AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->value,
-            AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->value,
-        ];
-        $finalToWillBe = array_flip($willBeToFinal);
-
         $isEnabling = $this->hasWillBeTypes($game);
-        $mapping = $isEnabling ? $willBeToFinal : $finalToWillBe;
+        $mapping = $isEnabling
+            ? self::WILL_BE_TO_FINAL_TYPE_MAP
+            : array_flip(self::WILL_BE_TO_FINAL_TYPE_MAP);
 
         foreach ($mapping as $from => $to) {
             $game->gameAchievementSets()
