@@ -14,10 +14,11 @@ class BuildCurrentlyOnlineDataAction
     public function execute(): CurrentlyOnlineData
     {
         $allTimeHighRecord = $this->getAllTimeHighRecord();
+        $numCurrentPlayers = $this->getNumCurrentPlayers();
 
         return new CurrentlyOnlineData(
-            logEntries: $this->getLogEntries(),
-            numCurrentPlayers: $this->getNumCurrentPlayers(),
+            logEntries: $this->getLogEntries($numCurrentPlayers),
+            numCurrentPlayers: $numCurrentPlayers,
             allTimeHighPlayers: $allTimeHighRecord?->online_count ?? 0,
             allTimeHighDate: $allTimeHighRecord?->created_at,
         );
@@ -28,7 +29,7 @@ class BuildCurrentlyOnlineDataAction
         return app(UserLastActivityService::class)->countOnline(withinMinutes: 10);
     }
 
-    private function getLogEntries(): array
+    private function getLogEntries(int $numCurrentPlayers): array
     {
         $now = Carbon::now();
 
@@ -46,6 +47,7 @@ class BuildCurrentlyOnlineDataAction
             ->minute($now->minute < 30 ? 0 : 30)
             ->second(0);
 
+        $hasCurrentIntervalRecord = false;
         foreach ($records as $record) {
             $snappedTime = $record->created_at->copy()
                 ->minute($record->created_at->minute < 30 ? 0 : 30)
@@ -56,7 +58,19 @@ class BuildCurrentlyOnlineDataAction
 
             if ($slotIndex >= 0 && $slotIndex < 48) {
                 $slots[$slotIndex] = $record->online_count;
+
+                if ($slotIndex === 47) {
+                    $hasCurrentIntervalRecord = true;
+                }
             }
+        }
+
+        // If no record exists for the current interval, use the real-time 
+        // player count to avoid showing a misleading 0. This resolves a race
+        // condition where the front-end expects a record written at exact timestamps,
+        // but the back-end may take a few moments to actually write it.
+        if (!$hasCurrentIntervalRecord) {
+            $slots[47] = $numCurrentPlayers;
         }
 
         return $slots;
