@@ -338,6 +338,7 @@ class GameResource extends Resource
                         Forms\Components\SpatieMediaLibraryFileUpload::make('banner')
                             ->label('Banner Image')
                             ->collection('banner')
+                            ->conversion('desktop-xl-webp')
                             ->disk('s3')
                             ->visibility('public')
                             ->image()
@@ -351,7 +352,7 @@ class GameResource extends Resource
                             ->maxFiles(1)
                             ->customProperties(['is_current' => true])
                             ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true))
-                            ->helperText('Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop.')
+                            ->helperText(new HtmlString('Read: <a href="https://docs.retroachievements.org/guidelines/content/badge-and-icon-guidelines.html#game-page-banners" target="_blank" class="underline">banner rules and guidelines</a>. Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop. Your image should not include text of any kind.'))
                             ->previewable(true)
                             ->downloadable(false)
                             ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
