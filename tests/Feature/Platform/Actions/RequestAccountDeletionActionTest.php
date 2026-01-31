@@ -195,5 +195,8 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertNotNull($newRequest);
         $this->assertNotEquals($firstRequest->id, $newRequest->id);
+
+        // ... the new comment should include the ordinal count ...
+        $this->assertStringContainsString('(4th request)', $newRequest->body);
     }
 }

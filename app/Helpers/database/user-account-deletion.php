@@ -1,8 +1,10 @@
 <?php
 
 use App\Community\Enums\CommentableType;
+use App\Models\Comment;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Number;
 
 function getDeleteDate(string|Carbon $deleteRequested): string
 {
@@ -20,17 +22,23 @@ function getDeleteDate(string|Carbon $deleteRequested): string
 function cancelDeleteRequest(string $username): bool
 {
     $user = User::whereName($username)->first();
-
-    $query = "UPDATE users u
-        SET u.delete_requested_at = NULL
-        WHERE u.username = '$username' OR u.display_name = '$username'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        addArticleComment('Server', CommentableType::UserModeration, $user->id,
-            $user->display_name . ' canceled account deletion'
-        );
+    if (!$user) {
+        return false;
     }
 
-    return $dbResult !== false;
+    $user->update(['delete_requested_at' => null]);
+
+    $previousCancelCount = Comment::withTrashed()
+        ->accountDeletionForUser($user->id)
+        ->where('body', 'like', '%canceled account deletion%')
+        ->count();
+
+    $commentBody = $user->display_name . ' canceled account deletion';
+    if ($previousCancelCount > 0) {
+        $commentBody .= ' (' . Number::ordinal($previousCancelCount + 1) . ' cancellation)';
+    }
+
+    addArticleComment('Server', CommentableType::UserModeration, $user->id, $commentBody);
+
+    return true;
 }

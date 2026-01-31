@@ -11,35 +11,35 @@ use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Number;
 
 class RequestAccountDeletionAction
 {
     public function execute(User $user): bool
     {
-        // already requested account deletion
         if ($user->delete_requested_at) {
             return false;
         }
 
-        // If the user has elevated permissions, drop them to Registered
-        $currentPermissions = $user->getAttribute('Permissions');
-        if ($currentPermissions > Permissions::Registered) {
-            $user->setAttribute('Permissions', Permissions::Registered);
-
-            $user->roles()->detach();
-            $user->permissions()->detach();
-
-            updateClaimsForPermissionChange($user, Permissions::Registered, $currentPermissions);
-        }
+        $this->revokeElevatedPermissions($user);
 
         $user->delete_requested_at = Carbon::now();
         $user->saveQuietly();
 
+        // Count previous requests before cleanup so we can include it in the new comment.
+        $previousRequestCount = Comment::withTrashed()
+            ->accountDeletionForUser($user->id)
+            ->where('body', 'like', '%requested account deletion%')
+            ->count();
+
         $this->cleanOldDeletionComments($user);
 
-        addArticleComment('Server', CommentableType::UserModeration, $user->id,
-            $user->display_name . ' requested account deletion'
-        );
+        $commentBody = $user->display_name . ' requested account deletion';
+        if ($previousRequestCount > 0) {
+            $commentBody .= ' (' . Number::ordinal($previousRequestCount + 1) . ' request)';
+        }
+
+        addArticleComment('Server', CommentableType::UserModeration, $user->id, $commentBody);
 
         Mail::to($user)->queue(new RequestAccountDeleteMail($user));
 
@@ -51,23 +51,28 @@ class RequestAccountDeletionAction
      */
     private function cleanOldDeletionComments(User $user): void
     {
-        $baseQuery = fn () => Comment::query()
-            ->where('commentable_type', CommentableType::UserModeration)
-            ->where('commentable_id', $user->id)
-            ->where('user_id', Comment::SYSTEM_USER_ID);
+        $keepIds = $this->findBoundaryCommentIds($user->id);
+        if (empty($keepIds)) {
+            return;
+        }
 
-        // Find the first and last pairs to preserve.
+        Comment::accountDeletionForUser($user->id)
+            ->whereNotIn('id', $keepIds)
+            ->update(['deleted_at' => now()]);
+    }
+
+    /**
+     * @return array<int>
+     */
+    private function findBoundaryCommentIds(int $userId): array
+    {
         $keepIds = [];
-        foreach (['%requested account deletion%', '%canceled account deletion%'] as $pattern) {
-            $first = $baseQuery()
-                ->where('body', 'like', $pattern)
-                ->orderBy('created_at')
-                ->value('id');
 
-            $last = $baseQuery()
-                ->where('body', 'like', $pattern)
-                ->orderByDesc('created_at')
-                ->value('id');
+        foreach (['%requested account deletion%', '%canceled account deletion%'] as $pattern) {
+            $query = Comment::accountDeletionForUser($userId)->where('body', 'like', $pattern);
+
+            $first = (clone $query)->orderBy('created_at')->value('id');
+            $last = (clone $query)->orderByDesc('created_at')->value('id');
 
             if ($first !== null) {
                 $keepIds[] = $first;
@@ -77,18 +82,20 @@ class RequestAccountDeletionAction
             }
         }
 
-        $keepIds = array_unique($keepIds);
-        if (empty($keepIds)) {
+        return array_unique($keepIds);
+    }
+
+    private function revokeElevatedPermissions(User $user): void
+    {
+        $currentPermissions = $user->getAttribute('Permissions');
+        if ($currentPermissions <= Permissions::Registered) {
             return;
         }
 
-        // Soft delete all account deletion comments except the first and last pairs.
-        $baseQuery()
-            ->where(function ($query) {
-                $query->where('body', 'like', '%requested account deletion%')
-                    ->orWhere('body', 'like', '%canceled account deletion%');
-            })
-            ->whereNotIn('id', $keepIds)
-            ->update(['deleted_at' => now()]);
+        $user->setAttribute('Permissions', Permissions::Registered);
+        $user->roles()->detach();
+        $user->permissions()->detach();
+
+        updateClaimsForPermissionChange($user, Permissions::Registered, $currentPermissions);
     }
 }
