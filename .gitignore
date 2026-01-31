@@ -11,6 +11,7 @@
 /public/filament.hot
 /public/hot
 /public/vendor/filament
+/public/vendor/livewire
 
 # Generated files
 _ide_helper_models.php
