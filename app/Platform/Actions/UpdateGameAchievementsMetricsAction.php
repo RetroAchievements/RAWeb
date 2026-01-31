@@ -18,7 +18,7 @@ class UpdateGameAchievementsMetricsAction
             return;
         }
 
-        $action = new UpdateAchievementMetricsAction();
+        $action = app(UpdateAchievementMetricsAction::class);
         $action->update($game, $achievements);
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);

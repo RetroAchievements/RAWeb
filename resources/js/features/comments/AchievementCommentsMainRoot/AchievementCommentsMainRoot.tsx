@@ -12,14 +12,14 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const AchievementCommentsMainRoot: FC = memo(() => {
   const { achievement, auth, canComment, isSubscribed, paginatedComments } =
-    usePageProps<App.Community.Data.AchievementCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: achievement.id,
+      entityId: achievement!.id,
       commentableType: 'achievement.comment',
       routeName: 'achievement.comment.index',
     });
@@ -27,12 +27,12 @@ export const AchievementCommentsMainRoot: FC = memo(() => {
   return (
     <div>
       <AchievementBreadcrumbs
-        achievement={achievement}
-        game={achievement.game}
-        system={achievement.game?.system}
+        achievement={achievement!}
+        game={achievement!.game}
+        system={achievement!.game?.system}
         t_currentPageLabel={t('Comments')}
       />
-      <AchievementHeading achievement={achievement} wrapperClassName="!mb-1">
+      <AchievementHeading achievement={achievement!} wrapperClassName="!mb-1">
         {t('Comments')}
       </AchievementHeading>
 
@@ -44,7 +44,7 @@ export const AchievementCommentsMainRoot: FC = memo(() => {
 
         {auth ? (
           <SubscribeToggleButton
-            subjectId={achievement.id}
+            subjectId={achievement!.id}
             subjectType="Achievement"
             hasExistingSubscription={isSubscribed}
           />
@@ -54,7 +54,7 @@ export const AchievementCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={achievement.id}
+        commentableId={achievement!.id}
         commentableType="achievement.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}

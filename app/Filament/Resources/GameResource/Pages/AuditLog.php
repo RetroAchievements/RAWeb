@@ -81,6 +81,11 @@ class AuditLog extends ResourceAuditLog
         $fieldLabelMap['hash_patch_url'] = 'Patch URL';
         $fieldLabelMap['hash_source'] = 'Resource Page URL';
 
+        $fieldLabelMap['credit_date'] = 'Date Credited';
+
+        $fieldLabelMap['set_type'] = 'Set Type';
+        $fieldLabelMap['set_title'] = 'Set Title';
+
         return $fieldLabelMap;
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Actions\LogGameCreditActivityAction;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,22 @@ class AchievementSetAuthor extends BaseModel
     }
 
     protected $table = 'achievement_set_authors';
+
+    protected static function booted(): void
+    {
+        $logAction = new LogGameCreditActivityAction();
+
+        static::created(fn (AchievementSetAuthor $credit) => $logAction->execute('create', $credit));
+
+        static::updated(fn (AchievementSetAuthor $credit) => $logAction->execute(
+            'update',
+            $credit,
+            $credit->getOriginal(),
+            $credit->getChanges()
+        ));
+
+        static::deleted(fn (AchievementSetAuthor $credit) => $logAction->execute('delete', $credit));
+    }
 
     protected $fillable = [
         'achievement_set_id',

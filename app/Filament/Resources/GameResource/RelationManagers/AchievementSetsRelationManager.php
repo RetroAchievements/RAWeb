@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\LogGameAchievementSetActivityAction;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\AchievementSetType;
 use BackedEnum;
@@ -312,6 +313,9 @@ class AchievementSetsRelationManager extends RelationManager
                         ];
                     })
                     ->action(function (AchievementSet $record, array $data): void {
+                        $originalType = $record->pivot->type;
+                        $originalTitle = $record->pivot->title;
+
                         $newType = AchievementSetType::tryFrom($data['type']);
                         $isChangingToSpecialty = in_array($newType, [
                             AchievementSetType::Specialty,
@@ -334,13 +338,28 @@ class AchievementSetsRelationManager extends RelationManager
                             }
                         }
 
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
+
                         $record->games()->updateExistingPivot(
-                            $this->getOwnerRecord()->id,
+                            $game->id,
                             [
                                 'title' => $data['title'],
                                 'type' => $data['type'],
                                 'updated_at' => now(),
                             ]
+                        );
+
+                        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)
+                            ->where('achievement_set_id', $record->id)
+                            ->first();
+
+                        (new LogGameAchievementSetActivityAction())->execute(
+                            operation: 'update',
+                            game: $game,
+                            gameAchievementSet: $gameAchievementSet,
+                            original: ['type' => $originalType, 'title' => $originalTitle],
+                            changes: ['type' => $data['type'], 'title' => $data['title']],
                         );
 
                         // Sync the backing game's title to match the set title.

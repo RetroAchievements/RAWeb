@@ -39,6 +39,16 @@ export const ClientLabel: FC<ClientLabelProps> = ({ session }) => {
   }
 
   if (!session.userAgent || !session.parsedUserAgent) {
+    if (session.type === 'reset') {
+      return (
+        <ActivityBasicLabel
+          Icon={LuMonitor}
+          label={t('No Emulator')}
+          className="text-neutral-500 light:text-neutral-400"
+        />
+      );
+    }
+
     return (
       <ActivityBasicLabel
         Icon={LuMonitor}

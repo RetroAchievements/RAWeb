@@ -22,7 +22,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.AchievementCommentsPageProps>(
+    const { container } = render<App.Community.Data.CommentPageProps>(
       <AchievementCommentsMainRoot />,
       {
         pageProps: {
@@ -45,7 +45,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
     const game = createGame({ system });
     const achievement = createAchievement({ game, title: 'Ancient Steps Retraced' });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         achievement,
         auth: null,
@@ -68,7 +68,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
     const game = createGame({ system });
     const achievement = createAchievement({ game, title: 'Ancient Steps Retraced' });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         achievement,
         auth: null,
@@ -98,7 +98,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -116,7 +116,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
 
   it('given the user is currently authenticated, displays a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         achievement: createAchievement(),
@@ -132,7 +132,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
 
   it('given the user is not currently authenticated, does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         auth: null,
         achievement: createAchievement(),
@@ -148,7 +148,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         auth: null,
         achievement: createAchievement(),
@@ -178,7 +178,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -219,7 +219,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
@@ -260,7 +260,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.AchievementCommentsPageProps>(<AchievementCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<AchievementCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in

@@ -45,6 +45,7 @@ use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GameBannerPreference;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use App\Platform\Enums\LeaderboardState;
@@ -390,7 +391,7 @@ class BuildGameShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             playerAchievementSets: $playerAchievementSets,
-            prefersCompactBanners: Cookie::get('prefers_compact_game_banners') === '1',
+            bannerPreference: GameBannerPreference::tryFrom(Cookie::get('banner_state') ?? '') ?? GameBannerPreference::Normal,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
             banner: $game->banner,
@@ -760,7 +761,7 @@ class BuildGameShowPagePropsAction
 
         $allowedLeaderboardStates = match (true) {
             $shouldIncludeActiveOnly => [LeaderboardState::Active],
-            $showUnpublished => [LeaderboardState::Unpublished],
+            $showUnpublished => [LeaderboardState::Unpromoted],
             default => [LeaderboardState::Active, LeaderboardState::Disabled],
         };
 
@@ -769,7 +770,7 @@ class BuildGameShowPagePropsAction
             ->values();
 
         if (!$shouldIncludeActiveOnly) {
-            // Sort: Active/Unpublished first, Disabled last, then by order_column.
+            // Sort: Active/Unpromoted first, Disabled last, then by order_column.
             $leaderboards = $leaderboards->sortBy([
                 fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
                 fn ($a, $b) => $a->order_column <=> $b->order_column,
@@ -816,7 +817,7 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards
-            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
+            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpromoted)
             ->count();
     }
 

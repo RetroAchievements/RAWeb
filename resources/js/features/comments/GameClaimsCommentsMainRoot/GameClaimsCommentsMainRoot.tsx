@@ -11,22 +11,22 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const GameClaimsCommentsMainRoot: FC = memo(() => {
   const { canComment, game, paginatedComments } =
-    usePageProps<App.Community.Data.GameClaimsCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: game.id,
+      entityId: game!.id,
       commentableType: 'achievement-set-claim.comment',
       routeName: 'game.claims.comment.index',
     });
 
   return (
     <div>
-      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Hash Comments')} />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <GameBreadcrumbs game={game!} system={game!.system} t_currentPageLabel={t('Hash Comments')} />
+      <GameHeading game={game!} wrapperClassName="!mb-1">
         {t('Claim Comments')}
       </GameHeading>
 
@@ -40,7 +40,7 @@ export const GameClaimsCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={game.id}
+        commentableId={game!.id}
         commentableType="achievement-set-claim.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}

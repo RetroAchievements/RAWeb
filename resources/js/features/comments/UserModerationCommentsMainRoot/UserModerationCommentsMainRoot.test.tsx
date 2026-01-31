@@ -16,7 +16,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.UserModerationCommentsPageProps>(
+    const { container } = render<App.Community.Data.CommentPageProps>(
       <UserModerationCommentsMainRoot />,
       {
         pageProps: {
@@ -37,7 +37,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
     // ARRANGE
     const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         targetUser,
         auth: null,
@@ -56,7 +56,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
     // ARRANGE
     const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         targetUser,
         auth: null,
@@ -86,7 +86,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser(),
@@ -104,7 +104,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         paginatedComments: createPaginatedData([createComment({ payload: '12345678' })]),
         targetUser: createUser(),
@@ -134,7 +134,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),
@@ -175,7 +175,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),
@@ -216,7 +216,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserModerationCommentsPageProps>(<UserModerationCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserModerationCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),

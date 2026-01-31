@@ -12,23 +12,23 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const UserCommentsMainRoot: FC = memo(() => {
   const { auth, canComment, paginatedComments, isSubscribed, targetUser } =
-    usePageProps<App.Community.Data.UserCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: targetUser.id!,
+      entityId: targetUser!.id!,
       commentableType: 'user.comment',
       routeName: 'user.comment.index',
-      displayName: targetUser.displayName,
+      displayName: targetUser!.displayName,
     });
 
   return (
     <div>
-      <UserBreadcrumbs user={targetUser} t_currentPageLabel={t('Comments')} />
-      <UserHeading user={targetUser} wrapperClassName="!mb-1">
+      <UserBreadcrumbs user={targetUser!} t_currentPageLabel={t('Comments')} />
+      <UserHeading user={targetUser!} wrapperClassName="!mb-1">
         {t('Comments')}
       </UserHeading>
 
@@ -40,7 +40,7 @@ export const UserCommentsMainRoot: FC = memo(() => {
 
         {auth ? (
           <SubscribeToggleButton
-            subjectId={targetUser.id!}
+            subjectId={targetUser!.id!}
             subjectType="UserWall"
             hasExistingSubscription={isSubscribed}
           />
@@ -50,11 +50,11 @@ export const UserCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={targetUser.id!}
+        commentableId={targetUser!.id!}
         commentableType="user.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
-        targetUserDisplayName={targetUser.displayName}
+        targetUserDisplayName={targetUser!.displayName}
       />
 
       <div className="mt-8 flex justify-center sm:mt-3 sm:justify-start">

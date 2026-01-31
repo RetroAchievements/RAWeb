@@ -5,15 +5,15 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameCommentsMainRoot } from '@/features/comments/GameCommentsMainRoot';
 
-const GameComments: AppPage<App.Community.Data.GameCommentsPageProps> = ({ game }) => {
+const GameComments: AppPage<App.Community.Data.CommentPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
   return (
     <>
       <SEO
-        title={t('Comments - {{gameTitle}}', { gameTitle: game.title })}
-        description={`General discussion about the achievement set for ${game.title}`}
-        ogImage={game.badgeUrl}
+        title={t('Comments - {{gameTitle}}', { gameTitle: game!.title })}
+        description={`General discussion about the achievement set for ${game!.title}`}
+        ogImage={game!.badgeUrl}
       />
 
       <AppLayout.Main>
