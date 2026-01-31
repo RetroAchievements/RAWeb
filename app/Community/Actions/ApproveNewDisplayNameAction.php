@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Http\Actions\UpdateDiscordNicknameAction;
-use App\Mail\DisplayNameChangeConfirmedMail;
 use App\Models\User;
 use App\Models\UserUsername;
+use App\Notifications\Auth\DisplayNameChangeConfirmedNotification;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class ApproveNewDisplayNameAction
@@ -31,7 +30,7 @@ class ApproveNewDisplayNameAction
         $user->display_name = $newDisplayName;
         $user->save();
 
-        Mail::to($user)->queue(new DisplayNameChangeConfirmedMail($user, $newDisplayName));
+        $user->notify(new DisplayNameChangeConfirmedNotification($newDisplayName));
 
         (new UpdateDiscordNicknameAction())->execute($oldDisplayName, $newDisplayName);
 

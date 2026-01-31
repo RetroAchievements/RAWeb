@@ -8,7 +8,6 @@ use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\CommentableType;
-use App\Mail\AnnualRecapMail;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
@@ -23,10 +22,10 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
+use App\Notifications\Community\AnnualRecapNotification;
 use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class GenerateAnnualRecapAction
 {
@@ -76,9 +75,7 @@ class GenerateAnnualRecapAction
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
         // send email
-        Mail::to($user->email)->queue(
-            new AnnualRecapMail($user, $recapData)
-        );
+        $user->notify(new AnnualRecapNotification($recapData));
     }
 
     private function getGameData(User $user, Carbon $startDate, Carbon $endDate): array

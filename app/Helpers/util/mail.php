@@ -5,21 +5,20 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionNotificationService;
 use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
-use App\Mail\CommunityActivityMail;
-use App\Mail\ValidateUserEmailMail;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\Auth\ValidateUserEmailNotification;
+use App\Notifications\Community\CommunityActivityNotification;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
 use Illuminate\Mail\Transport\SesTransport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Email;
 
 function mail_utf8(string $to, string $subject = '(No subject)', string $message = ''): bool
@@ -160,7 +159,7 @@ function sendValidationEmail(User $user, string $email): bool
     // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailVerificationToken($user);
 
-    Mail::to($email)->queue(new ValidateUserEmailMail($user, $strValidation));
+    $user->notify(new ValidateUserEmailNotification($strValidation));
 
     return true;
 }
@@ -328,8 +327,7 @@ function sendActivityEmail(
         return false;
     }
 
-    Mail::to($user->email)->queue(new CommunityActivityMail(
-        $user,
+    $user->notify(new CommunityActivityNotification(
         $actID,
         $activityCommenter?->display_name ?? $activityCommenter?->username,
         $commentableType,

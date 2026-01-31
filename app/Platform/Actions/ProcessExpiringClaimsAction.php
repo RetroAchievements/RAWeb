@@ -9,13 +9,12 @@ use App\Community\Actions\ExtendGameClaimAction;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Mail\ExpiringClaimMail;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\User;
+use App\Notifications\Achievement\ExpiringClaimNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
 
 class ProcessExpiringClaimsAction
 {
@@ -63,7 +62,7 @@ class ProcessExpiringClaimsAction
             }
 
             if (($notificationsSent[$claim->id] ?? 0) !== $state && $claim->user) {
-                Mail::to($claim->user)->queue(new ExpiringClaimMail($claim));
+                $claim->user->notify(new ExpiringClaimNotification($claim));
             }
 
             $newNotificationsSent[$claim->id] = $state;
