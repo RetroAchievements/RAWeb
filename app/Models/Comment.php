@@ -193,6 +193,22 @@ class Comment extends BaseModel
      * @param Builder<Comment> $query
      * @return Builder<Comment>
      */
+    public function scopeAccountDeletionForUser(Builder $query, int $userId): Builder
+    {
+        return $query
+            ->automated()
+            ->where('commentable_type', CommentableType::UserModeration)
+            ->where('commentable_id', $userId)
+            ->where(function ($q) {
+                $q->where('body', 'like', '%requested account deletion%')
+                    ->orWhere('body', 'like', '%canceled account deletion%');
+            });
+    }
+
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
     public function scopeAutomated(Builder $query): Builder
     {
         return $query->where('user_id', self::SYSTEM_USER_ID);
