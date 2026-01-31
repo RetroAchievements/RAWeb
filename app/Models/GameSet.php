@@ -394,6 +394,14 @@ class GameSet extends BaseModel implements HasPermalink
     }
 
     /**
+     * @return BelongsToMany<GameSet, $this>
+     */
+    public function linkedHubs(): BelongsToMany
+    {
+        return $this->children();
+    }
+
+    /**
      * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
@@ -430,5 +438,23 @@ class GameSet extends BaseModel implements HasPermalink
     public function scopeCentralHub(Builder $query): Builder
     {
         return $query->whereId(self::CentralHubId);
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeWithParentId(Builder $query, int $parentId): Builder
+    {
+        return $query->whereHas('parents', fn ($q) => $q->where('parent_game_set_id', $parentId));
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeTitleContains(Builder $query, string $title): Builder
+    {
+        return $query->where('title', 'LIKE', '%' . $title . '%');
     }
 }

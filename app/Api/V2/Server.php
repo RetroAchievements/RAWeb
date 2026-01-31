@@ -34,6 +34,7 @@ class Server extends BaseServer
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
             Games\GameSchema::class,
+            Hubs\HubSchema::class,
             LeaderboardEntries\LeaderboardEntrySchema::class,
             Leaderboards\LeaderboardSchema::class,
             Systems\SystemSchema::class,
