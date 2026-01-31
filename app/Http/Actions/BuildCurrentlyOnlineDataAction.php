@@ -65,7 +65,7 @@ class BuildCurrentlyOnlineDataAction
             }
         }
 
-        // If no record exists for the current interval, use the real-time 
+        // If no record exists for the current interval, use the real-time
         // player count to avoid showing a misleading 0. This resolves a race
         // condition where the front-end expects a record written at exact timestamps,
         // but the back-end may take a few moments to actually write it.
