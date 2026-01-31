@@ -2585,7 +2585,7 @@ describe('Set Request Data Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 0]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['points_hardcore' => 10000]);
 
         // ACT
         $response = actingAs($user)->get(route('game.show', ['game' => $game]));
@@ -2657,6 +2657,65 @@ describe('Cookie-Based Filter Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('isLockedOnlyFilterEnabled', true)
+        );
+    });
+
+    it('given no banner_state cookie is set, bannerPreference defaults to normal', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('bannerPreference', 'normal')
+        );
+    });
+
+    it('given banner_state cookie is set to compact, bannerPreference is compact', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies(['banner_state' => 'compact'])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('bannerPreference', 'compact')
+        );
+    });
+
+    it('given banner_state cookie is set to expanded, bannerPreference is expanded', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies(['banner_state' => 'expanded'])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('bannerPreference', 'expanded')
+        );
+    });
+
+    it('given banner_state cookie has an invalid value, bannerPreference defaults to normal', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies(['banner_state' => 'invalid_value'])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('bannerPreference', 'normal')
         );
     });
 });

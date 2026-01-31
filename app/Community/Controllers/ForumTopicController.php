@@ -65,7 +65,7 @@ class ForumTopicController extends Controller
         $actionResult = (new BuildShowForumTopicPagePropsAction())->execute(
             topic: $topic,
             user: $request->user(),
-            currentPage: $request->getCurrentPage($topic, perPage: 15),
+            currentPage: $request->getCurrentPage($topic, perPage: ForumTopic::COMMENTS_PER_PAGE),
         );
 
         if ($actionResult['redirectToPage'] !== null) {

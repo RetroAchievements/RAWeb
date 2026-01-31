@@ -12,22 +12,22 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const GameCommentsMainRoot: FC = memo(() => {
   const { auth, canComment, game, isSubscribed, paginatedComments } =
-    usePageProps<App.Community.Data.GameCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: game.id,
+      entityId: game!.id,
       commentableType: 'game.comment',
       routeName: 'game.comment.index',
     });
 
   return (
     <div>
-      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Comments')} />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <GameBreadcrumbs game={game!} system={game!.system} t_currentPageLabel={t('Comments')} />
+      <GameHeading game={game!} wrapperClassName="!mb-1">
         {t('Comments')}
       </GameHeading>
 
@@ -39,7 +39,7 @@ export const GameCommentsMainRoot: FC = memo(() => {
 
         {auth ? (
           <SubscribeToggleButton
-            subjectId={game.id}
+            subjectId={game!.id}
             subjectType="GameWall"
             hasExistingSubscription={isSubscribed}
           />
@@ -49,7 +49,7 @@ export const GameCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={game.id}
+        commentableId={game!.id}
         commentableType="game.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}

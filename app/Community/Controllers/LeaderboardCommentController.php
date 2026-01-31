@@ -4,41 +4,25 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Concerns\IndexesComments;
-use App\Community\Data\CommentData;
-use App\Community\Data\LeaderboardCommentsPagePropsData;
-use App\Data\PaginatedData;
+use App\Community\Actions\BuildCommentPageAction;
 use App\Models\Comment;
 use App\Models\Leaderboard;
 use App\Platform\Data\LeaderboardData;
-use App\Policies\CommentPolicy;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 
 class LeaderboardCommentController extends CommentController
 {
-    use IndexesComments;
-
-    public function index(Leaderboard $leaderboard): InertiaResponse|RedirectResponse
+    public function index(Leaderboard $leaderboard, BuildCommentPageAction $action): InertiaResponse|RedirectResponse
     {
-        return $this->handleCommentIndex(
-            commentable: $leaderboard,
-            policy: Comment::class,
-            routeName: 'leaderboard.comment.index',
-            routeParam: 'leaderboard',
+        $this->authorize('viewAny', [Comment::class, $leaderboard]);
+
+        return $action->execute(
+            $leaderboard,
             view: 'leaderboard/[leaderboard]/comments',
-            createPropsData: function ($leaderboard, $paginatedComments, $isSubscribed, $user) {
-                return new LeaderboardCommentsPagePropsData(
-                    leaderboard: LeaderboardData::fromLeaderboard($leaderboard)->include('game.system', 'game.badgeUrl'),
-                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                        $paginatedComments,
-                        total: $paginatedComments->total(),
-                        items: CommentData::fromCollection($paginatedComments->getCollection())
-                    ),
-                    isSubscribed: $isSubscribed,
-                    canComment: (new CommentPolicy())->create($user, $leaderboard)
-                );
-            }
+            policyClass: Comment::class,
+            entityKey: 'leaderboard',
+            createEntityData: fn ($lb) => LeaderboardData::fromLeaderboard($lb)->include('game.system', 'game.badgeUrl'),
         );
     }
 
