@@ -8,14 +8,13 @@ use App\Community\Actions\ForwardMessageToDiscordAction;
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
 use App\Enums\UserPreference;
-use App\Mail\PrivateMessageReceivedMail;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Notifications\Message\PrivateMessageReceivedNotification;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class NotifyMessageThreadParticipants
 {
@@ -60,11 +59,10 @@ class NotifyMessageThreadParticipants
 
             $updateUnreadMessageCountAction->execute($userTo);
 
-            // send email?
+            // Send an email notification.
             if (BitSet($userTo->preferences_bitfield, UserPreference::EmailOn_PrivateMessage)) {
                 if (!$userTo->is($userFrom)) {
-                    Mail::to($userTo)->queue(new PrivateMessageReceivedMail(
-                        $userTo,
+                    $userTo->notify(new PrivateMessageReceivedNotification(
                         $userFrom,
                         $thread,
                         $message,
