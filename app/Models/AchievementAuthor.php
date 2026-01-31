@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Actions\LogAchievementCreditActivityAction;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,22 @@ class AchievementAuthor extends BaseModel
     }
 
     protected $table = 'achievement_authors';
+
+    protected static function booted(): void
+    {
+        $logAction = new LogAchievementCreditActivityAction();
+
+        static::created(fn (AchievementAuthor $credit) => $logAction->execute('create', $credit));
+
+        static::updated(fn (AchievementAuthor $credit) => $logAction->execute(
+            'update',
+            $credit,
+            $credit->getOriginal(),
+            $credit->getChanges()
+        ));
+
+        static::deleted(fn (AchievementAuthor $credit) => $logAction->execute('delete', $credit));
+    }
 
     protected $fillable = [
         'achievement_id',

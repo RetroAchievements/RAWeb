@@ -12,6 +12,8 @@ middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
 render(function (View $view, Ticket $ticket) {
+    abort_if(!$ticket->achievement, 404);
+
     $userAgentService = new UserAgentService();
     $ticketService = new TicketViewService();
     $ticketService->load($ticket);

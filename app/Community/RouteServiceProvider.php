@@ -156,6 +156,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('community/patreon-supporters', [PatreonSupportersController::class, 'index'])->name('patreon-supporter.index');
 
+                    Route::get('forums/post/{comment}', [ForumTopicCommentController::class, 'show'])->name('forum-topic-comment.show');
                     Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
 
                     Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');

@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\LogGameAchievementSetActivityAction;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\AchievementSetType;
 use BackedEnum;
@@ -323,6 +324,9 @@ class AchievementSetsRelationManager extends RelationManager
                         /** @var Game $currentGame */
                         $currentGame = $this->getOwnerRecord();
 
+                        $originalType = $record->pivot->type;
+                        $originalTitle = $record->pivot->title;
+
                         // If multiset is enabled (no WillBe types exist), convert WillBe* to final types.
                         // Otherwise, keep WillBe* types as-is.
                         $isMultisetEnabled = !$this->hasWillBeTypes($currentGame);
@@ -356,6 +360,18 @@ class AchievementSetsRelationManager extends RelationManager
                                 'type' => $typeToSave,
                                 'updated_at' => now(),
                             ]
+                        );
+
+                        $gameAchievementSet = GameAchievementSet::where('game_id', $currentGame->id)
+                            ->where('achievement_set_id', $record->id)
+                            ->first();
+
+                        (new LogGameAchievementSetActivityAction())->execute(
+                            operation: 'update',
+                            game: $currentGame,
+                            gameAchievementSet: $gameAchievementSet,
+                            original: ['type' => $originalType, 'title' => $originalTitle],
+                            changes: ['type' => $data['type'], 'title' => $data['title']],
                         );
 
                         // Sync the backing game's title to match the set title.

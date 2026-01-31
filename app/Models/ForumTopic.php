@@ -83,6 +83,10 @@ class ForumTopic extends BaseModel
 
     protected $observables = [];
 
+    // == constants
+
+    public const int COMMENTS_PER_PAGE = 15;
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions
