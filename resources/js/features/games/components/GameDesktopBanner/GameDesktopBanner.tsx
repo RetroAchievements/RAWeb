@@ -10,7 +10,7 @@ import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameDesktopBannerImage } from './GameDesktopBannerImage';
 
 interface GameDesktopBannerProps {
-  banner: App.Platform.Data.PageBanner;
+  banner?: App.Platform.Data.PageBanner | null;
 }
 
 export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
@@ -22,84 +22,117 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
 
   const isViewingSubset = game.id !== backingGame.id;
 
-  const leftColor = banner.leftEdgeColor ?? '#0a0a0a';
-  const rightColor = banner.rightEdgeColor ?? '#0a0a0a';
+  const hasCustomBanner = !!banner?.desktopMdWebp;
+
+  const leftColor = banner?.leftEdgeColor ?? '#0a0a0a';
+  const rightColor = banner?.rightEdgeColor ?? '#0a0a0a';
 
   return (
     // Outer container: full viewport width with an edge color gradient for ultrawide displays.
     <div
       data-testid="desktop-banner"
       className={cn(
-        'relative',
-        'h-[13.25rem] md:-mt-[44px] lg:h-[344px]',
+        'relative overflow-hidden',
+        'h-[13.25rem] md:-mt-[44px]',
         'border-b border-neutral-700',
         'transition-[height,border-color] duration-200',
         'ml-[calc(50%-50vw)] w-screen',
 
-        bannerPreference === 'compact' ? 'lg:h-[212px]' : null,
-        bannerPreference === 'expanded' ? 'lg:h-[474px]' : null,
-        isDividerHovered ? 'border-neutral-500' : null,
+        // Only allow height variations when there's a custom banner.
+        hasCustomBanner ? 'lg:h-[344px]' : 'lg:h-[212px]',
+        hasCustomBanner && bannerPreference === 'compact' ? 'lg:!h-[212px]' : null,
+        hasCustomBanner && bannerPreference === 'expanded' ? 'lg:!h-[474px]' : null,
+        hasCustomBanner && isDividerHovered ? 'border-neutral-500' : null,
       )}
       style={{
-        background: `linear-gradient(to right, ${leftColor} 0%, ${leftColor} 30%, ${rightColor} 70%, ${rightColor} 100%)`,
+        background: hasCustomBanner
+          ? `linear-gradient(to right, ${leftColor} 0%, ${leftColor} 30%, ${rightColor} 70%, ${rightColor} 100%)`
+          : '#0a0a0a',
       }}
     >
-      {/* Layer 1: dark gradient overlay to mute edge colors */}
-      <div
-        className="absolute inset-0 z-[1] hidden md:block"
-        style={{
-          background: `linear-gradient(to bottom,
-            transparent 0%,
-            rgba(0,0,0,0.01) 10%,
-            rgba(0,0,0,0.03) 20%,
-            rgba(0,0,0,0.06) 30%,
-            rgba(0,0,0,0.1) 40%,
-            rgba(0,0,0,0.16) 50%,
-            rgba(0,0,0,0.24) 60%,
-            rgba(0,0,0,0.35) 70%,
-            rgba(0,0,0,0.46) 80%,
-            rgba(0,0,0,0.56) 90%,
-            rgba(0,0,0,0.65) 100%
-          )`,
-        }}
-      />
+      {/*
+        Layer 1: For custom banners, use a dark gradient overlay to mute edge colors.
+                 For the fallback, use a color-extracted blurred screenshot.
+      */}
+      {hasCustomBanner ? (
+        <div
+          className="absolute inset-0 z-[1] hidden md:block"
+          style={{
+            background: `linear-gradient(to bottom,
+              transparent 0%,
+              rgba(0,0,0,0.01) 10%,
+              rgba(0,0,0,0.03) 20%,
+              rgba(0,0,0,0.06) 30%,
+              rgba(0,0,0,0.1) 40%,
+              rgba(0,0,0,0.16) 50%,
+              rgba(0,0,0,0.24) 60%,
+              rgba(0,0,0,0.35) 70%,
+              rgba(0,0,0,0.46) 80%,
+              rgba(0,0,0,0.56) 90%,
+              rgba(0,0,0,0.65) 100%
+            )`,
+          }}
+        />
+      ) : (
+        <>
+          <div className="absolute inset-0">
+            <img
+              src={game.imageIngameUrl}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover"
+              style={{
+                filter: 'blur(60px) saturate(1.6)',
+                transform: 'scale(1.5)',
+              }}
+              data-testid="fallback-color-source"
+            />
+          </div>
 
-      {/* Layer 1b: noise texture to reduce gradient banding on solid backgrounds */}
+          <div className="absolute inset-0 bg-black/60 light:bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        </>
+      )}
+
+      {/* Layer 1b: noise texture to reduce gradient banding */}
       <div
         className="pointer-events-none absolute inset-0 z-[2] hidden md:block"
         style={{
-          // this is really annoying, but we inline this to prevent the need for a separate network request
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           opacity: 0.15,
           mixBlendMode: 'overlay',
         }}
       />
 
-      {/* Layer 2: blurred image backdrop */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="relative mx-auto h-full max-w-[1920px]">
-          <img
-            src={banner.desktopMdWebp ?? game.imageIngameUrl}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_10%]"
-            style={{
-              filter: 'blur(15px)',
-            }}
-            aria-hidden="true"
-            data-testid="blurred-backdrop"
-          />
+      {/* Layer 2: blurred image backdrop (only for custom banners) */}
+      {hasCustomBanner ? (
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="relative mx-auto h-full max-w-[1920px]">
+            <img
+              src={banner.desktopMdWebp!}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_10%]"
+              style={{
+                filter: 'blur(15px)',
+              }}
+              aria-hidden="true"
+              data-testid="blurred-backdrop"
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
 
-      {/* Layer 3: full-res image constrained to max-width with edge shadows */}
-      <div
-        className="relative mx-auto h-full max-w-[1920px] overflow-hidden"
-        style={{
-          boxShadow: '0 0 40px 0px rgba(0, 0, 0, 0.5)',
-        }}
-      >
-        <GameDesktopBannerImage banner={banner} />
-      </div>
+      {/* Layer 3: full-res image constrained to max-width with edge shadows (only for custom banners) */}
+      {hasCustomBanner ? (
+        <div
+          className="relative mx-auto h-full max-w-[1920px] overflow-hidden"
+          style={{
+            boxShadow: '0 0 40px 0px rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <GameDesktopBannerImage banner={banner} />
+        </div>
+      ) : null}
 
       {/* Layer 4: game info and associated controls */}
       <div
@@ -168,15 +201,17 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         )}
       />
 
-      {/* Layer 6: invisible hit area to toggle compact mode. only functional on LG+. */}
-      <button
-        onClick={cycleBannerPreference}
-        onMouseEnter={() => setIsDividerHovered(true)}
-        onMouseLeave={() => setIsDividerHovered(false)}
-        aria-label={bannerPreference === 'expanded' ? 'Collapse banner' : 'Expand banner'}
-        className="absolute inset-x-0 -bottom-2 z-10 hidden h-5 cursor-ns-resize lg:block"
-        tabIndex={-1}
-      />
+      {/* Layer 6: invisible hit area to toggle compact mode. only functional on LG+ with custom banners. */}
+      {hasCustomBanner ? (
+        <button
+          onClick={cycleBannerPreference}
+          onMouseEnter={() => setIsDividerHovered(true)}
+          onMouseLeave={() => setIsDividerHovered(false)}
+          aria-label={bannerPreference === 'expanded' ? 'Collapse banner' : 'Expand banner'}
+          className="absolute inset-x-0 -bottom-2 z-10 hidden h-5 cursor-ns-resize lg:block"
+          tabIndex={-1}
+        />
+      ) : null}
     </div>
   );
 };
