@@ -104,6 +104,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'connect_token',
         'connect_token_expires_at',
         'country',
+        'delete_requested_at',
         'display_name',
         'email', // fillable for registration
         'email_verified_at',
