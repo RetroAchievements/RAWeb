@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationStatus;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -13,12 +12,10 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
-use App\Models\UserRelation;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
-use Tests\TestCase;
 
 uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
@@ -75,10 +72,10 @@ class SubmitLeaderboardEntryTestHelpers
 
     public static function updateRanks(array &$entries, bool $lowerIsBetter): void
     {
-        usort($entries, function ($a, $b) use ($lowerIsBetter)
-        {
-            if ($a['Score'] !== $b['Score'])
-                return ($b['Score'] - $a['Score']);
+        usort($entries, function ($a, $b) use ($lowerIsBetter) {
+            if ($a['Score'] !== $b['Score']) {
+                return $b['Score'] - $a['Score'];
+            }
 
             if ($lowerIsBetter) {
                 return $b['DateSubmitted'] - $a['DateSubmitted'];
@@ -96,8 +93,7 @@ class SubmitLeaderboardEntryTestHelpers
 
     public static function updateRanksUnsigned(array &$entries, bool $lowerIsBetter): void
     {
-        usort($entries, function ($a, $b) use ($lowerIsBetter)
-        {
+        usort($entries, function ($a, $b) use ($lowerIsBetter) {
             if ($a['Score'] !== $b['Score']) {
                 $aScore = $a['Score'];
                 if ($aScore < 0) {
@@ -107,7 +103,8 @@ class SubmitLeaderboardEntryTestHelpers
                 if ($bScore < 0) {
                     $bScore += 0x100000000;
                 }
-                return ($bScore - $aScore);
+
+                return $bScore - $aScore;
             }
 
             if ($lowerIsBetter) {
@@ -258,8 +255,8 @@ beforeEach(function () {
     $this->createConnectUser();
 });
 
-describe('new submission', function() {
-    test('is only (lower is better)', function() {
+describe('new submission', function () {
+    test('is only (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
         $leaderboard = $data['leaderboard'];
         $score = 55555;
@@ -270,11 +267,8 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 1,
                         'Rank' => 1,
@@ -282,9 +276,6 @@ describe('new submission', function() {
                     'TopEntries' => [
                         SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
                     ],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -293,7 +284,7 @@ describe('new submission', function() {
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('is best (lower is better)', function() {
+    test('is best (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -307,19 +298,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 1,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -328,7 +313,7 @@ describe('new submission', function() {
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('is best (higher is better)', function() {
+    test('is best (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -342,19 +327,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 1,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -363,7 +342,7 @@ describe('new submission', function() {
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('is worst (lower is better)', function() {
+    test('is worst (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -377,19 +356,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 6,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -398,7 +371,7 @@ describe('new submission', function() {
         $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('is worst (higher is better)', function() {
+    test('is worst (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -412,19 +385,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 6,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -433,11 +400,11 @@ describe('new submission', function() {
         $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('is tied (lower is better)', function() {
+    test('is tied (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
-        
+
         $score = 30000;
         $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
@@ -448,19 +415,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3, // rank 3 is shared, but entry should be index 4
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -468,7 +429,7 @@ describe('new submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is tied (higher is better)', function() {
+    test('is tied (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
@@ -483,19 +444,13 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -503,16 +458,16 @@ describe('new submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is better than friend', function() {
+    test('with unranked', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
-        $friendEntry = $leaderboard->entries()->where('score', 40000)->with('user')->first();
-        UserRelation::create([
-            'user_id' => $this->user->id,
-            'related_user_id' => $friendEntry->user->id,
-            'status' => UserRelationStatus::Following,
-        ]);
+        $otherEntry = $leaderboard->entries()->where('score', 40000)->with('user')->first();
+        $otherEntry->user->unranked_at = Carbon::now()->subDays(2);
+        $otherEntry->user->save();
+        $data['entries'] = array_filter($data['entries'], function ($entry) use ($otherEntry) {
+            return $entry['User'] != $otherEntry->user->display_name;
+        });
 
         $score = 33333;
         $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
@@ -524,38 +479,26 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
-                        'NumEntries' => 6,
+                        'NumEntries' => 5,
                         'Rank' => 4,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(2, $friendEntry->user, $friendEntry->score, $friendEntry->updated_at),
-                    ],
                 ],
             ]);
     });
 
-    test('is worse than friend', function() {
+    test('as unranked', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
-        $friendEntry = $leaderboard->entries()->where('score', 40000)->with('user')->first();
-        UserRelation::create([
-            'user_id' => $this->user->id,
-            'related_user_id' => $friendEntry->user->id,
-            'status' => UserRelationStatus::Following,
-        ]);
+        $this->user->unranked_at = Carbon::now()->subDays(2);
+        $this->user->save();
 
-        $score = 44444;
-        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
-        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+        $score = 33333;
+        // user should not be in the entries list
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
@@ -563,27 +506,56 @@ describe('new submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
-                        'NumEntries' => 6,
-                        'Rank' => 5,
+                        'NumEntries' => 5,
+                        'Rank' => 4, // this would be the user's rank
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $friendEntry->user, $friendEntry->score, $friendEntry->updated_at),
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(2, $this->user, $score, Carbon::now()),
-                    ],
                 ],
+            ]);
+    });
+
+    test('unknown leaderboard', function () {
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => 8888, 's' => $score]))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Code' => 'not_found',
+                'Status' => 404,
+                'Success' => false,
+                'Error' => 'Unknown leaderboard.',
+            ]);
+    });
+
+    test('inactive system', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $leaderboard->loadMissing('game.system');
+        $system = $leaderboard->game->system;
+        $system->active = false;
+        $system->save();
+
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Code' => 'unsupported_system',
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'Cannot submit leaderboard entries for unsupported console.',
             ]);
     });
 });
 
-describe('repeat submission', function() {
-    test('is worse (lower is better)', function() {
+describe('repeat submission', function () {
+    test('is worse (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
@@ -609,19 +581,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 4,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $bestScore, $bestTimestamp),
-                    ],
                 ],
             ]);
 
@@ -629,7 +595,7 @@ describe('repeat submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is worse (higher is better)', function() {
+    test('is worse (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
@@ -655,19 +621,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $bestScore, $bestTimestamp),
-                    ],
                 ],
             ]);
 
@@ -675,7 +635,7 @@ describe('repeat submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is better (lower is better)', function() {
+    test('is better (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
@@ -701,19 +661,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -721,7 +675,7 @@ describe('repeat submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is better (higher is better)', function() {
+    test('is better (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
         $topEntryId = $leaderboard->top_entry_id;
@@ -747,19 +701,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 2,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -767,7 +715,7 @@ describe('repeat submission', function() {
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
     });
 
-    test('is best (lower is better)', function() {
+    test('is best (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -792,19 +740,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 1,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -812,7 +754,7 @@ describe('repeat submission', function() {
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
     });
 
-    test('delete and submit worse', function() {
+    test('delete and submit worse', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -838,19 +780,13 @@ describe('repeat submission', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 5,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
 
@@ -860,8 +796,8 @@ describe('repeat submission', function() {
     });
 });
 
-describe('unsigned', function() {
-    test('new submission', function() {
+describe('unsigned', function () {
+    test('new submission', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -875,24 +811,18 @@ describe('unsigned', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 2,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
     });
-    
-    test('submit better', function() {
+
+    test('submit better', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -917,24 +847,18 @@ describe('unsigned', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 2,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
     });
-    
-    test('submit worse', function() {
+
+    test('submit worse', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -959,26 +883,20 @@ describe('unsigned', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 2,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $bestScore, $bestTimestamp),
-                    ],
                 ],
             ]);
     });
 });
 
-describe('backdated', function() {
-    test('new submission', function() {
+describe('backdated', function () {
+    test('new submission', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1003,24 +921,18 @@ describe('backdated', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, $backdateTimestamp),
-                    ],
                 ],
             ]);
     });
 
-    test('negative offset is ignored', function() {
+    test('negative offset is ignored', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1045,26 +957,20 @@ describe('backdated', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $score,
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 3,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
-                    ],
                 ],
             ]);
     });
 });
 
-describe('validation', function() {
-    test('no user agent', function() {
+describe('validation', function () {
+    test('no user agent', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1076,22 +982,18 @@ describe('validation', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => 0, // not actually submitted
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 1, // always 1 when not actually submitted
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [], // not actually submitted
                 ],
             ]);
     });
 
-    test('unknown user agent', function() {
+    test('unknown user agent', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1104,22 +1006,18 @@ describe('validation', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => 0, // not actually submitted
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 1, // always 1 when not actually submitted
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [], // not actually submitted
                 ],
             ]);
     });
 
-    test('outdated user agent', function() {
+    test('outdated user agent', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1132,22 +1030,18 @@ describe('validation', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => 0, // not actually submitted
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 1, // always 1 when not actually submitted
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [], // not actually submitted
                 ],
             ]);
     });
 
-    test('unsupported user agent', function() {
+    test('unsupported user agent', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1160,22 +1054,18 @@ describe('validation', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => 0, // not actually submitted
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 5,
                         'Rank' => 1, // always 1 when not actually submitted
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [], // not actually submitted
                 ],
             ]);
     });
 
-    test('unsupported user agent improved score', function() {
+    test('unsupported user agent improved score', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1201,24 +1091,18 @@ describe('validation', function() {
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
-                    'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore, // previous best returned
-                    'LBData' => SubmitLeaderboardEntryTestHelpers::buildLBData($leaderboard),
                     'RankInfo' => [
                         'NumEntries' => 6,
                         'Rank' => 4,
                     ],
                     'TopEntries' => $data['entries'],
-                    'TopEntriesFriends' => [
-                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $bestScore, $bestTimestamp),
-                    ],
                 ],
             ]);
     });
 
-    test('blocked user agent', function() {
+    test('blocked user agent', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
 
@@ -1229,10 +1113,10 @@ describe('validation', function() {
             ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
             ->assertStatus(403)
             ->assertExactJson([
-                //'Code' => 'unsupported_client',
+                'Code' => 'unsupported_client',
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This emulator is not supported',
+                'Error' => 'This client is not supported.',
             ]);
     });
 });
