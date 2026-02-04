@@ -82,15 +82,15 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
               aria-hidden="true"
               className="h-full w-full object-cover"
               style={{
-                filter: 'blur(60px) saturate(1.6)',
-                transform: 'scale(1.5)',
+                filter: 'blur(80px) saturate(1.8)',
+                transform: 'scale(4)',
               }}
               data-testid="fallback-color-source"
             />
           </div>
 
-          <div className="absolute inset-0 bg-black/60 light:bg-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/35 light:bg-black/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </>
       )}
 
