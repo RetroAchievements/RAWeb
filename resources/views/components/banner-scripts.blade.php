@@ -27,6 +27,7 @@
 
         navs.forEach(function(nav) {
             nav.classList.toggle('has-banner', hasBanner);
+            nav.classList.toggle('!bg-transparent', hasBanner);
             if (!hasBanner) {
                 nav.classList.remove('scrolled-past-banner');
             }
@@ -39,7 +40,8 @@
     updateNavbarOnScroll();
 
     document.addEventListener('inertia:navigate', (event) => {
-        setBannerState(event.detail.page.props?.banner?.desktopMdWebp != null);
+        const hasBanner = !!event.detail.page.props?.banner?.desktopMdWebp;
+        setBannerState(hasBanner);
     });
 
     window.addEventListener('scroll', function() {
