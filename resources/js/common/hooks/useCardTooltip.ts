@@ -11,8 +11,11 @@ export function useCardTooltip(args: {
   const elementRef = useRef<ElementWithXAttributes | null>(null);
 
   // TODO migrate this out of Alpine.js
+  const dynamicContextPart = args.dynamicContext
+    ? `, dynamicContext: '${args.dynamicContext}'`
+    : '';
   const cardTooltipProps = {
-    'x-data': `tooltipComponent($el, {dynamicType: '${dynamicType}', dynamicId: '${dynamicId}', dynamicContext: '${args.dynamicContext}'})`,
+    'x-data': `tooltipComponent($el, {dynamicType: '${dynamicType}', dynamicId: '${dynamicId}'${dynamicContextPart}})`,
     'x-on:mouseover': 'showTooltip($event)',
     'x-on:mouseleave': 'hideTooltip',
     'x-on:mousemove': 'trackMouseMovement($event)',
