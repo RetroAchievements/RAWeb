@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
-import type { TranslatedString } from '@/types/i18next';
 import { useFormatDuration } from '@/common/utils/l10n/useFormatDuration';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
@@ -36,17 +36,19 @@ export function buildBeatTimeColumnDef<TEntry extends App.Platform.Data.GameList
     ),
 
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
       const { formatDuration } = useFormatDuration();
 
       const timesBeatenHardcore = row.original.game?.timesBeatenHardcore ?? 0;
-      const medianTimeToBeat = (timesBeatenHardcore < 5) ? 0 : row.original.game?.medianTimeToBeatHardcore ?? 0;
+      const medianTimeToBeat =
+        timesBeatenHardcore < 5 ? 0 : (row.original.game?.medianTimeToBeatHardcore ?? 0);
 
       return (
         <p>
           {medianTimeToBeat ? (
-            formatDuration(medianTimeToBeat, { shouldTruncateSeconds: true } )
+            formatDuration(medianTimeToBeat, { shouldTruncateSeconds: true })
           ) : (
-            <span className='text-muted'>--</span>
+            <span className="text-muted">{'--'}</span>
           )}
         </p>
       );
