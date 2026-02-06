@@ -52,7 +52,10 @@ export function useColumnDefinitions(options: {
         strings: { t_none: t('none') },
       }),
       buildBeatRatioColumnDef({ t_label: t('Beat %') }),
-      buildBeatTimeColumnDef({ t_label: t('Time to beat') }),
+      buildBeatTimeColumnDef({
+        t_label: t('Time to beat'),
+        strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
+      }),
       buildLastUpdatedColumnDef({
         locale: i18n.language,
         tableApiRouteName,

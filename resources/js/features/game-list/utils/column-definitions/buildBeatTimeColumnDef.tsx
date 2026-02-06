@@ -9,7 +9,10 @@ import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildBeatTimeColumnDefProps<TEntry> {
   t_label: TranslatedString;
-
+  strings: {
+    t_none: TranslatedString;
+    t_not_enough_data: TranslatedString;
+  };
   options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -17,6 +20,7 @@ interface BuildBeatTimeColumnDefProps<TEntry> {
 
 export function buildBeatTimeColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
   options,
+  strings,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
@@ -48,7 +52,12 @@ export function buildBeatTimeColumnDef<TEntry extends App.Platform.Data.GameList
           {medianTimeToBeat ? (
             formatDuration(medianTimeToBeat, { shouldTruncateSeconds: true })
           ) : (
-            <span className="text-muted">{'--'}</span>
+            <>
+              <span className="text-muted">{'-'}</span>
+              <span className="sr-only">
+                {timesBeatenHardcore === 0 ? strings.t_none : strings.t_not_enough_data}
+              </span>
+            </>
           )}
         </p>
       );
