@@ -9,6 +9,7 @@ use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\PlayerStat;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use Illuminate\Contracts\View\View;
@@ -435,6 +436,9 @@ class UserProfileMeta extends Component
         $dateColumn = $preferredMode === 'hardcore' ? 'unlocked_hardcore_at' : 'unlocked_at';
 
         $pointsLast7Days = (int) Achievement::query()
+            ->whereHas('game', function ($query) {
+                $query->whereNotIn('system_id', System::getNonGameSystems());
+            })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $sevenDaysAgo = now()->subDays(7)->startOfDay();
                 $query->select('achievement_id')
@@ -445,6 +449,9 @@ class UserProfileMeta extends Component
             ->sum('points');
 
         $pointsLast30Days = (int) Achievement::query()
+            ->whereHas('game', function ($query) {
+                $query->whereNotIn('system_id', System::getNonGameSystems());
+            })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $thirtyDaysAgo = now()->subDays(30)->startOfDay();
                 $query->select('achievement_id')
