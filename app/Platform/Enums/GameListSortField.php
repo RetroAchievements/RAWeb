@@ -10,6 +10,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum GameListSortField: string
 {
     case AchievementsPublished = 'achievementsPublished';
+    case BeatRatio = 'beatRatio';
     case HasActiveOrInReviewClaims = 'hasActiveOrInReviewClaims';
     case LastUpdated = 'lastUpdated';
     case MedianTimeToBeatHardcore = 'medianTimeToBeatHardcore';

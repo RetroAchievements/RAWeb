@@ -346,6 +346,23 @@ trait BuildsGameListQueries
                     break;
 
                 /*
+                 * median time to beat the game in hardcore / total_players
+                 */
+                case GameListSortField::BeatRatio->value:
+                    $query
+                        ->selectRaw(
+                            "CASE
+                                WHEN times_beaten_hardcore > 0 THEN 1
+                                ELSE 0
+                            END AS can_be_beaten"
+                        )
+                        ->selectRaw('times_beaten_hardcore / players_total as beat_ratio')
+                        ->orderByDesc('can_be_beaten')
+                        ->orderBy('beat_ratio', $sortDirection)
+                        ->orderByDesc('players_total');
+                    break;
+
+                /*
                  * when an update was last made to the game's achievement logic
                  * TODO use updates from the triggers table, achievement logic changes is what players care about
                  *      and DateModified includes when other stuff changed like titles, descriptions, etc

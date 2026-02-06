@@ -1217,6 +1217,7 @@ declare namespace App.Platform.Enums {
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'achievementsPublished'
+    | 'beatRatio'
     | 'hasActiveOrInReviewClaims'
     | 'lastUpdated'
     | 'medianTimeToBeatHardcore'

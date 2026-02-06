@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildBeatRatioColumnDef } from '../../utils/column-definitions/buildBeatRatioColumnDef';
 import { buildBeatTimeColumnDef } from '../../utils/column-definitions/buildBeatTimeColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
@@ -33,6 +34,7 @@ export function useColumnDefinitions(options: {
       buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }),
       buildPointsTotalColumnDef({ t_label: t('Points') }),
       buildRetroRatioColumnDef({ t_label: t('Rarity'), strings: { t_none: t('none') } }),
+      buildBeatRatioColumnDef({ t_label: t('Beat %') }),
       buildBeatTimeColumnDef({ t_label: t('Time to beat') }),
       buildLastUpdatedColumnDef({ locale: i18n.language, t_label: t('Last Updated') }),
       buildReleasedAtColumnDef({
