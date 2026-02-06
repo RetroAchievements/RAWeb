@@ -65,10 +65,7 @@ describe('Component: AchievementGameTitle', () => {
     const linkEl = screen.getByRole('link', { name: /starcraft/i });
 
     expect(linkEl).toHaveAttribute('x-data', expect.stringContaining('tooltipComponent'));
-    expect(linkEl).toHaveAttribute(
-      'x-data',
-      expect.stringContaining("dynamicContext: 'undefined'"),
-    );
+    expect(linkEl).not.toHaveAttribute('x-data', expect.stringContaining('dynamicContext'));
   });
 
   it('given the user is authenticated, sets the card tooltip props dynamic context correctly', () => {

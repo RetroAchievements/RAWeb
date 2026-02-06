@@ -57,7 +57,7 @@ describe('Component: GameAvatar', () => {
 
     expect(anchorEl).toHaveAttribute(
       'x-data',
-      "tooltipComponent($el, {dynamicType: 'game', dynamicId: '1', dynamicContext: 'undefined'})",
+      "tooltipComponent($el, {dynamicType: 'game', dynamicId: '1'})",
     );
     expect(anchorEl).toHaveAttribute('x-on:mouseover', 'showTooltip($event)');
     expect(anchorEl).toHaveAttribute('x-on:mouseleave', 'hideTooltip');

@@ -36,6 +36,7 @@
 
         navs.forEach(function(nav) {
             nav.classList.toggle('has-banner', hasBanner);
+            nav.classList.toggle('!bg-transparent', hasBanner);
             if (!hasBanner) {
                 nav.classList.remove('scrolled-past-banner');
             }

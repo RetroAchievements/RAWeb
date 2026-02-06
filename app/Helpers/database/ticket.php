@@ -6,8 +6,6 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
-use App\Mail\TicketCreatedMail;
-use App\Mail\TicketStatusUpdatedMail;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
@@ -15,11 +13,12 @@ use App\Models\GameHash;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\Ticket\TicketCreatedNotification;
+use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 function submitNewTicketsJSON(
     string $userSubmitter,
@@ -112,9 +111,7 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
         && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
         && BitSet($maintainer->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
     ) {
-        Mail::to($maintainer->email)->queue(
-            new TicketCreatedMail($maintainer, $ticket, $game, $achievement, isMaintainer: true)
-        );
+        $maintainer->notify(new TicketCreatedNotification($ticket, $game, $achievement, isMaintainer: true));
     }
 }
 
@@ -133,9 +130,7 @@ function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achiev
         } elseif ($subscriber->is($ticket->reporter)) {
             // reporter doesn't need to be notified of the new ticket. they just created it!
         } else {
-            Mail::to($subscriber->email)->queue(
-                new TicketCreatedMail($subscriber, $ticket, $game, $achievement, isMaintainer: false)
-            );
+            $subscriber->notify(new TicketCreatedNotification($ticket, $game, $achievement, isMaintainer: false));
         }
     }
 }
@@ -272,9 +267,7 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
 
         // Only send email if the reporter has email notifications enabled for ticket activity.
         if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
-            Mail::to($ticket->reporter->email)->queue(
-                new TicketStatusUpdatedMail($ticket, $userModel, $status, $comment)
-            );
+            $ticket->reporter->notify(new TicketStatusUpdatedNotification($ticket, $userModel, $status, $comment));
         }
     }
 

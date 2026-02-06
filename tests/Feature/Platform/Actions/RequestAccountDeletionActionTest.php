@@ -9,13 +9,14 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
-use App\Mail\RequestAccountDeleteMail;
 use App\Models\AchievementSetClaim;
+use App\Models\Comment;
 use App\Models\User;
+use App\Notifications\Auth\RequestAccountDeleteNotification;
 use App\Platform\Actions\RequestAccountDeletionAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\TestCase;
 
@@ -28,7 +29,7 @@ class RequestAccountDeletionActionTest extends TestCase
     public function testDeleteUnregistered(): void
     {
         $this->addServerUser();
-        Mail::fake();
+        Notification::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -44,7 +45,7 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(CommentableType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
+        Notification::assertSentTo($user, RequestAccountDeleteNotification::class);
 
         /* second attempt to delete user does nothing */
         $now2 = $now->clone()->addDays(2);
@@ -59,7 +60,7 @@ class RequestAccountDeletionActionTest extends TestCase
     public function testDeleteDeveloperWithClaims(): void
     {
         $this->addServerUser();
-        Mail::fake();
+        Notification::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -98,7 +99,7 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(CommentableType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
+        Notification::assertSentTo($user, RequestAccountDeleteNotification::class);
 
         // non-completed claims should be dropped
         $claim1->refresh();
@@ -111,5 +112,91 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $claim3->refresh();
         $this->assertEquals(ClaimStatus::Complete, $claim3->status);
+    }
+
+    public function testCleansUpOldDeletionCommentsOnSubsequentRequest(): void
+    {
+        $this->addServerUser();
+        Notification::fake();
+
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Registered]);
+
+        // ... simulate the first request/cancel cycle ...
+        $firstRequest = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' requested account deletion',
+            'created_at' => now()->subDays(10),
+        ]);
+        $firstCancel = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' canceled account deletion',
+            'created_at' => now()->subDays(9),
+        ]);
+
+        // ... simulate the second request/cancel cycle ...
+        $secondRequest = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' requested account deletion',
+            'created_at' => now()->subDays(7),
+        ]);
+        $secondCancel = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' canceled account deletion',
+            'created_at' => now()->subDays(6),
+        ]);
+
+        // ... simulate the third request/cancel cycle ...
+        $thirdRequest = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' requested account deletion',
+            'created_at' => now()->subDays(3),
+        ]);
+        $thirdCancel = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' canceled account deletion',
+            'created_at' => now()->subDays(2),
+        ]);
+
+        // ... execute a new deletion request ...
+        $this->assertTrue((new RequestAccountDeletionAction())->execute($user));
+
+        // ... the first pair should be kept ...
+        $this->assertNull($firstRequest->fresh()->deleted_at);
+        $this->assertNull($firstCancel->fresh()->deleted_at);
+
+        // ... the middle pair should be soft deleted ...
+        $this->assertNotNull($secondRequest->fresh()->deleted_at);
+        $this->assertNotNull($secondCancel->fresh()->deleted_at);
+
+        // ... the last pair should be kept ...
+        $this->assertNull($thirdRequest->fresh()->deleted_at);
+        $this->assertNull($thirdCancel->fresh()->deleted_at);
+
+        $newRequest = Comment::where('commentable_type', CommentableType::UserModeration)
+            ->where('commentable_id', $user->id)
+            ->where('user_id', Comment::SYSTEM_USER_ID)
+            ->where('body', 'like', '%requested account deletion%')
+            ->whereNull('deleted_at')
+            ->orderByDesc('created_at')
+            ->first();
+
+        $this->assertNotNull($newRequest);
+        $this->assertNotEquals($firstRequest->id, $newRequest->id);
+
+        // ... the new comment should include the ordinal count ...
+        $this->assertStringContainsString('(4th request)', $newRequest->body);
     }
 }

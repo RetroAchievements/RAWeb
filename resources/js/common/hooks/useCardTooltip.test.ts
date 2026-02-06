@@ -22,7 +22,7 @@ describe('Hook: useCardTooltip', () => {
     expect(result.current.cardTooltipProps).toBeTruthy();
   });
 
-  it('given args, returns the correct cardTooltipProps', () => {
+  it('given args with dynamicContext, returns the correct cardTooltipProps', () => {
     // ARRANGE
     const { result } = renderHook(() =>
       useCardTooltip({ dynamicId: 1, dynamicType: 'game', dynamicContext: 'Scott' }),
@@ -36,6 +36,17 @@ describe('Hook: useCardTooltip', () => {
       'x-on:mousemove': 'trackMouseMovement($event)',
       ref: expect.any(Function),
     });
+  });
+
+  it('given no dynamicContext, omits dynamicContext from cardTooltipProps', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useCardTooltip({ dynamicId: 1, dynamicType: 'game' }));
+
+    // ASSERT
+    expect(result.current.cardTooltipProps['x-data']).toEqual(
+      `tooltipComponent($el, {dynamicType: 'game', dynamicId: '1'})`,
+    );
+    expect(result.current.cardTooltipProps['x-data']).not.toContain('undefined');
   });
 
   it('given dynamicId changes, then Alpine is reinitialized with the new element', async () => {
