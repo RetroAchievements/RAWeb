@@ -325,6 +325,27 @@ trait BuildsGameListQueries
                     break;
 
                 /*
+                 * median time to beat the game in hardcore with a minimum threshold of 5 beats
+                 */
+                case GameListSortField::MedianTimeToBeatHardcore->value:
+                    $query
+                        ->selectRaw(
+                            "CASE
+                                WHEN times_beaten_hardcore < 5 THEN 0
+                                ELSE 1
+                            END AS has_time_to_beat"
+                        )
+                        ->selectRaw(
+                            "CASE 
+                                WHEN times_beaten_hardcore < 5 THEN 0
+                                ELSE median_time_to_beat_hardcore
+                            END AS restricted_time_to_beat"
+                        )
+                        ->orderByDesc('has_time_to_beat')
+                        ->orderBy('restricted_time_to_beat', $sortDirection);
+                    break;
+
+                /*
                  * when an update was last made to the game's achievement logic
                  * TODO use updates from the triggers table, achievement logic changes is what players care about
                  *      and DateModified includes when other stuff changed like titles, descriptions, etc

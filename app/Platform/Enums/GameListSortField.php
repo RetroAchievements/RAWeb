@@ -12,6 +12,7 @@ enum GameListSortField: string
     case AchievementsPublished = 'achievementsPublished';
     case HasActiveOrInReviewClaims = 'hasActiveOrInReviewClaims';
     case LastUpdated = 'lastUpdated';
+    case MedianTimeToBeatHardcore = 'medianTimeToBeatHardcore';
     case NumRequests = 'numRequests';
     case NumUnresolvedTickets = 'numUnresolvedTickets';
     case NumVisibleLeaderboards = 'numVisibleLeaderboards';

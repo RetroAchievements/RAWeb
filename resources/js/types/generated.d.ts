@@ -1219,6 +1219,7 @@ declare namespace App.Platform.Enums {
     | 'achievementsPublished'
     | 'hasActiveOrInReviewClaims'
     | 'lastUpdated'
+    | 'medianTimeToBeatHardcore'
     | 'numRequests'
     | 'numUnresolvedTickets'
     | 'numVisibleLeaderboards'

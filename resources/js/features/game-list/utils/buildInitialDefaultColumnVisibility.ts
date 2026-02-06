@@ -4,6 +4,7 @@ export function buildInitialDefaultColumnVisibility(
   return {
     hasActiveOrInReviewClaims: false,
     lastUpdated: false,
+    medianTimeToBeatHardcore: false,
     numUnresolvedTickets: false,
     numVisibleLeaderboards: false,
     playersTotal: true,
