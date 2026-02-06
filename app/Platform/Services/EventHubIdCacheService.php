@@ -19,6 +19,11 @@ class EventHubIdCacheService
             86_400,  // Fresh for 24 hours.
             604_800, // We can serve it stale indefinitely, it doesn't really matter.
         ], function () {
+            $rootEventHubIds = collect([
+                GameSet::CommunityEventsHubId,
+                GameSet::DeveloperEventsHubId,
+            ]);
+
             $childEventHubIds = GameSetLink::query()
                 ->whereIn('parent_game_set_id', [
                     GameSet::CommunityEventsHubId,
@@ -29,7 +34,7 @@ class EventHubIdCacheService
             $titleEventHubIds = GameSet::where('title', 'like', '%Events -%')
                 ->pluck('id');
 
-            return $childEventHubIds->merge($titleEventHubIds)->unique()->values()->all();
+            return $rootEventHubIds->merge($childEventHubIds)->merge($titleEventHubIds)->unique()->values()->all();
         });
     }
 
@@ -38,6 +43,6 @@ class EventHubIdCacheService
      */
     public static function clearCache(): void
     {
-        Cache::forget('event_hub_ids');
+        Cache::forget('event_hub_ids:v2');
     }
 }

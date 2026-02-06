@@ -502,7 +502,54 @@ class HomeControllerTest extends TestCase
             $page->where('currentlyOnline.logEntries.0', 0)   // earliest slot should be 0
                 ->where('currentlyOnline.logEntries.41', 100) // 3h ago
                 ->where('currentlyOnline.logEntries.46', 200) // 30m ago
-                ->where('currentlyOnline.logEntries.47', 0);  // now
+                ->where('currentlyOnline.logEntries.47', 0);  // now (no active users)
+        });
+    }
+
+    public function testItUsesRealTimePlayerCountWhenNoRecordExistsForCurrentInterval(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2025, 1, 15, 14, 0, 0)); // exactly at :00
+
+        // ... create a record for the previous interval, but not for the current one ...
+        UsersOnlineCount::create([
+            'online_count' => 500,
+            'created_at' => Carbon::now()->subMinutes(30), // slot 46
+        ]);
+
+        User::factory()->count(42)->create(['last_activity_at' => now()->subMinutes(5)]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.46', 500)
+                ->where('currentlyOnline.logEntries.47', 42)
+                ->where('currentlyOnline.numCurrentPlayers', 42); // !! falls back to the real-time count
+        });
+    }
+
+    public function testItUsesRecordedValueWhenRecordExistsForCurrentInterval(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2025, 1, 15, 14, 5, 0)); // 5 minutes past :00
+
+        UsersOnlineCount::create([
+            'online_count' => 100,
+            'created_at' => Carbon::now()->subMinutes(5), // at :00, which is slot 47
+        ]);
+
+        User::factory()->count(200)->create(['last_activity_at' => now()->subMinutes(2)]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        // ... slot 47 should show the recorded value (100), not the real-time count (200) ...
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.47', 100)
+                ->where('currentlyOnline.numCurrentPlayers', 200);
         });
     }
 

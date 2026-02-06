@@ -6,10 +6,9 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
-use App\Mail\RequestAccountDeleteMail;
 use App\Models\User;
+use App\Notifications\Auth\RequestAccountDeleteNotification;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 
 class RequestAccountDeletionAction
 {
@@ -38,7 +37,7 @@ class RequestAccountDeletionAction
             $user->display_name . ' requested account deletion'
         );
 
-        Mail::to($user)->queue(new RequestAccountDeleteMail($user));
+        $user->notify(new RequestAccountDeleteNotification());
 
         return true;
     }
