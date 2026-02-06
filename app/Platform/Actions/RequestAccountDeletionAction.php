@@ -6,11 +6,10 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
-use App\Mail\RequestAccountDeleteMail;
 use App\Models\Comment;
 use App\Models\User;
+use App\Notifications\Auth\RequestAccountDeleteNotification;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Number;
 
 class RequestAccountDeletionAction
@@ -41,7 +40,7 @@ class RequestAccountDeletionAction
 
         addArticleComment('Server', CommentableType::UserModeration, $user->id, $commentBody);
 
-        Mail::to($user)->queue(new RequestAccountDeleteMail($user));
+        $user->notify(new RequestAccountDeleteNotification());
 
         return true;
     }

@@ -11,13 +11,13 @@ use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Enums\UserRelationStatus;
 use App\Enums\UserPreference;
-use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\UserRelation;
+use App\Notifications\Message\PrivateMessageReceivedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class MessagesTest extends TestCase
@@ -35,7 +35,7 @@ class MessagesTest extends TestCase
         $user2 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
-        Mail::fake();
+        Notification::fake();
         $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -68,7 +68,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->email);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // user2 responds
         (new ReadMessageThreadAction())->execute($thread, $user2);
@@ -114,7 +114,7 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(1, $user1->unread_messages);
 
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->email);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
 
         // user2 responds again
         $now3 = $now2->clone()->addMinutes(5);
@@ -150,7 +150,7 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(2, $user1->unread_messages);
 
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->email);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
 
         // user1 responds
         (new ReadMessageThreadAction())->execute($thread, $user1);
@@ -190,7 +190,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->email);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // user1 deletes
         $now5 = $now4->clone()->addMinutes(5);
@@ -219,7 +219,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
 
         // user2 deletes - when both users delete the message, it's removed from the DB
         $now6 = $now5->clone()->addMinutes(5);
@@ -237,7 +237,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(0, $user2->unread_messages);
 
-        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
     }
 
     public function testBlockedUser(): void
@@ -259,7 +259,7 @@ class MessagesTest extends TestCase
         $relation->save();
 
         // message from user2 is automatically marked as deleted by user1
-        Mail::fake();
+        Notification::fake();
         $thread = (new CreateMessageThreadAction())->execute($user2, $user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -289,7 +289,7 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->unread_messages);
-        Mail::assertNothingQueued(); // nothing sent to $user1
+        Notification::assertNothingSent();
 
         // additional message from user2 is also marked as deleted by user1
         $now2 = $now->clone()->addMinutes(5);
@@ -325,7 +325,7 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->unread_messages);
-        Mail::assertNothingQueued(); // nothing sent to $user1
+        Notification::assertNothingSent();
 
         // message from user1 is delivered to user2
         Carbon::setTestNow($now);
@@ -360,7 +360,7 @@ class MessagesTest extends TestCase
 
         $user2->refresh();
         $this->assertEquals(1, $user2->unread_messages);
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->email);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // additional message from user1 is also delivered
         Carbon::setTestNow($now2);
@@ -395,8 +395,7 @@ class MessagesTest extends TestCase
 
         $user2->refresh();
         $this->assertEquals(2, $user2->unread_messages);
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->email);
-        Mail::assertQueuedCount(2);
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
 
         // response from user2 is ignored (no unread counter or email, but not deleted)
         $now3 = $now2->clone()->addMinutes(5);
@@ -432,7 +431,7 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->unread_messages);
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->email);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
     }
 
     public function testDeleteUserDeletesThread(): void

@@ -9,14 +9,14 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
-use App\Mail\RequestAccountDeleteMail;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\User;
+use App\Notifications\Auth\RequestAccountDeleteNotification;
 use App\Platform\Actions\RequestAccountDeletionAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\TestCase;
 
@@ -29,7 +29,7 @@ class RequestAccountDeletionActionTest extends TestCase
     public function testDeleteUnregistered(): void
     {
         $this->addServerUser();
-        Mail::fake();
+        Notification::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -45,7 +45,7 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(CommentableType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
+        Notification::assertSentTo($user, RequestAccountDeleteNotification::class);
 
         /* second attempt to delete user does nothing */
         $now2 = $now->clone()->addDays(2);
@@ -60,7 +60,7 @@ class RequestAccountDeletionActionTest extends TestCase
     public function testDeleteDeveloperWithClaims(): void
     {
         $this->addServerUser();
-        Mail::fake();
+        Notification::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -99,7 +99,7 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(CommentableType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
+        Notification::assertSentTo($user, RequestAccountDeleteNotification::class);
 
         // non-completed claims should be dropped
         $claim1->refresh();
