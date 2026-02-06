@@ -117,7 +117,7 @@ class RequestAccountDeletionActionTest extends TestCase
     public function testCleansUpOldDeletionCommentsOnSubsequentRequest(): void
     {
         $this->addServerUser();
-        Mail::fake();
+        Notification::fake();
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Registered]);
