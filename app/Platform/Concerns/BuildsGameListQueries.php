@@ -336,7 +336,7 @@ trait BuildsGameListQueries
                             END AS has_time_to_beat"
                         )
                         ->selectRaw(
-                            "CASE 
+                            "CASE
                                 WHEN times_beaten_hardcore < 5 THEN 0
                                 ELSE median_time_to_beat_hardcore
                             END AS restricted_time_to_beat"

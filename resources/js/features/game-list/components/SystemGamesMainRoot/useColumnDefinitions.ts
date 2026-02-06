@@ -6,6 +6,8 @@ import type { RouteName } from 'ziggy-js';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildBeatRatioColumnDef } from '../../utils/column-definitions/buildBeatRatioColumnDef';
+import { buildBeatTimeColumnDef } from '../../utils/column-definitions/buildBeatTimeColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
@@ -49,6 +51,8 @@ export function useColumnDefinitions(options: {
         t_label: t('Rarity'),
         strings: { t_none: t('none') },
       }),
+      buildBeatRatioColumnDef({ t_label: t('Beat %') }),
+      buildBeatTimeColumnDef({ t_label: t('Time to beat') }),
       buildLastUpdatedColumnDef({
         locale: i18n.language,
         tableApiRouteName,
