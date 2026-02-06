@@ -145,11 +145,19 @@ class UpdatePlayerPointsStatsBatchAction
                 return;
             }
 
-            PlayerStat::upsert(
-                $statsToUpsert,
-                ['user_id', 'type'], // unique keys
-                ['value', 'updated_at'] // columns to update
-            );
+            // Sort by user_id and type to ensure consistent lock ordering across
+            // concurrent transactions, which helps prevent DB deadlocks.
+            usort($statsToUpsert, fn ($a, $b) => [$a['user_id'], $a['type']] <=> [$b['user_id'], $b['type']]);
+
+            // Retry up to 3 times on a deadlock since multiple queue workers may
+            // be upserting to this table concurrently.
+            DB::transaction(function () use ($statsToUpsert) {
+                PlayerStat::upsert(
+                    $statsToUpsert,
+                    ['user_id', 'type'],
+                    ['value', 'updated_at']
+                );
+            }, 3);
         }
     }
 }

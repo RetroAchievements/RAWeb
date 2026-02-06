@@ -1,11 +1,10 @@
 <?php
 
-use App\Mail\PasswordResetMail;
 use App\Models\PasswordResetToken;
 use App\Models\User;
+use App\Notifications\Auth\PasswordResetNotification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -38,7 +37,7 @@ if ($targetUser && !$targetUser->isBanned() && !empty($targetUser->email)) {
         'ip_address' => request()->ip(),
     ]);
 
-    Mail::to($targetUser)->queue(new PasswordResetMail($targetUser, $newToken));
+    $targetUser->notify(new PasswordResetNotification($newToken));
 }
 
 return back()->with('message', __('legacy.email_check'));
