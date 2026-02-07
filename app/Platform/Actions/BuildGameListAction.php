@@ -239,6 +239,7 @@ class BuildGameListAction
                     'claimants',
                     'hasActiveOrInReviewClaims',
                     'lastUpdated',
+                    'medianTimeToBeatHardcore',
                     'numRequests',
                     'numVisibleLeaderboards',
                     'playersTotal',
@@ -248,6 +249,7 @@ class BuildGameListAction
                     'releasedAtGranularity',
                     'system.iconUrl',
                     'system.nameShort',
+                    'timesBeatenHardcore',
                     $user?->can('develop') ? 'numUnresolvedTickets' : '',
                 ),
                 'playerGame' => $playerGame
