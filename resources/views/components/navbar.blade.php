@@ -1,5 +1,9 @@
 @php
-    $hasBanner = !empty($page['props']['banner']['desktopMdWebp'] ?? null);
+    $hasCustomBanner = !empty($page['props']['banner']['desktopMdWebp'] ?? null);
+    $isGamePage = ($page['component'] ?? '') === 'game/[game]';
+    $isDesktop = ($page['props']['ziggy']['device'] ?? '') === 'desktop';
+
+    $hasBanner = $hasCustomBanner || ($isGamePage && $isDesktop);
 @endphp
 
 <nav class="relative z-30 {{ $class }} {{ $hasBanner ? 'has-banner !bg-transparent' : '' }}">
