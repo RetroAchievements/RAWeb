@@ -17,6 +17,7 @@ use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ResumePlayerSessionAction
 {
@@ -127,20 +128,12 @@ class ResumePlayerSessionAction
                             $user->rich_presence = $presence;
                         }
 
-                        // Update the player's game_recent_players table entry.
                         $richPresenceForInsert = $presence ?? $playerSession->rich_presence ?? ('Playing ' . $game->title);
-                        GameRecentPlayer::upsert(
-                            [
-                                'game_id' => $game->id,
-                                'user_id' => $user->id,
-                                'rich_presence' => $richPresenceForInsert,
-                                'rich_presence_updated_at' => $timestamp,
-                            ],
-                            ['game_id', 'user_id'],
-                            $presence
-                                ? ['rich_presence', 'rich_presence_updated_at']
-                                : ['rich_presence_updated_at']
-                        );
+                        $columnsToUpdate = $presence
+                            ? ['rich_presence', 'rich_presence_updated_at']
+                            : ['rich_presence_updated_at'];
+
+                        $this->upsertGameRecentPlayer($game, $user, $richPresenceForInsert, $timestamp, $columnsToUpdate);
                     }
                 }
 
@@ -199,17 +192,7 @@ class ResumePlayerSessionAction
         $playerSession->created_at = $timestamp;
         $playerSession->save();
 
-        // Update the player's game_recent_players table entry.
-        GameRecentPlayer::upsert(
-            [
-                'game_id' => $game->id,
-                'user_id' => $user->id,
-                'rich_presence' => $presence,
-                'rich_presence_updated_at' => $timestamp,
-            ],
-            ['game_id', 'user_id'],
-            ['rich_presence', 'rich_presence_updated_at']
-        );
+        $this->upsertGameRecentPlayer($game, $user, $presence, $timestamp);
 
         PlayerSessionStarted::dispatch($user, $game, $presence);
 
@@ -254,5 +237,32 @@ class ResumePlayerSessionAction
                     ->increment('time_taken_hardcore', $adjustment);
             }
         }
+    }
+
+    /**
+     * Wrapped in a transaction with 3 retries because multiple queue
+     * workers may be upserting to this table concurrently, causing deadlocks.
+     *
+     * @param string[] $columnsToUpdate
+     */
+    private function upsertGameRecentPlayer(
+        Game $game,
+        User $user,
+        string $richPresence,
+        Carbon $timestamp,
+        array $columnsToUpdate = ['rich_presence', 'rich_presence_updated_at'],
+    ): void {
+        DB::transaction(function () use ($game, $user, $richPresence, $timestamp, $columnsToUpdate) {
+            GameRecentPlayer::upsert(
+                [
+                    'game_id' => $game->id,
+                    'user_id' => $user->id,
+                    'rich_presence' => $richPresence,
+                    'rich_presence_updated_at' => $timestamp,
+                ],
+                ['game_id', 'user_id'],
+                $columnsToUpdate,
+            );
+        }, 3);
     }
 }
