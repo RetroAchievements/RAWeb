@@ -107,7 +107,7 @@ $commentData = [];
                     <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
                 @endif
                 <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
-                @if (!$ticket->state->isOpen())
+                @if (in_array($ticket->state, [TicketState::Resolved, TicketState::Closed]))
                     @if ($ticket->resolver)
                         <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                     @else

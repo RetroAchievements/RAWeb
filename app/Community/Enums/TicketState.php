@@ -14,6 +14,7 @@ enum TicketState: string
     case Open = 'open';
     case Resolved = 'resolved';
     case Request = 'request';
+    case Quarantined = 'quarantined';
 
     public const REASON_DEMOTED = 'Demoted';
 
@@ -24,6 +25,7 @@ enum TicketState: string
             self::Open => 'Open',
             self::Resolved => 'Resolved',
             self::Request => 'Request',
+            self::Quarantined => 'Pending Review',
         };
     }
 
@@ -47,6 +49,7 @@ enum TicketState: string
             self::Open => 1,
             self::Resolved => 2,
             self::Request => 3,
+            self::Quarantined => 4,
         };
     }
 
@@ -61,6 +64,7 @@ enum TicketState: string
             1 => self::Open,
             2 => self::Resolved,
             3 => self::Request,
+            4 => self::Quarantined,
             default => throw new InvalidArgumentException("Invalid legacy TicketState value: {$value}"),
         };
     }

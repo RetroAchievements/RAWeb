@@ -54,15 +54,14 @@ class CreateTicketAction
             }
         }
 
-        // Add emulator information (if emulator was not identified).
+        // When the emulator isn't in the DB, embed its info in the note
+        // so it's still visible to developers.
         if ($captureEmulatorData) {
             $emulatorInfo = $data->emulator;
             if ($data->core && in_array($data->emulator, ['RetroArch', 'RALibRetro'], true)) {
                 $emulatorInfo .= " ({$data->core})";
             }
             $extraNotes[] = "Emulator: {$emulatorInfo}";
-
-            // Add emulator version.
             $extraNotes[] = "Emulator Version: {$data->emulatorVersion}";
         }
 

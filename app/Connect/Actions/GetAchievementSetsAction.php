@@ -27,6 +27,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     protected ?string $gameHashMd5;
     protected ?bool $isPromoted;
     protected ClientSupportLevel $clientSupportLevel;
+    protected ?UserAgentService $userAgentService = null;
 
     public function execute(User $user, int $gameId = 0, ?string $gameHash = null, ?bool $isPromoted = true): array
     {
@@ -54,7 +55,12 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $this->userAgentService = new UserAgentService();
         $this->clientSupportLevel = $this->userAgentService->getSupportLevel(request()->header('User-Agent'));
         if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
-            return $this->unsupportedClient();
+            // Core-specific blocks show warnings but still allow game loading.
+            // Only emulator-level blocks should fully reject the request.
+            $corePolicy = $this->userAgentService->getCorePolicyForUserAgent(request()->header('User-Agent'));
+            if (!$corePolicy) {
+                return $this->unsupportedClient();
+            }
         }
 
         return null;
@@ -88,7 +94,11 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         }
 
         if ($this->clientSupportLevel !== ClientSupportLevel::Full && $game->achievements_published > 0) {
-            $this->injectClientSupportWarning($response);
+            if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
+                $this->replaceWithBlockedCoreWarning($response);
+            } else {
+                $this->injectClientSupportWarning($response);
+            }
         }
 
         return $response;
@@ -465,18 +475,35 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     private function injectClientSupportWarning(array &$response): void
     {
         if (!empty($response['Sets'])) {
-            $warningAchievement = (new CreateWarningAchievementAction())->execute(
-                title: match ($this->clientSupportLevel) {
+            // Core-specific policies use a different warning title and description
+            // than emulator-level warnings.
+            $corePolicy = $this->userAgentService?->getCorePolicyForUserAgent(request()->header('User-Agent'));
+
+            if ($corePolicy) {
+                $title = 'Warning: Unsupported Core';
+                $description = 'Hardcore unlocks cannot be earned using this core.';
+
+                if ($corePolicy->recommendation) {
+                    $description .= " {$corePolicy->recommendation}";
+                }
+            } else {
+                $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
                     ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
-                },
-                description: ($this->clientSupportLevel === ClientSupportLevel::Outdated) ?
-                    'Hardcore unlocks cannot be earned using this version of this emulator.' :
-                    'Hardcore unlocks cannot be earned using this emulator.'
+                };
+                $description = match ($this->clientSupportLevel) {
+                    ClientSupportLevel::Outdated => 'Hardcore unlocks cannot be earned using this version of this emulator.',
+                    default => 'Hardcore unlocks cannot be earned using this emulator.',
+                };
+            }
+
+            $warningAchievement = (new CreateWarningAchievementAction())->execute(
+                title: $title,
+                description: $description,
             );
 
-            // For the V2 format, if there are sets, add the warning to the first set.
+            // Prepend the warning to the first set so the player sees it immediately.
             $response['Sets'][0]['Achievements'] = [
                 $warningAchievement,
                 ...$response['Sets'][0]['Achievements'] ?? [],
@@ -485,6 +512,31 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
 
         if ($this->clientSupportLevel === ClientSupportLevel::Unknown) {
             $response['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
+        }
+    }
+
+    /**
+     * When a core-specific policy blocks the client, replace all achievements
+     * with a single warning achievement and remove all leaderboards.
+     */
+    private function replaceWithBlockedCoreWarning(array &$response): void
+    {
+        $corePolicy = $this->userAgentService?->getCorePolicyForUserAgent(request()->header('User-Agent'));
+
+        $description = 'RetroAchievements is unavailable for this core.';
+
+        if ($corePolicy?->recommendation) {
+            $description .= " {$corePolicy->recommendation}";
+        }
+
+        $warningAchievement = (new CreateWarningAchievementAction())->execute(
+            title: 'Warning: Unsupported Core',
+            description: $description,
+        );
+
+        foreach ($response['Sets'] as &$set) {
+            $set['Achievements'] = [$warningAchievement];
+            $set['Leaderboards'] = [];
         }
     }
 
