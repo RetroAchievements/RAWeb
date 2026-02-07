@@ -166,10 +166,7 @@ return [
 
             Comment::class => [
                 'filterableAttributes' => [
-                    'commentable_id',
                     'commentable_type',
-                    'created_at',
-                    'user_id',
                 ],
                 'rankingRules' => [
                     'words',
@@ -181,7 +178,6 @@ return [
                     'sort',
                 ],
                 'searchableAttributes' => ['body'],
-                'sortableAttributes' => ['created_at'],
             ],
 
             Event::class => [
@@ -286,8 +282,7 @@ return [
             User::class => [
                 'filterableAttributes' => [
                     '__soft_deleted',
-                    'display_name',
-                    'username',
+                    'is_banned',
                 ],
                 'rankingRules' => [
                     'exactness',
@@ -299,9 +294,7 @@ return [
                 ],
                 'searchableAttributes' => ['display_name', 'username'],
                 'sortableAttributes' => [
-                    'display_name',
                     'last_activity_at',
-                    'username',
                 ],
             ],
         ],

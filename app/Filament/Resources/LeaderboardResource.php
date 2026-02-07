@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\MergeLeaderboardsAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
@@ -35,13 +36,9 @@ class LeaderboardResource extends Resource
     protected static ?string $model = Leaderboard::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-bars-staggered';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 60;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -52,17 +49,36 @@ class LeaderboardResource extends Resource
         return $record->title;
     }
 
+    /**
+     * @param Leaderboard $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return [
-            'ID' => $record->id,
-            'Description' => $record->description,
+        $details = [
+            'ID' => (string) $record->id,
         ];
+
+        // Only include the description if it has content.
+        if (!empty($record->description)) {
+            $details['Description'] = $record->description;
+        }
+
+        $details['Game'] = $record->game->title . ' (' . $record->game->system->name_short . ')';
+
+        return $details;
     }
 
     public static function getGloballySearchableAttributes(): array
     {
         return ['id', 'title'];
+    }
+
+    /**
+     * @return Builder<Leaderboard>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -73,12 +89,6 @@ class LeaderboardResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('canonicalUrl')
-                            ->label('Permalink')
-                            ->formatStateUsing(fn (Leaderboard $record) => url("leaderboardinfo.php?i={$record->id}"))
-                            ->url(fn (Leaderboard $record): string => url("leaderboardinfo.php?i={$record->id}"))
-                            ->extraAttributes(['class' => 'underline']),
-
                         Infolists\Components\TextEntry::make('game.title')
                             ->url(function (Leaderboard $record) {
                                 if (request()->user()->can('manage', Game::class)) {
@@ -147,11 +157,11 @@ class LeaderboardResource extends Resource
                         Forms\Components\Select::make('state')
                             ->label('State')
                             ->selectablePlaceholder(false)
-                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpublished, the leaderboard will additionally be removed from normal page listings.')
+                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpromoted, the leaderboard will additionally be removed from normal page listings.')
                             ->options([
                                 LeaderboardState::Active->value => 'Active',
                                 LeaderboardState::Disabled->value => 'Disabled',
-                                LeaderboardState::Unpublished->value => 'Unpublished',
+                                LeaderboardState::Unpromoted->value => 'Unpromoted',
                             ])
                             ->required()
                             ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
@@ -286,6 +296,7 @@ class LeaderboardResource extends Resource
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
                         CloneLeaderboardAction::make('clone_leaderboard'),
+                        MergeLeaderboardsAction::make('merge_leaderboards'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])

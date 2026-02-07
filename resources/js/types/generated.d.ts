@@ -7,12 +7,6 @@ declare namespace App.Community.Data {
     player: App.Data.User;
     groups: Array<App.Community.Data.AchievementChecklistGroup>;
   };
-  export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    achievement: App.Platform.Data.Achievement;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type ActivePlayer = {
     user: App.Data.User;
     game: App.Platform.Data.Game;
@@ -30,6 +24,16 @@ declare namespace App.Community.Data {
     isAutomated: boolean;
     url: string | null;
   };
+  export type CommentPageProps<TItems = App.Community.Data.Comment> = {
+    achievement: App.Platform.Data.Achievement | undefined;
+    game: App.Platform.Data.Game | undefined;
+    leaderboard: App.Platform.Data.Leaderboard | undefined;
+    targetUser: App.Data.User | undefined;
+    can: App.Data.UserPermissions;
+    canComment: boolean;
+    isSubscribed: boolean;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+  };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
     developer: App.Data.User;
     unlocksContributed: number;
@@ -41,21 +45,14 @@ declare namespace App.Community.Data {
     recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
     recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
   };
+  export type GameActivitySnapshot = {
+    game: App.Platform.Data.Game;
+    playerCount: number;
+    trendingReason: App.Community.Enums.TrendingReason | null;
+  };
   export type GameChecklistPageProps = {
     player: App.Data.User;
     groups: Array<App.Community.Data.GameGroup>;
-  };
-  export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
-  export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type GameGroup = {
     header: string;
@@ -65,29 +62,11 @@ declare namespace App.Community.Data {
     beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
-  export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
-  export type GameModificationsCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    game: App.Platform.Data.Game;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
-  };
   export type GameSetRequestsPageProps = {
     game: App.Platform.Data.Game;
     initialRequestors: Array<App.Data.User>;
     deferredRequestors: any | any;
     totalCount: number;
-  };
-  export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    leaderboard: App.Platform.Data.Leaderboard;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type Message = {
     id: number;
@@ -179,22 +158,12 @@ declare namespace App.Community.Data {
     state: boolean;
     user?: App.Data.User;
   };
-  export type TrendingGame = {
-    game: App.Platform.Data.Game;
-    playerCount: number;
-  };
   export type UnsubscribeShowPageProps = {
     success: boolean;
     error: string | null;
     descriptionKey: string | null;
     descriptionParams: Record<string, string> | null;
     undoToken: string | null;
-  };
-  export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    targetUser: App.Data.User;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -203,12 +172,6 @@ declare namespace App.Community.Data {
     persistenceCookieName: string;
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
-  };
-  export type UserModerationCommentsPageProps<TItems = App.Community.Data.Comment> = {
-    targetUser: App.Data.User;
-    paginatedComments: App.Data.PaginatedData<TItems>;
-    isSubscribed: boolean;
-    canComment: boolean;
   };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
@@ -246,6 +209,7 @@ declare namespace App.Community.Enums {
     | 'user.comment'
     | 'user-activity.comment'
     | 'user-moderation.comment';
+  export type GameActivitySnapshotType = 'trending' | 'popular';
   export type MessageThreadTemplateKind =
     | 'achievement-issue'
     | 'manual-unlock'
@@ -277,6 +241,13 @@ declare namespace App.Community.Enums {
     | 'AchievementTicket';
   export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
   export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
+  export type TrendingReason =
+    | 'new-set'
+    | 'revised-set'
+    | 'gaining-traction'
+    | 'renewed-interest'
+    | 'many-more-players'
+    | 'more-players';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
   export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
 }
@@ -513,12 +484,13 @@ declare namespace App.Data {
 declare namespace App.Enums {
   export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
   export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
-  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
+  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
   export type PlayerGameActivitySessionType =
     | 'player-session'
     | 'reconstructed'
     | 'manual-unlock'
-    | 'ticket-created';
+    | 'ticket-created'
+    | 'reset';
   export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
@@ -567,7 +539,8 @@ declare namespace App.Http.Data {
     completedClaims: Array<App.Data.AchievementSetClaimGroup>;
     currentlyOnline: App.Data.CurrentlyOnline;
     activePlayers: App.Data.PaginatedData<TItems>;
-    trendingGames: Array<App.Community.Data.TrendingGame>;
+    trendingGames: Array<App.Community.Data.GameActivitySnapshot>;
+    popularGames: Array<App.Community.Data.GameActivitySnapshot>;
     newClaims: Array<App.Data.AchievementSetClaimGroup>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
@@ -685,6 +658,7 @@ declare namespace App.Platform.Data {
     achievementsArtwork: Array<App.Platform.Data.UserCredits>;
     achievementsDesign: Array<App.Platform.Data.UserCredits>;
     achievementSetArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementSetBanner: Array<App.Platform.Data.UserCredits>;
     achievementsLogic: Array<App.Platform.Data.UserCredits>;
     achievementsTesting: Array<App.Platform.Data.UserCredits>;
     achievementsWriting: Array<App.Platform.Data.UserCredits>;
@@ -787,22 +761,6 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievementSet: App.Platform.Data.AchievementSet;
   };
-  export type GameBanner = {
-    mobileSmWebp: string | null;
-    mobileSmAvif: string | null;
-    mobileMdWebp: string | null;
-    mobileMdAvif: string | null;
-    desktopMdWebp: string | null;
-    desktopMdAvif: string | null;
-    desktopLgWebp: string | null;
-    desktopLgAvif: string | null;
-    desktopXlWebp: string | null;
-    desktopXlAvif: string | null;
-    mobilePlaceholder: string | null;
-    desktopPlaceholder: string | null;
-    leftEdgeColor: string | null;
-    rightEdgeColor: string | null;
-  };
   export type GameClaimant = {
     user: App.Data.User;
     claimType: string;
@@ -838,7 +796,7 @@ declare namespace App.Platform.Data {
     system?: App.Platform.Data.System;
     timesBeaten?: number;
     timesBeatenHardcore?: number;
-    banner?: App.Platform.Data.GameBanner;
+    banner?: App.Platform.Data.PageBanner;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
     releases?: Array<App.Platform.Data.GameRelease>;
@@ -862,6 +820,7 @@ declare namespace App.Platform.Data {
     untestedHashes: Array<App.Platform.Data.GameHash>;
     patchRequiredHashes: Array<App.Platform.Data.GameHash>;
     can: App.Data.UserPermissions;
+    targetAchievementSet: App.Platform.Data.GameAchievementSet | null;
   };
   export type GameListEntry = {
     game: App.Platform.Data.Game;
@@ -967,9 +926,11 @@ declare namespace App.Platform.Data {
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     playerAchievementSets: Array<App.Platform.Data.PlayerAchievementSet>;
+    bannerPreference: App.Platform.Enums.GameBannerPreference;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
+    banner: App.Platform.Data.PageBanner | null;
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
@@ -1035,6 +996,22 @@ declare namespace App.Platform.Data {
     createdAt?: string;
     user?: App.Data.User | null;
     rank?: number | null;
+  };
+  export type PageBanner = {
+    mobileSmWebp: string | null;
+    mobileSmAvif: string | null;
+    mobileMdWebp: string | null;
+    mobileMdAvif: string | null;
+    desktopMdWebp: string | null;
+    desktopMdAvif: string | null;
+    desktopLgWebp: string | null;
+    desktopLgAvif: string | null;
+    desktopXlWebp: string | null;
+    desktopXlAvif: string | null;
+    mobilePlaceholder: string | null;
+    desktopPlaceholder: string | null;
+    leftEdgeColor: string | null;
+    rightEdgeColor: string | null;
   };
   export type ParsedUserAgent = {
     client: string;
@@ -1213,18 +1190,18 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-  export type AchievementSetAuthorTask = 'artwork';
   export type UnlockMode = 0 | 1;
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type AchievementSetType =
     | 'core'
     | 'bonus'
     | 'specialty'
     | 'exclusive'
     | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
+    | 'will_be_specialty';
   export type EventState = 'active' | 'concluded' | 'evergreen';
+  export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -1289,7 +1266,7 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
-  export type LeaderboardState = 'active' | 'disabled' | 'unpublished';
+  export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
   export type PlatformExecutionEnvironment =
     | 'desktop'
     | 'mobile'

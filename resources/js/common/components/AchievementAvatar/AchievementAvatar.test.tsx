@@ -67,7 +67,7 @@ describe('Component: AchievementAvatar', () => {
 
     expect(anchorEl).toHaveAttribute(
       'x-data',
-      "tooltipComponent($el, {dynamicType: 'achievement', dynamicId: '1', dynamicContext: 'undefined'})",
+      "tooltipComponent($el, {dynamicType: 'achievement', dynamicId: '1'})",
     );
     expect(anchorEl).toHaveAttribute('x-on:mouseover', 'showTooltip($event)');
     expect(anchorEl).toHaveAttribute('x-on:mouseleave', 'hideTooltip');

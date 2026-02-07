@@ -18,6 +18,7 @@ class EncryptCookies extends Middleware
         'theme', // color scheme
         'logo',
         'active_players_search',
+        'banner_state',
         'datatable_view_preference_all_games',
         'datatable_view_preference_generic_games',
         'datatable_view_preference_hub_games',

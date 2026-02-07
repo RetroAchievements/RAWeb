@@ -3,10 +3,9 @@
 use App\Community\Enums\UserRelationStatus;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
-use App\Mail\CommunityFriendMail;
 use App\Models\User;
 use App\Models\UserRelation;
-use Illuminate\Support\Facades\Mail;
+use App\Notifications\Community\CommunityFriendNotification;
 
 function changeFriendStatus(User $senderUser, User $targetUser, UserRelationStatus $newStatus): string
 {
@@ -47,8 +46,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, UserRelationStat
         case UserRelationStatus::Following:
             // Attempt to notify the target of the new follower.
             if ($newRelationship && BitSet($targetUser->preferences_bitfield, UserPreference::EmailOn_Followed)) {
-                // Notify the new friend of the request.
-                Mail::to($targetUser)->queue(new CommunityFriendMail($targetUser, $senderUser));
+                $targetUser->notify(new CommunityFriendNotification($senderUser));
             }
 
             return "user_follow";

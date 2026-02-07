@@ -9,8 +9,8 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
 
@@ -22,6 +22,7 @@ interface AwardTierItemProps {
 
 export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVirtualTier }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const earnersMessage = useEarnersMessage(!!eventAward.earnedAt, eventAward.badgeCount!);
 

@@ -12,7 +12,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Livewire\Volt\Component;
+use Livewire\Component;
 
 new class extends Component implements HasForms, HasTable, HasActions {
     use InteractsWithTable;
@@ -94,8 +94,7 @@ new class extends Component implements HasForms, HasTable, HasActions {
                     $join->on('tickets.ticketable_id', '=', 'newest_tickets.ticketable_id');
                 })
                 ->select(
-                    DB::raw('MIN(tickets.id) as id'),
-                    'games.id as ID',
+                    'games.id as id',
                     'games.title as Title',
                     'games.system_id as ConsoleID',
                     'games.image_icon_asset_path as ImageIcon',

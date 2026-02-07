@@ -24,7 +24,6 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
 
 class Hubs extends ManageRelatedRecords
 {
@@ -55,9 +54,14 @@ class Hubs extends ManageRelatedRecords
         return $user->can('manage', GameSet::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->hubs->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->hubs->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table

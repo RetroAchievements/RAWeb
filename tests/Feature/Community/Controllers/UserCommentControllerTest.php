@@ -33,7 +33,7 @@ class UserCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0, 'created_at' => now()->subWeeks(3)]);
         $this->actingAs($user);
 
         /** @var User $targetUser */

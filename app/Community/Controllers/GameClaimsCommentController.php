@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Concerns\IndexesComments;
-use App\Community\Data\CommentData;
-use App\Community\Data\GameClaimsCommentsPagePropsData;
-use App\Data\PaginatedData;
+use App\Community\Actions\BuildCommentPageAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Game;
@@ -17,31 +14,20 @@ use Inertia\Response as InertiaResponse;
 
 class GameClaimsCommentController extends CommentController
 {
-    use IndexesComments;
-
-    public function index(Game $game): InertiaResponse|RedirectResponse
+    public function index(Game $game, BuildCommentPageAction $action): InertiaResponse|RedirectResponse
     {
         $this->authorize('manage', [AchievementSetClaim::class]);
 
-        return $this->handleCommentIndex(
-            commentable: $game,
-            commentableType: 'claims',
-            policy: Comment::class,
-            routeName: 'game.claims.comment.index',
-            routeParam: 'game',
+        return $action->execute(
+            $game,
             view: 'game/[game]/claims/comments',
-            createPropsData: function ($game, $paginatedComments, $isSubscribed, $user) {
-                return new GameClaimsCommentsPagePropsData(
-                    game: GameData::fromGame($game)->include('badgeUrl', 'system'),
-                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                        $paginatedComments,
-                        total: $paginatedComments->total(),
-                        items: CommentData::fromCollection($paginatedComments->getCollection())
-                    ),
-                    isSubscribed: false, // not subscribable
-                    canComment: $user->can('manage', [AchievementSetClaim::class]),
-                );
-            }
+            policyClass: Comment::class,
+            entityKey: 'game',
+            createEntityData: fn ($g) => GameData::fromGame($g)->include('badgeUrl', 'system'),
+            routeName: 'game.claims.comment.index',
+            commentableType: 'claims',
+            isSubscribable: false,
+            canCommentCheck: fn ($user, $g) => $user?->can('manage', [AchievementSetClaim::class]) ?? false,
         );
     }
 }

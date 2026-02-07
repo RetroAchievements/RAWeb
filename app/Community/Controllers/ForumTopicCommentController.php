@@ -4,47 +4,25 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\ReplaceBackingGameShortcodesWithGameUrlsAction;
 use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
-use App\Community\Requests\ForumTopicCommentRequest;
 use App\Data\EditForumTopicCommentPagePropsData;
 use App\Data\ForumTopicCommentData;
-use App\Models\ForumTopic;
+use App\Http\Controller;
 use App\Models\ForumTopicComment;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-class ForumTopicCommentController extends CommentController
+class ForumTopicCommentController extends Controller
 {
-    /**
-     * There is no create form for creating a new comment.
-     * comments have to be created for something -> use sub resource create route, e.g.
-     * - user.comment.create (wall)
-     * - achievement-ticket.comment.create
-     * - forum-topic-comment.create
-     */
-    public function create(): void
+    public function show(ForumTopicComment $comment): RedirectResponse
     {
-    }
+        abort_if($comment->trashed() || $comment->forumTopic === null, 404);
 
-    public function store(
-        ForumTopicCommentRequest $request,
-        ForumTopic $topic,
-        AddCommentAction $addCommentAction,
-    ): RedirectResponse {
-        $this->authorize('create', [ForumTopicComment::class, $topic]);
+        $url = route('forum-topic.show', ['topic' => $comment->forumTopic, 'comment' => $comment->id]);
 
-        // TODO replace with ForumTopicComment, not a commentable morph anymore
-        // $comment = $addCommentAction->execute($request, $topic);
-
-        // if (!$comment) {
-        return back()->with('error', $this->resourceActionErrorMessage('topic.comment', 'create'));
-        // }
-
-        // return redirect($getUrlToCommentDestinationAction->execute($comment))
-        //     ->with('success', $this->resourceActionSuccessMessage('comment', 'create'));
+        return redirect("{$url}#{$comment->id}");
     }
 
     public function edit(ForumTopicComment $comment): InertiaResponse
@@ -66,26 +44,5 @@ class ForumTopicCommentController extends CommentController
         );
 
         return Inertia::render('forums/post/[comment]/edit', $props);
-    }
-
-    protected function update(): void
-    {
-    }
-
-    protected function destroy(ForumTopicComment $comment): RedirectResponse
-    {
-        $this->authorize('delete', $comment);
-
-        $return = $comment->commentable->canonicalUrl;
-
-        /*
-         * don't touch
-         */
-        $comment->timestamps = false;
-
-        $comment->delete();
-
-        return redirect($return)
-            ->with('success', $this->resourceActionSuccessMessage('comment', 'delete'));
     }
 }

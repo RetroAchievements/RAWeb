@@ -71,10 +71,8 @@ class PingAction extends BaseAuthenticatedApiAction
             }
         }
 
-        // if multiset is enabled, redirect the heartbeat to the root game.
-        if (config('feature.enable_multiset')) {
-            $this->game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $this->game, $this->user);
-        }
+        // redirect the heartbeat to the root game.
+        $this->game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $this->game, $this->user);
 
         PlayerSessionHeartbeat::dispatch($this->user, $this->game, $this->richPresenceMessage, $gameHash);
 

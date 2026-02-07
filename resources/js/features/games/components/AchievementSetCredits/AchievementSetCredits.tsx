@@ -54,12 +54,12 @@ export const AchievementSetCredits: FC = () => {
             <ArtworkCreditsDisplay
               achievementArtworkCredits={aggregateCredits.achievementsArtwork}
               badgeArtworkCredits={aggregateCredits.achievementSetArtwork}
+              bannerArtworkCredits={aggregateCredits.achievementSetBanner}
             />
           ) : null}
 
           {codingCreditUsers.length ? (
             <CodeCreditsDisplay
-              authorCredits={aggregateCredits.achievementsAuthors}
               logicCredits={aggregateCredits.achievementsLogic}
               maintainerCredits={aggregateCredits.achievementsMaintainers}
             />

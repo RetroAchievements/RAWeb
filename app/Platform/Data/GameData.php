@@ -46,7 +46,7 @@ class GameData extends Data
         public Lazy|SystemData $system,
         public Lazy|int $timesBeaten,
         public Lazy|int $timesBeatenHardcore,
-        public Lazy|GameBannerData $banner,
+        public Lazy|PageBannerData $banner,
 
         /** @var Lazy|array<GameClaimantData> */
         public Lazy|array $claimants,

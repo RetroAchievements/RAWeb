@@ -32,6 +32,7 @@ class AchievementSet extends BaseModel
     use PivotEventTrait;
     use SoftDeletes;
 
+    // TODO add leaderboards() relation through achievement_set_leaderboards
     protected $table = 'achievement_sets';
 
     protected $fillable = [
@@ -210,4 +211,34 @@ class AchievementSet extends BaseModel
     }
 
     // == scopes
+
+    // == helpers
+
+    /**
+     * Checks if this achievement set can be linked as a specialty type to the given game.
+     * Specialty sets can only be linked to one parent game, so this returns false
+     * if the set is already linked (as any non-core type) to a different game.
+     */
+    public function canBeLinkedAsSpecialtyTo(Game $game): bool
+    {
+        return $this->gameAchievementSets()
+            ->where('type', '!=', AchievementSetType::Core->value)
+            ->where('game_id', '!=', $game->id)
+            ->doesntExist();
+    }
+
+    /**
+     * Checks if this achievement set is already linked as a specialty type to any game
+     * other than the given game.
+     */
+    public function isLinkedAsSpecialtyElsewhere(Game $game): bool
+    {
+        return $this->gameAchievementSets()
+            ->whereIn('type', [
+                AchievementSetType::Specialty->value,
+                AchievementSetType::WillBeSpecialty->value,
+            ])
+            ->where('game_id', '!=', $game->id)
+            ->exists();
+    }
 }

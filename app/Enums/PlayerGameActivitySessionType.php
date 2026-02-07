@@ -14,6 +14,8 @@ enum PlayerGameActivitySessionType: string
 
     case TicketCreated = 'ticket-created';
 
+    case Reset = 'reset';
+
     public function label(): string
     {
         return match ($this) {
@@ -21,6 +23,7 @@ enum PlayerGameActivitySessionType: string
             self::Reconstructed => 'Reconstructed Session',
             self::ManualUnlock => 'Manual Unlock',
             self::TicketCreated => 'Ticket Created',
+            self::Reset => 'Reset',
         };
     }
 }

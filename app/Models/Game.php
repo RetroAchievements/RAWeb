@@ -12,8 +12,9 @@ use App\Platform\Actions\ComputeGameSearchTitlesAction;
 use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
-use App\Platform\Data\GameBannerData;
+use App\Platform\Data\PageBannerData;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
@@ -41,6 +42,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
@@ -48,7 +50,7 @@ use Spatie\Tags\HasTags;
 /**
  * @implements HasVersionedTrigger<Game>
  */
-class Game extends BaseModel implements HasMedia, HasVersionedTrigger
+class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -303,7 +305,6 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
         $this->addMediaCollection('banner')
             ->useDisk('s3')
-            ->singleFile()
             ->registerMediaConversions(function () {
                 $bannerSizes = ['mobile-sm', 'mobile-md', 'desktop-md', 'desktop-lg', 'desktop-xl'];
 
@@ -362,6 +363,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     // == search
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['system']);
+    }
 
     public function toSearchableArray(): array
     {
@@ -457,6 +467,13 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->image_icon_asset_path);
     }
 
+    public function getCurrentBannerMediaAttribute(): ?Media
+    {
+        return $this->getMedia('banner')
+            ->where('custom_properties.is_current', true)
+            ->first();
+    }
+
     public function getImageBoxArtUrlAttribute(): string
     {
         return media_asset($this->image_box_art_asset_path);
@@ -472,25 +489,27 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->image_ingame_asset_path);
     }
 
-    public function getBannerAttribute(): GameBannerData
+    public function getBannerAttribute(): PageBannerData
     {
-        $banner = $this->getFirstMedia('banner');
+        $currentBanner = $this->current_banner_media;
 
-        return new GameBannerData(
-            mobileSmWebp: $this->getFirstMediaUrl('banner', 'mobile-sm-webp') ?: null,
-            mobileSmAvif: $this->getFirstMediaUrl('banner', 'mobile-sm-avif') ?: null,
-            mobileMdWebp: $this->getFirstMediaUrl('banner', 'mobile-md-webp') ?: null,
-            mobileMdAvif: $this->getFirstMediaUrl('banner', 'mobile-md-avif') ?: null,
-            desktopMdWebp: $this->getFirstMediaUrl('banner', 'desktop-md-webp') ?: null,
-            desktopMdAvif: $this->getFirstMediaUrl('banner', 'desktop-md-avif') ?: null,
-            desktopLgWebp: $this->getFirstMediaUrl('banner', 'desktop-lg-webp') ?: null,
-            desktopLgAvif: $this->getFirstMediaUrl('banner', 'desktop-lg-avif') ?: null,
-            desktopXlWebp: $this->getFirstMediaUrl('banner', 'desktop-xl-webp') ?: null,
-            desktopXlAvif: $this->getFirstMediaUrl('banner', 'desktop-xl-avif') ?: null,
-            mobilePlaceholder: $this->getFirstMediaUrl('banner', 'mobile-placeholder') ?: null,
-            desktopPlaceholder: $this->getFirstMediaUrl('banner', 'desktop-placeholder') ?: null,
-            leftEdgeColor: $banner?->getCustomProperty('left_edge_color'),
-            rightEdgeColor: $banner?->getCustomProperty('right_edge_color'),
+        $url = fn (string $conversion): ?string => $currentBanner?->getUrl($conversion) ?: null;
+
+        return new PageBannerData(
+            mobileSmWebp: $url('mobile-sm-webp'),
+            mobileSmAvif: $url('mobile-sm-avif'),
+            mobileMdWebp: $url('mobile-md-webp'),
+            mobileMdAvif: $url('mobile-md-avif'),
+            desktopMdWebp: $url('desktop-md-webp'),
+            desktopMdAvif: $url('desktop-md-avif'),
+            desktopLgWebp: $url('desktop-lg-webp'),
+            desktopLgAvif: $url('desktop-lg-avif'),
+            desktopXlWebp: $url('desktop-xl-webp'),
+            desktopXlAvif: $url('desktop-xl-avif'),
+            mobilePlaceholder: $url('mobile-placeholder'),
+            desktopPlaceholder: $url('desktop-placeholder'),
+            leftEdgeColor: $currentBanner?->getCustomProperty('left_edge_color'),
+            rightEdgeColor: $currentBanner?->getCustomProperty('right_edge_color'),
         );
     }
 
@@ -885,7 +904,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             return $this->belongsToMany(Game::class, 'game_set_games')->whereRaw('1 = 0');
         }
 
-        return $gameSet->games()->with('system')->withTimestamps(['created_at', 'updated_at']);
+        return $gameSet->games()->with('system');
     }
 
     /**

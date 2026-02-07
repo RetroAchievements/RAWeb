@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Platform\Actions\WriteGameSetSortTitleAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\EventHubIdCacheService;
@@ -22,7 +23,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO drop image_asset_path, migrate to media
-class GameSet extends BaseModel
+class GameSet extends BaseModel implements HasPermalink
 {
     use LogsActivity {
         LogsActivity::activities as auditLog;
@@ -274,6 +275,15 @@ class GameSet extends BaseModel
         });
     }
 
+    // == constants
+
+    public const CentralHubId = 1;
+    public const GenreSubgenreHubId = 2;
+    public const SeriesHubId = 3;
+    public const CommunityEventsHubId = 4;
+    public const DeveloperEventsHubId = 5;
+    public const FreePointsHubId = 3796;
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions
@@ -309,14 +319,6 @@ class GameSet extends BaseModel
     {
         return $this->type === GameSetType::Hub;
     }
-
-    // == constants
-
-    public const CentralHubId = 1;
-    public const GenreSubgenreHubId = 2;
-    public const SeriesHubId = 3;
-    public const CommunityEventsHubId = 4;
-    public const DeveloperEventsHubId = 5;
 
     // == accessors
 
@@ -392,6 +394,14 @@ class GameSet extends BaseModel
     }
 
     /**
+     * @return BelongsToMany<GameSet, $this>
+     */
+    public function linkedHubs(): BelongsToMany
+    {
+        return $this->children();
+    }
+
+    /**
      * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
@@ -428,5 +438,23 @@ class GameSet extends BaseModel
     public function scopeCentralHub(Builder $query): Builder
     {
         return $query->whereId(self::CentralHubId);
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeWithParentId(Builder $query, int $parentId): Builder
+    {
+        return $query->whereHas('parents', fn ($q) => $q->where('parent_game_set_id', $parentId));
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeTitleContains(Builder $query, string $title): Builder
+    {
+        return $query->where('title', 'LIKE', '%' . $title . '%');
     }
 }

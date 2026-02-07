@@ -5,12 +5,12 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { ActivePlayers } from './ActivePlayers';
 import { CurrentlyOnline } from './CurrentlyOnline';
 import { FrontPageNews } from './FrontPageNews';
+import { GameActivity } from './GameActivity';
 import { GuestWelcomeCta } from './GuestWelcomeCta';
 import { NewSetsList } from './NewSetsList';
 import { NewUserCta } from './NewUserCta';
 import { RecentForumPosts } from './RecentForumPosts';
 import { SetsInProgressList } from './SetsInProgressList';
-import { TrendingRightNow } from './TrendingRightNow';
 import { UserCurrentGame } from './UserCurrentGame';
 
 export const HomeRoot: FC = memo(() => {
@@ -34,7 +34,7 @@ export const HomeRoot: FC = memo(() => {
       <ActivePlayers />
 
       <div className="mb-4">
-        <TrendingRightNow />
+        <GameActivity />
       </div>
 
       <CurrentlyOnline />

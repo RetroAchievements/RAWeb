@@ -1,6 +1,8 @@
 <?php
 
+use App\Actions\PurgeAvatarFromCloudflareCacheAction;
 use App\Connect\Actions\GetBadgeIdRangeAction;
+use App\Models\User;
 use App\Platform\Enums\ImageType;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Support\Facades\Storage;
@@ -237,9 +239,10 @@ function UploadAvatar(string $user, string $base64ImageData): void
         throw new Exception('Cannot copy image to destination');
     }
 
-    // touch user entry
-    $db = getMysqliConnection();
-    mysqli_query($db, "UPDATE users SET updated_at=NOW() WHERE username = '$user'");
+    // Touch the user entry.
+    User::where('username', $user)->update(['updated_at' => now()]);
+
+    (new PurgeAvatarFromCloudflareCacheAction())->execute($user);
 }
 
 function removeAvatar(string $user): void
@@ -248,6 +251,8 @@ function removeAvatar(string $user): void
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
     }
+
+    (new PurgeAvatarFromCloudflareCacheAction())->execute($user);
 }
 
 /**

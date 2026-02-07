@@ -45,8 +45,13 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function mapWebRoutes(): void
     {
+        // Order of operations matters. This must be before the wildcard and outside the web group.
+        Route::get('request/card.php', fn () => $this->handleRequest('request/card'));
+
         Route::middleware(['web'])->group(function () {
-            // prohibit GET form requests in request/
+            Route::post('request/card.php', fn () => $this->handleRequest('request/card'));
+
+            // Prohibit GET form requests in request/.
             Route::get('request/{path}.php', fn (string $path) => abort(405))->where('path', '(.*)');
             Route::post('request/{path}.php', fn (string $path) => $this->handleRequest('request/' . $path))->where('path', '(.*)');
         });

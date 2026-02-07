@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\WithPagination;
+use Throwable;
 
 abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implements Forms\Contracts\HasForms
 {
@@ -86,12 +87,19 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
      */
     protected function createFieldLabelMap(): Collection
     {
-        $form = static::getResource()::form(new Schemas\Schema($this));
+        try {
+            $schema = new Schemas\Schema($this);
+            $schema->model($this->record);
+            $form = static::getResource()::form($schema);
 
-        return collect($form->getFlatFields())
-            ->mapWithKeys(fn (Forms\Components\Field $field) => [
-                $field->getName() => $field->getLabel(),
-            ]);
+            return collect($form->getFlatFields())
+                ->mapWithKeys(fn (Forms\Components\Field $field) => [
+                    $field->getName() => $field->getLabel(),
+                ]);
+        } catch (Throwable) {
+            // return an empty collection and fall back to raw field names
+            return collect();
+        }
     }
 
     /**
@@ -127,6 +135,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getIsImageField(string $fieldName): bool
     {
         return in_array($fieldName, [
+            'banner',
             'image_name',
             'image_asset_path',
 
@@ -147,6 +156,10 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getImageUrl(string $fieldName, string $path): string
     {
         switch ($fieldName) {
+            case 'banner':
+                // Banners store the full URL directly, not a relative path.
+                return $path;
+
             case 'image_name':
                 return media_asset("/Badge/{$path}.png");
 
@@ -159,8 +172,15 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     {
         return match ($event) {
             'created' => 'success',
+            'creditCreated' => 'success',
+            'creditDeleted' => 'danger',
+            'creditUpdated' => 'info',
             'deleted' => 'danger',
             'linkedHash' => 'success',
+            'mergedFromLeaderboard' => 'warning',
+            'mergedIntoLeaderboard' => 'warning',
+            'multisetDisabled' => 'danger',
+            'multisetEnabled' => 'info',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
             'releaseCreated' => 'success',

@@ -47,6 +47,15 @@ class Comment extends BaseModel
 
     // == search
 
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['userWithTrashed']);
+    }
+
     public function toSearchableArray(): array
     {
         return [
@@ -179,6 +188,22 @@ class Comment extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
+    public function scopeAccountDeletionForUser(Builder $query, int $userId): Builder
+    {
+        return $query
+            ->automated()
+            ->where('commentable_type', CommentableType::UserModeration)
+            ->where('commentable_id', $userId)
+            ->where(function ($q) {
+                $q->where('body', 'like', '%requested account deletion%')
+                    ->orWhere('body', 'like', '%canceled account deletion%');
+            });
+    }
 
     /**
      * @param Builder<Comment> $query

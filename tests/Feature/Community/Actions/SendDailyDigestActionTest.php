@@ -27,7 +27,10 @@ class SendDailyDigestActionTest extends TestCase
         // Arrange
         Mail::fake();
 
-        $subscriber = User::factory()->create(['email' => 'test@example.com']);
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
         $commenter = User::factory()->create();
 
         $system = System::factory()->create();
@@ -66,12 +69,50 @@ class SendDailyDigestActionTest extends TestCase
         });
     }
 
+    public function testSkipsEmailForInactiveUsers(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $inactiveUser = User::factory()->create([
+            'email' => 'inactive@example.com',
+            'last_activity_at' => now()->subDays(91),
+        ]);
+        $commenter = User::factory()->create();
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+
+        $comment = Comment::factory()->create([
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
+            'user_id' => $commenter->id,
+        ]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $inactiveUser->id,
+            'subject_type' => SubscriptionSubjectType::Achievement,
+            'subject_id' => $achievement->id,
+            'first_update_id' => $comment->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($inactiveUser);
+
+        // Assert
+        Mail::assertNothingQueued();
+    }
+
     public function testSkipsNotificationWhenDeletedCommentHasNoSuccessors(): void
     {
         // Arrange
         Mail::fake();
 
-        $subscriber = User::factory()->create(['email' => 'test@example.com']);
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
         $commenter = User::factory()->create();
 
         $system = System::factory()->create();
@@ -99,6 +140,42 @@ class SendDailyDigestActionTest extends TestCase
 
         // Assert
         // ... no email should be sent since there are no valid comments ...
+        Mail::assertNothingQueued();
+    }
+
+    public function testExcludesServerCommentsFromDigest(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $serverUser = User::factory()->create(['id' => Comment::SYSTEM_USER_ID]);
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+
+        $serverComment = Comment::factory()->create([
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+        ]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::Achievement,
+            'subject_id' => $achievement->id,
+            'first_update_id' => $serverComment->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
         Mail::assertNothingQueued();
     }
 }

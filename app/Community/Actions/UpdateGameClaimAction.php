@@ -11,17 +11,16 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserGameListType;
-use App\Mail\SetAchievementsPublishedNotificationMail;
-use App\Mail\SetRevisionNotificationMail;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Notifications\Achievement\SetAchievementsPublishedNotification;
+use App\Notifications\Achievement\SetRevisionNotification;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 
 class UpdateGameClaimAction
 {
@@ -118,8 +117,7 @@ class UpdateGameClaimAction
 
             foreach ($userAwards as $userAward) {
                 if ($userAward->user && !$userAward->user->banned_at) {
-                    Mail::to($userAward->user)->queue(new SetRevisionNotificationMail(
-                        $userAward->user,
+                    $userAward->user->notify(new SetRevisionNotification(
                         $game,
                         $userAward->award_tier === 1
                     ));
@@ -133,10 +131,7 @@ class UpdateGameClaimAction
 
             foreach ($setRequests as $setRequest) {
                 if ($setRequest->user && !$setRequest->user->banned_at) {
-                    Mail::to($setRequest->user)->queue(new SetAchievementsPublishedNotificationMail(
-                        $setRequest->user,
-                        $game
-                    ));
+                    $setRequest->user->notify(new SetAchievementsPublishedNotification($game));
                 }
             }
         }

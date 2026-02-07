@@ -118,9 +118,8 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->addHardcoreUnlock($player2, $sourceAchievement2, $time3);
         $this->addHardcoreUnlock($player3, $sourceAchievement2, $time4);
 
-        $lastLogin = Carbon::parse('2020-01-02 03:04:05');
-        $player1->last_activity_at = $lastLogin;
-        $player1->save();
+        $player1->refresh();
+        $lastActivityBefore = $player1->last_activity_at;
 
         $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id])->legacyGame;
 
@@ -192,6 +191,6 @@ class CreateAchievementOfTheWeekTest extends TestCase
 
         // unlocking event achievements should not generate user activity
         $player1->refresh();
-        $this->assertEquals($lastLogin, $player1->last_activity_at);
+        $this->assertEquals($lastActivityBefore, $player1->last_activity_at);
     }
 }

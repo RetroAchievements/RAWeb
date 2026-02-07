@@ -28,9 +28,9 @@ describe('Component: ChangePasswordSectionCard', () => {
     });
 
     // ACT
-    await userEvent.type(screen.getByLabelText(/current password/i), '12345678');
-    await userEvent.type(screen.getByLabelText(/new password/i), '87654321');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), 'aaaaaaaa');
+    await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
+    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'mismatch-password');
 
     // ASSERT
     expect(putSpy).not.toHaveBeenCalled();
@@ -49,17 +49,17 @@ describe('Component: ChangePasswordSectionCard', () => {
     });
 
     // ACT
-    await userEvent.type(screen.getByLabelText(/current password/i), '12345678');
-    await userEvent.type(screen.getByLabelText(/new password/i), '87654321');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), '87654321');
+    await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
+    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'walrus-clarinet-sunset');
 
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.password.update'), {
-      currentPassword: '12345678',
-      newPassword: '87654321',
-      confirmPassword: '87654321',
+      currentPassword: 'giraffe-telescope-banana',
+      newPassword: 'walrus-clarinet-sunset',
+      confirmPassword: 'walrus-clarinet-sunset',
     });
   });
 
@@ -78,17 +78,17 @@ describe('Component: ChangePasswordSectionCard', () => {
     });
 
     // ACT
-    await userEvent.type(screen.getByLabelText(/current password/i), '12345678');
-    await userEvent.type(screen.getByLabelText(/new password/i), '87654321');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), '87654321');
+    await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
+    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'walrus-clarinet-sunset');
 
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.password.update'), {
-      currentPassword: '12345678',
-      newPassword: '87654321',
-      confirmPassword: '87654321',
+      currentPassword: 'giraffe-telescope-banana',
+      newPassword: 'walrus-clarinet-sunset',
+      confirmPassword: 'walrus-clarinet-sunset',
     });
 
     await waitFor(() => {

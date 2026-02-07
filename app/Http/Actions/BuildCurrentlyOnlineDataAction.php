@@ -5,74 +5,81 @@ declare(strict_types=1);
 namespace App\Http\Actions;
 
 use App\Data\CurrentlyOnlineData;
-use App\Models\User;
+use App\Models\UsersOnlineCount;
+use App\Platform\Services\UserLastActivityService;
 use Carbon\Carbon;
 
 class BuildCurrentlyOnlineDataAction
 {
-    private const LOG_PATH = 'logs/playersonline.log';
-    private const LOG_INTERVAL_MINUTES = 30;
-
     public function execute(): CurrentlyOnlineData
     {
-        $logFileLines = $this->readLogFile();
-
-        $allTimeHigh = $this->getAllTimeHigh($logFileLines);
+        $allTimeHighRecord = $this->getAllTimeHighRecord();
+        $numCurrentPlayers = $this->getNumCurrentPlayers();
 
         return new CurrentlyOnlineData(
-            logEntries: $this->getLogEntries($logFileLines),
-            numCurrentPlayers: $this->getNumCurrentPlayers(),
-            allTimeHighPlayers: $allTimeHigh[0],
-            allTimeHighDate: $allTimeHigh[1],
+            logEntries: $this->getLogEntries($numCurrentPlayers),
+            numCurrentPlayers: $numCurrentPlayers,
+            allTimeHighPlayers: $allTimeHighRecord?->online_count ?? 0,
+            allTimeHighDate: $allTimeHighRecord?->created_at,
         );
-    }
-
-    // Make sure we only read from the log file once per execution.
-    private function readLogFile(): array
-    {
-        $path = storage_path(self::LOG_PATH);
-        if (!file_exists($path)) {
-            return [];
-        }
-
-        return file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 
     private function getNumCurrentPlayers(): int
     {
-        return User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
+        return app(UserLastActivityService::class)->countOnline(withinMinutes: 10);
     }
 
-    private function getLogEntries(array $logFileLines): array
+    private function getLogEntries(int $numCurrentPlayers): array
     {
-        return array_values(
-            collect($logFileLines)
-                ->reverse()
-                ->take(48)
-                ->map(fn ($line) => (int) $line)
-                ->values()
-                ->reverse()
-                ->pad(48, 0)
-                ->all()
-        );
-    }
+        $now = Carbon::now();
 
-    private function getAllTimeHigh(array $logFileLines): array
-    {
-        if (empty($logFileLines)) {
-            return [0, null];
+        $records = UsersOnlineCount::query()
+            ->where('created_at', '>=', $now->copy()->subHours(24))
+            ->orderBy('created_at')
+            ->get();
+
+        // Initialize 48 slots with zeroes (slot 0 = 24h ago, slot 47 = now).
+        $slots = array_fill(0, 48, 0);
+
+        // Place each record in its appropriate slot based on its timestamp.
+        // Snap times to 30-minute boundaries to handle cron jitter.
+        $snappedNow = $now->copy()
+            ->minute($now->minute < 30 ? 0 : 30)
+            ->second(0);
+
+        $hasCurrentIntervalRecord = false;
+        foreach ($records as $record) {
+            $snappedTime = $record->created_at->copy()
+                ->minute($record->created_at->minute < 30 ? 0 : 30)
+                ->second(0);
+
+            $minutesAgo = $snappedTime->diffInMinutes($snappedNow);
+            $slotIndex = 47 - (int) ($minutesAgo / 30);
+
+            if ($slotIndex >= 0 && $slotIndex < 48) {
+                $slots[$slotIndex] = $record->online_count;
+
+                if ($slotIndex === 47) {
+                    $hasCurrentIntervalRecord = true;
+                }
+            }
         }
 
-        $maxCount = collect($logFileLines)->max();
-        $maxIndex = collect($logFileLines)->search($maxCount);
+        // If no record exists for the current interval, use the real-time
+        // player count to avoid showing a misleading 0. This resolves a race
+        // condition where the front-end expects a record written at exact timestamps,
+        // but the back-end may take a few moments to actually write it.
+        if (!$hasCurrentIntervalRecord) {
+            $slots[47] = $numCurrentPlayers;
+        }
 
-        $now = Carbon::now();
-        $lastLogTime = $now->minute >= self::LOG_INTERVAL_MINUTES
-            ? $now->copy()->startOfHour()->addMinutes(self::LOG_INTERVAL_MINUTES)
-            : $now->copy()->startOfHour();
+        return $slots;
+    }
 
-        $minutesAgo = (count($logFileLines) - 1 - $maxIndex) * self::LOG_INTERVAL_MINUTES;
-
-        return [(int) $maxCount, $lastLogTime->copy()->subMinutes($minutesAgo)];
+    private function getAllTimeHighRecord(): ?UsersOnlineCount
+    {
+        return UsersOnlineCount::query()
+            ->orderByDesc('online_count')
+            ->first();
     }
 }

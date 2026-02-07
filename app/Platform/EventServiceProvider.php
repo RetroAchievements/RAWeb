@@ -38,12 +38,16 @@ use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
+use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Platform\Observers\MediaObserver;
 use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -62,6 +66,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            EnsureTriggerVersionedOnPromotion::class,
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
@@ -132,6 +137,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerRankedStatusChanged::class => [
             DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
+            UpdateAuthorYieldUnlocksForUser::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
             DispatchUpdatePlayerPointsStatsJob::class,
@@ -146,5 +152,6 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Media::observe(MediaObserver::class);
     }
 }

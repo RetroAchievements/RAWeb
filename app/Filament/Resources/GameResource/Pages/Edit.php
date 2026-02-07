@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
@@ -37,9 +38,24 @@ class Edit extends EditRecord
         return 'Edit';
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewOnSiteAction::make('view-on-site'),
+        ];
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $this->authorizeFields($this->record, $data);
+
+        // Normalize empty strings to null to prevent spurious activity log entries.
+        $nullableTextFields = ['developer', 'publisher', 'genre', 'legacy_guide_url'];
+        foreach ($nullableTextFields as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === '') {
+                $data[$field] = null;
+            }
+        }
 
         $action = new ApplyUploadedImageToDataAction();
 
@@ -76,7 +92,8 @@ class Edit extends EditRecord
 
         /** @var Game $game */
         $game = $this->record;
-        $banner = $game->getFirstMedia('banner');
+
+        $banner = $game->current_banner_media;
 
         // Extract and store edge colors.
         if ($banner && !$banner->getCustomProperty('left_edge_color')) {

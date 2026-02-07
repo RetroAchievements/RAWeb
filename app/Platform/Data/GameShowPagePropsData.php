@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\GameBannerPreference;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Collection;
@@ -75,10 +76,12 @@ class GameShowPagePropsData extends Data
         /** @var Collection<int, PlayerAchievementSetData> */
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.PlayerAchievementSet>')]
         public Collection $playerAchievementSets,
+        public GameBannerPreference $bannerPreference,
         /** @var GameAchievementSetData[] */
         public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
         public ?GameSetRequestData $setRequestData,
+        public ?PageBannerData $banner,
         public ?int $targetAchievementSetId,
         public ?int $targetAchievementSetPlayersTotal,
         public ?int $targetAchievementSetPlayersHardcore,

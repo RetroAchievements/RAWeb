@@ -10,21 +10,26 @@ import {
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { cn } from '@/common/utils/cn';
 
+import { deduplicateUserCredits } from '../deduplicateUserCredits';
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
 interface ArtworkCreditsDisplayProps {
   achievementArtworkCredits: App.Platform.Data.UserCredits[];
   badgeArtworkCredits: App.Platform.Data.UserCredits[];
+  bannerArtworkCredits: App.Platform.Data.UserCredits[];
 }
 
 export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
   achievementArtworkCredits,
   badgeArtworkCredits,
+  bannerArtworkCredits,
 }) => {
-  const artCreditUsers = [...badgeArtworkCredits, ...achievementArtworkCredits].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
+  const artCreditUsers = deduplicateUserCredits([
+    ...badgeArtworkCredits,
+    ...bannerArtworkCredits,
+    ...achievementArtworkCredits,
+  ]);
 
   return (
     <div
@@ -36,6 +41,7 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
       <ArtCreditIcon
         achievementArtworkCredits={achievementArtworkCredits}
         badgeArtworkCredits={badgeArtworkCredits}
+        bannerArtworkCredits={bannerArtworkCredits}
       />
 
       <UserAvatarStack
@@ -51,11 +57,13 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
 interface ArtCreditIconProps {
   achievementArtworkCredits: App.Platform.Data.UserCredits[];
   badgeArtworkCredits: App.Platform.Data.UserCredits[];
+  bannerArtworkCredits: App.Platform.Data.UserCredits[];
 }
 
 const ArtCreditIcon: FC<ArtCreditIconProps> = ({
   achievementArtworkCredits,
   badgeArtworkCredits,
+  bannerArtworkCredits,
 }) => {
   const { t } = useTranslation();
 
@@ -72,6 +80,18 @@ const ArtCreditIcon: FC<ArtCreditIconProps> = ({
               {badgeArtworkCredits.map((credit) => (
                 <TooltipCreditRow
                   key={`tooltip-badge-artwork-credit-${credit.displayName}`}
+                  credit={credit}
+                  showCreditDate={true}
+                />
+              ))}
+            </TooltipCreditsSection>
+          ) : null}
+
+          {bannerArtworkCredits.length ? (
+            <TooltipCreditsSection headingLabel={t('Banner Artwork')}>
+              {bannerArtworkCredits.map((credit) => (
+                <TooltipCreditRow
+                  key={`tooltip-banner-artwork-credit-${credit.displayName}`}
                   credit={credit}
                   showCreditDate={true}
                 />

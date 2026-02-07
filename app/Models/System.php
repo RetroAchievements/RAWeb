@@ -105,6 +105,8 @@ class System extends BaseModel implements HasMedia
     public const Events = 101;
     public const Standalones = 102;
 
+    // == helpers
+
     public static function getHomebrewSystems(): array
     {
         return [System::Arduboy, System::WASM4, System::Uzebox];
@@ -127,7 +129,7 @@ class System extends BaseModel implements HasMedia
         return in_array($systemId, self::getHomebrewSystems());
     }
 
-    // audit activity log
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {

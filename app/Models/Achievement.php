@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\CommentableType;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
@@ -22,11 +23,13 @@ use App\Platform\Events\AchievementUnpromoted;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,13 +42,15 @@ use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 // TODO implements HasComments
 
 /**
  * @implements HasVersionedTrigger<Achievement>
  */
-class Achievement extends BaseModel implements HasVersionedTrigger
+class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -57,6 +62,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
+    use HasRelationships;
 
     use Searchable;
     use SoftDeletes;
@@ -291,7 +297,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function getRelatedGameIds(): array
     {
-        $achievementSet = $this->achievementSets()->first();
+        $achievementSet = $this->achievementSet;
         if (!$achievementSet) {
             return [$this->game_id];
         }
@@ -311,6 +317,19 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
         // For core and bonus sets, include all related games.
         return $links->pluck('game_id')->unique()->values()->toArray();
+    }
+
+    /**
+     * Normalize smart quotes/apostrophes to ASCII equivalents.
+     * Mobile devices often insert these characters which cause rendering issues in emulators.
+     */
+    private function normalizeSmartQuotes(string $value): string
+    {
+        return str_replace(
+            ["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}"],
+            ["'", "'", '"', '"'],
+            $value
+        );
     }
 
     // == accessors
@@ -380,6 +399,26 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     // == mutators
 
+    /**
+     * @return Attribute<string, string>
+     */
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => $this->normalizeSmartQuotes($value),
+        );
+    }
+
+    /**
+     * @return Attribute<string, string>
+     */
+    protected function description(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => $this->normalizeSmartQuotes($value),
+        );
+    }
+
     // == relations
 
     /**
@@ -391,16 +430,18 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<AchievementSet, $this>
+     * @return HasOneThrough<AchievementSet, AchievementSetAchievement, $this>
      */
-    public function achievementSets(): BelongsToMany
+    public function achievementSet(): HasOneThrough
     {
-        return $this->belongsToMany(
+        return $this->hasOneThrough(
             AchievementSet::class,
-            'achievement_set_achievements',
+            AchievementSetAchievement::class,
             'achievement_id',
+            'id',
+            'id',
             'achievement_set_id'
-        )->withPivot('order_column', 'achievement_group_id', 'created_at', 'updated_at');
+        );
     }
 
     /**
@@ -415,10 +456,39 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     /**
      * @return BelongsTo<Game, $this>
+     *
+     * @deprecated use games(), which goes through achievement sets. achievements.game_id will eventually be dropped.
      */
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'game_id');
+    }
+
+    /**
+     * Get all base games that include this achievement through achievement sets.
+     * Excludes "subset backing games" by filtering out Core-type links when non-Core links exist.
+     *
+     * @return HasManyDeep<Game, $this>
+     */
+    public function games(): HasManyDeep
+    {
+        return $this->hasManyDeep(
+            Game::class,
+            [AchievementSetAchievement::class, AchievementSet::class, GameAchievementSet::class],
+            ['achievement_id', 'id', 'achievement_set_id', 'id'],
+            ['id', 'achievement_set_id', 'id', 'game_id']
+        )->where(function ($query) {
+            $query->where('game_achievement_sets.type', '!=', AchievementSetType::Core)
+                ->orWhere(function ($q) {
+                    $q->where('game_achievement_sets.type', AchievementSetType::Core)
+                        ->whereNotExists(function ($sub) {
+                            $sub->selectRaw('1')
+                                ->from('game_achievement_sets as gas2')
+                                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                                ->where('gas2.type', '!=', AchievementSetType::Core);
+                        });
+                });
+        });
     }
 
     /**
@@ -611,6 +681,56 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         $query->addSelect('player_achievements.unlocked_at');
         $query->addSelect('player_achievements.unlocked_hardcore_at');
         $query->addSelect(DB::raw('player_achievements.id as player_achievement_id'));
+
+        return $query;
+    }
+
+    /**
+     * achievements -> achievement_set_achievements -> game_achievement_sets
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeForGame(Builder $query, int $gameId): Builder
+    {
+        return $query->whereExists(function ($subQuery) use ($gameId) {
+            $subQuery->select(DB::raw(1))
+                ->from('achievement_set_achievements')
+                ->join('game_achievement_sets', 'achievement_set_achievements.achievement_set_id', '=', 'game_achievement_sets.achievement_set_id')
+                ->whereColumn('achievement_set_achievements.achievement_id', 'achievements.id')
+                ->where('game_achievement_sets.game_id', $gameId);
+        });
+    }
+
+    /**
+     * Filter by achievement state: 'promoted', 'unpromoted', 'all', or comma-separated values.
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeWithState(Builder $query, string $value): Builder
+    {
+        if ($value === 'all') {
+            return $query;
+        }
+
+        $states = array_map('trim', explode(',', $value));
+
+        $shouldIncludePromoted = in_array('promoted', $states, true);
+        $shouldIncludeUnpromoted = in_array('unpromoted', $states, true);
+
+        // Including both states is equivalent to no filter.
+        if ($shouldIncludePromoted && $shouldIncludeUnpromoted) {
+            return $query;
+        }
+
+        if ($shouldIncludePromoted) {
+            return $query->where('is_promoted', true);
+        }
+
+        if ($shouldIncludeUnpromoted) {
+            return $query->where('is_promoted', false);
+        }
 
         return $query;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Alerts\Listeners;
 
+use App\Models\GameSet;
 use App\Models\PlayerGame;
 use App\Platform\Events\PlayerGameBeaten;
 use App\Support\Alerts\SuspiciousBeatTimeAlert;
@@ -34,6 +35,16 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 
         $game = $event->game;
 
+        if ($event->user->is_unranked) {
+            return;
+        }
+
+        // Final Fantasy XI supports retroactive unlocks.
+        // We use a regex so we don't match against XII or XIII.
+        if (preg_match('/^Final Fantasy XI($|[:\s\-])/', $game->title)) {
+            return;
+        }
+
         // Bail if we don't have a sufficient sample size.
         if ($game->times_beaten_hardcore < 20) {
             return;
@@ -47,6 +58,11 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 
         // Flag if the player beat the game in less than 5% of the median time.
         if ($playerTime >= $medianTime / 20) {
+            return;
+        }
+
+        // It's not unusual for games in the Free Points hub to be beaten quickly.
+        if ($game->hubs()->where('game_sets.id', GameSet::FreePointsHubId)->exists()) {
             return;
         }
 

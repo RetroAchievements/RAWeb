@@ -43,7 +43,6 @@ use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
 use App\Community\Controllers\UserGameChecklistController;
 use App\Community\Controllers\UserGameListController;
-use App\Community\Controllers\UserModerationCommentController;
 use App\Community\Controllers\UserSetRequestListController;
 use App\Community\Controllers\UserSettingsController;
 use App\Platform\Controllers\GameController;
@@ -156,6 +155,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('community/patreon-supporters', [PatreonSupportersController::class, 'index'])->name('patreon-supporter.index');
 
+                    Route::get('forums/post/{comment}', [ForumTopicCommentController::class, 'show'])->name('forum-topic-comment.show');
                     Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
 
                     Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');
@@ -170,7 +170,6 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('user/{user}/comments', [UserCommentController::class, 'index'])->name('user.comment.index');
                     Route::get('user/{user}/developer/feed', [AchievementAuthorController::class, 'feed'])->name('user.achievement-author.feed');
-                    Route::get('user/{user}/moderation-comments', [UserModerationCommentController::class, 'index'])->name('user.moderation-comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 

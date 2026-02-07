@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
+use App\Filament\Resources\AchievementResource\Concerns\HasAchievementSetNavigation;
 use App\Models\Achievement;
 use App\Models\Trigger;
 use App\Models\User;
@@ -16,9 +17,11 @@ use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class Logic extends Page
 {
+    use HasAchievementSetNavigation;
     use InteractsWithRecord;
 
     protected static string $resource = AchievementResource::class;
@@ -57,6 +60,21 @@ class Logic extends Page
             route('filament.admin.resources.achievements.view', $achievement) => $achievement->title,
             'Logic',
         ];
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        $navData = $this->getAchievementSetNavigationData();
+        if (!$navData) {
+            return null;
+        }
+
+        return new HtmlString(
+            view('filament.resources.achievement-resource.partials.achievement-navigator', [
+                'navData' => $navData,
+                'pageType' => 'logic',
+            ])->render()
+        );
     }
 
     public static function canAccess(array $parameters = []): bool
@@ -143,16 +161,18 @@ class Logic extends Page
      *
      * @return array{diff: array<int, array<string, mixed>>}
      */
-    public function loadVersionDiff(?int $version): array
+    public function loadVersionDiff(int|string|null $version): array
     {
         $triggers = $this->getOrderedTriggerVersions();
 
-        $currentTrigger = $triggers->firstWhere('version', $version);
+        $dbVersion = $version === 'draft' ? null : $version;
+
+        $currentTrigger = $triggers->firstWhere('version', $dbVersion);
         if (!$currentTrigger) {
             return ['diff' => []];
         }
 
-        $currentIndex = $triggers->search(fn ($t) => $t->version === $version);
+        $currentIndex = $triggers->search(fn ($t) => $t->version === $dbVersion);
 
         $decoderService = new TriggerDecoderService();
         $diffService = new TriggerDiffService();
@@ -202,19 +222,22 @@ class Logic extends Page
         $decodedTriggers = [];
 
         foreach ($triggers as $index => $trigger) {
-            $currentGroups = $decodedTriggers[$trigger->version]
+            $versionKey = $trigger->version ?? 'draft';
+
+            $currentGroups = $decodedTriggers[$versionKey]
                 ??= $decoderService->decode($trigger->conditions ?? '');
 
             $isOldestVersion = ($index === $triggers->count() - 1);
             if ($isOldestVersion) {
-                $summaries[$trigger->version] = 'Initial version';
+                $summaries[$versionKey] = 'Initial version';
             } else {
                 $previousTrigger = $triggers[$index + 1];
-                $previousGroups = $decodedTriggers[$previousTrigger->version]
+                $previousKey = $previousTrigger->version ?? 'draft';
+                $previousGroups = $decodedTriggers[$previousKey]
                     ??= $decoderService->decode($previousTrigger->conditions ?? '');
 
                 $summaryData = $diffService->computeSummary($previousGroups, $currentGroups);
-                $summaries[$trigger->version] = $diffService->formatSummary($summaryData);
+                $summaries[$versionKey] = $diffService->formatSummary($summaryData);
             }
         }
 
@@ -235,14 +258,17 @@ class Logic extends Page
         $diffs = [];
 
         foreach ($triggers as $index => $trigger) {
-            $currentGroups = $decodedTriggers[$trigger->version];
+            $versionKey = $trigger->version ?? 'draft';
+
+            $currentGroups = $decodedTriggers[$versionKey];
 
             $isOldestVersion = ($index === $triggers->count() - 1);
+            $previousKey = $isOldestVersion ? null : ($triggers[$index + 1]->version ?? 'draft');
             $previousGroups = $isOldestVersion
                 ? []
-                : $decodedTriggers[$triggers[$index + 1]->version];
+                : $decodedTriggers[$previousKey];
 
-            $diffs[$trigger->version] = $diffService->computeDiff($previousGroups, $currentGroups);
+            $diffs[$versionKey] = $diffService->computeDiff($previousGroups, $currentGroups);
         }
 
         return $diffs;

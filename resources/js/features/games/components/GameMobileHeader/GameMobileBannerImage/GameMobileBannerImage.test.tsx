@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/no-container */
 
 import { act, render, screen } from '@/test';
-import { createGame, createGameBanner, createSystem } from '@/test/factories';
+import { createGame, createPageBanner, createSystem } from '@/test/factories';
 
 import { GameMobileBannerImage } from './GameMobileBannerImage';
 
@@ -20,15 +20,15 @@ describe('Component: GameMobileBannerImage', () => {
 
   it('given the game has a banner, renders the picture element', () => {
     // ARRANGE
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+    });
     const game = createGame({
-      banner: createGameBanner({
-        mobileSmWebp: 'https://example.com/banner.webp',
-      }),
       imageIngameUrl: 'https://example.com/ingame.jpg',
     });
 
     const { container } = render(<GameMobileBannerImage />, {
-      pageProps: { game },
+      pageProps: { banner, game },
     });
 
     // ASSERT
@@ -38,15 +38,14 @@ describe('Component: GameMobileBannerImage', () => {
 
   it('given the game has a banner, renders the blurred placeholder image', () => {
     // ARRANGE
-    const game = createGame({
-      banner: createGameBanner({
-        mobileSmWebp: 'https://example.com/banner.webp',
-        mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
-      }),
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+      mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
     });
+    const game = createGame();
 
     render(<GameMobileBannerImage />, {
-      pageProps: { game },
+      pageProps: { banner, game },
     });
 
     // ASSERT
@@ -120,18 +119,18 @@ describe('Component: GameMobileBannerImage', () => {
   it('given the game is for Nintendo DS and a banner is used, applies special positioning to the fallback img element', () => {
     // ARRANGE
     const system = createSystem({ id: 18 }); // !! Nintendo DS system id
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+      mobilePlaceholder: null,
+      mobileSmAvif: null,
+    });
     const game = createGame({
       system,
-      banner: createGameBanner({
-        mobileSmWebp: 'https://example.com/banner.webp',
-        mobilePlaceholder: null,
-        mobileSmAvif: null,
-      }),
       imageIngameUrl: 'https://example.com/ingame.jpg',
     });
 
     const { container } = render(<GameMobileBannerImage />, {
-      pageProps: { game },
+      pageProps: { banner, game },
     });
 
     // ASSERT
@@ -143,16 +142,16 @@ describe('Component: GameMobileBannerImage', () => {
 
   it('given the image loads, the placeholder becomes invisible and the full image becomes visible', () => {
     // ARRANGE
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+      mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
+    });
     const game = createGame({
-      banner: createGameBanner({
-        mobileSmWebp: 'https://example.com/banner.webp',
-        mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
-      }),
       imageIngameUrl: 'https://example.com/ingame.jpg',
     });
 
     const { container } = render(<GameMobileBannerImage />, {
-      pageProps: { game },
+      pageProps: { banner, game },
     });
 
     const placeholderImg = screen.getByAltText(/game banner/i);
@@ -178,11 +177,11 @@ describe('Component: GameMobileBannerImage', () => {
 
   it('given the img element is already complete when ref is attached, sets loaded state immediately', () => {
     // ARRANGE
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+      mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
+    });
     const game = createGame({
-      banner: createGameBanner({
-        mobileSmWebp: 'https://example.com/banner.webp',
-        mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
-      }),
       imageIngameUrl: 'https://example.com/ingame.jpg',
     });
 
@@ -193,7 +192,7 @@ describe('Component: GameMobileBannerImage', () => {
     });
 
     const { container } = render(<GameMobileBannerImage />, {
-      pageProps: { game },
+      pageProps: { banner, game },
     });
 
     // ASSERT
@@ -205,5 +204,27 @@ describe('Component: GameMobileBannerImage', () => {
 
     // ... don't cause a memory leak in vitest ...
     delete (HTMLImageElement.prototype as any).complete;
+  });
+
+  it('given mobileSmAvif is null, renders the picture with only webp srcSet', () => {
+    // ARRANGE
+    const banner = createPageBanner({
+      mobileSmWebp: 'https://example.com/banner.webp',
+      mobileSmAvif: null, // !! avif is null but webp is set
+      mobilePlaceholder: 'data:image/jpeg;base64,placeholder',
+    });
+    const game = createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' });
+
+    const { container } = render(<GameMobileBannerImage />, {
+      pageProps: { banner, game },
+    });
+
+    // ASSERT
+    const picture = container.querySelector('picture');
+    expect(picture).toBeInTheDocument();
+
+    const sources = picture?.querySelectorAll('source');
+    expect(sources?.[0]).not.toHaveAttribute('srcset'); // avif source has no srcset
+    expect(sources?.[1]).toHaveAttribute('srcset', 'https://example.com/banner.webp'); // webp has srcset
   });
 });

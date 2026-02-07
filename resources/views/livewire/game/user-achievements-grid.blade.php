@@ -3,32 +3,34 @@
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Services\GameUserAchievementsGridService;
-use Illuminate\Support\Facades\Blade;
+use Livewire\Attributes\Locked;
+use Livewire\Component;
 
-use function Livewire\Volt\{mount, placeholder, state};
+new class extends Component {
+    public ?int $achievementCount = null;
 
-// == props
-state(['achievementCount']);
-state(['gameId'])->locked(); // number
-state(['targetUsername'])->locked(); // string
+    #[Locked]
+    public ?int $gameId = null;
 
-// == state
-state(['gameAchievementsWithProgress' => []]);
-state(['isLoading' => true]);
+    #[Locked]
+    public ?string $targetUsername = null;
 
-// == actions
-$loadContent = function() {
-    $game = Game::find($this->gameId);
-    $user = User::whereName($this->targetUsername)->first();
+    public array $gameAchievementsWithProgress = [];
 
-    $service = new GameUserAchievementsGridService();
-    $this->gameAchievementsWithProgress = $service->getGameAchievementsWithUserProgress(
-        $game,
-        $user,
-    );
+    public bool $isLoading = true;
+
+    public function loadContent(): void
+    {
+        $game = Game::find($this->gameId);
+        $user = User::whereName($this->targetUsername)->first();
+
+        $service = new GameUserAchievementsGridService();
+        $this->gameAchievementsWithProgress = $service->getGameAchievementsWithUserProgress(
+            $game,
+            $user,
+        );
+    }
 };
-
-// == lifecycle
 
 ?>
 

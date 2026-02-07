@@ -112,7 +112,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const visibleLeaderboards = sortedLeaderboards.filter(
     (leaderboard) =>
       leaderboard.state === 'active' ||
-      (!isViewingPublishedAchievements && leaderboard.state === 'unpublished'),
+      (!isViewingPublishedAchievements && leaderboard.state === 'unpromoted'),
   );
   const disabledLeaderboards = sortedLeaderboards.filter(
     (leaderboard) => leaderboard.state === 'disabled',
@@ -258,7 +258,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
             {currentListView === 'leaderboards' ? (
               <>
-                {/* Active/Unpublished Leaderboards */}
+                {/* Active/Unpromoted Leaderboards */}
                 {visibleLeaderboards.map((leaderboard, index) => (
                   <LeaderboardsListItem
                     key={`lbd-${leaderboard.id}`}

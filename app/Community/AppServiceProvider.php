@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Commands\BackfillModerationActions;
-use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\ProcessExpiredMutes;
@@ -17,6 +16,7 @@ use App\Community\Components\UserCard;
 use App\Community\Components\UserProfileMeta;
 use App\Community\Components\UserProgressionStatus;
 use App\Community\Components\UserRecentlyPlayed;
+use App\Console\Commands\UpdateGameActivitySnapshots;
 use App\Models\AchievementComment;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
@@ -47,11 +47,11 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 BackfillModerationActions::class,
-                DeleteOldUserActivities::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
                 ProcessExpiredMutes::class,
                 SendDailyDigest::class,
+                UpdateGameActivitySnapshots::class,
             ]);
         }
 
@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(DeleteOldUserActivities::class)->daily();
+            $schedule->command(UpdateGameActivitySnapshots::class)->everyFifteenMinutes()->withoutOverlapping();
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
         });

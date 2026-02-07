@@ -9,6 +9,7 @@ use App\Filament\Resources\GameHashResource\Pages;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\System;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Schema;
@@ -24,9 +25,7 @@ class GameHashResource extends Resource
     protected static ?string $model = GameHash::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 40;
 
     public static function infolist(Schema $schema): Schema
@@ -119,6 +118,30 @@ class GameHashResource extends Resource
                         } elseif ($value === 'no') {
                             $query->whereNull('compatibility_tester_id');
                         }
+                    }),
+
+                Tables\Filters\SelectFilter::make('linked_by')
+                    ->label('Linked By')
+                    ->searchable()
+                    ->getSearchResultsUsing(function (string $search): array {
+                        $userIdsWithHashes = GameHash::distinct()->pluck('user_id');
+
+                        return User::search($search)
+                            ->take(50)
+                            ->get()
+                            ->filter(fn (User $user) => $userIdsWithHashes->contains($user->id))
+                            ->pluck('display_name', 'display_name')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!$data['value']) {
+                            return $query;
+                        }
+
+                        return $query->whereHas(
+                            'user',
+                            fn (Builder $query) => $query->where('display_name', $data['value'])
+                        );
                     }),
             ])
             ->recordActions([

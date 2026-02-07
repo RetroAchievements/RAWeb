@@ -33,6 +33,7 @@ use \Illuminate\Support\Js;
 
                     $releaseIdentifier = data_get($properties, 'release_identifier');
                     $hashIdentifier = data_get($properties, 'hash_identifier');
+                    $creditIdentifier = data_get($properties, 'credit_identifier');
 
                     // Pre-filter to only the fields that actually have changes.
                     $displayableFields = collect(data_get($changes, 'attributes', []))->filter(function ($value, $field) use ($changes) {
@@ -48,7 +49,7 @@ use \Illuminate\Support\Js;
                 @if ($releaseIdentifier)
                     <div @class([
                         $identifierBaseClasses,
-                        'border-b dark:border-gray-700' => $hashIdentifier || $displayableFields->isNotEmpty(),
+                        'border-b dark:border-gray-700' => $hashIdentifier || $creditIdentifier || $displayableFields->isNotEmpty(),
                     ])>
                         <strong>Release:</strong> {{ $releaseIdentifier }}
                     </div>
@@ -57,9 +58,18 @@ use \Illuminate\Support\Js;
                 @if ($hashIdentifier)
                     <div @class([
                         $identifierBaseClasses,
-                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                        'border-b dark:border-gray-700' => $creditIdentifier || $displayableFields->isNotEmpty(),
                     ])>
                         <strong>Hash:</strong> <code class="font-mono text-xs">{{ $hashIdentifier }}</code>
+                    </div>
+                @endif
+
+                @if ($creditIdentifier)
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                    ])>
+                        <strong>Credit:</strong> {{ $creditIdentifier }}
                     </div>
                 @endif
 
@@ -86,7 +96,7 @@ use \Illuminate\Support\Js;
                             @php
                                 $oldValue = data_get($changes, "old.{$field}");
                                 $newValue = data_get($changes, "attributes.{$field}");
-                                $isRelationship = method_exists($this->record, $field);
+                                $isRelationship = method_exists($this->record, $field) && (new \ReflectionMethod($this->record, $field))->isPublic();
                                 $newRelatedModels = collect();
                                 $oldRelatedModels = collect();
                                 if ($isRelationship) {
@@ -115,7 +125,11 @@ use \Illuminate\Support\Js;
                                             </div>
                                         @endforeach
                                     @elseif ($oldValue && $this->getIsImageField($field))
-                                        <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
+                                        @if (str_starts_with($oldValue, 'http://') || str_starts_with($oldValue, 'https://'))
+                                            <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
+                                        @else
+                                            {{ $oldValue }}
+                                        @endif
                                     @elseif (is_array($oldValue))
                                         <pre class="text-xs dark:text-neutral-200">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
@@ -137,8 +151,12 @@ use \Illuminate\Support\Js;
                                                 {{ collect($newValue)->where('id', $relatedModel->name)->get('attributes') }}
                                             </div>
                                         @endforeach
-                                    @elseif ($this->getIsImageField($field))
-                                        <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
+                                    @elseif ($newValue && $this->getIsImageField($field))
+                                        @if (str_starts_with($newValue, 'http://') || str_starts_with($newValue, 'https://'))
+                                            <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
+                                        @else
+                                            {{ $newValue }}
+                                        @endif
                                     @elseif (is_array($newValue))
                                         <pre class="text-xs dark:text-neutral-200">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else

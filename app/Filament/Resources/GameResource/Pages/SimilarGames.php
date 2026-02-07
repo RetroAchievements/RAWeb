@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Livewire;
 
 class SimilarGames extends ManageRelatedRecords
 {
@@ -58,9 +57,14 @@ class SimilarGames extends ManageRelatedRecords
         return $user->can('manage', GameSet::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->similarGamesList->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->similarGamesList->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table
@@ -249,7 +253,7 @@ class SimilarGames extends ManageRelatedRecords
      * @param Builder<Game> $query
      * @return Builder<Game>
      */
-    protected function modifyQueryWithActiveTab(Builder $query): Builder
+    protected function modifyQueryWithActiveTab(Builder $query, bool $isResolvingRecord = false): Builder
     {
         return $query->with(['system']);
     }
