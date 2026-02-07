@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
+use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorCorePoliciesRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorDownloadsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorPlatformsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorReleasesRelationManager;
@@ -322,6 +323,7 @@ class EmulatorResource extends Resource
             SystemsRelationManager::class,
             EmulatorReleasesRelationManager::class,
             EmulatorUserAgentsRelationManager::class,
+            EmulatorCorePoliciesRelationManager::class,
             EmulatorPlatformsRelationManager::class,
             EmulatorDownloadsRelationManager::class,
         ];

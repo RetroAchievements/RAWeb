@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
+use App\Models\EmulatorCorePolicy;
 use App\Models\EmulatorUserAgent;
 
 class UserAgentService
 {
     public array $cache = [];
+
+    // Avoids a redundant DB query when getCorePolicyForUserAgent()
+    // is called immediately after getSupportLevel().
+    private ?EmulatorCorePolicy $lastResolvedCorePolicy = null;
 
     public function decode(string $userAgent): array
     {
@@ -305,6 +310,10 @@ class UserAgentService
 
     public function getSupportLevel(string|array|null $userAgent): ClientSupportLevel
     {
+        // Prevent stale data from a previous call from leaking into
+        // a subsequent getCorePolicyForUserAgent() call.
+        $this->lastResolvedCorePolicy = null;
+
         if (empty($userAgent) || $userAgent === '[not provided]') {
             return ClientSupportLevel::Unknown;
         }
@@ -347,6 +356,45 @@ class UserAgentService
             return ClientSupportLevel::Unsupported;
         }
 
+        // Core-specific policies can override the emulator-level result.
+        $clientVariation = $data['clientVariation'] ?? null;
+        if ($clientVariation) {
+            $this->lastResolvedCorePolicy = EmulatorCorePolicy::forCore($emulatorUserAgent->emulator_id, $clientVariation)->first();
+
+            if ($this->lastResolvedCorePolicy) {
+                return $this->lastResolvedCorePolicy->support_level;
+            }
+        }
+
         return ClientSupportLevel::Full;
+    }
+
+    /**
+     * Returns the core policy that applies to a given user agent, if any.
+     * Prefer calling getSupportLevel() first to benefit from cached lookups.
+     */
+    public function getCorePolicyForUserAgent(string|array|null $userAgent): ?EmulatorCorePolicy
+    {
+        if ($this->lastResolvedCorePolicy !== null) {
+            return $this->lastResolvedCorePolicy;
+        }
+
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return null;
+        }
+
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
+
+        $clientVariation = $data['clientVariation'] ?? null;
+        if (!$clientVariation) {
+            return null;
+        }
+
+        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
+        if (!$emulatorUserAgent) {
+            return null;
+        }
+
+        return EmulatorCorePolicy::forCore($emulatorUserAgent->emulator_id, $clientVariation)->first();
     }
 }

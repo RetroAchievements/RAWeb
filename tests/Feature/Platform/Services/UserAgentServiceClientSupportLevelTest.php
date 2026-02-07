@@ -6,6 +6,7 @@ namespace Tests\Feature\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
 use App\Models\Emulator;
+use App\Models\EmulatorCorePolicy;
 use App\Models\EmulatorUserAgent;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -174,5 +175,68 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals(ClientSupportLevel::Full,
             $userAgentService->getSupportLevel('NewUserAgent/2.5'));
+    }
+
+    public function testCorePolicySupportLevel(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        // set up RetroArch as an active, fully-supported emulator
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+
+        // create a core policy that blocks the "dolphin" core
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'dolphin',
+            'support_level' => ClientSupportLevel::Blocked,
+        ]);
+
+        // create a core policy using a prefix, "doublecherry" should match "doublecherrygb"
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'doublecherry',
+            'support_level' => ClientSupportLevel::Unsupported,
+            'recommendation' => 'We recommend using the gambatte core instead.',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'));
+
+        // "doublecherry" policy matches "doublecherrygb" core
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) snes9x_libretro/abc123'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) mgba_libretro/0.10.0'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2'));
+
+        $this->assertEquals(ClientSupportLevel::Outdated,
+            $userAgentService->getSupportLevel('RetroArch/1.8.0 (Linux) snes9x_libretro/abc123'));
+
+        $policy = $userAgentService->getCorePolicyForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75');
+        $this->assertNotNull($policy);
+        $this->assertEquals('dolphin', $policy->core_name);
+        $this->assertEquals(ClientSupportLevel::Blocked, $policy->support_level);
+
+        $policy = $userAgentService->getCorePolicyForUserAgent('RetroArch/1.22.2 (Linux) snes9x_libretro/abc123');
+        $this->assertNull($policy);
+
+        $policy = $userAgentService->getCorePolicyForUserAgent('RetroArch/1.22.2');
+        $this->assertNull($policy);
+
+        $policy = $userAgentService->getCorePolicyForUserAgent('RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123');
+        $this->assertNotNull($policy);
+        $this->assertEquals('doublecherry', $policy->core_name);
+        $this->assertEquals('We recommend using the gambatte core instead.', $policy->recommendation);
     }
 }

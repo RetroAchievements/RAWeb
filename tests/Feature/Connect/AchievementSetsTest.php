@@ -8,6 +8,9 @@ use App\Enums\ClientSupportLevel;
 use App\Enums\GameHashCompatibility;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
+use App\Models\Emulator;
+use App\Models\EmulatorCorePolicy;
+use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -1804,6 +1807,128 @@ describe('User Agent', function () {
                 'Success' => false,
                 'Error' => 'This client is not supported.',
             ]);
+    });
+
+    test('retroarch with unsupported core receives warning with recommendation', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'dolphin',
+            'support_level' => ClientSupportLevel::Unsupported, // !!
+            'recommendation' => 'We recommend using standalone Dolphin instead.',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('Sets.0.Achievements.0.Title', 'Warning: Unsupported Core')
+            ->assertJsonPath('Sets.0.Achievements.0.Description', 'Hardcore unlocks cannot be earned using this core. We recommend using standalone Dolphin instead.');
+    });
+
+    test('retroarch with blocked core receives warning-only response with no leaderboards', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'dolphin',
+            'support_level' => ClientSupportLevel::Blocked, // !!
+            'recommendation' => 'We recommend using standalone Dolphin instead.',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('Sets.0.Achievements.0.Title', 'Warning: Unsupported Core')
+            ->assertJsonPath('Sets.0.Achievements.0.Description', 'RetroAchievements is unavailable for this core. We recommend using standalone Dolphin instead.')
+            ->assertJsonCount(1, 'Sets.0.Achievements')
+            ->assertJsonPath('Sets.0.Leaderboards', []);
+    });
+
+    test('retroarch with supported core does not receive warning', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+        // only dolphin is restricted, snes9x has no policy
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'dolphin',
+            'support_level' => ClientSupportLevel::Blocked,
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) snes9x_libretro/abc123'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('Sets.0.Achievements.0.Title', $data['achievements'][0]->title);
+    });
+
+    test('unsupported core warning without recommendation does not include recommendation text', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'doublecherrygb',
+            'support_level' => ClientSupportLevel::Unsupported,
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('Sets.0.Achievements.0.Title', 'Warning: Unsupported Core')
+            ->assertJsonPath('Sets.0.Achievements.0.Description', 'Hardcore unlocks cannot be earned using this core.');
+    });
+
+    test('core policy prefix matches longer core names', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+
+        // "doublecherry" should match "DoubleCherryGB" from the user agent
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'doublecherry',
+            'support_level' => ClientSupportLevel::Unsupported,
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.17.0 (Android 9.0) DoubleCherryGB_libretro_android/v0.16.0_abb98f4'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('Sets.0.Achievements.0.Title', 'Warning: Unsupported Core');
     });
 });
 
