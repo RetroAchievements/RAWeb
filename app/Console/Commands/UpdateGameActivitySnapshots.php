@@ -7,6 +7,8 @@ namespace App\Console\Commands;
 use App\Community\Actions\LoadThinActivePlayersListAction;
 use App\Community\Enums\GameActivitySnapshotType;
 use App\Community\Enums\TrendingReason;
+use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameActivitySnapshot;
 use App\Models\System;
@@ -152,6 +154,10 @@ class UpdateGameActivitySnapshots extends Command
 
         $results = DB::select($sql);
 
+        // Batch-lookup active time-bounded events for the trending games.
+        $gameIds = collect($results)->pluck('game_id');
+        $eventByGameId = $this->getActiveEventsForGames($gameIds->all());
+
         foreach ($results as $row) {
             $trendingReason = $this->determineTrendingReason(
                 newSetDate: $row->new_set_date,
@@ -160,12 +166,16 @@ class UpdateGameActivitySnapshots extends Command
                 trend: (float) $row->trend,
             );
 
+            $event = $eventByGameId[$row->game_id] ?? null;
+            $meta = $event ? ['event_id' => $event->id] : null;
+
             GameActivitySnapshot::create([
                 'game_id' => $row->game_id,
                 'type' => GameActivitySnapshotType::Trending,
                 'score' => $row->score,
                 'trend_multiplier' => $row->trend,
                 'trending_reason' => $trendingReason->value,
+                'meta' => $meta,
             ]);
         }
 
@@ -253,6 +263,31 @@ class UpdateGameActivitySnapshots extends Command
         }
 
         $this->info('  Stored ' . $gameIds->count() . ' fake popular games.');
+    }
+
+    /**
+     * Find active time-bounded events for the given game IDs.
+     * Excludes evergreen events (where dates are null) since those
+     * don't indicate a specific trending catalyst.
+     *
+     * @param array<int> $gameIds
+     * @return array<int, Event> keyed by game_id
+     */
+    private function getActiveEventsForGames(array $gameIds): array
+    {
+        if (empty($gameIds)) {
+            return [];
+        }
+
+        return EventAchievement::active($this->targetDate)
+            ->whereNotNull('active_from')
+            ->whereNotNull('active_until')
+            ->with(['sourceAchievement:id,game_id', 'event'])
+            ->whereHas('sourceAchievement', fn ($q) => $q->whereIn('game_id', $gameIds))
+            ->get()
+            ->keyBy(fn (EventAchievement $ea) => $ea->sourceAchievement->game_id)
+            ->map(fn (EventAchievement $ea) => $ea->event)
+            ->all();
     }
 
     /**

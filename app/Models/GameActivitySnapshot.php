@@ -27,11 +27,13 @@ class GameActivitySnapshot extends BaseModel
         'player_count',
         'trend_multiplier',
         'trending_reason',
+        'meta',
     ];
 
     protected $casts = [
         'score' => 'decimal:2',
         'trend_multiplier' => 'decimal:2',
+        'meta' => 'array',
     ];
 
     protected static function newFactory(): GameActivitySnapshotFactory

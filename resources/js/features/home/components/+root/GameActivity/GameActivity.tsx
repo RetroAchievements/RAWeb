@@ -1,29 +1,32 @@
 import * as motion from 'motion/react-m';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { BaseToggleGroup, BaseToggleGroupItem } from '@/common/components/+vendor/BaseToggleGroup';
 import { GameAvatar } from '@/common/components/GameAvatar';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 type ViewMode = 'trending' | 'popular';
 
 export const GameActivity: FC = () => {
-  const { popularGames, trendingGames } = usePageProps<App.Http.Data.HomePageProps>();
+  const { popularGameSnapshots, trendingGameSnapshots } =
+    usePageProps<App.Http.Data.HomePageProps>();
   const { t } = useTranslation();
 
-  const hasTrending = trendingGames?.length > 0;
-  const hasPopular = popularGames?.length > 0;
+  const hasTrending = trendingGameSnapshots?.length > 0;
+  const hasPopular = popularGameSnapshots?.length > 0;
 
   const [viewMode, setViewMode] = useState<ViewMode>(hasTrending ? 'trending' : 'popular');
   const [hasUserToggled, setHasUserToggled] = useState(false);
 
-  // Bail if we have no data to show.
+  // The toggle group and cards would be empty, so render nothing.
   if (!hasTrending && !hasPopular) {
     return null;
   }
 
-  const games = viewMode === 'trending' ? trendingGames : popularGames;
+  const snapshots = viewMode === 'trending' ? trendingGameSnapshots : popularGameSnapshots;
 
   const handleValueChange = (value: string): void => {
     if (!value) {
@@ -75,28 +78,51 @@ export const GameActivity: FC = () => {
         transition={{ duration: 0.3 }}
         key={viewMode}
       >
-        {games.map((game) => (
-          <div key={`${viewMode}-${game.game.id}`} className="rounded-lg bg-embed p-2">
+        {snapshots.map((snapshot) => (
+          <div key={`${viewMode}-${snapshot.game.id}`} className="rounded-lg bg-embed p-2">
             <div className="relative flex w-full items-end justify-between">
               <GameAvatar
-                {...game.game}
+                {...snapshot.game}
                 size={40}
                 showSystemChip={true}
                 gameTitleClassName="line-clamp-1"
               />
 
-              <p className="absolute bottom-0 right-0 text-2xs">
-                {viewMode === 'trending' && game.trendingReason
-                  ? t(game.trendingReason)
-                  : t('playerCount', {
-                      count: game.playerCount,
-                      val: game.playerCount,
-                    })}
-              </p>
+              <SnapshotLabel snapshot={snapshot} viewMode={viewMode} />
             </div>
           </div>
         ))}
       </motion.div>
     </div>
+  );
+};
+
+interface SnapshotLabelProps {
+  snapshot: App.Community.Data.GameActivitySnapshot;
+  viewMode: ViewMode;
+}
+
+const SnapshotLabel: FC<SnapshotLabelProps> = ({ snapshot, viewMode }) => {
+  const { t } = useTranslation();
+
+  if (viewMode === 'trending' && snapshot.event?.legacyGame) {
+    return (
+      <InertiaLink
+        href={route('event.show', { event: snapshot.event.id })}
+        className="absolute bottom-0 right-0 text-2xs text-link"
+      >
+        {snapshot.event.legacyGame.title}
+      </InertiaLink>
+    );
+  }
+
+  if (viewMode === 'trending' && snapshot.trendingReason) {
+    return <p className="absolute bottom-0 right-0 text-2xs">{t(snapshot.trendingReason)}</p>;
+  }
+
+  return (
+    <p className="absolute bottom-0 right-0 text-2xs">
+      {t('playerCount', { count: snapshot.playerCount, val: snapshot.playerCount })}
+    </p>
   );
 };

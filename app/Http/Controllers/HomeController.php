@@ -63,8 +63,8 @@ class HomeController extends Controller
 
         $persistedActivePlayersSearch = $request->cookie('active_players_search');
         $activePlayers = $buildActivePlayers->execute(perPage: 20, search: $persistedActivePlayersSearch);
-        $trendingGames = $fetchGameActivityData->execute(GameActivitySnapshotType::Trending);
-        $popularGames = $fetchGameActivityData->execute(GameActivitySnapshotType::Popular);
+        $trendingGameSnapshots = $fetchGameActivityData->execute(GameActivitySnapshotType::Trending);
+        $popularGameSnapshots = $fetchGameActivityData->execute(GameActivitySnapshotType::Popular);
 
         $permissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
         $recentForumPosts = $buildThinRecentForumPostsData->execute(
@@ -84,8 +84,8 @@ class HomeController extends Controller
             currentlyOnline: $currentlyOnline,
             newClaims: $newClaims,
             activePlayers: $activePlayers,
-            trendingGames: $trendingGames,
-            popularGames: $popularGames,
+            trendingGameSnapshots: $trendingGameSnapshots,
+            popularGameSnapshots: $popularGameSnapshots,
             recentForumPosts: $recentForumPosts,
             persistedActivePlayersSearch: $persistedActivePlayersSearch,
             userCurrentGame: $userCurrentGameData[0] ?? null,
