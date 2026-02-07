@@ -381,18 +381,6 @@ CREATE TABLE IF NOT EXISTS "achievement_set_authors"(
   foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade,
   foreign key("user_id") references "users"("id") on delete cascade
 );
-CREATE TABLE IF NOT EXISTS "game_achievement_sets"(
-  "id" integer primary key autoincrement not null,
-  "game_id" integer not null,
-  "achievement_set_id" integer not null,
-  "type" varchar,
-  "title" varchar,
-  "order_column" integer,
-  "created_at" datetime,
-  "updated_at" datetime,
-  foreign key("game_id") references "games"("id") on delete cascade,
-  foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade
-);
 CREATE TABLE IF NOT EXISTS "game_hash_sets"(
   "id" integer primary key autoincrement not null,
   "game_id" integer not null,
@@ -1351,27 +1339,6 @@ CREATE UNIQUE INDEX "player_games_user_id_game_id_unique" on "player_games"(
   "user_id",
   "game_id"
 );
-CREATE TABLE IF NOT EXISTS "leaderboards"(
-  "id" integer primary key autoincrement not null,
-  "game_id" bigint unsigned not null default(0) collate 'binary',
-  "trigger_definition" clob not null collate 'binary',
-  "format" varchar(50) default('') collate 'binary',
-  "title" varchar(255) default('Leaderboard Title') collate 'binary',
-  "description" varchar(255) default('Leaderboard Description') collate 'binary',
-  "rank_asc" boolean not null default(0),
-  "order_column" integer not null default(0),
-  "created_at" datetime default(NULL),
-  "updated_at" datetime default(NULL),
-  "deleted_at" datetime default(NULL),
-  "author_id" integer default(NULL),
-  "trigger_id" integer,
-  "top_entry_id" integer,
-  "state" varchar not null default 'active',
-  foreign key("trigger_id") references triggers("id") on delete set null on update no action,
-  foreign key("top_entry_id") references "leaderboard_entries"("id") on delete set null
-);
-CREATE INDEX "leaderboarddef_trigger_id_index" on "leaderboards"("trigger_id");
-CREATE INDEX "leaderboards_game_id_index" on "leaderboards"("game_id");
 CREATE TABLE IF NOT EXISTS "game_releases"(
   "id" integer primary key autoincrement not null,
   "game_id" integer not null,
@@ -1561,10 +1528,6 @@ CREATE UNIQUE INDEX "viewables_viewable_type_viewable_id_user_id_unique" on "vie
   "user_id"
 );
 CREATE INDEX "viewables_user_id_index" on "viewables"("user_id");
-CREATE UNIQUE INDEX "game_achievement_sets_game_id_title_unique" on "game_achievement_sets"(
-  "game_id",
-  "title"
-);
 CREATE TABLE IF NOT EXISTS "oauth_clients"(
   "id" varchar not null,
   "owner_type" varchar,
@@ -1675,7 +1638,6 @@ CREATE TABLE IF NOT EXISTS "user_delayed_subscriptions"(
 CREATE INDEX "user_delayed_subscriptions_user_id_index" on "user_delayed_subscriptions"(
   "user_id"
 );
-CREATE INDEX "leaderboarddef_state_index" on "leaderboards"("state");
 CREATE TABLE IF NOT EXISTS "achievement_groups"(
   "id" integer primary key autoincrement not null,
   "achievement_set_id" integer not null,
@@ -1726,47 +1688,6 @@ CREATE TABLE IF NOT EXISTS "user_relations"(
 CREATE INDEX "user_game_list_entries_game_id_type_index" on "user_game_list_entries"(
   "game_id",
   "type"
-);
-CREATE TABLE IF NOT EXISTS "Achievements"(
-  "id" integer primary key autoincrement not null,
-  "game_id" bigint unsigned default(NULL),
-  "title" varchar(255) not null collate 'binary',
-  "description" varchar(255) default(NULL) collate 'binary',
-  "trigger_definition" clob not null collate 'binary',
-  "points" integer not null default(0),
-  "created_at" datetime default(NULL),
-  "modified_at" datetime default(CURRENT_TIMESTAMP),
-  "image_name" varchar(255) default('00001') collate 'binary',
-  "order_column" integer not null default(0),
-  "embed_url" varchar(255) default(NULL) collate 'binary',
-  "points_weighted" integer not null default(0),
-  "updated_at" datetime default(NULL),
-  "user_id" integer default(NULL),
-  "unlocks_total" integer default(NULL),
-  "unlocks_hardcore" integer default(NULL),
-  "unlock_percentage" numeric(10, 0) default(NULL),
-  "unlock_hardcore_percentage" numeric(10, 0) default(NULL),
-  "deleted_at" datetime default(NULL),
-  "type" varchar(255) default(NULL) collate 'binary',
-  "trigger_id" integer,
-  "is_promoted" tinyint(1) not null default '0',
-  foreign key("trigger_id") references triggers("id") on delete set null on update no action
-);
-CREATE INDEX "achievements_points_index" on "Achievements"("points");
-CREATE INDEX "achievements_trigger_id_index" on "Achievements"("trigger_id");
-CREATE INDEX "achievements_type_index" on "Achievements"("type");
-CREATE INDEX "achievements_game_id_is_promoted_index" on "Achievements"(
-  "game_id",
-  "is_promoted"
-);
-CREATE INDEX "achievements_game_id_index" on "achievements"("game_id");
-CREATE INDEX "achievements_points_weighted_index" on "achievements"(
-  "points_weighted"
-);
-CREATE INDEX "achievements_game_id_modified_at_deleted_at_index" on "achievements"(
-  "game_id",
-  "modified_at",
-  "deleted_at"
 );
 CREATE TABLE IF NOT EXISTS "comments"(
   "id" integer primary key autoincrement not null,
@@ -1845,6 +1766,121 @@ CREATE INDEX "users_username_unranked_at_index" on "users"(
 CREATE INDEX "users_unranked_at_points_index" on "users"(
   "unranked_at",
   "points_hardcore"
+);
+CREATE TABLE IF NOT EXISTS "users_online_counts"(
+  "id" integer primary key autoincrement not null,
+  "online_count" integer not null,
+  "is_new_high" tinyint(1) not null default '0',
+  "created_at" datetime not null default CURRENT_TIMESTAMP
+);
+CREATE INDEX "users_online_counts_online_count_index" on "users_online_counts"(
+  "online_count"
+);
+CREATE INDEX "users_online_counts_created_at_index" on "users_online_counts"(
+  "created_at"
+);
+CREATE TABLE IF NOT EXISTS "leaderboards"(
+  "id" integer primary key autoincrement not null,
+  "game_id" bigint unsigned not null default(0) collate 'binary',
+  "trigger_definition" clob not null collate 'binary',
+  "format" varchar not null default '',
+  "title" varchar not null default '',
+  "description" varchar not null default '',
+  "rank_asc" boolean not null default(0),
+  "order_column" integer not null default(0),
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(NULL),
+  "deleted_at" datetime default(NULL),
+  "author_id" integer default(NULL),
+  "trigger_id" integer,
+  "top_entry_id" integer,
+  "state" varchar not null default('active'),
+  foreign key("top_entry_id") references leaderboard_entries("id") on delete set null on update no action,
+  foreign key("trigger_id") references triggers("id") on delete set null on update no action
+);
+CREATE INDEX "leaderboarddef_state_index" on "leaderboards"("state");
+CREATE INDEX "leaderboarddef_trigger_id_index" on "leaderboards"("trigger_id");
+CREATE INDEX "leaderboards_game_id_index" on "leaderboards"("game_id");
+CREATE TABLE IF NOT EXISTS "game_activity_snapshots"(
+  "id" integer primary key autoincrement not null,
+  "game_id" integer not null,
+  "type" varchar not null,
+  "score" numeric not null,
+  "player_count" integer,
+  "trend_multiplier" numeric,
+  "trending_reason" varchar,
+  "created_at" datetime,
+  foreign key("game_id") references "games"("id") on delete cascade
+);
+CREATE INDEX "game_activity_snapshots_type_created_at_index" on "game_activity_snapshots"(
+  "type",
+  "created_at"
+);
+CREATE INDEX "game_activity_snapshots_type_score_index" on "game_activity_snapshots"(
+  "type",
+  "score"
+);
+CREATE TABLE IF NOT EXISTS "game_achievement_sets"(
+  "id" integer primary key autoincrement not null,
+  "game_id" integer not null,
+  "achievement_set_id" integer not null,
+  "type" varchar not null default 'core',
+  "title" varchar,
+  "order_column" integer not null default '0',
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("achievement_set_id") references achievement_sets("id") on delete cascade on update no action,
+  foreign key("game_id") references games("id") on delete cascade on update no action
+);
+CREATE UNIQUE INDEX "game_achievement_sets_game_id_title_unique" on "game_achievement_sets"(
+  "game_id",
+  "title"
+);
+CREATE TABLE IF NOT EXISTS "achievements"(
+  "id" integer primary key autoincrement not null,
+  "game_id" bigint unsigned default(NULL),
+  "title" varchar(255) not null,
+  "description" varchar not null default(''),
+  "trigger_definition" clob not null,
+  "points" integer not null default(0),
+  "created_at" datetime default(NULL),
+  "modified_at" datetime not null default CURRENT_TIMESTAMP,
+  "image_name" varchar(255) default('00001'),
+  "order_column" integer not null default(0),
+  "embed_url" varchar(255) default(NULL),
+  "points_weighted" integer not null default(0),
+  "updated_at" datetime default(NULL),
+  "user_id" integer default(NULL),
+  "unlocks_total" integer default(NULL),
+  "unlocks_hardcore" integer default(NULL),
+  "unlock_percentage" numeric(10, 0) default(NULL),
+  "unlock_hardcore_percentage" numeric(10, 0) default(NULL),
+  "deleted_at" datetime default(NULL),
+  "type" varchar(255) default(NULL),
+  "trigger_id" integer,
+  "is_promoted" tinyint(1) not null default('0'),
+  "author_yield_unlocks" integer not null default('0'),
+  foreign key("trigger_id") references triggers("id") on delete set null on update no action
+);
+CREATE INDEX "achievements_game_id_index" on "achievements"("game_id");
+CREATE INDEX "achievements_game_id_is_promoted_index" on "achievements"(
+  "game_id",
+  "is_promoted"
+);
+CREATE INDEX "achievements_game_id_modified_at_deleted_at_index" on "achievements"(
+  "game_id",
+  "modified_at",
+  "deleted_at"
+);
+CREATE INDEX "achievements_points_index" on "achievements"("points");
+CREATE INDEX "achievements_points_weighted_index" on "achievements"(
+  "points_weighted"
+);
+CREATE INDEX "achievements_trigger_id_index" on "achievements"("trigger_id");
+CREATE INDEX "achievements_type_index" on "achievements"("type");
+CREATE INDEX "achievements_user_id_is_promoted_index" on "achievements"(
+  "user_id",
+  "is_promoted"
 );
 
 INSERT INTO migrations VALUES(1,'2023_06_07_000001_create_pulse_tables',1);
@@ -1944,3 +1980,11 @@ INSERT INTO migrations VALUES(94,'2026_01_01_000000_create_user_moderation_actio
 INSERT INTO migrations VALUES(95,'2026_01_01_000001_update_user_moderation_reports_table',2);
 INSERT INTO migrations VALUES(96,'2026_01_02_000000_update_player_achievements_table',2);
 INSERT INTO migrations VALUES(97,'2026_01_03_000000_update_users_table',2);
+INSERT INTO migrations VALUES(98,'2025_01_11_000000_create_users_online_counts_table',3);
+INSERT INTO migrations VALUES(99,'2026_01_02_000001_update_achievements_table',3);
+INSERT INTO migrations VALUES(100,'2026_01_07_000000_set_fields_nonnullable',3);
+INSERT INTO migrations VALUES(101,'2026_01_19_000000_create_game_activity_snapshots_table',3);
+INSERT INTO migrations VALUES(102,'2026_01_19_000000_update_game_achievement_sets_table',3);
+INSERT INTO migrations VALUES(103,'2026_01_24_000000_make_achievements_modified_at_non_nullable',3);
+INSERT INTO migrations VALUES(104,'2026_01_25_000000_clean_account_deletion_comments',3);
+INSERT INTO migrations VALUES(105,'2026_01_25_000002_update_leaderboard_state_unpublished_to_unpromoted',3);
