@@ -75,7 +75,7 @@ class EmulatorCorePolicy extends BaseModel
         $normalizedCoreName = strtolower($coreName);
 
         return $query->where('emulator_id', $emulatorId)
-            ->whereRaw('? LIKE CONCAT(core_name, \'%\')', [$normalizedCoreName])
+            ->whereRaw('? LIKE (core_name || \'%\')', [$normalizedCoreName])
             ->orderByRaw('LENGTH(core_name) DESC');
     }
 }
