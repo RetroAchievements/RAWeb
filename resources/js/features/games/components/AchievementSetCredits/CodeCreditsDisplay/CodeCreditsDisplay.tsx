@@ -10,31 +10,22 @@ import {
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { cn } from '@/common/utils/cn';
 
+import { deduplicateUserCredits } from '../deduplicateUserCredits';
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
 interface CodeCreditsDisplayProps {
-  authorCredits: App.Platform.Data.UserCredits[];
   logicCredits: App.Platform.Data.UserCredits[];
   maintainerCredits: App.Platform.Data.UserCredits[];
 }
 
 export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
-  authorCredits,
   logicCredits,
   maintainerCredits,
 }) => {
-  // Dedupe logic credits with authors - it's a bit redundant.
-  // TODO do this on the server to reduce initial props size
-  const filteredLogicCredits = logicCredits.filter(
-    (logicUser) => !authorCredits.some((author) => author.displayName === logicUser.displayName),
-  );
+  const codeCreditUsers = deduplicateUserCredits([...maintainerCredits, ...logicCredits]);
 
-  const codeCreditUsers = [...maintainerCredits, ...filteredLogicCredits].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
-  if (filteredLogicCredits.length === 0 && codeCreditUsers.length === 0) {
+  if (codeCreditUsers.length === 0) {
     return null;
   }
 
@@ -46,7 +37,7 @@ export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
         'h-8',
       )}
     >
-      <CodeCreditIcon activeMaintainers={maintainerCredits} logicCredits={filteredLogicCredits} />
+      <CodeCreditIcon activeMaintainers={maintainerCredits} logicCredits={logicCredits} />
 
       <UserAvatarStack
         users={codeCreditUsers}

@@ -10,6 +10,7 @@ import {
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { cn } from '@/common/utils/cn';
 
+import { deduplicateUserCredits } from '../deduplicateUserCredits';
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
@@ -24,13 +25,11 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
   badgeArtworkCredits,
   bannerArtworkCredits,
 }) => {
-  const artCreditUsers = [
+  const artCreditUsers = deduplicateUserCredits([
     ...badgeArtworkCredits,
     ...bannerArtworkCredits,
     ...achievementArtworkCredits,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
+  ]);
 
   return (
     <div

@@ -17,6 +17,7 @@ import {
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 
+import { deduplicateUserCredits } from '../deduplicateUserCredits';
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
@@ -41,30 +42,17 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 
   const nonAuthorUniqueContributors = useMemo(() => {
-    return (
-      [...artCreditUsers, ...codingCreditUsers, ...designCreditUsers]
-        .filter(
-          (user, index, self) =>
-            index === self.findIndex((u) => u.displayName === user.displayName),
-        )
-        // Don't double-count authors as contributors.
-        .filter(
-          (user) =>
-            !aggregateCredits.achievementsAuthors.some(
-              (author) => author.displayName === user.displayName,
-            ),
-        )
+    const authorNames = new Set(
+      aggregateCredits.achievementsAuthors.map((author) => author.displayName),
     );
-  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
 
-  // Dedupe logic credits with authors - it's a bit redundant.
-  // TODO do this on the server to reduce initial props size
-  const filteredLogicCredits = aggregateCredits.achievementsLogic.filter(
-    (logicUser) =>
-      !aggregateCredits.achievementsAuthors.some(
-        (author) => author.displayName === logicUser.displayName,
-      ),
-  );
+    // Don't double-count authors as contributors.
+    return deduplicateUserCredits([
+      ...artCreditUsers,
+      ...codingCreditUsers,
+      ...designCreditUsers,
+    ]).filter((user) => !authorNames.has(user.displayName));
+  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
 
   // If there's no claims or credit to show, then bail.
   if (
@@ -238,9 +226,9 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
               </TooltipCreditsSection>
             ) : null}
 
-            {filteredLogicCredits.length ? (
+            {aggregateCredits.achievementsLogic.length ? (
               <TooltipCreditsSection headingLabel={t('Code Contributors')}>
-                {filteredLogicCredits.map((credit) => (
+                {aggregateCredits.achievementsLogic.map((credit) => (
                   <TooltipCreditRow
                     key={`logic-credit-${credit.displayName}`}
                     credit={credit}
