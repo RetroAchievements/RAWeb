@@ -12,47 +12,33 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
-use App\Enums\GameHashCompatibility;
-use App\Models\AchievementAuthor;
-use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameSet;
-use App\Models\Leaderboard;
-use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
-use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
-use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
-use App\Platform\Data\LeaderboardData;
-use App\Platform\Data\LeaderboardEntryData;
 use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
-use App\Platform\Data\UserCreditsData;
 use App\Platform\Data\UserGameAchievementSetPreferenceData;
-use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameBannerPreference;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
-use App\Platform\Enums\LeaderboardState;
-use Illuminate\Support\Carbon;
+use App\Platform\Services\GameLeaderboardService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 use Spatie\LaravelData\Lazy;
 
 class BuildGameShowPagePropsAction
@@ -60,13 +46,15 @@ class BuildGameShowPagePropsAction
     public function __construct(
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
-        protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
-        protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
-        protected ResolveBackingGameForAchievementSetAction $resolveBackingGameForAchievementSetAction,
-        protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
-        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
+        protected BuildGameAggregateCreditsAction $buildGameAggregateCreditsAction,
         protected BuildGamePageClaimDataAction $buildGamePageClaimDataAction,
         protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
+        protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected GameLeaderboardService $gameLeaderboardService,
+        protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
+        protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
+        protected ResolveBackingGameForAchievementSetAction $resolveBackingGameForAchievementSetAction,
         protected ResolveHashesForAchievementSetAction $resolveHashesForAchievementSetAction,
     ) {
     }
@@ -81,28 +69,21 @@ class BuildGameShowPagePropsAction
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
-        $backingGameId = null;
+        $backingGameId = $targetAchievementSet !== null
+            ? $this->resolveBackingGameForAchievementSetAction->execute($targetAchievementSet->achievement_set_id)
+            : null;
 
-        if ($targetAchievementSet !== null) {
-            $backingGameId = $this->resolveBackingGameForAchievementSetAction->execute(
-                $targetAchievementSet->achievement_set_id
-            );
-        }
-
-        // If we have a backing game ID different from the current game, load it.
-        // Otherwise, use the current game as the backing game.
-        $backingGame = null;
         if ($backingGameId && $backingGameId !== $game->id) {
             $backingGame = Game::find($backingGameId);
 
-            // Load the achievement set claim and visible comment relationships for the backing game.
+            // These relationships are already eager-loaded for $game but not for a different backing game.
             $backingGame->load([
                 'achievementSetClaims' => function ($query) {
                     $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
                         ->with('user');
                 },
                 'leaderboards' => function ($query) {
-                    $query->where('order_column', '>=', 0) // only show visible leaderboards on the page
+                    $query->where('order_column', '>=', 0)
                         ->orderBy('order_column')
                         ->with(['topEntry.user']);
                 },
@@ -115,7 +96,6 @@ class BuildGameShowPagePropsAction
                 },
             ]);
         } else {
-            // Use the current game as the backing game.
             $backingGame = $game;
         }
 
@@ -126,28 +106,23 @@ class BuildGameShowPagePropsAction
             ? $user->playerGames()->whereGameId($backingGame->id)->first()
             : null;
 
-        // Attach PlayerAchievement records directly to the achievements collection.
-        // This is much easier than trying to stitch them together through eager loading.
+        // Attach unlock times directly to achievements rather than stitching
+        // through eager loading, which is complex for this polymorphic shape.
         if ($user) {
-            // First, collect all achievement IDs.
             $achievementIds = $game->gameAchievementSets
                 ->flatMap(fn ($gas) => $gas->achievementSet->achievements->pluck('id'))
                 ->unique();
 
-            // Then, fetch PlayerAchievement records for these IDs.
             $playerAchievements = $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->get()
                 ->keyBy('achievement_id');
 
-            // Finally, directly modify the actual models in the game object.
-            foreach ($game->gameAchievementSets as $gasIndex => $gas) {
-                foreach ($gas->achievementSet->achievements as $achIndex => $achievement) {
-                    // For each achievement, find if we have a player achievement.
+            foreach ($game->gameAchievementSets as $gas) {
+                foreach ($gas->achievementSet->achievements as $achievement) {
                     $playerAchievement = $playerAchievements->get($achievement->id);
 
                     if ($playerAchievement) {
-                        // Create custom properties on the model to store the unlock times.
                         $achievement->player_unlocked_at = $playerAchievement->unlocked_at;
                         $achievement->player_unlocked_hardcore_at = $playerAchievement->unlocked_hardcore_at;
                     }
@@ -155,7 +130,6 @@ class BuildGameShowPagePropsAction
             }
         }
 
-        // Load the user's player_achievement_sets entities.
         $playerAchievementSets = collect();
         if ($user) {
             $achievementSetIds = $game->gameAchievementSets->pluck('achievement_set_id')->unique();
@@ -177,11 +151,8 @@ class BuildGameShowPagePropsAction
             ->sortBy('sort_title')
             ->sortByDesc(fn ($game) => $game->achievements_published > 0);
 
-        /**
-         * If the user doesn't have permission to view a related hub,
-         * we should filter it out of the list.
-         * @see GameSetPolicy.php
-         */
+        // Filter hubs the user doesn't have permission to view.
+        /** @see GameSetPolicy.php */
         $relatedHubs = $game->hubs
             ->filter(function ($hub) use ($user) {
                 // If the user is a guest, only show hubs without view restrictions.
@@ -227,31 +198,24 @@ class BuildGameShowPagePropsAction
         $achievementSetClaims = $this->buildAchievementSetClaims($backingGame, $user);
         $claimData = $this->buildGamePageClaimDataAction->execute($backingGame, $user, $backingGame->achievementSetClaims);
 
-        // Deduplicate releases by region and sort them by date.
-        // Then, override the releases in the game object for proper display.
+        // Deduplicate releases by region for proper display.
         $processedReleases = $this->processGameReleasesForViewAction->execute($game);
         $game->setRelation('releases', collect($processedReleases));
 
-        // Check cookies for filter states.
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
         $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
-        // Get the primary claim from the already-loaded claims for permission checking.
+        // The primary claim is needed for permission checking (eg: can user update achievements).
         $primaryClaim = $backingGame->achievementSetClaims
             ->where('claim_type', ClaimType::Primary)
             ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
             ->first();
 
-        // Detect if the user is on mobile to conditionally include some props.
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
-
-        // Derive the default sort order based on the user's unlock progress.
         $defaultSort = $this->getDefaultSort($backingGame, $playerGame);
 
-        // Calculate target set player counts for non-core sets.
-        // This is used for the 'Playtime Stats' component. We need to get the real
-        // subset player count from player_achievement_sets, otherwise the UI will
-        // fall back to the base game player count.
+        // Non-core sets need real player counts from player_achievement_sets,
+        // otherwise the UI falls back to the base game player count.
         $targetAchievementSetPlayersTotal = null;
         $targetAchievementSetPlayersHardcore = null;
         if ($targetAchievementSet !== null && $targetAchievementSet->type !== AchievementSetType::Core) {
@@ -261,15 +225,15 @@ class BuildGameShowPagePropsAction
 
         $subscriptionService = new SubscriptionService();
 
-        // Pre-calculate user leaderboard entries and ranks once to avoid duplicate queries.
-        [$userLeaderboardEntries, $userLeaderboardRanks] = $this->getUserLeaderboardData($backingGame, $user);
+        // Pre-calculate once so both allLeaderboards and featuredLeaderboards share the same data.
+        [$userLeaderboardEntries, $userLeaderboardRanks] = $this->gameLeaderboardService->getUserLeaderboardData($backingGame, $user);
 
         $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
             allLeaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
-                ? $this->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, showUnpublished: request()->boolean('unpublished'))
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, showUnpublished: request()->boolean('unpublished'))),
+                ? $this->gameLeaderboardService->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, showUnpublished: request()->boolean('unpublished'))
+                : Lazy::inertiaDeferred(fn () => $this->gameLeaderboardService->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, showUnpublished: request()->boolean('unpublished'))),
 
             can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
@@ -339,7 +303,7 @@ class BuildGameShowPagePropsAction
                 'pointsWeighted',
             ))->values()->all(),
 
-            aggregateCredits: $this->buildAggregateCredits($game),
+            aggregateCredits: $this->buildGameAggregateCreditsAction->execute($game),
 
             backingGame: GameData::fromGame($backingGame)->include(
                 'achievementsPublished',
@@ -351,7 +315,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
-            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, 5, true, false)),
+            featuredLeaderboards: Lazy::create(fn () => $this->gameLeaderboardService->buildLeaderboards($backingGame, $user, $userLeaderboardEntries, $userLeaderboardRanks, 5, true, false)),
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -374,7 +338,7 @@ class BuildGameShowPagePropsAction
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
-            numLeaderboards: $this->getLeaderboardsCount($backingGame, $isPromoted),
+            numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
 
             numOpenTickets: $isPromoted
@@ -439,7 +403,7 @@ class BuildGameShowPagePropsAction
      */
     private function buildAchievementSetClaims(Game $game, ?User $user): Collection
     {
-        // Build the include array based on current user permissions.
+        // Privileged roles can see when a claimant last played the game.
         $claimIncludes = ['user', 'claimType', 'finishedAt', 'status'];
         if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
             $claimIncludes[] = 'userLastPlayedAt';
@@ -450,228 +414,23 @@ class BuildGameShowPagePropsAction
             ->values();
     }
 
-    private function buildAggregateCredits(Game $game): AggregateAchievementSetCreditsData
-    {
-        // Initialize credit counts by task and user.
-        $achievementsAuthors = collect();
-        $achievementsMaintainers = collect();
-        $achievementSetArtworkCredits = collect();
-        $achievementSetBannerCredits = collect();
-        $achievementsArtworkCredits = collect();
-        $achievementsDesignCredits = collect();
-        $achievementsLogicCredits = collect();
-        $achievementsTestingCredits = collect();
-        $achievementsWritingCredits = collect();
-        $hashCompatibilityTestingCredits = collect();
-
-        // Collect all achievement IDs for subsequent aggregation queries.
-        $achievementIds = $game->gameAchievementSets
-            ->pluck('achievementSet.achievements.*.id')
-            ->flatten()
-            ->unique()
-            ->filter()
-            ->values();
-
-        // Process achievement set authors.
-        foreach ($game->gameAchievementSets as $gameAchievementSet) {
-            $achievementSet = $gameAchievementSet->achievementSet;
-
-            // Get only the most recent artwork author for this achievement set.
-            $mostRecentArtworkAuthor = $achievementSet->achievementSetAuthors
-                ->filter(fn ($author) => $author->task === AchievementSetAuthorTask::Artwork)
-                ->sortByDesc('created_at')
-                ->first();
-
-            if ($mostRecentArtworkAuthor) {
-                $userId = $mostRecentArtworkAuthor->user_id;
-                $existing = $achievementSetArtworkCredits->get($userId);
-
-                $achievementSetArtworkCredits->put($userId, [
-                    'user' => $mostRecentArtworkAuthor->user,
-                    'count' => ($existing['count'] ?? 0) + 1,
-                    'created_at' => $mostRecentArtworkAuthor->created_at,
-                ]);
-            }
-
-            // Get only the most recent banner author for this achievement set.
-            $mostRecentBannerAuthor = $achievementSet->achievementSetAuthors
-                ->filter(fn ($author) => $author->task === AchievementSetAuthorTask::Banner)
-                ->sortByDesc('created_at')
-                ->first();
-
-            if ($mostRecentBannerAuthor) {
-                $userId = $mostRecentBannerAuthor->user_id;
-                $existing = $achievementSetBannerCredits->get($userId);
-
-                $achievementSetBannerCredits->put($userId, [
-                    'user' => $mostRecentBannerAuthor->user,
-                    'count' => ($existing['count'] ?? 0) + 1,
-                    'created_at' => $mostRecentBannerAuthor->created_at,
-                ]);
-            }
-        }
-
-        // Process hash compatibility testing credits.
-        // Credit is given to users who successfully tested hash compatibility.
-        $compatibleHashes = $game->hashes()
-            ->where('compatibility', GameHashCompatibility::Compatible)
-            ->whereNotNull('compatibility_tester_id')
-            ->whereColumn('compatibility_tester_id', '!=', 'user_id')
-            ->with('compatibilityTester')
-            ->get();
-        foreach ($compatibleHashes as $hash) {
-            if ($hash->compatibilityTester) {
-                $hashCompatibilityTestingCredits->put($hash->compatibilityTester->id, [
-                    'user' => $hash->compatibilityTester,
-                    'count' => 0,
-                    'created_at' => $hash->updated_at,
-                ]);
-            }
-        }
-
-        // Process achievement authors (developers) - these are already loaded.
-        foreach ($game->gameAchievementSets as $gameAchievementSet) {
-            $achievementSet = $gameAchievementSet->achievementSet;
-
-            foreach ($achievementSet->achievements as $achievement) {
-                // Count original achievement authors.
-                if ($achievement->developer) {
-                    $userId = $achievement->developer->id;
-                    $achievementsAuthors->put($userId, [
-                        'user' => $achievement->developer,
-                        'count' => ($achievementsAuthors->get($userId)['count'] ?? 0) + 1,
-                    ]);
-                }
-            }
-        }
-
-        // Use aggregation query for active maintainers.
-        if ($achievementIds->isNotEmpty()) {
-            $maintainerStats = AchievementMaintainer::query()
-                ->join('achievements', 'achievement_maintainers.achievement_id', '=', 'achievements.id')
-                ->whereIn('achievement_maintainers.achievement_id', $achievementIds)
-                ->where('achievement_maintainers.is_active', true)
-                ->whereColumn('achievement_maintainers.user_id', '!=', 'achievements.user_id')
-                ->select('achievement_maintainers.user_id', DB::raw('COUNT(*) as count'), DB::raw('MAX(achievement_maintainers.effective_from) as latest_date'))
-                ->with('user')
-                ->groupBy('achievement_maintainers.user_id')
-                ->get();
-
-            foreach ($maintainerStats as $stat) {
-                if ($stat->user && !$stat->user->trashed()) {
-                    $achievementsMaintainers->put($stat->user_id, [
-                        'user' => $stat->user,
-                        'count' => $stat->count,
-                        'created_at' => $stat->latest_date ? Carbon::parse($stat->latest_date) : null,
-                    ]);
-                }
-            }
-        }
-
-        // Use an aggregation query for achievement authorship credits.
-        // Exclude credits where the contributor is also the original author of that achievement.
-        if ($achievementIds->isNotEmpty()) {
-            $authorshipStats = AchievementAuthor::query()
-                ->join('achievements', 'achievement_authors.achievement_id', '=', 'achievements.id')
-                ->whereIn('achievement_authors.achievement_id', $achievementIds)
-                ->whereColumn('achievement_authors.user_id', '!=', 'achievements.user_id')
-                ->select('achievement_authors.user_id', 'achievement_authors.task', DB::raw('COUNT(*) as count'))
-                ->with('user')
-                ->groupBy('achievement_authors.user_id', 'achievement_authors.task')
-                ->get();
-
-            foreach ($authorshipStats as $stat) {
-                if (!$stat->user || $stat->user->trashed()) {
-                    continue;
-                }
-
-                $userId = $stat->user_id;
-                $user = $stat->user;
-                $count = $stat->count;
-
-                switch ($stat->task) {
-                    case AchievementAuthorTask::Artwork->value:
-                        $achievementsArtworkCredits->put($userId, [
-                            'user' => $user,
-                            'count' => $count,
-                        ]);
-                        break;
-
-                    case AchievementAuthorTask::Design->value:
-                        $achievementsDesignCredits->put($userId, [
-                            'user' => $user,
-                            'count' => $count,
-                        ]);
-                        break;
-
-                    case AchievementAuthorTask::Logic->value:
-                        $achievementsLogicCredits->put($userId, [
-                            'user' => $user,
-                            'count' => $count,
-                        ]);
-                        break;
-
-                    case AchievementAuthorTask::Testing->value:
-                        $achievementsTestingCredits->put($userId, [
-                            'user' => $user,
-                            'count' => $count,
-                        ]);
-                        break;
-
-                    case AchievementAuthorTask::Writing->value:
-                        $achievementsWritingCredits->put($userId, [
-                            'user' => $user,
-                            'count' => $count,
-                        ]);
-                        break;
-                }
-            }
-        }
-
-        // Convert to UserCreditsData arrays sorted by count descending.
-        $sortByCountDesc = fn ($credits, $includeTrash = false) => $credits
-            ->filter(fn ($item) => $includeTrash || !$item['user']->trashed())
-            ->sortByDesc('count')
-            ->map(fn ($item) => UserCreditsData::fromUserWithCount(
-                $item['user'],
-                $item['count'],
-                $item['created_at'] ?? null
-            )->include('isGone'))
-            ->values()
-            ->all();
-
-        return new AggregateAchievementSetCreditsData(
-            achievementsAuthors: $sortByCountDesc($achievementsAuthors, true), // Include trashed users for original authors.
-            achievementsMaintainers: $sortByCountDesc($achievementsMaintainers),
-            achievementsArtwork: $sortByCountDesc($achievementsArtworkCredits),
-            achievementsDesign: $sortByCountDesc($achievementsDesignCredits),
-            achievementSetArtwork: $sortByCountDesc($achievementSetArtworkCredits),
-            achievementSetBanner: $sortByCountDesc($achievementSetBannerCredits),
-            achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
-            achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
-            achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
-            hashCompatibilityTesting: $sortByCountDesc($hashCompatibilityTestingCredits),
-        );
-    }
-
     /**
      * @return Collection<int, UserGameAchievementSetPreferenceData>
      */
     private function buildUserAchievementSetPreferences(Game $game, ?User $user): Collection
     {
-        $userGameAchievementSetPreferences = collect();
-        if ($user) {
-            $gameAchievementSetIds = $game->selectableGameAchievementSets()->pluck('id');
-
-            $userGameAchievementSetPreferences = UserGameAchievementSetPreference::where('user_id', $user->id)
-                ->whereIn('game_achievement_set_id', $gameAchievementSetIds)
-                ->get()
-                ->mapWithKeys(fn ($preference) => [
-                    $preference->game_achievement_set_id => UserGameAchievementSetPreferenceData::fromUserGameAchievementSetPreference($preference),
-                ]);
+        if (!$user) {
+            return collect();
         }
 
-        return $userGameAchievementSetPreferences;
+        $gameAchievementSetIds = $game->selectableGameAchievementSets()->pluck('id');
+
+        return UserGameAchievementSetPreference::where('user_id', $user->id)
+            ->whereIn('game_achievement_set_id', $gameAchievementSetIds)
+            ->get()
+            ->mapWithKeys(fn ($preference) => [
+                $preference->game_achievement_set_id => UserGameAchievementSetPreferenceData::fromUserGameAchievementSetPreference($preference),
+            ]);
     }
 
     /**
@@ -711,7 +470,7 @@ class BuildGameShowPagePropsAction
 
     private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Use the same logic as the Supported Game Files page to ensure consistent counts.
+        // Reuse the Supported Game Files page logic to ensure consistent counts.
         return $this->resolveHashesForAchievementSetAction
             ->execute($game, $targetAchievementSet)
             ->count();
@@ -719,7 +478,7 @@ class BuildGameShowPagePropsAction
 
     private function buildSetRequestData(Game $backingGame, ?User $user): ?GameSetRequestData
     {
-        // Only return set request data for games without achievements.
+        // Set requests are only relevant for games/sets that don't have achievements yet.
         if ($backingGame->achievements_published > 0) {
             return null;
         }
@@ -743,87 +502,6 @@ class BuildGameShowPagePropsAction
         );
     }
 
-    /**
-     * @param Collection<int, LeaderboardEntry> $userEntries keyed by leaderboard_id
-     * @param array<int, int> $userRanks maps leaderboard_id to rank
-     * @return Collection<int, LeaderboardData>
-     */
-    private function buildLeaderboards(
-        Game $game,
-        ?User $user,
-        Collection $userEntries,
-        array $userRanks,
-        ?int $limit = null,
-        bool $shouldIncludeActiveOnly = false,
-        bool $showUnpublished = false,
-    ): Collection {
-        // Only show leaderboards if the system is active and it's not an event game.
-        if (!$game->system->active || $game->system->id === System::Events) {
-            return collect();
-        }
-
-        $allowedLeaderboardStates = match (true) {
-            $shouldIncludeActiveOnly => [LeaderboardState::Active],
-            $showUnpublished => [LeaderboardState::Unpromoted],
-            default => [LeaderboardState::Active, LeaderboardState::Disabled],
-        };
-
-        $leaderboards = $game->leaderboards
-            ->whereIn('state', $allowedLeaderboardStates)
-            ->values();
-
-        if (!$shouldIncludeActiveOnly) {
-            // Sort: Active/Unpromoted first, Disabled last, then by order_column.
-            $leaderboards = $leaderboards->sortBy([
-                fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
-                fn ($a, $b) => $a->order_column <=> $b->order_column,
-            ])->values();
-        }
-
-        if ($limit !== null) {
-            $leaderboards = $leaderboards->take($limit);
-        }
-
-        return $leaderboards->map(function ($leaderboard) use ($userEntries, $userRanks, $user) {
-            // Build the user entry if it exists.
-            $userEntryData = null;
-            if ($user && $userEntries->has($leaderboard->id)) {
-                $userEntry = $userEntries->get($leaderboard->id);
-                $rank = $userRanks[$leaderboard->id] ?? 1;
-
-                $userEntryData = LeaderboardEntryData::fromLeaderboardEntry(
-                    $userEntry,
-                    $leaderboard->format,
-                    $rank,
-                )->include('formattedScore', 'rank');
-            }
-
-            return LeaderboardData::fromLeaderboard($leaderboard, $userEntryData)->include(
-                'description',
-                'format',
-                'rankAsc',
-                'title',
-                'topEntry.formattedScore',
-                'topEntry.user.avatarUrl',
-                'topEntry.user.displayName',
-                'userEntry',
-                'state',
-            );
-        });
-    }
-
-    private function getLeaderboardsCount(Game $game, bool $isViewingPublishedAchievements): int
-    {
-        // Only count leaderboards if the system is active and it's not an event game.
-        if (!$game->system->active || $game->system->id === System::Events) {
-            return 0;
-        }
-
-        return $game->leaderboards
-            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpromoted)
-            ->count();
-    }
-
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
     {
         if (!$user || !$user->can('viewDeveloperInterest', $game)) {
@@ -845,9 +523,8 @@ class BuildGameShowPagePropsAction
 
     private function getDefaultSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
     {
-        // Derive the default sort based on user's unlock progress.
-        // If the user has unlocked some (but not all) achievements, we can use the 'normal' sort order.
-        // Otherwise, default to 'displayOrder' which is always available.
+        // 'Normal' sort groups locked/unlocked achievements, which only makes
+        // sense when the user has partial progress. Otherwise, use display order.
         if ($playerGame) {
             $unlockedCount = $playerGame->achievements_unlocked ?? 0;
             $totalCount = $backingGame->achievements_published ?? 0;
@@ -882,80 +559,5 @@ class BuildGameShowPagePropsAction
             ->count();
 
         return [$playersTotal, $playersHardcore];
-    }
-
-    /**
-     * Fetch user leaderboard entries and calculate ranks in a single batch query.
-     * We'll pre-calculate all ranks up front to avoid N+1 queries.
-     *
-     * @return array{Collection<int, LeaderboardEntry>, array<int, int>}
-     */
-    private function getUserLeaderboardData(Game $game, ?User $user): array
-    {
-        if (!$user) {
-            return [collect(), []];
-        }
-
-        $leaderboardIds = $game->leaderboards->pluck('id');
-
-        $userEntries = LeaderboardEntry::whereIn('leaderboard_id', $leaderboardIds)
-            ->where('user_id', $user->id)
-            ->get()
-            ->keyBy('leaderboard_id');
-
-        $ranks = $this->calculateBatchRanks($game->leaderboards, $userEntries);
-
-        return [$userEntries, $ranks];
-    }
-
-    /**
-     * Calculate the authenticated user's ranks for multiple leaderboards in a single query.
-     *
-     * @param Collection<int, Leaderboard> $leaderboards
-     * @param Collection<int, LeaderboardEntry> $userEntries keyed by leaderboard_id
-     * @return array<int, int> maps leaderboard_id to rank
-     */
-    private function calculateBatchRanks(Collection $leaderboards, Collection $userEntries): array
-    {
-        if ($userEntries->isEmpty()) {
-            return [];
-        }
-
-        $leaderboardsById = $leaderboards->keyBy('id');
-
-        // Build subqueries for each leaderboard entry.
-        $subqueries = [];
-        foreach ($userEntries as $leaderboardId => $entry) {
-            $leaderboard = $leaderboardsById->get($leaderboardId);
-            if (!$leaderboard) {
-                continue;
-            }
-
-            $scoreComparison = $leaderboard->rank_asc ? '<' : '>';
-
-            $subqueries[] = LeaderboardEntry::query()
-                ->selectRaw('? as leaderboard_id, COUNT(*) as better_count', [$leaderboardId])
-                ->leftJoin('unranked_users', 'leaderboard_entries.user_id', '=', 'unranked_users.user_id')
-                ->whereNull('unranked_users.id')
-                ->where('leaderboard_entries.leaderboard_id', $leaderboardId)
-                ->where('leaderboard_entries.score', $scoreComparison, $entry->score);
-        }
-
-        if (empty($subqueries)) {
-            return [];
-        }
-
-        // Combine all the subqueries with UNION ALL to execute as a single final query.
-        $combinedQuery = array_shift($subqueries);
-        foreach ($subqueries as $subquery) {
-            $combinedQuery = $combinedQuery->unionAll($subquery);
-        }
-
-        $ranks = [];
-        foreach ($combinedQuery->get() as $row) {
-            $ranks[$row->leaderboard_id] = (int) $row->better_count + 1;
-        }
-
-        return $ranks;
     }
 }
