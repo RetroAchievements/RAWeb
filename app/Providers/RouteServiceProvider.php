@@ -45,9 +45,11 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function mapWebRoutes(): void
     {
+        // Order of operations matters. This must be before the wildcard and outside the web group.
+        Route::get('request/card.php', fn () => $this->handleRequest('request/card'));
+
         Route::middleware(['web'])->group(function () {
-            // Allow GET requests to card.php for CDN caching of tooltip content.
-            Route::match(['get', 'post'], 'request/card.php', fn () => $this->handleRequest('request/card'));
+            Route::post('request/card.php', fn () => $this->handleRequest('request/card'));
 
             // Prohibit GET form requests in request/.
             Route::get('request/{path}.php', fn (string $path) => abort(405))->where('path', '(.*)');

@@ -136,7 +136,8 @@ class PlayerGameActivityService
                 $whenAfter = $playerGame->last_played_at->clone()->addMinutes(5);
 
                 foreach ($this->sessions as &$session) {
-                    if ($session['endTime'] >= $whenBefore && $session['endTime'] <= $whenAfter) {
+                    if ($session['endTime'] >= $whenBefore && $session['endTime'] <= $whenAfter
+                        && $session['achievementSetId'] === $playerGame->achievement_set_id) {
                         $session['endTime'] = $playerGame->last_played_at;
                         break;
                     }
@@ -682,7 +683,7 @@ class PlayerGameActivityService
             // if the playerGame record was created after achievements were published, use that as the start time.
             if ($playerGame->created_at > $startTime) {
                 foreach ($this->sessions as $session) {
-                    if ($session['endTime'] > $playerGame->created_at) {
+                    if ($session['endTime'] >= $playerGame->created_at) {
                         // include the whole session containing the playerGame record - if these differ
                         // it's typically because a subset playerGame record didn't get created until
                         // the first achievement was unlocked.
@@ -699,6 +700,7 @@ class PlayerGameActivityService
     private function calculatePlaytime(?Carbon $startTime, ?Carbon $endTime, int $unlockMode): ?int
     {
         $totalTime = null;
+        $lastSessionEndTime = null;
 
         foreach ($this->sessions as $session) {
             if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock
@@ -760,7 +762,13 @@ class PlayerGameActivityService
                 $sessionEndTime = $firstNonHardcore;
             }
 
+            if ($lastSessionEndTime > $sessionStartTime) {
+                // don't double count overlapping sessions between set and subset
+                $sessionStartTime = $lastSessionEndTime;
+            }
+
             $totalTime += $sessionStartTime->diffInSeconds($sessionEndTime, true);
+            $lastSessionEndTime = $sessionEndTime;
 
             if ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                 $totalTime += $this->sessionAdjustment;
