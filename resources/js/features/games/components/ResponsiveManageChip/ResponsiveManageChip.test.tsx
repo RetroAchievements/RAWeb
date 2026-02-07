@@ -1,4 +1,6 @@
-import { render, screen } from '@/test';
+import userEvent from '@testing-library/user-event';
+
+import { render, screen, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
 import { ResponsiveManageChip } from './ResponsiveManageChip';
@@ -81,5 +83,44 @@ describe('Component: ResponsiveManageChip', () => {
       'href',
       '/manage/games/1',
     );
+  });
+
+  it('given the user hovers over the chip, shows the manage label text', async () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<ResponsiveManageChip />, {
+      pageProps: {
+        can: {},
+        game,
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('link', { name: /manage/i }));
+
+    // ASSERT
+    expect(screen.getByText(/manage/i)).toBeVisible();
+  });
+
+  it('given the user stops hovering over the chip, hides the manage label text', async () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<ResponsiveManageChip />, {
+      pageProps: {
+        can: {},
+        game,
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('link', { name: /manage/i }));
+    await userEvent.unhover(screen.getByRole('link', { name: /manage/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.queryByText(/manage/i)).not.toBeInTheDocument();
+    });
   });
 });
