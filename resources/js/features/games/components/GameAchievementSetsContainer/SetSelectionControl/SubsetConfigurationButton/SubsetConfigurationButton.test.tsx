@@ -108,7 +108,7 @@ describe('Component: SubsetConfigurationButton', () => {
 
   it('given there are configurable sets, renders the button', () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({ system: createSystem({ id: 1 }) });
     const selectableGameAchievementSets = [
       createGameAchievementSet({ type: 'core' }),
       createGameAchievementSet({ type: 'bonus' }),
@@ -129,7 +129,7 @@ describe('Component: SubsetConfigurationButton', () => {
 
   it('given the button is clicked, opens the dialog', async () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({ system: createSystem({ id: 1 }) });
     const selectableGameAchievementSets = [
       createGameAchievementSet({ type: 'core' }),
       createGameAchievementSet({ type: 'bonus' }),
@@ -157,7 +157,7 @@ describe('Component: SubsetConfigurationButton', () => {
     // ARRANGE
     vi.spyOn(axios, 'put').mockResolvedValueOnce({ data: { success: true } });
 
-    const game = createGame();
+    const game = createGame({ system: createSystem({ id: 1 }) });
     const selectableGameAchievementSets = [
       createGameAchievementSet({ type: 'core' }),
       createGameAchievementSet({ type: 'bonus' }),
@@ -193,7 +193,7 @@ describe('Component: SubsetConfigurationButton', () => {
 
   it('filters out will_be_* type sets from configurable sets', async () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({ system: createSystem({ id: 1 }) });
     const selectableGameAchievementSets = [
       createGameAchievementSet({ id: 1, type: 'core', title: 'Core Set' }),
       createGameAchievementSet({ id: 2, type: 'bonus', title: 'Bonus Set' }),
@@ -248,7 +248,7 @@ describe('Component: SubsetConfigurationButton', () => {
 
   it('filters out exclusive type sets from configurable sets', async () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({ system: createSystem({ id: 1 }) });
     const selectableGameAchievementSets = [
       createGameAchievementSet({ id: 1, type: 'core', title: 'Core Set' }),
       createGameAchievementSet({ id: 2, type: 'bonus', title: 'Bonus Set' }),
