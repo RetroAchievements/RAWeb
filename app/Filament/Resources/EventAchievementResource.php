@@ -143,19 +143,30 @@ class EventAchievementResource extends Resource
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search): array {
                                 // TODO use scout
-                                return Achievement::where('title', 'like', "%{$search}%")
+                                return Achievement::with('game')
+                                    ->where('title', 'like', "%{$search}%")
                                     ->orWhere('id', 'like', "%{$search}%")
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($achievement) {
-                                        return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
+                                        $label = "[{$achievement->id}] {$achievement->title}";
+                                        if ($achievement->game) {
+                                            $label .= " ({$achievement->game->title})";
+                                        }
+
+                                        return [$achievement->id => $label];
                                     })
                                     ->toArray();
                             })
                             ->getOptionLabelUsing(function (int $value): string {
-                                $achievement = Achievement::find($value);
+                                $achievement = Achievement::with('game')->find($value);
 
-                                return "[{$achievement->id}] {$achievement->title}";
+                                $label = "[{$achievement->id}] {$achievement->title}";
+                                if ($achievement->game) {
+                                    $label .= " ({$achievement->game->title})";
+                                }
+
+                                return $label;
                             }),
 
                         Forms\Components\DatePicker::make('active_from')
