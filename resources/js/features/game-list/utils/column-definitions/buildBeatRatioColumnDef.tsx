@@ -44,7 +44,9 @@ export function buildBeatRatioColumnDef<TEntry extends App.Platform.Data.GameLis
         playersTotal > 0 ? (row.original.game?.timesBeatenHardcore ?? 0) / playersTotal : 0.0;
 
       return (
-        <p className={playersTotal === 0 ? 'text-muted' : ''}>{formatPercentage(beatRatio)}</p>
+        <p className={playersTotal === 0 ? 'text-muted' : ''}>
+          {formatPercentage(beatRatio, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+        </p>
       );
     },
 

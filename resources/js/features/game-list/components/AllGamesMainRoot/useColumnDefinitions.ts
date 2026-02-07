@@ -36,7 +36,7 @@ export function useColumnDefinitions(options: {
       buildRetroRatioColumnDef({ t_label: t('Rarity'), strings: { t_none: t('none') } }),
       buildBeatRatioColumnDef({ t_label: t('Beat %') }),
       buildBeatTimeColumnDef({
-        t_label: t('Time to beat'),
+        t_label: t('Time to Beat'),
         strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
       }),
       buildLastUpdatedColumnDef({ locale: i18n.language, t_label: t('Last Updated') }),

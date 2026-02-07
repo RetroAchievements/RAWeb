@@ -820,10 +820,10 @@ describe('Component: AllGamesMainRoot', () => {
     await userEvent.keyboard('{escape}');
 
     // ASSERT
-    expect(screen.queryByRole('columnheader', { name: /beat %/i })).toBeVisible();
-    expect(screen.queryByRole('columnheader', { name: /time to beat/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /beat %/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /time to beat/i })).toBeVisible();
 
-    expect(screen.getByRole('cell', { name: /0.00%/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: /0.0%/i })).toBeVisible();
     expect(screen.getByRole('cell', { name: /-/i })).toBeVisible();
   });
 
@@ -866,10 +866,10 @@ describe('Component: AllGamesMainRoot', () => {
     await userEvent.keyboard('{escape}');
 
     // ASSERT
-    expect(screen.queryByRole('columnheader', { name: /beat %/i })).toBeVisible();
-    expect(screen.queryByRole('columnheader', { name: /time to beat/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /beat %/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /time to beat/i })).toBeVisible();
 
-    expect(screen.getByRole('cell', { name: /33.33%/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: /33.3%/i })).toBeVisible();
     expect(screen.getByRole('cell', { name: /-/i })).toBeVisible();
   });
 
@@ -912,10 +912,10 @@ describe('Component: AllGamesMainRoot', () => {
     await userEvent.keyboard('{escape}');
 
     // ASSERT
-    expect(screen.queryByRole('columnheader', { name: /beat %/i })).toBeVisible();
-    expect(screen.queryByRole('columnheader', { name: /time to beat/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /beat %/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /time to beat/i })).toBeVisible();
 
-    expect(screen.getByRole('cell', { name: /55.56%/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: /55.6%/i })).toBeVisible();
     expect(screen.getByRole('cell', { name: /20m/i })).toBeVisible();
   });
 });
