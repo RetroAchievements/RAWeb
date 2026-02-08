@@ -37,6 +37,7 @@ class Server extends BaseServer
             Hubs\HubSchema::class,
             LeaderboardEntries\LeaderboardEntrySchema::class,
             Leaderboards\LeaderboardSchema::class,
+            PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
             Users\UserSchema::class,
         ];

@@ -49,6 +49,11 @@ class UserPolicy
         return true;
     }
 
+    public function viewPlayerGames(?User $user, User $model): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         // nobody creates users just like that.

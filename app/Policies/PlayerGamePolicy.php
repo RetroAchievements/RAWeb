@@ -14,9 +14,9 @@ class PlayerGamePolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(?User $user, User $player): bool
+    public function viewAny(?User $user, ?User $player = null): bool
     {
-        if ($user && $user->is($player)) {
+        if ($player && $user && $user->is($player)) {
             return true;
         }
 
