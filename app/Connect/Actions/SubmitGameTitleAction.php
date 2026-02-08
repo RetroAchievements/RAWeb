@@ -160,7 +160,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
      * achievement set would normally be orphaned and only accessible via /game/{subsetGameId}.
      *
      * This method automatically attaches the subset to its parent game so users can access
-     * it via /game/{parentGameId}?set={achievementSetId} instead. We use WillBeExclusive as
+     * it via /game/{parentGameId}?set={achievementSetId} instead. We use Exclusive as
      * the default type since subset requirements are unknown at creation time, and Exclusive
      * is the safest assumption (requires unique hash, doesn't load with core achievements).
      *
@@ -184,8 +184,8 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
         $subsetName = trim($matches[2]);
 
         // Now, try to find the parent game by an exact title match on the same system.
-        $parentGame = Game::where('Title', $parentTitle)
-            ->where('ConsoleID', $this->systemId)
+        $parentGame = Game::where('title', $parentTitle)
+            ->where('system_id', $this->systemId)
             ->first();
 
         if (!$parentGame) {
@@ -195,7 +195,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
         (new AssociateAchievementSetToGameAction())->execute(
             targetGame: $parentGame,
             sourceGame: $subsetGame,
-            type: AchievementSetType::WillBeExclusive,
+            type: AchievementSetType::Exclusive,
             title: $subsetName
         );
     }

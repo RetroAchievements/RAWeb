@@ -361,8 +361,8 @@ class SubmitGameTitleTest extends TestCase
         // create the parent game first with its core achievement set
         /** @var Game $parentGame */
         $parentGame = Game::factory()->create([
-            'Title' => 'Mega Man 2',
-            'ConsoleID' => $system->id,
+            'title' => 'Mega Man 2',
+            'system_id' => $system->id,
         ]);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($parentGame);
 
@@ -388,22 +388,22 @@ class SubmitGameTitleTest extends TestCase
             ]);
 
         // verify the subset game was created
-        $subsetGame = Game::where('Title', $subsetTitle)->first();
+        $subsetGame = Game::where('title', $subsetTitle)->first();
         $this->assertNotNull($subsetGame);
         $this->assertEquals($subsetTitle, $subsetGame->title);
-        $this->assertEquals($system->id, $subsetGame->ConsoleID);
+        $this->assertEquals($system->id, $subsetGame->system_id);
 
         // verify the subset game has its own core achievement set
         $this->assertEquals(1, $subsetGame->gameAchievementSets()->count());
         $subsetCoreSet = $subsetGame->gameAchievementSets()->first();
         $this->assertEquals(AchievementSetType::Core, $subsetCoreSet->type);
 
-        // verify the parent game now has the subset's achievement set attached as WillBeExclusive
+        // verify the parent game now has the subset's achievement set attached as Exclusive
         $parentGame->refresh();
         $parentGameSets = $parentGame->gameAchievementSets()->get();
         $this->assertEquals(2, $parentGameSets->count());
 
-        $attachedSet = $parentGameSets->firstWhere('type', AchievementSetType::WillBeExclusive);
+        $attachedSet = $parentGameSets->firstWhere('type', AchievementSetType::Exclusive);
         $this->assertNotNull($attachedSet);
         $this->assertEquals('Bonus', $attachedSet->title);
         $this->assertEquals($subsetCoreSet->achievement_set_id, $attachedSet->achievement_set_id);
@@ -438,7 +438,7 @@ class SubmitGameTitleTest extends TestCase
             ]);
 
         // verify the subset game was created
-        $subsetGame = Game::where('Title', $subsetTitle)->first();
+        $subsetGame = Game::where('title', $subsetTitle)->first();
         $this->assertNotNull($subsetGame);
         $this->assertEquals($subsetTitle, $subsetGame->title);
 
