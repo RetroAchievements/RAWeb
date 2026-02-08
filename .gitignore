@@ -88,3 +88,4 @@ nbproject
 lang/php_*.json
 npm-debug.log
 yarn-error.log
+resources/js/ziggy.ts
