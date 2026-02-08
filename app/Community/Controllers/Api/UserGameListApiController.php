@@ -3,8 +3,8 @@
 namespace App\Community\Controllers\Api;
 
 use App\Actions\GetUserDeviceKindAction;
-use App\Community\Requests\UserGameListRequest;
 use App\Community\Requests\UserGameListEntryRequest;
+use App\Community\Requests\UserGameListRequest;
 use App\Http\Controller;
 use App\Models\User;
 use App\Models\UserGameListEntry;
