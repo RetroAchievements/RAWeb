@@ -78,6 +78,16 @@ abstract class BaseApiAction
         ];
     }
 
+    protected function unsupportedSystem(string $message): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 403,
+            'Code' => 'unsupported_system',
+            'Error' => $message,
+        ];
+    }
+
     protected function resourceNotFound(string $resourceType): array
     {
         return [

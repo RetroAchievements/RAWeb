@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationStatus;
+use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
+use App\Models\System;
 use App\Models\User;
-use App\Models\UserRelation;
 use App\Platform\Enums\ValueFormat;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
-use Tests\TestCase;
 
-class SubmitLeaderboardEntryTest extends TestCase
+uses(LazilyRefreshDatabase::class);
+uses(TestsConnect::class);
+uses(TestsEmulatorUserAgent::class);
+
+class SubmitLeaderboardEntryTestHelpers
 {
-    use BootstrapsConnect;
-    use RefreshDatabase;
-    use TestsEmulatorUserAgent;
-
-    private function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0): string
+    public static function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0): string
     {
         $data = $leaderboard->id . $user->username . $score;
         if ($offset > 0) {
@@ -32,7 +33,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         return md5($data);
      }
 
-    private function buildLBData(Leaderboard $leaderboard): array
+    public static function buildLBData(Leaderboard $leaderboard): array
     {
         return [
             'LeaderboardID' => $leaderboard->id,
@@ -43,7 +44,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         ];
     }
 
-    private function buildEntry(int $rank, User $user, int $score, Carbon $when): array
+    public static function buildEntry(int $rank, User $user, int $score, Carbon $when): array
     {
         return [
             'Rank' => $rank,
@@ -53,885 +54,1069 @@ class SubmitLeaderboardEntryTest extends TestCase
         ];
     }
 
-    public function testSubmitLeaderboardEntryEmptyLeaderboard(): void
+    private static function assignRanks(array &$entries): void
     {
-        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now);
+        $i = 1;
+        $rank = 1;
+        $prev_score = null;
+        foreach ($entries as &$entry) {
+            if ($entry['Score'] !== $prev_score) {
+                $prev_score = $entry['Score'];
+                $rank = $i;
+            }
 
-        /** @var Game $game */
-        $game = $this->seedGame();
-        $gameHash = $game->hashes()->first();
-        /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
-
-        $this->seedEmulatorUserAgents();
-
-        // first submission
-        $score = $bestScore = 55555;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                ],
-            ]);
-
-        // worse submission
-        $now2 = $now->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now2);
-
-        $score = 44444;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                ],
-            ]);
-
-        // better submission
-        $now3 = $now2->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now3);
-
-        $score = $bestScore = 66666;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now3),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now3),
-                    ],
-                ],
-            ]);
-
-        /** @var User $user */
-        $user = User::first();
-
-        /** @var LeaderboardEntry $entry */
-        $entry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        $this->assertEquals($gameHash->id, $entry->playerSession->game_hash_id);
+            $entry['Rank'] = $rank;
+            $i++;
+        }
     }
 
-    public function testSubmitLeaderboardEntryMany(): void
+    public static function updateRanks(array &$entries, bool $lowerIsBetter): void
     {
-        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        usort($entries, function ($a, $b) use ($lowerIsBetter) {
+            if ($a['Score'] !== $b['Score']) {
+                return $b['Score'] - $a['Score'];
+            }
 
+            if ($lowerIsBetter) {
+                return $b['DateSubmitted'] - $a['DateSubmitted'];
+            } else {
+                return $a['DateSubmitted'] - $b['DateSubmitted'];
+            }
+        });
+
+        if ($lowerIsBetter) {
+            $entries = array_reverse($entries);
+        }
+
+        SubmitLeaderboardEntryTestHelpers::assignRanks($entries);
+    }
+
+    public static function updateRanksUnsigned(array &$entries, bool $lowerIsBetter): void
+    {
+        usort($entries, function ($a, $b) use ($lowerIsBetter) {
+            if ($a['Score'] !== $b['Score']) {
+                $aScore = $a['Score'];
+                if ($aScore < 0) {
+                    $aScore += 0x100000000;
+                }
+                $bScore = $b['Score'];
+                if ($bScore < 0) {
+                    $bScore += 0x100000000;
+                }
+
+                return $bScore - $aScore;
+            }
+
+            if ($lowerIsBetter) {
+                return $b['DateSubmitted'] - $a['DateSubmitted'];
+            } else {
+                return $a['DateSubmitted'] - $b['DateSubmitted'];
+            }
+        });
+
+        if ($lowerIsBetter) {
+            $entries = array_reverse($entries);
+        }
+
+        SubmitLeaderboardEntryTestHelpers::assignRanks($entries);
+    }
+
+    public static function createEmptyLeaderboard(): array
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
         /** @var Game $game */
-        $game = $this->seedGame();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        /** @var GameAchievementSet $gameAchievementSet */
+        $gameAchievementSet = GameAchievementSet::factory()->create(['game_id' => $game->id]);
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $game->id,
+            'description' => 'hash_' . $game->id,
+        ]);
 
-        $this->seedEmulatorUserAgents();
+        return [
+            'leaderboard' => $leaderboard,
+            'gameHash' => $gameHash->md5,
+        ];
+    }
 
-        $timestamps = [];
-        for ($i = 0; $i < 15; $i++) {
-            $score = 3456 + (pow($i, 5) % 3853);
-            Carbon::setTestNow($now->clone()->subMinutes(pow($i + 1, 3) % 367)->startOfSecond());
+    public static function createLowerIsBetterLeaderboard(): array
+    {
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
 
+        $data['entries'] = [];
+        for ($rank = 1; $rank <= 5; $rank++) {
             $user = User::factory()->create();
-            LeaderboardEntry::create([
+            $score = $rank * 10000;
+            $timestamp = Carbon::now()->subHours($score % 37);
+            $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry($rank, $user, $score, $timestamp);
+
+            $entry = LeaderboardEntry::factory()->create([
                 'leaderboard_id' => $leaderboard->id,
                 'user_id' => $user->id,
                 'score' => $score,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ]);
 
-            $timestamps[$user->id] = Carbon::now()->clone();
+            if ($rank === 1) {
+                $leaderboard->top_entry_id = $entry->id;
+            }
         }
 
-        // create duplicate entry for score 6581
-        $user = User::factory()->create();
-        LeaderboardEntry::create([
-            'leaderboard_id' => $leaderboard->id,
-            'user_id' => $user->id,
-            'score' => 6581,
-        ]);
-        $timestamps[$user->id] = Carbon::now()->clone();
-
-        $user = User::factory()->create(['unranked_at' => now()]);
-        LeaderboardEntry::create([
-            'leaderboard_id' => $leaderboard->id,
-            'user_id' => $user->id,
-            'score' => 7000,
-        ]);
-        $timestamps[$user->id] = Carbon::now()->clone();
-
-        $addFollowing = function ($id) {
-            UserRelation::create([
-                'user_id' => $this->user->id,
-                'related_user_id' => $id,
-                'status' => UserRelationStatus::Following,
-            ]);
-        };
-        $addFollowing(2);
-        $addFollowing(3);
-        $addFollowing(6);
-        $addFollowing(7);
-        $addFollowing(8);
-        $addFollowing(9);
-        $addFollowing(14);
-        $addFollowing(16);
-        $addFollowing(18);
-
-        // leaderboard state:
-        //  rank user_id score
-        //     1      12  7131
-        //            18  7000 - friend, untracked
-        //     2       7  6581 - friend
-        //     2      17  6581
-        //     4      13  6534
-        //     5      16  5713 - friend
-        //     6      14  5696 - friend
-        //     7      10  5400
-        //     8      15  4861
-        //     9       9  4851 - friend
-        //    10      11  4710
-        //    11       6  4480 - friend
-        //    12       5  3699
-        //    13       8  3526 - friend
-        //    14       4  3488
-        //    15       3  3457 - friend
-        //    16       2  3456 - friend
-
-        // first submission
-        Carbon::setTestNow($now);
-        $score = $bestScore = 6000; // this should make the player rank 5
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 5,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(12), 7131, $timestamps[12]),
-                        $this->buildEntry(2, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(2, User::find(17), 6581, $timestamps[17]),
-                        $this->buildEntry(4, User::find(13), 6534, $timestamps[13]),
-                        $this->buildEntry(5, $this->user, 6000, $now),
-                        $this->buildEntry(6, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(8, User::find(10), 5400, $timestamps[10]),
-                        $this->buildEntry(9, User::find(15), 4861, $timestamps[15]),
-                        $this->buildEntry(10, User::find(9), 4851, $timestamps[9]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(2, $this->user, 6000, $now),
-                        $this->buildEntry(3, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(4, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(5, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(7, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(8, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(9, User::find(2), 3456, $timestamps[2]),
-                    ],
-                ],
-            ]);
-
-        // worse submission
-        $now2 = $now->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now2);
-
-        $score = 5300;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 5,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(12), 7131, $timestamps[12]),
-                        $this->buildEntry(2, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(2, User::find(17), 6581, $timestamps[17]),
-                        $this->buildEntry(4, User::find(13), 6534, $timestamps[13]),
-                        $this->buildEntry(5, $this->user, 6000, $now),
-                        $this->buildEntry(6, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(8, User::find(10), 5400, $timestamps[10]),
-                        $this->buildEntry(9, User::find(15), 4861, $timestamps[15]),
-                        $this->buildEntry(10, User::find(9), 4851, $timestamps[9]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(2, $this->user, 6000, $now),
-                        $this->buildEntry(3, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(4, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(5, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(7, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(8, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(9, User::find(2), 3456, $timestamps[2]),
-                    ],
-                ],
-            ]);
-
-        // better submission
-        $now3 = $now2->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now3);
-
-        $score = $bestScore = 7000; // this should make the player rank 2
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 2,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(12), 7131, $timestamps[12]),
-                        $this->buildEntry(2, $this->user, 7000, $now3),
-                        $this->buildEntry(3, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(3, User::find(17), 6581, $timestamps[17]),
-                        $this->buildEntry(5, User::find(13), 6534, $timestamps[13]),
-                        $this->buildEntry(6, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(8, User::find(10), 5400, $timestamps[10]),
-                        $this->buildEntry(9, User::find(15), 4861, $timestamps[15]),
-                        $this->buildEntry(10, User::find(9), 4851, $timestamps[9]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, 7000, $now3),
-                        $this->buildEntry(2, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(3, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(4, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(5, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(7, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(8, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(9, User::find(2), 3456, $timestamps[2]),
-                    ],
-                ],
-            ]);
-
-        // lower is better
-        $leaderboard->rank_asc = 1;
+        $leaderboard->rank_asc = true;
         $leaderboard->save();
+        $leaderboard->refresh(); // save causes top_entry_id to be set to null, then updated out of context, leaving it as null here
 
-        $now4 = $now3->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now4);
-
-        $score = 7100;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 16,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(4), 3488, $timestamps[4]),
-                        $this->buildEntry(4, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(5, User::find(5), 3699, $timestamps[5]),
-                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(7, User::find(11), 4710, $timestamps[11]),
-                        $this->buildEntry(8, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(9, User::find(15), 4861, $timestamps[15]),
-                        $this->buildEntry(10, User::find(10), 5400, $timestamps[10]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(4, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(5, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(6, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(7, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(8, User::find(7), 6581, $timestamps[7]),
-                        $this->buildEntry(9, $this->user, 7000, $now3),
-                    ],
-                ],
-            ]);
-
-        // better score, tied with 4th place
-        $now5 = $now4->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now5);
-
-        $score = $bestScore = 3526;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 4,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(4), 3488, $timestamps[4]),
-                        $this->buildEntry(4, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(4, $this->user, 3526, $now5),
-                        $this->buildEntry(6, User::find(5), 3699, $timestamps[5]),
-                        $this->buildEntry(7, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(8, User::find(11), 4710, $timestamps[11]),
-                        $this->buildEntry(9, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(10, User::find(15), 4861, $timestamps[15]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(3, $this->user, 3526, $now5),
-                        $this->buildEntry(5, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(6, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(8, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(9, User::find(7), 6581, $timestamps[7]),
-                    ],
-                ],
-            ]);
-
-        // delete entry
-        LeaderboardEntry::where('leaderboard_id', $leaderboard->id)->where('user_id', $this->user->id)->delete();
-
-        // submit worse
-        $now6 = $now5->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now6);
-
-        $score = $bestScore = 4500;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 17,
-                        'Rank' => 7,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(4), 3488, $timestamps[4]),
-                        $this->buildEntry(4, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(5, User::find(5), 3699, $timestamps[5]),
-                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(7, $this->user, 4500, $now6),
-                        $this->buildEntry(8, User::find(11), 4710, $timestamps[11]),
-                        $this->buildEntry(9, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(10, User::find(15), 4861, $timestamps[15]),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
-                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
-                        $this->buildEntry(3, User::find(8), 3526, $timestamps[8]),
-                        $this->buildEntry(4, User::find(6), 4480, $timestamps[6]),
-                        $this->buildEntry(5, $this->user, 4500, $now6),
-                        $this->buildEntry(6, User::find(9), 4851, $timestamps[9]),
-                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
-                        $this->buildEntry(8, User::find(16), 5713, $timestamps[16]),
-                        $this->buildEntry(9, User::find(7), 6581, $timestamps[7]),
-                    ],
-                ],
-            ]);
+        return $data;
     }
 
-    public function testSubmitLeaderboardEntryUnsigned(): void
+    public static function createHigherIsBetterLeaderboard(): array
     {
-        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
 
-        /** @var Game $game */
-        $game = $this->seedGame();
-        /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id, 'format' => ValueFormat::ValueUnsigned]);
+        $data['entries'] = [];
+        for ($rank = 1; $rank <= 5; $rank++) {
+            $user = User::factory()->create();
+            $score = (6 - $rank) * 10000;
+            $timestamp = Carbon::now()->subHours($score % 37);
+            $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry($rank, $user, $score, $timestamp);
 
-        $this->seedEmulatorUserAgents();
-
-        $oneBillion = 1_000_000_000; // signed
-        $twoBillion = 2_000_000_000; // signed
-        $threeBillion = -1_294_967_296; // 3 billion is 0xB2D05E00, which is -1294967296
-
-        $time1 = $now->clone()->subMinutes(5)->startOfSecond();
-        Carbon::setTestNow($time1);
-        $user1 = User::factory()->create(['username' => 'userOne']);
-        LeaderboardEntry::create([
-            'leaderboard_id' => $leaderboard->id,
-            'user_id' => $user1->id,
-            'score' => $twoBillion,
-        ]);
-
-        $time2 = $time1->clone()->subMinutes(5)->startOfSecond();
-        Carbon::setTestNow($time2);
-        $user2 = User::factory()->create(['username' => 'userTwo']);
-        LeaderboardEntry::create([
-            'leaderboard_id' => $leaderboard->id,
-            'user_id' => $user2->id,
-            'score' => $threeBillion,
-        ]);
-
-        // leaderboard state:
-        //  rank user_id score
-        //     1       2  $threeBillion
-        //     2       1  $twoBillion
-
-        // first submission
-        Carbon::setTestNow($now);
-        $score = $bestScore = $oneBillion;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 3,
-                        'Rank' => 3,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $user2, $threeBillion, $time2),
-                        $this->buildEntry(2, $user1, $twoBillion, $time1),
-                        $this->buildEntry(3, $this->user, $bestScore, $now),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                ],
+            $entry = LeaderboardEntry::factory()->create([
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $user->id,
+                'score' => $score,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ]);
 
-        // worse submission
-        $now2 = $now->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now2);
+            if ($rank === 1) {
+                $leaderboard->top_entry_id = $entry->id;
+            }
+        }
 
-        $score = 800_000_000;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 3,
-                        'Rank' => 3,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $user2, $threeBillion, $time2),
-                        $this->buildEntry(2, $user1, $twoBillion, $time1),
-                        $this->buildEntry(3, $this->user, $bestScore, $now),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                ],
-            ]);
-
-        // better submission
-        $now3 = $now2->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now3);
-
-        // 2.5million is 0x9502F900, which is -1794967296
-        $score = $bestScore = -1_794_967_296; // this should make the player rank 2
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 3,
-                        'Rank' => 2,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $user2, $threeBillion, $time2),
-                        $this->buildEntry(2, $this->user, $bestScore, $now3),
-                        $this->buildEntry(3, $user1, $twoBillion, $time1),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now3),
-                    ],
-                ],
-            ]);
-
-        // lower is better
-        $leaderboard->rank_asc = 1;
+        $leaderboard->rank_asc = false;
         $leaderboard->save();
+        $leaderboard->refresh(); // save causes top_entry_id to be set to null, then updated out of context, leaving it as null here
 
-        $now4 = $now3->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now4);
-
-        $score = -1_594_967_296; // 2.7million -> 0xA0EEBB00 -> -1594967296
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 3,
-                        'Rank' => 2,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $user1, $twoBillion, $time1),
-                        $this->buildEntry(2, $this->user, $bestScore, $now3),
-                        $this->buildEntry(3, $user2, $threeBillion, $time2),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now3),
-                    ],
-                ],
-            ]);
-
-        // better score, tied with first place
-        $now5 = $now4->clone()->addMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now5);
-
-        $score = $bestScore = $twoBillion;
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 3,
-                        'Rank' => 1, // shared rank
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $user1, $twoBillion, $time1),
-                        $this->buildEntry(1, $this->user, $bestScore, $now5),
-                        $this->buildEntry(3, $user2, $threeBillion, $time2),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now5),
-                    ],
-                ],
-            ]);
+        return $data;
     }
 
-    public function testSubmitLeaderboardEntryBackdated(): void
+    public static function createUnsignedLeaderboard(): array
     {
-        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now);
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $leaderboard->format = ValueFormat::ValueUnsigned;
 
-        /** @var Game $game */
-        $game = $this->seedGame();
-        $gameHash = $game->hashes()->first();
-        /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        $data['entries'] = [];
+        for ($rank = 1; $rank <= 4; $rank++) {
+            $user = User::factory()->create();
+            $score = (5 - $rank) * 1_000_000_000;
+            if ($score >= 0x80000000) {
+                $score -= 0x100000000; // convert to signed
+            }
+            $timestamp = Carbon::now()->subHours($score % 37);
+            $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry($rank, $user, $score, $timestamp);
 
-        $this->seedEmulatorUserAgents();
-
-        // first submission
-        $offset = 30;
-        $submitDate = $now->clone()->subSeconds($offset);
-        $score = $bestScore = 55555;
-        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $submitDate),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $submitDate),
-                    ],
-                ],
+            $entry = LeaderboardEntry::factory()->create([
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $user->id,
+                'score' => $score,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ]);
 
-        // better submission
-        $offset = 10;
-        $submitDate2 = $now->clone()->subSeconds($offset);
-        $score = $bestScore = 66666;
-        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $submitDate2),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $submitDate2),
-                    ],
-                ],
-            ]);
+            if ($rank === 1) {
+                $leaderboard->top_entry_id = $entry->id;
+            }
+        }
 
-        // negative offset is ignored
-        $offset = -100;
-        $score = $bestScore = 77777;
-        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    'Success' => true,
-                    'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-                    'BestScore' => $bestScore,
-                    'LBData' => $this->buildLBData($leaderboard),
-                    'RankInfo' => [
-                        'NumEntries' => 1,
-                        'Rank' => 1,
-                    ],
-                    'TopEntries' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                    'TopEntriesFriends' => [
-                        $this->buildEntry(1, $this->user, $bestScore, $now),
-                    ],
-                ],
-            ]);
-    }
+        $leaderboard->rank_asc = false;
+        $leaderboard->save();
+        $leaderboard->refresh(); // save causes top_entry_id to be set to null, then updated out of context, leaving it as null here
 
-    public function testUserAgent(): void
-    {
-        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
-        Carbon::setTestNow($now);
-
-        /** @var Game $game */
-        $game = $this->seedGame();
-        $md5 = $game->hashes()->first()->md5;
-        /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
-
-        $this->seedEmulatorUserAgents();
-
-        $score = 55555;
-        $validResponse = [
-            'Success' => true,
-            'Score' => $score,
-            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-            'BestScore' => $score,
-            'LBData' => $this->buildLBData($leaderboard),
-            'RankInfo' => [
-                'NumEntries' => 1,
-                'Rank' => 1,
-            ],
-            'TopEntries' => [
-                $this->buildEntry(1, $this->user, $score, $now),
-            ],
-            'TopEntriesFriends' => [
-                $this->buildEntry(1, $this->user, $score, $now),
-            ],
-        ];
-
-        // when a leaderboard submission is ignored because the client isn't fully supported
-        // no entry is created. if no previous entry exists, 0 is returned as the BestScore.
-        // also, as no entries are created, TopEntries and TopEntriesFriends will be empty.
-        $invalidClientResponse = [
-            'Success' => true,
-            'Score' => $score,
-            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
-            'BestScore' => 0,
-            'LBData' => $this->buildLBData($leaderboard),
-            'RankInfo' => [
-                'NumEntries' => 0,
-                'Rank' => 1,
-            ],
-            'TopEntries' => [],
-            'TopEntriesFriends' => [],
-        ];
-
-        // no user agent
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $invalidClientResponse,
-            ]);
-
-        // unknown user agent
-        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $invalidClientResponse,
-            ]);
-
-        // outdated user agent
-        $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $invalidClientResponse,
-            ]);
-
-        // unsupported user agent
-        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $invalidClientResponse,
-            ]);
-
-        // valid user agent
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $validResponse,
-            ]);
-
-        // blocked user agent
-        $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
-            ->assertStatus(403)
-            ->assertExactJson([
-                'Status' => 403,
-                'Success' => false,
-                'Error' => 'This emulator is not supported',
-            ]);
-
-        // unsupported user agent (better score not submitted, existing score data returned for everything but current value)
-        $newScore = $score + 5;
-        $validResponse['Score'] = $newScore;
-        $validResponse['ScoreFormatted'] = ValueFormat::format($newScore, $leaderboard->format);
-        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $newScore, 'm' => $md5]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => $validResponse,
-            ]);
-
+        return $data;
     }
 }
+
+beforeEach(function () {
+    Carbon::setTestNow(Carbon::now());
+
+    $this->seedEmulatorUserAgents();
+    $this->createConnectUser();
+});
+
+describe('new submission', function () {
+    test('is only (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 1,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => [
+                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
+                    ],
+                ],
+            ]);
+
+        $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
+        $leaderboard->refresh();
+        $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('is best (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 99;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
+        $leaderboard->refresh();
+        $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('is best (higher is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 99999;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
+        $leaderboard->refresh();
+        $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('is worst (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 99999;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 6,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
+        $leaderboard->refresh();
+        $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('is worst (higher is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 99;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 6,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
+        $leaderboard->refresh();
+        $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('is tied (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $score = 30000;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3, // rank 3 is shared, but entry should be index 4
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('is tied (higher is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $score = 30000;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('with unranked', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $otherEntry = $leaderboard->entries()->where('score', 40000)->with('user')->first();
+        $otherEntry->user->unranked_at = Carbon::now()->subDays(2);
+        $otherEntry->user->save();
+        $data['entries'] = array_filter($data['entries'], function ($entry) use ($otherEntry) {
+            return $entry['User'] != $otherEntry->user->display_name;
+        });
+
+        $score = 33333;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 4,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('as unranked', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $this->user->unranked_at = Carbon::now()->subDays(2);
+        $this->user->save();
+
+        $score = 33333;
+        // user should not be in the entries list
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 4, // this would be the user's rank
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('unknown leaderboard', function () {
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => 8888, 's' => $score]))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Code' => 'not_found',
+                'Status' => 404,
+                'Success' => false,
+                'Error' => 'Unknown leaderboard.',
+            ]);
+    });
+
+    test('inactive system', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $leaderboard->loadMissing('game.system');
+        $system = $leaderboard->game->system;
+        $system->active = false;
+        $system->save();
+
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Code' => 'unsupported_system',
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'Cannot submit leaderboard entries for unsupported console.',
+            ]);
+    });
+});
+
+describe('repeat submission', function () {
+    test('is worse (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $bestScore, $bestTimestamp);
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $score = 44444;
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $bestScore,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 4,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('is worse (higher is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $bestScore, $bestTimestamp);
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
+
+        $score = 22222;
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $bestScore,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('is better (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('is better (higher is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $topEntryId = $leaderboard->top_entry_id;
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $score = 44444;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 2,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+    });
+
+    test('is best (lower is better)', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        $entry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $score = 99;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+    });
+
+    test('delete and submit worse', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $originalScore = 33333;
+        $originalTimestamp = Carbon::now()->subHours($originalScore % 37);
+
+        $entry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $originalScore,
+            'created_at' => $originalTimestamp,
+            'updated_at' => $originalTimestamp,
+        ]);
+        $entry->delete();
+
+        $score = 44444;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 5,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $entry->refresh();
+        $this->assertNull($entry->deleted_at); // soft-deleted entry should be reused
+        $this->assertEquals($score, $entry->score);
+    });
+});
+
+describe('unsigned', function () {
+    test('new submission', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 3_500_000_000 - 0x100000000;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 2,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('submit better', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $bestScore = 2_800_000_000 - 0x100000000;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $score = 3_500_000_000 - 0x100000000;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 2,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('submit worse', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createUnsignedLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $bestScore = 3_500_000_000 - 0x100000000;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $score = 2_800_000_000 - 0x100000000;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $bestScore, $bestTimestamp);
+        SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $bestScore,
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 2,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+});
+
+describe('backdated', function () {
+    test('new submission', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $offset = 345;
+        $backdateTimestamp = Carbon::now()->subSeconds($offset);
+
+        $score = 33333;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, $backdateTimestamp);
+        SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score, $offset);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'o' => $offset,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('negative offset is ignored', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $offset = -345;
+        $backdateTimestamp = Carbon::now()->subSeconds($offset);
+
+        $score = 33333;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score, $offset);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'o' => $offset,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+});
+
+describe('validation', function () {
+    test('no user agent', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $this->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => 0, // not actually submitted
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 1, // always 1 when not actually submitted
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('unknown user agent', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => 0, // not actually submitted
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 1, // always 1 when not actually submitted
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('outdated user agent', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => 0, // not actually submitted
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 1, // always 1 when not actually submitted
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('unsupported user agent', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => 0, // not actually submitted
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 1, // always 1 when not actually submitted
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('unsupported user agent improved score', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $bestScore = 33333;
+        $bestTimestamp = Carbon::now()->subHours($bestScore % 37);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $this->user->id,
+            'score' => $bestScore,
+            'created_at' => $bestTimestamp,
+            'updated_at' => $bestTimestamp,
+        ]);
+
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $bestScore, $bestTimestamp);
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $score = 22222;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $bestScore, // previous best returned
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 4,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+    });
+
+    test('blocked user agent', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Code' => 'unsupported_client',
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This client is not supported.',
+            ]);
+    });
+});
