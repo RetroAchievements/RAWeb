@@ -29,6 +29,14 @@ You are responsible for every line of code you submit.
 
 AI may be used to help draft written communication, but the final result must be reviewed and edited by you before posting. Walls of verbose, obviously AI-generated text waste everyone's time. Be concise. Say what changed, why it changed, and how you tested it. Use your own words and your own understanding.
 
+## There are Humans Here
+
+Please remember that RetroAchievements is maintained by humans.
+
+Every discussion, issue, and pull request is read and reviewed by humans. It is a boundary point at which contributors interact with each other and the work being done. Approaching that boundary with low-effort, unreviewed work shifts the burden of validation onto maintainers, and that is not a reasonable ask of volunteers.
+
+In a perfect world, AI would produce high-quality, accurate work every time. Today, that depends entirely on the person driving it. Until either the drivers improve, the tools improve, or both, we need rules to protect the people who keep this project running.
+
 ## Enforcement
 
 Reviewers have final discretion. If a contribution appears to be unreviewed AI output — through any combination of unfocused changes, failure to address feedback, inability to explain the code, or general low quality — it will be rejected.
