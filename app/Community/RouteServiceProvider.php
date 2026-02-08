@@ -37,6 +37,7 @@ use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\PatreonSupportersController;
+use App\Community\Controllers\ReorderSiteAwardsController;
 use App\Community\Controllers\UnsubscribeController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
@@ -145,6 +146,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('messages/{user}/create', [MessageThreadController::class, 'create'])->name('message-thread.user.create');
 
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
+
+                        Route::get('reorder-site-awards', [ReorderSiteAwardsController::class, 'index'])->name('reorder-site-awards.index');
                     });
                 });
 
