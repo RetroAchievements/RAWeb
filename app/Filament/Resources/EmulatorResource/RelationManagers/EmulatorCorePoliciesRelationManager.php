@@ -45,10 +45,11 @@ class EmulatorCorePoliciesRelationManager extends RelationManager
                     ->label('Support Level')
                     ->required()
                     ->options([
+                        ClientSupportLevel::Warned->value => 'Warned (warning shown, hardcore and leaderboards allowed)',
                         ClientSupportLevel::Unsupported->value => 'Unsupported (softcore only, warning shown)',
                         ClientSupportLevel::Blocked->value => 'Blocked (cannot earn achievements at all)',
                     ])
-                    ->helperText('When in doubt, use Unsupported. Only use Blocked if the core has major debilitating issues.'),
+                    ->helperText('Use Warned for minor issues, Unsupported for cores that should not earn hardcore, and Blocked for cores with major debilitating issues.'),
 
                 Forms\Components\TextInput::make('recommendation')
                     ->label('Recommendation')
@@ -80,11 +81,13 @@ class EmulatorCorePoliciesRelationManager extends RelationManager
                     ->formatStateUsing(fn ($state) => match ($state) {
                         ClientSupportLevel::Blocked => 'Blocked',
                         ClientSupportLevel::Unsupported => 'Unsupported',
+                        ClientSupportLevel::Warned => 'Warned',
                         default => $state->name ?? 'Unknown',
                     })
                     ->color(fn ($state) => match ($state) {
                         ClientSupportLevel::Blocked => 'danger',
                         ClientSupportLevel::Unsupported => 'warning',
+                        ClientSupportLevel::Warned => 'info',
                         default => 'gray',
                     }),
 

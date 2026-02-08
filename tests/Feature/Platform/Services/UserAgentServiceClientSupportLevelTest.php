@@ -238,5 +238,21 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertNotNull($policy);
         $this->assertEquals('doublecherry', $policy->core_name);
         $this->assertEquals('We recommend using the gambatte core instead.', $policy->recommendation);
+
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'somecore',
+            'support_level' => ClientSupportLevel::Warned,
+            'recommendation' => 'Consider using a different core for best results.',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::Warned,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) somecore_libretro/abc123'));
+
+        $policy = $userAgentService->getCorePolicyForUserAgent('RetroArch/1.22.2 (Linux) somecore_libretro/abc123');
+        $this->assertNotNull($policy);
+        $this->assertEquals('somecore', $policy->core_name);
+        $this->assertEquals(ClientSupportLevel::Warned, $policy->support_level);
+        $this->assertEquals('Consider using a different core for best results.', $policy->recommendation);
     }
 }

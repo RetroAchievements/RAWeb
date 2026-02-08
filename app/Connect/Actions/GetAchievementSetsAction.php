@@ -481,7 +481,12 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
 
             if ($corePolicy) {
                 $title = 'Warning: Unsupported Core';
-                $description = 'Hardcore unlocks cannot be earned using this core.';
+
+                // Warned cores still allow hardcore, so the description should
+                // mention compatibility issues rather than hardcore restrictions.
+                $description = $this->clientSupportLevel->allowsHardcoreUnlocks()
+                    ? 'RetroAchievements has known compatibility issues with this core.'
+                    : 'Hardcore unlocks cannot be earned using this core.';
 
                 if ($corePolicy->recommendation) {
                     $description .= " {$corePolicy->recommendation}";

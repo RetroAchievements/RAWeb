@@ -631,6 +631,20 @@ class PatchDataTest extends TestCase
             ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertJsonPath('PatchData.Achievements.0.Title', $achievement1->title);
+
+        // warned cores get a warning but the description is recommendation-only
+        EmulatorCorePolicy::create([
+            'emulator_id' => $retroArch->id,
+            'core_name' => 'warnedcore',
+            'support_level' => ClientSupportLevel::Warned,
+            'recommendation' => 'Consider using core X instead.',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) warnedcore_libretro/abc123'])
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('PatchData.Achievements.0.Title', 'Warning: Unsupported Core')
+            ->assertJsonPath('PatchData.Achievements.0.Description', 'RetroAchievements has known compatibility issues with this core. Consider using core X instead.');
     }
 
     public function testUnsupportedHash(): void

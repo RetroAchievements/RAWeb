@@ -279,7 +279,7 @@ switch ($requestType) {
             }
 
             // If client support is restricted, force the unlock to softcore
-            if ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+            if (!$clientSupportLevel->allowsHardcoreUnlocks() && $hardcore) {
                 $hardcore = 0;
             }
 

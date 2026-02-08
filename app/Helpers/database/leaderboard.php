@@ -55,7 +55,7 @@ function SubmitLeaderboardEntry(
         ->first();
 
     if ($existingLeaderboardEntry) {
-        if ($clientSupportLevel !== ClientSupportLevel::Full) {
+        if (!$clientSupportLevel->allowsHardcoreUnlocks()) {
             $retVal['BestScore'] = $existingLeaderboardEntry->score;
         } elseif ($existingLeaderboardEntry->trashed()
             || $leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
@@ -76,7 +76,7 @@ function SubmitLeaderboardEntry(
             // No change made.
             $retVal['BestScore'] = $existingLeaderboardEntry->score;
         }
-    } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
+    } elseif (!$clientSupportLevel->allowsHardcoreUnlocks()) {
         $retVal['BestScore'] = 0;
     } else {
         // No existing leaderboard entry. Let's insert a new one, using
