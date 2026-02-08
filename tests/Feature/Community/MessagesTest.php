@@ -9,15 +9,15 @@ use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\UserPreference;
-use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\UserRelation;
+use App\Notifications\Message\PrivateMessageReceivedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class MessagesTest extends TestCase
@@ -32,10 +32,10 @@ class MessagesTest extends TestCase
         /** @var User $user1 */
         $user1 = User::factory()->create();
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user2 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
-        Mail::fake();
+        Notification::fake();
         $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -46,40 +46,40 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 1,
             'thread_id' => 1,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(0, $user1->UnreadMessageCount);
+        $this->assertEquals(0, $user1->unread_messages);
         $user2->refresh();
-        $this->assertEquals(1, $user2->UnreadMessageCount);
+        $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // user2 responds
         (new ReadMessageThreadAction())->execute($thread, $user2);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $user2->refresh();
-        $this->assertEquals(0, $user2->UnreadMessageCount);
+        $this->assertEquals(0, $user2->unread_messages);
 
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
@@ -94,27 +94,27 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 2,
             'thread_id' => 1,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(1, $user1->UnreadMessageCount);
+        $this->assertEquals(1, $user1->unread_messages);
 
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
 
         // user2 responds again
         $now3 = $now2->clone()->addMinutes(5);
@@ -130,32 +130,32 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 3,
             'thread_id' => 1,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is another response.',
             'created_at' => $now3,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 2,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(2, $user1->UnreadMessageCount);
+        $this->assertEquals(2, $user1->unread_messages);
 
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
 
         // user1 responds
         (new ReadMessageThreadAction())->execute($thread, $user1);
         $user1->refresh();
-        $this->assertEquals(0, $user1->UnreadMessageCount);
+        $this->assertEquals(0, $user1->unread_messages);
 
         $now4 = $now3->clone()->addMinutes(5);
         Carbon::setTestNow($now4);
@@ -170,27 +170,27 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 4,
             'thread_id' => 1,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is a third response.',
             'created_at' => $now4->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
 
         $user2->refresh();
-        $this->assertEquals(1, $user2->UnreadMessageCount);
+        $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // user1 deletes
         $now5 = $now4->clone()->addMinutes(5);
@@ -205,21 +205,21 @@ class MessagesTest extends TestCase
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => $now5->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
 
         $user2->refresh();
-        $this->assertEquals(1, $user2->UnreadMessageCount);
+        $this->assertEquals(1, $user2->unread_messages);
 
-        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
 
         // user2 deletes - when both users delete the message, it's removed from the DB
         $now6 = $now5->clone()->addMinutes(5);
@@ -235,9 +235,9 @@ class MessagesTest extends TestCase
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 2]);
 
         $user2->refresh();
-        $this->assertEquals(0, $user2->UnreadMessageCount);
+        $this->assertEquals(0, $user2->unread_messages);
 
-        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
     }
 
     public function testBlockedUser(): void
@@ -246,20 +246,20 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user1 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user2 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 has user2 blocked
         $relation = new UserRelation([
             'user_id' => $user1->id,
             'related_user_id' => $user2->id,
-            'Friendship' => UserRelationship::Blocked,
+            'status' => UserRelationStatus::Blocked,
         ]);
         $relation->save();
 
         // message from user2 is automatically marked as deleted by user1
-        Mail::fake();
+        Notification::fake();
         $thread = (new CreateMessageThreadAction())->execute($user2, $user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -270,26 +270,26 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 1,
             'thread_id' => $thread->id,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(0, $user1->UnreadMessageCount);
-        Mail::assertNothingQueued(); // nothing sent to $user1
+        $this->assertEquals(0, $user1->unread_messages);
+        Notification::assertNothingSent();
 
         // additional message from user2 is also marked as deleted by user1
         $now2 = $now->clone()->addMinutes(5);
@@ -306,26 +306,26 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 2,
             'thread_id' => $thread->id,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => $now->toDateTimeString(), /* deleted timestamp not updated */
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(0, $user1->UnreadMessageCount);
-        Mail::assertNothingQueued(); // nothing sent to $user1
+        $this->assertEquals(0, $user1->unread_messages);
+        Notification::assertNothingSent();
 
         // message from user1 is delivered to user2
         Carbon::setTestNow($now);
@@ -341,26 +341,26 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 3,
             'thread_id' => $thread->id,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
 
         $user2->refresh();
-        $this->assertEquals(1, $user2->UnreadMessageCount);
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
+        $this->assertEquals(1, $user2->unread_messages);
+        Notification::assertSentTo($user2, PrivateMessageReceivedNotification::class);
 
         // additional message from user1 is also delivered
         Carbon::setTestNow($now2);
@@ -376,27 +376,26 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 4,
             'thread_id' => $thread->id,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 2,
             'deleted_at' => null,
         ]);
 
         $user2->refresh();
-        $this->assertEquals(2, $user2->UnreadMessageCount);
-        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
-        Mail::assertQueuedCount(2);
+        $this->assertEquals(2, $user2->unread_messages);
+        Notification::assertSentToTimes($user2, PrivateMessageReceivedNotification::class, 2);
 
         // response from user2 is ignored (no unread counter or email, but not deleted)
         $now3 = $now2->clone()->addMinutes(5);
@@ -413,26 +412,26 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 5,
             'thread_id' => $thread->id,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is another response.',
             'created_at' => $now3->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => $thread->id,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 2,
             'deleted_at' => null,
         ]);
 
         $user1->refresh();
-        $this->assertEquals(0, $user1->UnreadMessageCount);
-        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
+        $this->assertEquals(0, $user1->unread_messages);
+        Notification::assertNotSentTo($user1, PrivateMessageReceivedNotification::class);
     }
 
     public function testDeleteUserDeletesThread(): void
@@ -441,9 +440,9 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user1 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user2 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
         $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
@@ -456,19 +455,19 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 1,
             'thread_id' => 1,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
@@ -488,19 +487,19 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 2,
             'thread_id' => 1,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
@@ -518,19 +517,19 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 2,
             'thread_id' => 1,
-            'author_id' => $user2->ID,
+            'author_id' => $user2->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 1,
             'deleted_at' => null,
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'num_unread' => 0,
             'deleted_at' => $now3,
         ]);
@@ -550,7 +549,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+        $user1 = User::factory()->create(['preferences_bitfield' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user1
         $thread = (new CreateMessageThreadAction())->execute($user1, $user1, $user1, 'This is a message', 'This is the message body.');
@@ -563,13 +562,13 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 1,
             'thread_id' => 1,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);
@@ -588,13 +587,13 @@ class MessagesTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'id' => 2,
             'thread_id' => 1,
-            'author_id' => $user1->ID,
+            'author_id' => $user1->id,
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'num_unread' => 0,
             'deleted_at' => null,
         ]);

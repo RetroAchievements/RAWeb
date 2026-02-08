@@ -82,6 +82,27 @@ parameters:
         # These functions (sanitize_sql_inputs, sanitize_outputs) are marked @deprecated and will eventually be removed.
         - identifier: parameterByRef.unusedType
 
+        # ImageDriver isn't reporting internal types correctly.
+        -
+            identifier: method.notFound
+            message: '#ImageDriver::performOnCollections#'
+
+        # Pest test traits.
+        # PHPStan doesn't understand that uses(TraitClass::class) makes trait methods
+        # available on $this within Pest test closures. This is a known limitation.
+        # See: https://github.com/pestphp/pest/discussions/670
+        -
+            identifier: method.notFound
+            message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::#'
+            path: tests/*
+
+        # Larastan doesn't detect this BelongsToMany relationship when analyzing the trait
+        # in the context of Filament page classes. The method exists on Achievement model.
+        -
+            identifier: method.notFound
+            message: '#Achievement::achievementSets#'
+            path: app/Filament/Resources/AchievementResource/Concerns/HasAchievementSetNavigation.php
+
     excludePaths:
         # unrelated directories
         - public/storage (?)

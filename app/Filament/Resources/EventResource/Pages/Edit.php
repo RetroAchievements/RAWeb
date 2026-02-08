@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EventResource\Pages;
 
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
 use App\Models\Game;
@@ -14,6 +15,13 @@ class Edit extends EditRecord
 {
     protected static string $resource = EventResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewOnSiteAction::make('view-on-site'),
+        ];
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::GameBadge);
@@ -22,7 +30,7 @@ class Edit extends EditRecord
         if (isset($data['image_asset_path'])) {
             /** @var Game $game */
             $game = $this->getRecord()->legacyGame;
-            $game->ImageIcon = $data['image_asset_path'];
+            $game->image_icon_asset_path = $data['image_asset_path'];
             $game->save();
         }
 

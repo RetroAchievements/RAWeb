@@ -22,11 +22,11 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Livewire;
 
 class SimilarGames extends ManageRelatedRecords
 {
@@ -36,6 +36,19 @@ class SimilarGames extends ManageRelatedRecords
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-gamepad';
 
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - " . static::getRelationshipTitle();
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return static::getRelationshipTitle();
+    }
+
     public static function canAccess(array $arguments = []): bool
     {
         /** @var User $user */
@@ -44,9 +57,14 @@ class SimilarGames extends ManageRelatedRecords
         return $user->can('manage', GameSet::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->similarGamesList->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->similarGamesList->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table
@@ -58,23 +76,23 @@ class SimilarGames extends ManageRelatedRecords
                     ->width('60px')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy(DB::raw('GameData.ID'), $direction);
+                        return $query->orderBy(DB::raw('games.id'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('GameData.ID'), 'LIKE', "%{$search}%");
+                        return $query->where(DB::raw('games.id'), 'LIKE', "%{$search}%");
                     }),
 
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy(DB::raw('GameData.Title'), $direction);
+                        return $query->orderBy(DB::raw('games.title'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('GameData.Title'), 'LIKE', "%{$search}%");
+                        return $query->where(DB::raw('games.title'), 'LIKE', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('system')
@@ -122,17 +140,17 @@ class SimilarGames extends ManageRelatedRecords
                             ->label('Games')
                             ->multiple()
                             ->options(function () {
-                                return Game::whereNot('ID', $this->getOwnerRecord()->id)
-                                    ->whereNotIn('ID', $this->getOwnerRecord()->similarGamesList->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNot('id', $this->getOwnerRecord()->id)
+                                    ->whereNotIn('id', $this->getOwnerRecord()->similarGamesList->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->limit(50)
                                     ->with('system')
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
-                                return Game::whereIn('ID', $values)
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereIn('id', $values)
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->with('system')
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"])
@@ -140,12 +158,12 @@ class SimilarGames extends ManageRelatedRecords
                             })
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
-                                return Game::whereNot('ID', $this->getOwnerRecord()->id)
-                                    ->whereNotIn('ID', $this->getOwnerRecord()->similarGamesList->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNot('id', $this->getOwnerRecord()->id)
+                                    ->whereNotIn('id', $this->getOwnerRecord()->similarGamesList->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->where(function ($query) use ($search) {
-                                        $query->where('ID', 'LIKE', "%{$search}%")
-                                            ->orWhere('Title', 'LIKE', "%{$search}%");
+                                        $query->where('id', 'LIKE', "%{$search}%")
+                                            ->orWhere('title', 'LIKE', "%{$search}%");
                                     })
                                     ->limit(50)
                                     ->with('system')
@@ -235,7 +253,7 @@ class SimilarGames extends ManageRelatedRecords
      * @param Builder<Game> $query
      * @return Builder<Game>
      */
-    protected function modifyQueryWithActiveTab(Builder $query): Builder
+    protected function modifyQueryWithActiveTab(Builder $query, bool $isResolvingRecord = false): Builder
     {
         return $query->with(['system']);
     }

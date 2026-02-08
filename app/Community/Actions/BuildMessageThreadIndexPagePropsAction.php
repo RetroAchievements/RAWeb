@@ -63,7 +63,7 @@ class BuildMessageThreadIndexPagePropsAction
                 total: $paginatedMessageThreads->total(),
                 items: MessageThreadData::fromCollection($paginatedMessageThreads->getCollection())
             ),
-            unreadMessageCount: $inboxUser->UnreadMessageCount ?? 0,
+            unreadMessageCount: $inboxUser->unread_messages ?? 0,
             senderUserDisplayName: $inboxUser->display_name,
             selectableInboxDisplayNames: $this->getAccessibleInboxes($me),
         );

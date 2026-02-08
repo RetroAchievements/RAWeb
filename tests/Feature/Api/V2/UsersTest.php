@@ -1,0 +1,480 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Api\V2;
+
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
+
+class UsersTest extends JsonApiResourceTestCase
+{
+    use TestsJsonApiIndex;
+
+    protected function resourceType(): string
+    {
+        return 'users';
+    }
+
+    protected function resourceEndpoint(): string
+    {
+        return '/api/v2/users';
+    }
+
+    protected function createResource(): Model
+    {
+        return User::factory()->create();
+    }
+
+    /**
+     * Users use ULID as the identifier in API URLs.
+     */
+    protected function getResourceIdentifier(Model $resource): string
+    {
+        return $resource->ulid;
+    }
+
+    /**
+     * Users return ULID as the JSON:API `id` field (not a numeric ID).
+     */
+    protected function getExpectedResourceId(Model $resource): string
+    {
+        return $resource->ulid;
+    }
+
+    public function testItListsUsers(): void
+    {
+        // Arrange
+        $apiUser = User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'TestUser']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        // Assert
+        $response->assertFetchedMany([
+            ['type' => 'users', 'id' => $apiUser->ulid],
+            ['type' => 'users', 'id' => $user->ulid],
+        ]);
+    }
+
+    public function testItPaginatesBy50ByDefault(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->count(60)->create();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $this->assertCount(50, $response->json('data'));
+
+        $this->assertArrayHasKey('meta', $response->json());
+        $this->assertArrayHasKey('page', $response->json('meta'));
+        $this->assertEquals(50, $response->json('meta.page.perPage'));
+    }
+
+    public function testItExcludesBannedUsers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $normalUser = User::factory()->create();
+        $bannedUser = User::factory()->create(['banned_at' => now()]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains($normalUser->ulid, $ids);
+        $this->assertNotContains($bannedUser->ulid, $ids);
+    }
+
+    public function testItExcludesUnverifiedUsers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $verifiedUser = User::factory()->create();
+        $unverifiedUser = User::factory()->create(['email_verified_at' => null]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains($verifiedUser->ulid, $ids);
+        $this->assertNotContains($unverifiedUser->ulid, $ids);
+    }
+
+    public function testItSortsByPointsByDefault(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['points_hardcore' => 100]);
+        User::factory()->create(['points_hardcore' => 500]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        // Assert
+        $response->assertSuccessful();
+        $points = collect($response->json('data'))->pluck('attributes.pointsHardcore')->toArray();
+        $this->assertGreaterThanOrEqual($points[1], $points[0]);
+    }
+
+    public function testItSortsByPointsWeighted(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['points_weighted' => 100]);
+        User::factory()->create(['points_weighted' => 500]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?sort=-pointsWeighted');
+
+        // Assert
+        $response->assertSuccessful();
+        $points = collect($response->json('data'))->pluck('attributes.pointsWeighted')->toArray();
+        $this->assertGreaterThanOrEqual($points[1], $points[0]);
+    }
+
+    public function testItReturnsUserByUlid(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'TestUser']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertFetchedOne([
+            'type' => 'users',
+            'id' => $user->ulid,
+        ]);
+    }
+
+    public function testItReturnsUlidAsIdField(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals($user->ulid, $response->json('data.id'));
+        $this->assertEquals(26, strlen($response->json('data.id'))); // ULIDs are 26 chars
+    }
+
+    public function testItReturns404ForInvalidUlid(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/01INVALIDULIDXXXXXXXX12345');
+
+        // Assert
+        $response->assertNotFound();
+    }
+
+    public function testItReturnsUserByDisplayName(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'UniqueTestUser']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/UniqueTestUser');
+
+        // Assert
+        $response->assertFetchedOne([
+            'type' => 'users',
+            'id' => $user->ulid,
+        ]);
+    }
+
+    public function testItReturnsUserByUsername(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['username' => 'LegacyUsername', 'display_name' => 'DifferentDisplayName']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/LegacyUsername');
+
+        // Assert
+        $response->assertFetchedOne([
+            'type' => 'users',
+            'id' => $user->ulid,
+        ]);
+    }
+
+    public function testItReturns404ForNonExistentUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/NonExistentUser');
+
+        // Assert
+        $response->assertNotFound();
+    }
+
+    public function testItReturns404ForBannedUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['display_name' => 'BannedUser', 'banned_at' => now()]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/BannedUser');
+
+        // Assert
+        $response->assertNotFound();
+    }
+
+    public function testItReturns404ForUnverifiedUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['display_name' => 'UnverifiedUser', 'email_verified_at' => null]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/UnverifiedUser');
+
+        // Assert
+        $response->assertNotFound();
+    }
+
+    public function testItReturnsCorrectAttributes(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create([
+            'display_name' => 'TestPlayer',
+            'username' => 'TestPlayer',
+            'motto' => 'Test motto',
+            'points_hardcore' => 5000,
+            'points' => 100,
+            'points_weighted' => 15000,
+            'yield_unlocks' => 50,
+            'yield_points' => 1000,
+            'is_user_wall_active' => true,
+            'rich_presence' => 'Playing a game',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $attributes = $response->json('data.attributes');
+
+        $this->assertEquals('TestPlayer', $attributes['displayName']);
+        $this->assertEquals('Test motto', $attributes['motto']);
+        $this->assertEquals(100, $attributes['points']);
+        $this->assertEquals(5000, $attributes['pointsHardcore']);
+        $this->assertEquals(15000, $attributes['pointsWeighted']);
+        $this->assertEquals(50, $attributes['yieldUnlocks']);
+        $this->assertEquals(1000, $attributes['yieldPoints']);
+        $this->assertTrue($attributes['isUserWallActive']);
+        $this->assertFalse($attributes['isUnranked']);
+        $this->assertEquals('Playing a game', $attributes['richPresence']);
+        $this->assertArrayHasKey('avatarUrl', $attributes);
+        $this->assertArrayHasKey('joinedAt', $attributes);
+        $this->assertArrayHasKey('lastActivityAt', $attributes);
+        $this->assertArrayHasKey('richPresenceUpdatedAt', $attributes);
+        $this->assertArrayHasKey('visibleRole', $attributes);
+        $this->assertArrayHasKey('displayableRoles', $attributes);
+        $this->assertArrayNotHasKey('deletedAt', $attributes);
+    }
+
+    public function testItIncludesProfileLink(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'LinkTestUser']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $links = $response->json('data.links');
+
+        $this->assertArrayHasKey('self', $links);
+        $this->assertArrayHasKey('profile', $links);
+        $this->assertStringContainsString('/user/LinkTestUser', $links['profile']);
+    }
+
+    public function testItReturnsVisibleRole(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        $role = Role::create(['name' => 'developer', 'display' => 1]);
+        $user->assignRole($role);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('developer', $response->json('data.attributes.visibleRole'));
+    }
+
+    public function testItReturnsDisplayableRoles(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        $role1 = Role::create(['name' => 'developer', 'display' => 1]);
+        $role2 = Role::create(['name' => 'artist', 'display' => 2]);
+        $user->assignRole($role1);
+        $user->assignRole($role2);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $displayableRoles = $response->json('data.attributes.displayableRoles');
+        $this->assertIsArray($displayableRoles);
+        $this->assertContains('developer', $displayableRoles);
+        $this->assertContains('artist', $displayableRoles);
+    }
+
+    public function testItFiltersByDisplayableRole(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $developer = User::factory()->create();
+        $artist = User::factory()->create();
+
+        $developerRole = Role::create(['name' => 'developer', 'display' => 1]);
+        $artistRole = Role::create(['name' => 'artist', 'display' => 2]);
+        $developer->assignRole($developerRole);
+        $artist->assignRole($artistRole);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?filter[role]=developer');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains($developer->ulid, $ids);
+        $this->assertNotContains($artist->ulid, $ids);
+    }
+
+    public function testItDoesNotExposeHiddenRolesViaFilter(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        $hiddenRole = Role::create([
+            'name' => 'root',
+            'display' => 0, // !!
+        ]);
+        $user->assignRole($hiddenRole);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?filter[role]=root');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertNotContains($user->ulid, $ids);
+    }
+
+    public function testItReturnsUnrankedStatus(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['unranked_at' => now()]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertTrue($response->json('data.attributes.isUnranked'));
+    }
+}

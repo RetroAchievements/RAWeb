@@ -12,8 +12,8 @@ import { useTableSync } from './useTableSync';
 const defaultColumnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
 
 describe('Hook: useTableSync', () => {
-  let replaceStateSpy: ReturnType<typeof vi.spyOn>;
   let cookieSpy: ReturnType<typeof vi.spyOn>;
+  let pushStateSpy: ReturnType<typeof vi.spyOn>;
   let originalLocation: Location;
 
   beforeEach(() => {
@@ -26,17 +26,17 @@ describe('Hook: useTableSync', () => {
       value: { search: '', pathname: '/games' },
     });
 
-    // Mock the history.replaceState function.
-    replaceStateSpy = vi.spyOn(window.history, 'replaceState').mockImplementation(vi.fn()) as any;
-
     // Mock document.cookie for persistence tests.
     cookieSpy = vi.spyOn(document, 'cookie', 'set');
+
+    // Mock window.history.pushState for URL update tests.
+    pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
   });
 
   afterEach(() => {
     window.location = originalLocation;
-    replaceStateSpy.mockRestore();
     cookieSpy.mockRestore();
+    pushStateSpy.mockRestore();
   });
 
   it('renders without crashing', () => {
@@ -78,7 +78,7 @@ describe('Hook: useTableSync', () => {
     );
 
     // ASSERT
-    expect(replaceStateSpy).not.toHaveBeenCalled();
+    expect(pushStateSpy).not.toHaveBeenCalled();
   });
 
   it('given the user advances from page 1 to page 2, updates URL params correctly', () => {
@@ -101,7 +101,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?page[number]=2'));
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      encodeURI('/games?page[number]=2'),
+    );
   });
 
   it('given the user goes from page 2 to page 1, updates URL params correctly', () => {
@@ -124,7 +128,8 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games')); // don't send a param on page 1
+    // Don't send a param on page 1.
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
   it('given the user changes the sort order, updates URL params correctly', () => {
@@ -147,7 +152,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?sort=-system'));
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      encodeURI('/games?sort=-system'),
+    );
   });
 
   it('given the user sorts by title ascending, updates URL params correctly by removing the sort order', () => {
@@ -170,7 +179,8 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games')); // don't send a param on the default sort order
+    // Don't send a param on the default sort order.
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
   it('given the user filters by a system, updates URL params correctly', () => {
@@ -196,7 +206,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?filter[system]=1'));
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      encodeURI('/games?filter[system]=1'),
+    );
   });
 
   it('given the user filters by multiple systems, updates URL params correctly', () => {
@@ -223,8 +237,8 @@ describe('Hook: useTableSync', () => {
 
     // ASSERT
     const filterValue = '1%2C5';
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
       encodeURI('/games?filter[system]=') + filterValue,
     );
@@ -253,7 +267,7 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
   it('given the user sets the achievements published filter to "none", updates URL params correctly', () => {
@@ -275,8 +289,8 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
       encodeURI('/games?filter[achievementsPublished]=none'),
     );
@@ -302,7 +316,7 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
   it('given a non-array filter value is set to empty, removes it from query params', () => {
@@ -331,7 +345,7 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
   it('given a non-array filter value matches the default, removes it from query params', () => {
@@ -363,8 +377,8 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
       encodeURI('/games?filter[achievementsPublished]=has'),
     );
@@ -402,8 +416,8 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
       encodeURI('/games?filter[achievementsPublished]=has&filter[title]=new-value'),
     );
@@ -437,7 +451,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', '/games?filter%5Bplatform%5D=1%2C2');
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      '/games?filter%5Bplatform%5D=1%2C2',
+    );
   });
 
   it('given user persistence is enabled, saves table state to the cookie', () => {
@@ -629,7 +647,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?page[size]=50'));
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      encodeURI('/games?page[size]=50'),
+    );
   });
 
   it('given the user changes the sort direction to ascending, updates URL params correctly', () => {
@@ -651,10 +673,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    // No minus prefix on "system" when using ascending sort.
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
-      encodeURI('/games?sort=system'), // !! no minus prefix on "system" when using ascending sort
+      encodeURI('/games?sort=system'),
     );
   });
 
@@ -683,10 +706,11 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(
-      null,
+    // oldParam is removed.
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
       '',
-      encodeURI('/games?filter[system]=1'), // !! oldParam is removed
+      encodeURI('/games?filter[system]=1'),
     );
   });
 
@@ -716,6 +740,10 @@ describe('Hook: useTableSync', () => {
     });
 
     // ASSERT
-    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?filter[system]=1'));
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      encodeURI('/games?filter[system]=1'),
+    );
   });
 });

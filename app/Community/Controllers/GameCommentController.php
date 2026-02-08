@@ -4,44 +4,26 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Concerns\IndexesComments;
-use App\Community\Data\CommentData;
-use App\Community\Data\GameCommentsPagePropsData;
-use App\Community\Requests\StoreCommentRequest;
-use App\Data\PaginatedData;
+use App\Community\Actions\BuildCommentPageAction;
 use App\Models\Game;
 use App\Models\GameComment;
 use App\Platform\Data\GameData;
-use App\Policies\GameCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 
 class GameCommentController extends CommentController
 {
-    use IndexesComments;
-
-    public function index(Game $game): InertiaResponse|RedirectResponse
+    public function index(Game $game, BuildCommentPageAction $action): InertiaResponse|RedirectResponse
     {
-        return $this->handleCommentIndex(
-            commentable: $game,
-            policy: GameComment::class,
-            routeName: 'game.comment.index',
-            routeParam: 'game',
+        $this->authorize('viewAny', [GameComment::class, $game]);
+
+        return $action->execute(
+            $game,
             view: 'game/[game]/comments',
-            createPropsData: function ($game, $paginatedComments, $isSubscribed, $user) {
-                return new GameCommentsPagePropsData(
-                    game: GameData::fromGame($game)->include('badgeUrl', 'system'),
-                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                        $paginatedComments,
-                        total: $paginatedComments->total(),
-                        items: CommentData::fromCollection($paginatedComments->getCollection())
-                    ),
-                    isSubscribed: $isSubscribed,
-                    canComment: (new GameCommentPolicy())->create($user, $game)
-                );
-            }
+            policyClass: GameComment::class,
+            entityKey: 'game',
+            createEntityData: fn ($g) => GameData::fromGame($g)->include('badgeUrl', 'system'),
         );
     }
 
@@ -64,17 +46,8 @@ class GameCommentController extends CommentController
             ->with('comment', $comment);
     }
 
-    protected function update(
-        StoreCommentRequest $request,
-        GameComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
-    ): RedirectResponse {
-        $this->authorize('update', $comment);
-
-        $comment->fill($request->validated())->save();
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('game.comment', 'update'));
+    protected function update(): void
+    {
     }
 
     protected function destroy(GameComment $comment): RedirectResponse

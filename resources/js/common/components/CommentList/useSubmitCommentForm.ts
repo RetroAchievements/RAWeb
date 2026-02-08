@@ -6,13 +6,12 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 
 import { useCommentListContext } from './CommentListContext';
 
 interface UseSubmitCommentFormProps {
   commentableId: number | string;
-  commentableType: keyof typeof ArticleType;
+  commentableType: App.Community.Enums.CommentableType;
 
   onSubmitSuccess?: () => void;
 }
@@ -29,8 +28,10 @@ export function useSubmitCommentForm({
   const addCommentFormSchema = z.object({
     body: z
       .string()
-      .min(3, { message: t('Comment must be at least 3 characters.') })
-      .max(2000, { message: t('Comment must not be longer than 2,000 characters.') }),
+      .min(3, { message: t('Must be at least {{val, number}} characters.', { val: 3 }) })
+      .max(2000, {
+        message: t('Must not be longer than {{val, number}} characters.', { val: 2000 }),
+      }),
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
@@ -47,7 +48,7 @@ export function useSubmitCommentForm({
         route: buildPostRoute({ commentableId, commentableType, targetUserDisplayName }),
         payload: {
           commentableId,
-          commentableType: ArticleType[commentableType],
+          commentableType,
           body: formValues.body,
         },
       }),
@@ -72,28 +73,34 @@ function buildPostRoute({
   commentableType,
   targetUserDisplayName = '',
 }: UseSubmitCommentFormProps & { targetUserDisplayName?: string }): string {
-  const commentableTypeRouteMap: Record<keyof typeof ArticleType, string> = {
-    Achievement: route('api.achievement.comment.store', { achievement: commentableId }),
+  const commentableTypeRouteMap: Record<App.Community.Enums.CommentableType, string> = {
+    'achievement.comment': route('api.achievement.comment.store', { achievement: commentableId }),
 
-    AchievementTicket: 'TODO',
+    'trigger.ticket.comment': 'TODO',
 
-    Forum: 'TODO',
+    'forum-topic-comment': 'TODO',
 
-    Game: route('api.game.comment.store', { game: commentableId }),
+    'game.comment': route('api.game.comment.store', { game: commentableId }),
 
-    GameHash: route('api.game.hashes.comment.store', { game: commentableId }),
+    'game-hash.comment': route('api.game.hashes.comment.store', { game: commentableId }),
 
-    GameModification: route('api.game.modification-comment.store', { game: commentableId }),
+    'game-modification.comment': route('api.game.modification-comment.store', {
+      game: commentableId,
+    }),
 
-    Leaderboard: route('api.leaderboard.comment.store', { leaderboard: commentableId }),
+    'leaderboard.comment': route('api.leaderboard.comment.store', { leaderboard: commentableId }),
 
-    News: 'TODO',
+    'achievement-set-claim.comment': route('api.game.claims.comment.store', {
+      game: commentableId,
+    }),
 
-    SetClaim: route('api.game.claims.comment.store', { game: commentableId }),
+    'user.comment': route('api.user.comment.store', { user: targetUserDisplayName }),
 
-    User: route('api.user.comment.store', { user: targetUserDisplayName }),
+    'user-activity.comment': 'TODO',
 
-    UserModeration: route('api.user.moderation-comment.store', { user: targetUserDisplayName }),
+    'user-moderation.comment': route('api.user.moderation-comment.store', {
+      user: targetUserDisplayName,
+    }),
   };
 
   return commentableTypeRouteMap[commentableType];

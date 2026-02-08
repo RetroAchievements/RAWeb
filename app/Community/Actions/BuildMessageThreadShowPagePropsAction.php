@@ -14,6 +14,7 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Policies\MessageThreadPolicy;
+use App\Support\Shortcode\Shortcode;
 
 class BuildMessageThreadShowPagePropsAction
 {
@@ -65,6 +66,12 @@ class BuildMessageThreadShowPagePropsAction
 
         // Convert user ID shortcodes to use display names.
         $updatedBodies = (new ConvertUserShortcodesFromIdsToDisplayNamesAction())->execute($messageBodies);
+
+        // Convert [game=X?set=Y] shortcodes to their backing game IDs.
+        $updatedBodies = array_map(
+            fn (string $body) => Shortcode::convertGameSetShortcodesToBackingGame($body),
+            $updatedBodies
+        );
 
         // Extract all dynamic entities from the updated bodies.
         $entities = (new ExtractDynamicShortcodeEntitiesAction())->execute($updatedBodies);
@@ -121,11 +128,11 @@ class BuildMessageThreadShowPagePropsAction
     {
         $participants = MessageThreadParticipant::withTrashed()
             ->where('thread_id', $messageThread->id)
-            ->join('UserAccounts', 'UserAccounts.ID', '=', 'message_thread_participants.user_id');
+            ->join('users', 'users.id', '=', 'message_thread_participants.user_id');
 
         $canReply = ($participants->count() === 1) || (clone $participants)
             ->where('user_id', '!=', $user->id)
-            ->whereNull('UserAccounts.Deleted')
+            ->whereNull('users.deleted_at')
             ->exists();
 
         return $canReply;
@@ -133,13 +140,13 @@ class BuildMessageThreadShowPagePropsAction
 
     private function getSenderUser(MessageThread $thread, User $user): User
     {
-        $isUserParticipant = $thread->participants->contains('ID', $user->id);
+        $isUserParticipant = $thread->participants->contains('id', $user->id);
         if (!$isUserParticipant) {
             $policy = new MessageThreadPolicy();
             $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
 
             if (empty($accessibleTeamIds)) {
-                return $user->display_name;
+                return $user;
             }
 
             $foundTeamParticipant = $thread->participants()
@@ -147,10 +154,10 @@ class BuildMessageThreadShowPagePropsAction
                 ->first();
 
             if (!$foundTeamParticipant) {
-                return $user->display_name;
+                return $user;
             }
 
-            return User::firstWhere('ID', $foundTeamParticipant->id);
+            return User::firstWhere('id', $foundTeamParticipant->id);
         }
 
         return $user;

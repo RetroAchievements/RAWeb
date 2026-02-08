@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ApiLogEntry extends Model
 {
+    use MassPrunable;
+
     protected $table = 'api_logs';
 
     public const UPDATED_AT = null; // We only track created_at.
@@ -32,6 +36,14 @@ class ApiLogEntry extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * @return Builder<ApiLogEntry>
+     */
+    public function prunable(): Builder
+    {
+        return $this->where('created_at', '<', now()->subDays(14));
+    }
+
     // == accessors
 
     // == mutators
@@ -43,7 +55,7 @@ class ApiLogEntry extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

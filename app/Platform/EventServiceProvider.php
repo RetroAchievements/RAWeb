@@ -9,9 +9,9 @@ use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -38,11 +38,16 @@ use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
+use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Platform\Observers\MediaObserver;
+use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -57,14 +62,15 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
-        AchievementPublished::class => [
+        AchievementPromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            EnsureTriggerVersionedOnPromotion::class,
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
-        AchievementUnpublished::class => [
+        AchievementUnpromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
@@ -112,6 +118,7 @@ class EventServiceProvider extends ServiceProvider
         PlayerGameBeaten::class => [
             // TODO Refactor to AchievementSetBeaten
             // TODO Notify player
+            TriggerSuspiciousBeatTimeAlert::class,
         ],
         PlayerGameCompleted::class => [
             // TODO Refactor to AchievementSetCompleted
@@ -130,6 +137,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerRankedStatusChanged::class => [
             DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
+            UpdateAuthorYieldUnlocksForUser::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
             DispatchUpdatePlayerPointsStatsJob::class,
@@ -144,5 +152,6 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Media::observe(MediaObserver::class);
     }
 }

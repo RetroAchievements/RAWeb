@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
-import { ClaimStatus, ClaimType } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import { createAchievementSetClaim, createGame } from '@/test/factories';
 
@@ -20,8 +19,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -40,8 +39,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -60,8 +59,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Collaboration,
-            status: ClaimStatus.Active,
+            claimType: 'collaboration',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -80,8 +79,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Complete,
+            claimType: 'primary',
+            status: 'complete',
           }),
         ],
         backingGame: createGame(),
@@ -100,8 +99,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -120,8 +119,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.InReview,
+            claimType: 'primary',
+            status: 'in_review',
           }),
         ],
         backingGame: createGame(),
@@ -140,8 +139,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame({ id: 999 }),
@@ -160,8 +159,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -186,8 +185,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.InReview,
+            claimType: 'primary',
+            status: 'in_review',
           }),
         ],
         backingGame: createGame(),
@@ -212,8 +211,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
       pageProps: {
         achievementSetClaims: [
           createAchievementSetClaim({
-            claimType: ClaimType.Primary,
-            status: ClaimStatus.Active,
+            claimType: 'primary',
+            status: 'active',
           }),
         ],
         backingGame: createGame(),
@@ -238,8 +237,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
     vi.spyOn(router, 'reload').mockImplementationOnce(vi.fn());
     const primaryClaim = createAchievementSetClaim({
       id: 123,
-      claimType: ClaimType.Primary,
-      status: ClaimStatus.Active,
+      claimType: 'primary',
+      status: 'active',
     });
 
     render(<SidebarToggleInReviewButton />, {
@@ -263,7 +262,7 @@ describe('Component: SidebarToggleInReviewButton', () => {
     const [url, formData] = postSpy.mock.calls[0];
     expect(url).toEqual(route('achievement-set-claim.update', { claim: 123 }));
     expect(formData).toBeInstanceOf(FormData);
-    expect((formData as any).get('status')).toEqual(ClaimStatus.InReview.toString());
+    expect((formData as any).get('status')).toEqual('in_review');
 
     await waitFor(() => {
       expect(screen.queryByText(/are you sure\?/i)).not.toBeInTheDocument();
@@ -276,8 +275,8 @@ describe('Component: SidebarToggleInReviewButton', () => {
     vi.spyOn(router, 'reload').mockImplementationOnce(vi.fn());
     const primaryClaim = createAchievementSetClaim({
       id: 456,
-      claimType: ClaimType.Primary,
-      status: ClaimStatus.InReview,
+      claimType: 'primary',
+      status: 'in_review',
     });
 
     render(<SidebarToggleInReviewButton />, {
@@ -301,7 +300,7 @@ describe('Component: SidebarToggleInReviewButton', () => {
     const [url, formData] = postSpy.mock.calls[0];
     expect(url).toEqual(route('achievement-set-claim.update', { claim: 456 }));
     expect(formData).toBeInstanceOf(FormData);
-    expect((formData as any).get('status')).toEqual(ClaimStatus.Active.toString());
+    expect((formData as any).get('status')).toEqual('active');
 
     await waitFor(() => {
       expect(screen.queryByText(/are you sure\?/i)).not.toBeInTheDocument();

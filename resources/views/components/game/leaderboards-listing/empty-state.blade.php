@@ -8,15 +8,15 @@ use App\Models\ForumTopic;
 
 @php
     $doesGameHaveForumTopic = false;
-    if ($game?->ForumTopicID) {
-        $doesGameHaveForumTopic = ForumTopic::where('id', $game->ForumTopicID)->exists();
+    if ($game?->forum_topic_id) {
+        $doesGameHaveForumTopic = ForumTopic::where('id', $game->forum_topic_id)->exists();
     }
 @endphp
 
 @if ($doesGameHaveForumTopic)
     <p>
         No leaderboards found. Why not
-        <a href="{{ route('forum-topic.show', ['topic' => $game->ForumTopicID]) }}">
+        <a href="{{ route('forum-topic.show', ['topic' => $game->forum_topic_id]) }}">
             suggest some
         </a>
         for this game?

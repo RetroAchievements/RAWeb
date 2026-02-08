@@ -100,7 +100,13 @@ return [
     'not_in' => 'The selected :attribute is invalid.',
     'not_regex' => 'The :attribute format is invalid.',
     'numeric' => 'The :attribute must be a number.',
-    'password' => 'The password is incorrect.',
+    'password' => [
+        'letters' => 'The :attribute must contain at least one letter.',
+        'mixed' => 'The :attribute must contain at least one uppercase and one lowercase letter.',
+        'numbers' => 'The :attribute must contain at least one number.',
+        'symbols' => 'The :attribute must contain at least one symbol.',
+        'uncompromised' => 'The :attribute has appeared in a data breach. Please choose a different password.',
+    ],
     'present' => 'The :attribute field must be present.',
     'prohibited' => 'The :attribute field is prohibited.',
     'prohibited_if' => 'The :attribute field is prohibited when :other is :value.',
@@ -136,6 +142,8 @@ return [
     'contains_regular_character' => 'The :attribute must contain at least one regular character.',
     'ctype_alnum' => 'The :attribute must only contain unaccented letters and numbers.',
     'locale' => 'The :attribute locale is not currently supported.',
+    'minimum_unique_characters' => 'The :attribute must contain at least :minimum different characters.',
+    'minimum_unique_characters_with_strip' => 'The :attribute contains a common word. Please add more unique characters.',
     'not_disposable_email' => 'This email provider is not allowed.',
     'no_offensive_content' => 'This username is not available.',
 

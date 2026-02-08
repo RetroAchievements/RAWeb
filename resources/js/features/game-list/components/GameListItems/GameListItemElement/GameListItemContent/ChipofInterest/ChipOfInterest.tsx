@@ -6,13 +6,13 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
+import { useFormatGameReleasedAt } from '@/common/hooks/useFormatGameReleasedAt';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { cn } from '@/common/utils/cn';
-import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
 
@@ -31,6 +31,8 @@ interface ChipOfInterestProps {
 export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fieldId }) => {
   const { t } = useTranslation();
 
+  const { formatDate } = useFormatDate();
+  const { formatGameReleasedAt } = useFormatGameReleasedAt();
   const { formatNumber } = useFormatNumber();
 
   let chipContent: ReactNode = null;
@@ -136,13 +138,14 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               !isComplete ? 'px-2' : null,
               buildAwardLabelColorClassNames(
                 playerGame?.highestAward?.awardType,
-                playerGame?.highestAward?.awardDataExtra,
+                playerGame?.highestAward?.awardTier,
               ),
             )}
           >
-            {playerGame?.highestAward && !getIsEventGame(game) && (
+            {playerGame?.highestAward && !getIsEventGame(game) ? (
               <PlayerBadgeIndicator playerBadge={playerGame.highestAward} />
-            )}
+            ) : null}
+
             {!isComplete &&
               formatPercentage(playerGame.achievementsUnlocked / game.achievementsPublished, {
                 maximumFractionDigits: 0,

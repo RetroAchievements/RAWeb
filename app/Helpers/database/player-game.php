@@ -1,14 +1,12 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
-use App\Models\GameRecentPlayer;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
+use Illuminate\Support\Facades\DB;
 
 function getGameRankAndScore(int $gameID, User $user): array
 {
@@ -18,22 +16,22 @@ function getGameRankAndScore(int $gameID, User $user): array
 
     $dateClause = greatestStatement(['pg.last_unlock_hardcore_at', 'pg.last_unlock_at']);
     $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.Points DESC, $dateClause ASC) UserRank";
-    $untrackedClause = "AND ua.Untracked = 0";
-    if ($user->Untracked) {
+    $untrackedClause = "AND ua.unranked_at IS NULL";
+    if ($user->unranked_at !== null) {
         $rankClause = "NULL AS UserRank";
         $untrackedClause = "";
     }
 
     $query = "WITH data
-    AS (SELECT ua.User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
+    AS (SELECT ua.username AS User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
         FROM player_games AS pg
-        INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id
+        INNER JOIN users AS ua ON ua.id = pg.user_id
         WHERE pg.game_id = $gameID $untrackedClause
-        GROUP BY ua.User
+        GROUP BY ua.username
         ORDER BY TotalScore DESC, LastAward ASC
    ) SELECT * FROM data WHERE User = :username";
 
-    return legacyDbFetchAll($query, ['username' => $user->User])->toArray();
+    return legacyDbFetchAll($query, ['username' => $user->username])->toArray();
 }
 
 function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
@@ -45,8 +43,8 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     $unlockedAchievements = [];
     $lockedAchievements = [];
 
-    $games = Game::with('system')->whereIn('ID', $gameIDs)->get()->keyBy('ID');
-    $playerGames = PlayerGame::where('user_id', '=', $user->ID)
+    $games = Game::with('system')->whereIn('id', $gameIDs)->get()->keyBy('id');
+    $playerGames = PlayerGame::where('user_id', '=', $user->id)
         ->whereIn('game_id', $gameIDs)
         ->get()
         ->keyBy('game_id');
@@ -78,19 +76,19 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         if ($withGameInfo) {
             $gameInfo[$gameID] = [
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => (int) $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ForumTopicID' => (int) $game->ForumTopicID,
-                'Flags' => (int) $game->Flags,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system_id,
+                'ConsoleName' => $game->system->name,
+                'ForumTopicID' => (int) $game->forum_topic_id,
+                'Flags' => 0,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $game->released_at?->format('Y-m-d'),
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
@@ -99,15 +97,15 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
     if ($numRecentAchievements >= 0) {
         $achievementsQuery = Achievement::query()
-            ->published()
-            ->whereIn('GameID', $gameIDs)
+            ->promoted()
+            ->whereIn('game_id', $gameIDs)
             ->with(['game'])
             ->leftJoin('player_achievements', function ($join) use ($user) {
-                $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
+                $join->on('player_achievements.achievement_id', '=', 'achievements.id');
                 $join->where('player_achievements.user_id', $user->id);
             })
             ->select(
-                'Achievements.*',
+                'achievements.*',
                 'player_achievements.unlocked_at',
                 'player_achievements.unlocked_hardcore_at'
             )
@@ -124,7 +122,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
         // Group the results by game ID.
         $gameAchievementsMap = [];
         foreach ($gameIDs as $gameID) {
-            $gameAchievements = $allAchievements->where('GameID', $gameID);
+            $gameAchievements = $allAchievements->where('game_id', $gameID);
 
             if ($numRecentAchievements > 0) {
                 $gameAchievements = $gameAchievements->take($numRecentAchievements);
@@ -135,7 +133,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         foreach ($gameAchievementsMap as $gameID => $achievements) {
             foreach ($achievements as $achievement) {
-                $gameData = $games->get($achievement->GameID)->toArray();
+                $gameData = $games->get($achievement->game_id)->toArray();
 
                 if ($achievement->unlocked_hardcore_at) {
                     $unlockedAchievements[] = [
@@ -174,7 +172,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     if ($numRecentAchievements >= 0) {
         usort($unlockedAchievements, function ($a, $b) {
             if ($a['When'] == $b['When']) {
-                return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
+                return $a['Achievement']['id'] <=> $b['Achievement']['id'];
             }
 
             return -($a['When'] <=> $b['When']);
@@ -188,19 +186,19 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         foreach ($unlockedAchievements as $unlockedAchievement) {
             $gameData = $unlockedAchievement['Game'];
-            $gameID = (int) $gameData['ID'];
+            $gameID = (int) $gameData['id'];
             $achievementData = $unlockedAchievement['Achievement'];
-            $achievementID = (int) $achievementData['ID'];
+            $achievementID = (int) $achievementData['id'];
 
             $recentAchievements[$gameID][$achievementID] = [
                 'ID' => $achievementID,
                 'GameID' => $gameID,
-                'GameTitle' => $gameData['Title'],
-                'Title' => $achievementData['Title'],
-                'Description' => $achievementData['Description'],
-                'Points' => (int) $achievementData['Points'],
+                'GameTitle' => $gameData['title'],
+                'Title' => $achievementData['title'],
+                'Description' => $achievementData['description'],
+                'Points' => (int) $achievementData['points'],
                 'Type' => $achievementData['type'],
-                'BadgeName' => $achievementData['BadgeName'],
+                'BadgeName' => $achievementData['image_name'],
                 'IsAwarded' => '1',
                 'DateAwarded' => $unlockedAchievement['When'],
                 'HardcoreAchieved' => (int) $unlockedAchievement['Hardcore'],
@@ -209,29 +207,29 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         if ($numRecentAchievements === 0) {
             usort($lockedAchievements, function ($a, $b) {
-                if ($a['Achievement']['DisplayOrder'] === $b['Achievement']['DisplayOrder']) {
-                    //  DisplayOrders haven't been setup correctly; fallback to IDs for consistency
-                    return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
+                if ($a['Achievement']['order_column'] === $b['Achievement']['order_column']) {
+                    //  order_column values haven't been setup correctly; fallback to IDs for consistency
+                    return $a['Achievement']['id'] <=> $b['Achievement']['id'];
                 }
 
-                return $a['Achievement']['DisplayOrder'] <=> $b['Achievement']['DisplayOrder'];
+                return $a['Achievement']['order_column'] <=> $b['Achievement']['order_column'];
             });
 
             foreach ($lockedAchievements as $lockedAchievement) {
                 $gameData = $lockedAchievement['Game'];
-                $gameID = (int) $gameData['ID'];
+                $gameID = (int) $gameData['id'];
                 $achievementData = $lockedAchievement['Achievement'];
-                $achievementID = (int) $achievementData['ID'];
+                $achievementID = (int) $achievementData['id'];
 
                 $recentAchievements[$gameID][$achievementID] = [
                     'ID' => $achievementID,
                     'GameID' => $gameID,
-                    'GameTitle' => $gameData['Title'],
-                    'Title' => $achievementData['Title'],
-                    'Description' => $achievementData['Description'],
-                    'Points' => (int) $achievementData['Points'],
+                    'GameTitle' => $gameData['title'],
+                    'Title' => $achievementData['title'],
+                    'Description' => $achievementData['description'],
+                    'Points' => (int) $achievementData['points'],
                     'Type' => $achievementData['type'],
-                    'BadgeName' => $achievementData['BadgeName'],
+                    'BadgeName' => $achievementData['image_name'],
                     'IsAwarded' => '0',
                     'DateAwarded' => null,
                     'HardcoreAchieved' => null,
@@ -245,23 +243,37 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     return $libraryOut;
 }
 
-function getUserAchievementUnlocksForGame(User|string $user, int $gameID, AchievementFlag $flag = AchievementFlag::OfficialCore): array
-{
+function getUserAchievementUnlocksForGame(
+    User|string $user,
+    int $gameID,
+    bool $isPromoted = true,
+    ?array $achievementSetIds = null,
+): array {
     $user = is_string($user) ? User::whereName($user)->first() : $user;
 
     $playerAchievements = $user
         ->playerAchievements()
-        ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-        ->join('achievement_set_achievements', 'Achievements.ID', '=', 'achievement_set_achievements.achievement_id')
+        ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+        ->join('achievement_set_achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
         ->join('achievement_sets', 'achievement_sets.id', '=', 'achievement_set_achievements.achievement_set_id')
         ->join('game_achievement_sets', 'game_achievement_sets.achievement_set_id', '=', 'achievement_sets.id')
-        ->where('game_achievement_sets.game_id', $gameID)
-        ->where('Flags', $flag->value)
+
+        /**
+         * When achievement set IDs are provided, filter unlocks for content from those specific sets.
+         * Otherwise, fall back to filtering by game ID.
+         */
+        ->when(
+            !empty($achievementSetIds),
+            fn ($q) => $q->whereIn('achievement_sets.id', $achievementSetIds),
+            fn ($q) => $q->where(DB::raw('game_achievement_sets.game_id'), $gameID)
+        )
+
+        ->where('is_promoted', $isPromoted)
         ->orderBy('player_achievements.achievement_id')
         ->get([
-            'player_achievements.achievement_id',
-            'player_achievements.unlocked_at',
-            'player_achievements.unlocked_hardcore_at',
+            DB::raw('player_achievements.achievement_id'),
+            DB::raw('player_achievements.unlocked_at'),
+            DB::raw('player_achievements.unlocked_hardcore_at'),
         ])
         ->mapWithKeys(function ($unlock, int $key) {
             $result = [];
@@ -292,7 +304,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     $activeEventAchievementMap = EventAchievement::active()
         ->whereIn('source_achievement_id', array_keys($userUnlocks))
         ->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore->value);
+            $query->where('is_promoted', true);
         })
         ->get(['source_achievement_id', 'achievement_id'])
         ->mapWithKeys(function ($eventAchievement, int $key) {
@@ -323,107 +335,37 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function getUsersCompletedGamesAndMax(string $user): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false): array
 {
     if (!isValidUsername($user)) {
         return [];
     }
 
     $minAchievementsForCompletion = 5;
+    $limitClause = $limit !== null ? "LIMIT $limit" : "";
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
-            gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
+    // When excluding completed games, filter out rows where user has unlocked all achievements.
+    $excludeCompletedClause = $isExcludingCompleted
+        ? "AND pg.achievements_unlocked < gd.achievements_published"
+        : "";
+
+    $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
+            gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
             pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
             FROM player_games AS pg
-            LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-            WHERE (ua.User = :user OR ua.display_name = :user2)
+            LEFT JOIN games AS gd ON gd.id = pg.game_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id
+            LEFT JOIN users ua ON ua.id = pg.user_id
+            WHERE (ua.username = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
+            $excludeCompletedClause
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.title
+            $limitClause";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
-}
-
-function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
-{
-    $retval = [];
-
-    $sessions = GameRecentPlayer::with('user')
-        ->where('game_id', $gameID)
-        ->whereHas('user', function ($query) {
-            $query->whereNull('banned_at');
-        })
-        ->orderBy('rich_presence_updated_at', 'DESC');
-
-    if ($maximum_results) {
-        $sessions = $sessions->limit($maximum_results);
-    }
-
-    foreach ($sessions->get() as $session) {
-        $retval[] = [
-            'UserID' => $session->user_id,
-            'User' => $session->user,
-            'Date' => $session->rich_presence_updated_at->__toString(),
-            'Activity' => $session->rich_presence,
-            'NumAwarded' => 0,
-            'NumAwardedHardcore' => 0,
-            'NumAchievements' => 0,
-        ];
-    }
-
-    $mergePlayerGames = function (array &$retval) use ($gameID): array {
-        $player_games = PlayerGame::where('game_id', $gameID)
-            ->whereIn('user_id', array_column($retval, 'UserID'))
-            ->select(['user_id', 'achievements_unlocked', 'achievements_unlocked_hardcore', 'achievements_total']);
-
-        foreach ($player_games->get() as $player_game) {
-            foreach ($retval as &$entry) {
-                if ($entry['UserID'] == $player_game->user_id) {
-                    $entry['NumAwarded'] = $player_game->achievements_unlocked;
-                    $entry['NumAwardedHardcore'] = $player_game->achievements_unlocked_hardcore;
-                    $entry['NumAchievements'] = $player_game->achievements_total;
-                    break;
-                }
-            }
-        }
-
-        return $retval;
-    };
-
-    if ($maximum_results) {
-        $maximum_results -= count($retval);
-        if ($maximum_results == 0) {
-            return $mergePlayerGames($retval);
-        }
-    }
-
-    $userFilter = '';
-    if (count($retval)) {
-        $userFilter = 'AND ua.ID NOT IN (' . implode(',', array_column($retval, 'UserID')) . ')';
-    }
-
-    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
-              FROM UserAccounts AS ua
-              WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
-              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW()) $userFilter
-              ORDER BY ua.RichPresenceMsgDate DESC";
-
-    if ($maximum_results > 0) {
-        $query .= " LIMIT $maximum_results";
-    }
-
-    foreach (legacyDbFetchAll($query) as $data) {
-        $data['NumAwarded'] = 0;
-        $data['NumAwardedHardcore'] = 0;
-        $data['NumAchievements'] = 0;
-        $retval[] = $data;
-    }
-
-    return $mergePlayerGames($retval);
 }
 
 /**

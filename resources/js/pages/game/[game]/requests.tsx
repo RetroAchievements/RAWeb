@@ -5,7 +5,7 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameSetRequestsRoot } from '@/features/games/components/+requests';
 
-const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps> = ({ game }) => {
+const SetRequestorsPage: AppPage<App.Community.Data.GameSetRequestsPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
   return (
@@ -15,11 +15,9 @@ const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps>
         description={`A list of set requests for ${game.title}.`}
       />
 
-      <div className="container">
-        <AppLayout.Main className="min-h-[400px]">
-          <GameSetRequestsRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main className="min-h-[400px]">
+        <GameSetRequestsRoot />
+      </AppLayout.Main>
     </>
   );
 };

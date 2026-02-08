@@ -2,7 +2,6 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Support\Cache\CacheKey;
@@ -11,15 +10,8 @@ use Illuminate\Support\Facades\Cache;
 
 function SetUserUntrackedStatus(User $user, bool $isUntracked): void
 {
-    $user->Untracked = $isUntracked;
     $user->unranked_at = $isUntracked ? now() : null;
     $user->save();
-
-    if ($isUntracked) {
-        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
-    } else {
-        UnrankedUser::where('user_id', $user->id)->delete();
-    }
 
     PlayerRankedStatusChanged::dispatch($user);
 }
@@ -29,22 +21,22 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return Cache::remember("rankedUserCount:$type",
         Carbon::now()->addMinute(),
         function () use ($type) {
-            $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
+            $query = "SELECT COUNT(*) AS count FROM users ";
             switch ($type) {
                 case RankType::Hardcore:
-                    $query .= "WHERE RAPoints >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points_hardcore >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::Softcore:
-                    $query .= "WHERE RASoftcorePoints >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::TruePoints:
-                    $query .= "WHERE TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
+                    $query .= "WHERE points_weighted >= " . Rank::MIN_TRUE_POINTS;
                     break;
             }
 
-            $query .= " AND NOT Untracked";
+            $query .= " AND unranked_at IS NULL";
 
             return (int) legacyDbFetch($query)['count'];
         });
@@ -52,15 +44,15 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    $topUsers = User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
-        ->where('Untracked', false)
-        ->orderBy('RAPoints', 'desc')
+    $topUsers = User::select(['ulid', 'display_name', 'username', 'points_hardcore', 'points_weighted'])
+        ->whereNull('unranked_at')
+        ->orderBy('points_hardcore', 'desc')
         ->take(min($count, 10))
         ->get()
         ->map(fn ($user) => [
-            1 => $user->display_name ?? $user->User,
-            2 => $user->RAPoints,
-            3 => $user->TrueRAPoints,
+            1 => $user->display_name ?? $user->username,
+            2 => $user->points_hardcore,
+            3 => $user->points_weighted,
             4 => $user->ulid,
         ])
         ->toArray();
@@ -82,14 +74,14 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 
     return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
         $user = User::whereName($username)->first();
-        if (!$user || $user->Untracked) {
+        if (!$user || $user->unranked_at !== null) {
             return null;
         }
 
         $field = match ($type) {
-            RankType::Softcore => 'RASoftcorePoints',
-            RankType::TruePoints => 'TrueRAPoints',
-            default => 'RAPoints',
+            RankType::Softcore => 'points',
+            RankType::TruePoints => 'points_weighted',
+            default => 'points_hardcore',
         };
 
         $points = $user->$field;
@@ -100,7 +92,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         return User::where($field, '>', $points)
-            ->where('Untracked', false)
+            ->whereNull('unranked_at')
             ->count() + 1;
     });
 }

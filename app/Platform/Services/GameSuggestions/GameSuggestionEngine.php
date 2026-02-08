@@ -49,7 +49,7 @@ class GameSuggestionEngine
             ];
         } else {
             $masteredGames = Game::query()
-                ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                ->whereNotIn('system_id', System::getNonGameSystems())
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereColumn('achievements_unlocked', 'achievements_total')
@@ -59,7 +59,7 @@ class GameSuggestionEngine
                 ->get();
 
             $beatenGames = Game::query()
-                ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                ->whereNotIn('system_id', System::getNonGameSystems())
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereNotNull('beaten_at');
@@ -191,7 +191,7 @@ class GameSuggestionEngine
         $totalCount = $user->gameListEntries()
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('ConsoleID', System::getNonGameSystems());
+                $query->whereNotIn('system_id', System::getNonGameSystems());
             })
             ->count();
 
@@ -201,7 +201,7 @@ class GameSuggestionEngine
         return $user->gameListEntries()
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('ConsoleID', System::getNonGameSystems());
+                $query->whereNotIn('system_id', System::getNonGameSystems());
             })
             ->with('game')
             ->skip($offset)

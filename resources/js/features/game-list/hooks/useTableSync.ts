@@ -74,7 +74,7 @@ export function useTableSync({
       ? `${window.location.pathname}?${searchParams.toString()}`
       : window.location.pathname;
 
-    window.history.replaceState(null, '', newUrl);
+    window.history.pushState({ inertia: true }, '', newUrl);
   }, [pagination, sorting, columnFilters]);
 }
 

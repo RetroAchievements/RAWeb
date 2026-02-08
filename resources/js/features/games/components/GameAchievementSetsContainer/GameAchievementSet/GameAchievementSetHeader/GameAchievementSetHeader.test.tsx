@@ -101,21 +101,6 @@ describe('Component: GameAchievementSetHeader', () => {
     expect(screen.queryByTestId('chevron')).not.toBeInTheDocument();
   });
 
-  it('shows the achievement set image', () => {
-    // ARRANGE
-    const gameAchievementSet = createGameAchievementSet();
-    const { imageAssetPathUrl } = gameAchievementSet.achievementSet;
-
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
-      pageProps: { isViewingPublishedAchievements: true },
-    });
-
-    // ASSERT
-    const imgElement = screen.getByRole('img');
-    expect(imgElement).toBeVisible();
-    expect(imgElement).toHaveAttribute('src', imageAssetPathUrl);
-  });
-
   it('shows the achievement count and points information', () => {
     // ARRANGE
     const gameAchievementSet = createGameAchievementSet({

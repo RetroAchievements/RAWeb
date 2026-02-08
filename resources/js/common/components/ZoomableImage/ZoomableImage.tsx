@@ -34,7 +34,7 @@ export const ZoomableImage: FC<ZoomableImageProps> = ({
       <BaseDialogTrigger>{children}</BaseDialogTrigger>
 
       <BaseDialogContent
-        className="max-w-5xl border-0 bg-transparent p-0"
+        className="max-w-5xl border-0 bg-transparent p-0 light:bg-transparent"
         shouldShowCloseButton={false}
       >
         {/* Both of these are needed for a11y. */}

@@ -2,6 +2,7 @@
 
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Support\Rules\PasswordRules;
 use App\Support\Rules\ValidNewUsername;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ValidNewUsername::get(),
-    'password' => 'required|min:8|different:username',
+    'password' => PasswordRules::get(),
     'email' => 'required|email:filter|confirmed|not_disposable_email',
     'terms' => 'accepted',
 ]);
@@ -44,20 +45,20 @@ if (config('services.google.recaptcha_secret')) {
 }
 
 $userModel = new User([
-    'User' => $username,
+    'username' => $username,
     'display_name' => $username,
-    'EmailAddress' => $email,
+    'email' => $email,
     'Permissions' => Permissions::Unregistered,
-    'websitePrefs' => 127,
-    'RAPoints' => 0,
-    'RASoftcorePoints' => 0,
-    'TrueRAPoints' => 0,
+    'preferences_bitfield' => 127,
+    'points_hardcore' => 0,
+    'points' => 0,
+    'points_weighted' => 0,
 ]);
 // these fields are not fillable, so we have to set them after initializing the User model
-$userModel->Password = Hash::make($pass);
+$userModel->password = Hash::make($pass);
 $userModel->ulid = (string) Str::ulid();
-$userModel->email_backup = $email;
-$userModel->UnreadMessageCount = 0;
+$userModel->email_original = $email;
+$userModel->unread_messages = 0;
 $userModel->save();
 
 // TODO let the framework handle registration events (sending out validation email, triggering notifications, ...)

@@ -1,5 +1,4 @@
 import { buildAwardLabelColorClassNames } from './buildAwardLabelColorClassNames';
-import { AwardType } from './generatedAppConstants';
 
 describe('Util: buildAwardLabelColorClassNames', () => {
   it('is defined', () => {
@@ -15,9 +14,9 @@ describe('Util: buildAwardLabelColorClassNames', () => {
     expect(result).toBeNull();
   });
 
-  it('given there is awardType, but no awardDataExtra, returns null', () => {
+  it('given there is awardType, but no awardTier, returns null', () => {
     // ACT
-    const result = buildAwardLabelColorClassNames(AwardType.Mastery, undefined);
+    const result = buildAwardLabelColorClassNames('mastery', undefined);
 
     // ASSERT
     expect(result).toBeNull();
@@ -25,8 +24,8 @@ describe('Util: buildAwardLabelColorClassNames', () => {
 
   it('given the award type is a non-game award, always returns null', () => {
     // ACT
-    const resultOne = buildAwardLabelColorClassNames(AwardType.PatreonSupporter, 1, 'base');
-    const resultTwo = buildAwardLabelColorClassNames(AwardType.CertifiedLegend, 0, 'muted-group');
+    const resultOne = buildAwardLabelColorClassNames('patreon_supporter', 1, 'base');
+    const resultTwo = buildAwardLabelColorClassNames('certified_legend', 0, 'muted-group');
 
     // ASSERT
     expect(resultOne).toBeNull();
@@ -35,10 +34,10 @@ describe('Util: buildAwardLabelColorClassNames', () => {
 
   it('given the consumer is using the "base" variant, returns all correct classes for the various awards', () => {
     // ACT
-    const mastery = buildAwardLabelColorClassNames(AwardType.Mastery, 1, 'base');
-    const completion = buildAwardLabelColorClassNames(AwardType.Mastery, 0, 'base');
-    const gameBeaten = buildAwardLabelColorClassNames(AwardType.GameBeaten, 1, 'base');
-    const gameBeatenSoftcore = buildAwardLabelColorClassNames(AwardType.GameBeaten, 0, 'base');
+    const mastery = buildAwardLabelColorClassNames('mastery', 1, 'base');
+    const completion = buildAwardLabelColorClassNames('mastery', 0, 'base');
+    const gameBeaten = buildAwardLabelColorClassNames('game_beaten', 1, 'base');
+    const gameBeatenSoftcore = buildAwardLabelColorClassNames('game_beaten', 0, 'base');
 
     // ASSERT
     expect(mastery).toEqual('text-[gold] light:text-yellow-600');
@@ -49,14 +48,10 @@ describe('Util: buildAwardLabelColorClassNames', () => {
 
   it('given the consumer is using the "muted-group" variant, returns all correct classes for the various awards', () => {
     // ACT
-    const mastery = buildAwardLabelColorClassNames(AwardType.Mastery, 1, 'muted-group');
-    const completion = buildAwardLabelColorClassNames(AwardType.Mastery, 0, 'muted-group');
-    const gameBeaten = buildAwardLabelColorClassNames(AwardType.GameBeaten, 1, 'muted-group');
-    const gameBeatenSoftcore = buildAwardLabelColorClassNames(
-      AwardType.GameBeaten,
-      0,
-      'muted-group',
-    );
+    const mastery = buildAwardLabelColorClassNames('mastery', 1, 'muted-group');
+    const completion = buildAwardLabelColorClassNames('mastery', 0, 'muted-group');
+    const gameBeaten = buildAwardLabelColorClassNames('game_beaten', 1, 'muted-group');
+    const gameBeatenSoftcore = buildAwardLabelColorClassNames('game_beaten', 0, 'muted-group');
 
     // ASSERT
     expect(mastery).toEqual(

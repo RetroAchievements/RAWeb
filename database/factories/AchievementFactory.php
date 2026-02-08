@@ -6,7 +6,6 @@ namespace Database\Factories;
 
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -38,25 +37,25 @@ class AchievementFactory extends Factory
         ];
 
         return [
-            'GameID' => 0,
-            'Title' => ucwords(fake()->words(2, true)),
-            'Description' => fake()->sentence(),
-            'MemAddr' => '0x000000',
+            'game_id' => 0,
+            'title' => ucwords(fake()->words(2, true)),
+            'description' => fake()->sentence(),
+            'trigger_definition' => '0x000000',
             'user_id' => $user?->id ?? 1,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
             'type' => null,
-            'Points' => fake()->randomElement($pointValues),
-            'TrueRatio' => rand(1, 1000),
-            'BadgeName' => '00001',
-            'DateModified' => Carbon::now(),
-            'DisplayOrder' => rand(0, 500),
+            'points' => fake()->randomElement($pointValues),
+            'points_weighted' => rand(1, 1000),
+            'image_name' => '00000',
+            'modified_at' => Carbon::now(),
+            'order_column' => rand(0, 500),
         ];
     }
 
-    public function published(): static
+    public function promoted(): static
     {
         return $this->state(fn (array $attributes) => [
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
     }
 

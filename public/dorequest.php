@@ -1,22 +1,22 @@
 <?php
 
 use App\Actions\FindUserByIdentifierAction;
-use App\Connect\Actions\BuildClientPatchDataAction;
-use App\Connect\Actions\BuildClientPatchDataV2Action;
+use App\Connect\Actions\GetAchievementSetsAction;
 use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Connect\Actions\GetBadgeIdRangeAction;
-use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetGameIdFromHashAction;
 use App\Connect\Actions\GetGameInfosAction;
+use App\Connect\Actions\GetGamesListAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
+use App\Connect\Actions\GetOfficialGamesListAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
 use App\Connect\Actions\GetUserProgressForConsoleAction;
-use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
+use App\Connect\Actions\LegacyGetPatchAction;
 use App\Connect\Actions\LegacyLoginAction;
 use App\Connect\Actions\LoginAction;
 use App\Connect\Actions\PingAction;
@@ -34,7 +34,6 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
@@ -44,11 +43,13 @@ use Illuminate\Support\Carbon;
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
+    'achievementsets' => new GetAchievementSetsAction(),
     'allprogress' => new GetUserProgressForConsoleAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
     'gameinfolist' => new GetGameInfosAction(),
+    'gameslist' => new GetGamesListAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
@@ -56,6 +57,8 @@ $handler = match ($requestType) {
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'login' => new LegacyLoginAction(),
     'login2' => new LoginAction(),
+    'officialgameslist' => new GetOfficialGamesListAction(),
+    'patch' => new LegacyGetPatchAction(),
     'ping' => new PingAction(),
     'postactivity' => new PostActivityAction(),
     'startsession' => new StartSessionAction(),
@@ -139,10 +142,8 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
-    "achievementsets",
     "awardachievement",
     "awardachievements",
-    "patch",
     "richpresencepatch",
     "submitgametitle",
     "submitlbentry",
@@ -219,19 +220,6 @@ if (
 
 switch ($requestType) {
     /*
-     * Global, no permissions required
-     */
-    case "gameslist":
-        $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID);
-        break;
-
-    case "officialgameslist": // TODO: is this used anymore? It's not used by the DLL.
-        $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
-        break;
-
-    /*
      * User-based (require credentials)
      */
 
@@ -244,8 +232,8 @@ switch ($requestType) {
         if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
             $response = [
                 'Success' => true,
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'AchievementID' => $achIDToAward,
                 'AchievementsRemaining' => 9999,
             ];
@@ -267,7 +255,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
+        $foundAchievement = Achievement::where('id', $achIDToAward)->first();
         if ($foundAchievement !== null) {
             // delegated unlocks will be rejected if the appropriate validation hash is not provided
             // backdated unlocks will not be backdated if the appropriate validation hash is not provided
@@ -313,8 +301,8 @@ switch ($requestType) {
         }
 
         if (empty($response['Score'])) {
-            $response['Score'] = $user->RAPoints;
-            $response['SoftcoreScore'] = $user->RASoftcorePoints;
+            $response['Score'] = $user->points_hardcore;
+            $response['SoftcoreScore'] = $user->points;
         }
 
         $response['AchievementID'] = $achIDToAward;
@@ -394,7 +382,7 @@ switch ($requestType) {
             return Achievement::find($id)->getCanDelegateUnlocks($user);
         });
 
-        $awardableAchievements = Achievement::whereIn('ID', $filteredAchievementIds)
+        $awardableAchievements = Achievement::whereIn('id', $filteredAchievementIds)
             ->with('game')
             ->get();
 
@@ -410,72 +398,11 @@ switch ($requestType) {
             }
         }
 
-        $response['Score'] = $targetUser->RAPoints;
-        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
+        $response['Score'] = $targetUser->points_hardcore;
+        $response['SoftcoreScore'] = $targetUser->points;
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
-        break;
-
-    case "achievementsets":
-    case "patch":
-        $version = $requestType === 'achievementsets' ? 2 : 1;
-        $flag = (int) request()->input('f', 0);
-        $gameHashMd5 = request()->input('m');
-
-        $clientSupportLevel = (new GetClientSupportLevelAction())->execute(
-            request()->header('User-Agent') ?? '[not provided]'
-        );
-
-        // TODO middleware?
-        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
-            return DoRequestError('This client is not supported', 403, 'unsupported_client');
-        }
-
-        try {
-            $game = null;
-            $gameHash = null;
-            if (VirtualGameIdService::isVirtualGameId($gameID)) {
-                // we don't have a specific game hash. check to see if the user is selected for
-                // compatibility testing for any hash for the game. if so, load it.
-                if ($user) {
-                    [$realGameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-                    if (GameHash::where('game_id', $realGameId)->where('compatibility_tester_id', $user->id)->exists()) {
-                        $game = Game::find($realGameId);
-                    }
-                }
-                if (!$game) {
-                    $gameHash = VirtualGameIdService::makeVirtualGameHash($gameID);
-                }
-            } elseif ($gameHashMd5) {
-                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-            } else {
-                $game = Game::find($gameID);
-            }
-
-            $buildDataAction = $version === 2
-                ? (new BuildClientPatchDataV2Action())
-                : (new BuildClientPatchDataAction());
-
-            $response = $buildDataAction->execute(
-                gameHash: $gameHash,
-                game: $game,
-                user: $user,
-                flag: AchievementFlag::tryFrom($flag),
-            );
-
-            // Based on the user's current client support level, we may want to attach
-            // some metadata into the patch response. We'll do that as part of a separate
-            // action to keep the original data construction pure.
-            $response = (new InjectPatchClientSupportLevelDataAction())->execute(
-                $response,
-                $clientSupportLevel,
-                $gameHash,
-                $game,
-            );
-        } catch (InvalidArgumentException $e) {
-            return DoRequestError('Unknown game', 404, 'not_found');
-        }
         break;
 
     case "richpresencepatch":
@@ -504,7 +431,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
+        $foundLeaderboard = Leaderboard::where('id', $lbID)->first();
         if (!$foundLeaderboard) {
             $response['Success'] = false;
             $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
@@ -567,7 +494,7 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
-            flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
+            flag: (int) request()->input('f', Achievement::FLAG_UNPROMOTED),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut,

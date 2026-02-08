@@ -19,7 +19,7 @@ class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testManualUnlockDoesntUpdateLastLogin(): void
+    public function testManualUnlockDoesntUpdateLastActivityAt(): void
     {
         $action = new UnlockPlayerAchievementAction();
 
@@ -30,9 +30,9 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $user2 = User::factory()->create();
 
         $lastLogin = $now->clone()->subDays(7);
-        $user1->LastLogin = $lastLogin;
+        $user1->last_activity_at = $lastLogin;
         $user1->save();
-        $this->assertEquals($lastLogin, $user1->LastLogin);
+        $this->assertEquals($lastLogin, $user1->last_activity_at);
 
         $system = $this->seedSystem();
         $game = $this->seedGame($system);
@@ -41,10 +41,10 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $achievement2 = $achievements->slice(1, 1)->first();
 
         // if we don't create a player_game record before calling unlock, it will do so,
-        // which updates the LastLogin.
+        // which updates the last_activity_at.
         $user1->games()->attach($game);
 
-        // manual unlock (should not create a player session or update LastLogin)
+        // manual unlock (should not create a player session or update last_activity_at)
         $action->execute($user1, $achievement1, true, unlockedBy: $user2);
 
         $playerAchievement = $user1->playerAchievements()->firstWhere('achievement_id', $achievement1->id);
@@ -52,10 +52,10 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $this->assertEquals($user2->id, $playerAchievement->unlocker_id);
 
         $user1->refresh();
-        $this->assertEquals($lastLogin, $user1->LastLogin);
+        $this->assertEquals($lastLogin, $user1->last_activity_at);
         $this->assertEquals(0, $user1->playerSessions()->count());
 
-        // normal unlock (LastLogin is actually updated twice by WriteUserActivity -
+        // normal unlock (last_activity_at is actually updated twice by WriteUserActivity -
         // once for the PlayerSessionStarted/PlayerSessionResumed event and once for
         // the PlayerAchievementUnlocked event)
         $action->execute($user1, $achievement2, true);
@@ -65,7 +65,7 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $this->assertNull($playerAchievement->unlocker_id);
 
         $user1->refresh();
-        $this->assertEquals($now, $user1->LastLogin);
+        $this->assertEquals($now, $user1->last_activity_at);
         $this->assertEquals(1, $user1->playerSessions()->count());
     }
 
@@ -167,6 +167,6 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // subset player_games record should be created and have points from the unlock
         $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
         $this->assertNotNull($subsetPlayerGame);
-        $this->assertEquals($subsetAchievement->Points, $subsetPlayerGame->points_hardcore);
+        $this->assertEquals($subsetAchievement->points, $subsetPlayerGame->points_hardcore);
     }
 }

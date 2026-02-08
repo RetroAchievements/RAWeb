@@ -12,16 +12,16 @@ import {
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { AwardType } from '@/common/utils/generatedAppConstants';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 export const TopAchieversList: FC = () => {
   const { paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
 
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   if (!paginatedUsers.items.length) {
@@ -55,12 +55,12 @@ export const TopAchieversList: FC = () => {
             <BaseTableCell>
               {achiever.badge ? (
                 <div>
-                  {achiever.badge.awardType === AwardType.Mastery && (
+                  {achiever.badge.awardType === 'mastery' && (
                     <span>{formatDate(achiever.badge.awardDate, 'lll')}</span>
                   )}
 
                   <div className="flex items-center gap-1">
-                    {achiever.badge.awardType === AwardType.GameBeaten && (
+                    {achiever.badge.awardType === 'game_beaten' && (
                       <span>
                         {formatNumber(achiever.score)}
                         <span className="text-muted">{' - '}</span>

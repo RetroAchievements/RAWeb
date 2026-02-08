@@ -45,9 +45,13 @@ class HubResource extends Resource
     protected static ?string $navigationLabel = 'Hubs';
     protected static ?int $navigationSort = 51;
     protected static ?string $recordTitleAttribute = 'title';
+    protected static int $globalSearchResultsLimit = 5;
 
     public static function infolist(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
@@ -58,11 +62,6 @@ class HubResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (GameSet $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
-
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
@@ -78,6 +77,10 @@ class HubResource extends Resource
 
                                 return null;
                             }),
+
+                        Infolists\Components\TextEntry::make('sort_title')
+                            ->label('Sort Title')
+                            ->visible(fn (GameSet $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -141,6 +144,13 @@ class HubResource extends Resource
                             ->maxLength(80)
                             ->helperText('Be sure to wrap the hub title in square brackets like "[Genre - Action]".')
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\TextInput::make('sort_title')
+                            ->label('Sort Title')
+                            ->required()
+                            ->minLength(2)
+                            ->visible(fn ($record) => $user->can('updateField', [$record, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')

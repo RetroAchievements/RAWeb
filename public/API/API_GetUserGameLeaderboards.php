@@ -50,7 +50,7 @@ if (!$user) {
     return response()->json(['User not found'], 404);
 }
 
-$game = Game::firstWhere("ID", request()->query('i'));
+$game = Game::firstWhere("id", request()->query('i'));
 if (!$game) {
     return response()->json(['Game not found'], 404);
 }
@@ -60,15 +60,14 @@ if ($game->leaderboards()->count() === 0) {
 }
 
 $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
-    ->join('UserAccounts', 'leaderboard_entries.user_id', '=', 'UserAccounts.ID')
+    ->join('users', 'leaderboard_entries.user_id', '=', 'users.id')
     ->whereIn('leaderboard_id', function ($query) use ($game) {
-        $query->select('ID')
-            ->from('LeaderboardDef')
-            ->where('GameID', $game->ID)
+        $query->select('id')
+            ->from('leaderboards')
+            ->where('game_id', $game->id)
             ->whereNull('deleted_at');
     })
-    ->whereNull(DB::raw('UserAccounts.unranked_at'))
-    ->where(DB::raw('UserAccounts.Untracked'), 0)
+    ->whereNull(DB::raw('users.unranked_at'))
     ->count();
 
 if ($userLeaderboardEntriesCount === 0) {
@@ -78,33 +77,31 @@ if ($userLeaderboardEntriesCount === 0) {
 $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ->addSelect([
         'calculated_rank' => LeaderboardEntry::from('leaderboard_entries as entries_rank_calc')
-            ->join('LeaderboardDef as leaderboard_rank_calc', 'entries_rank_calc.leaderboard_id', '=', 'leaderboard_rank_calc.ID')
-            ->join('UserAccounts', 'entries_rank_calc.user_id', '=', 'UserAccounts.ID')
+            ->join('leaderboards as leaderboard_rank_calc', 'entries_rank_calc.leaderboard_id', '=', 'leaderboard_rank_calc.id')
+            ->join('users', 'entries_rank_calc.user_id', '=', 'users.id')
             ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
-            ->whereNull('UserAccounts.unranked_at')
-            ->where(DB::raw('UserAccounts.Untracked'), 0)
+            ->whereNull('users.unranked_at')
             ->where(DB::raw('entries_rank_calc.deleted_at'), null)
             ->where(DB::raw('leaderboard_rank_calc.deleted_at'), null)
             ->where(function ($query) {
                 $query->where(function ($q) {
-                    $q->where(DB::raw('leaderboard_rank_calc.LowerIsBetter'), 1)
+                    $q->where(DB::raw('leaderboard_rank_calc.rank_asc'), 1)
                         ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
                 })->orWhere(function ($q) {
-                    $q->where(DB::raw('leaderboard_rank_calc.LowerIsBetter'), 0)
+                    $q->where(DB::raw('leaderboard_rank_calc.rank_asc'), 0)
                         ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
                 });
             })
             ->selectRaw('COUNT(*) + 1'),
     ])
-    ->join('LeaderboardDef', 'leaderboard_entries.leaderboard_id', '=', 'LeaderboardDef.ID')
-    ->join('UserAccounts', 'leaderboard_entries.user_id', '=', 'UserAccounts.ID')
-    ->where(DB::raw('LeaderboardDef.GameID'), $game->ID)
+    ->join('leaderboards', 'leaderboard_entries.leaderboard_id', '=', 'leaderboards.id')
+    ->join('users', 'leaderboard_entries.user_id', '=', 'users.id')
+    ->where(DB::raw('leaderboards.game_id'), $game->id)
     ->where('leaderboard_entries.user_id', $user->id)
-    ->whereNull(DB::raw('UserAccounts.unranked_at'))
-    ->where(DB::raw('UserAccounts.Untracked'), 0)
-    ->whereNull(DB::raw('LeaderboardDef.deleted_at'))
+    ->whereNull(DB::raw('users.unranked_at'))
+    ->whereNull(DB::raw('leaderboards.deleted_at'))
     ->with('leaderboard')
-    ->orderBy(DB::raw('LeaderboardDef.ID'), 'asc')
+    ->orderBy(DB::raw('leaderboards.id'), 'asc')
     ->skip($offset)
     ->take($count)
     ->get();
@@ -112,16 +109,16 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
 $results = [];
 foreach ($leaderboardEntries as $leaderboardEntry) {
     $results[] = [
-        'ID' => $leaderboardEntry->leaderboard->ID,
-        'RankAsc' => boolval($leaderboardEntry->leaderboard->LowerIsBetter),
-        'Title' => $leaderboardEntry->leaderboard->Title,
-        'Description' => $leaderboardEntry->leaderboard->Description,
-        'Format' => $leaderboardEntry->leaderboard->Format,
+        'ID' => $leaderboardEntry->leaderboard->id,
+        'RankAsc' => boolval($leaderboardEntry->leaderboard->rank_asc),
+        'Title' => $leaderboardEntry->leaderboard->title,
+        'Description' => $leaderboardEntry->leaderboard->description,
+        'Format' => $leaderboardEntry->leaderboard->format,
         'UserEntry' => [
             'User' => $user->display_name,
             'ULID' => $user->ulid,
             'Score' => $leaderboardEntry->score,
-            'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format),
+            'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->format),
             'Rank' => $leaderboardEntry->calculated_rank,
             'DateUpdated' => $leaderboardEntry->updated_at->toIso8601String(),
         ],

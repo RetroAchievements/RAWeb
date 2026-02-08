@@ -5,9 +5,9 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import {
   BaseTooltip,
@@ -32,15 +32,16 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   eventAchievement,
 }) => {
   const { event } = usePageProps<App.Platform.Data.EventShowPageProps>();
-
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const { unlockedAt, unlockedHardcoreAt } = achievement;
 
   const activeFrom = eventAchievement?.activeFrom;
   const activeThrough = eventAchievement?.activeThrough;
 
-  let isDemoted = eventAchievement?.sourceAchievement?.flags === 5;
+  let isDemoted =
+    achievement.isPromoted === false || eventAchievement?.sourceAchievement?.isPromoted === false;
   let isActive = false;
   let isExpired = false;
   let isUpcoming = false;
@@ -90,9 +91,11 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
           </BaseTooltipTrigger>
           <BaseTooltipPortal>
             <BaseTooltipContent>
-              {t(
-                'This achievement cannot currently be earned because the source achievement has been demoted.',
-              )}
+              {achievement.isPromoted === false
+                ? t('This achievement cannot currently be earned because it has been demoted.')
+                : t(
+                    'This achievement cannot currently be earned because the source achievement has been demoted.',
+                  )}
             </BaseTooltipContent>
           </BaseTooltipPortal>
         </BaseTooltip>

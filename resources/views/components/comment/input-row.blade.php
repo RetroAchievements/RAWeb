@@ -1,18 +1,18 @@
 @props([
-    'articleType' => 0,
-    'articleId' => 0,
+    'commentableType' => null,
+    'commentableId' => 0,
     'article' => null,
 ])
 
 @php
 
-$commentId = "art_{$articleType}_{$articleId}";
+$commentId = "art_{$commentableType?->value}_{$commentableId}";
 $canCreate = false;
 
 $user = request()->user();
 if ($user) {
     if ($article) {
-        $canCreate = $user->can('create', [App\Models\Comment::class, $article, $articleType]);
+        $canCreate = $user->can('create', [App\Models\Comment::class, $article, $commentableType]);
     } else {
         $canCreate = $user->can('create', [App\Models\Comment::class]);
     }
@@ -28,8 +28,8 @@ if ($user) {
         <td class="w-full pb-3" colspan="3">
             <form action="/request/comment/create.php" method="post">
                 {!! csrf_field() !!}
-                <input type="hidden" name="commentable_id" value="{{ $articleId }}">
-                <input type="hidden" name="commentable_type" value="{{ $articleType }}">
+                <input type="hidden" name="commentable_id" value="{{ $commentableId }}">
+                <input type="hidden" name="commentable_type" value="{{ $commentableType?->toLegacyInteger() }}">
                 <div x-data="{ isValid: true }" class="flex align-center mb-1">
                     <textarea
                         class="comment-textarea"

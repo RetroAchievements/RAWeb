@@ -7,12 +7,14 @@ namespace App\Community\Actions;
 use App\Community\Data\GameGroupData;
 use App\Community\Enums\AwardType;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameListEntryData;
 use App\Platform\Data\PlayerGameData;
+use App\Platform\Enums\AchievementSetType;
 
 class BuildGameChecklistAction
 {
@@ -41,9 +43,53 @@ class BuildGameChecklistAction
             $ids = substr($group, $index + 1);
         }
 
+        $subsetGameIds = [];
+        if (strpos($ids, '-') !== false) {
+            $subsetIds = [];
+            foreach (explode(',', $ids) as $id) {
+                $index = strpos($id, '-');
+                if ($index !== false) {
+                    $gameId = (int) substr($id, 0, $index);
+                    $subsetId = (int) substr($id, $index + 1);
+                    $subsetIds[$subsetId] = $gameId;
+                }
+            }
+
+            $subsets = GameAchievementSet::whereIn('achievement_set_id', array_keys($subsetIds))->get();
+            foreach ($subsetIds as $subsetId => $gameId) {
+                $subsetGameId = 0;
+
+                $subsetSet = $subsets->where('achievement_set_id', $subsetId)
+                    ->where('type', '!=', AchievementSetType::Core)
+                    ->where('game_id', $gameId)
+                    ->first();
+                if ($subsetSet) {
+                    // found valid game+subset pair, find the game_id for the subset as a core set
+                    $subsetCoreSet = $subsets->where('achievement_set_id', $subsetId)
+                        ->where('type', AchievementSetType::Core)
+                        ->first();
+                    if ($subsetCoreSet) {
+                        $subsetGameId = $subsetCoreSet->game_id;
+                    }
+                }
+
+                if ($subsetGameId > 0) {
+                    $subsetGameIds[$subsetId] = $subsetGameId;
+                }
+            }
+        }
+
         $gameIds = [];
         foreach (explode(',', $ids) as $id) {
-            $gameIds[] = (int) $id;
+            $index = strpos($id, '-');
+            if ($index === false) {
+                $gameIds[] = (int) $id;
+            } else {
+                $subsetId = (int) substr($id, $index + 1);
+                if (array_key_exists($subsetId, $subsetGameIds)) {
+                    $gameIds[] = $subsetGameIds[$subsetId];
+                }
+            }
         }
 
         return [
@@ -63,11 +109,11 @@ class BuildGameChecklistAction
         }
         $ids = array_unique($ids);
 
-        $games = Game::whereIn('ID', $ids)->with('system')->get();
+        $games = Game::whereIn('id', $ids)->with('system')->get();
         $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $ids)->get();
         $gameBadges = PlayerBadge::where('user_id', $user->id)
-            ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereIn('AwardData', $ids)
+            ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten])
+            ->whereIn('award_key', $ids)
             ->get();
 
         $result = [];
@@ -79,7 +125,7 @@ class BuildGameChecklistAction
 
             $gameList = [];
             foreach ($group['gameIds'] as $gameId) {
-                $game = $games->filter(fn ($g) => $g->ID === $gameId)->first();
+                $game = $games->filter(fn ($g) => $g->id === $gameId)->first();
                 if ($game) {
                     $playerGame = $playerGames->filter(fn ($pg) => $pg->game_id === $gameId)->first();
                     if ($playerGame) {
@@ -88,14 +134,15 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->completed_at) {
                             $completedCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::Mastery)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::Mastery)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->AwardDataExtra) {
+                                if ($gameBadge->award_tier) {
                                     $masteredCount++;
-                                    $playerGame->completed_hardcore_at = $gameBadge->AwardDate;
+                                    $playerGame->completed_hardcore_at = $gameBadge->awarded_at;
+                                    $playerGame->completed_at = $gameBadge->awarded_at;
                                 } else {
                                     $completedCount++;
-                                    $playerGame->completed_at = $gameBadge->AwardDate;
+                                    $playerGame->completed_at = $gameBadge->awarded_at;
                                 }
                             }
                         }
@@ -105,14 +152,15 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->beaten_at) {
                             $beatenSoftcoreCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::GameBeaten)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::GameBeaten)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->AwardDataExtra) {
+                                if ($gameBadge->award_tier) {
                                     $beatenCount++;
-                                    $playerGame->beaten_hardcore_at = $gameBadge->AwardDate;
+                                    $playerGame->beaten_hardcore_at = $gameBadge->awarded_at;
+                                    $playerGame->beaten_at = $gameBadge->awarded_at;
                                 } else {
                                     $beatenSoftcoreCount++;
-                                    $playerGame->beaten_at = $gameBadge->AwardDate;
+                                    $playerGame->beaten_at = $gameBadge->awarded_at;
                                 }
                             }
                         }

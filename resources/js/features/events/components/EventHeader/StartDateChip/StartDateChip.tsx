@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { LuAlarmClockCheck } from 'react-icons/lu';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 dayjs.extend(utc);
 
@@ -15,6 +15,7 @@ interface StartDateChipProps {
 
 export const StartDateChip: FC<StartDateChipProps> = ({ event }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   // If the event has no start date, bail.
   if (!event.activeFrom) {

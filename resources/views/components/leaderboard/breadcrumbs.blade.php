@@ -13,12 +13,12 @@ $leaderboard->loadMissing('game.system');
 
     &raquo;
 
-    <a href="{{ route('system.game.index', ['system' => $leaderboard->game->ConsoleID]) }}">{{ $leaderboard->game->system->Name }}</a>
+    <a href="{{ route('system.game.index', ['system' => $leaderboard->game->system_id]) }}">{{ $leaderboard->game->system->name }}</a>
 
     &raquo;
 
     <a href="{{ route('game.show', $leaderboard->game->id) }}">
-        <x-game-title :rawTitle="$leaderboard->game->Title" />
+        <x-game-title :rawTitle="$leaderboard->game->title" />
     </a>
 
     &raquo;
@@ -27,11 +27,11 @@ $leaderboard->loadMissing('game.system');
     @if ($currentPageLabel)
         {{-- <a href="{{ route('leaderboard.show', $leaderboard->id) }}"> --}}
         <a href="/leaderboardinfo.php?i={{ $leaderboard->id }}">
-            <x-game-title :rawTitle="$leaderboard->Title" />
+            <x-game-title :rawTitle="$leaderboard->title" />
         </a>
     @else
         <span class="font-bold">
-            <x-game-title :rawTitle="$leaderboard->Title" />
+            <x-game-title :rawTitle="$leaderboard->title" />
         </span>
     @endif
 

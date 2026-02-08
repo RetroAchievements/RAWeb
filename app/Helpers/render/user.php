@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
@@ -37,14 +37,14 @@ function userAvatar(
         );
 
         if (!$user) {
-            $user = ['User' => $username, 'Deleted' => 'yes'];
+            $user = ['username' => $username, 'deleted_at' => true];
         }
     }
 
-    $username = $user['User'] ?? null;
-    $displayName = $user['display_name'] ?? $user['User'] ?? null;
+    $username = $user['username'] ?? null;
+    $displayName = $user['display_name'] ?? $user['username'] ?? null;
 
-    if ($user['Deleted'] ?? false) {
+    if ($user['deleted_at'] ?? false) {
         $userSanitized = $displayName;
         sanitize_outputs($userSanitized);
 
@@ -63,7 +63,7 @@ function userAvatar(
 
     return avatar(
         resource: 'user',
-        id: $username,
+        id: $displayName,
         label: $label !== false && ($label || !$icon) ? $displayName : null,
         link: $link ?: route('user.show', $displayName),
         tooltip: is_array($tooltip) ? renderUserCard($tooltip) : $tooltip,
@@ -100,7 +100,7 @@ function RenderUserPref(
     echo " />";
 }
 
-function RenderUserList(string $header, array $users, int $friendshipType, array $followingList): void
+function RenderUserList(string $header, array $users, UserRelationStatus $relationStatus, array $followingList): void
 {
     if (count($users) == 0) {
         return;
@@ -121,28 +121,28 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
 
         echo "<td style='vertical-align:middle;'>";
         echo "<div class='flex justify-end gap-2'>";
-        switch ($friendshipType) {
-            case UserRelationship::Following:
+        switch ($relationStatus) {
+            case UserRelationStatus::Following:
                 if (!in_array($user, array_column($followingList, 'User'))) {
                     echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$user'>";
-                    echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
+                    echo "<input type='hidden' name='action' value='" . UserRelationStatus::Following->value . "'>";
                     echo "<button class='btn btn-link'>Follow</button>";
                     echo "</form>";
                 }
                 echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                 echo csrf_field();
                 echo "<input type='hidden' name='user' value='$user'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationStatus::Blocked->value . "'>";
                 echo "<button class='btn btn-link'>Block</button>";
                 echo "</form>";
                 break;
-            case UserRelationship::Blocked:
+            case UserRelationStatus::Blocked:
                 echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                 echo csrf_field();
                 echo "<input type='hidden' name='user' value='$user'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationStatus::NotFollowing->value . "'>";
                 echo "<button class='btn btn-link'>Unblock</button>";
                 echo "</form>";
                 break;

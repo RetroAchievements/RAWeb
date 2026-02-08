@@ -41,12 +41,22 @@ class SystemSchema extends Schema
     {
         return [
             ID::make(),
+
             Str::make('name')->sortable(),
             Str::make('nameFull', 'name_full')->sortable(),
             Str::make('nameShort', 'name_short')->sortable(),
+
             Str::make('manufacturer'),
+
             Str::make('iconUrl')->readOnly(),
+
             Boolean::make('active'),
+
+            // TODO add relationships
+            // - games (HasMany Game)
+
+            // TODO implement relationship endpoints to enable links
+            // - /systems/{id}/games
         ];
     }
 
@@ -79,7 +89,7 @@ class SystemSchema extends Schema
      */
     public function indexQuery(?object $model, Builder $query): Builder
     {
-        return $query->where('ID', '!=', System::Hubs)
-            ->where('ID', '!=', System::Events);
+        return $query->where('id', '!=', System::Hubs)
+            ->where('id', '!=', System::Events);
     }
 }

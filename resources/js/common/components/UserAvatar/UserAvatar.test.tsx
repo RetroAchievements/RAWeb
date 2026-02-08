@@ -56,7 +56,7 @@ describe('Component: UserAvatar', () => {
 
     expect(anchorEl).toHaveAttribute(
       'x-data',
-      "tooltipComponent($el, {dynamicType: 'user', dynamicId: 'Scott', dynamicContext: 'undefined'})",
+      "tooltipComponent($el, {dynamicType: 'user', dynamicId: 'Scott'})",
     );
     expect(anchorEl).toHaveAttribute('x-on:mouseover', 'showTooltip($event)');
     expect(anchorEl).toHaveAttribute('x-on:mouseleave', 'hideTooltip');

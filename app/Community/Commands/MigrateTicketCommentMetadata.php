@@ -55,7 +55,7 @@ class MigrateTicketCommentMetadata extends Command
         $newBody = '';
         $normalizedBody = str_replace("\\n", "\n",
                           str_replace("\\r", "\r",
-                          str_replace("<br/>", "\n", $ticket->ReportNotes)));
+                          str_replace("<br/>", "\n", $ticket->body)));
         foreach (explode("\n", $normalizedBody) as $line) {
             if (str_starts_with($line, 'RetroAchievements Hash:')) {
                 $hash = trim(substr($line, 23));
@@ -169,14 +169,14 @@ class MigrateTicketCommentMetadata extends Command
                 $ticket->emulator_core = null;
             }
 
-            // use raw query to avoid updating Updated timestamp
+            // Use raw query to avoid updating updated_at timestamp.
             Ticket::where('id', $ticket->id)->update([
-                'ReportNotes' => trim($newBody),
+                'body' => trim($newBody),
                 'game_hash_id' => $ticket->game_hash_id,
                 'emulator_id' => $ticket->emulator_id,
                 'emulator_version' => $ticket->emulator_version,
                 'emulator_core' => $ticket->emulator_core,
-                'Updated' => $ticket->Updated,
+                'updated_at' => $ticket->updated_at,
             ]);
         }
 

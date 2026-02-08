@@ -11,7 +11,6 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\IncrementDeveloperContributionYieldAction;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -34,13 +33,13 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItSuccessfullyIncrementsForUnlock(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -55,20 +54,20 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(6, $developer->ContribCount);
-        $this->assertEquals(550, $developer->ContribYield);
+        $this->assertEquals(6, $developer->yield_unlocks);
+        $this->assertEquals(550, $developer->yield_points);
     }
 
     public function testItSuccessfullyDecrementsForResets(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -83,22 +82,22 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(4, $developer->ContribCount);
-        $this->assertEquals(450, $developer->ContribYield);
+        $this->assertEquals(4, $developer->yield_unlocks);
+        $this->assertEquals(450, $developer->yield_points);
     }
 
     public function testItIgnoresUnofficialAchievements(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
         ]);
 
         $playerAchievement = PlayerAchievement::create([
@@ -112,19 +111,19 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItIgnoresDeveloperOwnUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -139,20 +138,20 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItAwardsBadgeOnThresholdCross(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 0, 'ContribYield' => 950]);
+        $developer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 950]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 100, // this will bring the total to 1050, crossing the 1000 badge requirement threshold
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 100, // this will bring the total to 1050, crossing the 1000 badge requirement threshold
             'user_id' => $developer->id,
         ]);
 
@@ -165,7 +164,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         // ... they shouldn't already have a badge ...
         $this->assertNull(
             PlayerBadge::where('user_id', $developer->id)
-                ->where('AwardType', AwardType::AchievementPointsYield)
+                ->where('award_type', AwardType::AchievementPointsYield)
                 ->first()
         );
 
@@ -174,35 +173,35 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(1050, $developer->ContribYield);
+        $this->assertEquals(1050, $developer->yield_points);
 
         // ... verify the badge was awarded ...
         $badge = PlayerBadge::where('user_id', $developer->id)
-            ->where('AwardType', AwardType::AchievementPointsYield)
+            ->where('award_type', AwardType::AchievementPointsYield)
             ->first();
 
         $this->assertNotNull($badge);
-        $this->assertEquals(0, $badge->AwardData); // !! first tier (1000 points) is stored as 0
+        $this->assertEquals(0, $badge->award_key); // !! first tier (1000 points) is stored as 0
     }
 
     public function testItDoesNotDuplicateBadges(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1100]);
+        $developer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1100]);
         $player = User::factory()->create();
 
         // ... the developer already has the tier 0 badge (1000 points threshold) ...
         PlayerBadge::create([
             'user_id' => $developer->id,
-            'AwardType' => AwardType::AchievementPointsYield,
-            'AwardData' => 0,
-            'DisplayOrder' => 1,
+            'award_type' => AwardType::AchievementPointsYield,
+            'award_key' => 0,
+            'order_column' => 1,
         ]);
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -218,8 +217,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         // Assert
         // ... only one badge should exist ...
         $badgeCount = PlayerBadge::where('user_id', $developer->id)
-            ->where('AwardType', AwardType::AchievementPointsYield)
-            ->where('AwardData', 0)
+            ->where('award_type', AwardType::AchievementPointsYield)
+            ->where('award_key', 0)
             ->count();
 
         $this->assertEquals(1, $badgeCount);
@@ -228,14 +227,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItCorrectlyHandlesMaintainerUnlocks(): void
     {
         // Arrange
-        $author = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
-        $maintainer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1000]);
+        $author = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
+        $maintainer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1000]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $author->id,
         ]);
 
@@ -257,25 +256,25 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $maintainer->refresh();
 
         // Assert
-        $this->assertEquals(11, $maintainer->ContribCount);
-        $this->assertEquals(1050, $maintainer->ContribYield);
+        $this->assertEquals(11, $maintainer->yield_unlocks);
+        $this->assertEquals(1050, $maintainer->yield_points);
 
         // ... author's stats should not change ...
         $author->refresh();
-        $this->assertEquals(5, $author->ContribCount);
-        $this->assertEquals(500, $author->ContribYield);
+        $this->assertEquals(5, $author->yield_unlocks);
+        $this->assertEquals(500, $author->yield_points);
     }
 
     public function testItIgnoresSoftcoreToHardcoreUpgrades(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -292,20 +291,20 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItCountsDirectHardcoreUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -323,38 +322,38 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(6, $developer->ContribCount); // !! incremented
-        $this->assertEquals(550, $developer->ContribYield); // !! incremented
+        $this->assertEquals(6, $developer->yield_unlocks); // !! incremented
+        $this->assertEquals(550, $developer->yield_points); // !! incremented
     }
 
     public function testItDoesNotReAwardBadgeAfterDippingBelowThreshold(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1050]);
+        $developer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1050]);
         $player1 = User::factory()->create();
         $player2 = User::factory()->create();
 
         // ... developer already has the 1000 point yield badge ...
         PlayerBadge::create([
             'user_id' => $developer->id,
-            'AwardType' => AwardType::AchievementPointsYield,
-            'AwardData' => 0, // First tier (1000 points)
-            'DisplayOrder' => 1,
+            'award_type' => AwardType::AchievementPointsYield,
+            'award_key' => 0, // First tier (1000 points)
+            'order_column' => 1,
         ]);
 
         $game = $this->seedGame(withHash: false);
 
         // ... an achievement worth 100 points which will soon be reset ...
-        $achievement1 = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 100,
+        $achievement1 = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 100,
             'user_id' => $developer->id,
         ]);
 
         // ... an achievement worth 50 points that will be unlocked later ...
-        $achievement2 = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement2 = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -369,7 +368,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $this->action->execute($developer, $achievement1, $playerAchievement1, false);
         $developer->refresh();
 
-        $this->assertEquals(950, $developer->ContribYield); // !! 950 yield
+        $this->assertEquals(950, $developer->yield_points); // !! 950 yield
 
         // ... unlock the 50 point achievement. this should increase yield to 1000 ...
         $playerAchievement2 = PlayerAchievement::create([
@@ -382,12 +381,12 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(1000, $developer->ContribYield);
+        $this->assertEquals(1000, $developer->yield_points);
 
         // ... should still only have ONE badge, no duplicates ...
         $badgeCount = PlayerBadge::where('user_id', $developer->id)
-            ->where('AwardType', AwardType::AchievementPointsYield)
-            ->where('AwardData', 0)
+            ->where('award_type', AwardType::AchievementPointsYield)
+            ->where('award_key', 0)
             ->count();
 
         $this->assertEquals(1, $badgeCount);
@@ -396,13 +395,13 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItPreventsUnderflowWhenDecrementingFromZero(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 0, 'ContribYield' => 0]);
+        $developer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -417,20 +416,20 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(0, $developer->ContribCount);
-        $this->assertEquals(0, $developer->ContribYield);
+        $this->assertEquals(0, $developer->yield_unlocks);
+        $this->assertEquals(0, $developer->yield_points);
     }
 
     public function testItPreventsPartialUnderflowWhenDecrementingYield(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 1, 'ContribYield' => 25]);
+        $developer = User::factory()->create(['yield_unlocks' => 1, 'yield_points' => 25]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50, // !! more points than current yield
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50, // !! more points than current yield
             'user_id' => $developer->id,
         ]);
 
@@ -445,7 +444,156 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(0, $developer->ContribCount);
-        $this->assertEquals(0, $developer->ContribYield); // Should be 0, not negative
+        $this->assertEquals(0, $developer->yield_unlocks);
+        $this->assertEquals(0, $developer->yield_points); // Should be 0, not negative
+    }
+
+    public function testItIncrementsAuthorYieldUnlocksForTrackedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(1, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotIncrementAuthorYieldUnlocksForUnrankedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => Carbon::now()]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(0, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDecrementsAuthorYieldUnlocksOnResetForTrackedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 5,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, false);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(4, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotDecrementAuthorYieldUnlocksOnResetForUnrankedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => Carbon::now()]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 5,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, false);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(5, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotIncrementAuthorYieldUnlocksWhenCreditGoesToMaintainer(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $maintainer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]);
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // ... this unlock is credited to the maintainer, not the author ...
+        AchievementMaintainerUnlock::create([
+            'player_achievement_id' => $playerAchievement->id,
+            'maintainer_id' => $maintainer->id,
+            'achievement_id' => $achievement->id,
+        ]);
+
+        // Act
+        // ... credit goes to the maintainer, not the author ...
+        $this->action->execute($maintainer, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(0, $achievement->author_yield_unlocks);
     }
 }

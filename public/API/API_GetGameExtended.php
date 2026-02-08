@@ -56,8 +56,6 @@
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use App\Platform\Enums\AchievementFlag;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -66,14 +64,14 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'integer', 'min:1'],
     'f' => [
         'nullable',
-        Rule::in(['3', '5']),
+        Rule::in([(string) Achievement::FLAG_PROMOTED, (string) Achievement::FLAG_UNPROMOTED]),
     ],
 ], [
-    'f.in' => 'Invalid flag parameter. Valid values are 3 (published) or 5 (unpublished).',
+    'f.in' => 'Invalid flag parameter. Valid values are ' . Achievement::FLAG_PROMOTED . ' (published) or ' . Achievement::FLAG_UNPROMOTED . ' (unpublished).',
 ]);
 
 $gameId = (int) $input['i'];
-$flag = AchievementFlag::tryFrom((int) ($input['f'] ?? '3'));
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) ($input['f'] ?? (string) Achievement::FLAG_PROMOTED));
 
 $game = Game::with('system')->find($gameId);
 
@@ -82,49 +80,49 @@ if (!$game) {
 }
 
 $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
-$gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag->value)->findMany($game->achievements);
+$gameAchievements = Achievement::where('game_id', $gameId)->where('is_promoted', $isPromoted)->findMany($game->achievements);
 
 $gameData = [
-    'ID' => $game->ID,
-    'Title' => $game->Title,
-    'ConsoleID' => $game->ConsoleID,
-    'ForumTopicID' => $game->ForumTopicID,
+    'ID' => $game->id,
+    'Title' => $game->title,
+    'ConsoleID' => $game->system_id,
+    'ForumTopicID' => $game->forum_topic_id,
     'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
-    'ImageIcon' => $game->ImageIcon,
-    'ImageTitle' => $game->ImageTitle,
-    'ImageIngame' => $game->ImageIngame,
-    'ImageBoxArt' => $game->ImageBoxArt,
-    'Publisher' => $game->Publisher,
-    'Developer' => $game->Developer,
-    'Genre' => $game->Genre,
+    'ImageIcon' => $game->image_icon_asset_path,
+    'ImageTitle' => $game->image_title_asset_path,
+    'ImageIngame' => $game->image_ingame_asset_path,
+    'ImageBoxArt' => $game->image_box_art_asset_path,
+    'Publisher' => $game->publisher,
+    'Developer' => $game->developer,
+    'Genre' => $game->genre,
     'Released' => $game->released_at?->format('Y-m-d'),
     'ReleasedAtGranularity' => $game->released_at_granularity?->value,
     'IsFinal' => false,
-    'RichPresencePatch' => md5($game->RichPresencePatch),
-    'GuideURL' => $game->GuideURL,
-    'Updated' => $game->Updated->format('Y-m-d\TH:i:s.u\Z'),
+    'RichPresencePatch' => md5($game->trigger_definition ?? ''),
+    'GuideURL' => $game->legacy_guide_url,
+    'Updated' => $game->updated_at->format('Y-m-d\TH:i:s.u\Z'),
 ];
 
 // Use maps to structure the data with how legacy API consumers might expect it to be returned.
 if (!$gameAchievements->isEmpty()) {
     $gameAchievements->loadMissing('developer');
 
-    $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
+    $gameListAchievements = $gameAchievements->keyBy('id')->map(function ($am) {
         return [
-            'ID' => $am->ID,
+            'ID' => $am->id,
             'NumAwarded' => $am->unlocks_total,
-            'NumAwardedHardcore' => $am->unlocks_hardcore_total,
-            'Title' => $am->Title,
-            'Description' => $am->Description,
-            'Points' => $am->Points,
-            'TrueRatio' => $am->TrueRatio,
+            'NumAwardedHardcore' => $am->unlocks_hardcore,
+            'Title' => $am->title,
+            'Description' => $am->description,
+            'Points' => $am->points,
+            'TrueRatio' => $am->points_weighted,
             'Author' => $am->developer?->display_name,
             'AuthorULID' => $am->developer?->ulid,
-            'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
-            'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
-            'BadgeName' => $am->BadgeName,
-            'DisplayOrder' => $am->DisplayOrder,
-            'MemAddr' => md5($am->MemAddr),
+            'DateModified' => $am->modified_at->format('Y-m-d H:i:s'),
+            'DateCreated' => $am->created_at->format('Y-m-d H:i:s'),
+            'BadgeName' => $am->image_name,
+            'DisplayOrder' => $am->order_column,
+            'MemAddr' => md5($am->trigger_definition),
             'type' => $am->type,
         ];
     });
@@ -139,11 +137,11 @@ if (!$gameAchievementSetClaims) {
         return [
             'User' => $gc->user->display_name,
             'ULID' => $gc->user->ulid,
-            'SetType' => $gc->SetType,
+            'SetType' => $gc->set_type->toLegacyInteger(),
             'GameID' => $gc->game_id,
-            'ClaimType' => $gc->ClaimType,
-            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
-            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
+            'ClaimType' => $gc->claim_type->toLegacyInteger(),
+            'Created' => $gc->created_at->format('Y-m-d H:i:s'),
+            'Expiration' => $gc->finished_at->format('Y-m-d H:i:s'),
         ];
     });
 }
@@ -151,7 +149,7 @@ if (!$gameAchievementSetClaims) {
 return response()->json(array_merge(
     $gameData,
     [
-        'ConsoleName' => $game->system->Name,
+        'ConsoleName' => $game->system->name,
         'ParentGameID' => $game->parentGameId,
         'NumDistinctPlayers' => $game->players_total,
         'NumAchievements' => count($gameAchievements),

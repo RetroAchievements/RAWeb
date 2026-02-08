@@ -19,9 +19,9 @@ class LeaderboardCommentControllerTest extends TestCase
     public function testIndexWorksForUnauthenticatedVisitors(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['Title' => 'Any%', 'GameID' => $game->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create(['title' => 'Any%', 'game_id' => $game->id]);
 
         // Act
         $response = $this->get(route('leaderboard.comment.index', ['leaderboard' => $leaderboard]));
@@ -34,12 +34,12 @@ class LeaderboardCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0, 'created_at' => now()->subWeeks(3)]);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['Title' => 'Any%', 'GameID' => $game->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create(['title' => 'Any%', 'game_id' => $game->id]);
 
         // Act
         $response = $this->get(route('leaderboard.comment.index', ['leaderboard' => $leaderboard]));

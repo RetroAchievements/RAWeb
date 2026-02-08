@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FC, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuLock, LuWrench } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -15,8 +15,9 @@ import {
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
+import { deduplicateUserCredits } from '../deduplicateUserCredits';
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
@@ -36,32 +37,22 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   designCreditUsers,
 }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
+
+  const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 
   const nonAuthorUniqueContributors = useMemo(() => {
-    return (
-      [...artCreditUsers, ...codingCreditUsers, ...designCreditUsers]
-        .filter(
-          (user, index, self) =>
-            index === self.findIndex((u) => u.displayName === user.displayName),
-        )
-        // Don't double-count authors as contributors.
-        .filter(
-          (user) =>
-            !aggregateCredits.achievementsAuthors.some(
-              (author) => author.displayName === user.displayName,
-            ),
-        )
+    const authorNames = new Set(
+      aggregateCredits.achievementsAuthors.map((author) => author.displayName),
     );
-  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
 
-  // Dedupe logic credits with authors - it's a bit redundant.
-  // TODO do this on the server to reduce initial props size
-  const filteredLogicCredits = aggregateCredits.achievementsLogic.filter(
-    (logicUser) =>
-      !aggregateCredits.achievementsAuthors.some(
-        (author) => author.displayName === logicUser.displayName,
-      ),
-  );
+    // Don't double-count authors as contributors.
+    return deduplicateUserCredits([
+      ...artCreditUsers,
+      ...codingCreditUsers,
+      ...designCreditUsers,
+    ]).filter((user) => !authorNames.has(user.displayName));
+  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
 
   // If there's no claims or credit to show, then bail.
   if (
@@ -80,7 +71,11 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   if (achievementSetClaims.length) {
     buttonSections.push(
       <span key="claims" className="flex items-center gap-1">
-        <LuWrench className="size-4" />
+        {hasInReviewClaim ? (
+          <LuLock data-testid="lock-icon" className="size-4" />
+        ) : (
+          <LuWrench data-testid="wrench-icon" className="size-4" />
+        )}
         <span className={!canShowClaimants ? 'sr-only' : undefined}>{t('Claimed')}</span>
       </span>,
     );
@@ -157,9 +152,15 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                       displayName: claim.user!.displayName,
                     }}
                   >
-                    {dayjs(claim.finishedAt!).isAfter(dayjs())
-                      ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
-                      : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                    {claim.status === 'in_review' ? (
+                      t('In Review')
+                    ) : (
+                      <>
+                        {dayjs(claim.finishedAt!).isAfter(dayjs())
+                          ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
+                          : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                      </>
+                    )}
                   </TooltipCreditRow>
                 ))}
               </TooltipCreditsSection>
@@ -182,6 +183,18 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementSetArtwork.map((credit) => (
                   <TooltipCreditRow
                     key={`tooltip-badge-artwork-credit-${credit.displayName}`}
+                    credit={credit}
+                    showCreditDate={true}
+                  />
+                ))}
+              </TooltipCreditsSection>
+            ) : null}
+
+            {aggregateCredits.achievementSetBanner.length ? (
+              <TooltipCreditsSection headingLabel={t('Banner Artwork')}>
+                {aggregateCredits.achievementSetBanner.map((credit) => (
+                  <TooltipCreditRow
+                    key={`tooltip-banner-artwork-credit-${credit.displayName}`}
                     credit={credit}
                     showCreditDate={true}
                   />
@@ -213,9 +226,9 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
               </TooltipCreditsSection>
             ) : null}
 
-            {filteredLogicCredits.length ? (
+            {aggregateCredits.achievementsLogic.length ? (
               <TooltipCreditsSection headingLabel={t('Code Contributors')}>
-                {filteredLogicCredits.map((credit) => (
+                {aggregateCredits.achievementsLogic.map((credit) => (
                   <TooltipCreditRow
                     key={`logic-credit-${credit.displayName}`}
                     credit={credit}

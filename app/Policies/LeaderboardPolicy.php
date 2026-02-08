@@ -19,6 +19,7 @@ class LeaderboardPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -32,6 +33,11 @@ class LeaderboardPolicy
         return true;
     }
 
+    public function viewEntries(?User $user, Leaderboard $leaderboard): bool
+    {
+        return true;
+    }
+
     public function create(User $user, ?Game $game = null): bool
     {
         if ($game && $user->hasRole(Role::DEVELOPER_JUNIOR)) {
@@ -40,6 +46,7 @@ class LeaderboardPolicy
 
         return $user->hasAnyRole([
             Role::DEVELOPER,
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -55,6 +62,11 @@ class LeaderboardPolicy
              * writers may update leaderboard title and description if the respective leaderboard are open for editing
              */
             Role::WRITER,
+
+            /*
+             * event managers may update title, description, state and display order to facilitate leaderboards for events
+             */
+            Role::EVENT_MANAGER,
         ]);
 
         if ($canEditAnyLeaderboard) {
@@ -73,9 +85,10 @@ class LeaderboardPolicy
     public function updateField(User $user, ?Leaderboard $leaderboard, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
-            Role::DEVELOPER => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
-            Role::WRITER => ['Title', 'Description'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state'],
+            Role::DEVELOPER => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state'],
+            Role::WRITER => ['title', 'description'],
+            Role::EVENT_MANAGER => ['title', 'description', 'order_column', 'state'],
         ];
 
         // Root can edit everything.
@@ -138,6 +151,36 @@ class LeaderboardPolicy
     {
         return $user->hasAnyRole([
             Role::DEVELOPER,
+        ]);
+    }
+
+    public function clone(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+        ]);
+    }
+
+    public function merge(User $user, Leaderboard $leaderboard): bool
+    {
+        if ($this->mergeAny($user)) {
+            return true;
+        }
+
+        // Developers can only merge leaderboards they authored.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return $leaderboard->author_id === $user->id;
+        }
+
+        return false;
+    }
+
+    public function mergeAny(User $user): bool
+    {
+        // QA and DevCompliance can merge any leaderboard.
+        return $user->hasAnyRole([
+            Role::QUALITY_ASSURANCE,
+            Role::DEV_COMPLIANCE,
         ]);
     }
 }

@@ -29,26 +29,26 @@ class UserFactory extends Factory
         return [
             // required
             'ulid' => (string) Str::ulid(),
-            'User' => $this->fakeUsername(),
+            'username' => $this->fakeUsername(),
             'display_name' => null,
-            'EmailAddress' => fake()->unique()->safeEmail,
+            'email' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
             'Permissions' => Permissions::Registered,
-            'Password' => Hash::make('password'),
-            'SaltedPass' => '',
-            'RAPoints' => fake()->numberBetween(0, 9999) * 10,
-            'RASoftcorePoints' => 0,
-            'ContribCount' => 0,
-            'TrueRAPoints' => 0,
-            'DeleteRequested' => null,
-            'Untracked' => 0,
-            'UserWallActive' => 1,
+            'password' => Hash::make('password'),
+            'legacy_salted_password' => '',
+            'points_hardcore' => fake()->numberBetween(0, 9999) * 10,
+            'points' => 0,
+            'points_weighted' => 0,
+            'yield_unlocks' => 0,
+            'delete_requested_at' => null,
+            'unread_messages' => 0,
+            'is_user_wall_active' => 1,
             'muted_until' => null,
             'visible_role_id' => null,
-            'websitePrefs' => 0,
+            'preferences_bitfield' => 0,
 
             // nullable
-            'APIKey' => 'apiKey',
+            'web_api_key' => 'apiKey',
             'remember_token' => Str::random(10),
             'banned_at' => null,
         ];
@@ -83,7 +83,7 @@ class UserFactory extends Factory
     public function untracked(): static
     {
         return $this->state(fn (array $attributes) => [
-            'Untracked' => 1,
+            'unranked_at' => now(),
         ]);
     }
 }

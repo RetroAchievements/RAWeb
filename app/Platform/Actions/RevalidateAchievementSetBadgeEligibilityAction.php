@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
+use App\Models\StaticData;
 use App\Models\System;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -25,7 +26,7 @@ class RevalidateAchievementSetBadgeEligibilityAction
             return;
         }
 
-        if ($playerGame->game->ConsoleID === System::Events) {
+        if ($playerGame->game->system_id === System::Events) {
             $playerGame->game->loadMissing('event');
             $this->revalidateEventBadgeEligibility($playerGame);
         } else {
@@ -42,10 +43,10 @@ class RevalidateAchievementSetBadgeEligibilityAction
     {
         $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('AwardDataExtra', UnlockMode::Softcore);
-        $hardcoreBadge = (clone $badge)->where('AwardDataExtra', UnlockMode::Hardcore);
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $playerGame->game->id);
+        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
         if ($playerGame->beaten_at === null && $softcoreBadge->exists()) {
             $this->dispatchBadgeLostEvent($softcoreBadge->first());
@@ -88,8 +89,17 @@ class RevalidateAchievementSetBadgeEligibilityAction
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameBeaten::dispatch($playerGame->user, $playerGame->game, true);
 
-            if ($playerGame->beaten_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
-                static_addnewhardcoregamebeaten($playerGame->game->id, $playerGame->user->username);
+            if (!$playerGame->user->unranked_at) {
+                $lastBeatenAt = StaticData::query()->value('last_game_hardcore_beaten_at');
+                if (!$lastBeatenAt || $playerGame->beaten_hardcore_at->gte($lastBeatenAt)) {
+                    StaticData::query()->increment('num_hardcore_game_beaten_awards', 1, [
+                        'last_game_hardcore_beaten_game_id' => $playerGame->game->id,
+                        'last_game_hardcore_beaten_user_id' => $playerGame->user->id,
+                        'last_game_hardcore_beaten_at' => $playerGame->beaten_hardcore_at,
+                    ]);
+                } else {
+                    StaticData::query()->increment('num_hardcore_game_beaten_awards');
+                }
             }
 
             $statusChanged = true;
@@ -102,10 +112,10 @@ class RevalidateAchievementSetBadgeEligibilityAction
     {
         $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('AwardDataExtra', UnlockMode::Softcore);
-        $hardcoreBadge = (clone $badge)->where('AwardDataExtra', UnlockMode::Hardcore);
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_key', $playerGame->game->id);
+        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
         if ($playerGame->completed_at === null && $softcoreBadge->exists()) {
             // if the user has at least one unlock for the set, assume there was
@@ -162,8 +172,17 @@ class RevalidateAchievementSetBadgeEligibilityAction
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game, true);
 
-            if ($playerGame->completed_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
-                static_addnewhardcoremastery($playerGame->game->id, $playerGame->user->username);
+            if (!$playerGame->user->unranked_at) {
+                $lastMasteredAt = StaticData::query()->value('last_game_hardcore_mastered_at');
+                if (!$lastMasteredAt || $playerGame->completed_hardcore_at->gte($lastMasteredAt)) {
+                    StaticData::query()->increment('num_hardcore_mastery_awards', 1, [
+                        'last_game_hardcore_mastered_game_id' => $playerGame->game->id,
+                        'last_game_hardcore_mastered_user_id' => $playerGame->user->id,
+                        'last_game_hardcore_mastered_at' => $playerGame->completed_hardcore_at,
+                    ]);
+                } else {
+                    StaticData::query()->increment('num_hardcore_mastery_awards');
+                }
             }
 
             $statusChanged = true;
@@ -176,9 +195,9 @@ class RevalidateAchievementSetBadgeEligibilityAction
     {
         PlayerBadgeLost::dispatch(
             $badge->user,
-            $badge->AwardType,
-            $badge->AwardData,
-            $badge->AwardDataExtra,
+            $badge->award_type,
+            $badge->award_key,
+            $badge->award_tier,
         );
     }
 
@@ -209,18 +228,18 @@ class RevalidateAchievementSetBadgeEligibilityAction
             $expectedTier = -1;
         }
 
-        $existingAward = $playerGame->user->playerBadges->where('AwardType', AwardType::Event)
-            ->where('AwardData', $event->id)
+        $existingAward = $playerGame->user->playerBadges->where('award_type', AwardType::Event)
+            ->where('award_key', $event->id)
             ->first();
         if ($existingAward) {
-            if ($existingAward->AwardDataExtra >= $expectedTier) {
+            if ($existingAward->award_tier >= $expectedTier) {
                 // player already has the appropriate award (or better - never downgrade an award due to resetting)
                 return;
             }
 
-            // upgraded the badge and update the AwardDate.
-            $existingAward->AwardDataExtra = $expectedTier;
-            $existingAward->AwardDate = Carbon::now();
+            // upgraded the badge and update the awarded_at.
+            $existingAward->award_tier = $expectedTier;
+            $existingAward->awarded_at = Carbon::now();
             $existingAward->save();
         } else {
             if ($expectedTier === -1) {

@@ -36,7 +36,7 @@ class EventAwardData extends Data
             badgeUrl: $award->badge_url,
             badgeCount: $award->badge_count,
             earnedAt: $award->relationLoaded('playerBadges')
-                ? $award->playerBadges->first()?->AwardDate
+                ? $award->playerBadges->first()?->awarded_at
                 : null,
         );
     }

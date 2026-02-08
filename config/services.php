@@ -18,6 +18,11 @@ return [
         'channel' => env('BLUESKY_CHANNEL'),
     ],
 
+    'cloudflare' => [
+        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+        'zone_id' => env('CLOUDFLARE_ZONE_ID'),
+    ],
+
     'discord' => [
         'client_id' => env('DISCORD_KEY'),
         'client_secret' => env('DISCORD_SECRET'),
@@ -88,6 +93,15 @@ return [
             'RANews' => [
                 'url' => env('DISCORD_WEBHOOK_RANEWS'),
             ],
+        ],
+        'alerts_webhook' => [
+            /**
+             * Keys here are automatically inherited from their alert class names.
+             *
+             * @example "FooBarAlert" -> "foo_bar"
+             * @example "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
+             */
+            'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
         ],
     ],
 

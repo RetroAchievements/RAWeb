@@ -29,8 +29,8 @@ export const ProfileSectionCard: FC = () => {
     onSubmit,
     mutation: formMutation,
   } = useProfileSectionForm({
+    isUserWallActive: userSettings.isUserWallActive ?? false,
     motto: userSettings.motto ?? '',
-    userWallActive: userSettings.userWallActive ?? false,
     visibleRoleId: auth?.user.visibleRole ? auth.user.visibleRole.id : null,
   });
 
@@ -89,7 +89,7 @@ export const ProfileSectionCard: FC = () => {
 
         <BaseFormField
           control={form.control}
-          name="userWallActive"
+          name="isUserWallActive"
           render={({ field }) => (
             <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
               <BaseFormLabel className="text-menu-link @xl:w-2/5">

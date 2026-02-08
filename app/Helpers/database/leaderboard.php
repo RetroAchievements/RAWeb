@@ -23,7 +23,7 @@ function SubmitLeaderboardEntry(
     $retVal = ['Success' => true];
 
     $leaderboard->loadMissing('game');
-    if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
+    if ($leaderboard->game->system_id && !isValidConsoleId($leaderboard->game->system_id)) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot submit entry for unsupported console";
 
@@ -31,14 +31,14 @@ function SubmitLeaderboardEntry(
     }
 
     $retVal['LBData'] = [
-        'Format' => $leaderboard->Format,
+        'Format' => $leaderboard->format,
         'LeaderboardID' => $leaderboard->id,
-        'GameID' => $leaderboard->GameID,
-        'Title' => $leaderboard->Title,
-        'LowerIsBetter' => $leaderboard->LowerIsBetter,
+        'GameID' => $leaderboard->game_id,
+        'Title' => $leaderboard->title,
+        'LowerIsBetter' => $leaderboard->rank_asc,
     ];
     $retVal['Score'] = $newEntry;
-    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
+    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->format);
 
     $timestamp ??= Carbon::now();
     $playerSession = app()->make(ResumePlayerSessionAction::class)->execute(
@@ -139,7 +139,7 @@ function SubmitLeaderboardEntry(
     $retVal['TopEntriesFriends'] = $getEntries($entries->whereHas('user', function ($query) use ($user) {
         $friends = $user->followedUsers()->pluck('related_user_id');
         $friends[] = $user->id;
-        $query->whereIn('ID', $friends);
+        $query->whereIn('id', $friends);
     })->getQuery());
 
     return $retVal;

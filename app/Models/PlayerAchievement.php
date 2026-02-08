@@ -35,9 +35,14 @@ class PlayerAchievement extends BasePivot
         'unlocker_id',
     ];
 
+    protected $guarded = [
+        'unlocked_effective_at', // virtual column managed by the DB engine, we can't write to this
+    ];
+
     protected $casts = [
         'unlocked_at' => 'datetime',
         'unlocked_hardcore_at' => 'datetime',
+        'unlocked_effective_at' => 'datetime',
     ];
 
     // == accessors
@@ -59,7 +64,7 @@ class PlayerAchievement extends BasePivot
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -67,7 +72,7 @@ class PlayerAchievement extends BasePivot
      */
     public function player(): BelongsTo
     {
-        return $this->player();
+        return $this->user();
     }
 
     // == scopes
@@ -79,7 +84,7 @@ class PlayerAchievement extends BasePivot
     public function scopeForGame(Builder $query, Game $game): Builder
     {
         return $query->whereHas('achievement', function ($query) use ($game) {
-            $query->where('GameID', $game->id);
+            $query->where('game_id', $game->id);
         });
     }
 }

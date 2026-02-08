@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\RankType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
-use App\Models\User;
 use App\Platform\Services\SearchIndexingService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class UpdateAchievementMetricsAction
 {
+    public function __construct(
+        protected readonly CalculateAchievementWeightedPointsAction $calculateWeightedPoints,
+    ) {
+    }
+
     public function execute(Achievement $achievement): void
     {
         $this->update($achievement->game, collect([$achievement]));
@@ -32,17 +36,15 @@ class UpdateAchievementMetricsAction
 
         // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
-        $playersHardcore = $game->players_hardcore;
-        $playersHardcoreCalc = $playersHardcore ?: 1;
+        $playersHardcore = $game->players_hardcore ?? 0;
+        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
 
         // Get both total and hardcore counts in a single query.
-        $achievementIds = $achievements->pluck('ID')->all();
+        $achievementIds = $achievements->pluck('id')->all();
         $unlockStats = PlayerAchievement::query()
+            ->leftJoin('unranked_users', 'player_achievements.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.user_id')
             ->whereIn('player_achievements.achievement_id', $achievementIds)
-            ->whereHas('user', function ($query) {
-                /** @var Builder<User> $query */
-                $query->tracked();
-            })
             ->groupBy('player_achievements.achievement_id')
             ->selectRaw('
                 player_achievements.achievement_id,
@@ -71,15 +73,14 @@ class UpdateAchievementMetricsAction
         $bulkUpdates = [];
 
         foreach ($achievements as $achievement) {
-            $unlocksCount = $unlockCounts[$achievement->ID] ?? 0;
-            $unlocksHardcoreCount = $hardcoreUnlockCounts[$achievement->ID] ?? 0;
+            $unlocksCount = $unlockCounts[$achievement->id] ?? 0;
+            $unlocksHardcoreCount = (int) ($hardcoreUnlockCounts[$achievement->id] ?? 0);
 
-            // force all unachieved to be 1
-            $unlocksHardcoreCalc = $unlocksHardcoreCount ?: 1;
-            $weight = 0.4;
-            $pointsWeighted = (int) (
-                $achievement->points * (1 - $weight)
-                + $achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight)
+            $pointsWeighted = $this->calculateWeightedPoints->execute(
+                $achievement->points,
+                $unlocksHardcoreCount,
+                $playersHardcore,
+                $rankedPlayerCount
             );
 
             // Round percentages to 9 decimal places to match the exact database column precision (decimal(10,9)).
@@ -90,23 +91,23 @@ class UpdateAchievementMetricsAction
             // We'll optimistically set attributes on the model to leverage Laravel's dirty checking.
             // This doesn't necessarily mean we'll be doing a save for the model, though.
             $achievement->unlocks_total = $unlocksCount;
-            $achievement->unlocks_hardcore_total = $unlocksHardcoreCount;
+            $achievement->unlocks_hardcore = $unlocksHardcoreCount;
             $achievement->unlock_percentage = $unlockPercentage;
             $achievement->unlock_hardcore_percentage = $unlockHardcorePercentage;
-            $achievement->TrueRatio = $pointsWeighted;
+            $achievement->points_weighted = $pointsWeighted;
 
             // Only actually add the achievement to the bulk updates list if the model has changed.
             if ($achievement->isDirty()) {
                 $bulkUpdates[] = [
-                    'ID' => $achievement->ID,
+                    'id' => $achievement->id,
                     'unlocks_total' => $unlocksCount,
-                    'unlocks_hardcore_total' => $unlocksHardcoreCount,
+                    'unlocks_hardcore' => $unlocksHardcoreCount,
                     'unlock_percentage' => $unlockPercentage,
                     'unlock_hardcore_percentage' => $unlockHardcorePercentage,
-                    'TrueRatio' => $pointsWeighted,
+                    'points_weighted' => $pointsWeighted,
                 ];
 
-                $searchIndexingService->queueAchievementForIndexing($achievement->ID);
+                $searchIndexingService->queueAchievementForIndexing($achievement->id);
             }
         }
 
@@ -114,7 +115,7 @@ class UpdateAchievementMetricsAction
             $this->performBulkUpdate($bulkUpdates);
         }
 
-        $game->TotalTruePoints = $game->achievements()->published()->sum('TrueRatio');
+        $game->points_weighted = $game->achievements()->promoted()->sum('points_weighted');
         if ($game->isDirty()) {
             $game->saveQuietly();
 
@@ -122,7 +123,7 @@ class UpdateAchievementMetricsAction
             $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
             if ($coreGameAchievementSet) {
                 $coreSet = $coreGameAchievementSet->achievementSet;
-                $coreSet->points_weighted = $game->TotalTruePoints;
+                $coreSet->points_weighted = $game->points_weighted;
                 $coreSet->save();
             }
 
@@ -144,57 +145,65 @@ class UpdateAchievementMetricsAction
         /*
          * The final query will look like this:
          *
-         * UPDATE Achievements
+         * UPDATE achievements
          * SET
-         *   unlocks_total = CASE ID
+         *   unlocks_total = CASE id
          *     WHEN X THEN Y
          *   END,
-         *   unlocks_hardcore_total = CASE ID
+         *   unlocks_hardcore = CASE id
          *     WHEN X THEN Y
          *   END,
-         *   unlock_percentage = CASE ID
+         *   unlock_percentage = CASE id
          *     WHEN X THEN Y
          *   END,
-         *   unlock_hardcore_percentage = CASE ID
+         *   unlock_hardcore_percentage = CASE id
          *     WHEN X THEN Y
          *   END,
-         *   TrueRatio = CASE ID
+         *   points_weighted = CASE id
          *     WHEN X THEN Y
          *   END,
          *   Updated = '...'
-         * WHERE ID IN ( ... )
+         * WHERE id IN ( ... )
          */
-        $ids = array_column($bulkUpdates, 'ID');
+
+        // Sort updates by ID to ensure consistent lock ordering across concurrent jobs.
+        // This helps prevent deadlocks when multiple jobs update overlapping row sets.
+        usort($bulkUpdates, fn ($a, $b) => $a['id'] <=> $b['id']);
+
+        $ids = array_column($bulkUpdates, 'id');
         $cases = [
-            'unlocks_total' => 'CASE ID',
-            'unlocks_hardcore_total' => 'CASE ID',
-            'unlock_percentage' => 'CASE ID',
-            'unlock_hardcore_percentage' => 'CASE ID',
-            'TrueRatio' => 'CASE ID',
+            'unlocks_total' => 'CASE id',
+            'unlocks_hardcore' => 'CASE id',
+            'unlock_percentage' => 'CASE id',
+            'unlock_hardcore_percentage' => 'CASE id',
+            'points_weighted' => 'CASE id',
         ];
 
         foreach ($bulkUpdates as $update) {
-            $cases['unlocks_total'] .= " WHEN {$update['ID']} THEN {$update['unlocks_total']}";
-            $cases['unlocks_hardcore_total'] .= " WHEN {$update['ID']} THEN {$update['unlocks_hardcore_total']}";
-            $cases['unlock_percentage'] .= " WHEN {$update['ID']} THEN {$update['unlock_percentage']}";
-            $cases['unlock_hardcore_percentage'] .= " WHEN {$update['ID']} THEN {$update['unlock_hardcore_percentage']}";
-            $cases['TrueRatio'] .= " WHEN {$update['ID']} THEN {$update['TrueRatio']}";
+            $cases['unlocks_total'] .= " WHEN {$update['id']} THEN {$update['unlocks_total']}";
+            $cases['unlocks_hardcore'] .= " WHEN {$update['id']} THEN {$update['unlocks_hardcore']}";
+            $cases['unlock_percentage'] .= " WHEN {$update['id']} THEN {$update['unlock_percentage']}";
+            $cases['unlock_hardcore_percentage'] .= " WHEN {$update['id']} THEN {$update['unlock_hardcore_percentage']}";
+            $cases['points_weighted'] .= " WHEN {$update['id']} THEN {$update['points_weighted']}";
         }
 
         foreach ($cases as &$case) {
             $case .= ' END';
         }
 
-        // Use DB to bypass model events.
-        DB::table('Achievements')
-            ->whereIn('ID', $ids)
-            ->update([
-                'unlocks_total' => DB::raw($cases['unlocks_total']),
-                'unlocks_hardcore_total' => DB::raw($cases['unlocks_hardcore_total']),
-                'unlock_percentage' => DB::raw($cases['unlock_percentage']),
-                'unlock_hardcore_percentage' => DB::raw($cases['unlock_hardcore_percentage']),
-                'TrueRatio' => DB::raw($cases['TrueRatio']),
-                'Updated' => now(),
-            ]);
+        $maxRetries = 3;
+
+        DB::transaction(function () use ($ids, $cases) {
+            DB::table('achievements') // bypass model events
+                ->whereIn('id', $ids)
+                ->update([
+                    'unlocks_total' => DB::raw($cases['unlocks_total']),
+                    'unlocks_hardcore' => DB::raw($cases['unlocks_hardcore']),
+                    'unlock_percentage' => DB::raw($cases['unlock_percentage']),
+                    'unlock_hardcore_percentage' => DB::raw($cases['unlock_hardcore_percentage']),
+                    'points_weighted' => DB::raw($cases['points_weighted']),
+                    'updated_at' => now(),
+                ]);
+        }, $maxRetries);
     }
 }

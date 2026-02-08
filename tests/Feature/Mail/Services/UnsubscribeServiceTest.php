@@ -34,7 +34,7 @@ class UnsubscribeServiceTest extends TestCase
 
         $this->service = new UnsubscribeService();
         $this->user = User::factory()->create();
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
     }
 
     /**
@@ -42,7 +42,7 @@ class UnsubscribeServiceTest extends TestCase
      */
     private function createUserWithPreferences(int $websitePrefs): User
     {
-        return User::factory()->create(['websitePrefs' => $websitePrefs]);
+        return User::factory()->create(['preferences_bitfield' => $websitePrefs]);
     }
 
     /**
@@ -85,7 +85,7 @@ class UnsubscribeServiceTest extends TestCase
     private function assertUserPreferenceBit(User $user, int $preference, bool $shouldBeSet): void
     {
         $user->refresh();
-        $isSet = ($user->websitePrefs & (1 << $preference)) !== 0;
+        $isSet = ($user->preferences_bitfield & (1 << $preference)) !== 0;
         $this->assertEquals($shouldBeSet, $isSet);
     }
 
@@ -196,8 +196,8 @@ class UnsubscribeServiceTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create([
-            'Title' => 'Dragon Quest III',
-            'ConsoleID' => $this->system->id,
+            'title' => 'Dragon Quest III',
+            'system_id' => $this->system->id,
         ]);
         $token = $this->generateValidGranularToken(
             $this->user->id,
@@ -224,10 +224,10 @@ class UnsubscribeServiceTest extends TestCase
     public function testItProcessesGranularUnsubscribeForAchievement(): void
     {
         // Arrange
-        $game = Game::factory()->create(['ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['system_id' => $this->system->id]);
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Title' => 'First Boss Defeated', // !!
+            'game_id' => $game->id,
+            'title' => 'First Boss Defeated',
         ]);
         $token = $this->generateValidGranularToken(
             $this->user->id,
@@ -254,7 +254,7 @@ class UnsubscribeServiceTest extends TestCase
     public function testItProcessesGranularUnsubscribeForUserWall(): void
     {
         // Arrange
-        $targetUser = User::factory()->create(['User' => 'TestUser']);
+        $targetUser = User::factory()->create(['username' => 'TestUser']);
         $token = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::UserWall, // !!
@@ -531,7 +531,7 @@ class UnsubscribeServiceTest extends TestCase
         $this->assertEquals('unsubscribeSuccess-forumThread', $forumResult['descriptionKey']);
 
         // GameWall
-        $game = Game::factory()->create(['Title' => 'Test Game', 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => 'Test Game', 'system_id' => $this->system->id]);
         $gameWallToken = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::GameWall, // !!
@@ -543,8 +543,8 @@ class UnsubscribeServiceTest extends TestCase
 
         // Achievement
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Title' => 'Test Achievement',
+            'game_id' => $game->id,
+            'title' => 'Test Achievement',
         ]);
         $achievementToken = $this->generateValidGranularToken(
             $this->user->id,
@@ -556,7 +556,7 @@ class UnsubscribeServiceTest extends TestCase
         $this->assertEquals(['achievementTitle' => 'Test Achievement'], $achievementResult['descriptionParams']);
 
         // UserWall
-        $targetUser = User::factory()->create(['User' => 'TargetUser']);
+        $targetUser = User::factory()->create(['username' => 'TargetUser']);
         $userWallToken = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::UserWall, // !!
@@ -597,10 +597,16 @@ class UnsubscribeServiceTest extends TestCase
             UserPreference::EmailOn_Followed => 'unsubscribeSuccess-allFollowerNotifications',
             UserPreference::EmailOn_PrivateMessage => 'unsubscribeSuccess-allPrivateMessages',
             UserPreference::EmailOn_TicketActivity => 'unsubscribeSuccess-allTicketActivity',
+            UserPreference::EmailOff_DailyDigest => 'unsubscribeSuccess-dailyDigest',
         ];
 
         foreach ($testCases as $preference => $expectedKey) {
-            $user = $this->createUserWithPreferences(1 << $preference);
+            // For inverted preferences like EmailOff_DailyDigest, start with the bit unset.
+            // For regular preferences, start with the bit set.
+            $isInverted = $preference === UserPreference::EmailOff_DailyDigest;
+            $initialPrefs = $isInverted ? 0 : (1 << $preference);
+
+            $user = $this->createUserWithPreferences($initialPrefs);
             $token = $this->generateValidCategoryToken($user->id, $preference);
 
             $result = $this->service->processUnsubscribe($token);
@@ -826,5 +832,52 @@ class UnsubscribeServiceTest extends TestCase
 
         // ... verify the unsubscribe still worked ...
         $this->assertUserPreferenceBit($user, UserPreference::EmailOn_ForumReply, false);
+    }
+
+    public function testItProcessesCategoryUnsubscribeForDailyDigest(): void
+    {
+        // Arrange
+        $initialPrefs = 0; // unset because this is an inverted preference
+        $user = $this->createUserWithPreferences($initialPrefs);
+
+        $token = $this->generateValidCategoryToken(
+            $user->id,
+            UserPreference::EmailOff_DailyDigest
+        );
+
+        // Act
+        $result = $this->service->processUnsubscribe($token);
+
+        // Assert
+        $this->assertTrue($result['success']);
+        $this->assertEquals('unsubscribeSuccess-dailyDigest', $result['descriptionKey']);
+
+        // ... for inverted preferences, unsubscribing means setting the bit ...
+        $this->assertUserPreferenceBit($user, UserPreference::EmailOff_DailyDigest, true);
+    }
+
+    public function testItProcessesUndoForDailyDigestCategoryUnsubscribe(): void
+    {
+        // Arrange
+        $initialPrefs = (1 << UserPreference::EmailOff_DailyDigest); // start with the bit set
+        $user = $this->createUserWithPreferences($initialPrefs);
+
+        $data = new CategoryUnsubscribeData(
+            $user->id,
+            UserPreference::EmailOff_DailyDigest
+        );
+        $undoToken = $this->service->generateUndoToken($data);
+
+        // Act
+        $result = $this->service->processUndo($undoToken);
+
+        // Assert
+        $this->assertTrue($result['success']);
+
+        // ... for inverted preferences, undo means clearing the bit ...
+        $this->assertUserPreferenceBit($user, UserPreference::EmailOff_DailyDigest, false);
+
+        $cacheKey = CacheKey::buildUnsubscribeUndoTokenCacheKey($undoToken);
+        $this->assertFalse(Cache::has($cacheKey));
     }
 }

@@ -18,7 +18,6 @@ use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -29,32 +28,47 @@ class BuildDeveloperFeedDataAction
     public function execute(User $targetUser): DeveloperFeedPagePropsData
     {
         // Use DB::table() to avoid loading potentially thousands of Eloquent models into memory.
-        $achievementInfo = DB::table('Achievements')
-            ->select(['ID', 'GameID'])
+        $authoredAchievementInfo = DB::table('achievements')
+            ->select(['id', 'game_id'])
             ->where('user_id', $targetUser->id)
-            ->where('Flags', AchievementFlag::OfficialCore->value)
+            ->where('is_promoted', true)
             ->get();
 
-        $allUserAchievementIds = $achievementInfo->pluck('ID');
-        $allUserGameIds = $achievementInfo->pluck('GameID')->unique();
+        $maintainedAchievementInfo = DB::table('achievement_maintainers')
+            ->join('achievements', 'achievements.id', '=', 'achievement_maintainers.achievement_id')
+            ->select(['achievements.id', 'achievements.game_id'])
+            ->where('achievement_maintainers.user_id', $targetUser->id)
+            ->where('achievement_maintainers.is_active', true)
+            ->where('achievements.user_id', '!=', $targetUser->id)
+            ->where('achievements.is_promoted', true)
+            ->get();
 
-        $activePlayers = (new BuildActivePlayersAction())->execute(gameIds: $allUserGameIds->toArray());
+        $allAchievementIds = $authoredAchievementInfo->pluck('id')
+            ->merge($maintainedAchievementInfo->pluck('id'))
+            ->unique();
+        $allGameIds = $authoredAchievementInfo->pluck('game_id')
+            ->merge($maintainedAchievementInfo->pluck('game_id'))
+            ->unique();
+
+        $authoredGameIds = $authoredAchievementInfo->pluck('game_id')->unique();
+
+        $activePlayers = (new BuildActivePlayersAction())->execute(gameIds: $allGameIds->toArray());
 
         $recentUnlocks = $this->getRecentUnlocks(
-            $allUserAchievementIds,
-            shouldUseDateRange: $targetUser->ContribCount <= 20_000,
+            $allAchievementIds,
+            shouldUseDateRange: $targetUser->yield_unlocks <= 20_000,
         );
 
-        $recentPlayerBadges = $this->getRecentPlayerBadges($allUserGameIds->toArray());
+        $recentPlayerBadges = $this->getRecentPlayerBadges($authoredGameIds->toArray());
 
         $recentLeaderboardEntries = $this->getRecentLeaderboardEntries($targetUser);
 
         $props = new DeveloperFeedPagePropsData(
             activePlayers: $activePlayers,
             developer: UserData::from($targetUser),
-            unlocksContributed: $targetUser->ContribCount ?? 0,
-            pointsContributed: $targetUser->ContribYield ?? 0,
-            awardsContributed: $this->countAwardsForGames($allUserGameIds->toArray()),
+            unlocksContributed: $targetUser->yield_unlocks ?? 0,
+            pointsContributed: $targetUser->yield_points ?? 0,
+            awardsContributed: $this->countAwardsForGames($authoredGameIds->toArray()),
             leaderboardEntriesContributed: $this->countLeaderboardEntries($targetUser),
             recentUnlocks: $recentUnlocks,
             recentPlayerBadges: $recentPlayerBadges,
@@ -78,12 +92,12 @@ class BuildDeveloperFeedDataAction
         return DB::table(DB::raw('(
             SELECT *,
                 ROW_NUMBER() OVER (
-                    PARTITION BY AwardData, AwardType, user_id
-                    ORDER BY AwardDataExtra DESC
+                    PARTITION BY award_key, award_type, user_id
+                    ORDER BY award_tier DESC
                 ) as rn
-            FROM SiteAwards
-            WHERE AwardData IN (' . implode(',', $gameIds) . ')
-                AND AwardType IN (' . AwardType::Mastery . ', ' . AwardType::GameBeaten . ')
+            FROM user_awards
+            WHERE award_key IN (' . implode(',', $gameIds) . ')
+                AND award_type IN (\'' . AwardType::Mastery->value . '\', \'' . AwardType::GameBeaten->value . '\')
         ) ranked'))
             ->where('rn', 1)
             ->count();
@@ -97,8 +111,8 @@ class BuildDeveloperFeedDataAction
         // most efficient way to combine the tables. This reduces query time by ~10x.
 
         return DB::table('leaderboard_entries')
-            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'leaderboard_entries.leaderboard_id')
-            ->where('LeaderboardDef.author_id', $user->id)
+            ->join('leaderboards', 'leaderboards.id', '=', 'leaderboard_entries.leaderboard_id')
+            ->where('leaderboards.author_id', $user->id)
             ->count();
     }
 
@@ -120,7 +134,7 @@ class BuildDeveloperFeedDataAction
         return $query
             ->take(200)
             ->get()
-            ->reject(fn ($unlock) => $unlock->user->Untracked)
+            ->reject(fn ($unlock) => $unlock->user->unranked_at !== null)
             ->map(fn ($unlock) => new RecentUnlockData(
                 achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
                 game: GameData::fromGame($unlock->achievement->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
@@ -139,33 +153,33 @@ class BuildDeveloperFeedDataAction
     {
         $thirtyDaysAgo = Carbon::now()->subDays(30);
 
-        return PlayerBadge::from('SiteAwards as pb')
+        return PlayerBadge::from('user_awards as pb')
             ->with(['user', 'gameIfApplicable', 'gameIfApplicable.system'])
-            ->whereIn('pb.AwardData', $gameIds)
-            ->whereIn('pb.AwardType', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereDate('pb.AwardDate', '>=', $thirtyDaysAgo)
+            ->whereIn('pb.award_key', $gameIds)
+            ->whereIn('pb.award_type', [AwardType::Mastery, AwardType::GameBeaten])
+            ->whereDate('pb.awarded_at', '>=', $thirtyDaysAgo)
             ->joinSub(
-                PlayerBadge::selectRaw('MAX(AwardDataExtra) as MaxExtra, AwardData, AwardType, user_id')
-                    ->groupBy('AwardData', 'AwardType', 'user_id'),
+                PlayerBadge::selectRaw('MAX(award_tier) as MaxExtra, award_key, award_type, user_id')
+                    ->groupBy('award_key', 'award_type', 'user_id'),
                 'priority_awards',
                 function ($join) {
-                    $join->on('pb.AwardData', '=', 'priority_awards.AwardData')
-                        ->on('pb.AwardType', '=', 'priority_awards.AwardType')
+                    $join->on('pb.award_key', '=', 'priority_awards.award_key')
+                        ->on('pb.award_type', '=', 'priority_awards.award_type')
                         ->on('pb.user_id', '=', 'priority_awards.user_id')
-                        ->on('pb.AwardDataExtra', '=', 'priority_awards.MaxExtra');
+                        ->on('pb.award_tier', '=', 'priority_awards.MaxExtra');
                 }
             )
-            ->orderByDesc('pb.AwardDate')
+            ->orderByDesc('pb.awarded_at')
             ->take(50)
             ->get()
-            ->reject(fn ($award) => $award->user->Untracked)
+            ->reject(fn ($award) => $award->user->unranked_at !== null)
             ->map(fn ($award) => new RecentPlayerBadgeData(
                 game: GameData::fromGame($award->gameIfApplicable)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
-                awardType: $award->AwardDataExtra === UnlockMode::Hardcore
-                    ? ($award->AwardType === AwardType::Mastery ? 'mastered' : 'beaten-hardcore')
-                    : ($award->AwardType === AwardType::Mastery ? 'completed' : 'beaten-softcore'),
+                awardType: $award->award_tier === UnlockMode::Hardcore
+                    ? ($award->award_type === AwardType::Mastery ? 'mastered' : 'beaten-hardcore')
+                    : ($award->award_type === AwardType::Mastery ? 'completed' : 'beaten-softcore'),
                 user: UserData::fromUser($award->user),
-                earnedAt: $award->AwardDate,
+                earnedAt: $award->awarded_at,
             ))
             ->values()
             ->all();
@@ -178,15 +192,15 @@ class BuildDeveloperFeedDataAction
     {
         return LeaderboardEntry::select('leaderboard_entries.*')
             ->with(['leaderboard.game.system', 'user'])
-            ->join('LeaderboardDef as ld', 'ld.ID', '=', 'leaderboard_entries.leaderboard_id')
+            ->join('leaderboards as ld', 'ld.id', '=', 'leaderboard_entries.leaderboard_id')
             ->where(DB::raw('ld.author_id'), $targetUser->id)
             ->whereNull('ld.deleted_at')
             ->whereNull('leaderboard_entries.deleted_at')
-            ->where('leaderboard_entries.updated_at', '>=', now()->subDays(30))
+            ->where(DB::raw('leaderboard_entries.updated_at'), '>=', now()->subDays(30))
             ->orderBy('leaderboard_entries.updated_at', 'desc')
             ->take(200)
             ->get()
-            ->reject(fn ($entry) => $entry->user->Untracked)
+            ->reject(fn ($entry) => $entry->user->unranked_at !== null)
             ->map(fn ($entry) => new RecentLeaderboardEntryData(
                 leaderboard: LeaderboardData::fromLeaderboard($entry->leaderboard),
                 leaderboardEntry: LeaderboardEntryData::fromLeaderboardEntry($entry, $entry->leaderboard->format)->include('formattedScore'),

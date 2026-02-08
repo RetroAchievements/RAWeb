@@ -67,7 +67,15 @@ class UserResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'User', 'display_name'];
+        return ['id', 'username', 'display_name'];
+    }
+
+    /**
+     * @param Builder<User> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('points_hardcore');
     }
 
     public static function infolist(Schema $schema): Schema
@@ -88,7 +96,7 @@ class UserResource extends Resource
                                         ->label('Avatar')
                                         ->size(config('media.icon.lg.width')),
 
-                                    Infolists\Components\TextEntry::make('Motto'),
+                                    Infolists\Components\TextEntry::make('motto'),
                                 ]),
 
                             Schemas\Components\Group::make()
@@ -125,11 +133,6 @@ class UserResource extends Resource
                                         ->label('Canonical URL')
                                         ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
                                         ->openUrlInNewTab(),
-
-                                    Infolists\Components\TextEntry::make('permalink')
-                                        ->formatStateUsing(fn () => 'Here')
-                                        ->url(fn (User $record): string => $record->getPermalinkAttribute())
-                                        ->openUrlInNewTab(),
                                 ]),
                         ]),
 
@@ -139,29 +142,30 @@ class UserResource extends Resource
                             Infolists\Components\TextEntry::make('id')
                                 ->label('ID'),
 
-                            Infolists\Components\TextEntry::make('Created')
+                            Infolists\Components\TextEntry::make('created_at')
                                 ->label('Joined')
                                 ->dateTime(),
 
-                            Infolists\Components\TextEntry::make('LastLogin')
+                            Infolists\Components\TextEntry::make('last_activity_at')
                                 ->label('Last login at')
                                 ->dateTime(),
 
-                            Infolists\Components\TextEntry::make('DeleteRequested')
+                            Infolists\Components\TextEntry::make('deleted_requested_at')
                                 ->label('Deleted requested at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('warning'),
 
-                            Infolists\Components\TextEntry::make('Deleted')
+                            Infolists\Components\TextEntry::make('deleted_at')
                                 ->label('Deleted at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('danger'),
 
-                            Infolists\Components\IconEntry::make('Untracked')
+                            Infolists\Components\IconEntry::make('unranked_at')
                                 ->label('Ranked')
                                 ->boolean()
+                                ->getStateUsing(fn ($record) => $record->unranked_at !== null)
                                 ->trueColor('danger')
                                 ->trueIcon('heroicon-o-x-circle')
                                 ->falseColor('success')
@@ -196,7 +200,7 @@ class UserResource extends Resource
                     Schemas\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
-                            Forms\Components\TextInput::make('Motto')
+                            Forms\Components\TextInput::make('motto')
                                 ->maxLength(50),
                         ]),
 
@@ -225,7 +229,11 @@ class UserResource extends Resource
                             Forms\Components\Toggle::make('ManuallyVerified')
                                 ->label('Forum verified'),
 
-                            Forms\Components\Toggle::make('Untracked'),
+                            Forms\Components\Toggle::make('is_unranked')
+                                ->label('Untracked')
+                                ->afterStateHydrated(function (Forms\Components\Toggle $component, $record) {
+                                    $component->state($record?->unranked_at !== null);
+                                }),
                         ]),
                 ])->from('md'),
             ]);
@@ -239,7 +247,7 @@ class UserResource extends Resource
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
@@ -288,18 +296,15 @@ class UserResource extends Resource
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\IconColumn::make('Untracked')
+                Tables\Columns\IconColumn::make('unranked_at')
                     ->label('Ranked')
                     ->boolean()
+                    ->getStateUsing(fn ($record) => $record->unranked_at !== null)
                     ->trueColor('danger')
                     ->trueIcon('heroicon-o-x-circle')
                     ->falseColor('success')
                     ->falseIcon('heroicon-o-check-circle')
                     ->alignCenter(),
-
-                // Tables\Columns\TextColumn::make('unranked_at')
-                //     ->dateTime()
-                //     ->sortable(),
 
                 // Tables\Columns\TextColumn::make('banned_at')
                 //     ->dateTime()
@@ -309,41 +314,41 @@ class UserResource extends Resource
                 //     ->dateTime()
                 //     ->sortable(),
 
-                Tables\Columns\IconColumn::make('UserWallActive')
+                Tables\Columns\IconColumn::make('is_user_wall_active')
                     ->label('Wall active')
                     ->boolean()
                     ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('Created')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('LastLogin')
+                Tables\Columns\TextColumn::make('last_activity_at')
                     ->label('Last login at')
                     ->dateTime()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('Updated')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DeleteRequested')
+                Tables\Columns\TextColumn::make('delete_requested_at')
                     ->label('Deleted requested at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Deleted')
+                Tables\Columns\TextColumn::make('deleted_at')
                     ->label('Deleted at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('LastLogin', 'desc')
+            ->defaultSort('last_activity_at', 'desc')
             ->filters([
                 Filters\SelectFilter::make('Permissions')
                     ->multiple()

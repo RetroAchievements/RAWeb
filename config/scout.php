@@ -160,21 +160,24 @@ return [
                     'id',
                     'title',
                     'unlocks_total',
-                    'unlocks_hardcore_total',
+                    'unlocks_hardcore',
                 ],
             ],
 
             Comment::class => [
                 'filterableAttributes' => [
-                    'ArticleID',
-                    'ArticleType',
-                    'commentable_id',
                     'commentable_type',
-                    'created_at',
-                    'user_id',
+                ],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'proximity',
+                    'attribute',
+                    'created_at:desc',
+                    'exactness',
+                    'sort',
                 ],
                 'searchableAttributes' => ['body'],
-                'sortableAttributes' => ['created_at'],
             ],
 
             Event::class => [
@@ -197,6 +200,15 @@ return [
                     'forum_topic_id',
                     'author_id',
                     'created_at',
+                ],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'proximity',
+                    'attribute',
+                    'created_at:desc',
+                    'exactness',
+                    'sort',
                 ],
                 'searchableAttributes' => ['body'],
                 'sortableAttributes' => ['created_at'],
@@ -270,8 +282,7 @@ return [
             User::class => [
                 'filterableAttributes' => [
                     '__soft_deleted',
-                    'display_name',
-                    'username',
+                    'is_banned',
                 ],
                 'rankingRules' => [
                     'exactness',
@@ -283,9 +294,7 @@ return [
                 ],
                 'searchableAttributes' => ['display_name', 'username'],
                 'sortableAttributes' => [
-                    'display_name',
                     'last_activity_at',
-                    'username',
                 ],
             ],
         ],

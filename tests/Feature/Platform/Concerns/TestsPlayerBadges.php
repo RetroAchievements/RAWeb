@@ -15,7 +15,7 @@ trait TestsPlayerBadges
 {
     protected function addPlayerBadge(
         User $user,
-        int $type,
+        AwardType $type,
         int $id,
         int $extra = 0,
         ?Carbon $awardTime = null,
@@ -25,17 +25,17 @@ trait TestsPlayerBadges
         }
 
         $badge = $user->playerBadges()
-            ->where('AwardType', '=', $type)
-            ->where('AwardData', '=', $id)
-            ->where('AwardDataExtra', '=', $extra)
+            ->where('award_type', '=', $type)
+            ->where('award_key', '=', $id)
+            ->where('award_tier', '=', $extra)
             ->first();
         if ($badge === null) {
             $badge = new PlayerBadge([
                 'user_id' => $user->id,
-                'AwardType' => $type,
-                'AwardData' => $id,
-                'AwardDataExtra' => $extra,
-                'AwardDate' => $awardTime,
+                'award_type' => $type,
+                'award_key' => $id,
+                'award_tier' => $extra,
+                'awarded_at' => $awardTime,
             ]);
             $user->playerBadges()->save($badge);
         }
@@ -47,17 +47,17 @@ trait TestsPlayerBadges
         int $mode = UnlockMode::Hardcore,
         ?Carbon $awardTime = null,
     ): void {
-        $this->addPlayerBadge($user, AwardType::GameBeaten, $game->ID, $mode, $awardTime);
+        $this->addPlayerBadge($user, AwardType::GameBeaten, $game->id, $mode, $awardTime);
     }
 
     protected function beatenBadgeExists(User $user, Game $game, ?int $mode): bool
     {
         $badge = $user->playerBadges()
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->ID);
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id);
 
-            if ($mode !== null) {
-            $badge = $badge->where('AwardDataExtra', UnlockMode::Hardcore);
+        if ($mode !== null) {
+            $badge = $badge->where('award_tier', UnlockMode::Hardcore);
         }
 
         return $badge->exists();
@@ -67,7 +67,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->beatenBadgeExists($user, $game, $mode),
-            "No beaten badge for game " . $game->ID . "/user " . $user->ID,
+            "No beaten badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -75,7 +75,7 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->beatenBadgeExists($user, $game, $mode),
-            "Found beaten badge for game " . $game->ID . "/user " . $user->ID,
+            "Found beaten badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -85,15 +85,15 @@ trait TestsPlayerBadges
         int $mode = UnlockMode::Hardcore,
         ?Carbon $awardTime = null,
     ): void {
-        $this->addPlayerBadge($user, AwardType::Mastery, $game->ID, $mode, $awardTime);
+        $this->addPlayerBadge($user, AwardType::Mastery, $game->id, $mode, $awardTime);
     }
 
     protected function masteryBadgeExists(User $user, Game $game): bool
     {
         return $user->playerBadges()
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->exists();
     }
 
@@ -101,7 +101,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->masteryBadgeExists($user, $game),
-            "No mastery badge for game " . $game->ID . "/user " . $user->ID,
+            "No mastery badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -109,16 +109,16 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->masteryBadgeExists($user, $game),
-            "Found mastery badge for game " . $game->ID . "/user " . $user->ID,
+            "Found mastery badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
     protected function completionBadgeExists(User $user, Game $game): bool
     {
         return $user->playerBadges()
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
-            ->where('AwardDataExtra', UnlockMode::Softcore)
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Softcore)
             ->exists();
     }
 
@@ -126,7 +126,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->completionBadgeExists($user, $game),
-            "No completion badge for game " . $game->ID . "/user " . $user->ID,
+            "No completion badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -134,7 +134,7 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->completionBadgeExists($user, $game),
-            "Found completion badge for game " . $game->ID . "/user " . $user->ID,
+            "Found completion badge for game " . $game->id . "/user " . $user->id,
         );
     }
 }

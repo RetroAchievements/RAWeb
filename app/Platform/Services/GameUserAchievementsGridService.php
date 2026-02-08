@@ -6,22 +6,21 @@ namespace App\Platform\Services;
 
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 class GameUserAchievementsGridService
 {
     public function getGameAchievementsWithUserProgress(Game $game, User $user): array
     {
         $gameAchievements = $game->achievements()
-            ->orderBy('DisplayOrder')
-            ->published()
+            ->orderBy('order_column')
+            ->promoted()
             ->get();
 
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $game->id, AchievementFlag::OfficialCore);
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $game->id, isPromoted: true);
 
         $entities = [];
         foreach ($gameAchievements as $gameAchievement) {
-            $badgeName = $gameAchievement->BadgeName . '_lock';
+            $badgeName = $gameAchievement->image_name . '_lock';
 
             $entities[$gameAchievement->id] = [
                 'ID' => $gameAchievement->id,
@@ -33,7 +32,7 @@ class GameUserAchievementsGridService
                 'BadgeName' => $badgeName,
                 'BadgeURL' => media_asset("Badge/{$badgeName}.png"),
                 'BadgeClassNames' => '',
-                'DisplayOrder' => $gameAchievement->DisplayOrder,
+                'DisplayOrder' => $gameAchievement->order_column,
                 'Unlocked' => false,
                 'DateAwarded' => null,
                 'HardcoreAchieved' => null,

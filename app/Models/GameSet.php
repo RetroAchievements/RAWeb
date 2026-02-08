@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Actions\WriteGameSetSortTitleAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\EventHubIdCacheService;
@@ -21,7 +23,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO drop image_asset_path, migrate to media
-class GameSet extends BaseModel
+class GameSet extends BaseModel implements HasPermalink
 {
     use LogsActivity {
         LogsActivity::activities as auditLog;
@@ -42,6 +44,7 @@ class GameSet extends BaseModel
         'internal_notes',
         'image_asset_path',
         'has_mature_content',
+        'sort_title',
         'title',
         'type',
         'updated_at',
@@ -80,6 +83,21 @@ class GameSet extends BaseModel
             }
         });
 
+        static::saved(function (GameSet $gameSet) {
+            $originalTitle = $gameSet->getOriginal('title');
+            $freshGameSet = $gameSet->fresh();
+
+            // Only update sort_title if there's actually a title.
+            // SimilarGames sets don't have titles - they're just relationship containers.
+            if ($freshGameSet->title !== null && ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated)) {
+                (new WriteGameSetSortTitleAction())->execute(
+                    $freshGameSet,
+                    $freshGameSet->title,
+                    shouldRespectCustomSortTitle: false,
+                );
+            }
+        });
+
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'viewRoles' || $relationName === 'updateRoles') {
                 /** @var User $user */
@@ -110,16 +128,16 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $attachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $attachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
                     ->withProperty('attributes', [$relationName => $attachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])
@@ -198,15 +216,15 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $detachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $detachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => $detachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])
@@ -257,6 +275,15 @@ class GameSet extends BaseModel
         });
     }
 
+    // == constants
+
+    public const CentralHubId = 1;
+    public const GenreSubgenreHubId = 2;
+    public const SeriesHubId = 3;
+    public const CommunityEventsHubId = 4;
+    public const DeveloperEventsHubId = 5;
+    public const FreePointsHubId = 3796;
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions
@@ -266,6 +293,7 @@ class GameSet extends BaseModel
                 'has_mature_content',
                 'image_asset_path',
                 'internal_notes',
+                'sort_title',
                 'title',
                 'viewRoles',
                 'updateRoles',
@@ -291,14 +319,6 @@ class GameSet extends BaseModel
     {
         return $this->type === GameSetType::Hub;
     }
-
-    // == constants
-
-    public const CentralHubId = 1;
-    public const GenreSubgenreHubId = 2;
-    public const SeriesHubId = 3;
-    public const CommunityEventsHubId = 4;
-    public const DeveloperEventsHubId = 5;
 
     // == accessors
 
@@ -340,7 +360,7 @@ class GameSet extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -371,6 +391,14 @@ class GameSet extends BaseModel
         return $this->belongsToMany(GameSet::class, 'game_set_links', 'parent_game_set_id', 'child_game_set_id')
             ->withTimestamps()
             ->withPivot('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet, $this>
+     */
+    public function linkedHubs(): BelongsToMany
+    {
+        return $this->children();
     }
 
     /**
@@ -410,5 +438,23 @@ class GameSet extends BaseModel
     public function scopeCentralHub(Builder $query): Builder
     {
         return $query->whereId(self::CentralHubId);
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeWithParentId(Builder $query, int $parentId): Builder
+    {
+        return $query->whereHas('parents', fn ($q) => $q->where('parent_game_set_id', $parentId));
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeTitleContains(Builder $query, string $title): Builder
+    {
+        return $query->where('title', 'LIKE', '%' . $title . '%');
     }
 }

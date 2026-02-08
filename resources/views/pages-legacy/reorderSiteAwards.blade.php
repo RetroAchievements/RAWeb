@@ -12,7 +12,7 @@ $prefersSeeingSavedHiddenRows = request()->cookie('prefers_seeing_saved_hidden_r
 $targetUser = User::whereName($user)->first();
 
 $userAwards = getUsersSiteAwards($targetUser, true);
-[$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
+[$gameAwards, $eventAwards, $siteAwards, $eventData] = SeparateAwards($userAwards);
 
 $hasSomeAwards = !empty($gameAwards) || !empty($eventAwards) || !empty($siteAwards);
 
@@ -111,6 +111,7 @@ function postAllAwardsDisplayOrder(awards) {
             $renderedSectionCount,
             $prefersSeeingSavedHiddenRows,
             $initialSectionOrders[0],
+            $eventData,
         );
     }
 
@@ -123,6 +124,7 @@ function postAllAwardsDisplayOrder(awards) {
             $renderedSectionCount,
             $prefersSeeingSavedHiddenRows,
             $initialSectionOrders[1],
+            $eventData,
         );
     }
 
@@ -135,6 +137,7 @@ function postAllAwardsDisplayOrder(awards) {
             $renderedSectionCount,
             $prefersSeeingSavedHiddenRows,
             $initialSectionOrders[2],
+            $eventData,
         );
     }
     ?>

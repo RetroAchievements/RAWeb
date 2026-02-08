@@ -15,9 +15,8 @@ class CommentController extends Controller
         Comment $comment,
         GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
-        $this->authorize('view', $comment);
-
-        abort_if($comment->commentable === null, 404);
+        abort_if($comment->trashed(), 404);
+        abort_unless($comment->commentable_type->supportsCommentRedirect(), 404);
 
         return redirect($getUrlToCommentDestinationAction->execute($comment));
     }

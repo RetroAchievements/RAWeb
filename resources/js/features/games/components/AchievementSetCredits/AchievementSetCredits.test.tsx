@@ -73,6 +73,28 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
   });
 
+  it('given banner artwork credits exist, shows the artwork credits display', () => {
+    // ARRANGE
+    const aggregateCredits = createAggregateAchievementSetCredits({
+      achievementSetBanner: [createUserCredits({ displayName: 'Charlie' })], // !!
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
+    });
+
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
+  });
+
   it('given coding credits exist, shows the code credits display', () => {
     // ARRANGE
     const aggregateCredits = createAggregateAchievementSetCredits({
@@ -114,6 +136,7 @@ describe('Component: AchievementSetCredits', () => {
     const sharedUser = createUserCredits({ displayName: 'Alice' });
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [sharedUser],
+      achievementSetBanner: [sharedUser], // !! same user in banner artwork
       achievementsArtwork: [sharedUser], // !! same user in both arrays
       achievementsLogic: [],
       achievementsMaintainers: [],
@@ -132,13 +155,13 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
   });
 
-  it('given all logic users are already authors, does not show the code credits display', () => {
+  it('given logic credits exist for a user who is also an author, still shows code credits display', () => {
     // ARRANGE
     const author = createUserCredits({ displayName: 'Alice' });
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsAuthors: [author],
-      achievementsLogic: [author], // !! same user is both author and logic credit
-      achievementsMaintainers: [], // !! no maintainers
+      achievementsLogic: [author],
+      achievementsMaintainers: [],
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
@@ -150,8 +173,7 @@ describe('Component: AchievementSetCredits', () => {
     });
 
     // ASSERT
-    // ... code credits should not show because filtered logic credits is empty and no maintainers ...
-    expect(screen.queryByTestId('code-credits-display')).not.toBeInTheDocument();
+    expect(screen.getByTestId('code-credits-display')).toBeVisible();
   });
 
   it('given active claims, shows claimants', () => {
@@ -159,6 +181,7 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = {
       achievementsAuthors: [],
       achievementSetArtwork: [],
+      achievementSetBanner: [],
       achievementsArtwork: [],
       achievementsLogic: [],
       achievementsMaintainers: [],
@@ -209,6 +232,7 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = {
       achievementsAuthors: [],
       achievementSetArtwork: [],
+      achievementSetBanner: [],
       achievementsArtwork: [],
       achievementsLogic: [],
       achievementsMaintainers: [],

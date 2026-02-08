@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\LogGameAchievementSetActivityAction;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\AchievementSetType;
 use BackedEnum;
@@ -34,14 +35,23 @@ use InvalidArgumentException;
 class AchievementSetsRelationManager extends RelationManager
 {
     protected static string $relationship = 'achievementSets';
-
     protected static ?string $title = 'Sets';
-
     protected static string|BackedEnum|null $icon = 'heroicon-o-rectangle-stack';
+
+    /**
+     * Maps WillBe* types to their final equivalents when multiset is enabled.
+     */
+    private const WILL_BE_TO_FINAL_TYPE_MAP = [
+        AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->value,
+        AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->value,
+    ];
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return !$ownerRecord->is_subset_game;
+        /** @var User $user */
+        $user = Auth::user();
+
+        return !$ownerRecord->is_subset_game && $user->can('manage', GameAchievementSet::class);
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -79,26 +89,24 @@ class AchievementSetsRelationManager extends RelationManager
                     ->placeholder(fn ($record) => $record->type === AchievementSetType::Core->value ? 'Base Set' : null),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label())
+                    ->formatStateUsing(fn ($state): ?string => AchievementSetType::tryFrom($state)?->label())
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
 
                         if ($state === AchievementSetType::WillBeBonus->value) {
-                            return 'Will be Bonus when multiset goes live';
+                            return 'Will be Bonus when multiset is enabled';
                         } elseif ($state === AchievementSetType::WillBeSpecialty->value) {
-                            return 'Will be Specialty when multiset goes live';
-                        } elseif ($state === AchievementSetType::WillBeExclusive->value) {
-                            return 'Will be Exclusive when multiset goes live';
+                            return 'Will be Specialty when multiset is enabled';
                         }
 
                         return null;
                     }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Published Achievements'),
+                    ->label('Promoted Achievements'),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Unpublished Achievements'),
+                    ->label('Unpromoted Achievements'),
 
                 Tables\Columns\TextInputColumn::make('order_column')
                     ->label('Display Order')
@@ -122,12 +130,32 @@ class AchievementSetsRelationManager extends RelationManager
 
                         return $state;
                     })
-                    ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value),
+                    ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value
+                        || !$user->can('update', GameAchievementSet::class)
+                    ),
             ])
             ->filters([
 
             ])
             ->headerActions([
+                Actions\Action::make('toggleMultiset')
+                    ->visible(fn () => $user->can('toggleMultiset', GameAchievementSet::class)
+                        && $game->gameAchievementSets()->whereIn('type', [
+                            AchievementSetType::Bonus->value,
+                            AchievementSetType::WillBeBonus->value,
+                            AchievementSetType::Specialty->value,
+                            AchievementSetType::WillBeSpecialty->value,
+                        ])->exists())
+                    ->label(fn () => $this->hasWillBeTypes($game) ? 'Enable Multiset' : 'Disable Multiset')
+                    ->icon(fn () => $this->hasWillBeTypes($game) ? 'heroicon-o-play' : null)
+                    ->color(fn () => $this->hasWillBeTypes($game) ? 'primary' : 'danger')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn () => $this->hasWillBeTypes($game) ? 'Enable Multiset' : 'Disable Multiset')
+                    ->modalDescription(fn () => new HtmlString($this->hasWillBeTypes($game)
+                        ? 'This will allow multiple sets to be loaded at the same time in emulators that support the multiset feature.<br><br>Make absolutely sure the subset types are correct. If there are any incompatible hashes for the subsets, make sure those are configured correctly. Misconfiguration may result in a lot of tickets. If you need help, please reach out to a member of Developer Compliance, Quality Assurance, or RAdmin.<br><br>Are you sure you want to proceed?'
+                        : 'This will make it only possible to load one achievement set at a time for the game. Any current players of the game are very likely to be affected by disabling multiset.<br><br>Are you sure you want to proceed?'))
+                    ->action(fn () => $this->toggleMultisetTypes($game)),
+
                 Actions\Action::make('attachSubset')
                     ->visible(fn () => $user->can('create', GameAchievementSet::class))
                     ->label('Attach Subset')
@@ -141,8 +169,8 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->helperText('Find the current subset game in the database. For example: "Mega Man 2 [Subset - Bonus]".')
                                     ->searchable()
                                     ->options(
-                                        Game::where('Title', 'like', "%[Subset -%")
-                                            ->where('ConsoleID', $game->ConsoleID)
+                                        Game::where('title', 'like', "%[Subset -%")
+                                            ->where('system_id', $game->system_id)
                                             ->where(function ($query) {
                                                 $query->where('achievements_published', '>', 0)
                                                     ->orWhere('achievements_unpublished', '>', 0);
@@ -151,7 +179,7 @@ class AchievementSetsRelationManager extends RelationManager
                                                 /** @var Builder<GameAchievementSet> $query */
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })
-                                            ->orderBy('Title')
+                                            ->orderBy('title')
                                             ->with('system')
                                             ->get()
                                             ->mapWithKeys(function ($game) {
@@ -178,7 +206,7 @@ class AchievementSetsRelationManager extends RelationManager
                                 $legacySubsetAchievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
                                 $attachedGame = $legacySubsetAchievementSet->games()
                                     ->wherePivot('type', '!=', AchievementSetType::Core->value)
-                                    ->where(DB::raw('GameData.id'), '!=', $game->id)
+                                    ->where(DB::raw('games.id'), '!=', $game->id)
                                     ->first();
 
                                 // Set the flag in the form data.
@@ -210,7 +238,7 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
                                         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
-                                        AchievementSetType::WillBeExclusive->value => AchievementSetType::Exclusive->label(),
+                                        AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                                     ])
                                     ->helperText("
                                         Bonus loads with any hashes supported by Core.
@@ -274,7 +302,7 @@ class AchievementSetsRelationManager extends RelationManager
                             ->options([
                                 AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
                                 AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
-                                AchievementSetType::WillBeExclusive->value => AchievementSetType::Exclusive->label(),
+                                AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                             ])
                             ->required()
                             ->helperText('Bonus loads with any hashes supported by Core. Specialty requires a unique hash, but also loads Core and Bonus. Exclusive requires a unique hash, but does not load Core or Bonus.'),
@@ -284,7 +312,7 @@ class AchievementSetsRelationManager extends RelationManager
                         $typeMapping = [
                             AchievementSetType::Bonus->value => AchievementSetType::WillBeBonus->value,
                             AchievementSetType::Specialty->value => AchievementSetType::WillBeSpecialty->value,
-                            AchievementSetType::Exclusive->value => AchievementSetType::WillBeExclusive->value,
+                            AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->value,
                         ];
 
                         return [
@@ -293,13 +321,57 @@ class AchievementSetsRelationManager extends RelationManager
                         ];
                     })
                     ->action(function (AchievementSet $record, array $data): void {
+                        /** @var Game $currentGame */
+                        $currentGame = $this->getOwnerRecord();
+
+                        $originalType = $record->pivot->type;
+                        $originalTitle = $record->pivot->title;
+
+                        // If multiset is enabled (no WillBe types exist), convert WillBe* to final types.
+                        // Otherwise, keep WillBe* types as-is.
+                        $isMultisetEnabled = !$this->hasWillBeTypes($currentGame);
+                        $typeToSave = $isMultisetEnabled
+                            ? (self::WILL_BE_TO_FINAL_TYPE_MAP[$data['type']] ?? $data['type'])
+                            : $data['type'];
+
+                        $newType = AchievementSetType::tryFrom($typeToSave);
+                        $isChangingToSpecialty = in_array($newType, [
+                            AchievementSetType::Specialty,
+                            AchievementSetType::WillBeSpecialty,
+                        ], true);
+
+                        // Specialty sets can only be linked to one parent game.
+                        if ($isChangingToSpecialty) {
+                            if (!$record->canBeLinkedAsSpecialtyTo($currentGame)) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Cannot change to Specialty')
+                                    ->body('This set is linked to other parent games. Specialty sets can only be linked to one parent.')
+                                    ->send();
+
+                                return;
+                            }
+                        }
+
                         $record->games()->updateExistingPivot(
-                            $this->getOwnerRecord()->id,
+                            $currentGame->id,
                             [
                                 'title' => $data['title'],
-                                'type' => $data['type'],
+                                'type' => $typeToSave,
                                 'updated_at' => now(),
                             ]
+                        );
+
+                        $gameAchievementSet = GameAchievementSet::where('game_id', $currentGame->id)
+                            ->where('achievement_set_id', $record->id)
+                            ->first();
+
+                        (new LogGameAchievementSetActivityAction())->execute(
+                            operation: 'update',
+                            game: $currentGame,
+                            gameAchievementSet: $gameAchievementSet,
+                            original: ['type' => $originalType, 'title' => $originalTitle],
+                            changes: ['type' => $data['type'], 'title' => $data['title']],
                         );
 
                         // Sync the backing game's title to match the set title.
@@ -308,7 +380,7 @@ class AchievementSetsRelationManager extends RelationManager
                             $backingGame = Game::find($backingGameId);
                             if ($backingGame && str_contains($backingGame->title, '[Subset -')) {
                                 $baseTitle = trim(preg_replace('/\s*\[Subset\s*-.*\]$/', '', $backingGame->title));
-                                $backingGame->Title = "{$baseTitle} [Subset - {$data['title']}]";
+                                $backingGame->title = "{$baseTitle} [Subset - {$data['title']}]";
                                 $backingGame->save();
                             }
                         }
@@ -340,5 +412,44 @@ class AchievementSetsRelationManager extends RelationManager
                     ->orderBy('order_column')
                     ->orderBy('title', 'asc');
             });
+    }
+
+    private function hasWillBeTypes(Game $game): bool
+    {
+        return $game->gameAchievementSets()
+            ->whereIn('type', [
+                AchievementSetType::WillBeBonus->value,
+                AchievementSetType::WillBeSpecialty->value,
+            ])
+            ->exists();
+    }
+
+    private function toggleMultisetTypes(Game $game): void
+    {
+        $isEnabling = $this->hasWillBeTypes($game);
+        $mapping = $isEnabling
+            ? self::WILL_BE_TO_FINAL_TYPE_MAP
+            : array_flip(self::WILL_BE_TO_FINAL_TYPE_MAP);
+
+        foreach ($mapping as $from => $to) {
+            $game->gameAchievementSets()
+                ->where('type', $from)
+                ->update(['type' => $to, 'updated_at' => now()]);
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+        $event = $isEnabling ? 'multisetEnabled' : 'multisetDisabled';
+        $message = $isEnabling ? 'Multiset enabled' : 'Multiset disabled';
+        activity()
+            ->causedBy($user)
+            ->performedOn($game)
+            ->event($event)
+            ->log($message);
+
+        Notification::make()
+            ->success()
+            ->title($isEnabling ? 'Multiset enabled' : 'Multiset disabled')
+            ->send();
     }
 }

@@ -15,7 +15,6 @@ import { EmptyState } from '@/common/components/EmptyState';
 import { MultilineGameAvatar } from '@/common/components/MultilineGameAvatar';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 import { ClaimMobileBlock } from '../../ClaimMobileBlock';
 import { HomeHeading } from '../../HomeHeading';
@@ -71,8 +70,8 @@ export const NewSetsList: FC = () => {
                     <UserAvatar {...claim.users[0]} size={32} />
                   </BaseTableCell>
                   <BaseTableCell>
-                    {claim.setType === ClaimSetType.NewSet && t('New')}
-                    {claim.setType === ClaimSetType.Revision && t('Revision')}
+                    {claim.setType === 'new_set' && t('New')}
+                    {claim.setType === 'revision' && t('Revision')}
                   </BaseTableCell>
                   <BaseTableCell className="smalldate">
                     <DiffTimestamp at={claim.finished} />

@@ -28,9 +28,9 @@ class SubscriptionNotificationService
     private function getEmailTargetsQuery(array $userIds, int $userPreference): Builder
     {
         return User::query()
-            ->whereIn('ID', $userIds)
-            ->where('EmailAddress', '<>', '')
-            ->whereRaw('websitePrefs & ? != 0', 1 << $userPreference);
+            ->whereIn('id', $userIds)
+            ->where('email', '<>', '')
+            ->whereRaw('preferences_bitfield & ? != 0', 1 << $userPreference);
     }
 
     /**
@@ -43,7 +43,7 @@ class SubscriptionNotificationService
         }
 
         // only queue up notifications for people who would receive the email
-        $userIds = $this->getEmailTargetsQuery($userIds, $userPreference)->pluck('ID')->toArray();
+        $userIds = $this->getEmailTargetsQuery($userIds, $userPreference)->pluck('id')->toArray();
         if (empty($userIds)) {
             return;
         }

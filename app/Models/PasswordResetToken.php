@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 // TODO: replace with Laravel standard features and/or Fortify
 class PasswordResetToken extends BaseModel
 {
+    use MassPrunable;
+
     protected $table = 'password_reset_tokens';
 
     protected $fillable = [
@@ -27,6 +31,14 @@ class PasswordResetToken extends BaseModel
         'created_at' => 'datetime',
     ];
 
+    /**
+     * @return Builder<PasswordResetToken>
+     */
+    public function prunable(): Builder
+    {
+        return $this->where('created_at', '<=', now()->subDays(5));
+    }
+
     // == accessors
 
     // == mutators
@@ -38,7 +50,7 @@ class PasswordResetToken extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

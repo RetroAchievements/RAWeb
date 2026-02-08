@@ -20,10 +20,10 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
 
 class Hubs extends ManageRelatedRecords
 {
@@ -33,6 +33,19 @@ class Hubs extends ManageRelatedRecords
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-sitemap';
 
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - " . static::getRelationshipTitle();
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return static::getRelationshipTitle();
+    }
+
     public static function canAccess(array $arguments = []): bool
     {
         /** @var User $user */
@@ -41,9 +54,14 @@ class Hubs extends ManageRelatedRecords
         return $user->can('manage', GameSet::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->hubs->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->hubs->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table
@@ -53,7 +71,7 @@ class Hubs extends ManageRelatedRecords
 
         return $table
             ->checkIfRecordIsSelectableUsing(fn (GameSet $record): bool => $user->can('update', $record))
-            ->defaultSort('title')
+            ->defaultSort('sort_title')
             ->defaultPaginationPageOption(50)
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')

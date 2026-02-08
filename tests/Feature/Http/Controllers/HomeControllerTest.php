@@ -19,6 +19,7 @@ use App\Models\News;
 use App\Models\StaticData;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UsersOnlineCount;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -27,32 +28,6 @@ use Tests\TestCase;
 class HomeControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected string $logPath;
-    protected string $backupLogPath;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->logPath = storage_path('logs/playersonline.log');
-        $this->backupLogPath = storage_path('logs/playersonline_backup.log');
-
-        // Rename the log file if it exists.
-        if (file_exists($this->logPath)) {
-            rename($this->logPath, $this->backupLogPath);
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        // Restore the original log file.
-        if (file_exists($this->backupLogPath)) {
-            rename($this->backupLogPath, $this->logPath);
-        }
-
-        parent::tearDown();
-    }
 
     public function testItRendersWithEmptyDatabase(): void
     {
@@ -88,7 +63,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -119,7 +94,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -150,20 +125,20 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
 
         $achievement = Achievement::factory()->create([
-            'ID' => 9,
-            'Title' => 'That Was Easy',
-            'GameID' => $game->id,
+            'id' => 9,
+            'title' => 'That Was Easy',
+            'game_id' => $game->id,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 14029]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 14029]);
         /** @var Achievement $eventAchievement */
-        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,
@@ -201,14 +176,14 @@ class HomeControllerTest extends TestCase
     public function testItHandlesAotwEventAchievementsWithoutSourceAchievement(): void
     {
         // Arrange
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         $eventGame = Game::factory()->create([
-            'ConsoleID' => System::Events,
-            'Title' => 'Achievement of the Week',
-            'ForumTopicId' => 14029,
+            'system_id' => System::Events,
+            'title' => 'Achievement of the Week',
+            'forum_topic_id' => 14029,
         ]);
 
-        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,
@@ -263,26 +238,68 @@ class HomeControllerTest extends TestCase
         );
     }
 
+    public function testItExcludesCompletedClaimsForGamesWithZeroPublishedAchievements(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+
+        $gameWithAchievements = Game::factory()->create([
+            'system_id' => $system->id,
+            'achievements_published' => 6,
+        ]);
+        $gameWithoutAchievements = Game::factory()->create([
+            'system_id' => $system->id,
+            'achievements_published' => 0, // !! should be filtered out
+        ]);
+
+        $user = User::factory()->create();
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $gameWithAchievements->id,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now(),
+        ]);
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $gameWithoutAchievements->id,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHour(),
+        ]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // ... only the game with published achievements should appear ...
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('completedClaims', 1)
+            ->where('completedClaims.0.game.id', $gameWithAchievements->id)
+        );
+    }
+
     public function testItSendsSingleCompletedClaimCorrectly(): void
     {
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now(),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now(),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -292,7 +309,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('completedClaims', 1)
 
-            ->where('completedClaims.0.setType', ClaimSetType::NewSet)
+            ->where('completedClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('completedClaims.0.game.id', $game->id)
             ->where('completedClaims.0.game.title', $game->title)
@@ -309,32 +326,33 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subDays(2), // older claim
-            'Created' => now()->subDays(3),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subDays(2), // older claim
+            'created_at' => now()->subDays(3),
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetTYpe' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subDay(), // newer claim
-            'Created' => now()->subDays(2),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subDay(), // newer claim
+            'created_at' => now()->subDays(2),
         ]);
 
         // Act
@@ -344,7 +362,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('completedClaims', 1)
 
-            ->where('completedClaims.0.setType', ClaimSetType::NewSet)
+            ->where('completedClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('completedClaims.0.game.id', $game->id)
             ->where('completedClaims.0.game.title', $game->title)
@@ -361,32 +379,33 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
         AchievementSetClaim::factory()->create([
             'user_id' => $userOne->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subHour(),
-            'Created' => now()->subHours(3),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHour(),
+            'created_at' => now()->subHours(3),
         ]);
         AchievementSetClaim::factory()->create([
             'user_id' => $userTwo->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subHours(2),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHours(2),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -411,7 +430,7 @@ class HomeControllerTest extends TestCase
         );
     }
 
-    public function testItReturnsEmptyCurrentlyOnlineDataWhenLogFileDoesNotExist(): void
+    public function testItReturnsEmptyCurrentlyOnlineDataWhenNoRecordsExist(): void
     {
         // Act
         $response = $this->get(route('home'));
@@ -426,18 +445,28 @@ class HomeControllerTest extends TestCase
         );
     }
 
-    public function testItCorectlyHandlesRealLogFileData(): void
+    public function testItCorrectlyHandlesUsersOnlineCountData(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $logEntries = [
             2487, 2335, 2193, 1963, 1869, 1765, 1676, 1531, 1538, 1583, 1555, 1579,
             1636, 1807, 1881, 2007, 2097, 2222, 2437, 2458, 2534, 2536, 2679, 2731,
             2838, 2803, 2862, 2913, 2998, 3037, 3041, 3031, 3063, 3084, 2996, 2956,
             2914, 2845, 2945, 2882, 2800, 2750, 2666, 2508, 2331, 2177, 2022, 1873,
         ];
-        file_put_contents($this->logPath, implode("\n", $logEntries));
 
-        User::factory()->count(3)->create(['LastLogin' => now()->subMinutes(5)]);
+        // ... start from 23.5 hours ago so slot 47 lands at "now" ...
+        $baseTime = Carbon::now()->subMinutes(30 * (count($logEntries) - 1));
+        foreach ($logEntries as $index => $count) {
+            UsersOnlineCount::create([
+                'online_count' => $count,
+                'created_at' => $baseTime->copy()->addMinutes(30 * $index),
+            ]);
+        }
+
+        User::factory()->count(3)->create(['last_activity_at' => now()->subMinutes(5)]);
 
         // Act
         $response = $this->get(route('home'));
@@ -449,6 +478,79 @@ class HomeControllerTest extends TestCase
             ->where('currentlyOnline.allTimeHighPlayers', max($logEntries))
             ->has('currentlyOnline.allTimeHighDate')
         );
+    }
+
+    public function testItPlacesRecordsInCorrectTimeSlotsWhenDataHasGaps(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::now());
+
+        UsersOnlineCount::create([
+            'online_count' => 100,
+            'created_at' => Carbon::now()->subHours(3), // slot 41
+        ]);
+        UsersOnlineCount::create([
+            'online_count' => 200,
+            'created_at' => Carbon::now()->subMinutes(30), // slot 46
+        ]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.0', 0)   // earliest slot should be 0
+                ->where('currentlyOnline.logEntries.41', 100) // 3h ago
+                ->where('currentlyOnline.logEntries.46', 200) // 30m ago
+                ->where('currentlyOnline.logEntries.47', 0);  // now (no active users)
+        });
+    }
+
+    public function testItUsesRealTimePlayerCountWhenNoRecordExistsForCurrentInterval(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2025, 1, 15, 14, 0, 0)); // exactly at :00
+
+        // ... create a record for the previous interval, but not for the current one ...
+        UsersOnlineCount::create([
+            'online_count' => 500,
+            'created_at' => Carbon::now()->subMinutes(30), // slot 46
+        ]);
+
+        User::factory()->count(42)->create(['last_activity_at' => now()->subMinutes(5)]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.46', 500)
+                ->where('currentlyOnline.logEntries.47', 42)
+                ->where('currentlyOnline.numCurrentPlayers', 42); // !! falls back to the real-time count
+        });
+    }
+
+    public function testItUsesRecordedValueWhenRecordExistsForCurrentInterval(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2025, 1, 15, 14, 5, 0)); // 5 minutes past :00
+
+        UsersOnlineCount::create([
+            'online_count' => 100,
+            'created_at' => Carbon::now()->subMinutes(5), // at :00, which is slot 47
+        ]);
+
+        User::factory()->count(200)->create(['last_activity_at' => now()->subMinutes(2)]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        // ... slot 47 should show the recorded value (100), not the real-time count (200) ...
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.47', 100)
+                ->where('currentlyOnline.numCurrentPlayers', 200);
+        });
     }
 
     public function testItReturnsAnEmptyCollectionForNewClaimsWhenThereAreNone(): void
@@ -467,21 +569,21 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now(),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now(),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -492,7 +594,7 @@ class HomeControllerTest extends TestCase
             ->has('completedClaims', 0)
             ->has('newClaims', 1)
 
-            ->where('newClaims.0.setType', ClaimSetType::NewSet)
+            ->where('newClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('newClaims.0.game.id', $game->id)
             ->where('newClaims.0.game.title', $game->title)
@@ -509,32 +611,32 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subDays(2), // older claim
-            'Created' => now()->subDays(3),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subDays(2), // older claim
+            'created_at' => now()->subDays(3),
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetTYpe' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subDay(), // newer claim
-            'Created' => now()->subDays(2),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subDay(), // newer claim
+            'created_at' => now()->subDays(2),
         ]);
 
         // Act
@@ -544,7 +646,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('newClaims', 1)
 
-            ->where('newClaims.0.setType', ClaimSetType::NewSet)
+            ->where('newClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('newClaims.0.game.id', $game->id)
             ->where('newClaims.0.game.title', $game->title)
@@ -561,32 +663,32 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
         AchievementSetClaim::factory()->create([
             'user_id' => $userOne->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subHour(),
-            'Created' => now()->subHours(3),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subHour(),
+            'created_at' => now()->subHours(3),
         ]);
         AchievementSetClaim::factory()->create([
             'user_id' => $userTwo->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subHours(2),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subHours(2),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -625,7 +727,7 @@ class HomeControllerTest extends TestCase
     public function testItSendsSingleForumPostCorrectly(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'title' => 'Test Topic',
@@ -660,7 +762,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersForumPostsByUserPermissions(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $publicTopic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,
@@ -693,7 +795,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersUnauthorizedForumPosts(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,

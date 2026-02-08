@@ -40,8 +40,8 @@ class ForumTopicControllerTest extends TestCase
         $forum = Forum::factory()->create(['forum_category_id' => $category->id]);
 
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
             'email_verified_at' => now(),
         ]);
         $this->actingAs($user);
@@ -75,8 +75,8 @@ class ForumTopicControllerTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
             'email_verified_at' => now(),
             'Permissions' => 1, // !! low permissions
         ]);
@@ -101,8 +101,8 @@ class ForumTopicControllerTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
             'email_verified_at' => now(),
             'Permissions' => 1, // !! low permissions
         ]);

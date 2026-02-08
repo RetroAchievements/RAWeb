@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Data\AchievementGroupData;
+use App\Community\Data\AchievementChecklistGroupData;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\User;
@@ -49,7 +49,7 @@ class BuildAchievementChecklistAction
     }
 
     /**
-     * @return AchievementGroupData[]
+     * @return AchievementChecklistGroupData[]
      */
     private function fillData(array $groups, User $user): array
     {
@@ -59,14 +59,14 @@ class BuildAchievementChecklistAction
         }
         $ids = array_unique($ids);
 
-        $achievements = Achievement::whereIn('ID', $ids)->with('game.system')->get();
+        $achievements = Achievement::whereIn('id', $ids)->with('game.system')->get();
         $unlocks = PlayerAchievement::where('user_id', $user->id)->whereIn('achievement_id', $ids)->get();
 
         $result = [];
         foreach ($groups as $group) {
             $achievementList = [];
             foreach ($group['achievementIds'] as $achievementId) {
-                $achievement = $achievements->filter(fn ($a) => $a->ID === $achievementId)->first();
+                $achievement = $achievements->filter(fn ($a) => $a->id === $achievementId)->first();
                 if ($achievement) {
                     $unlock = $unlocks->filter(fn ($u) => $u->achievement_id === $achievementId)->first();
                     $achievementList[] = AchievementData::from($achievement, $unlock)->include(
@@ -75,9 +75,10 @@ class BuildAchievementChecklistAction
                         'unlockedAt',
                         'unlockedHardcoreAt',
                         'unlocksTotal',
-                        'unlocksHardcoreTotal',
+                        'unlocksHardcore',
                         'unlockHardcorePercentage',
                         'unlockPercentage',
+                        'isPromoted',
                         'game.badgeUrl',
                         'game.playersTotal',
                         'game.system.nameShort',
@@ -85,7 +86,7 @@ class BuildAchievementChecklistAction
                 }
             }
 
-            $result[] = new AchievementGroupData($group['header'], $achievementList);
+            $result[] = new AchievementChecklistGroupData($group['header'], $achievementList);
         }
 
         return $result;

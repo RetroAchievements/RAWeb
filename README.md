@@ -1,26 +1,26 @@
 <p align="center" dir="auto"><a href="https://retroachievements.org" rel="nofollow"><img src="https://raw.githubusercontent.com/RetroAchievements/RAWeb/master/public/assets/images/ra-icon.webp" width="200" alt="RetroAchievements Logo" style="max-width: 100%;"></a></p>
 
 **RAWeb** is [RetroAchievements.org](https://retroachievements.org)'s platform application.
-It is a Laravel application ([TALL stack](https://tallstack.dev/)).
+It is a Laravel application using [Inertia.js](https://inertiajs.com/) with React, TypeScript, and server-side rendering (SSR). The frontend is actively migrating from Blade/Livewire to React. Back-office administration is built with [Filament](https://filamentphp.com/).
 
 ## Requirements
 
 - Local web server
-- [PHP 8.2](http://php.net/manual/en/)
+- [PHP 8.4](http://php.net/manual/en/)
 - [Composer](https://getcomposer.org/) PHP dependency manager
 - [MariaDB 10](https://mariadb.com/docs/server/)
-- [Node.js 20](https://nodejs.org/)
+- [Node.js 24](https://nodejs.org/)
 - [pnpm 10](https://pnpm.io/)
  
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 
 ### **[Docker Compose](https://docs.docker.com/compose/install/)** (Windows, Linux, macOS)
 
-See [Laravel Sail documentation](https://laravel.com/docs/sail).
+Recommended. See [Laravel Sail documentation](https://laravel.com/docs/sail).
 
 ### **[XAMPP](https://www.apachefriends.org/download.html)** (Windows, Linux, macOS)
 
-Install the XAMPP version packaged with PHP 8.2 to run an Apache web server, MySQL/MariaDB, and PHP on your system.
+Install the XAMPP version packaged with PHP 8.4 to run an Apache web server, MariaDB, and PHP on your system.
 
 You might have to enable some extensions in `php.ini` (see the `ext-*` requirements in [composer.json](composer.json)):
 ```
@@ -37,10 +37,6 @@ extension=sockets
 
 A [local valet driver](LocalValetDriver.php) is provided.
 
-## Upgrade
-
-Refer to the [upgrade guides](docs/upgrade) to upgrade your existing installation.
-
 ## Installation
 
 ```shell
@@ -52,10 +48,6 @@ composer install
 ```shell
 composer setup
 ```
-
-> **Note**
-> In case you want to rely on the shipped `composer.phar` instead of a global installation read all mentions of `composer` within commands as `php composer.phar`.
-> I.e. run `php composer.phar setup` if you haven't aliased it.
 
 ### Configure
 
@@ -137,6 +129,33 @@ pnpm build
 # Using Sail:
 sail pnpm install
 sail pnpm build
+```
+
+### Development workflow
+
+For local development with hot module replacement:
+
+```shell
+pnpm dev
+```
+
+Before submitting a pull request, verify your changes pass all checks:
+
+```shell
+# Frontend
+pnpm verify  # Runs linting, TypeScript checks, and Vitest tests
+
+# Backend
+composer fix                            # Fix code style issues
+composer analyse                        # Run PHPStan static analysis
+composer test -- --filter=TestFileName  # Run an individual test suite
+composer test -- --parallel             # Run all back-end tests in parallel
+```
+
+To run specific frontend tests:
+
+```shell
+pnpm test:run SomeComponent  # Run tests matching "SomeComponent"
 ```
 
 ### Create filesystem symlinks

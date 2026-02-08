@@ -6,15 +6,14 @@ namespace App\Providers;
 
 use App\Components\GeneralNotificationsIcon;
 use App\Components\TicketNotificationsIcon;
+use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
-use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
-use App\Console\Commands\DeleteExpiredPasswordResetTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
+use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
-use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
@@ -24,6 +23,7 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Services\UserLastActivityService;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
@@ -36,6 +36,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
+use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
@@ -49,6 +50,19 @@ class AppServiceProvider extends ServiceProvider
         // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
+
+        // Track user recent activity timestamps in Redis and flush them periodically to the DB.
+        // This keeps the users table indexes from constantly rebalancing 24/7.
+        $this->app->singleton(UserLastActivityService::class);
+
+        // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
+        $this->app->singleton(Optimus::class, function () {
+            return new Optimus(
+                (int) config('optimus.prime'),
+                (int) config('optimus.inverse'),
+                (int) config('optimus.random'),
+            );
+        });
     }
 
     /**
@@ -58,14 +72,13 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillUsersOnlineCounts::class,
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
-                DeleteExpiredEmailVerificationTokens::class,
-                DeleteExpiredPasswordResetTokens::class,
                 DeleteOverdueUserAccounts::class,
+                FlushUserActivityToDatabase::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
-                PruneApiLogs::class,
                 SquashMigrations::class,
 
                 // User Accounts
@@ -76,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
-        Model::shouldBeStrict(!$this->app->isProduction());
+        Model::shouldBeStrict(app()->environment() !== 'production');
 
         // Filament v4: Preserve v3 behavior for layout components spanning full width.
         \Filament\Schemas\Components\Fieldset::configureUsing(fn (\Filament\Schemas\Components\Fieldset $fieldset) => $fieldset
@@ -91,19 +104,18 @@ class AppServiceProvider extends ServiceProvider
             ->uniqueValidationIgnoresRecordByDefault(false));
 
         Pulse::user(fn (User $user) => [
-            'name' => $user->User,
+            'name' => $user->username,
             'avatar' => $user->avatarUrl,
         ]);
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(PruneApiLogs::class)->dailyAt('9:00'); // ~ 4:00AM US Eastern
-            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command('model:prune')->dailyAt('9:00'); // ~4:00AM US Eastern
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes()->evenInMaintenanceMode();
+            $schedule->command(FlushUserActivityToDatabase::class)->everyMinute()->withoutOverlapping();
 
             if (app()->environment() === 'production') {
-                $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
-                $schedule->command(DeleteExpiredPasswordResetTokens::class)->daily();
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
                 $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern

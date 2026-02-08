@@ -14,11 +14,17 @@ use App\Platform\Events\LeaderboardEntryCreated;
 use App\Platform\Events\LeaderboardEntryUpdated;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerGameAttached;
+use App\Platform\Services\UserLastActivityService;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Login;
 
 class WriteUserActivity
 {
+    public function __construct(
+        private readonly UserLastActivityService $userActivityService,
+    ) {
+    }
+
     /**
      * This will _only_ store UserActivity entries on users
      * Other side effects should be handled in dedicated listeners
@@ -30,7 +36,7 @@ class WriteUserActivity
         $subjectType = null;
         $subjectId = null;
         $context = null;
-        $updateLastLogin = true;
+        $shouldUpdateLastActivityAt = true;
 
         /** @var User $user */
         $user = $event->user;
@@ -68,12 +74,12 @@ class WriteUserActivity
 
                 if (!System::isGameSystem($event->achievement->game->system->id)) {
                     // event unlocks should not update the user's LastLogin
-                    $updateLastLogin = false;
+                    $shouldUpdateLastActivityAt = false;
                 } else {
                     // Manual unlocks should not update the user's LastLogin.
                     $unlock = $user->playerAchievements()->firstWhere('achievement_id', $subjectId);
                     $isManualUnlock = $unlock && $unlock->unlocker_id !== 0;
-                    $updateLastLogin = !$isManualUnlock;
+                    $shouldUpdateLastActivityAt = !$isManualUnlock;
                 }
 
                 break;
@@ -95,8 +101,8 @@ class WriteUserActivity
                 $subjectId = $event->game->id ?? null;
                 $storeActivity = !empty($subjectId);
 
-                // don't update user's LastLogin when creating player_game entries for events
-                $updateLastLogin = System::isGameSystem($event->game->ConsoleID);
+                // don't update user's last_activity_at when creating player_game entries for events
+                $shouldUpdateLastActivityAt = System::isGameSystem($event->game->system_id);
                 break;
             default:
         }
@@ -110,12 +116,11 @@ class WriteUserActivity
             ]));
         }
 
-        if ($updateLastLogin) {
+        if ($shouldUpdateLastActivityAt) {
             /*
             * update last activity timestamp regardless of whether an activity was stored as some might have been suppressed
             */
-            $user->LastLogin = Carbon::now();
-            $user->saveQuietly();
+            $this->userActivityService->touch($user);
         }
     }
 }

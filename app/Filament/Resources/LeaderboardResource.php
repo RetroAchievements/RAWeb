@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\MergeLeaderboardsAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
@@ -12,6 +14,7 @@ use App\Filament\Resources\LeaderboardResource\RelationManagers;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions;
@@ -33,13 +36,9 @@ class LeaderboardResource extends Resource
     protected static ?string $model = Leaderboard::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-bars-staggered';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 60;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -50,17 +49,36 @@ class LeaderboardResource extends Resource
         return $record->title;
     }
 
+    /**
+     * @param Leaderboard $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return [
-            'ID' => $record->id,
-            'Description' => $record->description,
+        $details = [
+            'ID' => (string) $record->id,
         ];
+
+        // Only include the description if it has content.
+        if (!empty($record->description)) {
+            $details['Description'] = $record->description;
+        }
+
+        $details['Game'] = $record->game->title . ' (' . $record->game->system->name_short . ')';
+
+        return $details;
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'Title'];
+        return ['id', 'title'];
+    }
+
+    /**
+     * @return Builder<Leaderboard>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -71,12 +89,6 @@ class LeaderboardResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('canonicalUrl')
-                            ->label('Permalink')
-                            ->formatStateUsing(fn (Leaderboard $record) => url("leaderboardinfo.php?i={$record->id}"))
-                            ->url(fn (Leaderboard $record): string => url("leaderboardinfo.php?i={$record->id}"))
-                            ->extraAttributes(['class' => 'underline']),
-
                         Infolists\Components\TextEntry::make('game.title')
                             ->url(function (Leaderboard $record) {
                                 if (request()->user()->can('manage', Game::class)) {
@@ -93,23 +105,28 @@ class LeaderboardResource extends Resource
                                 return [];
                             }),
 
-                        Infolists\Components\TextEntry::make('Title')
+                        Infolists\Components\TextEntry::make('title')
                             ->placeholder('None. Consider setting a title.'),
 
-                        Infolists\Components\TextEntry::make('Description'),
+                        Infolists\Components\TextEntry::make('description'),
 
-                        Infolists\Components\TextEntry::make('DisplayOrder'),
+                        Infolists\Components\TextEntry::make('state')
+                            ->label('State')
+                            ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
+
+                        Infolists\Components\TextEntry::make('order_column')
+                            ->label('Display Order'),
                     ]),
 
                 Schemas\Components\Section::make('Rules')
                     ->icon('heroicon-c-wrench-screwdriver')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('Format')
+                        Infolists\Components\TextEntry::make('format')
                             ->label('Format')
                             ->formatStateUsing(fn (string $state): string => ValueFormat::toString($state)),
 
-                        Infolists\Components\TextEntry::make('LowerIsBetter')
+                        Infolists\Components\TextEntry::make('rank_asc')
                             ->label('Lower Is Better')
                             ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
                     ]),
@@ -127,41 +144,54 @@ class LeaderboardResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->required()
                             ->minLength(2)
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
 
-                        Forms\Components\TextInput::make('Description')
+                        Forms\Components\TextInput::make('description')
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'description'])),
 
-                        Forms\Components\TextInput::make('DisplayOrder')
+                        Forms\Components\Select::make('state')
+                            ->label('State')
+                            ->selectablePlaceholder(false)
+                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpromoted, the leaderboard will additionally be removed from normal page listings.')
+                            ->options([
+                                LeaderboardState::Active->value => 'Active',
+                                LeaderboardState::Disabled->value => 'Disabled',
+                                LeaderboardState::Unpromoted->value => 'Unpromoted',
+                            ])
+                            ->required()
+                            ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
+
+                        Forms\Components\TextInput::make('order_column')
+                            ->label('Display Order')
                             ->numeric()
                             ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
                             ->required()
-                            ->disabled(!$user->can('updateField', [$schema->model, 'DisplayOrder'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'order_column'])),
                     ]),
 
                 Schemas\Components\Section::make('Rules')
                     ->icon('heroicon-c-wrench-screwdriver')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\Select::make('Format')
+                        Forms\Components\Select::make('format')
                             ->options(
                                 collect(ValueFormat::cases())
                                     ->mapWithKeys(fn ($format) => [$format => ValueFormat::toString($format)])
                                     ->toArray()
                             )
                             ->required()
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Format'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'format'])),
 
-                        Forms\Components\Toggle::make('LowerIsBetter')
+                        Forms\Components\Toggle::make('rank_asc')
                             ->label('Lower Is Better')
                             ->inline(false)
                             ->helperText('Useful for speedrun leaderboards and similar scenarios.')
-                            ->disabled(!$user->can('updateField', [$schema->model, 'LowerIsBetter'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'rank_asc'])),
                     ]),
             ]);
     }
@@ -170,12 +200,12 @@ class LeaderboardResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->label('Leaderboard')
                     ->description(fn (Leaderboard $record): string => $record->description)
                     ->placeholder(fn (Leaderboard $record): string => $record->description)
@@ -188,12 +218,12 @@ class LeaderboardResource extends Resource
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhereHas('game', function (Builder $subQuery) use ($search) {
-                            $subQuery->where('ID', 'like', "%{$search}%")
-                                ->orWhere('Title', 'like', "%{$search}%");
+                            $subQuery->where('id', 'like', "%{$search}%")
+                                ->orWhere('title', 'like', "%{$search}%");
                         });
                     }),
 
-                Tables\Columns\TextColumn::make('Format')
+                Tables\Columns\TextColumn::make('format')
                     ->label('Format')
                     ->formatStateUsing(fn (string $state) => ValueFormat::toString($state))
                     ->toggleable(),
@@ -210,15 +240,19 @@ class LeaderboardResource extends Resource
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhereHas('developer', function (Builder $subQuery) use ($search) {
-                            $subQuery->where('User', 'like', "%{$search}%")
+                            $subQuery->where('username', 'like', "%{$search}%")
                                 ->orWhere('display_name', 'like', "%{$search}%");
                         });
                     }),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextColumn::make('order_column')
                     ->label('Display Order')
                     ->sortable()
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('state')
+                    ->label('State')
+                    ->formatStateUsing(fn (LeaderboardState $state) => ucfirst($state->value)),
+
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
@@ -228,8 +262,8 @@ class LeaderboardResource extends Resource
                             ->label('Game')
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search): array {
-                                return Game::where('Title', 'like', "%{$search}%")
-                                    ->orWhere('ID', 'like', "%{$search}%")
+                                return Game::where('title', 'like', "%{$search}%")
+                                    ->orWhere('id', 'like', "%{$search}%")
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($game) {
@@ -245,7 +279,7 @@ class LeaderboardResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if ($data['id']) {
-                            return $query->where('GameID', $data['id']);
+                            return $query->where('game_id', $data['id']);
                         }
 
                         return $query;
@@ -261,6 +295,8 @@ class LeaderboardResource extends Resource
             ->recordActions([
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
+                        CloneLeaderboardAction::make('clone_leaderboard'),
+                        MergeLeaderboardsAction::make('merge_leaderboards'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])

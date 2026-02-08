@@ -1,4 +1,3 @@
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createComment, createUser } from '@/test/factories';
 
@@ -9,7 +8,7 @@ describe('Component: ReportCommentButton', () => {
     // ARRANGE
     const comment = createComment({
       id: 1,
-      commentableType: ArticleType.Game,
+      commentableType: 'game.comment',
       user: createUser({
         displayName: 'TestUser',
       }),
@@ -25,7 +24,7 @@ describe('Component: ReportCommentButton', () => {
     // ARRANGE
     const comment = createComment({
       id: 1,
-      commentableType: ArticleType.Game,
+      commentableType: 'game.comment',
       user: createUser({
         displayName: 'TestUser',
       }),
@@ -41,26 +40,9 @@ describe('Component: ReportCommentButton', () => {
     // ARRANGE
     const comment = createComment({
       id: 123,
-      commentableType: ArticleType.Game, // !!
+      commentableType: 'game.comment', // !!
       user: createUser({
         displayName: 'TestUser',
-      }),
-    });
-
-    render(<ReportCommentButton comment={comment} />);
-
-    // ASSERT
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', expect.stringContaining('message-thread.create'));
-  });
-
-  it('given an unknown comment type, does not crash', () => {
-    // ARRANGE
-    const comment = createComment({
-      id: 999,
-      commentableType: 999, // !! unknown
-      user: createUser({
-        displayName: 'UnknownUser',
       }),
     });
 
@@ -75,7 +57,7 @@ describe('Component: ReportCommentButton', () => {
     // ARRANGE
     const comment = createComment({
       id: 1,
-      commentableType: ArticleType.Game,
+      commentableType: 'game.comment',
       user: createUser({
         displayName: 'TestUser',
       }),
@@ -85,5 +67,22 @@ describe('Component: ReportCommentButton', () => {
 
     // ASSERT
     expect(screen.getByRole('link')).toHaveClass('custom-class');
+  });
+
+  it('given an unknown commentable type, does not crash', () => {
+    // ARRANGE
+    const comment = createComment({
+      id: 1,
+      commentableType: 'unknown.type' as any,
+      user: createUser({
+        displayName: 'TestUser',
+      }),
+    });
+
+    const { container } = render(<ReportCommentButton comment={comment} />);
+
+    // ASSERT
+    expect(container).toBeTruthy();
+    expect(screen.getByRole('link')).toBeVisible();
   });
 });

@@ -11,26 +11,26 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const GameModificationCommentsMainRoot: FC = memo(() => {
   const { canComment, game, paginatedComments } =
-    usePageProps<App.Community.Data.GameClaimsCommentsPageProps>();
+    usePageProps<App.Community.Data.CommentPageProps>();
 
   const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: game.id,
-      entityType: 'Game', // required to build the /game/{game}/modification-comments routes correctly
+      entityId: game!.id,
+      commentableType: 'game-modification.comment',
       routeName: 'game.modification-comment.index',
     });
 
   return (
     <div>
       <GameBreadcrumbs
-        game={game}
-        system={game.system}
+        game={game!}
+        system={game!.system}
         t_currentPageLabel={t('Modification Comments')}
       />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <GameHeading game={game!} wrapperClassName="!mb-1">
         {t('Modification Comments')}
       </GameHeading>
 
@@ -44,8 +44,8 @@ export const GameModificationCommentsMainRoot: FC = memo(() => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={game.id}
-        commentableType="GameModification"
+        commentableId={game!.id}
+        commentableType="game-modification.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

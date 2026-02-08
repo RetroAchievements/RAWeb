@@ -1,8 +1,13 @@
 import * as motion from 'motion/react-m';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuChartBar, LuCrown } from 'react-icons/lu';
+import { LuChartBar, LuCrown, LuX } from 'react-icons/lu';
 
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatar } from '@/common/components/UserAvatar';
 
 interface LeaderboardsListItemProps {
@@ -35,9 +40,24 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
         {/* Icon */}
         <a
           href={`/leaderboardinfo.php?i=${leaderboard.id}`}
-          className="flex size-16 items-center justify-center rounded bg-embed light:border light:border-neutral-300 light:bg-white"
+          className="group flex size-16 flex-col items-center justify-center gap-0.5 rounded bg-embed light:border light:border-neutral-300 light:bg-white"
         >
-          <LuChartBar className="size-6" />
+          {leaderboard.state === 'active' || leaderboard.state === 'unpromoted' ? (
+            <LuChartBar className="size-6" />
+          ) : (
+            <BaseTooltip>
+              <BaseTooltipTrigger asChild data-testid="disabled-tooltip-trigger">
+                <span className="flex size-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded">
+                  <LuX className="size-6 text-neutral-500 transition-colors group-hover:text-white light:text-neutral-400 light:group-hover:text-black" />
+                </span>
+              </BaseTooltipTrigger>
+              <BaseTooltipContent>
+                <div className="max-w-xs items-center text-center">
+                  {t('This leaderboard is currently disabled and not accepting new entries.')}
+                </div>
+              </BaseTooltipContent>
+            </BaseTooltip>
+          )}
         </a>
       </div>
 

@@ -7,9 +7,12 @@ namespace Tests\Feature\Api\V2;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
 
 class SystemsTest extends JsonApiResourceTestCase
 {
+    use TestsJsonApiIndex;
+
     protected function resourceType(): string
     {
         return 'systems';
@@ -28,9 +31,9 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItListsSystems(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create([
-            'Name' => 'PlayStation',
+            'name' => 'PlayStation',
             'active' => true,
         ]);
 
@@ -49,7 +52,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         System::factory()->count(100)->create();
 
         // Act
@@ -74,7 +77,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItFiltersByActive(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $active = System::factory()->create(['active' => true]); // active system
         $inactive = System::factory()->create(['active' => false]); // inactive system
 
@@ -94,10 +97,10 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItExcludesNonGameSystems(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
-        $hubsSystem = System::factory()->create(['ID' => System::Hubs]);
-        $eventsSystem = System::factory()->create(['ID' => System::Events]);
+        $hubsSystem = System::factory()->create(['id' => System::Hubs]);
+        $eventsSystem = System::factory()->create(['id' => System::Events]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -115,9 +118,9 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItSortsByName(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
-        System::factory()->create(['Name' => 'Zulu System']);
-        System::factory()->create(['Name' => 'Alpha System']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['name' => 'Zulu System']);
+        System::factory()->create(['name' => 'Alpha System']);
 
         // Act
         $response = $this->jsonApi('v2')

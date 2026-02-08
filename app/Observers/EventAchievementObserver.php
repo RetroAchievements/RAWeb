@@ -34,15 +34,14 @@ class EventAchievementObserver
                 // make the event achievement look like the source achievement
                 $achievement->title = $sourceAchievement->title;
                 $achievement->description = $sourceAchievement->description;
-                $achievement->BadgeName = $sourceAchievement->BadgeName;
+                $achievement->image_name = $sourceAchievement->image_name;
                 $achievement->save();
 
                 // copy any unlocks during the active period from the source achievement to the event achievement
                 $winners = PlayerAchievement::where('achievement_id', '=', $sourceAchievement->id)
                     ->whereNotNull('unlocked_hardcore_at')
                     ->whereHas('user', function ($query) {
-                        $query->where('Untracked', '!=', 1)
-                            ->whereNull('unranked_at');
+                        $query->whereNull('unranked_at');
                     });
 
                 if ($eventAchievement->active_from) {

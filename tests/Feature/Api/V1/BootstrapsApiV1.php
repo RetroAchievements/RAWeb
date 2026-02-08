@@ -21,7 +21,7 @@ trait BootstrapsApiV1
 
     protected function apiUrl(string $method, array $params = []): string
     {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
+        $params = array_merge(['y' => $this->user->web_api_key], $params);
 
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }

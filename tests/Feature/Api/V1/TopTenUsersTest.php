@@ -15,45 +15,45 @@ class TopTenUsersTest extends TestCase
 
     public function testGetTopTenUsers(): void
     {
-        $this->user->Untracked = true; // prevent random points from appearing in list
+        $this->user->unranked_at = now(); // prevent random points from appearing in list
         $this->user->save();
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['RAPoints' => 25842, 'TrueRAPoints' => 34584]);
+        $user1 = User::factory()->create(['points_hardcore' => 25842, 'points_weighted' => 34584]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['RAPoints' => 3847, 'TrueRAPoints' => 5378]);
+        $user2 = User::factory()->create(['points_hardcore' => 3847, 'points_weighted' => 5378]);
         /** @var User $user3 */
-        $user3 = User::factory()->create(['RAPoints' => 25840, 'TrueRAPoints' => 46980]);
-        User::factory()->create(['RAPoints' => 0, 'TrueRAPoints' => 0]);
-        User::factory()->create(['RAPoints' => 172, 'TrueRAPoints' => 223]);
+        $user3 = User::factory()->create(['points_hardcore' => 25840, 'points_weighted' => 46980]);
+        User::factory()->create(['points_hardcore' => 0, 'points_weighted' => 0]);
+        User::factory()->create(['points_hardcore' => 172, 'points_weighted' => 223]);
         /** @var User $user6 */
-        $user6 = User::factory()->create(['RAPoints' => 85736, 'TrueRAPoints' => 102332]);
+        $user6 = User::factory()->create(['points_hardcore' => 85736, 'points_weighted' => 102332]);
         /** @var User $user7 */
-        $user7 = User::factory()->create(['RAPoints' => 64633, 'TrueRAPoints' => 94838]);
+        $user7 = User::factory()->create(['points_hardcore' => 64633, 'points_weighted' => 94838]);
         /** @var User $user8 */
-        $user8 = User::factory()->create(['RAPoints' => 44337, 'TrueRAPoints' => 75347]);
+        $user8 = User::factory()->create(['points_hardcore' => 44337, 'points_weighted' => 75347]);
         /** @var User $user9 */
-        $user9 = User::factory()->create(['RAPoints' => 574, 'TrueRAPoints' => 851]);
+        $user9 = User::factory()->create(['points_hardcore' => 574, 'points_weighted' => 851]);
         /** @var User $user10 */
-        $user10 = User::factory()->create(['RAPoints' => 54367, 'TrueRAPoints' => 74373]);
+        $user10 = User::factory()->create(['points_hardcore' => 54367, 'points_weighted' => 74373]);
         /** @var User $user11 */
-        $user11 = User::factory()->create(['RAPoints' => 76289, 'TrueRAPoints' => 95871]);
+        $user11 = User::factory()->create(['points_hardcore' => 76289, 'points_weighted' => 95871]);
         /** @var User $user12 */
-        $user12 = User::factory()->create(['RAPoints' => 75732, 'TrueRAPoints' => 97553]);
+        $user12 = User::factory()->create(['points_hardcore' => 75732, 'points_weighted' => 97553]);
 
         $this->get($this->apiUrl('GetTopTenUsers'))
             ->assertSuccessful()
             ->assertJson([
-                ['1' => $user6->User, '2' => $user6->RAPoints, '3' => $user6->TrueRAPoints, '4' => $user6->ulid],
-                ['1' => $user11->User, '2' => $user11->RAPoints, '3' => $user11->TrueRAPoints, '4' => $user11->ulid],
-                ['1' => $user12->User, '2' => $user12->RAPoints, '3' => $user12->TrueRAPoints, '4' => $user12->ulid],
-                ['1' => $user7->User, '2' => $user7->RAPoints, '3' => $user7->TrueRAPoints, '4' => $user7->ulid],
-                ['1' => $user10->User, '2' => $user10->RAPoints, '3' => $user10->TrueRAPoints, '4' => $user10->ulid],
-                ['1' => $user8->User, '2' => $user8->RAPoints, '3' => $user8->TrueRAPoints, '4' => $user8->ulid],
-                ['1' => $user1->User, '2' => $user1->RAPoints, '3' => $user1->TrueRAPoints, '4' => $user1->ulid],
-                ['1' => $user3->User, '2' => $user3->RAPoints, '3' => $user3->TrueRAPoints, '4' => $user3->ulid],
-                ['1' => $user2->User, '2' => $user2->RAPoints, '3' => $user2->TrueRAPoints, '4' => $user2->ulid],
-                ['1' => $user9->User, '2' => $user9->RAPoints, '3' => $user9->TrueRAPoints, '4' => $user9->ulid],
+                ['1' => $user6->username, '2' => $user6->points_hardcore, '3' => $user6->points_weighted, '4' => $user6->ulid],
+                ['1' => $user11->username, '2' => $user11->points_hardcore, '3' => $user11->points_weighted, '4' => $user11->ulid],
+                ['1' => $user12->username, '2' => $user12->points_hardcore, '3' => $user12->points_weighted, '4' => $user12->ulid],
+                ['1' => $user7->username, '2' => $user7->points_hardcore, '3' => $user7->points_weighted, '4' => $user7->ulid],
+                ['1' => $user10->username, '2' => $user10->points_hardcore, '3' => $user10->points_weighted, '4' => $user10->ulid],
+                ['1' => $user8->username, '2' => $user8->points_hardcore, '3' => $user8->points_weighted, '4' => $user8->ulid],
+                ['1' => $user1->username, '2' => $user1->points_hardcore, '3' => $user1->points_weighted, '4' => $user1->ulid],
+                ['1' => $user3->username, '2' => $user3->points_hardcore, '3' => $user3->points_weighted, '4' => $user3->ulid],
+                ['1' => $user2->username, '2' => $user2->points_hardcore, '3' => $user2->points_weighted, '4' => $user2->ulid],
+                ['1' => $user9->username, '2' => $user9->points_hardcore, '3' => $user9->points_weighted, '4' => $user9->ulid],
             ]);
     }
 }

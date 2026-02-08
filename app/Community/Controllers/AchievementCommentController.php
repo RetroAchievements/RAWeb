@@ -4,44 +4,26 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Concerns\IndexesComments;
-use App\Community\Data\AchievementCommentsPagePropsData;
-use App\Community\Data\CommentData;
-use App\Community\Requests\StoreCommentRequest;
-use App\Data\PaginatedData;
+use App\Community\Actions\BuildCommentPageAction;
 use App\Models\Achievement;
 use App\Models\AchievementComment;
 use App\Platform\Data\AchievementData;
-use App\Policies\AchievementCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 
 class AchievementCommentController extends CommentController
 {
-    use IndexesComments;
-
-    public function index(Achievement $achievement): InertiaResponse|RedirectResponse
+    public function index(Achievement $achievement, BuildCommentPageAction $action): InertiaResponse|RedirectResponse
     {
-        return $this->handleCommentIndex(
-            commentable: $achievement,
-            policy: AchievementComment::class,
-            routeName: 'achievement.comment.index',
-            routeParam: 'achievement',
+        $this->authorize('viewAny', [AchievementComment::class, $achievement]);
+
+        return $action->execute(
+            $achievement,
             view: 'achievement/[achievement]/comments',
-            createPropsData: function ($achievement, $paginatedComments, $isSubscribed, $user) {
-                return new AchievementCommentsPagePropsData(
-                    achievement: AchievementData::fromAchievement($achievement)->include('game.system'),
-                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                        $paginatedComments,
-                        total: $paginatedComments->total(),
-                        items: CommentData::fromCollection($paginatedComments->getCollection())
-                    ),
-                    isSubscribed: $isSubscribed,
-                    canComment: (new AchievementCommentPolicy())->create($user, $achievement)
-                );
-            }
+            policyClass: AchievementComment::class,
+            entityKey: 'achievement',
+            createEntityData: fn ($a) => AchievementData::fromAchievement($a)->include('game.system'),
         );
     }
 
@@ -64,17 +46,8 @@ class AchievementCommentController extends CommentController
             ->with('comment', $comment);
     }
 
-    protected function update(
-        StoreCommentRequest $request,
-        AchievementComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
-    ): RedirectResponse {
-        $this->authorize('update', $comment);
-
-        $comment->fill($request->validated())->save();
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('achievement.comment', 'update'));
+    protected function update(): void
+    {
     }
 
     protected function destroy(AchievementComment $comment): RedirectResponse

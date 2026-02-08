@@ -116,7 +116,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
-    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toBePressed();
   });
 
   it('given the game is not on the want to play list, shows the button as not pressed', () => {
@@ -133,7 +133,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(button).not.toBePressed();
   });
 
   it('given the game is for the Nintendo DS, applies special background image styling', () => {
@@ -141,6 +141,7 @@ describe('Component: GameMobileHeader', () => {
     const system = createSystem({ id: 18, nameShort: 'NDS' });
     const game = createGame({
       system,
+      banner: undefined,
       imageIngameUrl: 'https://example.com/game.jpg',
     });
 
@@ -153,11 +154,12 @@ describe('Component: GameMobileHeader', () => {
     });
 
     // ASSERT
-    const backgroundDiv = container.querySelector('[style*="background-image"]');
-    expect(backgroundDiv).toHaveStyle({
-      backgroundSize: '100% auto',
-      backgroundPosition: 'center 0%',
-    });
+    const fallbackImg = container.querySelector('img[src="https://example.com/game.jpg"]');
+    expect(fallbackImg).toBeInTheDocument();
+
+    expect((fallbackImg as any)?.style.objectPosition).toEqual('center 0%');
+    expect((fallbackImg as any)?.style.objectFit).toEqual('none');
+    expect((fallbackImg as any)?.style.scale).toEqual('2');
   });
 
   it('given the game is not for the Nintendo DS, applies standard background styling', () => {
@@ -165,6 +167,7 @@ describe('Component: GameMobileHeader', () => {
     const system = createSystem({ id: 1, nameShort: 'SNES' });
     const game = createGame({
       system,
+      banner: undefined,
       imageIngameUrl: 'https://example.com/game.jpg',
     });
 
@@ -177,11 +180,11 @@ describe('Component: GameMobileHeader', () => {
     });
 
     // ASSERT
-    const backgroundDiv = container.querySelector('[style*="background-image"]');
-    expect(backgroundDiv).toHaveStyle({
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    });
+    const fallbackImg = container.querySelector('img[src="https://example.com/game.jpg"]');
+    expect(fallbackImg).toBeInTheDocument();
+
+    expect((fallbackImg as any)?.style.objectPosition).toEqual('center');
+    expect((fallbackImg as any)?.style.objectFit).toEqual('cover');
   });
 
   it('given the game title is longer than 22 characters, uses XL font size', () => {

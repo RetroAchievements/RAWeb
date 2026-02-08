@@ -29,6 +29,7 @@ class BuildPlayerGameActivityDataAction
     public function execute(User $user, Game $game): PlayerGameActivityData
     {
         $this->playerGameActivityService->initialize($user, $game);
+        $this->playerGameActivityService->addResetEvents($user, $game);
         $summary = $this->playerGameActivityService->summarize();
 
         /**
@@ -58,17 +59,17 @@ class BuildPlayerGameActivityDataAction
                 if (isset($event['achievement'])) {
                     // Create a temporary Achievement model for the transformation.
                     $achievement = (new Achievement())->forceFill([
-                        'ID' => $event['achievement']['ID'],
-                        'Title' => $event['achievement']['Title'],
-                        'Description' => $event['achievement']['Description'],
-                        'Points' => $event['achievement']['Points'],
-                        'TrueRatio' => $event['achievement']['Points'],
-                        'BadgeName' => $event['achievement']['BadgeName'],
-                        'Flags' => $event['achievement']['Flags'],
+                        'id' => $event['achievement']['ID'],
+                        'title' => $event['achievement']['Title'],
+                        'description' => $event['achievement']['Description'],
+                        'points' => $event['achievement']['Points'],
+                        'points_weighted' => $event['achievement']['TrueRatio'],
+                        'image_name' => $event['achievement']['BadgeName'],
+                        'is_promoted' => $event['achievement']['Flags'] === Achievement::FLAG_PROMOTED,
                     ]);
 
                     $event['achievement'] = AchievementData::fromAchievement($achievement)->include(
-                        'flags',
+                        'isPromoted',
                         'points',
                     );
                 }

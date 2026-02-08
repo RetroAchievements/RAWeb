@@ -12,6 +12,7 @@ use App\Enums\Permissions;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Validation\UncompromisedVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -58,7 +59,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->singleton(TwoFactorLoginResponse::class, LoginResponse::class);
 
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('User', $request->input(Fortify::username()))
+            $user = User::where('username', $request->input(Fortify::username()))
                 ->orWhere('display_name', $request->input(Fortify::username()))
                 ->first();
 
@@ -72,10 +73,12 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
-            if (mb_strlen($user->SaltedPass) === 32) {
+            if (mb_strlen($user->legacy_salted_password) === 32) {
                 $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
-                if ($user->SaltedPass === $pepperedPassword) {
-                    changePassword($user->User, $request->input('password'));
+                if ($user->legacy_salted_password === $pepperedPassword) {
+                    changePassword($user->username, $request->input('password'));
+
+                    $this->checkForCompromisedPassword($request->input('password'));
 
                     return $user;
                 }
@@ -84,7 +87,9 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             // Standard password check
-            if (Hash::check($request->input('password'), $user->Password)) {
+            if (Hash::check($request->input('password'), $user->password)) {
+                $this->checkForCompromisedPassword($request->input('password'));
+
                 return $user;
             }
 
@@ -96,7 +101,7 @@ class FortifyServiceProvider extends ServiceProvider
                 config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
                 Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
                 function ($request, $next) {
-                    $user = User::where('User', $request->input(Fortify::username()))
+                    $user = User::where('username', $request->input(Fortify::username()))
                         ->orWhere('display_name', $request->input(Fortify::username()))
                         ->first();
 
@@ -108,14 +113,14 @@ class FortifyServiceProvider extends ServiceProvider
                     }
 
                     // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
-                    if ($user && mb_strlen($user->SaltedPass) === 32) {
+                    if ($user && mb_strlen($user->legacy_salted_password) === 32) {
                         $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
-                        if ($user->SaltedPass !== $pepperedPassword) {
+                        if ($user->legacy_salted_password !== $pepperedPassword) {
                             throw ValidationException::withMessages([
                                 Fortify::username() => [trans('auth.failed')],
                             ]);
                         }
-                        changePassword($user->User, $request->input('password'));
+                        changePassword($user->username, $request->input('password'));
                     }
 
                     return $next($request);
@@ -301,5 +306,27 @@ class FortifyServiceProvider extends ServiceProvider
                     ->middleware($twoFactorMiddleware);
             }
         });
+    }
+
+    /**
+     * Check if the password has been compromised in a data breach.
+     * If so, set a session flag to show a warning banner.
+     */
+    private function checkForCompromisedPassword(string $password): void
+    {
+        if (app()->environment('local')) {
+            return;
+        }
+
+        $verifier = app(UncompromisedVerifier::class);
+
+        $isSafe = $verifier->verify([
+            'value' => $password,
+            'threshold' => 5,
+        ]);
+
+        if (!$isSafe) {
+            session(['password_compromised' => true]);
+        }
     }
 }

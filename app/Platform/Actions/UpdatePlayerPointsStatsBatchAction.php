@@ -43,20 +43,20 @@ class UpdatePlayerPointsStatsBatchAction
             return;
         }
 
-        $trackedUserIds = $trackedUsers->pluck('ID')->toArray();
+        $trackedUserIds = $trackedUsers->pluck('id')->toArray();
 
         // Fetch all player achievements for tracked users in the time window.
         $allAchievements = PlayerAchievement::whereIn('player_achievements.user_id', $trackedUserIds)
             ->whereBetween('player_achievements.unlocked_at', [$now->copy()->subDays(8), $now])
-            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->join('GameData', 'Achievements.GameID', '=', 'GameData.ID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->join('achievements', 'player_achievements.achievement_id', '=', 'achievements.id')
+            ->join('games', 'achievements.game_id', '=', 'games.id')
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->select(
                 'player_achievements.user_id',
                 'player_achievements.unlocked_at',
                 'player_achievements.unlocked_hardcore_at',
-                'Achievements.Points as points',
-                'Achievements.TrueRatio as points_weighted'
+                'achievements.points as points',
+                'achievements.points_weighted as points_weighted'
             )
             ->get()
             ->groupBy('user_id');
@@ -145,11 +145,19 @@ class UpdatePlayerPointsStatsBatchAction
                 return;
             }
 
-            PlayerStat::upsert(
-                $statsToUpsert,
-                ['user_id', 'type'], // unique keys
-                ['value', 'updated_at'] // columns to update
-            );
+            // Sort by user_id and type to ensure consistent lock ordering across
+            // concurrent transactions, which helps prevent DB deadlocks.
+            usort($statsToUpsert, fn ($a, $b) => [$a['user_id'], $a['type']] <=> [$b['user_id'], $b['type']]);
+
+            // Retry up to 3 times on a deadlock since multiple queue workers may
+            // be upserting to this table concurrently.
+            DB::transaction(function () use ($statsToUpsert) {
+                PlayerStat::upsert(
+                    $statsToUpsert,
+                    ['user_id', 'type'],
+                    ['value', 'updated_at']
+                );
+            }, 3);
         }
     }
 }

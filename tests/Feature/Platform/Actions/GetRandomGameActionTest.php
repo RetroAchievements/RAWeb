@@ -22,7 +22,7 @@ class GetRandomGameActionTest extends TestCase
         $user = User::factory()->create();
 
         $system = System::factory()->create();
-        $games = Game::factory()->count(5)->create(['ConsoleID' => $system->id]);
+        $games = Game::factory()->count(5)->create(['system_id' => $system->id]);
 
         $gameIds = $games->pluck('id')->toArray();
 

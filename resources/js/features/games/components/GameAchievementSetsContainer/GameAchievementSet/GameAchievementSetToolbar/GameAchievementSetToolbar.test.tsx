@@ -678,7 +678,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /points \(most\)/i }));
 
     // ASSERT
-    expect(window.location.search).toContain('sort=points');
+    expect(InertiajsReact.router.replace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('sort=points'),
+      }),
+    );
   });
 
   it('given the user changes the sort order to the default sort order, removes the sort parameter from the URL', async () => {
@@ -714,7 +718,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Display order (first)' }));
 
     // ASSERT
-    expect(window.location.search).not.toContain('sort');
+    expect(InertiajsReact.router.replace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.not.stringContaining('sort'),
+      }),
+    );
   });
 
   it('given the user is not logged in, does not show auth required sorting options', async () => {

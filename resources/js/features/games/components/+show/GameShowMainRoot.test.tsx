@@ -89,43 +89,6 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
   });
 
-  it('given the game has all required media, shows an accessible heading', () => {
-    // ARRANGE
-    const game = createGame({
-      badgeUrl: 'badge.jpg',
-      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
-      imageBoxArtUrl: faker.internet.url(),
-      imageTitleUrl: faker.internet.url(),
-      imageIngameUrl: faker.internet.url(),
-
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-        name: 'Nintendo Switch',
-      }),
-
-      title: 'Super Mario Odyssey',
-    });
-
-    render(<GameShowMainRoot />, {
-      pageProps: {
-        game,
-        achievementSetClaims: [],
-        aggregateCredits: createAggregateAchievementSetCredits(),
-        backingGame: game,
-        can: {},
-        hubs: [],
-        selectableGameAchievementSets: [],
-        isViewingPublishedAchievements: true,
-        recentPlayers: [],
-        recentVisibleComments: [],
-        ziggy: createZiggyProps(),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('heading', { name: 'Super Mario Odyssey' })).toBeVisible();
-  });
-
   it('given the game has media URLs, shows them in the desktop media viewer', () => {
     // ARRANGE
     const game = createGame({

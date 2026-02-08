@@ -42,7 +42,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
     protected function process(): array
     {
         $achievement = Achievement::query()
-            ->where('ID', $this->achievementId)
+            ->where('id', $this->achievementId)
             ->with('game')
             ->first();
         if (!$achievement) {
@@ -55,7 +55,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
                 $q->whereIn('user_id', $friendIds);
             })
             ->with('user')
-            ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
+            ->orderByDesc('unlocked_effective_at')
             ->offset($this->offset)
             ->limit($this->count)
             ->get();
@@ -64,8 +64,8 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
         foreach ($playerAchievements as $playerAchievement) {
             $recentWinners[] = [
                 'User' => $playerAchievement->user->display_name,
-                'AvatarUrl' => media_asset('UserPic/' . $playerAchievement->user->User . '.png'),
-                'RAPoints' => $playerAchievement->user->RAPoints,
+                'AvatarUrl' => media_asset('UserPic/' . $playerAchievement->user->username . '.png'),
+                'RAPoints' => $playerAchievement->user->points_hardcore,
                 'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?
                     $playerAchievement->unlocked_hardcore_at->unix() :
                     $playerAchievement->unlocked_at->unix(),
@@ -80,7 +80,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
             'Count' => $this->count,
             'Response' => [
                 'NumEarned' => $achievement->unlocks_total,
-                'GameID' => $achievement->game->ID,
+                'GameID' => $achievement->game->id,
                 'TotalPlayers' => $achievement->game->players_total,
                 'RecentWinner' => $recentWinners,
             ],

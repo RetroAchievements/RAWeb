@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useUpdateEffect } from 'react-use';
 
 export function useSyncSystemQueryParam(selectedSystemId?: number | null) {
@@ -13,7 +14,11 @@ export function useSyncSystemQueryParam(selectedSystemId?: number | null) {
       ? `${window.location.pathname}?${searchParams.toString()}`
       : window.location.pathname;
 
-    window.history.replaceState(null, '', newUrl);
+    router.replace({
+      url: newUrl,
+      preserveScroll: true,
+      preserveState: true,
+    });
   }, [selectedSystemId]);
 }
 

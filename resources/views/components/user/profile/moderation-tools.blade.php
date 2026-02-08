@@ -1,5 +1,5 @@
 <?php
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 ?>
@@ -9,8 +9,8 @@ use App\Enums\Permissions;
 ])
 
 <?php
-$isTargetUserUntracked = $targetUser->Untracked;
-$targetUsername = $targetUser->User;
+$isTargetUserUntracked = $targetUser->unranked_at !== null;
+$targetUsername = $targetUser->username;
 $targetUserPermissions = $targetUser->getAttribute('Permissions');
 
 $me = Auth::user();
@@ -35,7 +35,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
     class="bg-embed hidden border-x border-b border-text-muted py-2 px-4 w-[calc(100%+40px)] -mx-5 -mt-3 sm:-mt-1.5 mb-4"
 >
     <table>
-        @if ($me->getAttribute('Permissions') >= $targetUserPermissions && $me->User !== $targetUsername)
+        @if ($me->getAttribute('Permissions') >= $targetUserPermissions && $me->username !== $targetUsername)
             <tr>
                 <form method="post" action="/request/user/update.php">
                     @csrf
@@ -119,7 +119,12 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
         <tr>
             <td colspan="2">
                 <div class="commentscomponent left">
-                    <x-comment.list articleType="{{ ArticleType::UserModeration }}" articleId="{{ $targetUser->id }}" :article="$targetUser" />
+                    <x-comment.list
+                        :commentableType="CommentableType::UserModeration"
+                        :commentableId="$targetUser->id"
+                        :article="$targetUser"
+                        :showAll="true"
+                    />
                 </div>
             </td>
         </tr>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
-use App\Community\Actions\AddGameBadgeCreditAction;
+use App\Community\Actions\AddGameCreditAction;
 use App\Models\AchievementSetAuthor;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -29,9 +29,7 @@ use Illuminate\Support\Facades\Auth;
 class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'coreSetAuthorshipCredits';
-
     protected static ?string $title = 'Set Credits';
-
     protected static string|BackedEnum|null $icon = 'fas-users';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -131,10 +129,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                         $game = $this->ownerRecord;
                         $user = User::withTrashed()->find((int) $data['user_id']);
 
-                        return (new AddGameBadgeCreditAction())->execute(
+                        return (new AddGameCreditAction())->execute(
                             game: $game,
                             user: $user,
                             date: Carbon::parse($data['created_at']),
+                            task: AchievementSetAuthorTask::from($data['task']),
                         );
                     })
                     ->visible(fn () => $canManageContributionCredit),
@@ -142,11 +141,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make()
                     ->modalHeading('Edit contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('update', $record)),
 
                 DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('delete', $record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -8,15 +8,15 @@ import { PreferencesSwitchField } from './PreferencesSwitchField';
 import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
 interface PreferencesSectionCardProps {
-  currentWebsitePrefs: number;
+  currentPreferencesBitfield: number;
 }
 
 export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
-  currentWebsitePrefs,
+  currentPreferencesBitfield,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentWebsitePrefs);
+  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentPreferencesBitfield);
 
   return (
     <SectionFormCard
@@ -56,14 +56,12 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
           control={form.control}
         />
 
-        {import.meta.env.VITE_FEATURE_MULTISET === 'true' ? (
-          <PreferencesSwitchField
-            t_label={t('Automatically opt in to all game sets')}
-            fieldName={StringifiedUserPreference.Game_OptOutOfAllSubsets}
-            control={form.control}
-            isSwitchInverted={true}
-          />
-        ) : null}
+        <PreferencesSwitchField
+          t_label={t('Automatically opt in to all game sets')}
+          fieldName={StringifiedUserPreference.Game_OptOutOfAllSubsets}
+          control={form.control}
+          isSwitchInverted={true}
+        />
       </div>
     </SectionFormCard>
   );

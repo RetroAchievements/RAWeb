@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCalendar, LuWrench } from 'react-icons/lu';
+import { LuCalendar, LuLock, LuWrench } from 'react-icons/lu';
 
 import {
   BaseTooltip,
@@ -9,9 +9,8 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 import { TooltipCreditRow } from '../TooltipCreditRow';
@@ -94,11 +93,19 @@ interface ClaimsIconProps {
 
 const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
+
+  const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 
   return (
     <BaseTooltip>
       <BaseTooltipTrigger className="flex items-center gap-1.5 px-2 py-[2.25px] text-neutral-300 light:text-neutral-700">
-        <LuWrench className="size-3.5" />
+        {hasInReviewClaim ? (
+          <LuLock data-testid="lock-icon" className="size-3.5" />
+        ) : (
+          <LuWrench data-testid="wrench-icon" className="size-3.5" />
+        )}
+
         <span className="hidden pr-1 md:inline lg:hidden xl:inline">{t('Claimed by')}</span>
       </BaseTooltipTrigger>
 
@@ -115,7 +122,7 @@ const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
                   displayName: claim.user!.displayName,
                 }}
               >
-                {claim.status === ClaimStatus.InReview ? (
+                {claim.status === 'in_review' ? (
                   t('In Review')
                 ) : (
                   <>

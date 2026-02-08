@@ -4,7 +4,6 @@ import { LuFlagTriangleRight } from 'react-icons/lu';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
@@ -13,7 +12,7 @@ export const SidebarClaimButtons: FC = () => {
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === ClaimStatus.InReview);
+  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === 'in_review');
   if (areAnyClaimsInReview) {
     return null;
   }
@@ -55,7 +54,11 @@ export const SidebarClaimButtons: FC = () => {
               IconComponent={LuFlagTriangleRight}
               showSubsetIndicator={game.id !== backingGame.id}
             >
-              {wouldBeRevisionClaim ? t('Create New Revision Claim') : t('Create New Claim')}
+              {wouldBeRevisionClaim
+                ? t('Create New Revision Claim')
+                : claimData?.wouldBeCollaboration
+                  ? t('Create New Collaboration Claim')
+                  : t('Create New Claim')}
             </PlayableSidebarButton>
           }
         />

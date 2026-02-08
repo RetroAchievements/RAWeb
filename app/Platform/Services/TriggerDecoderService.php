@@ -199,7 +199,7 @@ class TriggerDecoderService
         };
     }
 
-    private function parseCondition(string $mem): array
+    private function parseCondition(string $mem, bool $isValue): array
     {
         $flag = '';
         $lType = '';
@@ -222,7 +222,7 @@ class TriggerDecoderService
                 case 'd': case 'D': $flag = 'Sub Hits'; break;
                 case 'n': case 'N': $flag = 'And Next'; break;
                 case 'o': case 'O': $flag = 'Or Next'; break;
-                case 'm': case 'M': $flag = 'Measured'; break;
+                case 'm': case 'M': $flag = 'Measured'; $scalable = $isValue; break;
                 case 'q': case 'Q': $flag = 'Measured If'; break;
                 case 'i': case 'I': $flag = 'Add Address'; $scalable = true; break;
                 case 't': case 'T': $flag = 'Trigger'; break;
@@ -295,7 +295,7 @@ class TriggerDecoderService
         ];
     }
 
-    public function decode(string $serializedTrigger): array
+    private function decodeTrigger(string $serializedTrigger, bool $isValue): array
     {
         $groups = [];
 
@@ -316,7 +316,7 @@ class TriggerDecoderService
                     continue;
                 }
 
-                $condition = $this->parseCondition($req);
+                $condition = $this->parseCondition($req, $isValue);
                 $condition['IsIndirect'] = $isIndirect;
 
                 if ($condition['SourceType'] === 'Value') {
@@ -335,6 +335,11 @@ class TriggerDecoderService
         }
 
         return $groups;
+    }
+
+    public function decode(string $serializedTrigger): array
+    {
+        return $this->decodeTrigger($serializedTrigger, isValue: false);
     }
 
     public function addCodeNotes(array &$groups, int $gameId): void
@@ -386,17 +391,13 @@ class TriggerDecoderService
                     $indirectNote = $condition['SourceTooltip'] ?? '';
                     $index = strpos($indirectNote, "\n+");
                     if ($index !== false) {
+                        // The presence of "\n+" indicates this is a pointer chain structure.
                         $firstLine = substr($indirectNote, 0, $index);
-                        if (!empty($firstLine) && stripos($firstLine, 'pointer') !== false) {
-                            $condition['SourceTooltip'] = trim($firstLine);
-                            if (empty($indirectChain)) {
-                                $indirectChain = $condition['SourceAddress'];
-                            } else {
-                                $indirectChain .= ' + ' . $condition['SourceAddress'];
-                            }
+                        $condition['SourceTooltip'] = trim($firstLine);
+                        if (empty($indirectChain)) {
+                            $indirectChain = $condition['SourceAddress'];
                         } else {
-                            $indirectNote = '';
-                            $indirectChain = '';
+                            $indirectChain .= ' + ' . $condition['SourceAddress'];
                         }
                     }
                 } else {
@@ -422,6 +423,7 @@ class TriggerDecoderService
                 }
             } elseif (array_key_exists($address, $codeNotes)) {
                 $note = $codeNotes[$address];
+                $note = $this->resolveNoteRedirects($note, $codeNotes);
                 if (!empty($note)) {
                     if ($condition['IsIndirect']) {
                         $condition[$type . 'Tooltip'] = "[With indirection]\n" . $note;
@@ -434,6 +436,7 @@ class TriggerDecoderService
                 $noteAddress = $this->findArrayNote($address, $codeNotes);
                 if ($noteAddress !== null) {
                     $note = $codeNotes[$noteAddress] ?? '';
+                    $note = $this->resolveNoteRedirects($note, $codeNotes);
                     if (!empty($note)) {
                         $formattedNoteAddress = '0x' . str_pad(dechex($noteAddress), 6, '0', STR_PAD_LEFT);
                         $offset = $address - $noteAddress;
@@ -510,6 +513,26 @@ class TriggerDecoderService
         return '';
     }
 
+    private function resolveNoteRedirects(string $note, array $codeNotes): string
+    {
+        $redirects = 0;
+        while ($redirects < 5) {
+            if (preg_match('/refer to \$0x([0-9a-fA-F]+)/i', $note, $match)) {
+                $targetAddr = hexdec($match[1]);
+                $targetNote = $codeNotes[$targetAddr] ?? null;
+                if ($targetNote) {
+                    $note = $targetNote;
+                    $redirects++;
+
+                    continue;
+                }
+            }
+            break;
+        }
+
+        return $note;
+    }
+
     private function findArrayNote(int $address, array $codeNotes): ?int
     {
         foreach ($codeNotes as $noteAddress => $note) {
@@ -549,7 +572,7 @@ class TriggerDecoderService
             $serializedValue = $this->convertToTrigger($serializedValue);
         }
 
-        $values = $this->decode($serializedValue);
+        $values = $this->decodeTrigger($serializedValue, isValue: true);
 
         $numValues = count($values);
         if ($numValues === 1) {
@@ -568,37 +591,52 @@ class TriggerDecoderService
         $result = '';
 
         // regex to change "0xH001234*0.75" to "0xH001234*f0.75"
-        $float_replace_pattern = '/(.*)[\*](\d+)\.(.*)/';
+        $float_replace_pattern = '/(.*)[\*]([-]?\d+)\.(.*)/';
         $float_replace_replacement = '${1}*f${2}.${3}';
 
         // convert max_of elements to alt groups
         $parts = explode('$', $serializedValue);
         foreach ($parts as $part) {
-            if (count($parts) > 1) {
+            if ($result !== '') {
                 $result .= 'S';
             }
 
             // convert addition chain to AddSource chain with Measured
             $clauses = explode('_', $part);
             $clausesCount = count($clauses);
-            for ($i = 0; $i < $clausesCount - 1; $i++) {
+            for ($i = 0; $i < $clausesCount; $i++) {
+                // add 'f' prefix to float constants
                 $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[$i]);
-                if (Str::contains($clause, '*-')) {
-                    $result .= 'B:' . str_replace('*-', '*', $clause) . '_';
-                } elseif (Str::contains($clause, '*v-')) {
-                    $result .= 'B:' . str_replace('*v-', '*', $clause) . '_';
-                } else {
-                    $result .= 'A:' . $clause . '_';
-                }
-            }
 
-            $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[count($clauses) - 1]);
-            if (Str::contains($clause, '*-')) {
-                $result .= 'B:' . str_replace('*-', '*', $clause) . '_M:0';
-            } elseif (Str::contains($clause, '*v-')) {
-                $result .= 'B:' . str_replace('*v-', '*', $clause) . '_M:0';
-            } else {
-                $result .= 'M:' . $clause;
+                // remove comparison suffix - only modifying operators are allowed
+                if (preg_match('/[<>=!]/', $clause, $matches, PREG_OFFSET_CAPTURE)) {
+                    $clause = substr($clause, 0, $matches[0][1]);
+                }
+
+                // convert multiplication by negative values to SubSource, otherwise use AddSource
+                if (Str::contains($clause, '*-')) {
+                    $clause = 'B:' . str_replace('*-', '*', $clause);
+                } elseif (Str::contains($clause, '*v-')) {
+                    $clause = 'B:' . str_replace('*v-', '*', $clause);
+                } elseif (Str::contains($clause, '*f-')) {
+                    $clause = 'B:' . str_replace('*f-', '*f', $clause);
+                } else {
+                    $clause = 'A:' . $clause;
+                }
+
+                // if last clause is AddSource, convert to Measured, else append Measured
+                if ($i === $clausesCount - 1) {
+                    if ($clause[0] === 'A') {
+                        $clause[0] = 'M';
+                    } else {
+                        $clause .= '_M:0';
+                    }
+                } else {
+                    $clause .= '_';
+                }
+
+                // append clause
+                $result .= $clause;
             }
         }
 

@@ -11,13 +11,13 @@
  *    int        [value]   number of players who have earned that many achievements
  */
 
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Facades\Auth;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
-$requestedBy = Auth::user()->User;
-$flag = AchievementFlag::tryFrom((int) request()->query('f', (string) AchievementFlag::OfficialCore->value));
+$requestedBy = Auth::user()->username;
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) request()->query('f', (string) Achievement::FLAG_PROMOTED)) ?? true;
 
-return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flag));
+return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $isPromoted));

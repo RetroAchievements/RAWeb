@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Enums\EventState;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Routing\HasSelfHealingUrls;
 use Carbon\Carbon;
 use Database\Factories\EventFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,7 +20,7 @@ use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Event extends BaseModel
+class Event extends BaseModel implements HasPermalink
 {
     /** @use HasFactory<EventFactory> */
     use HasFactory;
@@ -79,9 +81,18 @@ class Event extends BaseModel
 
     // == search
 
+    /**
+     * @param Builder<Event> $query
+     * @return Builder<Event>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['legacyGame']);
+    }
+
     public function toSearchableArray(): array
     {
-        $this->load('legacyGame');
+        $this->loadMissing('legacyGame');
 
         return [
             'id' => (int) $this->id,
@@ -196,7 +207,7 @@ class Event extends BaseModel
      */
     public function legacyGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'legacy_game_id', 'ID');
+        return $this->belongsTo(Game::class, 'legacy_game_id', 'id');
     }
 
     /**
@@ -207,10 +218,10 @@ class Event extends BaseModel
         return $this->hasManyThrough(
             EventAchievement::class,
             Achievement::class,
-            'GameID',         // Achievements.GameID
+            'game_id',        // achievements.game_id
             'achievement_id', // event_achievements.achievement_id
             'legacy_game_id', // events.legacy_game_id
-            'ID',             // Achievements.ID
+            'id',             // achievements.id
         )->with('achievement.game');
     }
 
@@ -219,7 +230,7 @@ class Event extends BaseModel
      */
     public function publishedAchievements(): HasManyThrough
     {
-        return $this->achievements()->published();
+        return $this->achievements()->promoted();
     }
 
     /**

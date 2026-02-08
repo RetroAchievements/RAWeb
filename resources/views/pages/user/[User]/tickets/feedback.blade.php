@@ -15,7 +15,7 @@ render(function (View $view, User $user, TicketListService $ticketListService) {
     $filterOptions = $ticketListService->getFilterOptions(request());
 
     $ticketQuery = Ticket::where('reporter_id', '=', $user->id)
-        ->where('ReportState', '=', TicketState::Request);
+        ->where('state', '=', TicketState::Request);
 
     $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Filament\Resources\GameHashResource;
 use App\Filament\Resources\GameResource;
@@ -12,6 +12,7 @@ use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
+use App\Platform\Actions\LogGameHashActivityAction;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -20,8 +21,8 @@ use Filament\Schemas;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
 
 class Hashes extends ManageRelatedRecords
 {
@@ -31,6 +32,19 @@ class Hashes extends ManageRelatedRecords
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
 
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - " . static::getRelationshipTitle();
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return static::getRelationshipTitle();
+    }
+
     public static function canAccess(array $arguments = []): bool
     {
         /** @var User $user */
@@ -39,16 +53,21 @@ class Hashes extends ManageRelatedRecords
         return $user->can('manage', GameHash::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->hashes->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->hashes->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table
     {
         // TODO migrate to filament-comments
-        $nonAutomatedCommentsCount = Comment::where('ArticleType', ArticleType::GameHash)
-            ->where('ArticleID', $this->getOwnerRecord()->id)
+        $nonAutomatedCommentsCount = Comment::where('commentable_type', CommentableType::GameHash)
+            ->where('commentable_id', $this->getOwnerRecord()->id)
             ->notAutomated()
             ->count();
 
@@ -85,10 +104,12 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Actions\Action::make('view-comments')
-                    ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
-                    ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
+                Actions\Action::make('view-legacy-comments')
+                    ->color('info')
+                    ->label("View Legacy Hash Maintenance Comments ({$nonAutomatedCommentsCount})")
+                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id]))
+                    ->openUrlInNewTab()
+                    ->visible($nonAutomatedCommentsCount > 0),
             ])
             ->recordActions([
                 Actions\Action::make('audit-log')
@@ -176,8 +197,6 @@ class Hashes extends ManageRelatedRecords
                     ->action(function (GameHash $gameHash) {
                         /** @var User $user */
                         $user = Auth::user();
-                        /** @var Game $game */
-                        $game = $gameHash->game;
 
                         if (!$user->can('forceDelete', $gameHash)) {
                             return;
@@ -185,33 +204,14 @@ class Hashes extends ManageRelatedRecords
 
                         $gameId = $gameHash->game_id;
                         $md5 = $gameHash->md5;
-                        $name = $gameHash->name;
-                        $labels = $gameHash->labels;
+
+                        (new LogGameHashActivityAction())->execute('unlink', $gameHash);
 
                         $gameHash->forceDelete();
 
-                        activity()
-                            ->useLog('default')
-                            ->causedBy($user)
-                            ->performedOn($game)
-                            ->withProperties([
-                                'attributes' => [
-                                    'name' => '',
-                                    'md5' => '',
-                                    'labels' => '',
-                                ],
-                                'old' => [
-                                    'name' => $name,
-                                    'md5' => $md5,
-                                    'labels' => $labels,
-                                ],
-                            ])
-                            ->event('unlinkedHash')
-                            ->log('Unlinked hash');
-
                         addArticleComment(
                             "Server",
-                            ArticleType::GameHash,
+                            CommentableType::GameHash,
                             $gameId,
                             "{$md5} unlinked by {$user->display_name}"
                         );

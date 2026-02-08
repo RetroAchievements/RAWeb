@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Enums\Permissions;
 use App\Models\Game;
@@ -30,7 +30,7 @@ class SubmitGameTitleTest extends TestCase
         /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system2->id]);
+        $game1 = Game::factory()->create(['system_id' => $system2->id]);
 
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
@@ -103,7 +103,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals($title, $newGame->releases()->first()->title);
         $this->assertEquals(true, $newGame->releases()->first()->is_canonical_game_title);
 
-        $this->assertAuditComment(ArticleType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
+        $this->assertAuditComment(CommentableType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
 
         /* game and hash already exist (game will be matched by title and console) */
         $this->get($this->apiUrl('submitgametitle', [
@@ -120,7 +120,7 @@ class SubmitGameTitleTest extends TestCase
                 ],
             ]);
 
-        $this->assertFalse(Game::where('ID', $newGame->id + 1)->exists());
+        $this->assertFalse(Game::where('id', $newGame->id + 1)->exists());
 
         $newGame->refresh();
         $this->assertEquals($title, $newGame->title);
@@ -157,7 +157,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals(1, $newGame->releases()->count());
         $this->assertEquals($title, $newGame->releases()->first()->title);
 
-        $this->assertAuditComment(ArticleType::GameHash, $newGame2->id, "$md5 linked by {$this->user->display_name}. Description: \"Game (U).nes\"");
+        $this->assertAuditComment(CommentableType::GameHash, $newGame2->id, "$md5 linked by {$this->user->display_name}. Description: \"Game (U).nes\"");
 
         /* invalid title */
         $md5 = fake()->md5;
@@ -245,7 +245,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals($md5, $game->hashes->slice(1, 1)->first()->md5);
         $this->assertEquals(GameHashCompatibility::Compatible, $game->hashes->slice(1, 1)->first()->compatibility);
 
-        $this->assertAuditComment(ArticleType::GameHash, $game->id, "$md5 linked by {$this->user->display_name}.");
+        $this->assertAuditComment(CommentableType::GameHash, $game->id, "$md5 linked by {$this->user->display_name}.");
     }
 
     public function testSubmitInactiveConsole(): void
@@ -253,7 +253,7 @@ class SubmitGameTitleTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create(['active' => false]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
@@ -278,7 +278,7 @@ class SubmitGameTitleTest extends TestCase
                 'Success' => false,
             ]);
 
-        $this->assertFalse(Game::where('ID', $game->id + 1)->exists());
+        $this->assertFalse(Game::where('id', $game->id + 1)->exists());
 
         /* new md5 for existing game */
         $this->get($this->apiUrl('submitgametitle', [
@@ -323,7 +323,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals(1, $newGame->releases()->count());
         $this->assertEquals($title, $newGame->releases()->first()->title);
 
-        $this->assertAuditComment(ArticleType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
+        $this->assertAuditComment(CommentableType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
 
         /* new md5 for existing game */
         $md5 = fake()->md5;
@@ -350,7 +350,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals(1, $newGame->releases()->count());
         $this->assertEquals($title, $newGame->releases()->first()->title);
 
-        $this->assertAuditComment(ArticleType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
+        $this->assertAuditComment(CommentableType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
     }
 
     public function testSubmitNewSubsetGameWithExistingParent(): void

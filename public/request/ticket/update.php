@@ -3,6 +3,7 @@
 use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -13,13 +14,15 @@ if (!authenticateFromCookie($username, $permissions, $userDetail)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'ticket' => 'required|integer|exists:Ticket,ID',
+    'ticket' => 'required|integer|exists:tickets,id',
     'action' => ['required', 'string', Rule::in(TicketAction::cases())],
 ]);
 
 $ticketId = (int) $input['ticket'];
-
-$ticketData = getTicket($ticketId);
+$ticket = Ticket::find($ticketId);
+if (!$ticket) {
+    return back()->withErrors(__('legacy.error.error'));
+}
 
 $reason = null;
 $ticketState = null;
@@ -38,7 +41,7 @@ switch ($input['action']) {
     case TicketAction::Demoted:
         if ($permissions >= Permissions::Developer) {
             $ticketState = TicketState::Closed;
-            $reason = "Demoted";
+            $reason = TicketState::REASON_DEMOTED;
         }
         break;
 
@@ -85,6 +88,10 @@ switch ($input['action']) {
         break;
 
     case TicketAction::Request:
+        if (!User::where('id', $ticket->reporter_id)->exists()) {
+            return back()->withErrors(__('legacy.error.error'));
+        }
+
         $ticketState = TicketState::Request;
         break;
 
@@ -93,10 +100,10 @@ switch ($input['action']) {
         break;
 }
 
-if ($ticketState !== null && $ticketState !== (int) $ticketData['ReportState']) {
+if ($ticketState !== null && $ticketState !== $ticket->state) {
     $userModel = User::whereName($username)->first();
     if ($userModel
-        && ($permissions >= Permissions::Developer || $userModel->display_name == $ticketData['ReportedBy'])
+        && ($permissions >= Permissions::Developer || $userModel->id === $ticket->reporter_id)
     ) {
         updateTicket($userModel, $ticketId, $ticketState, $reason);
 

@@ -1,16 +1,16 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
 
-function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
+function getIsCommentDoublePost(int $userID, array|int $commentableId, string $body): bool
 {
     $lastComment = Comment::where('user_id', $userID)
-        ->orderBy('Submitted', 'desc')
+        ->orderBy('created_at', 'desc')
         ->first();
 
     // If there are no comments at all, then this isn't a double post.
@@ -19,43 +19,39 @@ function getIsCommentDoublePost(int $userID, array|int $articleID, string $comme
     }
 
     return
-        $lastComment->Payload === $commentPayload
-        && $lastComment->ArticleID === $articleID;
+        $lastComment->body === $body
+        && $lastComment->commentable_id === $commentableId;
 }
 
 function addArticleComment(
     string $user,
-    int $articleType,
-    array|int $articleID,
-    string $commentPayload,
+    CommentableType $commentableType,
+    array|int $commentableId,
+    string $body,
     ?string $onBehalfOfUser = null,
 ): bool {
-    if (!ArticleType::isValid($articleType)) {
-        return false;
-    }
-
     // Note: $user is the person who just made a comment.
 
-    $user = User::whereName($user)->first();
-    if (!$user) {
+    $userModel = User::whereName($user)->first();
+    if (!$userModel) {
         return false;
     }
 
-    if ($user !== "Server" && getIsCommentDoublePost($user->id, $articleID, $commentPayload)) {
+    if ($user !== "Server" && getIsCommentDoublePost($userModel->id, $commentableId, $body)) {
         // Fail silently.
         return true;
     }
 
-    $articleIDs = is_array($articleID) ? $articleID : [$articleID];
-    foreach ($articleIDs as $id) {
+    $commentableIds = is_array($commentableId) ? $commentableId : [$commentableId];
+    foreach ($commentableIds as $id) {
         $comment = Comment::create([
-            'ArticleType' => $articleType,
-            'ArticleID' => $id,
-            'user_id' => $user->id,
-            'Payload' => $commentPayload,
+            'commentable_type' => $commentableType,
+            'commentable_id' => $id,
+            'user_id' => $userModel->id,
+            'body' => $body,
         ]);
 
-        informAllSubscribersAboutActivity($articleType, $id, $user, $comment->ID, $onBehalfOfUser);
+        informAllSubscribersAboutActivity($commentableType, $id, $userModel, $comment->id, $onBehalfOfUser);
     }
 
     return true;
@@ -71,7 +67,7 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     $playerGames = PlayerGame::where('user_id', $user->id)
         ->whereHas('game', function ($query) {
-            $query->whereNotIn('ConsoleId', System::getNonGameSystems());
+            $query->whereNotIn('system_id', System::getNonGameSystems());
         })
         ->with('game.system')
         ->orderByDesc('last_played_at')
@@ -80,14 +76,14 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     foreach ($playerGames->get() as $playerGame) {
         $dataOut[] = [
-            'GameID' => $playerGame->game->ID,
+            'GameID' => $playerGame->game->id,
             'ConsoleID' => $playerGame->game->system->id,
             'ConsoleName' => $playerGame->game->system->name,
-            'Title' => $playerGame->game->Title,
-            'ImageIcon' => $playerGame->game->ImageIcon,
-            'ImageTitle' => $playerGame->game->ImageTitle,
-            'ImageIngame' => $playerGame->game->ImageIngame,
-            'ImageBoxArt' => $playerGame->game->ImageBoxArt,
+            'Title' => $playerGame->game->title,
+            'ImageIcon' => $playerGame->game->image_icon_asset_path,
+            'ImageTitle' => $playerGame->game->image_title_asset_path,
+            'ImageIngame' => $playerGame->game->image_ingame_asset_path,
+            'ImageBoxArt' => $playerGame->game->image_box_art_asset_path,
             'LastPlayed' => $playerGame->last_played_at
                 ? $playerGame->last_played_at->format("Y-m-d H:i:s")
                 : null,
@@ -99,8 +95,8 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 }
 
 function getArticleComments(
-    int $articleTypeID,
-    int $articleID,
+    CommentableType $commentableType,
+    int $commentableId,
     int $offset,
     int $count,
     array &$dataOut,
@@ -110,13 +106,15 @@ function getArticleComments(
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.ID, c.user_id,
-                     c.Payload AS CommentPayload,
-                     UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
-              FROM Comment AS c
-              LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
-              WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID AND c.deleted_at IS NULL
-              ORDER BY c.Submitted$order, c.ID$order
+    $commentableTypeValue = $commentableType->value;
+
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.banned_at, c.id AS ID, c.user_id,
+                     c.body AS CommentPayload,
+                     UNIX_TIMESTAMP(c.created_at) AS Submitted, c.updated_at AS Edited
+              FROM comments AS c
+              LEFT JOIN users AS ua ON ua.id = c.user_id
+              WHERE c.commentable_type='$commentableTypeValue' AND c.commentable_id=$commentableId AND c.deleted_at IS NULL
+              ORDER BY c.created_at$order, c.id$order
               LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
@@ -141,12 +139,12 @@ function getArticleComments(
 }
 
 function getRecentArticleComments(
-    int $articleTypeID,
-    int $articleID,
+    CommentableType $commentableType,
+    int $commentableId,
     array &$dataOut,
     int $count = 20,
 ): int {
-    $numArticleComments = getArticleComments($articleTypeID, $articleID, 0, $count, $dataOut, true);
+    $numArticleComments = getArticleComments($commentableType, $commentableId, 0, $count, $dataOut, true);
 
     // Fetch the last elements by submitted, but return them here in top-down order.
     $dataOut = array_reverse($dataOut);
@@ -161,19 +159,19 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
-    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
+    $ifRAPoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points_hardcore');
+    $ifRASoftcorePoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points');
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
-    $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
-              FROM UserAccounts AS ua
-              LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.RichPresenceMsgDate > $timestampStatement
-                AND ua.LastGameID != 0
+    $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
+                     ua.rich_presence AS RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
+              FROM users AS ua
+              LEFT JOIN games AS gd ON gd.id = ua.rich_presence_game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
+              WHERE ua.rich_presence_updated_at > $timestampStatement
+                AND ua.rich_presence_game_id != 0
                 AND ua.Permissions >= $permissionsCutoff
-              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
+              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.username ASC";
 
     $dbResult = legacyDbFetchAll($query);
 

@@ -7,9 +7,9 @@ namespace App\Filament\Resources;
 use App\Community\Actions\ApproveNewDisplayNameAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\UserUsernameResource\Pages;
-use App\Mail\DisplayNameChangeDeclinedMail;
 use App\Models\User;
 use App\Models\UserUsername;
+use App\Notifications\Auth\DisplayNameChangeDeclinedNotification;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -17,7 +17,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Mail;
 use UnitEnum;
 
 class UserUsernameResource extends Resource
@@ -57,11 +56,15 @@ class UserUsernameResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where(function ($query) {
-                $query->whereNotNull('approved_at')
-                    ->orWhereNotNull('denied_at')
-                    ->orWhere('created_at', '>', now()->subDays(30));
-            }))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->with('user')
+                ->whereHas('user')
+                ->where(function ($query) {
+                    $query->whereNotNull('approved_at')
+                        ->orWhereNotNull('denied_at')
+                        ->orWhere('created_at', '>', now()->subDays(30));
+                })
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('user.username')
                     ->label('Original Username')
@@ -178,7 +181,7 @@ class UserUsernameResource extends Resource
                         /** @var User $user */
                         $user = $record->user;
 
-                        Mail::to($user)->queue(new DisplayNameChangeDeclinedMail($user, $record->username));
+                        $user->notify(new DisplayNameChangeDeclinedNotification($record->username));
 
                         Notification::make()
                             ->success()

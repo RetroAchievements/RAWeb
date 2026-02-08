@@ -20,10 +20,10 @@ class DispatchUpdateGameBeatenMetricsJob implements ShouldQueue
                 // this probably should watch for PlayerGameBeaten and PlayerGameCompleted,
                 // but it's easier to just watch for the badge being awarded, which
                 // complements the behavior of watching for the badge disappearing.
-                switch ($event->playerBadge->AwardType) {
+                switch ($event->playerBadge->award_type) {
                     case AwardType::GameBeaten:
                     case AwardType::Mastery:
-                        $game = Game::find($event->playerBadge->AwardData);
+                        $game = Game::find($event->playerBadge->award_key);
                         break;
                 }
                 break;

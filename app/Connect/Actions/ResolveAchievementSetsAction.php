@@ -28,10 +28,10 @@ class ResolveAchievementSetsAction
         }
 
         // Determine the current game context based on the initial set and game.
-        [$gameIdToUse, $typesToLoad] = $this->buildResolutionContext($initialSet, $game->id);
+        [$gameIdToUse, $typesToLoad, $includeAchievementSetId] = $this->buildResolutionContext($initialSet, $game->id);
 
         // Retrieve all relevant achievement sets for the current context.
-        $allSets = $this->getAllAchievementSets($gameIdToUse, $typesToLoad);
+        $allSets = $this->getAllAchievementSets($gameIdToUse, $typesToLoad, $includeAchievementSetId);
 
         // Fetch user opt-in/out preferences for these sets.
         $userSetPreferences = $this->getUserSetPreferences($user, $allSets);
@@ -50,9 +50,10 @@ class ResolveAchievementSetsAction
     }
 
     /**
-     * Given a GameAchievementSet, returns the set's game ID and the types to load.
+     * Given a GameAchievementSet, returns the set's game ID, the types to load,
+     * and optionally a specific achievement_set_id to include.
      *
-     * @return array [int $gameIdToUse, array|null $typesToLoad]
+     * @return array{int, array<AchievementSetType>, int|null} [$gameIdToUse, $typesToLoad, $includeAchievementSetId]
      */
     private function buildResolutionContext(GameAchievementSet $initialSet, int $defaultGameId): array
     {
@@ -61,44 +62,63 @@ class ResolveAchievementSetsAction
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
         if ($exclusiveLink !== null) {
             // Exclusive set: only load the exclusive set.
-            return [$exclusiveLink->game_id, [AchievementSetType::Exclusive]];
+            return [$exclusiveLink->game_id, [AchievementSetType::Exclusive], null];
         }
 
         $specialtyLink = $links->firstWhere('type', AchievementSetType::Specialty);
         if ($specialtyLink !== null) {
             // Specialty set: load all sets from the base game except exclusive.
-            $typesToLoad = [
-                AchievementSetType::Core,
-                AchievementSetType::Bonus,
-                AchievementSetType::Specialty,
+            // Only load _this_ specialty set.
+            return [
+                $specialtyLink->game_id,
+                [AchievementSetType::Core, AchievementSetType::Bonus],
+                $initialSet->achievement_set_id,
             ];
-
-            return [$specialtyLink->game_id, $typesToLoad];
         }
 
-        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
-        if ($bonusLink !== null) {
-            // Bonus set: load core and bonus sets from the linked game.
-            return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus]];
+        $bonusLinks = $links->where('type', AchievementSetType::Bonus);
+        if ($bonusLinks->isNotEmpty()) {
+            // If the bonus set is linked to multiple games, only load the bonus set itself.
+            // We can't determine which parent's core set to use, so we don't include one.
+            // This happens for situations like Pokemon Red & Blue, where a single bonus
+            // set is linked to both games.
+            if ($bonusLinks->count() > 1) {
+                return [$defaultGameId, [AchievementSetType::Core], null];
+            }
+
+            // One parent game - load core and bonus sets from the linked game.
+            $bonusLink = $bonusLinks->first();
+
+            return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus], null];
         }
 
         // Core set: load core and bonus sets.
-        return [$defaultGameId, [AchievementSetType::Core, AchievementSetType::Bonus]];
+        return [$defaultGameId, [AchievementSetType::Core, AchievementSetType::Bonus], null];
     }
 
     /**
      * Retrieves all relevant achievement sets based on game ID and types.
      *
+     * @param int $gameId the game to fetch sets from
+     * @param array<AchievementSetType> $types the types of sets to fetch
+     * @param int|null $includeAchievementSetId if provided, also include the set with this achievement_set_id regardless of type
+     *
      * @return Collection<int, GameAchievementSet>
      */
-    private function getAllAchievementSets(int $gameId, ?array $types): Collection
+    private function getAllAchievementSets(int $gameId, array $types, ?int $includeAchievementSetId = null): Collection
     {
         $query = GameAchievementSet::with([
-            'achievementSet.achievements' => fn ($q) => $q->orderBy('DisplayOrder'),
+            'achievementSet.achievements' => fn ($q) => $q->orderBy('achievements.order_column'),
             'achievementSet.incompatibleGameHashes',
         ])->where('game_id', $gameId);
 
-        if ($types !== null) {
+        if ($includeAchievementSetId !== null) {
+            // Fetch sets matching the types OR the specific achievement_set_id.
+            $query->where(function ($q) use ($types, $includeAchievementSetId) {
+                $q->whereIn('type', $types)
+                    ->orWhere('achievement_set_id', $includeAchievementSetId);
+            });
+        } else {
             $query->whereIn('type', $types);
         }
 
@@ -178,13 +198,16 @@ class ResolveAchievementSetsAction
     private function sortSets(Collection $sets): Collection
     {
         return $sets->sortBy(function (GameAchievementSet $set) {
-            return match ($set->type) {
+            $typePriority = match ($set->type) {
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
                 AchievementSetType::Specialty => 2,
                 AchievementSetType::Bonus => 3,
                 default => 4,
             };
+
+            // Sort primarily by type priority, then by order_column.
+            return ($typePriority * 100) + ($set->order_column ?? 0);
         });
     }
 

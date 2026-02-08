@@ -9,6 +9,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\Concerns\CalculatesPlayerPointsStats;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerPointsStatsAction
 {
@@ -31,10 +32,10 @@ class UpdatePlayerPointsStatsAction
         $recentPlayerAchievements = $user->playerAchievements()
             ->whereBetween('unlocked_at', [Carbon::now()->subDays(8), Carbon::now()])
             ->with(['achievement.game' => function ($query) {
-                $query->where('ConsoleID', '!=', System::Events);
+                $query->where('system_id', '!=', System::Events);
             }])
             ->whereHas('achievement.game', function ($query) {
-                $query->where('ConsoleID', '!=', System::Events);
+                $query->where('system_id', '!=', System::Events);
             })
             ->get();
 
@@ -88,28 +89,41 @@ class UpdatePlayerPointsStatsAction
     }
 
     /**
-     * This function will either perform a create, edit, or delete:
-     * - If no record exists and points > 0, we'll create.
-     * - If a record exists and points > 0, we'll update.
-     * - If a record exists and points = 0, we'll delete.
+     * Performs a create, update, or delete based on the current state:
+     * - No record exists and points > 0: create new stat.
+     * - Record exists and points > 0: update if value changed.
+     * - Record exists and points = 0: delete the stat.
+     *
+     * Uses a transaction with 3 retries to handle potential deadlocks.
      */
     private function writePlayerPointsStat(
         User $user,
         string $playerStatType,
         int $points,
     ): void {
-        $attributes = ['user_id' => $user->id, 'type' => $playerStatType];
-        $existingPlayerStat = PlayerStat::where($attributes)->first();
+        $maxRetries = 3;
 
-        if ($existingPlayerStat) {
+        DB::transaction(function () use ($user, $playerStatType, $points) {
+            $attributes = ['user_id' => $user->id, 'type' => $playerStatType];
+            $existingPlayerStat = PlayerStat::where($attributes)->first();
+
+            if (!$existingPlayerStat) {
+                if ($points !== 0) {
+                    PlayerStat::create([...$attributes, 'value' => $points]);
+                }
+
+                return;
+            }
+
             if ($points === 0) {
                 $existingPlayerStat->delete();
-            } else {
-                $existingPlayerStat->value = $points;
-                $existingPlayerStat->save();
+
+                return;
             }
-        } elseif ($points !== 0) {
-            PlayerStat::create(array_merge($attributes, ['value' => $points]));
-        }
+
+            if ($existingPlayerStat->value !== $points) {
+                $existingPlayerStat->update(['value' => $points]);
+            }
+        }, $maxRetries);
     }
 }

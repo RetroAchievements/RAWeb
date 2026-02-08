@@ -13,12 +13,12 @@ class UpdateGameAchievementsMetricsAction
         // TODO refactor to do this for each achievement set
 
         // force all unachieved to be 1
-        $achievements = $game->achievements()->published()->get();
+        $achievements = $game->achievements()->promoted()->get();
         if ($achievements->isEmpty()) {
             return;
         }
 
-        $action = new UpdateAchievementMetricsAction();
+        $action = app(UpdateAchievementMetricsAction::class);
         $action->update($game, $achievements);
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);

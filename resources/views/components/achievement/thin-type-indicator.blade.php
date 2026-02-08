@@ -17,7 +17,7 @@ $missableType = AchievementType::Missable;
 $canShowTypeIndicator = true;
 if ($type === $missableType) {
     $currentUser = Auth::user();
-    if (isset($currentUser) && BitSet($currentUser->websitePrefs, UserPreference::Game_HideMissableIndicators)) {
+    if (isset($currentUser) && BitSet($currentUser->preferences_bitfield, UserPreference::Game_HideMissableIndicators)) {
         $canShowTypeIndicator = false;
     }
 }
