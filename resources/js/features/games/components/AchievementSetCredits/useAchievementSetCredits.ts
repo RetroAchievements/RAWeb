@@ -2,54 +2,50 @@ import { useMemo } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { deduplicateUserCredits } from './deduplicateUserCredits';
+
 export function useAchievementSetCredits() {
   const { achievementSetClaims, aggregateCredits } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const artCreditUsers = useMemo(() => {
-    return [
-      ...aggregateCredits.achievementSetArtwork,
-      ...aggregateCredits.achievementSetBanner,
-      ...aggregateCredits.achievementsArtwork,
-    ].filter(
-      (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-    );
-  }, [
-    aggregateCredits.achievementSetArtwork,
-    aggregateCredits.achievementSetBanner,
-    aggregateCredits.achievementsArtwork,
-  ]);
+  const artCreditUsers = useMemo(
+    () =>
+      deduplicateUserCredits([
+        ...aggregateCredits.achievementSetArtwork,
+        ...aggregateCredits.achievementSetBanner,
+        ...aggregateCredits.achievementsArtwork,
+      ]),
+    [
+      aggregateCredits.achievementSetArtwork,
+      aggregateCredits.achievementSetBanner,
+      aggregateCredits.achievementsArtwork,
+    ],
+  );
 
-  const logicCreditUsers = useMemo(() => {
-    return aggregateCredits.achievementsLogic.filter(
-      (logicUser) =>
-        !aggregateCredits.achievementsAuthors.some(
-          (author) => author.displayName === logicUser.displayName,
-        ),
-    );
-  }, [aggregateCredits.achievementsAuthors, aggregateCredits.achievementsLogic]);
+  const codingCreditUsers = useMemo(
+    () =>
+      deduplicateUserCredits([
+        ...aggregateCredits.achievementsMaintainers,
+        ...aggregateCredits.achievementsLogic,
+      ]),
+    [aggregateCredits.achievementsMaintainers, aggregateCredits.achievementsLogic],
+  );
 
-  const codingCreditUsers = useMemo(() => {
-    return [...aggregateCredits.achievementsMaintainers, ...logicCreditUsers].filter(
-      (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-    );
-  }, [aggregateCredits.achievementsMaintainers, logicCreditUsers]);
-
-  const designCreditUsers = useMemo(() => {
-    return [
-      ...aggregateCredits.achievementsDesign,
-      ...aggregateCredits.achievementsTesting,
-      ...aggregateCredits.achievementsWriting,
-      ...aggregateCredits.hashCompatibilityTesting,
-    ].filter(
-      (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-    );
-  }, [
-    aggregateCredits.achievementsDesign,
-    aggregateCredits.achievementsTesting,
-    aggregateCredits.achievementsWriting,
-    aggregateCredits.hashCompatibilityTesting,
-  ]);
+  const designCreditUsers = useMemo(
+    () =>
+      deduplicateUserCredits([
+        ...aggregateCredits.achievementsDesign,
+        ...aggregateCredits.achievementsTesting,
+        ...aggregateCredits.achievementsWriting,
+        ...aggregateCredits.hashCompatibilityTesting,
+      ]),
+    [
+      aggregateCredits.achievementsDesign,
+      aggregateCredits.achievementsTesting,
+      aggregateCredits.achievementsWriting,
+      aggregateCredits.hashCompatibilityTesting,
+    ],
+  );
 
   return {
     achievementSetClaims,

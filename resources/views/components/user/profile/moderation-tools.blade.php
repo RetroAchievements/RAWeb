@@ -119,7 +119,12 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
         <tr>
             <td colspan="2">
                 <div class="commentscomponent left">
-                    <x-comment.list :commentableType="CommentableType::UserModeration" :commentableId="$targetUser->id" :article="$targetUser" />
+                    <x-comment.list
+                        :commentableType="CommentableType::UserModeration"
+                        :commentableId="$targetUser->id"
+                        :article="$targetUser"
+                        :showAll="true"
+                    />
                 </div>
             </td>
         </tr>

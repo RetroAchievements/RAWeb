@@ -152,4 +152,22 @@ abstract class TestCase extends BaseTestCase
     {
         return $this->seedAchievements(1, $game)->first();
     }
+
+    protected function seedSubset(Game $game,
+        AchievementSetType $type = AchievementSetType::Bonus,
+        int $achievements = 0, bool $withHash = false): Game
+    {
+        $subsetGame = $this->seedGame($game->system, $achievements, $withHash);
+
+        $subsetAchievementSet = $subsetGame->achievementSets()->first();
+        $subsetGameAchievementSet = new GameAchievementSet([
+            'game_id' => $game->id,
+            'achievement_set_id' => $subsetAchievementSet->id,
+            'type' => $type,
+            'title' => $subsetGame->title,
+        ]);
+        $subsetGameAchievementSet->save();
+
+        return $subsetGame;
+    }
 }

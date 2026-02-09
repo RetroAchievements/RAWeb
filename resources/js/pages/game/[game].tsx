@@ -95,11 +95,9 @@ const GameShow: AppPage = () => {
         </AppLayout.Main>
       ) : (
         <>
-          {banner?.desktopMdWebp ? (
-            <AppLayout.Banner className="md:-mb-[30px]">
-              <GameDesktopBanner banner={banner} />
-            </AppLayout.Banner>
-          ) : null}
+          <AppLayout.Banner className="md:-mb-[30px]">
+            <GameDesktopBanner banner={banner} />
+          </AppLayout.Banner>
 
           <AppLayout.Main>
             <GameShowMainRoot />

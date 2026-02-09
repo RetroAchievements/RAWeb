@@ -569,12 +569,15 @@ class BuildGameShowPagePropsAction
         }
 
         // Use an aggregation query for achievement authorship credits.
+        // Exclude credits where the contributor is also the original author of that achievement.
         if ($achievementIds->isNotEmpty()) {
             $authorshipStats = AchievementAuthor::query()
-                ->whereIn('achievement_id', $achievementIds)
-                ->select('user_id', 'task', DB::raw('COUNT(*) as count'))
+                ->join('achievements', 'achievement_authors.achievement_id', '=', 'achievements.id')
+                ->whereIn('achievement_authors.achievement_id', $achievementIds)
+                ->whereColumn('achievement_authors.user_id', '!=', 'achievements.user_id')
+                ->select('achievement_authors.user_id', 'achievement_authors.task', DB::raw('COUNT(*) as count'))
                 ->with('user')
-                ->groupBy('user_id', 'task')
+                ->groupBy('achievement_authors.user_id', 'achievement_authors.task')
                 ->get();
 
             foreach ($authorshipStats as $stat) {
