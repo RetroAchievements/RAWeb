@@ -6,6 +6,7 @@ import {
   LuBox,
   LuCalendarPlus,
   LuCircleDot,
+  LuClock,
   LuGem,
   LuSparkles,
   LuUser,
@@ -39,5 +40,6 @@ export const gameListFieldIconMap = createIconMap({
   retroRatio: LuGem,
   suggestionReason: LuSparkles,
   system: LuBox,
+  timeToBeat: LuClock,
   title: IoLogoGameControllerA,
 });
