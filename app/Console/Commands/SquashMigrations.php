@@ -22,11 +22,17 @@ use Illuminate\Support\Facades\File;
  */
 class SquashMigrations extends Command
 {
-    protected $signature = 'ra:db:squash-migrations';
+    protected $signature = 'ra:db:squash-migrations {--sqlite-only : Only regenerate the SQLite schema dump without touching MySQL or migration files}';
     protected $description = 'Safely squash all migrations into schema dumps';
 
     public function handle(): void
     {
+        if ($this->option('sqlite-only')) {
+            $this->handleSqliteOnly();
+
+            return;
+        }
+
         if (!$this->confirm('This will squash all migrations and update schema dumps. Continue?')) {
             $this->info('Operation cancelled.');
 
@@ -62,6 +68,21 @@ class SquashMigrations extends Command
 
         } catch (Exception $e) {
             $this->error('❌ Migration squash failed: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    private function handleSqliteOnly(): void
+    {
+        $this->info('Regenerating SQLite schema dump...');
+
+        try {
+            $this->generateSqliteSchema();
+
+            $this->info('SQLite schema dump regenerated successfully.');
+            $this->info('- SQLite schema: database/schema/sqlite-schema.sql');
+        } catch (Exception $e) {
+            $this->error('❌ SQLite schema generation failed: ' . $e->getMessage());
             throw $e;
         }
     }

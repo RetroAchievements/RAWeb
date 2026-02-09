@@ -76,7 +76,7 @@ class UpdatePlayerGameMetricsAction
                 'unlocked_at',
                 'unlocked_hardcore_at',
             ])
-            ->select(['achievements.id', 'points', 'points_weighted'])
+            ->select(['achievements.id', 'achievements.game_id', 'points', 'points_weighted'])
             ->get();
         $achievementsUnlockedHardcore = $achievementsUnlocked->filter(fn (Achievement $achievement) => $achievement->pivot->unlocked_hardcore_at !== null);
 
@@ -142,6 +142,20 @@ class UpdatePlayerGameMetricsAction
             $playerAchievementSet->last_unlock_at = $summary['lastUnlockTimeSoftcore'];
             $playerAchievementSet->last_unlock_hardcore_at = $summary['lastUnlockTimeHardcore'];
 
+            // if the user has at least one softcore unlock, count a later hardcore unlock also as a softcore unlock
+            if ($playerAchievementSet->last_unlock_at && $playerAchievementSet->last_unlock_hardcore_at > $playerAchievementSet->last_unlock_at) {
+                $lastUnlockAt = $playerAchievementSet->last_unlock_at;
+                if ($playerAchievementSet->completed_at > $playerAchievementSet->last_unlock_at) {
+                    // completed_at was previously set based on a hardcore unlock - use that
+                    $playerAchievementSet->last_unlock_at = $playerAchievementSet->completed_at;
+                } elseif (!$playerAchievementSet->completed_at) {
+                    // game hasn't been completed yet, also count the hardcore unlock as a softcore unlock
+                    $playerAchievementSet->last_unlock_at = $playerAchievementSet->last_unlock_hardcore_at;
+                }
+
+                $playerAchievementSet->time_taken += (int) $playerAchievementSet->last_unlock_at->diffInSeconds($lastUnlockAt, true);
+            }
+
             // update completion progress
             $numSetAchievements = count($setAchievementIds);
             if ($numSetAchievements > 0) {
@@ -170,7 +184,7 @@ class UpdatePlayerGameMetricsAction
             // ==========================
         }
 
-        $playerAchievements = $achievementsUnlocked->pluck('pivot');
+        $playerAchievements = $achievementsUnlocked->where('game_id', $playerGame->game_id)->pluck('pivot');
         $playerGame->first_unlock_at = $playerAchievements->min('unlocked_at');
         $playerGame->last_unlock_at = $playerAchievements->max('unlocked_at');
         $playerGame->last_unlock_hardcore_at = $playerAchievements->max('unlocked_hardcore_at');

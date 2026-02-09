@@ -33,7 +33,7 @@ if ($action === 'alt_identifier') {
         $message = "No alts found for $altsForUser";
         if (!empty($emailAddresses)) {
             $alts = User::withTrashed()
-                ->select('username', 'Permissions', 'last_activity_at', 'deleted_at')
+                ->select('id', 'username', 'Permissions', 'last_activity_at', 'deleted_at')
                 ->where(function ($query) use ($emailAddresses) {
                     $query->whereIn('email', $emailAddresses)
                         ->orWhereIn('email_original', $emailAddresses);

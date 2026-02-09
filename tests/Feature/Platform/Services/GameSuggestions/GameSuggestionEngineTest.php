@@ -25,7 +25,7 @@ class GameSuggestionEngineTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $games = Game::factory()->count(5)->create([
+        $games = Game::factory()->count(20)->create([
             'achievements_published' => 10,
         ]);
 

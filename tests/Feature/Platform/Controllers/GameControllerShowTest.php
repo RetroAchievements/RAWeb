@@ -1860,6 +1860,74 @@ describe('Aggregate Credits Props', function () {
         );
     });
 
+    it('includes logic credits for achievements the contributor did not author, even when they authored other achievements', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $originalAuthor = User::factory()->create();
+        $contributor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        // ... the contributor authored one achievement in the set ...
+        $ownAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $contributor->id,
+        ]);
+
+        // ... the original author authored another achievement ...
+        $otherAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $originalAuthor->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        // ... the contributor has a logic credit on the other author's achievement ...
+        AchievementAuthor::create([
+            'achievement_id' => $otherAchievement->id,
+            'user_id' => $contributor->id,
+            'task' => AchievementAuthorTask::Logic,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsLogic', 1)
+            ->where('aggregateCredits.achievementsLogic.0.displayName', $contributor->display_name)
+        );
+    });
+
+    it('excludes logic credits for achievements the contributor did author', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        // ... the developer has a logic credit on their own achievement ...
+        AchievementAuthor::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $developer->id,
+            'task' => AchievementAuthorTask::Logic,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsLogic', 0)
+        );
+    });
+
     it('includes achievement author task credits by type', function () {
         // ARRANGE
         $system = System::factory()->create();

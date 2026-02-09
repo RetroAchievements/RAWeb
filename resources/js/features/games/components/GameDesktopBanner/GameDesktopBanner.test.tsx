@@ -174,7 +174,7 @@ describe('Component: GameDesktopBanner', () => {
     expect(blurredImg).toHaveStyle({ filter: 'blur(15px)' });
   });
 
-  it('given banner sources are null, still renders the blurred backdrop using the ingame screenshot as fallback', () => {
+  it('given banner sources are null, renders a fallback banner with solid background color', () => {
     // ARRANGE
     const banner = createPageBanner({
       desktopMdWebp: null,
@@ -191,9 +191,79 @@ describe('Component: GameDesktopBanner', () => {
     });
 
     // ASSERT
-    const blurredImg = screen.getByTestId('blurred-backdrop');
-    expect(blurredImg).toBeInTheDocument();
-    expect(blurredImg).toHaveAttribute('src', 'https://example.com/ingame.jpg');
+    expect(screen.queryByTestId('blurred-backdrop')).not.toBeInTheDocument();
+
+    const bannerEl = screen.getByTestId('desktop-banner');
+    expect(bannerEl).toBeInTheDocument();
+    expect(bannerEl.style.background).toEqual('#0a0a0a');
+  });
+
+  it('given no custom banner, uses a fixed compact height regardless of preference', () => {
+    // ARRANGE
+    const banner = createPageBanner({
+      desktopMdWebp: null,
+      desktopMdAvif: null,
+    });
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={banner} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        bannerPreference: 'expanded',
+      },
+    });
+
+    // ASSERT
+    const bannerEl = screen.getByTestId('desktop-banner');
+
+    expect(bannerEl).toHaveClass('lg:h-[212px]'); // fallback always uses fixed compact height
+    expect(bannerEl).not.toHaveClass('lg:!h-[474px]');
+  });
+
+  it('given no custom banner, does not render the expand/collapse button', () => {
+    // ARRANGE
+    const banner = createPageBanner({
+      desktopMdWebp: null,
+      desktopMdAvif: null,
+    });
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={banner} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /expand banner/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /collapse banner/i })).not.toBeInTheDocument();
+  });
+
+  it('given no custom banner, renders the color-extracted background from the ingame screenshot', () => {
+    // ARRANGE
+    const banner = createPageBanner({
+      desktopMdWebp: null,
+      desktopMdAvif: null,
+    });
+    const game = createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' });
+
+    render(<GameDesktopBanner banner={banner} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    const colorSourceImg = screen.getByTestId('fallback-color-source');
+
+    expect(colorSourceImg).toBeInTheDocument();
+    expect(colorSourceImg).toHaveAttribute('src', 'https://example.com/ingame.jpg');
   });
 
   it('given a title longer than 30 characters, applies smaller text size for mobile', () => {
@@ -302,7 +372,7 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[212px]');
+    expect(bannerEl).toHaveClass('lg:!h-[212px]');
   });
 
   it('given the "expanded" banner preference, applies the expanded height class', () => {
@@ -320,7 +390,7 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[474px]');
+    expect(bannerEl).toHaveClass('lg:!h-[474px]');
   });
 
   it('given the toggle button is clicked, cycles through banner preferences', async () => {
@@ -341,19 +411,19 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     // ... normal -> compact ...
     await userEvent.click(screen.getByRole('button', { name: /expand banner/i }));
-    expect(bannerEl).toHaveClass('lg:h-[212px]');
+    expect(bannerEl).toHaveClass('lg:!h-[212px]');
 
     // ASSERT
     // ... compact -> expanded ...
     await userEvent.click(screen.getByRole('button', { name: /expand banner/i }));
-    expect(bannerEl).toHaveClass('lg:h-[474px]');
+    expect(bannerEl).toHaveClass('lg:!h-[474px]');
 
     // ASSERT
     // ... expanded -> normal ...
     await userEvent.click(screen.getByRole('button', { name: /collapse banner/i }));
 
-    expect(bannerEl).not.toHaveClass('lg:h-[212px]');
-    expect(bannerEl).not.toHaveClass('lg:h-[474px]');
+    expect(bannerEl).not.toHaveClass('lg:!h-[212px]');
+    expect(bannerEl).not.toHaveClass('lg:!h-[474px]');
   });
 
   it('given the toggle button is hovered, changes the border color', async () => {

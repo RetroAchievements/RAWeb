@@ -60,7 +60,6 @@ export const AchievementSetCredits: FC = () => {
 
           {codingCreditUsers.length ? (
             <CodeCreditsDisplay
-              authorCredits={aggregateCredits.achievementsAuthors}
               logicCredits={aggregateCredits.achievementsLogic}
               maintainerCredits={aggregateCredits.achievementsMaintainers}
             />
