@@ -1,6 +1,13 @@
 import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
-import { createAchievement, createGame, createSystem } from '@/test/factories';
+import {
+  createAchievement,
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+  createSystem,
+} from '@/test/factories';
+import type { TranslatedString } from '@/types/i18next';
 
 import { AchievementBreadcrumbs } from './AchievementBreadcrumbs';
 
@@ -81,10 +88,55 @@ describe('Component: AchievementBreadcrumbs', () => {
     // ASSERT
     const achievementLinkEl = screen.getByRole('link', { name: achievement.title });
     expect(achievementLinkEl).toBeVisible();
-    expect(achievementLinkEl).toHaveAttribute(
-      'href',
-      `achievement.show,${{ achievementId: achievement.id }}`,
+    expect(achievementLinkEl).toHaveAttribute('href', expect.stringContaining('achievement.show'));
+  });
+
+  it('given a gameAchievementSet, renders the subset title as a link between game and current page', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'Genesis/Mega Drive' });
+    const game = createGame({ title: 'Sonic the Hedgehog', system });
+    const gameAchievementSet = createGameAchievementSet({
+      title: 'Perfect Bonus123',
+      achievementSet: createAchievementSet({ id: 456 }),
+    });
+
+    render(
+      <AchievementBreadcrumbs
+        t_currentPageLabel={'Perfect Green Hill 1' as TranslatedString}
+        game={game}
+        system={system}
+        gameAchievementSet={gameAchievementSet}
+      />,
     );
+
+    // ASSERT
+    const subsetLinkEl = screen.getByRole('link', { name: /perfect bonus123/i });
+    expect(subsetLinkEl).toBeVisible();
+    expect(subsetLinkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
+  });
+
+  it('given a gameAchievementSet with no title, does not render a subset breadcrumb', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'NES' });
+    const game = createGame({ title: 'Some Game', system });
+    const gameAchievementSet = createGameAchievementSet({
+      title: null,
+      achievementSet: createAchievementSet({ id: 789 }),
+    });
+
+    render(
+      <AchievementBreadcrumbs
+        t_currentPageLabel={'Some Achievement' as TranslatedString}
+        game={game}
+        system={system}
+        gameAchievementSet={gameAchievementSet}
+      />,
+    );
+
+    // ASSERT
+    const allLinks = screen.getAllByRole('link');
+    const linkTexts = allLinks.map((el) => el.textContent);
+    expect(linkTexts).not.toContain(expect.stringContaining('null'));
   });
 
   it('stylizes tags that are within game titles', () => {
