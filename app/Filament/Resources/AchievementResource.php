@@ -15,7 +15,6 @@ use App\Models\User;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use BackedEnum;
-use Closure;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Infolists;
@@ -266,24 +265,15 @@ class AchievementResource extends Resource
                             ->disabled(!$user->can('updateField', [$schema->model, 'type'])),
                     ]),
 
-                Schemas\Components\Section::make('Video (Deprecated)')
+                Schemas\Components\Section::make('Video')
                     ->icon('heroicon-o-video-camera')
-                    ->description(new HtmlString('This field is deprecated and will be replaced with on-site guides. <a href="https://github.com/RetroAchievements/RAWeb/discussions/4196" target="_blank" class="underline">See RFC</a>'))
+                    ->description(new HtmlString('This field will eventually be replaced with on-site tips and guides. <a href="https://github.com/RetroAchievements/RAWeb/discussions/4196" target="_blank" class="underline">See RFC</a>'))
                     ->schema([
                         Forms\Components\TextInput::make('embed_url')
                             ->label('Video URL')
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'embed_url']))
-                            ->rules([
-                                fn (?Achievement $record): Closure => function (string $attribute, $value, Closure $fail) use ($record) {
-                                    // Only allow clearing the field, not changing to a different value.
-                                    if (!empty($value) && $value !== $record?->embed_url) {
-                                        $fail('This field is deprecated. You can only clear it, not change it to a different URL.');
-                                    }
-                                },
-                            ]),
-                    ])
-                    ->visible(fn (?Achievement $record): bool => !empty($record?->embed_url)),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'embed_url'])),
+                    ]),
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
