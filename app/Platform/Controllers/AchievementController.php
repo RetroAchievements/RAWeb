@@ -45,6 +45,8 @@ class AchievementController extends Controller
         // ENDTODO
 
         $achievement->loadMissing([
+            'activeMaintainer.user',
+            'developer',
             'game.system',
             'visibleComments' => function ($query) {
                 $query->notAutomated()
@@ -66,13 +68,18 @@ class AchievementController extends Controller
         $props = new AchievementShowPagePropsData(
             achievement: AchievementData::fromAchievement($achievement, $playerAchievement)
                 ->include(
+                    'activeMaintainer',
+                    'createdAt',
                     'description',
+                    'developer',
+                    'game',
                     'game.badgeUrl',
                     'game.playersTotal',
+                    'game.system',
                     'game.system.iconUrl',
                     'game.system.nameShort',
-                    'game.system',
-                    'game',
+                    'modifiedAt',
+                    'numUnresolvedTickets',
                     'points',
                     'pointsWeighted',
                     'type',
@@ -81,7 +88,6 @@ class AchievementController extends Controller
                     'unlockPercentage',
                     'unlocksHardcore',
                     'unlocksTotal',
-                    'numUnresolvedTickets',
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)
                 ->include('createAchievementComments'),

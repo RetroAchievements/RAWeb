@@ -598,6 +598,7 @@ declare namespace App.Platform.Data {
     isPromoted?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
+    numUnresolvedTickets?: number;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
@@ -608,7 +609,8 @@ declare namespace App.Platform.Data {
     unlockPercentage?: string;
     unlocksHardcore?: number;
     unlocksTotal?: number;
-    numUnresolvedTickets?: number;
+    activeMaintainer?: App.Data.User | null;
+    modifiedAt?: string | null;
   };
   export type AchievementSetClaim = {
     id: number;
