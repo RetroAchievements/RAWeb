@@ -15,6 +15,17 @@ globalThis.Ziggy = Ziggy;
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
+/**
+ * Google Translate modifies the DOM by injecting <font> tags, which
+ * causes React hydration mismatches. Detect this so we can suppress
+ * the resulting non-actionable Sentry errors.
+ */
+function isGoogleTranslateActive(): boolean {
+  const { classList } = document.documentElement;
+
+  return classList.contains('translated-ltr') || classList.contains('translated-rtl');
+}
+
 // Initialize Sentry.
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -32,6 +43,14 @@ Sentry.init({
   tracePropagationTargets: ['localhost', /^https:\/\/retroachievements\.org\/internal-api/],
   replaysSessionSampleRate: import.meta.env.SENTRY_REPLAYS_SESSION_SAMPLE_RATE,
   replaysOnErrorSampleRate: 1.0,
+
+  beforeSend(event) {
+    if (isGoogleTranslateActive() && event.message?.includes('Hydration')) {
+      return null;
+    }
+
+    return event;
+  },
 });
 
 createInertiaApp({
