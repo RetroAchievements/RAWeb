@@ -56,11 +56,10 @@ class AchievementController extends Controller
 
         [$backingGame, $gameAchievementSet] = $this->resolveSubsetContext($achievement);
 
-        $playerAchievement = $user
-            ? PlayerAchievement::where('user_id', $user->id)
-                ->where('achievement_id', $achievement->id)
-                ->first()
-            : null;
+        // TODO $user conditional
+        $playerAchievement = PlayerAchievement::where('user_id', $user->id)
+            ->where('achievement_id', $achievement->id)
+            ->first();
 
         $subscriptionService = new SubscriptionService();
 
@@ -86,9 +85,7 @@ class AchievementController extends Controller
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)
                 ->include('createAchievementComments'),
-            isSubscribedToComments: $user
-                ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::Achievement, $achievement->id)
-                : false,
+            isSubscribedToComments: $subscriptionService->isSubscribed($user, SubscriptionSubjectType::Achievement, $achievement->id), // TODO $user conditional
             numComments: $achievement->visibleComments($user)->notAutomated()->count(),
             recentVisibleComments: Collection::make(array_reverse(
                 CommentData::fromCollection($achievement->visibleComments)
