@@ -46,7 +46,7 @@ interface EventDataProps {
   updated_at: string;
 }
 
-const ReorderSiteAwardsMainRoot: FC = () => {
+export const ReorderSiteAwardsMainRoot: FC = () => {
   const { gameAwards, siteAwards, eventAwards, eventData } = usePageProps<{
     gameAwards: AwardProps[];
     siteAwards: AwardProps[];
@@ -84,18 +84,16 @@ const ReorderSiteAwardsMainRoot: FC = () => {
         <button /* onClick="handleSaveAllClick()" */ className="btn">Save All Changes</button>
       </div>
 
-      <AwardOrderTable
-        title={'Game Awards'}
-        awards={gameAwards}
-        username={'user'}
-        awardCounter={0}
-        renderedSectionCount={9}
-        prefersSeeingSavedHiddenRows={true}
-        initialSectionOrder={0}
-        eventData={eventData}
-      />
+      {/*<AwardOrderTable*/}
+      {/*  title={'Game Awards'}*/}
+      {/*  awards={gameAwards}*/}
+      {/*  username={'user'}*/}
+      {/*  awardCounter={0}*/}
+      {/*  renderedSectionCount={9}*/}
+      {/*  prefersSeeingSavedHiddenRows={true}*/}
+      {/*  initialSectionOrder={0}*/}
+      {/*  eventData={eventData}*/}
+      {/*/>*/}
     </div>
   );
 };
-
-export default ReorderSiteAwardsMainRoot;
