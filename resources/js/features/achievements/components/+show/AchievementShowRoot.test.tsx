@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { act, render, screen } from '@/test';
 import { createAchievement, createComment, createGame, createSystem } from '@/test/factories';
 
 import { AchievementShowRoot } from './AchievementShowRoot';
@@ -130,6 +130,96 @@ describe('Component: AchievementShowRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/AchievementRecentUnlocks/i)).toBeVisible();
+  });
+
+  it('given the user hovers over an inactive tab, applies the hover text style', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('tab', { name: /unlocks/i }));
+    await userEvent.unhover(screen.getByRole('tab', { name: /unlocks/i }));
+
+    // ASSERT
+    expect(screen.getByRole('tab', { name: /unlocks/i })).toBeVisible();
+  });
+
+  it('given the user hovers between tabs sequentially, applies the slide transition', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('tab', { name: /unlocks/i }));
+    await userEvent.hover(screen.getByRole('tab', { name: /changelog/i }));
+
+    // ASSERT
+    expect(screen.getByRole('tab', { name: /changelog/i })).toBeVisible();
+  });
+
+  it('given the animation becomes ready, applies cubic-bezier timing to the active indicator', () => {
+    // ARRANGE
+    vi.useFakeTimers();
+
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+
+    // ASSERT
+    const indicator = screen.getByTestId('tab-indicator');
+    expect(indicator.style.transitionTimingFunction).toEqual('cubic-bezier(0.65, 0, 0.35, 1)');
+
+    vi.useRealTimers();
   });
 
   it('allows switching to the changelog tab', async () => {
