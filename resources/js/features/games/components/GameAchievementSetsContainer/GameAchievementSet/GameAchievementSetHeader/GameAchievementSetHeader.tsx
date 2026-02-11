@@ -79,7 +79,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                             className="TrueRatio ml-1 whitespace-nowrap light:text-neutral-400"
                           />
                         ),
-                        2: <WeightedPointsContainer />,
+                        2: <WeightedPointsContainer useVerboseTooltip={true} />,
                         3: (
                           <SetRarityLabel
                             pointsTotal={pointsTotal}
