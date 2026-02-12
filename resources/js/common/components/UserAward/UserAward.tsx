@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-export type AwardProps = {
+export type UserAwardProps = {
   imageUrl: string;
   tooltip: string;
   link?: string;
@@ -9,7 +9,7 @@ export type AwardProps = {
   dateAwarded: string;
 };
 
-export const UserAward: FC<{ award: AwardProps; size?: number }> = ({ award, size = 64 }) => {
+export const UserAward: FC<{ award: UserAwardProps; size?: number }> = ({ award, size = 64 }) => {
   const img = (
     <img
       src={award.imageUrl}

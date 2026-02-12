@@ -18,7 +18,7 @@ export interface AwardProps {
   Title: string;
 }
 
-interface EventDataProps {
+export interface EventDataProps {
   active_from: string;
   active_through: string;
   active_until: string;
@@ -57,7 +57,7 @@ export const ReorderSiteAwardsMainRoot: FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       <h2 id="reorder-site-awards-header">{t('Reorder Site Awards')}</h2>
 
       <div className="embedded grid gap-y-4">
