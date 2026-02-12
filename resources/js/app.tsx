@@ -45,7 +45,7 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 
   beforeSend(event) {
-    if (isGoogleTranslateActive() && event.message?.includes('Hydration')) {
+    if (event.message?.includes('Hydration') && isGoogleTranslateActive()) {
       return null;
     }
 
