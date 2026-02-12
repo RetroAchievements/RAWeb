@@ -8,6 +8,7 @@ use App\Community\Actions\FetchGameActivityDataAction;
 use App\Community\Data\GameActivitySnapshotData;
 use App\Community\Enums\GameActivitySnapshotType;
 use App\Community\Enums\TrendingReason;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameActivitySnapshot;
 use App\Models\System;
@@ -199,5 +200,62 @@ class FetchGameActivityDataActionTest extends TestCase
         // Assert
         $this->assertCount(1, $result);
         $this->assertEquals('game_two', $result[0]->game->title);
+    }
+
+    public function testItIncludesEventDataWhenSnapshotHasEventMeta(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+
+        $eventGame = Game::factory()->create([
+            'system_id' => System::Events,
+            'title' => 'Achievement of the Week 2024',
+        ]);
+        $event = Event::factory()->create(['legacy_game_id' => $eventGame->id]);
+
+        $trendingGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Dark Cloud']);
+
+        GameActivitySnapshot::factory()->create([
+            'game_id' => $trendingGame->id,
+            'type' => GameActivitySnapshotType::Trending,
+            'score' => 100.0,
+            'trend_multiplier' => 5.0,
+            'trending_reason' => TrendingReason::MorePlayers->value,
+            'meta' => ['event_id' => $event->id],
+            'created_at' => now(),
+        ]);
+
+        // Act
+        $result = (new FetchGameActivityDataAction())->execute(GameActivitySnapshotType::Trending);
+
+        // Assert
+        $this->assertCount(1, $result);
+        $this->assertEquals('Dark Cloud', $result[0]->game->title);
+        $this->assertEquals(TrendingReason::MorePlayers, $result[0]->trendingReason);
+        $this->assertNotNull($result[0]->event);
+        $this->assertEquals($event->id, $result[0]->event->id);
+    }
+
+    public function testItReturnsNullEventWhenSnapshotHasNoEventMeta(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros']);
+
+        GameActivitySnapshot::factory()->create([
+            'game_id' => $game->id,
+            'type' => GameActivitySnapshotType::Trending,
+            'score' => 50.0,
+            'trend_multiplier' => 2.0,
+            'trending_reason' => TrendingReason::NewSet->value,
+            'created_at' => now(),
+        ]);
+
+        // Act
+        $result = (new FetchGameActivityDataAction())->execute(GameActivitySnapshotType::Trending);
+
+        // Assert
+        $this->assertCount(1, $result);
+        $this->assertNull($result[0]->event);
     }
 }
