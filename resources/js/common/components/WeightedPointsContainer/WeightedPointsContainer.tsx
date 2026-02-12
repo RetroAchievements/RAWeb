@@ -6,13 +6,11 @@ import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/
 interface WeightedPointsContainerProps {
   children?: ReactNode;
   isTooltipEnabled?: boolean;
-  useVerboseTooltip?: boolean;
 }
 
 export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
   children,
   isTooltipEnabled = true,
-  useVerboseTooltip = false,
 }) => {
   const { t } = useTranslation();
 
@@ -28,19 +26,8 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
           <p className="font-bold">{'RetroPoints'}</p>
 
           <div className="flex flex-col gap-2 whitespace-normal">
-            {useVerboseTooltip ? (
-              <p>{t('A type of point adjusted by achievement rarity.')}</p>
-            ) : null}
-
-            <p>
-              {t(
-                'Rarer achievements and achievements with higher point values earn more RetroPoints.',
-              )}
-            </p>
-
-            {useVerboseTooltip ? (
-              <p>{t('This indicator may be inflated by set revisions and player attrition.')}</p>
-            ) : null}
+            <p>{t('Points adjusted by achievement rarity.')}</p>
+            <p>{t('RetroPoints may fluctuate as rarity changes.')}</p>
           </div>
         </span>
       </BaseTooltipContent>

@@ -30,20 +30,6 @@ describe('Component: WeightedPointsContainer', () => {
 
     // ASSERT
     expect(await screen.findByRole('tooltip')).toBeVisible();
-    expect((await screen.findAllByText(/rarer achievements/i)).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryAllByText(/adjusted by achievement rarity/i).length).toBe(0);
-  });
-
-  it('given the user hovers, shows a verbose tooltip', async () => {
-    // ARRANGE
-    render(<WeightedPointsContainer useVerboseTooltip={true}>100</WeightedPointsContainer>);
-
-    // ACT
-    await userEvent.hover(screen.getByText('100'));
-
-    // ASSERT
-    expect(await screen.findByRole('tooltip')).toBeVisible();
-    expect((await screen.findAllByText(/rarer achievements/i)).length).toBeGreaterThanOrEqual(1);
     expect(
       (await screen.findAllByText(/adjusted by achievement rarity/i)).length,
     ).toBeGreaterThanOrEqual(1);
