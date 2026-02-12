@@ -49,6 +49,7 @@ declare namespace App.Community.Data {
     game: App.Platform.Data.Game;
     playerCount: number;
     trendingReason: App.Community.Enums.TrendingReason | null;
+    event: App.Platform.Data.Event | null;
   };
   export type GameChecklistPageProps = {
     player: App.Data.User;
@@ -539,8 +540,8 @@ declare namespace App.Http.Data {
     completedClaims: Array<App.Data.AchievementSetClaimGroup>;
     currentlyOnline: App.Data.CurrentlyOnline;
     activePlayers: App.Data.PaginatedData<TItems>;
-    trendingGames: Array<App.Community.Data.GameActivitySnapshot>;
-    popularGames: Array<App.Community.Data.GameActivitySnapshot>;
+    trendingGameSnapshots: Array<App.Community.Data.GameActivitySnapshot>;
+    popularGameSnapshots: Array<App.Community.Data.GameActivitySnapshot>;
     newClaims: Array<App.Data.AchievementSetClaimGroup>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
@@ -1217,8 +1218,10 @@ declare namespace App.Platform.Enums {
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'achievementsPublished'
+    | 'beatRatio'
     | 'hasActiveOrInReviewClaims'
     | 'lastUpdated'
+    | 'medianTimeToBeatHardcore'
     | 'numRequests'
     | 'numUnresolvedTickets'
     | 'numVisibleLeaderboards'
