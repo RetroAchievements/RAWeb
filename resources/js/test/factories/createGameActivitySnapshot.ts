@@ -16,6 +16,7 @@ export const createGameActivitySnapshot = createFactory<App.Community.Data.GameA
         'more-players',
         null,
       ]),
+      event: null,
     };
   },
 );

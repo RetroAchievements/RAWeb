@@ -77,7 +77,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             <x-dropdown-header>Miscellaneous</x-dropdown-header>
             <x-dropdown-item :href="route('game.index')">All Games</x-dropdown-item>
             {{--<x-dropdown-item href="popularGames.php">Most Played</x-dropdown-item>--}}
-            <x-dropdown-item :href="route('game.index', ['sort' => '-retroRatio'])">Hardest Games</x-dropdown-item>
+            <x-dropdown-item :href="route('game.index', ['sort' => 'beatRatio'])">Hardest Games</x-dropdown-item>
             <x-dropdown-item :href="route('game.request.index')">Most Requested</x-dropdown-item>
             <x-dropdown-item :href="route('claims.completed')">New Sets & Revisions</x-dropdown-item>
             <x-dropdown-item :href="route('claims.active')">Sets in Progress</x-dropdown-item>
@@ -90,17 +90,6 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             <x-dropdown-item :href="route('hub.show', ['gameSet' => 5])">Developer Events Hub</x-dropdown-item>
         </div>
     </div>
-</x-nav-dropdown>
-<x-nav-dropdown :title="__res('achievement')" class="z-20 sm:z-auto">
-    <x-slot name="trigger">
-        <x-fas-trophy/>
-        <span class="ml-1 hidden sm:inline-block">{{ __res('achievement') }}</span>
-    </x-slot>
-    <x-dropdown-item :href="url('achievementList.php')">All Achievements</x-dropdown-item>
-    <div class="dropdown-divider"></div>
-    {{--<x-dropdown-item :href="awardedList.php">Commonly Won Achievements</x-dropdown-item>--}}
-    <x-dropdown-item :href="url('achievementList.php?s=4&p=2')">Easy Achievements</x-dropdown-item>
-    <x-dropdown-item :href="url('achievementList.php?s=14&p=2')">Hardest Achievements</x-dropdown-item>
 </x-nav-dropdown>
 <x-nav-dropdown :title="__('Community')" class="z-20 sm:z-auto">
     <x-slot name="trigger">
