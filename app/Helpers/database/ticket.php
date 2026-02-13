@@ -147,16 +147,16 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
     $newTicket->state = TicketState::Open; // normalize to a proper enum value
 
-    // Quarantine a ticket when it's filed from a core with a restriction policy.
+    // Quarantine a ticket when it's filed from a core with a restriction.
     $latestSession = PlayerSession::where('user_id', $user->id)
         ->where('game_id', $achievement->game_id)
         ->latest()
         ->first();
     if ($latestSession?->user_agent) {
         $userAgentService = new UserAgentService();
-        $corePolicy = $userAgentService->getCorePolicyForUserAgent($latestSession->user_agent);
+        $coreRestriction = $userAgentService->getCoreRestrictionForUserAgent($latestSession->user_agent);
 
-        if ($corePolicy) {
+        if ($coreRestriction) {
             $newTicket->state = TicketState::Quarantined;
         }
     }

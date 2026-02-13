@@ -236,14 +236,6 @@ class Emulator extends BaseModel implements HasMedia
         return $this->hasMany(EmulatorUserAgent::class);
     }
 
-    /**
-     * @return HasMany<EmulatorCorePolicy, $this>
-     */
-    public function corePolicies(): HasMany
-    {
-        return $this->hasMany(EmulatorCorePolicy::class);
-    }
-
     // == scopes
 
     /**

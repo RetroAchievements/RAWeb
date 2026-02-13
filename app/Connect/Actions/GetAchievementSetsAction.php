@@ -8,6 +8,7 @@ use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
+use App\Models\EmulatorCoreRestriction;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -27,7 +28,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     protected ?string $gameHashMd5;
     protected ?bool $isPromoted;
     protected ClientSupportLevel $clientSupportLevel;
-    protected ?UserAgentService $userAgentService = null;
+    protected ?EmulatorCoreRestriction $coreRestriction = null;
 
     public function execute(User $user, int $gameId = 0, ?string $gameHash = null, ?bool $isPromoted = true): array
     {
@@ -52,15 +53,13 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $flag = request()->integer('f', 0);
         $this->isPromoted = Achievement::isPromotedFromLegacyFlags($flag);
 
-        $this->userAgentService = new UserAgentService();
-        $this->clientSupportLevel = $this->userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
-            // Core-specific blocks show warnings but still allow game loading.
-            // Only emulator-level blocks should fully reject the request.
-            $corePolicy = $this->userAgentService->getCorePolicyForUserAgent(request()->header('User-Agent'));
-            if (!$corePolicy) {
-                return $this->unsupportedClient();
-            }
+        $userAgentService = new UserAgentService();
+        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction(request()->header('User-Agent'));
+
+        // Core-specific blocks show warnings but still allow game loading.
+        // Only emulator-level blocks should fully reject the request.
+        if ($this->clientSupportLevel === ClientSupportLevel::Blocked && !$this->coreRestriction) {
+            return $this->unsupportedClient();
         }
 
         return null;
@@ -475,21 +474,19 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     private function injectClientSupportWarning(array &$response): void
     {
         if (!empty($response['Sets'])) {
-            // Core-specific policies use a different warning title and description
+            // Core-specific restrictions use a different warning title and description
             // than emulator-level warnings.
-            $corePolicy = $this->userAgentService?->getCorePolicyForUserAgent(request()->header('User-Agent'));
-
-            if ($corePolicy) {
+            if ($this->coreRestriction) {
                 $title = 'Warning: Unsupported Core';
 
-                // Warned cores still allow hardcore, so the description should
+                // Warned cores can still allow hardcore, so the description should
                 // mention compatibility issues rather than hardcore restrictions.
                 $description = $this->clientSupportLevel->allowsHardcoreUnlocks()
                     ? 'RetroAchievements has known compatibility issues with this core.'
                     : 'Hardcore unlocks cannot be earned using this core.';
 
-                if ($corePolicy->recommendation) {
-                    $description .= " {$corePolicy->recommendation}";
+                if ($this->coreRestriction->recommendation) {
+                    $description .= " {$this->coreRestriction->recommendation}";
                 }
             } else {
                 $title = match ($this->clientSupportLevel) {
@@ -521,17 +518,15 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     }
 
     /**
-     * When a core-specific policy blocks the client, replace all achievements
+     * When a core-specific restriction blocks the client, replace all achievements
      * with a single warning achievement and remove all leaderboards.
      */
     private function replaceWithBlockedCoreWarning(array &$response): void
     {
-        $corePolicy = $this->userAgentService?->getCorePolicyForUserAgent(request()->header('User-Agent'));
-
         $description = 'RetroAchievements is unavailable for this core.';
 
-        if ($corePolicy?->recommendation) {
-            $description .= " {$corePolicy->recommendation}";
+        if ($this->coreRestriction?->recommendation) {
+            $description .= " {$this->coreRestriction->recommendation}";
         }
 
         $warningAchievement = (new CreateWarningAchievementAction())->execute(

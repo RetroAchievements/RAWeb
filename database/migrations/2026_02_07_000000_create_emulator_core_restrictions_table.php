@@ -9,22 +9,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('emulator_core_policies', function (Blueprint $table) {
+        Schema::create('emulator_core_restrictions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('emulator_id');
-            $table->string('core_name', 80)->index();
+            $table->string('core_name', 80)->unique();
             $table->unsignedTinyInteger('support_level');
             $table->string('recommendation')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-
-            $table->foreign('emulator_id')->references('id')->on('emulators')->cascadeOnDelete();
-            $table->unique(['emulator_id', 'core_name']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('emulator_core_policies');
+        Schema::dropIfExists('emulator_core_restrictions');
     }
 };

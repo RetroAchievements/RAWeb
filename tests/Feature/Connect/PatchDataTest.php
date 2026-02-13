@@ -8,7 +8,7 @@ use App\Enums\ClientSupportLevel;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Emulator;
-use App\Models\EmulatorCorePolicy;
+use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -564,7 +564,7 @@ class PatchDataTest extends TestCase
             ]);
     }
 
-    public function testCorePolicyUserAgent(): void
+    public function testCoreRestrictionUserAgent(): void
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -597,16 +597,14 @@ class PatchDataTest extends TestCase
             'minimum_hardcore_version' => '1.10',
         ]);
         // dolphin is unsupported
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'dolphin', // !!
             'support_level' => ClientSupportLevel::Unsupported, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
         ]);
         // doublecherrygb is blocked
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
-            'core_name' => 'doublecherry', // !!
+        EmulatorCoreRestriction::create([
+            'core_name' => 'doublecherrygb', // !!
             'support_level' => ClientSupportLevel::Blocked, // !!
         ]);
 
@@ -633,8 +631,7 @@ class PatchDataTest extends TestCase
             ->assertJsonPath('PatchData.Achievements.0.Title', $achievement1->title);
 
         // warned cores get a warning but the description is recommendation-only
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'warnedcore',
             'support_level' => ClientSupportLevel::Warned,
             'recommendation' => 'Consider using core X instead.',

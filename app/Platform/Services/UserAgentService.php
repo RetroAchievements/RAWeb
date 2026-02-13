@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
-use App\Models\EmulatorCorePolicy;
+use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 
 class UserAgentService
 {
     public array $cache = [];
-
-    // Avoids a redundant DB query when getCorePolicyForUserAgent()
-    // is called immediately after getSupportLevel().
-    private ?EmulatorCorePolicy $lastResolvedCorePolicy = null;
 
     public function decode(string $userAgent): array
     {
@@ -310,19 +306,28 @@ class UserAgentService
 
     public function getSupportLevel(string|array|null $userAgent): ClientSupportLevel
     {
-        // Prevent stale data from a previous call from leaking into
-        // a subsequent getCorePolicyForUserAgent() call.
-        $this->lastResolvedCorePolicy = null;
+        [$supportLevel] = $this->getSupportLevelAndCoreRestriction($userAgent);
 
+        return $supportLevel;
+    }
+
+    /**
+     * Returns the support level and any matching core restriction for the user agent.
+     * Use this when you need both values to avoid a redundant DB query.
+     *
+     * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction}
+     */
+    public function getSupportLevelAndCoreRestriction(string|array|null $userAgent): array
+    {
         if (empty($userAgent) || $userAgent === '[not provided]') {
-            return ClientSupportLevel::Unknown;
+            return [ClientSupportLevel::Unknown, null];
         }
 
         $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
 
         $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
         if (!$emulatorUserAgent) {
-            return ClientSupportLevel::Unknown;
+            return [ClientSupportLevel::Unknown, null];
         }
 
         if ($emulatorUserAgent->minimum_allowed_version
@@ -333,10 +338,10 @@ class UserAgentService
              * special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
              */
             if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
-                return ClientSupportLevel::Outdated;
+                return [ClientSupportLevel::Outdated, null];
             }
 
-            return ClientSupportLevel::Blocked;
+            return [ClientSupportLevel::Blocked, null];
         }
 
         if ($emulatorUserAgent->minimum_hardcore_version) {
@@ -346,39 +351,34 @@ class UserAgentService
              * @see https://github.com/PCSX2/pcsx2/pull/13271
              */
             if (str_starts_with($userAgent, 'PCSX2 v2.4')) {
-                return ClientSupportLevel::Full;
+                return [ClientSupportLevel::Full, null];
             }
 
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
-                return ClientSupportLevel::Outdated;
+                return [ClientSupportLevel::Outdated, null];
             }
         } elseif (!$emulatorUserAgent->minimum_allowed_version && !$emulatorUserAgent->emulator->active) {
-            return ClientSupportLevel::Unsupported;
+            return [ClientSupportLevel::Unsupported, null];
         }
 
-        // Core-specific policies can override the emulator-level result.
+        // Core-specific restrictions can override the emulator-level result.
         $clientVariation = $data['clientVariation'] ?? null;
         if ($clientVariation) {
-            $this->lastResolvedCorePolicy = EmulatorCorePolicy::forCore($emulatorUserAgent->emulator_id, $clientVariation)->first();
+            $coreRestriction = EmulatorCoreRestriction::forCore($clientVariation)->first();
 
-            if ($this->lastResolvedCorePolicy) {
-                return $this->lastResolvedCorePolicy->support_level;
+            if ($coreRestriction) {
+                return [$coreRestriction->support_level, $coreRestriction];
             }
         }
 
-        return ClientSupportLevel::Full;
+        return [ClientSupportLevel::Full, null];
     }
 
     /**
-     * Returns the core policy that applies to a given user agent, if any.
-     * Prefer calling getSupportLevel() first to benefit from cached lookups.
+     * Returns the core restriction that applies to a given user agent, if any.
      */
-    public function getCorePolicyForUserAgent(string|array|null $userAgent): ?EmulatorCorePolicy
+    public function getCoreRestrictionForUserAgent(string|array|null $userAgent): ?EmulatorCoreRestriction
     {
-        if ($this->lastResolvedCorePolicy !== null) {
-            return $this->lastResolvedCorePolicy;
-        }
-
         if (empty($userAgent) || $userAgent === '[not provided]') {
             return null;
         }
@@ -390,11 +390,6 @@ class UserAgentService
             return null;
         }
 
-        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
-        if (!$emulatorUserAgent) {
-            return null;
-        }
-
-        return EmulatorCorePolicy::forCore($emulatorUserAgent->emulator_id, $clientVariation)->first();
+        return EmulatorCoreRestriction::forCore($clientVariation)->first();
     }
 }

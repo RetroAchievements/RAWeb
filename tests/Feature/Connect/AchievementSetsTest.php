@@ -9,7 +9,7 @@ use App\Enums\GameHashCompatibility;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Emulator;
-use App\Models\EmulatorCorePolicy;
+use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -1820,8 +1820,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'dolphin',
             'support_level' => ClientSupportLevel::Unsupported, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
@@ -1844,8 +1843,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'dolphin',
             'support_level' => ClientSupportLevel::Blocked, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
@@ -1871,9 +1869,8 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        // only dolphin is restricted, snes9x has no policy
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        // only dolphin is restricted, snes9x has no restriction
+        EmulatorCoreRestriction::create([
             'core_name' => 'dolphin',
             'support_level' => ClientSupportLevel::Blocked,
         ]);
@@ -1894,8 +1891,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'doublecherrygb',
             'support_level' => ClientSupportLevel::Unsupported,
         ]);
@@ -1907,7 +1903,7 @@ describe('User Agent', function () {
             ->assertJsonPath('Sets.0.Achievements.0.Description', 'Hardcore unlocks cannot be earned using this core.');
     });
 
-    test('core policy prefix matches longer core names', function () {
+    test('core restriction uses exact matching on core names', function () {
         $data = AchievementSetsTestHelpers::createSimpleGame();
         $game = $data['game'];
 
@@ -1918,17 +1914,16 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
 
-        // "doublecherry" should match "DoubleCherryGB" from the user agent
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
-            'core_name' => 'doublecherry',
+        // a restriction for snes9x should not match snes9x2010
+        EmulatorCoreRestriction::create([
+            'core_name' => 'snes9x',
             'support_level' => ClientSupportLevel::Unsupported,
         ]);
 
-        $this->withHeaders(['User-Agent' => 'RetroArch/1.17.0 (Android 9.0) DoubleCherryGB_libretro_android/v0.16.0_abb98f4'])
+        $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) snes9x2010_libretro/abc123'])
             ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
             ->assertStatus(200)
-            ->assertJsonPath('Sets.0.Achievements.0.Title', 'Warning: Unsupported Core');
+            ->assertJsonPath('Sets.0.Achievements.0.Title', $data['achievements'][0]->title);
     });
 
     test('retroarch with warned core receives warning with appended recommendation', function () {
@@ -1941,8 +1936,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'somecore',
             'support_level' => ClientSupportLevel::Warned,
             'recommendation' => 'Consider using a different core for best results.',
@@ -1966,8 +1960,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'somecore',
             'support_level' => ClientSupportLevel::Warned,
         ]);
@@ -1989,8 +1982,7 @@ describe('User Agent', function () {
             'client' => 'RetroArch',
             'minimum_hardcore_version' => '1.10',
         ]);
-        EmulatorCorePolicy::create([
-            'emulator_id' => $retroArch->id,
+        EmulatorCoreRestriction::create([
             'core_name' => 'somecore',
             'support_level' => ClientSupportLevel::Warned,
         ]);

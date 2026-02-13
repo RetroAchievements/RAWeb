@@ -2,35 +2,35 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\EmulatorResource\RelationManagers;
+namespace App\Filament\Resources;
 
 use App\Enums\ClientSupportLevel;
+use App\Filament\Extensions\Resources\Resource;
+use App\Filament\Resources\EmulatorCoreRestrictionResource\Pages;
+use App\Models\EmulatorCoreRestriction;
+use BackedEnum;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\CreateAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
-class EmulatorCorePoliciesRelationManager extends RelationManager
+class EmulatorCoreRestrictionResource extends Resource
 {
-    protected static string $relationship = 'corePolicies';
+    protected static ?string $model = EmulatorCoreRestriction::class;
 
-    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
-    {
-        return true;
-    }
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-exclamation';
+    protected static string|UnitEnum|null $navigationGroup = 'Releases';
+    protected static ?int $navigationSort = 25;
+    protected static ?string $navigationLabel = 'Core Restrictions';
+    protected static ?string $modelLabel = 'Core Restriction';
+    protected static ?string $pluralModelLabel = 'Core Restrictions';
 
-    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
-    {
-        return (string) $ownerRecord->corePolicies->count();
-    }
-
-    public function form(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
@@ -39,7 +39,7 @@ class EmulatorCorePoliciesRelationManager extends RelationManager
                     ->required()
                     ->maxLength(80)
                     ->placeholder('dolphin')
-                    ->helperText('Lowercase core identifier prefix as it appears before "_libretro" in user agent strings. This is a prefix match. "doublecherry" will also match "doublecherrygb".'),
+                    ->helperText('Lowercase core identifier as it appears before "_libretro" in user agent strings. This is an exact match.'),
 
                 Forms\Components\Select::make('support_level')
                     ->label('Support Level')
@@ -60,15 +60,13 @@ class EmulatorCorePoliciesRelationManager extends RelationManager
                 Forms\Components\Textarea::make('notes')
                     ->label('Notes')
                     ->rows(3)
-                    ->helperText('Internal staff notes about why this policy exists.'),
+                    ->helperText('Internal staff notes about why this restriction exists.'),
             ]);
     }
 
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('core_name')
-            ->description('Override support levels for specific emulator cores. Use this to block or restrict problematic cores from this emulator.')
             ->columns([
                 Tables\Columns\TextColumn::make('core_name')
                     ->label('Core Name')
@@ -104,16 +102,24 @@ class EmulatorCorePoliciesRelationManager extends RelationManager
                     ->label('Created at')
                     ->dateTime(),
             ])
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Add core policy')
-                    ->modalHeading('Add core policy'),
-            ])
+            ->defaultSort('core_name')
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([]),
             ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\Index::route('/'),
+            'create' => Pages\Create::route('/create'),
+            'edit' => Pages\Edit::route('/{record}/edit'),
+        ];
     }
 }
