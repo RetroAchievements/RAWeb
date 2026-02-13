@@ -29,6 +29,6 @@ const ReorderSiteAwards: AppPage = () => {
   );
 };
 
-ReorderSiteAwards.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+ReorderSiteAwards.layout = (page) => <AppLayout withSidebar={true}>{page}</AppLayout>;
 
 export default ReorderSiteAwards;
