@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\Rules\Unique;
 use UnitEnum;
 
 class GameResource extends Resource
@@ -240,6 +241,15 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
+                            ->unique(
+                                table: 'games',
+                                column: 'title',
+                                ignoreRecord: true,
+                                modifyRuleUsing: fn (Unique $rule, ?Game $record) => $rule->where('system_id', $record?->system_id),
+                            )
+                            ->validationMessages([
+                                'unique' => 'Another game on this system already has this title.',
+                            ])
                             ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
 
                         Forms\Components\TextInput::make('sort_title')
