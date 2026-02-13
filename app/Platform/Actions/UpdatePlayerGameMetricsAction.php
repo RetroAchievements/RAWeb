@@ -80,17 +80,6 @@ class UpdatePlayerGameMetricsAction
             ->get();
         $achievementsUnlockedHardcore = $achievementsUnlocked->filter(fn (Achievement $achievement) => $achievement->pivot->unlocked_hardcore_at !== null);
 
-        // ==========================
-        // legacy support until everything is migrated - core+subset metrics go into the all_ fields
-        $playerGame->all_achievements_total = count($achievementIds);
-        $playerGame->all_achievements_unlocked = $achievementsUnlocked->count();
-        $playerGame->all_achievements_unlocked_hardcore = $achievementsUnlockedHardcore->count();
-        $playerGame->all_points_total = Achievement::whereIn('id', $achievementIds)->sum('points');
-        $playerGame->all_points = $achievementsUnlocked->sum('points');
-        $playerGame->all_points_hardcore = $achievementsUnlockedHardcore->sum('points');
-        $playerGame->all_points_weighted = $achievementsUnlockedHardcore->sum('points_weighted');
-        // ==========================
-
         // process each set
         $playerAchievementSets = [];
         $possiblePlayerCountChangeGameIds = [];
