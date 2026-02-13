@@ -39,7 +39,7 @@ export function useColumnDefinitions(options: {
       buildPointsTotalColumnDef({ tableApiRouteName, t_label: t('Points') }),
       buildRetroRatioColumnDef({
         tableApiRouteName,
-        t_label: t('Rarity'),
+        t_label: t('RetroRatio'),
         strings: { t_none: t('none') },
       }),
       buildBeatRatioColumnDef({ t_label: t('Beat %') }),

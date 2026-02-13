@@ -6,7 +6,6 @@ namespace App\Console\Commands;
 
 use App\Platform\Services\UserLastActivityService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class FlushUserActivityToDatabase extends Command
 {
@@ -20,6 +19,5 @@ class FlushUserActivityToDatabase extends Command
         $message = "Flushed {$count} user activity records to database.";
 
         $this->info($message);
-        Log::debug($message);
     }
 }
