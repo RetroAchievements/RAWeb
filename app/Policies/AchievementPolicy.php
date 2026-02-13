@@ -182,7 +182,7 @@ class AchievementPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEV_COMPLIANCE,
+            Role::QUALITY_ASSURANCE,
         ]);
     }
 }

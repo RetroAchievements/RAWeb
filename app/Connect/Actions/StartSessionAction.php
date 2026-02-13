@@ -7,6 +7,7 @@ namespace App\Connect\Actions;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Connect\Support\CanBeDelegated;
 use App\Enums\ClientSupportLevel;
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -43,8 +44,17 @@ class StartSessionAction extends BaseAuthenticatedApiAction
 
         $gameId = request()->integer('g', 0);
         if (VirtualGameIdService::isVirtualGameId($gameId)) {
-            // don't create sessions for incompatible hashes
-            return $this->emptyResponse();
+            [$realGameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameId);
+            $isTester = GameHash::where('game_id', $realGameId)
+                ->where('compatibility', $compatibility)
+                ->where('compatibility_tester_id', $this->user->id)
+                ->exists();
+            if (!$isTester) {
+                // don't create sessions for incompatible hashes unless the player is the tester
+                return $this->emptyResponse();
+            }
+
+            $gameId = $realGameId;
         }
 
         $this->game = Game::find($gameId);
@@ -79,6 +89,12 @@ class StartSessionAction extends BaseAuthenticatedApiAction
         // resolved game ID.
         $resolvedSets = collect();
         if ($gameHash) {
+            if ($gameHash->compatibility !== GameHashCompatibility::Compatible
+                && $gameHash->compatibility_tester_id != $this->user->id) {
+                // don't create sessions for incompatible hashes unless the player is the tester
+                return $this->emptyResponse();
+            }
+
             $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $this->user);
 
             // Redirect the heartbeat to the root game.
