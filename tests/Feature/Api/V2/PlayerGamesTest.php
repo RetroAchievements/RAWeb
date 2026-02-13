@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use Tests\TestCase;
@@ -268,34 +271,6 @@ class PlayerGamesTest extends TestCase
         $this->assertEquals('Super Mario Bros.', $included[0]['attributes']['title']);
     }
 
-    public function testItCanIncludeUserRelationship(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $system = System::factory()->create();
-        $player = User::factory()->create(['display_name' => 'TestPlayer']);
-
-        $game = Game::factory()->create(['system_id' => $system->id]);
-        PlayerGame::factory()->create([
-            'user_id' => $player->id,
-            'game_id' => $game->id,
-            'last_played_at' => now(),
-        ]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('player-games')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/player-games?include=user");
-
-        // Assert
-        $response->assertSuccessful();
-        $included = $response->json('included');
-        $this->assertNotEmpty($included);
-        $this->assertEquals('users', $included[0]['type']);
-        $this->assertEquals('TestPlayer', $included[0]['attributes']['displayName']);
-    }
-
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
@@ -325,7 +300,7 @@ class PlayerGamesTest extends TestCase
         $this->assertEquals(60, $response->json('meta.page.total'));
     }
 
-    public function testItReturnsCorrectCoreAttributes(): void
+    public function testItCanIncludeAchievementSetsRelationship(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -333,17 +308,22 @@ class PlayerGamesTest extends TestCase
         $player = User::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
+        $coreSet = AchievementSet::factory()->create(['achievements_published' => 50, 'points_total' => 1000]);
+        $bonusSet = AchievementSet::factory()->create(['achievements_published' => 10, 'points_total' => 200]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $coreSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $bonusSet->id,
+            'type' => AchievementSetType::Bonus,
+            'title' => 'Bonus Challenges',
+        ]);
         PlayerGame::factory()->create([
             'user_id' => $player->id,
             'game_id' => $game->id,
-            'achievements_total' => 50,
-            'achievements_unlocked' => 30,
-            'achievements_unlocked_hardcore' => 25,
-            'achievements_unlocked_softcore' => 5,
-            'points_total' => 1000,
-            'points' => 600,
-            'points_hardcore' => 500,
-            'points_weighted' => 1200,
             'last_played_at' => now(),
         ]);
 
@@ -351,60 +331,19 @@ class PlayerGamesTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('player-games')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/player-games");
+            ->get("/api/v2/users/{$player->ulid}/player-games?include=achievementSets");
 
         // Assert
         $response->assertSuccessful();
-        $attributes = $response->json('data.0.attributes');
+        $included = $response->json('included');
+        $this->assertCount(2, $included);
 
-        $this->assertEquals(50, $attributes['coreAchievementsTotal']);
-        $this->assertEquals(30, $attributes['coreAchievementsUnlocked']);
-        $this->assertEquals(25, $attributes['coreAchievementsUnlockedHardcore']);
-        $this->assertEquals(5, $attributes['coreAchievementsUnlockedSoftcore']);
-        $this->assertEquals(1000, $attributes['corePointsTotal']);
-        $this->assertEquals(600, $attributes['corePoints']);
-        $this->assertEquals(500, $attributes['corePointsHardcore']);
-        $this->assertEquals(1200, $attributes['corePointsWeighted']);
-    }
+        $types = collect($included)->pluck('type')->unique()->toArray();
+        $this->assertEquals(['achievement-sets'], $types);
 
-    public function testItReturnsCorrectAllSetsAttributes(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $system = System::factory()->create();
-        $player = User::factory()->create();
-
-        $game = Game::factory()->create(['system_id' => $system->id]);
-        PlayerGame::factory()->create([
-            'user_id' => $player->id,
-            'game_id' => $game->id,
-            'all_achievements_total' => 75,
-            'all_achievements_unlocked' => 40,
-            'all_achievements_unlocked_hardcore' => 35,
-            'all_points_total' => 1500,
-            'all_points' => 800,
-            'all_points_hardcore' => 700,
-            'all_points_weighted' => 1800,
-            'last_played_at' => now(),
-        ]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('player-games')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/player-games");
-
-        // Assert
-        $response->assertSuccessful();
-        $attributes = $response->json('data.0.attributes');
-
-        $this->assertEquals(75, $attributes['achievementsTotal']);
-        $this->assertEquals(40, $attributes['achievementsUnlocked']);
-        $this->assertEquals(35, $attributes['achievementsUnlockedHardcore']);
-        $this->assertEquals(1500, $attributes['pointsTotal']);
-        $this->assertEquals(800, $attributes['points']);
-        $this->assertEquals(700, $attributes['pointsHardcore']);
-        $this->assertEquals(1800, $attributes['pointsWeighted']);
+        $ids = collect($included)->pluck('id')->toArray();
+        $this->assertContains((string) $coreSet->id, $ids);
+        $this->assertContains((string) $bonusSet->id, $ids);
     }
 
     public function testItReturnsMilestoneTimestamps(): void
@@ -420,8 +359,6 @@ class PlayerGamesTest extends TestCase
             'game_id' => $game->id,
             'beaten_at' => now()->subDays(5),
             'beaten_hardcore_at' => now()->subDays(4),
-            'completed_at' => now()->subDays(2),
-            'completed_hardcore_at' => now()->subDay(),
             'last_played_at' => now(),
         ]);
 
@@ -437,8 +374,6 @@ class PlayerGamesTest extends TestCase
 
         $this->assertNotNull($attributes['beatenAt']);
         $this->assertNotNull($attributes['beatenHardcoreAt']);
-        $this->assertNotNull($attributes['coreCompletedAt']);
-        $this->assertNotNull($attributes['coreCompletedHardcoreAt']);
     }
 
     public function testItDoesNotIncludeSelfLinks(): void

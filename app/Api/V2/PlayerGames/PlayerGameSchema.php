@@ -15,6 +15,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -61,29 +62,6 @@ class PlayerGameSchema extends Schema
         return [
             ID::make(),
 
-            // Core set fields (non-all columns).
-            Number::make('coreAchievementsTotal', 'achievements_total')->readOnly(),
-            Number::make('coreAchievementsUnlocked', 'achievements_unlocked')->readOnly(),
-            Number::make('coreAchievementsUnlockedHardcore', 'achievements_unlocked_hardcore')->readOnly(),
-            Number::make('coreAchievementsUnlockedSoftcore', 'achievements_unlocked_softcore')->readOnly(),
-            Number::make('corePointsTotal', 'points_total')->readOnly(),
-            Number::make('corePoints', 'points')->readOnly(),
-            Number::make('corePointsHardcore', 'points_hardcore')->readOnly(),
-            Number::make('corePointsWeighted', 'points_weighted')->readOnly(),
-
-            // All sets fields (all_* columns, exposed as unprefixed names).
-            Number::make('achievementsTotal', 'all_achievements_total')->readOnly(),
-            Number::make('achievementsUnlocked', 'all_achievements_unlocked')->readOnly(),
-            Number::make('achievementsUnlockedHardcore', 'all_achievements_unlocked_hardcore')->readOnly(),
-            Number::make('pointsTotal', 'all_points_total')->readOnly(),
-            Number::make('points', 'all_points')->readOnly(),
-            Number::make('pointsHardcore', 'all_points_hardcore')->readOnly(),
-            Number::make('pointsWeighted', 'all_points_weighted')->readOnly(),
-
-            // Completion.
-            Number::make('completionPercentage', 'completion_percentage')->readOnly(),
-            Number::make('completionPercentageHardcore', 'completion_percentage_hardcore')->readOnly(),
-
             // Timestamps.
             DateTime::make('lastPlayedAt', 'last_played_at')->sortable()->readOnly(),
             DateTime::make('firstUnlockAt', 'first_unlock_at')->readOnly(),
@@ -93,18 +71,15 @@ class PlayerGameSchema extends Schema
             // Milestones.
             DateTime::make('beatenAt', 'beaten_at')->readOnly(),
             DateTime::make('beatenHardcoreAt', 'beaten_hardcore_at')->readOnly(),
-            DateTime::make('coreCompletedAt', 'completed_at')->readOnly(),
-            DateTime::make('coreCompletedHardcoreAt', 'completed_hardcore_at')->readOnly(),
 
             // Time tracking.
             Number::make('playtimeTotal', 'playtime_total')->readOnly(),
             Number::make('timeToBeat', 'time_to_beat')->readOnly(),
             Number::make('timeToBeatHardcore', 'time_to_beat_hardcore')->readOnly(),
-            Number::make('timeTaken', 'time_taken')->readOnly(),
 
             // Relationships.
+            BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),
             BelongsTo::make('game')->readOnly(),
-            BelongsTo::make('user')->readOnly(),
         ];
     }
 

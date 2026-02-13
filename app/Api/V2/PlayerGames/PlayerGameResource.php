@@ -22,29 +22,6 @@ class PlayerGameResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
-            // Core set fields.
-            'coreAchievementsTotal' => $this->resource->achievements_total,
-            'coreAchievementsUnlocked' => $this->resource->achievements_unlocked,
-            'coreAchievementsUnlockedHardcore' => $this->resource->achievements_unlocked_hardcore,
-            'coreAchievementsUnlockedSoftcore' => $this->resource->achievements_unlocked_softcore,
-            'corePointsTotal' => $this->resource->points_total,
-            'corePoints' => $this->resource->points,
-            'corePointsHardcore' => $this->resource->points_hardcore,
-            'corePointsWeighted' => $this->resource->points_weighted,
-
-            // All sets fields.
-            'achievementsTotal' => $this->resource->all_achievements_total,
-            'achievementsUnlocked' => $this->resource->all_achievements_unlocked,
-            'achievementsUnlockedHardcore' => $this->resource->all_achievements_unlocked_hardcore,
-            'pointsTotal' => $this->resource->all_points_total,
-            'points' => $this->resource->all_points,
-            'pointsHardcore' => $this->resource->all_points_hardcore,
-            'pointsWeighted' => $this->resource->all_points_weighted,
-
-            // Completion.
-            'completionPercentage' => $this->resource->completion_percentage,
-            'completionPercentageHardcore' => $this->resource->completion_percentage_hardcore,
-
             // Timestamps.
             'lastPlayedAt' => $this->resource->last_played_at,
             'firstUnlockAt' => $this->resource->first_unlock_at,
@@ -54,14 +31,11 @@ class PlayerGameResource extends BaseJsonApiResource
             // Milestones.
             'beatenAt' => $this->resource->beaten_at,
             'beatenHardcoreAt' => $this->resource->beaten_hardcore_at,
-            'coreCompletedAt' => $this->resource->completed_at,
-            'coreCompletedHardcoreAt' => $this->resource->completed_hardcore_at,
 
             // Time tracking.
             'playtimeTotal' => $this->resource->playtime_total,
             'timeToBeat' => $this->resource->time_to_beat,
             'timeToBeatHardcore' => $this->resource->time_to_beat_hardcore,
-            'timeTaken' => $this->resource->time_taken,
         ];
     }
 
@@ -73,8 +47,8 @@ class PlayerGameResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
+            'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
             'game' => $this->relation('game')->withoutLinks(),
-            'user' => $this->relation('user')->withoutLinks(),
         ];
     }
 
