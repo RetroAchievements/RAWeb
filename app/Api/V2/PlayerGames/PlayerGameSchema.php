@@ -80,6 +80,9 @@ class PlayerGameSchema extends Schema
             // Relationships.
             BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),
             BelongsTo::make('game')->readOnly(),
+
+            // TODO add relationships
+            // - playerAchievementSets (HasMany PlayerAchievementSet) - per-set player progress
         ];
     }
 
