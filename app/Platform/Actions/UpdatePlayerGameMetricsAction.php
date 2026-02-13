@@ -159,13 +159,17 @@ class UpdatePlayerGameMetricsAction
             // ==========================
             // legacy support until everything is migrated - copy core metrics to the player_game base fields
             if ($achievementSet === $coreAchievementSet) {
+                // used by AllAchievementsUnlocked scope on PlayerGame record for suggested games list
                 $playerGame->achievements_total = count($setAchievementIds);
+                // exposed by BuildFollowedPlayerCompletionAction and used by UpdatePlayerMetricsAction
                 $playerGame->achievements_unlocked = $setAchievementsUnlocked->count();
                 $playerGame->achievements_unlocked_hardcore = $setAchievementsUnlockedHardcore->count();
-                $playerGame->achievements_unlocked_softcore = $playerGame->achievements_unlocked - $playerGame->achievements_unlocked_hardcore;
-                $playerGame->points_total = $achievementSet->achievements->sum('points');
                 $playerGame->points = $setAchievementsUnlocked->sum('points');
                 $playerGame->points_hardcore = $setAchievementsUnlockedHardcore->sum('points');
+                // exposed by BuildFollowedPlayerCompletionAction
+                $playerGame->achievements_unlocked_softcore = $playerGame->achievements_unlocked - $playerGame->achievements_unlocked_hardcore;
+                $playerGame->points_total = $achievementSet->achievements->sum('points');
+                // used by UpdatePlayerMetricsAction
                 $playerGame->points_weighted = $setAchievementsUnlockedHardcore->sum('points_weighted');
                 $playerGame->completion_percentage = $playerAchievementSet->completion_percentage;
                 $playerGame->completion_percentage_hardcore = $playerAchievementSet->completion_percentage_hardcore;
