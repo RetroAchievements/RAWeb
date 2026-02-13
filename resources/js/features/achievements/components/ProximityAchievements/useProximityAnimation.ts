@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import type { KeyboardEvent } from 'react';
 import { useLayoutEffect, useRef } from 'react';
 
-const VISIBLE_COUNT = 5;
+export const VISIBLE_COUNT = 5;
 
 // Vertical inset (in px) between the indicator bar and the item edges.
 const INDICATOR_INSET_PX = 8;

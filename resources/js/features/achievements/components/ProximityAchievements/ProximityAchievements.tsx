@@ -10,7 +10,7 @@ import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-import { useProximityAnimation } from './useProximityAnimation';
+import { useProximityAnimation, VISIBLE_COUNT } from './useProximityAnimation';
 
 export const ProximityAchievements: FC = () => {
   const {
@@ -56,12 +56,19 @@ export const ProximityAchievements: FC = () => {
 
   const viewAllHref = buildViewAllHref(achievement, backingGame, gameAchievementSet);
 
+  const ssrMaxHeight =
+    proximityAchievements.length > VISIBLE_COUNT ? `${54 * VISIBLE_COUNT + 8}px` : undefined;
+
   return (
     <div>
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('More from this set')}</h2>
 
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
-        <div ref={containerRef} className="overflow-hidden py-1">
+        <div
+          ref={containerRef}
+          className="overflow-hidden py-1"
+          style={{ maxHeight: ssrMaxHeight }}
+        >
           <ol ref={listRef} className="relative overflow-visible rounded-lg will-change-transform">
             <div
               ref={indicatorRef}
