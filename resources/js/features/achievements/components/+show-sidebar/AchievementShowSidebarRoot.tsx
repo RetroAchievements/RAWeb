@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 
 import { AchievementGamePanel } from '../AchievementGamePanel';
+import { ProximityAchievements } from '../ProximityAchievements';
 
 export const AchievementShowSidebarRoot: FC = () => {
   return (
@@ -15,8 +16,7 @@ export const AchievementShowSidebarRoot: FC = () => {
       {/* TODO guide references */}
       <p>{'AchievementGuideReferences'}</p>
 
-      {/* TODO more from this set */}
-      <p>{'ProximityAchievements'}</p>
+      <ProximityAchievements />
     </div>
   );
 };

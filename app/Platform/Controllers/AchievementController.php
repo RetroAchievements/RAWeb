@@ -22,6 +22,7 @@ use App\Platform\Data\GameData;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -45,6 +46,7 @@ class AchievementController extends Controller
         // ENDTODO
 
         $achievement->loadMissing([
+            'achievementSet',
             'game.system',
             'visibleComments' => function ($query) {
                 $query->notAutomated()
@@ -60,6 +62,8 @@ class AchievementController extends Controller
         $playerAchievement = PlayerAchievement::where('user_id', $user->id)
             ->where('achievement_id', $achievement->id)
             ->first();
+
+        [$proximityAchievements, $promotedAchievementCount] = $this->buildProximityAchievements($achievement, $user);
 
         $subscriptionService = new SubscriptionService();
 
@@ -96,9 +100,90 @@ class AchievementController extends Controller
             gameAchievementSet: $gameAchievementSet
                 ? GameAchievementSetData::from($gameAchievementSet)->include('type', 'title', 'achievementSet.imageAssetPathUrl')
                 : null,
+            proximityAchievements: $proximityAchievements,
+            promotedAchievementCount: $promotedAchievementCount,
         );
 
         return Inertia::render('achievement/[achievement]', $props);
+    }
+
+    /**
+     * @return array{0: ?AchievementData[], 1: int}
+     */
+    private function buildProximityAchievements(Achievement $achievement, ?User $user): array
+    {
+        $achievementSet = $achievement->achievementSet;
+        if (!$achievementSet) {
+            return [null, 0];
+        }
+
+        // Get just the IDs of promoted achievements in set order.
+        // We use DB::table() to avoid model bootstrapping overhead.
+        $promotedIds = DB::table('achievement_set_achievements')
+            ->join('achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
+            ->where('achievement_set_achievements.achievement_set_id', $achievementSet->id)
+            ->where('achievements.is_promoted', true)
+            ->orderBy('achievement_set_achievements.order_column')
+            ->orderBy('achievement_set_achievements.created_at')
+            ->pluck('achievement_set_achievements.achievement_id')
+            ->all();
+
+        $totalCount = count($promotedIds);
+        if ($totalCount === 0) {
+            return [null, 0];
+        }
+
+        $windowIds = $this->resolveProximityWindow($achievement->id, $promotedIds);
+
+        $achievements = Achievement::whereIn('id', $windowIds)->get()->keyBy('id');
+
+        $playerAchievements = $user
+            ? PlayerAchievement::where('user_id', $user->id)
+                ->whereIn('achievement_id', $windowIds)
+                ->get()
+                ->keyBy('achievement_id')
+            : collect();
+
+        $proximityAchievementDtos = array_map(function ($id) use ($achievements, $playerAchievements) {
+            $proximityAchievement = $achievements->get($id);
+            if (!$proximityAchievement) {
+                return null;
+            }
+
+            return AchievementData::fromAchievement($proximityAchievement, $playerAchievements[$id] ?? null)
+                ->include('points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
+        }, $windowIds);
+
+        return [array_values(array_filter($proximityAchievementDtos)), $totalCount];
+    }
+
+    /**
+     * Determine which slice of nearby achievements to show around the current achievement.
+     *
+     * @param int[] $promotedIds
+     * @return int[]
+     */
+    private function resolveProximityWindow(int $achievementId, array $promotedIds): array
+    {
+        $windowSize = 11;
+        $totalCount = count($promotedIds);
+
+        if ($totalCount <= $windowSize) {
+            return $promotedIds;
+        }
+
+        $currentIndex = array_search($achievementId, $promotedIds);
+
+        // If the current achievement isn't promoted, then show the first N promoted achievements.
+        if ($currentIndex === false) {
+            return array_slice($promotedIds, 0, $windowSize);
+        }
+
+        // As best as we can, center the current achievement in the window.
+        $halfWindow = intdiv($windowSize, 2);
+        $windowStart = max(0, min($currentIndex - $halfWindow, $totalCount - $windowSize));
+
+        return array_slice($promotedIds, $windowStart, $windowSize);
     }
 
     /**

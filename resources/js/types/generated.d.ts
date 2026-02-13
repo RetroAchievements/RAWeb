@@ -598,6 +598,7 @@ declare namespace App.Platform.Data {
     isPromoted?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
+    numUnresolvedTickets?: number;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
@@ -608,7 +609,6 @@ declare namespace App.Platform.Data {
     unlockPercentage?: string;
     unlocksHardcore?: number;
     unlocksTotal?: number;
-    numUnresolvedTickets?: number;
   };
   export type AchievementSetClaim = {
     id: number;
@@ -662,6 +662,8 @@ declare namespace App.Platform.Data {
     recentVisibleComments: Array<App.Community.Data.Comment>;
     backingGame: App.Platform.Data.Game | null;
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
+    proximityAchievements: Array<App.Platform.Data.Achievement> | null;
+    promotedAchievementCount: number;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
