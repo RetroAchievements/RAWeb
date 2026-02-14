@@ -115,10 +115,10 @@ class PlayerGame extends BasePivot
             (new PlayerAchievementSet())->newQuery(),
             $this,
             new GameAchievementSet(),
-            'game_id',            
-            'achievement_set_id', 
-            'game_id',            
-            'achievement_set_id'  
+            'game_id',
+            'achievement_set_id',
+            'game_id',
+            'achievement_set_id'
         );
     }
 
