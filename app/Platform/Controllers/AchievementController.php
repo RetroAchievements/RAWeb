@@ -65,7 +65,6 @@ class AchievementController extends Controller
 
         [$proximityAchievements, $promotedAchievementCount] = $this->buildProximityAchievements($achievement, $user);
 
-
         $subscriptionService = new SubscriptionService();
 
         $props = new AchievementShowPagePropsData(
@@ -198,7 +197,6 @@ class AchievementController extends Controller
         if (!$backingGame) {
             return [null, null];
         }
-
 
         $backingGame->loadMissing('system');
 
