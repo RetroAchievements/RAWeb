@@ -18,7 +18,7 @@ export function useBannerPreference() {
     const newValue = cycleOrder[nextIndex];
 
     setBannerPreference(newValue);
-    setCookieValue(newValue);
+    setCookieValue(newValue, { expires: 365 });
   };
 
   return { bannerPreference, cycleBannerPreference };

@@ -23,13 +23,12 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
       <BaseTooltipContent asChild>
         <span className="flex max-w-80 flex-col gap-1 text-wrap text-left text-xs">
           {/* Intentionally untranslated, this is a branding term */}
-          <span className="font-bold">{'RetroPoints'}</span>
+          <p className="font-bold">{'RetroPoints'}</p>
 
-          <span>
-            {t(
-              'A measurement of rarity and estimated difficulty. Derived from points, number of achievers, and number of players.',
-            )}
-          </span>
+          <div className="flex flex-col gap-2 whitespace-normal">
+            <p>{t('Points adjusted by achievement rarity.')}</p>
+            <p>{t('RetroPoints may fluctuate as rarity changes.')}</p>
+          </div>
         </span>
       </BaseTooltipContent>
     </BaseTooltip>

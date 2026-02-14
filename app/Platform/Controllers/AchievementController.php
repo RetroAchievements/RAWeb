@@ -79,7 +79,6 @@ class AchievementController extends Controller
                     'game.system.iconUrl',
                     'game.system.nameShort',
                     'modifiedAt',
-                    'numUnresolvedTickets',
                     'points',
                     'pointsWeighted',
                     'type',
@@ -88,6 +87,7 @@ class AchievementController extends Controller
                     'unlockPercentage',
                     'unlocksHardcore',
                     'unlocksTotal',
+                    'numUnresolvedTickets',
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)
                 ->include('createAchievementComments'),

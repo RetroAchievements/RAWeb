@@ -10,11 +10,13 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
+use App\Platform\Services\UserAgentService;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -88,20 +90,6 @@ function submitNewTicketsJSON(
     return $returnMsg;
 }
 
-function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore, string $note): int
-{
-    if (!$user->can('create', Ticket::class)) {
-        return 0;
-    }
-
-    $ticketID = getExistingTicketID($user, $achID);
-    if ($ticketID !== 0) {
-        return $ticketID;
-    }
-
-    return _createTicket($user, $achID, $reportType, $hardcore, $note);
-}
-
 function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
 {
     $maintainer = $achievement->getMaintainerAt(now());
@@ -157,11 +145,29 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
     expireUserTicketCounts($maintainer);
 
-    // achievement maintainer should be notified regardless of their subscription state
-    sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
+    $newTicket->state = TicketState::Open; // normalize to a proper enum value
 
-    // notify subscribers other than the achievement's author
-    sendInitialTicketEmailsToSubscribers($newTicket, $achievement->game, $achievement);
+    // Quarantine a ticket when it's filed from a core with a restriction.
+    $latestSession = PlayerSession::where('user_id', $user->id)
+        ->where('game_id', $achievement->game_id)
+        ->latest()
+        ->first();
+    if ($latestSession?->user_agent) {
+        $userAgentService = new UserAgentService();
+        $coreRestriction = $userAgentService->getCoreRestrictionForUserAgent($latestSession->user_agent);
+
+        if ($coreRestriction) {
+            $newTicket->state = TicketState::Quarantined;
+        }
+    }
+
+    $newTicket->save();
+
+    // Don't notify developers about quarantined tickets.
+    if ($newTicket->state !== TicketState::Quarantined) {
+        sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
+        sendInitialTicketEmailsToSubscribers($newTicket, $achievement->game, $achievement);
+    }
 
     return $newTicket->id;
 }
@@ -233,6 +239,8 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
         case TicketState::Open:
             if ($previousState === TicketState::Request) {
                 $comment = "Ticket reassigned to author by {$userModel->display_name}.";
+            } elseif ($previousState === TicketState::Quarantined) {
+                $comment = "Ticket approved by {$userModel->display_name}.";
             } else {
                 $comment = "Ticket reopened by {$userModel->display_name}.";
             }

@@ -41,7 +41,7 @@ export const AchievementShowRoot: FC = () => {
       <div className="flex flex-col gap-3">
         <AchievementHero />
 
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <AchievementGamePanel />
         </div>
 

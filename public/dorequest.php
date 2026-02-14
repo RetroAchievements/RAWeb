@@ -25,13 +25,13 @@ use App\Connect\Actions\StartSessionAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitLeaderboardAction;
+use App\Connect\Actions\SubmitLeaderboardEntryAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
-use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
@@ -64,6 +64,7 @@ $handler = match ($requestType) {
     'startsession' => new StartSessionAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
+    'submitlbentry' => new SubmitLeaderboardEntryAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
     'unlocks' => new GetPlayerGameUnlocksAction(),
     'uploadleaderboard' => new SubmitLeaderboardAction(),
@@ -146,7 +147,6 @@ $credentialsOK = match ($requestType) {
     "awardachievements",
     "richpresencepatch",
     "submitgametitle",
-    "submitlbentry",
     "submitrichpresence",
     "uploadachievement" => $validLogin && ($permissions >= Permissions::Registered),
     /*
@@ -279,7 +279,7 @@ switch ($requestType) {
             }
 
             // If client support is restricted, force the unlock to softcore
-            if ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+            if (!$clientSupportLevel->allowsHardcoreUnlocks() && $hardcore) {
                 $hardcore = 0;
             }
 
@@ -408,58 +408,6 @@ switch ($requestType) {
     case "richpresencepatch":
         $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);
         $response['RichPresencePatch'] = $richPresenceData;
-        break;
-
-    case "submitlbentry":
-        $lbID = (int) request()->input('i', 0);
-        $score = (int) request()->input('s', 0);
-        $validationHash = request()->input('v');
-        $gameHashMd5 = request()->input('m');
-
-        $userAgentService = new UserAgentService();
-        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
-            $response = [
-                'Status' => 403,
-                'Success' => false,
-                'Error' => 'This emulator is not supported',
-            ];
-            break;
-        }
-
-        // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
-        $maxOffset = 14 * 24 * 60 * 60; // 14 days
-        $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
-
-        $foundLeaderboard = Leaderboard::where('id', $lbID)->first();
-        if (!$foundLeaderboard) {
-            $response['Success'] = false;
-            $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
-
-            break;
-        }
-
-        if (
-            $offset > 0
-            && strcasecmp(
-                $validationHash,
-                $foundLeaderboard->submitValidationHash($user, $score, $offset)
-            ) !== 0
-        ) {
-            $offset = 0;
-        }
-
-        $gameHash = null;
-        if ($gameHashMd5) {
-            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-        }
-
-        // TODO dispatch job or event/listener using an action
-        $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset), $clientSupportLevel);
-        $response['Success'] = $response['Response']['Success']; // Passthru
-        if (!$response['Success']) {
-            $response['Error'] = $response['Response']['Error'];
-        }
         break;
 
     case "submitticket":

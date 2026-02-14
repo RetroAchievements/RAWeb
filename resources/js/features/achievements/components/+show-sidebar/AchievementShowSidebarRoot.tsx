@@ -6,7 +6,10 @@ import { AchievementMetaDetails } from '../AchievementMetaDetails';
 export const AchievementShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
-      <AchievementGamePanel />
+      <div className="hidden lg:block">
+        <AchievementGamePanel />
+      </div>
+
       <AchievementMetaDetails />
 
       {/* TODO guide references */}

@@ -40,14 +40,14 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
       { total: 4, unfilteredTotal: 4, currentPage: 1, lastPage: 1, perPage: 20 },
     ),
 
-    trendingGames: [
+    trendingGameSnapshots: [
       createGameActivitySnapshot(),
       createGameActivitySnapshot(),
       createGameActivitySnapshot(),
       createGameActivitySnapshot(),
     ],
 
-    popularGames: [
+    popularGameSnapshots: [
       createGameActivitySnapshot(),
       createGameActivitySnapshot(),
       createGameActivitySnapshot(),

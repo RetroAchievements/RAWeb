@@ -132,78 +132,54 @@ class UpdateAchievementMetricsAction
     }
 
     /**
-     * In Horizon, each write requires an entire network round trip to the DB.
-     * If there are hundreds of achievements to update, and each achievement
-     * round trip takes 1-5ms, this could add up to additional second(s) of
-     * processing time in the job just from pure network overhead. To mitigate
-     * this, we'll do a single bulk update.
+     * Bulk update achievements using CASE statements to minimize network round trips.
+     *
+     * Uses READ COMMITTED isolation to prevent gap lock deadlocks. The default
+     * REPEATABLE READ acquires gap locks on WHERE IN clauses, which deadlock when
+     * concurrent jobs update non-overlapping achievement ID ranges. READ COMMITTED
+     * only locks the exact rows being updated, eliminating this class of deadlock.
+     *
+     * This is safe because the transaction contains a single UPDATE with pre-computed
+     * values, so we don't need the REPEATABLE READ feature's consistent snapshot guarantees.
+     *
+     * @see https://mariadb.com/kb/en/innodb-lock-modes/ "Gap locks are disabled if ... the isolation level is set to READ COMMITTED."
+     * @see https://mariadb.com/kb/en/set-transaction/ Without GLOBAL/SESSION keyword, scopes to the next transaction only.
      */
     private function performBulkUpdate(array $bulkUpdates): void
     {
-        // Build a bulk UPDATE query using CASE statements to update all achievements in a single DB statement.
-
-        /*
-         * The final query will look like this:
-         *
-         * UPDATE achievements
-         * SET
-         *   unlocks_total = CASE id
-         *     WHEN X THEN Y
-         *   END,
-         *   unlocks_hardcore = CASE id
-         *     WHEN X THEN Y
-         *   END,
-         *   unlock_percentage = CASE id
-         *     WHEN X THEN Y
-         *   END,
-         *   unlock_hardcore_percentage = CASE id
-         *     WHEN X THEN Y
-         *   END,
-         *   points_weighted = CASE id
-         *     WHEN X THEN Y
-         *   END,
-         *   Updated = '...'
-         * WHERE id IN ( ... )
-         */
-
-        // Sort updates by ID to ensure consistent lock ordering across concurrent jobs.
-        // This helps prevent deadlocks when multiple jobs update overlapping row sets.
         usort($bulkUpdates, fn ($a, $b) => $a['id'] <=> $b['id']);
 
-        $ids = array_column($bulkUpdates, 'id');
-        $cases = [
-            'unlocks_total' => 'CASE id',
-            'unlocks_hardcore' => 'CASE id',
-            'unlock_percentage' => 'CASE id',
-            'unlock_hardcore_percentage' => 'CASE id',
-            'points_weighted' => 'CASE id',
+        $columns = [
+            'unlocks_total',
+            'unlocks_hardcore',
+            'unlock_percentage',
+            'unlock_hardcore_percentage',
+            'points_weighted',
         ];
 
-        foreach ($bulkUpdates as $update) {
-            $cases['unlocks_total'] .= " WHEN {$update['id']} THEN {$update['unlocks_total']}";
-            $cases['unlocks_hardcore'] .= " WHEN {$update['id']} THEN {$update['unlocks_hardcore']}";
-            $cases['unlock_percentage'] .= " WHEN {$update['id']} THEN {$update['unlock_percentage']}";
-            $cases['unlock_hardcore_percentage'] .= " WHEN {$update['id']} THEN {$update['unlock_hardcore_percentage']}";
-            $cases['points_weighted'] .= " WHEN {$update['id']} THEN {$update['points_weighted']}";
+        // Build a CASE expression for each column so all rows update in a single statement.
+        $cases = [];
+        foreach ($columns as $column) {
+            $whens = implode(' ', array_map(
+                fn ($row) => "WHEN {$row['id']} THEN {$row[$column]}",
+                $bulkUpdates,
+            ));
+            $cases[$column] = DB::raw("CASE id {$whens} END");
         }
 
-        foreach ($cases as &$case) {
-            $case .= ' END';
+        $cases['updated_at'] = now();
+
+        // Scoped to the next transaction only. Does not affect other queries on this connection.
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
         }
 
-        $maxRetries = 3;
+        $ids = array_column($bulkUpdates, 'id');
 
         DB::transaction(function () use ($ids, $cases) {
-            DB::table('achievements') // bypass model events
+            DB::table('achievements')
                 ->whereIn('id', $ids)
-                ->update([
-                    'unlocks_total' => DB::raw($cases['unlocks_total']),
-                    'unlocks_hardcore' => DB::raw($cases['unlocks_hardcore']),
-                    'unlock_percentage' => DB::raw($cases['unlock_percentage']),
-                    'unlock_hardcore_percentage' => DB::raw($cases['unlock_hardcore_percentage']),
-                    'points_weighted' => DB::raw($cases['points_weighted']),
-                    'updated_at' => now(),
-                ]);
-        }, $maxRetries);
+                ->update($cases);
+        });
     }
 }
