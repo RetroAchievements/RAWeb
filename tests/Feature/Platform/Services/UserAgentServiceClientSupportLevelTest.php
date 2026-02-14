@@ -6,6 +6,7 @@ namespace Tests\Feature\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
 use App\Models\Emulator;
+use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -174,5 +175,86 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals(ClientSupportLevel::Full,
             $userAgentService->getSupportLevel('NewUserAgent/2.5'));
+    }
+
+    public function testCoreRestrictionSupportLevel(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        // set up RetroArch as an active, fully-supported emulator
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+
+        // create a core restriction that blocks the "dolphin_libretro" core
+        EmulatorCoreRestriction::create([
+            'core_name' => 'dolphin_libretro',
+            'support_level' => ClientSupportLevel::Blocked,
+            'notes' => 'accuracy issues',
+        ]);
+
+        EmulatorCoreRestriction::create([
+            'core_name' => 'doublecherrygb_libretro',
+            'support_level' => ClientSupportLevel::Unsupported,
+            'recommendation' => 'We recommend using the gambatte core instead.',
+            'notes' => 'accuracy issues',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'));
+
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) snes9x_libretro/abc123'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) mgba_libretro/0.10.0'));
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2'));
+
+        $this->assertEquals(ClientSupportLevel::Outdated,
+            $userAgentService->getSupportLevel('RetroArch/1.8.0 (Linux) snes9x_libretro/abc123'));
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('dolphin_libretro', $restriction->core_name);
+        $this->assertEquals(ClientSupportLevel::Blocked, $restriction->support_level);
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) snes9x_libretro/abc123');
+        $this->assertNull($restriction);
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2');
+        $this->assertNull($restriction);
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('doublecherrygb_libretro', $restriction->core_name);
+        $this->assertEquals('We recommend using the gambatte core instead.', $restriction->recommendation);
+
+        // doesn't match
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) doublecherry_libretro/abc123'));
+
+        EmulatorCoreRestriction::create([
+            'core_name' => 'somecore_libretro',
+            'support_level' => ClientSupportLevel::Warned,
+            'recommendation' => 'Consider using a different core for best results.',
+            'notes' => 'accuracy issues',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::Warned,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) somecore_libretro/abc123'));
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) somecore_libretro/abc123');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('somecore_libretro', $restriction->core_name);
+        $this->assertEquals(ClientSupportLevel::Warned, $restriction->support_level);
+        $this->assertEquals('Consider using a different core for best results.', $restriction->recommendation);
     }
 }

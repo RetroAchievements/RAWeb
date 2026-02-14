@@ -118,7 +118,7 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
             ->first();
 
         if ($existingLeaderboardEntry) {
-            if ($this->clientSupportLevel !== ClientSupportLevel::Full) {
+            if (!$this->clientSupportLevel->allowsHardcoreUnlocks()) {
                 $bestScore = $existingLeaderboardEntry->score;
             } elseif ($existingLeaderboardEntry->trashed()
                 || $this->leaderboard->isBetterScore($this->score, $existingLeaderboardEntry->score)) {
@@ -139,7 +139,7 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
                 // No change made.
                 $bestScore = $existingLeaderboardEntry->score;
             }
-        } elseif ($this->clientSupportLevel !== ClientSupportLevel::Full) {
+        } elseif (!$this->clientSupportLevel->allowsHardcoreUnlocks()) {
             $bestScore = 0;
         } else {
             // No existing leaderboard entry. Let's insert a new one, using

@@ -240,7 +240,7 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
-  export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
   export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type TrendingReason =
     | 'new-set'
@@ -484,7 +484,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
   export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
   export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
   export type PlayerGameActivitySessionType =
