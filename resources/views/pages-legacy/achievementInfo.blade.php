@@ -221,7 +221,7 @@ if ($game->system->id === System::Events) {
                 echo "<i>No open tickets</i>";
             }
             if ($userModel?->can('create', Ticket::class)) {
-                echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
+                echo "<a class='btn btn-link' href='" . route('achievement.report-issue', ['achievement' => $achievementID]) ."'>Report an issue</a>";
             }
             echo "</div>";
         }

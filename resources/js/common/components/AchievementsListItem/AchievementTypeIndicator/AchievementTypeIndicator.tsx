@@ -15,11 +15,18 @@ interface AchievementTypeIndicatorProps {
 
   /** This element should be wrapped by <BaseDialogContent />. */
   dialogContent?: ReactNode;
+
+  /** When true, renders the label text to the right of the icon. */
+  showLabel?: boolean;
+
+  wrapperClassName?: string;
 }
 
 export const AchievementTypeIndicator: FC<AchievementTypeIndicatorProps> = ({
   dialogContent,
   type,
+  wrapperClassName,
+  showLabel = false,
 }) => {
   const { t } = useTranslation();
 
@@ -38,7 +45,13 @@ export const AchievementTypeIndicator: FC<AchievementTypeIndicatorProps> = ({
     return (
       <BaseDialog>
         <BaseDialogTrigger>
-          <Indicator type={type} icon={icon} label={label} />
+          <Indicator
+            type={type}
+            icon={icon}
+            label={label}
+            showLabel={showLabel}
+            wrapperClassName={wrapperClassName}
+          />
         </BaseDialogTrigger>
 
         {dialogContent}
@@ -46,31 +59,54 @@ export const AchievementTypeIndicator: FC<AchievementTypeIndicatorProps> = ({
     );
   }
 
-  return <Indicator type={type} icon={icon} label={label} />;
+  return (
+    <Indicator
+      type={type}
+      icon={icon}
+      label={label}
+      showLabel={showLabel}
+      wrapperClassName={wrapperClassName}
+    />
+  );
 };
 
 interface IndicatorProps {
   icon: ReactNode;
   label: TranslatedString;
+  showLabel: boolean;
   type: AchievementTypeIndicatorProps['type'];
+
+  wrapperClassName?: string;
 }
 
-const Indicator: FC<IndicatorProps> = ({ type, icon, label }) => {
+const Indicator: FC<IndicatorProps> = ({ type, icon, label, showLabel, wrapperClassName }) => {
+  const content = (
+    <div
+      data-testid={`type-${type}`}
+      className={cn(
+        'type-ind group',
+
+        type === 'progression' || type === 'win_condition' ? 'cursor-pointer' : null,
+        type === 'missable' ? 'border-dashed border-stone-500' : 'border-transparent',
+
+        showLabel && 'flex items-center gap-1',
+
+        wrapperClassName,
+      )}
+    >
+      <div aria-label={label}>{icon}</div>
+
+      {showLabel ? <span>{label}</span> : null}
+    </div>
+  );
+
+  if (showLabel) {
+    return content;
+  }
+
   return (
     <BaseTooltip>
-      <BaseTooltipTrigger asChild>
-        <div
-          data-testid={`type-${type}`}
-          className={cn(
-            'type-ind group',
-
-            type === 'progression' || type === 'win_condition' ? 'cursor-pointer' : null,
-            type === 'missable' ? 'border-dashed border-stone-500' : 'border-transparent',
-          )}
-        >
-          <div aria-label={label}>{icon}</div>
-        </div>
-      </BaseTooltipTrigger>
+      <BaseTooltipTrigger asChild>{content}</BaseTooltipTrigger>
 
       <BaseTooltipContent>{label}</BaseTooltipContent>
     </BaseTooltip>

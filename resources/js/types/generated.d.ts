@@ -449,6 +449,7 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
+    createAchievementComments?: boolean;
     createAchievementSetClaims?: boolean;
     createForumTopicComments?: boolean;
     createGameComments?: boolean;
@@ -608,6 +609,7 @@ declare namespace App.Platform.Data {
     unlockPercentage?: string;
     unlocksHardcore?: number;
     unlocksTotal?: number;
+    numUnresolvedTickets?: number;
   };
   export type AchievementSetClaim = {
     id: number;
@@ -652,6 +654,15 @@ declare namespace App.Platform.Data {
     orderColumn: number;
     achievementCount: number;
     badgeUrl: string | null;
+  };
+  export type AchievementShowPageProps = {
+    achievement: App.Platform.Data.Achievement;
+    can: App.Data.UserPermissions;
+    isSubscribedToComments: boolean;
+    numComments: number;
+    recentVisibleComments: Array<App.Community.Data.Comment>;
+    backingGame: App.Platform.Data.Game | null;
+    gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;

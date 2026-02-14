@@ -39,7 +39,7 @@ class ReportAchievementIssueControllerTest extends TestCase
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
 
         // Act
-        $response = $this->get(route('achievement.report-issue.index', ['achievement' => $achievement->id]));
+        $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
