@@ -48,7 +48,7 @@ export function useColumnDefinitions(options: {
       buildRetroRatioColumnDef({
         tableApiRouteName,
         tableApiRouteParams,
-        t_label: t('Rarity'),
+        t_label: t('RetroRatio'),
         strings: { t_none: t('none') },
       }),
       buildBeatRatioColumnDef({ t_label: t('Beat %') }),
