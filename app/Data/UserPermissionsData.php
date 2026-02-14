@@ -11,6 +11,7 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Policies\AchievementCommentPolicy;
 use App\Policies\GameCommentPolicy;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -21,6 +22,7 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
+        public Lazy|bool $createAchievementComments,
         public Lazy|bool $createAchievementSetClaims,
         public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameComments,
@@ -67,6 +69,10 @@ class UserPermissionsData extends Data
         return new self(
             authorizeForumTopicComments: Lazy::create(fn () => $user
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
+                : false
+            ),
+            createAchievementComments: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? (new AchievementCommentPolicy())->create($user, $triggerable)
                 : false
             ),
             createAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('create', [AchievementSetClaim::class, $game]) : false),

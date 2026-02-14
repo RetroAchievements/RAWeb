@@ -6,6 +6,7 @@ namespace App\Platform\Enums;
 
 enum AchievementSetType: string
 {
+    // TODO rename to Base, "base"
     case Core = "core";
 
     /**

@@ -63,6 +63,25 @@ describe('Component: AchievementTypeIndicator', () => {
     });
   });
 
+  it('given showLabel is true, renders the label text next to the icon', () => {
+    // ARRANGE
+    render(<AchievementTypeIndicator type="missable" showLabel={true} />);
+
+    // ASSERT
+    expect(screen.getByText(/missable/i)).toBeVisible();
+  });
+
+  it('given showLabel is true, does not render a tooltip on hover', async () => {
+    // ARRANGE
+    render(<AchievementTypeIndicator type="missable" showLabel={true} />);
+
+    // ACT
+    await userEvent.hover(screen.getByLabelText(/missable/i));
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   it('can mount the beaten game credit dialog for win_condition types', async () => {
     // ARRANGE
     render(<AchievementTypeIndicator type="win_condition" dialogContent={<p>content</p>} />);

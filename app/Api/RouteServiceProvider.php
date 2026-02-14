@@ -136,7 +136,10 @@ class RouteServiceProvider extends ServiceProvider
 
                             $server->resource('users', UserController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('playerGames')->readOnly();
+                                });
                         });
                 });
 

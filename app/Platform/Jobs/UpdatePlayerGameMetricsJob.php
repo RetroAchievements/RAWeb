@@ -85,7 +85,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
         // batch job and the player has never unlocked any achievements. To confirm, we need to
         // check for actual unlocks, not just the denormalized counts, because unofficial
         // achievements don't count towards achievements_unlocked until they're promoted.
-        if ($isBatched && $playerGame->achievements_unlocked === 0 && $playerGame->all_achievements_unlocked === 0) {
+        if ($isBatched && $playerGame->achievements_unlocked === 0) {
             // Double-check if the player has ANY unlocks for this game (including unofficial).
             // If they do have any unlocks, we'll run a full metrics update.
             $hasAnyUnlocks = $playerGame->user->playerAchievements()
