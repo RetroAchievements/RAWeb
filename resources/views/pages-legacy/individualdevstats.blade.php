@@ -566,7 +566,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "<tr><td>Average Achievement Points:</td><td>" . number_format($averagePoints, 2, '.', '') . "</td></tr>";
 
         // Average achievement retro points and retro ratio
-        echo "<tr><td>Average Achievement Retro Points (Average Retro Ratio):</td><td>" . number_format($averageTruePoints, 2, '.', '') . " (" . number_format($averageTruePoints / $averagePoints, 2, '.', '') . ")</td></tr>";
+        echo "<tr><td>Average Achievement RetroPoints (Average RetroRatio):</td><td>" . number_format($averageTruePoints, 2, '.', '') . " (" . number_format($averageTruePoints / $averagePoints, 2, '.', '') . ")</td></tr>";
 
         // Average achievement memory length
         echo "<tr><td>Average Achievement Memory Length:</td><td>" . number_format($averageMemLength, 2, '.', '') . "</td></tr>";
@@ -630,12 +630,12 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "</td></tr>";
 
         // Easiest achievement by retro ratio
-        echo "<tr><td>Easiest Achievement by Retro Ratio:</td><td>" . number_format($easiestAchievement['TrueRatio'] / $easiestAchievement['Points'], 2, '.', '') . " - ";
+        echo "<tr><td>Easiest Achievement by RetroRatio:</td><td>" . number_format($easiestAchievement['TrueRatio'] / $easiestAchievement['Points'], 2, '.', '') . " - ";
         echo achievementAvatar($easiestAchievement);
         echo "</td></tr>";
 
         // Hardest achievement by retro ratio
-        echo "<tr><td>Hardest Achievement by Retro Ratio:</td><td>" . number_format($hardestAchievement['TrueRatio'] / $hardestAchievement['Points'], 2, '.', '') . " - ";
+        echo "<tr><td>Hardest Achievement by RetroRatio:</td><td>" . number_format($hardestAchievement['TrueRatio'] / $hardestAchievement['Points'], 2, '.', '') . " - ";
         echo achievementAvatar($hardestAchievement);
         echo "</td></tr>";
 

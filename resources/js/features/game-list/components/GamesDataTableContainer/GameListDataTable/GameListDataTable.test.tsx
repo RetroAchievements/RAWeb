@@ -126,7 +126,7 @@ describe('Component: GameListDataTable', () => {
           columns={[
             buildTitleColumnDef({ t_label: i18n.t('Title') }),
             buildRetroRatioColumnDef({
-              t_label: i18n.t('Rarity'),
+              t_label: i18n.t('RetroRatio'),
               strings: { t_none: i18n.t('none') },
             }),
           ]}
@@ -139,7 +139,7 @@ describe('Component: GameListDataTable', () => {
       expect(screen.getByText(/×0.00/i)).toBeVisible();
     });
 
-    it("given the game list entry's game has a truthy weighted points value, correctly calculates the Rarity", () => {
+    it("given the game list entry's game has a truthy weighted points value, correctly calculates the RetroRatio", () => {
       // ARRANGE
       const game = createGame({
         title: 'Sonic the Hedgehog',
@@ -153,7 +153,7 @@ describe('Component: GameListDataTable', () => {
           columns={[
             buildTitleColumnDef({ t_label: i18n.t('Title') }),
             buildRetroRatioColumnDef({
-              t_label: i18n.t('Rarity'),
+              t_label: i18n.t('RetroRatio'),
               strings: { t_none: i18n.t('none') },
             }),
           ]}
@@ -180,7 +180,7 @@ describe('Component: GameListDataTable', () => {
           columns={[
             buildTitleColumnDef({ t_label: i18n.t('Title') }),
             buildRetroRatioColumnDef({
-              t_label: i18n.t('Rarity'),
+              t_label: i18n.t('RetroRatio'),
               strings: { t_none: i18n.t('none') },
             }),
           ]}
