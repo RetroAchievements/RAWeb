@@ -362,9 +362,9 @@ class UserAgentService
         }
 
         // Core-specific restrictions can override the emulator-level result.
-        $clientVariation = $data['clientVariation'] ?? null;
-        if ($clientVariation) {
-            $coreRestriction = EmulatorCoreRestriction::forCore($clientVariation)->first();
+        $coreIdentifier = $this->extractCoreIdentifier($data);
+        if ($coreIdentifier) {
+            $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
 
             if ($coreRestriction) {
                 return [$coreRestriction->support_level, $coreRestriction];
@@ -379,17 +379,24 @@ class UserAgentService
      */
     public function getCoreRestrictionForUserAgent(string|array|null $userAgent): ?EmulatorCoreRestriction
     {
-        if (empty($userAgent) || $userAgent === '[not provided]') {
-            return null;
+        [, $coreRestriction] = $this->getSupportLevelAndCoreRestriction($userAgent);
+
+        return $coreRestriction;
+    }
+
+    /**
+     * Extracts the full core identifier (eg: "dolphin_libretro") from decoded
+     * user agent data. This preserves the suffix so restrictions can distinguish
+     * between different client variants of the same core.
+     */
+    private function extractCoreIdentifier(array $data): ?string
+    {
+        foreach (array_keys($data['extra'] ?? []) as $key) {
+            if (str_contains($key, '_libretro') || str_contains($key, '.libretro')) {
+                return $key;
+            }
         }
 
-        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
-
-        $clientVariation = $data['clientVariation'] ?? null;
-        if (!$clientVariation) {
-            return null;
-        }
-
-        return EmulatorCoreRestriction::forCore($clientVariation)->first();
+        return null;
     }
 }

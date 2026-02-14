@@ -598,14 +598,16 @@ class PatchDataTest extends TestCase
         ]);
         // dolphin is unsupported
         EmulatorCoreRestriction::create([
-            'core_name' => 'dolphin', // !!
+            'core_name' => 'dolphin_libretro', // !!
             'support_level' => ClientSupportLevel::Unsupported, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
+            'notes' => 'accuracy issues',
         ]);
         // doublecherrygb is blocked
         EmulatorCoreRestriction::create([
-            'core_name' => 'doublecherrygb', // !!
+            'core_name' => 'doublecherrygb_libretro', // !!
             'support_level' => ClientSupportLevel::Blocked, // !!
+            'notes' => 'accuracy issues',
         ]);
 
         // retroarch with an unsupported core receives a warning achievement
@@ -632,9 +634,10 @@ class PatchDataTest extends TestCase
 
         // warned cores get a warning but the description is recommendation-only
         EmulatorCoreRestriction::create([
-            'core_name' => 'warnedcore',
+            'core_name' => 'warnedcore_libretro',
             'support_level' => ClientSupportLevel::Warned,
             'recommendation' => 'Consider using core X instead.',
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) warnedcore_libretro/abc123'])

@@ -356,7 +356,7 @@ $commentData = [];
                     </script>
                 @else
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
-                    <button class='btn'>Reopen this ticket</button>
+                    <button class='btn'>{{ $ticket->state === TicketState::Quarantined ? 'Approve this ticket' : 'Reopen this ticket' }}</button>
                 @endif
             @elseif ($user->id === $ticket->reporter->id)
                 @if ($ticket->state->isOpen())

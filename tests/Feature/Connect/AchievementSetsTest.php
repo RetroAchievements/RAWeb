@@ -1821,9 +1821,10 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'dolphin',
+            'core_name' => 'dolphin_libretro',
             'support_level' => ClientSupportLevel::Unsupported, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'])
@@ -1844,9 +1845,10 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'dolphin',
+            'core_name' => 'dolphin_libretro',
             'support_level' => ClientSupportLevel::Blocked, // !!
             'recommendation' => 'We recommend using standalone Dolphin instead.',
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'])
@@ -1871,8 +1873,9 @@ describe('User Agent', function () {
         ]);
         // only dolphin is restricted, snes9x has no restriction
         EmulatorCoreRestriction::create([
-            'core_name' => 'dolphin',
+            'core_name' => 'dolphin_libretro',
             'support_level' => ClientSupportLevel::Blocked,
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) snes9x_libretro/abc123'])
@@ -1892,8 +1895,9 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'doublecherrygb',
+            'core_name' => 'doublecherrygb_libretro',
             'support_level' => ClientSupportLevel::Unsupported,
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) doublecherrygb_libretro/abc123'])
@@ -1916,8 +1920,9 @@ describe('User Agent', function () {
 
         // a restriction for snes9x should not match snes9x2010
         EmulatorCoreRestriction::create([
-            'core_name' => 'snes9x',
+            'core_name' => 'snes9x_libretro',
             'support_level' => ClientSupportLevel::Unsupported,
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) snes9x2010_libretro/abc123'])
@@ -1937,9 +1942,10 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'somecore',
+            'core_name' => 'somecore_libretro',
             'support_level' => ClientSupportLevel::Warned,
             'recommendation' => 'Consider using a different core for best results.',
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) somecore_libretro/abc123'])
@@ -1961,8 +1967,9 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'somecore',
+            'core_name' => 'somecore_libretro',
             'support_level' => ClientSupportLevel::Warned,
+            'notes' => 'accuracy issues',
         ]);
 
         $this->withHeaders(['User-Agent' => 'RetroArch/1.22.2 (Linux) somecore_libretro/abc123'])
@@ -1983,8 +1990,9 @@ describe('User Agent', function () {
             'minimum_hardcore_version' => '1.10',
         ]);
         EmulatorCoreRestriction::create([
-            'core_name' => 'somecore',
+            'core_name' => 'somecore_libretro',
             'support_level' => ClientSupportLevel::Warned,
+            'notes' => 'accuracy issues',
         ]);
 
         // The warning is prepended, but original achievements remain intact.

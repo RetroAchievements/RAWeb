@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('core_name', 80)->unique();
             $table->unsignedTinyInteger('support_level');
             $table->string('recommendation')->nullable();
-            $table->text('notes')->nullable();
+            $table->text('notes');
             $table->timestamps();
         });
     }

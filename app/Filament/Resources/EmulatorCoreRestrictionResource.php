@@ -38,8 +38,8 @@ class EmulatorCoreRestrictionResource extends Resource
                     ->label('Core Name')
                     ->required()
                     ->maxLength(80)
-                    ->placeholder('dolphin')
-                    ->helperText('Lowercase core identifier as it appears before "_libretro" in user agent strings. This is an exact match.'),
+                    ->placeholder('dolphin_libretro')
+                    ->helperText('Core identifier exactly as it appears in user agent strings (eg: "dolphin_libretro"). This is an exact match.'),
 
                 Forms\Components\Select::make('support_level')
                     ->label('Support Level')
@@ -59,6 +59,7 @@ class EmulatorCoreRestrictionResource extends Resource
 
                 Forms\Components\Textarea::make('notes')
                     ->label('Notes')
+                    ->required()
                     ->rows(3)
                     ->helperText('Internal staff notes about why this restriction exists.'),
             ]);
