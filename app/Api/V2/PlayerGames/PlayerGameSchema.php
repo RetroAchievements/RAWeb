@@ -16,6 +16,7 @@ use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -80,9 +81,7 @@ class PlayerGameSchema extends Schema
             // Relationships.
             BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),
             BelongsTo::make('game')->readOnly(),
-
-            // TODO add relationships
-            // - playerAchievementSets (HasMany PlayerAchievementSet) - per-set player progress
+            HasManyThrough::make('playerAchievementSets')->type('player-achievement-sets'),
         ];
     }
 

@@ -67,11 +67,11 @@ class UserResource extends JsonApiResource
     public function relationships($request): iterable
     {
         return [
+            'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
             'playerGames' => $this->relation('playerGames')->withoutLinks(),
 
             // TODO add relationships
             // 'lastGame' => $this->relation('lastGame'),
-            // 'playerAchievementSets' => $this->relation('playerAchievementSets'),
             // 'playerAchievements' => $this->relation('playerAchievements'),
             // 'awards' => $this->relation('playerBadges'),
             // 'following' => $this->relation('followedUsers'),
