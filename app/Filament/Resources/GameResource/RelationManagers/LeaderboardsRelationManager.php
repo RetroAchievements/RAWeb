@@ -307,7 +307,7 @@ class LeaderboardsRelationManager extends RelationManager
             ->all();
 
         $this->isEditingDisplayOrders = true;
-        $this->resetTable();
+        $this->flushCachedTableRecords();
     }
 
     public function saveDisplayOrders(): void
@@ -340,7 +340,7 @@ class LeaderboardsRelationManager extends RelationManager
 
         $this->isEditingDisplayOrders = false;
         $this->pendingDisplayOrders = [];
-        $this->resetTable();
+        $this->flushCachedTableRecords();
 
         Notification::make()
             ->title('Display orders updated')
@@ -352,7 +352,7 @@ class LeaderboardsRelationManager extends RelationManager
     {
         $this->isEditingDisplayOrders = false;
         $this->pendingDisplayOrders = [];
-        $this->resetTable();
+        $this->flushCachedTableRecords();
     }
 
     private function moveLeaderboardToPosition(Leaderboard $leaderboard, string $position): void
@@ -383,7 +383,7 @@ class LeaderboardsRelationManager extends RelationManager
         }
 
         $this->logReorderingActivity();
-        $this->resetTable();
+        $this->flushCachedTableRecords();
 
         Notification::make()
             ->title('Leaderboard moved to ' . $position)
