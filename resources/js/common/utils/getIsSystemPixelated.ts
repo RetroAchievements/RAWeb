@@ -1,7 +1,7 @@
 /**
- * Systems with 3D-capable hardware produce screenshots that look worse
- * with nearest-neighbor upscaling. For these systems, we skip the
- * pixelated image-rendering filter.
+ * Systems with 3D-capable hardware where emulators commonly upscale
+ * beyond native resolution. Nearest-neighbor upscaling makes these
+ * screenshots look worse, so we skip the pixelated filter for them.
  */
 const nonPixelatedSystemIds = new Set([
   2, // Nintendo 64
@@ -15,10 +15,7 @@ const nonPixelatedSystemIds = new Set([
   39, // Saturn
   40, // Dreamcast
   41, // PlayStation Portable
-  42, // Philips CD-i
-  43, // 3DO Interactive Multiplayer
   62, // Nintendo 3DS
-  70, // Zeebo
   78, // Nintendo DSi
 ]);
 
