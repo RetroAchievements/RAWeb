@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Jobs;
 
 use App\Models\System;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,6 +43,23 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
             SET pg.points_weighted = calc.weighted_points
         SQL, [$this->startId, $this->endId]);
 
+        // Update player_achievement_sets.points_weighted.
+        DB::update(<<<SQL
+            UPDATE player_achievement_sets pas
+            JOIN game_achievement_sets gas ON gas.achievement_set_id = pas.achievement_set_id
+             AND gas.type=?
+            JOIN (
+                SELECT pa.user_id, a.game_id, SUM(a.points_weighted) as weighted_points
+                FROM player_achievements pa
+                INNER JOIN achievements a ON a.id = pa.achievement_id
+                WHERE pa.unlocked_hardcore_at IS NOT NULL
+                  AND pa.user_id BETWEEN ? AND ?
+                GROUP BY pa.user_id, a.game_id
+            ) calc ON calc.user_id = pas.user_id AND calc.game_id = gas.game_id
+            SET pas.points_weighted = calc.weighted_points
+        SQL, [AchievementSetType::Core->value, $this->startId, $this->endId]);
+
+        // TODO: use sum(pas.points_weighted)
         // Update users.points_weighted.
         DB::update(<<<SQL
             UPDATE users u

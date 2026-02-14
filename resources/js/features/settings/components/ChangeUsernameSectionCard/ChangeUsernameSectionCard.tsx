@@ -81,6 +81,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                         <BaseInput
                           placeholder={t('enter your new username here...')}
                           required
+                          autoComplete="off"
                           minLength={4}
                           maxLength={20}
                           {...field}
@@ -107,6 +108,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                         <BaseInput
                           placeholder={t('confirm your new username here...')}
                           required
+                          autoComplete="off"
                           minLength={4}
                           maxLength={20}
                           {...field}
