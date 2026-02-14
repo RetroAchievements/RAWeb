@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BasePivot;
+use Database\Factories\PlayerAchievementSetFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class PlayerAchievementSet extends BasePivot
 {
+    /** @use HasFactory<PlayerAchievementSetFactory> */
+    use HasFactory;
+
     protected $table = 'player_achievement_sets';
 
     protected $casts = [
@@ -20,6 +27,11 @@ class PlayerAchievementSet extends BasePivot
         'last_unlock_at' => 'datetime',
         'last_unlock_hardcore_at' => 'datetime',
     ];
+
+    protected static function newFactory(): PlayerAchievementSetFactory
+    {
+        return PlayerAchievementSetFactory::new();
+    }
 
     // == accessors
 
@@ -60,5 +72,29 @@ class PlayerAchievementSet extends BasePivot
         return $this->user();
     }
 
+    /**
+     * @return HasOneThrough<Game, GameAchievementSet, $this>
+     */
+    public function game(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Game::class,
+            GameAchievementSet::class,
+            'achievement_set_id', // FK on game_achievement_sets
+            'id',                 // FK on games (its primary key)
+            'achievement_set_id', // Local key
+            'game_id'             // Local key
+        );
+    }
+
     // == scopes
+
+    /**
+     * @param Builder<PlayerAchievementSet> $query
+     * @return Builder<PlayerAchievementSet>
+     */
+    public function scopeForGameId(Builder $query, int $gameId): Builder
+    {
+        return $query->whereHas('game', fn (Builder $q) => $q->where('games.id', $gameId));
+    }
 }

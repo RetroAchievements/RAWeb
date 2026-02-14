@@ -49,6 +49,7 @@ class PlayerGameResource extends BaseJsonApiResource
         return [
             'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
             'game' => $this->relation('game')->withoutLinks(),
+            'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
         ];
     }
 
