@@ -54,7 +54,7 @@ describe('Component: AllGamesMainRoot', () => {
     expect(screen.getByRole('columnheader', { name: /system/i }));
     expect(screen.getByRole('columnheader', { name: /achievements/i }));
     expect(screen.getByRole('columnheader', { name: /points/i }));
-    expect(screen.getByRole('columnheader', { name: /rarity/i }));
+    expect(screen.getByRole('columnheader', { name: /retroratio/i }));
     expect(screen.getByRole('columnheader', { name: /release date/i }));
   });
 
