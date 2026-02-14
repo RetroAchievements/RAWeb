@@ -33,7 +33,7 @@ export function useColumnDefinitions(options: {
       buildSystemColumnDef({ t_label: t('System') }),
       buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }),
       buildPointsTotalColumnDef({ t_label: t('Points') }),
-      buildRetroRatioColumnDef({ t_label: t('Rarity'), strings: { t_none: t('none') } }),
+      buildRetroRatioColumnDef({ t_label: t('RetroRatio'), strings: { t_none: t('none') } }),
       buildBeatRatioColumnDef({ t_label: t('Beat %') }),
       buildBeatTimeColumnDef({
         t_label: t('Time to Beat'),
