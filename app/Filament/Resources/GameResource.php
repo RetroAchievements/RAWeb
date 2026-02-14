@@ -241,6 +241,7 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
+                            ->dehydrateStateUsing(fn (?string $state) => $state ? trim($state) : $state)
                             ->unique(
                                 table: 'games',
                                 column: 'title',
