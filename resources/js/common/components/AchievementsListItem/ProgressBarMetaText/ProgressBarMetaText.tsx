@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { cn } from '@/common/utils/cn';
-import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 interface ProgressBarMetaTextProps {
   achievement: App.Platform.Data.Achievement;
@@ -16,6 +16,7 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
   variant,
 }) => {
   const { t } = useTranslation();
+  const { formatPercentage } = useFormatPercentage();
 
   const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
