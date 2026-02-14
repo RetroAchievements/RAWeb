@@ -4,12 +4,13 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
+import { ResponsiveManageChip } from '../ResponsiveManageChip';
 import { ResponsiveSystemLinkChip } from '../ResponsiveSystemChip/ResponsiveSystemLinkChip';
 import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameMobileBannerImage } from './GameMobileBannerImage';
 
 export const GameMobileHeader: FC = () => {
-  const { backingGame, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, can, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   return (
     <div
@@ -58,9 +59,13 @@ export const GameMobileHeader: FC = () => {
             </h1>
 
             {/* Chip buttons */}
-            <div className="flex items-center gap-2">
-              <ResponsiveSystemLinkChip />
-              <WantToPlayToggle variant="sm" />
+            <div className="flex w-full items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <ResponsiveSystemLinkChip />
+                <WantToPlayToggle variant="sm" />
+              </div>
+
+              {can.manageGames ? <ResponsiveManageChip className="h-[28px]" /> : null}
             </div>
           </div>
         </div>

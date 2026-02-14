@@ -5,6 +5,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { useBannerPreference } from '../../hooks/useBannerPreference';
+import { ResponsiveManageChip } from '../ResponsiveManageChip';
 import { ResponsiveSystemLinkChip } from '../ResponsiveSystemChip';
 import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameDesktopBannerImage } from './GameDesktopBannerImage';
@@ -14,7 +15,7 @@ interface GameDesktopBannerProps {
 }
 
 export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
-  const { backingGame, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, can, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { bannerPreference, cycleBannerPreference } = useBannerPreference();
 
@@ -141,7 +142,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
           'sm:px-4 md:px-6 md:pb-[46px] xl:px-0',
         )}
       >
-        <div className="flex flex-col gap-5 sm:gap-4 md:flex-row md:items-end">
+        <div className="flex w-full flex-col gap-5 sm:gap-4 md:flex-row md:items-end">
           {/* Game badge. */}
           <img
             loading="eager"
@@ -159,7 +160,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
             )}
           />
 
-          <div className="flex flex-col gap-1 md:gap-2">
+          <div className="flex w-full flex-col gap-1 md:gap-2">
             {/* Game title */}
             <h1
               className={cn(
@@ -175,18 +176,22 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
             </h1>
 
             {/* System chip link and action buttons */}
-            <div className="flex items-center gap-2">
-              <ResponsiveSystemLinkChip />
+            <div className="flex w-full justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <ResponsiveSystemLinkChip />
 
-              {/* XS */}
-              <WantToPlayToggle className="sm:hidden" variant="sm" />
+                {/* XS */}
+                <WantToPlayToggle className="sm:hidden" variant="sm" />
 
-              {/* SM+ */}
-              <WantToPlayToggle
-                className="hidden border-white/20 sm:flex sm:h-[35px] lg:transition-transform lg:duration-100 lg:active:translate-y-[1px] lg:active:scale-[0.98]"
-                showSubsetIndicator={isViewingSubset}
-                variant="base"
-              />
+                {/* SM+ */}
+                <WantToPlayToggle
+                  className="hidden border-white/20 sm:flex sm:h-[35px] lg:transition-transform lg:duration-100 lg:active:translate-y-[1px] lg:active:scale-[0.98]"
+                  showSubsetIndicator={isViewingSubset}
+                  variant="base"
+                />
+              </div>
+
+              {can.manageGames ? <ResponsiveManageChip /> : null}
             </div>
           </div>
         </div>

@@ -2,7 +2,8 @@ import type { FC } from 'react';
 import { route } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/common/utils/cn';
+
+import { responsiveHeaderChipClassNames } from '../../utils/responsiveHeaderChipClassNames';
 
 export const ResponsiveSystemLinkChip: FC = () => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -10,17 +11,7 @@ export const ResponsiveSystemLinkChip: FC = () => {
   return (
     <a
       href={route('system.game.index', { system: game.system!.id })}
-      className={cn(
-        'flex max-w-fit items-center rounded-full',
-        'border bg-black/70 shadow-md backdrop-blur-sm',
-        'gap-1 border-white/30 px-2.5 py-1',
-
-        'sm:gap-1.5 sm:border-white/20 sm:px-3 sm:py-1.5',
-        'sm:hover:border-link-hover sm:hover:bg-black/80',
-
-        'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md',
-        'light:sm:hover:bg-white/90',
-      )}
+      className={responsiveHeaderChipClassNames}
     >
       <img
         src={game.system?.iconUrl}
