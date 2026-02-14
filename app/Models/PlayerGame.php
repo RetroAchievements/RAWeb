@@ -10,6 +10,7 @@ use Database\Factories\PlayerGameFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -46,6 +47,21 @@ class PlayerGame extends BasePivot
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsToMany<AchievementSet, $this>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AchievementSet::class,
+            'game_achievement_sets',
+            'game_id',
+            'achievement_set_id',
+            'game_id',
+            'id',
+        )->withPivot(['type', 'title', 'order_column']);
+    }
 
     /**
      * @return HasMany<Achievement, $this>
