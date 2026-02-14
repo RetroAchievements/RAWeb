@@ -46,7 +46,7 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
         // Update player_achievement_sets.points_weighted.
         DB::update(<<<SQL
             UPDATE player_achievement_sets pas
-            JOIN game_achievement_sets gas ON gas.achievement_set_id=pas.achievement_set_id
+            JOIN game_achievement_sets gas ON gas.achievement_set_id = pas.achievement_set_id
              AND gas.type=?
             JOIN (
                 SELECT pa.user_id, a.game_id, SUM(a.points_weighted) as weighted_points
