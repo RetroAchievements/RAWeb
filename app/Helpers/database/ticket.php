@@ -239,6 +239,8 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
         case TicketState::Open:
             if ($previousState === TicketState::Request) {
                 $comment = "Ticket reassigned to author by {$userModel->display_name}.";
+            } elseif ($previousState === TicketState::Quarantined) {
+                $comment = "Ticket approved by {$userModel->display_name}.";
             } else {
                 $comment = "Ticket reopened by {$userModel->display_name}.";
             }
