@@ -38,12 +38,12 @@
                             {{ localized_number($pointsSum) }}
                         </x-card.info-row>
 
-                        {{-- RetroPoints & Retro Ratio --}}
+                        {{-- RetroPoints & RetroRatio --}}
                         <x-card.info-row label="RetroPoints">
                             <span>
                                 {{ $retroPointsSum > 0 ? localized_number($retroPointsSum) : 'None yet' }}
                                 @if ($retroRatio != 0)
-                                    (&times;{{ $retroRatio }} Rarity)
+                                    (&times;{{ $retroRatio }} RetroRatio)
                                 @endif
                             <span>
                         </x-card.info-row>

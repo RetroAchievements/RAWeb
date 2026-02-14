@@ -25,7 +25,7 @@ function ticketAvatar(
 
     $ticketStateClass = match ($safeTicket->state) {
         TicketState::Open, TicketState::Request => 'open',
-        TicketState::Closed, TicketState::Resolved => 'closed',
+        TicketState::Closed, TicketState::Resolved, TicketState::Quarantined => 'closed',
     };
 
     return avatar(
@@ -54,7 +54,7 @@ function renderTicketCard(int|Ticket $ticket): string
 
     $ticketStateClass = match ($ticket->state) {
         TicketState::Open, TicketState::Request => 'open',
-        TicketState::Closed, TicketState::Resolved => 'closed',
+        TicketState::Closed, TicketState::Resolved, TicketState::Quarantined => 'closed',
     };
 
     return "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .

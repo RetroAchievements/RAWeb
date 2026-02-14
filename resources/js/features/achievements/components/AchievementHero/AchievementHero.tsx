@@ -1,14 +1,15 @@
 import type { FC } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FaCircleCheck } from 'react-icons/fa6';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementTypeIndicator } from '@/common/components/AchievementsListItem/AchievementTypeIndicator';
-import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+
+import { PointsLabels } from './PointsLabels';
 
 export const AchievementHero: FC = () => {
   const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
@@ -99,7 +100,9 @@ export const AchievementHero: FC = () => {
               <div
                 className={cn(
                   'flex items-center gap-1.5',
-                  achievement.unlockedHardcoreAt ? 'text-[gold] light:text-amber-500' : null,
+                  achievement.unlockedHardcoreAt
+                    ? 'text-[gold] light:text-amber-500'
+                    : 'text-neutral-300 light:text-neutral-700',
                 )}
               >
                 <FaCircleCheck className="size-4" />
@@ -157,37 +160,6 @@ export const AchievementHero: FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-interface PointsLabelsProps {
-  points: number | undefined;
-  pointsWeighted: number | undefined;
-}
-
-const PointsLabels: FC<PointsLabelsProps> = ({ points, pointsWeighted }) => {
-  return (
-    <div className="flex gap-3 text-xs">
-      <p className="light:text-neutral-900">
-        <Trans
-          i18nKey="<1>{{val, number}}</1> points"
-          count={points}
-          values={{ val: points }}
-          components={{ 1: <span className="font-semibold" /> }}
-        />
-      </p>
-
-      <WeightedPointsContainer>
-        <p className="text-neutral-400">
-          <Trans
-            i18nKey="<1>{{val, number}}</1> RetroPoints"
-            count={pointsWeighted}
-            values={{ val: pointsWeighted }}
-            components={{ 1: <span className="font-semibold" /> }}
-          />
-        </p>
-      </WeightedPointsContainer>
     </div>
   );
 };

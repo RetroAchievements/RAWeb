@@ -125,7 +125,7 @@ export const GameListItemDialogContent: FC<GameListItemDialogContentProps> = ({
               )}
             </DialogListItem>
 
-            <DialogListItem t_label={t('Rarity')} Icon={gameListFieldIconMap.retroRatio}>
+            <DialogListItem t_label={t('RetroRatio')} Icon={gameListFieldIconMap.retroRatio}>
               {game.pointsTotal ? (
                 <p>{buildGameRarityLabel(game.pointsTotal, game.pointsWeighted)}</p>
               ) : (

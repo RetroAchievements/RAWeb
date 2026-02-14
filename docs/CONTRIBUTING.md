@@ -4,6 +4,7 @@ Please read and understand the contribution guide before creating an issue or pu
 
 ## Table of Contents
 
+- [AI/LLM Usage](#aillm-usage)
 - [Viability](#viability)
 - [Procedure](#procedure)
 - [Requirements](#requirements)
@@ -11,6 +12,10 @@ Please read and understand the contribution guide before creating an issue or pu
 - [APIs, Backwards Compatibility, and Deprecation](#apis-backwards-compatibility-and-deprecation)
 - [Implementation Details](#implementation-details)
 - [Translating the Application](#translating-the-application)
+
+## AI/LLM Usage
+
+If you use AI tools (Claude Code, Cursor, Copilot, etc.) to assist with your contribution, please read and follow our [AI/LLM Contribution Policy](AI_POLICY.md).
 
 ## Viability
 

@@ -49,6 +49,7 @@ declare namespace App.Community.Data {
     game: App.Platform.Data.Game;
     playerCount: number;
     trendingReason: App.Community.Enums.TrendingReason | null;
+    event: App.Platform.Data.Event | null;
   };
   export type GameChecklistPageProps = {
     player: App.Data.User;
@@ -239,7 +240,7 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
-  export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
   export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type TrendingReason =
     | 'new-set'
@@ -483,7 +484,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
   export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
   export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
   export type PlayerGameActivitySessionType =
@@ -540,8 +541,8 @@ declare namespace App.Http.Data {
     completedClaims: Array<App.Data.AchievementSetClaimGroup>;
     currentlyOnline: App.Data.CurrentlyOnline;
     activePlayers: App.Data.PaginatedData<TItems>;
-    trendingGames: Array<App.Community.Data.GameActivitySnapshot>;
-    popularGames: Array<App.Community.Data.GameActivitySnapshot>;
+    trendingGameSnapshots: Array<App.Community.Data.GameActivitySnapshot>;
+    popularGameSnapshots: Array<App.Community.Data.GameActivitySnapshot>;
     newClaims: Array<App.Data.AchievementSetClaimGroup>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
@@ -1228,8 +1229,10 @@ declare namespace App.Platform.Enums {
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'achievementsPublished'
+    | 'beatRatio'
     | 'hasActiveOrInReviewClaims'
     | 'lastUpdated'
+    | 'medianTimeToBeatHardcore'
     | 'numRequests'
     | 'numUnresolvedTickets'
     | 'numVisibleLeaderboards'

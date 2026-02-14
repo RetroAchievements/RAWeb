@@ -31,7 +31,7 @@ describe('Component: WeightedPointsContainer', () => {
     // ASSERT
     expect(await screen.findByRole('tooltip')).toBeVisible();
     expect(
-      (await screen.findAllByText(/rarity and estimated difficulty/i)).length,
+      (await screen.findAllByText(/adjusted by achievement rarity/i)).length,
     ).toBeGreaterThanOrEqual(1);
   });
 
