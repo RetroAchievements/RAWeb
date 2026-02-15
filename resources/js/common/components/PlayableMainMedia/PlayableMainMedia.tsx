@@ -8,15 +8,17 @@ import { ZoomableImage } from '../ZoomableImage';
 interface PlayableMainMediaProps {
   imageTitleUrl: string;
   imageIngameUrl: string;
+  isPixelated?: boolean;
 }
 
 export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   imageIngameUrl,
   imageTitleUrl,
+  isPixelated,
 }) => {
   const { t } = useTranslation();
 
-  // If both images are the "No Screenshot Found" default, display nothing
+  // If both images are the "No Screenshot Found" default, display nothing.
   if (imageTitleUrl.includes('000002') && imageIngameUrl.includes('000002')) {
     return null;
   }
@@ -30,13 +32,13 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
         'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
-      <ZoomableImage src={imageTitleUrl} alt={t('title screenshot')}>
+      <ZoomableImage src={imageTitleUrl} alt={t('title screenshot')} isPixelated={isPixelated}>
         <div className="flex items-center justify-center overflow-hidden">
           <img className="w-full rounded-sm" src={imageTitleUrl} alt={t('title screenshot')} />
         </div>
       </ZoomableImage>
 
-      <ZoomableImage src={imageIngameUrl} alt={t('ingame screenshot')}>
+      <ZoomableImage src={imageIngameUrl} alt={t('ingame screenshot')} isPixelated={isPixelated}>
         <div className="flex items-center justify-center overflow-hidden">
           <img className="w-full rounded-sm" src={imageIngameUrl} alt={t('ingame screenshot')} />
         </div>
