@@ -43,9 +43,9 @@ export function buildBeatTimeColumnDef<TEntry extends App.Platform.Data.GameList
       // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
       const { formatDuration } = useFormatDuration();
 
-      const timesBeatenHardcore = row.original.game?.timesBeatenHardcore ?? 0;
+      const timesBeatenHardcore = row.original.game.timesBeatenHardcore ?? 0;
       const medianTimeToBeat =
-        timesBeatenHardcore < 5 ? 0 : (row.original.game?.medianTimeToBeatHardcore ?? 0);
+        timesBeatenHardcore < 5 ? 0 : (row.original.game.medianTimeToBeatHardcore ?? 0);
 
       return (
         <p>

@@ -873,6 +873,125 @@ describe('Component: AllGamesMainRoot', () => {
     expect(screen.getByRole('cell', { name: /-/i })).toBeVisible();
   });
 
+  it('given a game has no player data, the beat ratio falls back to 0.0%', async () => {
+    // ARRANGE
+    const mockSystem = createSystem({
+      nameShort: 'MD',
+      iconUrl: 'https://retroachievements.org/test.png',
+    });
+
+    const mockGame = createGame({
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      system: mockSystem,
+      achievementsPublished: 30,
+      pointsTotal: 500,
+      pointsWeighted: 1000,
+      releasedAt: '2006-08-24T00:56:00+00:00',
+      releasedAtGranularity: 'day',
+      // ... playersTotal and timesBeatenHardcore are intentionally omitted ...
+    });
+
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        can: { develop: true },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /beat %/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /time to beat/i }));
+    await userEvent.keyboard('{escape}');
+
+    // ASSERT
+    expect(screen.getByRole('cell', { name: /0.0%/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: /-/i })).toBeVisible();
+  });
+
+  it('given a game has players but no beaten data, the beat ratio falls back to 0.0%', async () => {
+    // ARRANGE
+    const mockSystem = createSystem({
+      nameShort: 'MD',
+      iconUrl: 'https://retroachievements.org/test.png',
+    });
+
+    const mockGame = createGame({
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      system: mockSystem,
+      achievementsPublished: 30,
+      pointsTotal: 500,
+      pointsWeighted: 1000,
+      releasedAt: '2006-08-24T00:56:00+00:00',
+      releasedAtGranularity: 'day',
+      playersTotal: 10,
+      // ... timesBeatenHardcore is intentionally omitted ...
+    });
+
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        can: { develop: true },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /beat %/i }));
+    await userEvent.keyboard('{escape}');
+
+    // ASSERT
+    expect(screen.getByRole('cell', { name: /0.0%/i })).toBeVisible();
+  });
+
+  it('given a game has been beaten at least 5 times but has no median time data, the time to beat shows a dash', async () => {
+    // ARRANGE
+    const mockSystem = createSystem({
+      nameShort: 'MD',
+      iconUrl: 'https://retroachievements.org/test.png',
+    });
+
+    const mockGame = createGame({
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      system: mockSystem,
+      achievementsPublished: 30,
+      pointsTotal: 500,
+      pointsWeighted: 1000,
+      releasedAt: '2006-08-24T00:56:00+00:00',
+      releasedAtGranularity: 'day',
+      timesBeatenHardcore: 7,
+      playersTotal: 15,
+      // ... medianTimeToBeatHardcore is intentionally omitted ...
+    });
+
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        can: { develop: true },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /time to beat/i }));
+    await userEvent.keyboard('{escape}');
+
+    // ASSERT
+    expect(screen.getByRole('cell', { name: /-/i })).toBeVisible();
+  });
+
   it('given a game has been beaten at least 5 times, the percentage and time are both shown', async () => {
     // ARRANGE
     const mockSystem = createSystem({
