@@ -610,6 +610,8 @@ declare namespace App.Platform.Data {
     unlockPercentage?: string;
     unlocksHardcore?: number;
     unlocksTotal?: number;
+    activeMaintainer?: App.Data.User | null;
+    modifiedAt?: string | null;
   };
   export type AchievementSetClaim = {
     id: number;

@@ -1356,5 +1356,9 @@
     "Changelog": "Changelog",
     "{{val, number}} softcore": "{{val, number}} softcore",
     "{{val, number}} hardcore": "{{val, number}} hardcore",
-    "Unlocked in hardcore": "Unlocked in hardcore"
+    "Unlocked in hardcore": "Unlocked in hardcore",
+    "Created by": "Created by",
+    "Maintained by": "Maintained by",
+    "Created": "Created",
+    "Last modified": "Last modified"
 }
