@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 
 import { AchievementGamePanel } from '../AchievementGamePanel';
+import { AchievementMetaDetails } from '../AchievementMetaDetails';
 
 export const AchievementShowSidebarRoot: FC = () => {
   return (
@@ -9,8 +10,7 @@ export const AchievementShowSidebarRoot: FC = () => {
         <AchievementGamePanel />
       </div>
 
-      {/* TODO achievement meta details (created by, created date, last modified, etc) */}
-      <p>{'AchievementMetaDetails'}</p>
+      <AchievementMetaDetails />
 
       {/* TODO guide references */}
       <p>{'AchievementGuideReferences'}</p>

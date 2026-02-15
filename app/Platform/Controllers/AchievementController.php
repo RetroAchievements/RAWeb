@@ -45,6 +45,8 @@ class AchievementController extends Controller
         // ENDTODO
 
         $achievement->loadMissing([
+            'activeMaintainer.user',
+            'developer',
             'game.system',
             'visibleComments' => function ($query) {
                 $query->notAutomated()
@@ -66,13 +68,17 @@ class AchievementController extends Controller
         $props = new AchievementShowPagePropsData(
             achievement: AchievementData::fromAchievement($achievement, $playerAchievement)
                 ->include(
+                    'activeMaintainer',
+                    'createdAt',
                     'description',
+                    'developer',
+                    'game',
                     'game.badgeUrl',
                     'game.playersTotal',
+                    'game.system',
                     'game.system.iconUrl',
                     'game.system.nameShort',
-                    'game.system',
-                    'game',
+                    'modifiedAt',
                     'points',
                     'pointsWeighted',
                     'type',
