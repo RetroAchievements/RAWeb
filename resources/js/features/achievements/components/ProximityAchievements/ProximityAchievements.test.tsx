@@ -24,8 +24,16 @@ describe('Component: ProximityAchievements', () => {
     // ARRANGE
     const achievement = createAchievement({ game: createGame() });
     const proximityAchievements = [
-      createAchievement({ id: 1, title: 'First' }),
-      createAchievement({ id: 2, title: 'Second' }),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
+      createAchievement(),
     ];
 
     const { container } = render(<ProximityAchievements />, {
@@ -295,12 +303,13 @@ describe('Component: ProximityAchievements', () => {
     expect(vi.mocked(route)).toHaveBeenCalledWith('game.show', { game: 500 });
   });
 
-  it('gives non-current items a button role and tabIndex for keyboard access', () => {
+  it('ensures only one item is tabbable at a time', () => {
     // ARRANGE
     const achievement = createAchievement({ id: 10, game: createGame() });
     const proximityAchievements = [
       createAchievement({ id: 10, title: 'Current' }),
       createAchievement({ id: 11, title: 'Other' }),
+      createAchievement({ id: 12, title: 'Third' }),
     ];
 
     render(<ProximityAchievements />, {
@@ -312,12 +321,46 @@ describe('Component: ProximityAchievements', () => {
     });
 
     // ASSERT
-    // ... non-current items get role="button" so they're keyboard accessible ...
-    const otherButton = screen.getByRole('button', { name: /other/i });
-    expect(otherButton).toHaveAttribute('tabindex', '0');
+    // ... the current item (index 0) should be the tabindex target ...
+    const listItems = screen.getAllByRole('listitem');
+    const currentItem = listItems[0];
+    expect(currentItem).toHaveAttribute('tabindex', '0');
 
-    // ... the current item should not be interactive ...
+    // ... non-current items get role="button" but tabindex="-1" ...
+    const otherButton = screen.getByRole('button', { name: /other/i });
+    expect(otherButton).toHaveAttribute('tabindex', '-1');
+
+    // ... the current item should not have role="button" since it's not activatable ...
     expect(screen.queryByRole('button', { name: /current/i })).not.toBeInTheDocument();
+  });
+
+  it('supports arrow key navigation between items', () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 10, game: createGame() });
+    const proximityAchievements = [
+      createAchievement({ id: 10, title: 'Current' }),
+      createAchievement({ id: 11, title: 'Other' }),
+      createAchievement({ id: 12, title: 'Third' }),
+    ];
+
+    render(<ProximityAchievements />, {
+      pageProps: {
+        achievement,
+        proximityAchievements,
+        promotedAchievementCount: 5,
+      },
+    });
+
+    // ACT
+    const listItems = screen.getAllByRole('listitem');
+    listItems[0].focus();
+    fireEvent.keyDown(listItems[0], { key: 'ArrowDown' });
+
+    // ASSERT
+    const otherButton = screen.getByRole('button', { name: /other/i });
+    expect(otherButton).toHaveFocus();
+    expect(otherButton).toHaveAttribute('tabindex', '0');
+    expect(listItems[0]).toHaveAttribute('tabindex', '-1');
   });
 
   it('activates a non-current item when the user presses Enter', async () => {

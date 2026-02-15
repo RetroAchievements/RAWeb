@@ -1,10 +1,10 @@
 import { router } from '@inertiajs/react';
 import type { KeyboardEvent } from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export const VISIBLE_COUNT = 5;
 
-// Vertical inset (in px) between the indicator bar and the item edges.
+// Visual breathing room so the indicator bar doesn't touch the item edges.
 const INDICATOR_INSET_PX = 8;
 
 // Snappy deceleration so the indicator arrives slightly ahead of the list.
@@ -18,7 +18,7 @@ interface UseProximityAnimationProps {
   currentIndex: number;
   itemCount: number;
 
-  /** Skip animation and navigate immediately (eg. on small screens). */
+  /** Skip animation and navigate immediately (eg. on small screens where the sidebar isn't visible). */
   shouldSkipAnimation?: boolean;
 }
 
@@ -36,6 +36,11 @@ export function useProximityAnimation({
   const isNavigatingRef = useRef(false);
   const itemHeightRef = useRef(0);
   const containerHeightRef = useRef(0);
+  const visibleStartRef = useRef(0);
+  const visibleEndRef = useRef(0);
+
+  // Start focus on the current achievement so the user's keyboard context matches what they see.
+  const [focusedIndex, setFocusedIndex] = useState(Math.max(0, currentIndex));
 
   // Measure one item's height pre-paint and derive all positions arithmetically.
   // This lets us avoid subpixel drift from cumulative offsetTop reads across items.
@@ -52,7 +57,7 @@ export function useProximityAnimation({
       return;
     }
 
-    // All items share a consistent height, so one height measurement will suffice.
+    // One measurement suffices because all items share a consistent height.
     const itemHeight = Math.round(items[0].offsetHeight);
     itemHeightRef.current = itemHeight;
 
@@ -70,6 +75,22 @@ export function useProximityAnimation({
       container.style.maxHeight = `${visibleHeight + 8}px`;
     }
 
+    // Compute the scroll position and clamp the keyboard-navigable
+    // range so arrow keys can't escape the visible window.
+    const offset =
+      currentIndex >= 0
+        ? computeScrollOffset(currentIndex, itemHeight, items.length, visibleHeight)
+        : 0;
+
+    if (items.length <= VISIBLE_COUNT) {
+      visibleStartRef.current = 0;
+      visibleEndRef.current = items.length - 1;
+    } else {
+      const visibleStart = Math.round(offset / itemHeight);
+      visibleStartRef.current = visibleStart;
+      visibleEndRef.current = Math.min(visibleStart + VISIBLE_COUNT - 1, items.length - 1);
+    }
+
     if (indicator && currentIndex >= 0) {
       const itemTop = currentIndex * itemHeight;
 
@@ -78,7 +99,6 @@ export function useProximityAnimation({
       indicator.style.height = `${itemHeight - INDICATOR_INSET_PX * 2}px`;
       indicator.style.visibility = 'visible';
 
-      const offset = computeScrollOffset(currentIndex, itemHeight, items.length, visibleHeight);
       list.style.transition = 'none';
       list.style.transform = `translateY(-${offset}px)`;
     }
@@ -108,13 +128,12 @@ export function useProximityAnimation({
     // doesn't oddly jump between rows as the rows move under the cursor.
     list.style.pointerEvents = 'none';
 
-    // Capture label colors after hover is frozen and before animation writes.
+    // Read colors now, after hover is frozen, so the cross-fade starts from stable values.
     const prevTitle = titleRefs.current[currentIndex];
     const nextTitle = titleRefs.current[index];
     const defaultColor = prevTitle ? getComputedStyle(prevTitle).color : '';
     const linkColor = nextTitle ? getComputedStyle(nextTitle).color : '';
 
-    // Animate the indicator to the clicked item.
     const itemHeight = itemHeightRef.current;
     const itemTop = index * itemHeight;
     indicator.style.transition = `top ${INDICATOR_DURATION_MS}ms ${INDICATOR_EASING}, height ${INDICATOR_DURATION_MS}ms ${INDICATOR_EASING}`;
@@ -130,7 +149,7 @@ export function useProximityAnimation({
     list.style.transition = `transform ${LIST_DURATION_MS}ms ${LIST_EASING}`;
     list.style.transform = `translateY(-${offset}px)`;
 
-    // Cross-fade label text colors between the old and new current items.
+    // Smoothly swap the link/default text colors so the old "current" fades out and the new one fades in.
     const colorTransition = `color ${INDICATOR_DURATION_MS}ms ${INDICATOR_EASING}`;
     if (prevTitle && linkColor) {
       prevTitle.style.transition = colorTransition;
@@ -141,7 +160,7 @@ export function useProximityAnimation({
       nextTitle.style.color = defaultColor;
     }
 
-    // Only actually navigate once the indicator animation finishes.
+    // Delay navigation so the user sees the indicator arrive at the target item.
     setTimeout(() => {
       router.visit(href);
     }, INDICATOR_DURATION_MS);
@@ -151,6 +170,39 @@ export function useProximityAnimation({
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleItemClick(index, href);
+
+      return;
+    }
+
+    // Clamp navigation to the visible window so arrow keys
+    // can't reach items that are only loaded for animation.
+    const visibleStart = visibleStartRef.current;
+    const visibleEnd = visibleEndRef.current;
+
+    let targetIndex: number | null = null;
+    switch (event.key) {
+      case 'ArrowDown':
+        targetIndex = Math.min(index + 1, visibleEnd);
+        break;
+
+      case 'ArrowUp':
+        targetIndex = Math.max(index - 1, visibleStart);
+        break;
+
+      case 'Home':
+        targetIndex = visibleStart;
+        break;
+
+      case 'End':
+        targetIndex = visibleEnd;
+        break;
+    }
+
+    if (targetIndex !== null && targetIndex !== index) {
+      event.preventDefault();
+
+      setFocusedIndex(targetIndex);
+      itemRefs.current[targetIndex]?.focus();
     }
   };
 
@@ -170,6 +222,7 @@ export function useProximityAnimation({
 
   return {
     containerRef,
+    focusedIndex,
     listRef,
     indicatorRef,
     itemRefs,

@@ -157,7 +157,7 @@ class AchievementController extends Controller
             }
 
             return AchievementData::fromAchievement($proximityAchievement, $playerAchievements[$id] ?? null)
-                ->include('points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
+                ->include('description', 'points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
         }, $windowIds);
 
         return [array_values(array_filter($proximityAchievementDtos)), $totalCount];

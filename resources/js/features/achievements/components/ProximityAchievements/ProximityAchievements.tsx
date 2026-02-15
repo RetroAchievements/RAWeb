@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions -- this is handled manually */
+
 import { type FC, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
@@ -31,6 +33,7 @@ export const ProximityAchievements: FC = () => {
 
   const {
     containerRef,
+    focusedIndex,
     listRef,
     indicatorRef,
     itemRefs,
@@ -84,28 +87,24 @@ export const ProximityAchievements: FC = () => {
               });
 
               return (
-                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="button" makes this interactive, but the rule only checks the tag name
                 <li
                   key={`proximity-${proximityAchievement.id}`}
                   ref={(el) => {
                     itemRefs.current[index] = el;
                   }}
                   role={!isCurrent ? 'button' : undefined}
-                  tabIndex={!isCurrent ? 0 : undefined}
+                  tabIndex={focusedIndex === index ? 0 : -1}
                   className={cn(
-                    'group flex w-full items-center gap-3 p-2 pl-3',
-                    !isCurrent ? 'cursor-pointer' : null,
+                    'group flex w-full select-none items-center gap-3 rounded-lg p-2 pl-3',
+                    !isCurrent &&
+                      'cursor-pointer hover:bg-neutral-800/50 focus-visible:bg-neutral-800/50 light:hover:bg-neutral-100 light:focus-visible:bg-neutral-100',
                   )}
                   onClick={() => {
                     if (!isCurrent) {
                       handleItemClick(index, achievementHref);
                     }
                   }}
-                  onKeyDown={(e) => {
-                    if (!isCurrent) {
-                      handleItemKeyDown(e, index, achievementHref);
-                    }
-                  }}
+                  onKeyDown={(e) => handleItemKeyDown(e, index, achievementHref)}
                   onMouseEnter={() => {
                     if (!isCurrent) {
                       handleItemMouseEnter(achievementHref);
@@ -119,7 +118,7 @@ export const ProximityAchievements: FC = () => {
                     hasTooltip={false}
                     shouldLink={false}
                     showLabel={false}
-                    size={32}
+                    size={36}
                   />
 
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -133,6 +132,10 @@ export const ProximityAchievements: FC = () => {
                       )}
                     >
                       {proximityAchievement.title}
+                    </p>
+
+                    <p className="truncate text-2xs text-text">
+                      {proximityAchievement.description}
                     </p>
 
                     <span className="text-2xs text-neutral-400 light:text-neutral-500">
@@ -173,28 +176,27 @@ function buildUnlockCheckIcon(
   unlockLabel: string,
   hardcoreUnlockLabel: string,
 ): ReactNode {
-  let colorClass: string | null = null;
-  let label: string | null = null;
-
   if (achievement.unlockedHardcoreAt) {
-    colorClass = 'text-[gold] light:text-amber-500';
-    label = hardcoreUnlockLabel;
-  } else if (achievement.unlockedAt) {
-    colorClass = 'text-neutral-400 light:text-neutral-700';
-    label = unlockLabel;
+    return (
+      <LuCheck
+        aria-label={hardcoreUnlockLabel}
+        data-testid={`unlock-check-${achievement.id}`}
+        className="size-4 shrink-0 text-[gold] light:text-amber-500"
+      />
+    );
   }
 
-  if (!colorClass || !label) {
-    return null;
+  if (achievement.unlockedAt) {
+    return (
+      <LuCheck
+        aria-label={unlockLabel}
+        data-testid={`unlock-check-${achievement.id}`}
+        className="size-4 shrink-0 text-neutral-400 light:text-neutral-700"
+      />
+    );
   }
 
-  return (
-    <LuCheck
-      aria-label={label}
-      data-testid={`unlock-check-${achievement.id}`}
-      className={cn('size-4 shrink-0', colorClass)}
-    />
-  );
+  return null;
 }
 
 function buildViewAllHref(

@@ -32,6 +32,7 @@ const TestHarness: FC<TestHarnessProps> = ({
 }) => {
   const {
     containerRef,
+    focusedIndex,
     listRef,
     indicatorRef,
     itemRefs,
@@ -54,7 +55,7 @@ const TestHarness: FC<TestHarnessProps> = ({
             }}
             data-testid={`item-${index}`}
             role="button"
-            tabIndex={0}
+            tabIndex={focusedIndex === index ? 0 : -1}
             onClick={() => handleItemClick(index, item.href)}
             onKeyDown={(e) => handleItemKeyDown(e, index, item.href)}
             onMouseEnter={() => handleItemMouseEnter(item.href)}
@@ -310,6 +311,108 @@ describe('Hook: useProximityAnimation', () => {
 
     // ASSERT
     expect(router.visit).toHaveBeenCalledWith('/achievement/1');
+  });
+
+  it('given ArrowDown is pressed, moves focus to the next item', () => {
+    // ARRANGE
+    const items = buildItems(5);
+
+    render(<TestHarness currentIndex={1} items={items} />);
+
+    // ACT
+    fireEvent.keyDown(screen.getByTestId('item-1'), { key: 'ArrowDown' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-2')).toHaveFocus();
+    expect(screen.getByTestId('item-2')).toHaveAttribute('tabindex', '0');
+    expect(screen.getByTestId('item-1')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('given ArrowUp is pressed, moves focus to the previous item', () => {
+    // ARRANGE
+    const items = buildItems(5);
+
+    render(<TestHarness currentIndex={2} items={items} />);
+
+    // ACT
+    fireEvent.keyDown(screen.getByTestId('item-2'), { key: 'ArrowUp' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-1')).toHaveFocus();
+    expect(screen.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+    expect(screen.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('given ArrowDown is pressed on the last item, does not move focus', () => {
+    // ARRANGE
+    const items = buildItems(3);
+
+    render(<TestHarness currentIndex={0} items={items} />);
+
+    // ACT
+    screen.getByTestId('item-2').focus();
+    fireEvent.keyDown(screen.getByTestId('item-2'), { key: 'ArrowDown' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-2')).toHaveFocus();
+  });
+
+  it('given ArrowUp is pressed on the first item, does not move focus', () => {
+    // ARRANGE
+    const items = buildItems(3);
+
+    render(<TestHarness currentIndex={0} items={items} />);
+
+    // ACT
+    screen.getByTestId('item-0').focus();
+    fireEvent.keyDown(screen.getByTestId('item-0'), { key: 'ArrowUp' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-0')).toHaveFocus();
+  });
+
+  it('given Home is pressed, moves focus to the first item', () => {
+    // ARRANGE
+    const items = buildItems(5);
+
+    render(<TestHarness currentIndex={3} items={items} />);
+
+    // ACT
+    fireEvent.keyDown(screen.getByTestId('item-3'), { key: 'Home' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-0')).toHaveFocus();
+    expect(screen.getByTestId('item-0')).toHaveAttribute('tabindex', '0');
+  });
+
+  it('given End is pressed, moves focus to the last item', () => {
+    // ARRANGE
+    const items = buildItems(5);
+
+    render(<TestHarness currentIndex={1} items={items} />);
+
+    // ACT
+    fireEvent.keyDown(screen.getByTestId('item-1'), { key: 'End' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-4')).toHaveFocus();
+    expect(screen.getByTestId('item-4')).toHaveAttribute('tabindex', '0');
+  });
+
+  it('given more items than the visible window, clamps arrow key navigation to visible items only', () => {
+    // ARRANGE
+    const items = buildItems(8);
+
+    // ... currentIndex=0, so the visible window is items 0-4 ...
+    render(<TestHarness currentIndex={0} items={items} />);
+
+    // ACT
+    // ... arrow down from item 4 (last visible) should not move to item 5 ...
+    screen.getByTestId('item-4').focus();
+    fireEvent.keyDown(screen.getByTestId('item-4'), { key: 'ArrowDown' });
+
+    // ASSERT
+    expect(screen.getByTestId('item-4')).toHaveFocus();
   });
 
   it('given shouldSkipAnimation is true, navigates immediately without waiting for animation', () => {
