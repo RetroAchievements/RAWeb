@@ -587,6 +587,13 @@ declare namespace App.Models {
     | 'developer-retired';
 }
 declare namespace App.Platform.Data {
+  export type AchievementChangelogEntry = {
+    type: App.Platform.Enums.AchievementChangelogEntryType;
+    createdAt: string;
+    user: App.Data.User | null;
+    fieldChanges: Array<App.Platform.Data.ChangelogFieldChange>;
+    count: number;
+  };
   export type Achievement = {
     badgeLockedUrl: string;
     badgeUnlockedUrl: string;
@@ -665,6 +672,7 @@ declare namespace App.Platform.Data {
     recentVisibleComments: Array<App.Community.Data.Comment>;
     backingGame: App.Platform.Data.Game | null;
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
+    changelog: Array<App.Platform.Data.AchievementChangelogEntry>;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -681,6 +689,10 @@ declare namespace App.Platform.Data {
   export type AwardEarner = {
     user: App.Data.User;
     dateEarned: string;
+  };
+  export type ChangelogFieldChange = {
+    oldValue: string | null;
+    newValue: string | null;
   };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
@@ -1204,8 +1216,25 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type UnlockMode = 0 | 1;
+  export type AchievementChangelogEntryType =
+    | 'created'
+    | 'deleted'
+    | 'restored'
+    | 'edited'
+    | 'promoted'
+    | 'demoted'
+    | 'description-updated'
+    | 'title-updated'
+    | 'points-changed'
+    | 'badge-updated'
+    | 'embed-url-updated'
+    | 'logic-updated'
+    | 'moved-to-different-game'
+    | 'type-set'
+    | 'type-changed'
+    | 'type-removed';
   export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type AchievementSetType =
     | 'core'

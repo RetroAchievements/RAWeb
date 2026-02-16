@@ -15,6 +15,7 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\AchievementShowPagePropsData;
 use App\Platform\Data\GameAchievementSetData;
@@ -64,6 +65,7 @@ class AchievementController extends Controller
             ->first();
 
         $subscriptionService = new SubscriptionService();
+        $changelog = (new BuildAchievementChangelogAction())->execute($achievement);
 
         $props = new AchievementShowPagePropsData(
             achievement: AchievementData::fromAchievement($achievement, $playerAchievement)
@@ -102,6 +104,7 @@ class AchievementController extends Controller
             gameAchievementSet: $gameAchievementSet
                 ? GameAchievementSetData::from($gameAchievementSet)->include('type', 'title', 'achievementSet.imageAssetPathUrl')
                 : null,
+            changelog: $changelog,
         );
 
         return Inertia::render('achievement/[achievement]', $props);
