@@ -47,10 +47,10 @@ export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event, className }) =>
       <BaseTooltipTrigger>
         <BaseChip
           className={cn(
+            className,
             isActiveState && 'text-green-400',
             event.state === 'active' &&
               'light:border light:border-neutral-300 light:text-green-700',
-            className,
           )}
           data-testid="playable"
         >
