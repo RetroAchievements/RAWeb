@@ -12,12 +12,12 @@ import { splitAchievementChangelogEntries } from '../../utils/splitAchievementCh
 import { AchievementChangelogEntry } from './AchievementChangelogEntry';
 
 export const AchievementChangelog: FC = () => {
-  const { changelog } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, changelog } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
   const { postPromotion, prePromotion, created, isCreatedAsPromoted } = useMemo(
-    () => splitAchievementChangelogEntries(changelog),
-    [changelog],
+    () => splitAchievementChangelogEntries(changelog, { isPromoted: achievement.isPromoted }),
+    [achievement.isPromoted, changelog],
   );
 
   const { contentHeight, contentRef, isOpen, setIsOpen } = useAnimatedCollapse<HTMLUListElement>();

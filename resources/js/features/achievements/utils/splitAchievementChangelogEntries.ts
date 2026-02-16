@@ -1,5 +1,9 @@
 type ChangelogEntry = App.Platform.Data.AchievementChangelogEntry;
 
+interface SplitOptions {
+  isPromoted?: boolean;
+}
+
 interface SplitResult {
   postPromotion: ChangelogEntry[];
   prePromotion: ChangelogEntry[];
@@ -15,7 +19,10 @@ interface SplitResult {
  *
  * Also determines whether the achievement was created as promoted (pre-historic V1 legacy behavior).
  */
-export function splitAchievementChangelogEntries(entries: ChangelogEntry[]): SplitResult {
+export function splitAchievementChangelogEntries(
+  entries: ChangelogEntry[],
+  options: SplitOptions,
+): SplitResult {
   // Entries are sorted descending (newest first).
   // Find the first promotion chronologically (last 'promoted' in the array).
   let firstPromotionIndex = -1;
@@ -26,17 +33,18 @@ export function splitAchievementChangelogEntries(entries: ChangelogEntry[]): Spl
     }
   }
 
-  // There's no promotion entry. If a demotion exists, the achievement was
-  // born promoted (legacy core, later demoted). Otherwise it's unpublished
-  // and was probably never promoted.
+  // There's no promotion entry. The achievement was created-as-promoted if it
+  // has a demotion (legacy core, later demoted) or if it's currently
+  // promoted with no promotion record at all (pre-historic V1 achievements).
   if (firstPromotionIndex === -1) {
-    const wasBornPromoted = entries.some((e) => e.type === 'demoted');
+    const wasCreatedAsPromoted =
+      entries.some((e) => e.type === 'demoted') || options.isPromoted === true;
 
     return {
       postPromotion: entries,
       prePromotion: [],
       created: null,
-      isCreatedAsPromoted: wasBornPromoted,
+      isCreatedAsPromoted: wasCreatedAsPromoted,
     };
   }
 
@@ -48,14 +56,14 @@ export function splitAchievementChangelogEntries(entries: ChangelogEntry[]): Spl
   const prePromotion = prePromotionAll.filter((e) => e.type !== 'created');
 
   // A demotion before the first promotion means the achievement was already
-  // promoted (born promoted, demoted for repairs, re-promoted).
-  const wasBornPromoted = prePromotion.some((e) => e.type === 'demoted');
+  // promoted (created-as-promoted, demoted for repairs, re-promoted).
+  const wasCreatedAsPromoted = prePromotion.some((e) => e.type === 'demoted');
 
-  // Don't collapse if there's nothing to collapse or the achievement was born promoted.
-  if (prePromotion.length === 0 || wasBornPromoted) {
+  // Don't collapse if there's nothing to collapse or the achievement was created-as-promoted.
+  if (prePromotion.length === 0 || wasCreatedAsPromoted) {
     return {
       created: null,
-      isCreatedAsPromoted: wasBornPromoted,
+      isCreatedAsPromoted: wasCreatedAsPromoted,
       postPromotion: entries,
       prePromotion: [],
     };

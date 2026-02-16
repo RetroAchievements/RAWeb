@@ -89,6 +89,7 @@ class AchievementController extends Controller
                     'unlockPercentage',
                     'unlocksHardcore',
                     'unlocksTotal',
+                    'isPromoted',
                     'numUnresolvedTickets',
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)

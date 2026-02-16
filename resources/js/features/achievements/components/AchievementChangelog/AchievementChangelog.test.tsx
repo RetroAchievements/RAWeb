@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { render, screen, within } from '@/test';
 import { createAchievement, createAchievementChangelogEntry, createUser } from '@/test/factories';
 
 import { AchievementChangelog } from './AchievementChangelog';
@@ -202,6 +202,32 @@ describe('Component: AchievementChangelog', () => {
     // ASSERT
     expect(screen.queryByText(/initial development/i)).not.toBeInTheDocument();
     expect(screen.getAllByTestId('changelog-entry')).toHaveLength(3);
+  });
+
+  it('given a created-as-promoted achievement with no promotion or demotion history, shows a green dot on Created', () => {
+    // ARRANGE
+    render(<AchievementChangelog />, {
+      pageProps: {
+        achievement: createAchievement({ isPromoted: true }),
+        changelog: [
+          createAchievementChangelogEntry({
+            type: 'edited',
+            createdAt: '2025-03-05T10:00:00Z',
+          }),
+          createAchievementChangelogEntry({
+            type: 'created',
+            createdAt: '2025-01-01T10:00:00Z',
+          }),
+        ],
+      },
+    });
+
+    // ASSERT
+    const entries = screen.getAllByTestId('changelog-entry');
+    const createdEntry = entries[entries.length - 1];
+    const dot = within(createdEntry).getByTestId('changelog-dot');
+
+    expect(dot.className).toContain('bg-green-500');
   });
 
   it('given a created-as-promoted achievement was demoted and re-promoted, does not collapse pre-promotion entries', () => {
