@@ -5,6 +5,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { AwardOrderTable } from '@/features/reorder-site-awards/components/AwardOrderTable';
 
 import { ResetOrderButton } from '../ResetOrderButton';
+import UserAwardData = App.Community.Data.UserAwardData;
 
 export interface AwardProps {
   AwardData: number;
@@ -18,42 +19,10 @@ export interface AwardProps {
   Title: string;
 }
 
-export interface EventDataProps {
-  active_from: string;
-  active_through: string;
-  active_until: string;
-  created_at: string;
-  gives_site_award: boolean;
-  id: number;
-  image_asset_path: string;
-  legacy_game: {
-    achievement_set_version_hash: string;
-    achievements_published: number;
-    id: number;
-    image_box_art_asset_path: string;
-    image_icon_asset_path: string;
-    image_ingame_asset_path: string;
-    image_title_asset_path: string;
-    players_total: number;
-    points_total: number;
-    publisher: string;
-    sort_title: string;
-    system_id: number;
-    title: string;
-    updated_at: string;
-  };
-  legacy_game_id: number;
-  updated_at: string;
-}
-
 export const ReorderSiteAwardsMainRoot: FC = () => {
-  const { gameAwards, siteAwards, eventAwards, eventData } = usePageProps<{
-    gameAwards: AwardProps[];
-    siteAwards: AwardProps[];
-    eventAwards: AwardProps[];
-    eventData: EventDataProps;
+  const { awards } = usePageProps<{
+    awards: UserAwardData[];
   }>();
-  console.log(gameAwards, siteAwards, eventAwards, eventData);
   const { t } = useTranslation();
 
   return (

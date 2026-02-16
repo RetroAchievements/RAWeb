@@ -1,15 +1,7 @@
 import type { FC } from 'react';
+import UserAwardData = App.Community.Data.UserAwardData;
 
-export type UserAwardProps = {
-  imageUrl: string;
-  tooltip: string;
-  link?: string;
-  isGold?: boolean;
-  gameId?: number;
-  dateAwarded: string;
-};
-
-export const UserAward: FC<{ award: UserAwardProps; size?: number }> = ({ award, size = 64 }) => {
+export const UserAward: FC<{ award: UserAwardData; size?: number }> = ({ award, size = 64 }) => {
   const img = (
     <img
       src={award.imageUrl}
@@ -21,9 +13,17 @@ export const UserAward: FC<{ award: UserAwardProps; size?: number }> = ({ award,
     />
   );
 
+  /*
+  <div class='p-2 max-w-[320px] text-pretty'><span>$tooltip</span><p class='italic'>{$awardDate}</p></div>
+   */
+
   return (
-    <div data-gameid={award.gameId} data-date={award.dateAwarded}>
-      {award.link ? <a href={award.link}>{img}</a> : img}
+    <div
+      data-gameid={award.gameId}
+      data-date={award.dateAwarded}
+      className="max-w-[320px] text-pretty p-2"
+    >
+      <span>{award.link ? <a href={award.link}>{img}</a> : img}</span>
     </div>
   );
 };

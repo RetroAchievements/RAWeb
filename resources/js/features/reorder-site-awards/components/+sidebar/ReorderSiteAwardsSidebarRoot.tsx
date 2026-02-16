@@ -1,30 +1,30 @@
 import { GameAvatar } from '@/common/components/GameAvatar';
-import type { UserAwardProps } from '@/common/components/UserAward';
-import { UserAward, UserPatreonAward } from '@/common/components/UserAward';
+import { UserAward } from '@/common/components/UserAward';
 import { UserAwardCounter } from '@/common/components/UserAwardCounter/UserAwardCounter';
 import { UserAwardList } from '@/common/components/UserAwardList/UserAwardList';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { AwardProps, EventDataProps } from '@/features/reorder-site-awards/components/+root';
+import UserAwardData = App.Community.Data.UserAwardData;
 
 export const ReorderSiteAwardsSidebarRoot = () => {
-  const { gameAwards, siteAwards, eventAwards, eventData } = usePageProps<{
-    gameAwards: AwardProps[];
-    siteAwards: AwardProps[];
-    eventAwards: AwardProps[];
-    eventData: EventDataProps;
+  const { awards } = usePageProps<{
+    awards: UserAwardData[];
   }>();
 
-  const gameAwardAwards = gameAwards
-    .sort((award) => award.DisplayOrder)
+  console.log('awards', awards);
+
+  const gameAwardAwards = awards
+    .sort((award) => award.displayOrder)
+    .filter((award) => award.awardSection === 'game')
     .map((award) => (
       <GameAvatar
-        key={`game-${award.DisplayOrder}`}
-        id={award.AwardData}
-        title={award.Title}
+        key={`game-${award.displayOrder}`}
+        id={award.gameId || 0}
+        title={award.tooltip}
         variant={'inline'}
         size={48}
         showLabel={false}
-        badgeUrl={award.ImageIcon}
+        badgeUrl={award.imageUrl}
+        // TODO: Handle Mastery css
       />
     ));
 
@@ -33,7 +33,7 @@ export const ReorderSiteAwardsSidebarRoot = () => {
       headingLabel={'Game Awards'}
       headingCountSlot={
         <UserAwardCounter
-          icon={'👑'}
+          icon={'👑🎖'}
           numItems={gameAwardAwards.length}
           text={'A lot of masteries!!'}
         />
@@ -42,18 +42,9 @@ export const ReorderSiteAwardsSidebarRoot = () => {
     />
   );
 
-  const siteAwardAwards = siteAwards
-    .sort((award) => award.DisplayOrder)
-    .map((award) => {
-      const newProps: UserAwardProps = {
-        dateAwarded: new Date(award.AwardedAt).toString(),
-        imageUrl: award.ImageIcon,
-        isGold: true,
-        tooltip: 'True',
-      };
-
-      return newProps;
-    })
+  const siteAwardAwards = awards
+    .sort((award) => award.displayOrder)
+    .filter((award) => award.awardSection === 'site')
     .map((award) => <UserAward award={award} key={`site-${award.dateAwarded}`} size={48} />);
 
   const siteAwardList = (
@@ -66,10 +57,26 @@ export const ReorderSiteAwardsSidebarRoot = () => {
     />
   );
 
+  const eventAwardAwards = awards
+    .sort((award) => award.displayOrder)
+    .filter((award) => award.awardSection === 'event')
+    .map((award) => <UserAward award={award} key={`event-${award.dateAwarded}`} size={48} />);
+
+  const eventAwardList = (
+    <UserAwardList
+      headingLabel={'Event Awards'}
+      headingCountSlot={
+        <UserAwardCounter icon={'🌱'} text={'Event Awards'} numItems={eventAwardAwards.length} />
+      }
+      awards={eventAwardAwards}
+    />
+  );
+
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       {gameAwardList}
       {siteAwardList}
+      {eventAwardList}
     </div>
   );
 };

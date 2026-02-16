@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Data\UserAwardData;
 use App\Community\Enums\AwardType;
 use App\Http\Controller;
 use App\Models\Event;
+use App\Models\EventAward;
+use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -17,23 +20,14 @@ class ReorderSiteAwardsController extends Controller
     public function index()
     {
         $awards = $this->getUsersSiteAwards(request()->user());
-        [$gameAwards, $eventAwards, $siteAwards, $eventData] = $this->SeparateAwards($awards);
+        $cleanAwards = $this->SeparateAwards($awards);
 
         return Inertia::render('reorder-site-awards')
-            ->with('gameAwards', $gameAwards)
-            ->with('eventAwards', $eventAwards)
-            ->with('siteAwards', $siteAwards)
-            ->with('eventData', $eventData);
+            ->with('awards', $cleanAwards);
     }
 
-    public function getUsersSiteAwards(?User $user): array
+    public function getUsersSiteAwards(User $user): array
     {
-        $dbResult = [];
-
-        if (! $user) {
-            return $dbResult;
-        }
-
         $bindings = [
             'userId' => $user->id,
             'userId2' => $user->id,
@@ -88,7 +82,7 @@ class ReorderSiteAwardsController extends Controller
         foreach ($dbResult as &$award) {
             unset($award['user_id']);
 
-            $award['AwardType'] = AwardType::from($award['award_type'])->toLegacyInteger();
+            $award['AwardType'] = AwardType::from($award['award_type']);
             $award['AwardData'] = (int) $award['award_key'];
             $award['AwardDataExtra'] = (int) $award['award_tier'];
             $award['DisplayOrder'] = (int) $award['order_column'];
@@ -103,27 +97,36 @@ class ReorderSiteAwardsController extends Controller
         return $dbResult;
     }
 
+    /*
+     * array of ["AwardType" => enum AwardType, AwardData => int, AwardDataExtra => int, DisplayOrder => int, ConsoleID => int?]
+     */
+    /**
+     * Parses awards into a usable state for the frontend.
+     *
+     * @param array $userAwards array of awards from the database.
+     * @return array<UserAwardData>
+     */
     public function SeparateAwards(array $userAwards): array
     {
         $awardEventGameIds = [];
         $awardEventIds = [];
         foreach ($userAwards as $award) {
-            $type = (int) $award['AwardType'];
-            if ($type === AwardType::Event->toLegacyInteger()) {
+            $type = $award['AwardType'];
+            if ($type === AwardType::Event) {
                 $awardEventIds[] = (int) $award['AwardData'];
-            } elseif (AwardType::isGame($type) && $award['ConsoleName'] === 'Events') {
+            } elseif ($award['ConsoleName'] === 'Events' && AwardType::isGame($type)) {
                 $awardEventGameIds[] = (int) $award['AwardData'];
             }
         }
 
-        if (!empty($awardEventGameIds)) {
+        if (! empty($awardEventGameIds)) {
             $awardEventIds = array_merge($awardEventIds,
                 Event::whereIn('legacy_game_id', $awardEventIds)->select('id')->pluck('id')->toArray()
             );
         }
 
-        $eventData = new Collection();
-        if (!empty($awardEventIds)) {
+        $eventData = new Collection;
+        if (! empty($awardEventIds)) {
             $eventData = Event::whereIn('id', $awardEventIds)->with('legacyGame')->get()->keyBy('id');
         }
 
@@ -131,28 +134,130 @@ class ReorderSiteAwardsController extends Controller
         $eventAwards = []; // Event awards and Events mastery awards.
         $siteAwards = []; // Dev event awards and non-game active awards.
 
+        /** @var UserAwardData[] $awards */
+        $awards = [];
+
         foreach ($userAwards as $award) {
-            $type = (int) $award['AwardType'];
+            $type = $award['AwardType'];
             $id = (int) $award['AwardData'];
+            $extra = (int) $award['AwardDataExtra'];
+            $awardDate = $award['AwardedAt'];
+
+            $section = 'unknown';
 
             if (AwardType::isGame($type)) {
                 if ($award['ConsoleName'] === 'Events') {
-                    $eventAwards[] = $award;
-                } elseif ($type !== AwardType::GameBeaten->toLegacyInteger()) {
-                    $gameAwards[] = $award;
+                    $section = 'event';
+                } elseif ($type !== AwardType::GameBeaten) {
+                    $section = 'game';
+                    $award["ImageIcon"] = asset($award['ImageIcon']);
+                    $gameId = $id;
+
+                    $award["IsGold"] = $extra === 1;
                 }
-            } elseif ($type === AwardType::Event->toLegacyInteger()) {
+            } elseif ($type === AwardType::Event) {
                 if ($eventData[$id]?->gives_site_award) {
-                    $siteAwards[] = $award;
+                    $section = 'site';
                 } else {
-                    $eventAwards[] = $award;
+                    $section = 'event';
                 }
+
+                $event = $eventData->find($id);
+                if ($event) {
+                    $tooltip = "Awarded for completing the $event->title event";
+                    $image = $event->image_asset_path;
+
+                    if ($extra !== 0) {
+                        $eventAward = EventAward::where('event_id', $id)
+                            ->where('tier_index', $extra)
+                            ->first();
+
+                        if ($eventAward) {
+                            $image = $eventAward->image_asset_path;
+
+                            if ($eventAward->points_required < $event->legacyGame->points_total) {
+                                $tooltip = "Awarded for earning at least $eventAward->points_required points in the $event->title event";
+                            }
+                        }
+                    }
+
+                    $award["Tooltip"] = $tooltip;
+                    $award["ImageIcon"] = media_asset($image);
+                    $award["IsGold"] = true;
+                    $award["Link"] = route('event.show', $event->id);
+                    /* <div class='p-2 max-w-[320px] text-pretty'><span>$tooltip</span><p class='italic'>{$awardDate}</p></div> */
+                }
+
             } elseif (AwardType::isActive($type)) {
-                $siteAwards[] = $award;
+                $this->makeTooltip($award);
+                $section = 'site';
             }
+
+            if ($section === 'unknown') {
+                continue;
+            }
+
+            $newAward = new UserAwardData(
+                imageUrl: $award['ImageIcon'] ?? '',
+                tooltip: $award['Tooltip'] ?? '',
+                link: $award['Link'] ?? '',
+                isGold: $award['IsGold'] ?? false,
+                gameId: $gameId ?? null,
+                dateAwarded: $award['AwardedAt'] . "",
+                awardType: $award['AwardType'],
+                awardSection: $section,
+                displayOrder: $award['DisplayOrder'],
+            );
+
+            $awards[] = $newAward;
         }
 
-        return [$gameAwards, $eventAwards, $siteAwards, $eventData];
+        return $awards;
     }
 
+    public function makeTooltip(&$award): void
+    {
+        switch ($award['AwardType']) {
+            case AwardType::GameBeaten:
+            case AwardType::Mastery:
+                // no tooltip needed, frontend uses GameAvatar
+                $award['Tooltip'] = null;
+
+                return;
+            case AwardType::AchievementPointsYield:
+                $data = $award["AwardData"];
+                $points = PlayerBadge::getBadgeThreshold(AwardType::AchievementPointsYield, $data);
+                $award['Tooltip'] = "Awarded for producing many valuable achievements, providing over $points points to the community!";
+                $award["ImageIcon"] = asset("/assets/images/badge/contribPoints-$data.png");
+                $award["IsGold"] = true;
+
+                return;
+            case AwardType::AchievementUnlocksYield:
+                $data = $award["AwardData"];
+                $points = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $data);
+                $award['Tooltip'] = "Awarded for being a hard-working developer and producing achievements that have been earned over $points times!";
+                $award["ImageIcon"] = asset("/assets/images/badge/contribYield-$data.png");
+                $award["IsGold"] = true;
+
+                return;
+
+            case AwardType::CertifiedLegend:
+                $award['Tooltip'] = 'Specially Awarded to a Certified RetroAchievements Legend';
+                $award["ImageIcon"] = asset('/assets/images/badge/legend.png');
+                $award["IsGold"] = true;
+
+                return;
+            case AwardType::PatreonSupporter:
+                $award['Tooltip'] = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
+                $award["ImageIcon"] = asset('/assets/images/badge/patreon.png');
+                $award["IsGold"] = true;
+                $award["Link"] = route('patreon-supporter.index');
+
+                return;
+            case AwardType::Event:
+                $award['Tooltip'] = 'Event Award';
+
+                return;
+        }
+    }
 }
