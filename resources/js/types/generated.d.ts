@@ -761,6 +761,8 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    preferredEventAwardTier: number | null;
+    earnedEventAwardTier: number | null;
   };
   export type FollowedPlayerCompletion = {
     user: App.Data.User;
