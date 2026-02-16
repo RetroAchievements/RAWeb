@@ -916,7 +916,7 @@ class AchievementsRelationManager extends RelationManager
 
         $this->isEditingDisplayOrders = true;
 
-        $this->resetTable();
+        $this->flushCachedTableRecords();
     }
 
     public function saveDisplayOrders(): void
@@ -958,7 +958,7 @@ class AchievementsRelationManager extends RelationManager
 
         $this->isEditingDisplayOrders = false;
         $this->pendingDisplayOrders = [];
-        $this->resetTable();
+        $this->flushCachedTableRecords();
 
         Notification::make()
             ->title('Display orders updated')
@@ -971,7 +971,7 @@ class AchievementsRelationManager extends RelationManager
         $this->isEditingDisplayOrders = false;
         $this->pendingDisplayOrders = [];
 
-        $this->resetTable();
+        $this->flushCachedTableRecords();
     }
 
     private function canReorderAchievements(): bool

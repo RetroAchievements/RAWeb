@@ -30,17 +30,12 @@ export const SetRarityLabel: FC<SetRarityLabelProps> = ({ pointsTotal, pointsWei
       </BaseTooltipTrigger>
 
       <BaseTooltipContent className="flex max-w-80 flex-col gap-1">
-        <p className="font-bold">{t('Rarity')}</p>
+        <span className="flex max-w-80 flex-col gap-1 text-wrap text-left text-xs">
+          {/* Intentionally untranslated, this is a branding term */}
+          <span className="font-bold">{'RetroRatio'}</span>
 
-        <div className="flex flex-col gap-2 whitespace-normal">
-          <p>
-            {t(
-              'Reflects completion rates for this achievement set across all players. Rarer achievements earn more RetroPoints.',
-            )}
-          </p>
-
-          <p>{t('This indicator may be inflated by set revisions and player attrition.')}</p>
-        </div>
+          <span>{t('The ratio of RetroPoints to points.')}</span>
+        </span>
       </BaseTooltipContent>
     </BaseTooltip>
   );

@@ -186,10 +186,10 @@ $unlockMode = match ($sort % 10) {
     }
     echo "</th>";
 
-    // Sortable Retro Ratio header
+    // Sortable RetroRatio header
     if ($unlockMode == UnlockMode::Hardcore) {
         echo "<th class='text-right'>";
-        $sortFilter('Retro Ratio', 7);
+        $sortFilter('RetroRatio', 7);
         echo "</th>";
     }
 
