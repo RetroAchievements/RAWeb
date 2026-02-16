@@ -3,9 +3,10 @@
 @php
     $hasCustomBanner = !empty($page['props']['banner']['desktopMdWebp'] ?? null);
     $isGamePage = ($page['component'] ?? '') === 'game/[game]';
+    $isEventPage = ($page['component'] ?? '') === 'event/[event]';
     $isDesktop = ($page['props']['ziggy']['device'] ?? '') === 'desktop';
 
-    $hasBanner = $hasCustomBanner || ($isGamePage && $isDesktop);
+    $hasBanner = $hasCustomBanner || (($isGamePage || $isEventPage) && $isDesktop);
 @endphp
 
 <script>
@@ -54,10 +55,11 @@
         const props = event.detail.page.props || {};
         const hasCustomBannerNav = props.banner?.desktopMdWebp != null;
         const isGamePageNav = event.detail.page.component === 'game/[game]';
+        const isEventPageNav = event.detail.page.component === 'event/[event]';
         const isDesktopNav = props.ziggy?.device === 'desktop';
 
-        // Desktop game pages always have a banner area.
-        const hasBannerArea = hasCustomBannerNav || (isGamePageNav && isDesktopNav);
+        // Desktop game and event pages always have a banner area.
+        const hasBannerArea = hasCustomBannerNav || ((isGamePageNav || isEventPageNav) && isDesktopNav);
         setBannerState(hasBannerArea);
 
         // Update banner height for scroll detection.
