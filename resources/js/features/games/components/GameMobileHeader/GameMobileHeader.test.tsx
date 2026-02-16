@@ -32,6 +32,7 @@ describe('Component: GameMobileHeader', () => {
     const { container } = render(<GameMobileHeader />, {
       pageProps: {
         backingGame: createGame(),
+        can: {},
         game: createGame(),
         isOnWantToPlayList: false,
       },
@@ -49,6 +50,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -69,6 +71,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -86,6 +89,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -110,6 +114,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: true,
       },
     });
@@ -127,6 +132,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -134,6 +140,40 @@ describe('Component: GameMobileHeader', () => {
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
     expect(button).not.toBePressed();
+  });
+
+  it('given the user can manage games, shows the manage chip', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameMobileHeader />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: { manageGames: true },
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
+  });
+
+  it('given the user cannot manage games, does not show the manage chip', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameMobileHeader />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: { manageGames: false },
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
   });
 
   it('given the game is for the Nintendo DS, applies special background image styling', () => {
@@ -149,6 +189,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -175,6 +216,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -197,6 +239,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -216,6 +259,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -235,6 +279,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -254,6 +299,7 @@ describe('Component: GameMobileHeader', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
