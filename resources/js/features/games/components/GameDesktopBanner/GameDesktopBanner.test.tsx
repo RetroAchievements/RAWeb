@@ -11,6 +11,7 @@ describe('Component: GameDesktopBanner', () => {
     const { container } = render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
         backingGame: createGame(),
+        can: {},
         game: createGame(),
         isOnWantToPlayList: false,
       },
@@ -28,6 +29,7 @@ describe('Component: GameDesktopBanner', () => {
       pageProps: {
         game,
         backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -45,8 +47,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -67,8 +70,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -88,6 +92,7 @@ describe('Component: GameDesktopBanner', () => {
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
         backingGame: createGame(),
+        can: {},
         game: createGame(),
         isOnWantToPlayList: false,
       },
@@ -109,6 +114,7 @@ describe('Component: GameDesktopBanner', () => {
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
         backingGame: createGame(),
+        can: {},
         game: createGame(),
         isOnWantToPlayList: false,
       },
@@ -128,6 +134,7 @@ describe('Component: GameDesktopBanner', () => {
       pageProps: {
         backingGame,
         game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -142,8 +149,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
-        game, // !! same id as backingGame
+        game,
+        backingGame: game, // !! same id as backingGame
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -162,8 +170,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -184,8 +193,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -208,10 +218,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'expanded',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -232,8 +243,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -253,8 +265,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -273,8 +286,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -293,8 +307,9 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
+        backingGame: game,
+        can: {},
         isOnWantToPlayList: false,
       },
     });
@@ -312,10 +327,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'normal',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -329,10 +345,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'compact',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -346,10 +363,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'expanded',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -363,10 +381,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'compact',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -381,10 +400,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'expanded',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -399,10 +419,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'normal',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -432,10 +453,11 @@ describe('Component: GameDesktopBanner', () => {
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'normal',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
@@ -447,16 +469,51 @@ describe('Component: GameDesktopBanner', () => {
     expect(bannerEl).toHaveClass('border-neutral-500');
   });
 
+  it('given the user can manage games, shows the manage chip', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: { manageGames: true },
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
+  });
+
+  it('given the user cannot manage games, does not show the manage chip', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: { manageGames: false },
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
+  });
+
   it('given the toggle button is unhovered, reverts the border color', async () => {
     // ARRANGE
     const game = createGame();
 
     render(<GameDesktopBanner banner={createPageBanner()} />, {
       pageProps: {
-        backingGame: game,
         game,
-        isOnWantToPlayList: false,
+        backingGame: game,
         bannerPreference: 'normal',
+        can: {},
+        isOnWantToPlayList: false,
       },
     });
 
