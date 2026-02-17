@@ -29,7 +29,8 @@ export const PreferredTierButton: FC = () => {
   }
 
   // The user needs to have earned at least 2 tiers to have a meaningful choice.
-  if (earnedEventAwardTier === null || earnedEventAwardTier < 1) {
+  // Tier indices start at 1, so a value of 1 means only the lowest tier is earned.
+  if (!earnedEventAwardTier || earnedEventAwardTier <= 1) {
     return null;
   }
 

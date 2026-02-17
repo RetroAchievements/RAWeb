@@ -13,8 +13,8 @@ describe('Component: PreferredTierButton', () => {
     const event = createRaEvent({
       legacyGame: createGame(),
       eventAwards: [
-        createEventAward({ tierIndex: 0, earnedAt: '2024-01-01' }),
-        createEventAward({ tierIndex: 1, earnedAt: '2024-01-02' }),
+        createEventAward({ tierIndex: 1, earnedAt: '2024-01-01' }),
+        createEventAward({ tierIndex: 2, earnedAt: '2024-01-02' }),
       ],
     });
 
@@ -23,7 +23,7 @@ describe('Component: PreferredTierButton', () => {
         auth: { user: createAuthenticatedUser() },
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 1,
+        earnedEventAwardTier: 2,
       },
     });
 
@@ -36,8 +36,8 @@ describe('Component: PreferredTierButton', () => {
     const event = createRaEvent({
       legacyGame: createGame(),
       eventAwards: [
-        createEventAward({ tierIndex: 0, earnedAt: '2024-01-01' }),
-        createEventAward({ tierIndex: 1, earnedAt: '2024-01-02' }),
+        createEventAward({ tierIndex: 1, earnedAt: '2024-01-01' }),
+        createEventAward({ tierIndex: 2, earnedAt: '2024-01-02' }),
       ],
     });
 
@@ -46,7 +46,7 @@ describe('Component: PreferredTierButton', () => {
         auth: null,
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 1,
+        earnedEventAwardTier: 2,
       },
     });
 
@@ -60,7 +60,7 @@ describe('Component: PreferredTierButton', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame(),
-      eventAwards: [createEventAward({ tierIndex: 0 }), createEventAward({ tierIndex: 1 })],
+      eventAwards: [createEventAward({ tierIndex: 1 }), createEventAward({ tierIndex: 2 })],
     });
 
     render(<PreferredTierButton />, {
@@ -68,7 +68,7 @@ describe('Component: PreferredTierButton', () => {
         auth: { user: createAuthenticatedUser() },
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 0,
+        earnedEventAwardTier: 1,
       },
     });
 
@@ -82,7 +82,7 @@ describe('Component: PreferredTierButton', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame(),
-      eventAwards: [createEventAward({ tierIndex: 0 }), createEventAward({ tierIndex: 1 })],
+      eventAwards: [createEventAward({ tierIndex: 1 }), createEventAward({ tierIndex: 2 })],
     });
 
     render(<PreferredTierButton />, {
@@ -90,7 +90,7 @@ describe('Component: PreferredTierButton', () => {
         auth: { user: createAuthenticatedUser() },
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 1,
+        earnedEventAwardTier: 2,
       },
     });
 
@@ -102,7 +102,7 @@ describe('Component: PreferredTierButton', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame(),
-      eventAwards: [createEventAward({ tierIndex: 0 }), createEventAward({ tierIndex: 1 })],
+      eventAwards: [createEventAward({ tierIndex: 1 }), createEventAward({ tierIndex: 2 })],
     });
 
     render(<PreferredTierButton />, {
@@ -110,7 +110,7 @@ describe('Component: PreferredTierButton', () => {
         auth: { user: createAuthenticatedUser() },
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 1,
+        earnedEventAwardTier: 2,
       },
     });
 
@@ -131,8 +131,8 @@ describe('Component: PreferredTierButton', () => {
       id: 7,
       legacyGame: createGame(),
       eventAwards: [
-        createEventAward({ tierIndex: 0, label: 'Bronze' }),
-        createEventAward({ tierIndex: 1, label: 'Silver' }),
+        createEventAward({ tierIndex: 1, label: 'Bronze' }),
+        createEventAward({ tierIndex: 2, label: 'Silver' }),
       ],
     });
 
@@ -141,7 +141,7 @@ describe('Component: PreferredTierButton', () => {
         auth: { user: createAuthenticatedUser() },
         event,
         preferredEventAwardTier: null,
-        earnedEventAwardTier: 1,
+        earnedEventAwardTier: 2,
       },
     });
 
