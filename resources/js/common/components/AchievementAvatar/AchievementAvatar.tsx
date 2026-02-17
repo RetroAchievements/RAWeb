@@ -1,13 +1,18 @@
 import type { FC, ReactNode } from 'react';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import type { BaseAvatarProps } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
+type DisplayLockedStatus = 'locked' | 'unlocked' | 'unlocked-hardcore';
+
 type AchievementAvatarProps = BaseAvatarProps &
   App.Platform.Data.Achievement & {
-    displayLockedStatus?: 'auto' | 'locked' | 'unlocked' | 'unlocked-hardcore';
+    asClientSideRoute?: boolean;
+    displayLockedStatus?: 'auto' | DisplayLockedStatus;
+    href?: string;
     showPointsInTitle?: boolean;
     sublabelSlot?: ReactNode;
     variant?: 'base' | 'inline';
@@ -16,6 +21,7 @@ type AchievementAvatarProps = BaseAvatarProps &
 export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   badgeLockedUrl,
   badgeUnlockedUrl,
+  href,
   id,
   imgClassName,
   points,
@@ -23,8 +29,10 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   title,
   unlockedAt,
   unlockedHardcoreAt,
+  asClientSideRoute = false,
   displayLockedStatus = 'unlocked',
   hasTooltip = true,
+  shouldLink = true,
   showImage = true,
   showLabel = true,
   showPointsInTitle = false,
@@ -45,15 +53,23 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
 
   const badgeUrl = derivedDisplayLockedStatus === 'locked' ? badgeLockedUrl : badgeUnlockedUrl;
 
-  const achievementLink = (children: React.ReactNode) => (
-    <a
-      href={route('achievement.show', { achievementId: id })}
-      className="max-w-fit"
-      {...(hasTooltip ? cardTooltipProps : undefined)}
-    >
-      {children}
-    </a>
-  );
+  const usedHref = href ?? route('achievement.show', { achievementId: id });
+
+  const LinkComponent = asClientSideRoute ? InertiaLink : 'a';
+
+  const achievementLink = (children: ReactNode) =>
+    shouldLink ? (
+      <LinkComponent
+        href={usedHref}
+        className="max-w-fit"
+        prefetch={asClientSideRoute ? 'desktop-hover-only' : undefined}
+        {...(hasTooltip ? cardTooltipProps : undefined)}
+      >
+        {children}
+      </LinkComponent>
+    ) : (
+      <span className="max-w-fit">{children}</span>
+    );
 
   if (!showLabel && showImage && badgeUnlockedUrl) {
     return achievementLink(
@@ -103,7 +119,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
 
 type AchievementBadgeProps = Partial<AchievementAvatarProps> & {
   badgeUrl: string;
-  displayLockedStatus: 'locked' | 'unlocked' | 'unlocked-hardcore';
+  displayLockedStatus: DisplayLockedStatus;
 };
 
 const AchievementBadge: FC<AchievementBadgeProps> = ({
@@ -137,10 +153,7 @@ const AchievementBadge: FC<AchievementBadgeProps> = ({
   );
 };
 
-function getAutoLockStatus(
-  unlockedHardcoreAt?: string,
-  unlockedAt?: string,
-): 'locked' | 'unlocked' | 'unlocked-hardcore' {
+function getAutoLockStatus(unlockedHardcoreAt?: string, unlockedAt?: string): DisplayLockedStatus {
   if (unlockedHardcoreAt) {
     return 'unlocked-hardcore';
   }

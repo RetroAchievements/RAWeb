@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/common/components/EmptyState';
 import { PlayableListSortButton } from '@/common/components/PlayableListSortButton';
 import type { PlayableListSortOrder } from '@/common/models';
+import { cn } from '@/common/utils/cn';
 
 import { EventAchievementSet } from './EventAchievementSet';
 
@@ -36,7 +37,12 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
 
   return (
     <div data-testid="event-achievement-sets" className="flex flex-col gap-2">
-      <div className="flex w-full justify-between">
+      <div
+        className={cn(
+          'flex w-full items-center justify-between rounded bg-embed px-2 py-1.5',
+          'light:border light:border-neutral-200 light:bg-white',
+        )}
+      >
         <PlayableListSortButton
           value={currentSort}
           onChange={(newValue) => setCurrentSort(newValue)}

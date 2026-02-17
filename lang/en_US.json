@@ -194,6 +194,7 @@
     "Message QATeam": "Message QATeam",
     "Mode": "Mode",
     "More": "More",
+    "More from this set": "More from this set",
     "More pages": "More pages",
     "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>.": "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>.",
     "Most recent game beaten": "Most recent game beaten",
@@ -1249,6 +1250,7 @@
     "You've used all your set requests.": "You've used all your set requests.",
     "Achievement Set": "Achievement Set",
     "Photosensitive Epilepsy Warning": "Photosensitive Epilepsy Warning",
+    "View all {{count}} achievements": "View all {{count}} achievements",
     "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards",
     "Set Requests - {{user}}": "Set Requests - {{user}}",
     "Hashes": "Hashes",
@@ -1353,5 +1355,12 @@
     "Unlocks": "Unlocks",
     "Changelog": "Changelog",
     "{{val, number}} softcore": "{{val, number}} softcore",
-    "{{val, number}} hardcore": "{{val, number}} hardcore"
+    "{{val, number}} hardcore": "{{val, number}} hardcore",
+    "Unlocked in hardcore": "Unlocked in hardcore",
+    "Created by": "Created by",
+    "Maintained by": "Maintained by",
+    "Created": "Created",
+    "Last modified": "Last modified",
+    "Developer Events": "Developer Events",
+    "Community Events": "Community Events"
 }

@@ -240,7 +240,7 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
-  export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
   export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type TrendingReason =
     | 'new-set'
@@ -484,7 +484,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
   export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
   export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
   export type PlayerGameActivitySessionType =
@@ -599,6 +599,7 @@ declare namespace App.Platform.Data {
     isPromoted?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
+    numUnresolvedTickets?: number;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
@@ -609,7 +610,8 @@ declare namespace App.Platform.Data {
     unlockPercentage?: string;
     unlocksHardcore?: number;
     unlocksTotal?: number;
-    numUnresolvedTickets?: number;
+    activeMaintainer?: App.Data.User | null;
+    modifiedAt?: string | null;
   };
   export type AchievementSetClaim = {
     id: number;
@@ -663,6 +665,8 @@ declare namespace App.Platform.Data {
     recentVisibleComments: Array<App.Community.Data.Comment>;
     backingGame: App.Platform.Data.Game | null;
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
+    proximityAchievements: Array<App.Platform.Data.Achievement> | null;
+    promotedAchievementCount: number;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
