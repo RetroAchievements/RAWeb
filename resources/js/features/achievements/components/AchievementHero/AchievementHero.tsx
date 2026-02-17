@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCircleCheck } from 'react-icons/fa6';
+import { LuCheck } from 'react-icons/lu';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementTypeIndicator } from '@/common/components/AchievementsListItem/AchievementTypeIndicator';
@@ -105,7 +105,7 @@ export const AchievementHero: FC = () => {
                     : 'text-neutral-300 light:text-neutral-700',
                 )}
               >
-                <FaCircleCheck className="size-4" />
+                <LuCheck className="size-4" />
                 {achievement.unlockedHardcoreAt ? t('Unlocked hardcore') : t('Unlocked')}
               </div>
 

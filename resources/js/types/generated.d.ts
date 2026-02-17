@@ -665,6 +665,8 @@ declare namespace App.Platform.Data {
     recentVisibleComments: Array<App.Community.Data.Comment>;
     backingGame: App.Platform.Data.Game | null;
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
+    proximityAchievements: Array<App.Platform.Data.Achievement> | null;
+    promotedAchievementCount: number;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
