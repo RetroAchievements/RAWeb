@@ -12,7 +12,10 @@ import { EventAwardTiers } from './EventAwardTiers';
 describe('Component: EventAwardTiers', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<EventAwardTiers event={createRaEvent()} numMasters={0} />);
+    const event = createRaEvent();
+    const { container } = render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -21,7 +24,9 @@ describe('Component: EventAwardTiers', () => {
   it('given an event with no awards, should render nothing', () => {
     // ARRANGE
     const event = createRaEvent({ eventAwards: [] });
-    render(<EventAwardTiers event={event} numMasters={0} />);
+    render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(screen.queryByTestId('award-tiers')).not.toBeInTheDocument();
@@ -35,7 +40,9 @@ describe('Component: EventAwardTiers', () => {
       eventAwards: [createEventAward(), createEventAward()],
     });
 
-    render(<EventAwardTiers event={event} numMasters={0} />);
+    render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(screen.getByText(/award tiers/i)).toBeVisible();
@@ -53,7 +60,9 @@ describe('Component: EventAwardTiers', () => {
       ],
     });
 
-    render(<EventAwardTiers event={event} numMasters={0} />);
+    render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     const awardLabels = screen.getAllByText(/points award/i).map((el) => el.textContent);
@@ -68,7 +77,9 @@ describe('Component: EventAwardTiers', () => {
       eventAwards: [createEventAward(), createEventAward(), createEventAward()],
     });
 
-    render(<EventAwardTiers event={event} numMasters={0} />);
+    render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     const awardItems = screen.getAllByRole('img');
@@ -83,7 +94,9 @@ describe('Component: EventAwardTiers', () => {
       eventAwards: [], // !!
     });
 
-    render(<EventAwardTiers event={event} numMasters={1000} />);
+    render(<EventAwardTiers event={event} numMasters={1000} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(screen.getByText(/1,000 players have earned this/i)).toBeVisible();
@@ -97,7 +110,9 @@ describe('Component: EventAwardTiers', () => {
       eventAwards: [], // !!
     });
 
-    render(<EventAwardTiers event={event} numMasters={0} />);
+    render(<EventAwardTiers event={event} numMasters={0} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(screen.queryByText(/1,000 players have earned this/i)).not.toBeInTheDocument();
@@ -111,7 +126,9 @@ describe('Component: EventAwardTiers', () => {
       eventAwards: [], // !!
     });
 
-    render(<EventAwardTiers event={event} numMasters={1000} />);
+    render(<EventAwardTiers event={event} numMasters={1000} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(screen.getByText(/1,000 players have earned this/i)).toBeVisible();
@@ -132,7 +149,9 @@ describe('Component: EventAwardTiers', () => {
       }),
     });
 
-    const { container } = render(<EventAwardTiers event={event} numMasters={1000} />);
+    const { container } = render(<EventAwardTiers event={event} numMasters={1000} />, {
+      pageProps: { event, preferredEventAwardTier: null, earnedEventAwardTier: null },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();

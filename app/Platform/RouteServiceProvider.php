@@ -12,6 +12,7 @@ use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
+use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -147,6 +148,9 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::put('user/game-achievement-set/preferences', [UserGameAchievementSetPreferenceController::class, 'update'])
                         ->name('api.user.game-achievement-set.preferences.update');
+
+                    Route::put('user/event-award-tier-preference', [UserEventAwardTierPreferenceApiController::class, 'update'])
+                        ->name('api.user.event-award-tier-preference.update');
 
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
                 });
