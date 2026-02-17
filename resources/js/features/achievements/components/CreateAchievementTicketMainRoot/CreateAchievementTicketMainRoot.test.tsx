@@ -568,7 +568,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           achievement,
           emulators,
           gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
           ziggy: createZiggyProps({ query: {} }),
         },
       },
@@ -586,7 +586,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-    await userEvent.click(screen.getByText(/softcore/i));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -597,7 +596,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
   it(
     'allows the user to submit the form with the "Triggered at the wrong time" issue type',
-    { retry: 2, timeout: 15000 },
+    { timeout: 15000 },
     async () => {
       // ARRANGE
       const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
@@ -617,7 +616,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
             achievement,
             emulators,
             gameHashes,
-            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
             ziggy: createZiggyProps({ query: {} }),
           },
         },
@@ -635,7 +634,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
       await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-      await userEvent.click(screen.getByText(/softcore/i));
 
       await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
       await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -693,7 +691,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
             achievement,
             emulators,
             gameHashes,
-            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
             ziggy: createZiggyProps({
               query: {
                 // !!!!!
@@ -715,7 +713,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
       await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-      await userEvent.click(screen.getByText(/softcore/i));
 
       await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
       await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -795,7 +792,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           achievement,
           emulators,
           gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
           ziggy: createZiggyProps({ query: {} }),
         },
       },
@@ -811,7 +808,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-    await userEvent.click(screen.getByText(/softcore/i));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -845,7 +841,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           achievement,
           emulators,
           gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
           ziggy: createZiggyProps({ query: {} }),
         },
       },
@@ -881,7 +877,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           achievement,
           emulators,
           gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
           ziggy: createZiggyProps({ query: {} }),
         },
       },
@@ -918,7 +914,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
             achievement,
             emulators,
             gameHashes,
-            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
             ziggy: createZiggyProps({ query: {} }),
           },
         },
@@ -955,7 +951,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
             achievement,
             emulators,
             gameHashes,
-            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
             ziggy: createZiggyProps({ query: {} }),
           },
         },

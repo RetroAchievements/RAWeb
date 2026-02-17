@@ -673,6 +673,8 @@ declare namespace App.Platform.Data {
     backingGame: App.Platform.Data.Game | null;
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
     changelog: Array<App.Platform.Data.AchievementChangelogEntry>;
+    proximityAchievements: Array<App.Platform.Data.Achievement> | null;
+    promotedAchievementCount: number;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -773,6 +775,8 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    preferredEventAwardTier: number | null;
+    earnedEventAwardTier: number | null;
   };
   export type FollowedPlayerCompletion = {
     user: App.Data.User;

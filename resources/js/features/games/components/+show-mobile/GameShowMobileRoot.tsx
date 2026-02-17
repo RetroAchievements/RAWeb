@@ -18,6 +18,7 @@ import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOf
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
@@ -140,6 +141,7 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableMainMedia
               imageIngameUrl={game.imageIngameUrl!}
               imageTitleUrl={game.imageTitleUrl!}
+              isPixelated={getIsSystemPixelated(game.system!.id)}
             />
           </div>
 
