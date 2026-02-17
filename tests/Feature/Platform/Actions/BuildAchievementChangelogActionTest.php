@@ -163,10 +163,31 @@ describe('Activitylog Entries', function () {
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toEqual([]);
     })->with([
-        'image_name' => ['image_name', '12345', '00000', AchievementChangelogEntryType::BadgeUpdated],
         'embed_url' => ['embed_url', 'https://example.com/new', 'https://example.com/old', AchievementChangelogEntryType::EmbedUrlUpdated],
         'trigger_definition' => ['trigger_definition', '0x001234', '0x000000', AchievementChangelogEntryType::LogicUpdated],
     ]);
+
+    it('includes badge image URLs in field changes for image_name changes', function () {
+        // Arrange
+        $user = User::factory()->create();
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+            attributes: ['image_name' => '12345'],
+            old: ['image_name' => '00000'],
+        );
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Assert
+        $entries = entriesOfType($result, AchievementChangelogEntryType::BadgeUpdated);
+        expect($entries)->toHaveCount(1);
+        expect($entries[0]->fieldChanges)->toHaveCount(1);
+        expect($entries[0]->fieldChanges[0]->oldValue)->toContain('/Badge/00000.png');
+        expect($entries[0]->fieldChanges[0]->newValue)->toContain('/Badge/12345.png');
+    });
 
     it('includes game titles in field changes for game_id changes', function () {
         // Arrange
@@ -570,32 +591,51 @@ describe('Merging and Sorting', function () {
 });
 
 describe('Collapsing Consecutive Entries', function () {
-    it('collapses consecutive entries of the same type and user into a single entry with a count', function () {
+    it('collapses consecutive generic edited entries of the same user into a single entry with a count', function () {
+        // Arrange
+        createSystemUser();
+        $user = User::factory()->create(['display_name' => 'Scott']);
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-15 12:00:00');
+        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-14 12:00:00');
+        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-13 12:00:00');
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Assert
+        $entries = entriesOfType($result, AchievementChangelogEntryType::Edited);
+        expect($entries)->toHaveCount(1);
+        expect($entries[0]->count)->toEqual(3);
+    });
+
+    it('does not collapse consecutive entries without field changes', function () {
         // Arrange
         $user = User::factory()->create();
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
         createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
-            attributes: ['image_name' => '11111'],
-            old: ['image_name' => '00000'],
+            attributes: ['embed_url' => 'https://example.com/a'],
+            old: ['embed_url' => 'https://example.com/b'],
         );
         createActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
-            attributes: ['image_name' => '22222'],
-            old: ['image_name' => '11111'],
+            attributes: ['embed_url' => 'https://example.com/c'],
+            old: ['embed_url' => 'https://example.com/a'],
         );
         createActivity($achievement, 'updated', '2024-06-15 12:02:00', $user,
-            attributes: ['image_name' => '33333'],
-            old: ['image_name' => '22222'],
+            attributes: ['embed_url' => 'https://example.com/d'],
+            old: ['embed_url' => 'https://example.com/c'],
         );
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::BadgeUpdated);
-        expect($entries)->toHaveCount(1);
-        expect($entries[0]->count)->toEqual(3);
+        $entries = entriesOfType($result, AchievementChangelogEntryType::EmbedUrlUpdated);
+        expect($entries)->toHaveCount(3);
     });
 
     it('does not collapse consecutive entries of different types', function () {

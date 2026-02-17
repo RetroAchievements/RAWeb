@@ -162,7 +162,7 @@ class BuildAchievementChangelogAction
 
         $collapsed = [];
         $current = $entries[0];
-        $REMOVAL_SENTINEL = -1;
+        $isNetZero = false;
 
         for ($i = 1, $len = count($entries); $i < $len; $i++) {
             $next = $entries[$i];
@@ -171,29 +171,43 @@ class BuildAchievementChangelogAction
             $isSameUser = $current->user?->displayName === $next->user?->displayName;
 
             if ($isSameType && $isSameUser) {
-                $current->count++;
+                // Only collapse when we can meaningfully represent the merged result.
+                // Field-change entries get their old/new values merged, and generic
+                // "edited" entries show a repeat count. Types without field changes
+                // (eg: logic-updated, badge-updated) stay as individual timeline entries.
+                $canMergeFieldChanges = !empty($next->fieldChanges) && !empty($current->fieldChanges);
+                $isGenericEdit = $current->type === AchievementChangelogEntryType::Edited;
 
-                // For types with field changes, merge to show the overall change
-                // (oldest oldValue -> newest newValue) instead of a meaningless repeat count.
-                if (!empty($next->fieldChanges) && !empty($current->fieldChanges)) {
-                    $current->fieldChanges[0]->oldValue = $next->fieldChanges[0]->oldValue;
+                if ($canMergeFieldChanges || $isGenericEdit) {
+                    $current->count++;
 
-                    // If the values ultimately ended up the same (eg: 4->5 then 5->4), mark for removal.
-                    if ($current->fieldChanges[0]->oldValue === $current->fieldChanges[0]->newValue) {
-                        $current->fieldChanges = [];
-                        $current->count = $REMOVAL_SENTINEL; // net-zero change, remove this entry entirely
+                    if ($canMergeFieldChanges) {
+                        $current->fieldChanges[0]->oldValue = $next->fieldChanges[0]->oldValue;
+
+                        // Something like 4->5 then 5->4 is a net-zero change. Remove those entries entirely.
+                        if ($current->fieldChanges[0]->oldValue === $current->fieldChanges[0]->newValue) {
+                            $current->fieldChanges = [];
+                            $isNetZero = true;
+                        }
                     }
+                } else {
+                    $collapsed[] = $current;
+                    $current = $next;
                 }
             } else {
-                $collapsed[] = $current;
+                if (!$isNetZero) {
+                    $collapsed[] = $current;
+                }
+                $isNetZero = false;
                 $current = $next;
             }
         }
 
-        $collapsed[] = $current;
+        if (!$isNetZero) {
+            $collapsed[] = $current;
+        }
 
-        // Remove entries where collapsing ultimately produced a net-zero change.
-        return array_values(array_filter($collapsed, fn ($e) => $e->count !== $REMOVAL_SENTINEL));
+        return $collapsed;
     }
 
     /**
@@ -453,7 +467,7 @@ class BuildAchievementChangelogAction
 
     private function shouldShowFieldChanges(string $field): bool
     {
-        return in_array($field, ['description', 'title', 'points', 'type', 'game_id'], true);
+        return in_array($field, ['description', 'title', 'points', 'type', 'game_id', 'image_name'], true);
     }
 
     private function formatFieldValue(string $field, ?string $value): ?string
@@ -465,6 +479,7 @@ class BuildAchievementChangelogAction
         return match ($field) {
             'type' => self::ACHIEVEMENT_TYPE_LABELS[$value] ?? $value,
             'game_id' => $this->resolveGameTitle((int) $value),
+            'image_name' => media_asset("/Badge/{$value}.png"),
             default => $value,
         };
     }

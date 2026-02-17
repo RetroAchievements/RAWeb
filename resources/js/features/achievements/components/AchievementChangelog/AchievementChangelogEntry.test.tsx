@@ -43,7 +43,7 @@ describe('Component: AchievementChangelogEntry', () => {
     expect(screen.getByText(expectedText)).toBeVisible();
   });
 
-  it('given the type is points-changed with field changes, displays values inline without a field changes block', () => {
+  it('given the type is points-changed with field changes, displays old and new values as a diff', () => {
     // ARRANGE
     render(
       <ul>
@@ -57,8 +57,9 @@ describe('Component: AchievementChangelogEntry', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/points changed from 10 to 25/i)).toBeVisible();
-    expect(screen.queryByText('10', { selector: '.line-through' })).not.toBeInTheDocument();
+    expect(screen.getByText('Points changed')).toBeVisible();
+    expect(screen.getByText('10')).toBeVisible();
+    expect(screen.getByText('25')).toBeVisible();
   });
 
   it('given the type is points-changed without field changes, displays a generic label', () => {
@@ -102,6 +103,52 @@ describe('Component: AchievementChangelogEntry', () => {
 
     // ASSERT
     expect(screen.getByText('Type set')).toBeVisible();
+  });
+
+  it('given the type is badge-updated with field changes, renders before and after images', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({
+            type: 'badge-updated',
+            fieldChanges: [
+              {
+                oldValue: 'https://media.retroachievements.org/Badge/00000.png',
+                newValue: 'https://media.retroachievements.org/Badge/12345.png',
+              },
+            ],
+          })}
+        />
+      </ul>,
+    );
+
+    // ASSERT
+    expect(screen.getByAltText('Old badge')).toHaveAttribute(
+      'src',
+      'https://media.retroachievements.org/Badge/00000.png',
+    );
+    expect(screen.getByAltText('New badge')).toHaveAttribute(
+      'src',
+      'https://media.retroachievements.org/Badge/12345.png',
+    );
+  });
+
+  it('given the type is type-removed with a field change, displays the old type name inline', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({
+            type: 'type-removed',
+            fieldChanges: [{ oldValue: 'Win Condition', newValue: null }],
+          })}
+        />
+      </ul>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/removed type Win Condition/i)).toBeVisible();
   });
 
   it('given the type is moved-to-different-game with field changes, displays game names inline', () => {

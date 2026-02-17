@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuInfo } from 'react-icons/lu';
+import { LuArrowRight, LuInfo } from 'react-icons/lu';
 
 import {
   BaseTooltip,
@@ -30,10 +30,9 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
 
   return (
     <li className="group relative flex gap-3 pb-6 last:pb-0" data-testid="changelog-entry">
-      {/* Connects this entry's dot to the next entry below. */}
+      {/* The last entry has no successor, so there's no reason to draw a connector. */}
       <div className="absolute -bottom-1 left-[3px] top-3 w-px bg-neutral-700 group-last:hidden" />
 
-      {/* Color-coded dot indicating the nature of this changelog event. */}
       <div
         data-testid="changelog-dot"
         className={cn(
@@ -70,19 +69,7 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
         {entry.fieldChanges.length > 0 && !hasInlineFieldChanges(entry.type) ? (
           <div className="flex flex-col gap-0.5">
             {entry.fieldChanges.map((change, index) => (
-              <div key={`change-${index}`} className="flex flex-col gap-0.5 text-2xs">
-                {change.oldValue !== null ? (
-                  <span className="rounded bg-red-950/40 px-1 py-px text-red-400 line-through light:bg-red-100 light:text-red-700">
-                    {change.oldValue}
-                  </span>
-                ) : null}
-
-                {change.newValue !== null ? (
-                  <span className="rounded bg-green-950/40 px-1 py-px text-green-400 light:bg-green-100 light:text-green-700">
-                    {change.newValue}
-                  </span>
-                ) : null}
-              </div>
+              <FieldChangeDiff key={`change-${index}`} change={change} type={entry.type} />
             ))}
           </div>
         ) : null}
@@ -90,7 +77,9 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
         <div className="flex items-center gap-1.5 text-2xs">
           {entry.user ? <UserAvatar {...entry.user} size={16} showLabel={true} /> : null}
 
-          <span className="text-neutral-500">{formatDate(entry.createdAt, 'll')}</span>
+          <span className="cursor-help text-neutral-500" title={formatDate(entry.createdAt, 'lll')}>
+            {formatDate(entry.createdAt, 'll')}
+          </span>
         </div>
       </div>
     </li>
@@ -99,11 +88,44 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
 
 type EntryType = App.Platform.Data.AchievementChangelogEntry['type'];
 
+interface FieldChangeDiffProps {
+  change: App.Platform.Data.ChangelogFieldChange;
+  type: EntryType;
+}
+
+const FieldChangeDiff: FC<FieldChangeDiffProps> = ({ change, type }) => {
+  if (type === 'badge-updated') {
+    return (
+      <div className="flex items-center gap-2">
+        <img src={change.oldValue!} alt="Old badge" className="size-12 rounded" />
+        <LuArrowRight className="text-neutral-500" />
+        <img src={change.newValue!} alt="New badge" className="size-12 rounded" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-0.5 text-2xs">
+      {change.oldValue !== null ? (
+        <span className="rounded bg-red-950/40 px-1 py-px text-red-400 line-through light:bg-red-100 light:text-red-700">
+          {change.oldValue}
+        </span>
+      ) : null}
+
+      {change.newValue !== null ? (
+        <span className="rounded bg-green-950/40 px-1 py-px text-green-400 light:bg-green-100 light:text-green-700">
+          {change.newValue}
+        </span>
+      ) : null}
+    </div>
+  );
+};
+
 /**
  * Avoid rendering a separate diff block for types that already show values inline.
  */
 function hasInlineFieldChanges(type: EntryType): boolean {
-  return type === 'type-set' || type === 'points-changed' || type === 'moved-to-different-game';
+  return type === 'type-set' || type === 'type-removed' || type === 'moved-to-different-game';
 }
 
 function getDotColor(type: EntryType, isCreatedAsPromoted?: boolean): string {
@@ -152,14 +174,8 @@ function buildHeader(entry: App.Platform.Data.AchievementChangelogEntry, t: TFun
     case 'title-updated':
       return t('Title updated');
 
-    case 'points-changed': {
-      const oldVal = entry.fieldChanges[0]?.oldValue;
-      const newVal = entry.fieldChanges[0]?.newValue;
-
-      return oldVal && newVal
-        ? t('Points changed from {{oldVal}} to {{newVal}}', { oldVal, newVal })
-        : t('Points changed');
-    }
+    case 'points-changed':
+      return t('Points changed');
 
     case 'badge-updated':
       return t('Badge updated');
@@ -188,8 +204,11 @@ function buildHeader(entry: App.Platform.Data.AchievementChangelogEntry, t: TFun
     case 'type-changed':
       return t('Type changed');
 
-    case 'type-removed':
-      return t('Type removed');
+    case 'type-removed': {
+      const typeName = entry.fieldChanges[0]?.oldValue;
+
+      return typeName ? t('Removed type {{typeName}}', { typeName }) : t('Type removed');
+    }
 
     default:
       return t('Edited');

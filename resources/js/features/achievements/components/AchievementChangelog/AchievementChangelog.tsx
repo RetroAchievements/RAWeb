@@ -47,7 +47,7 @@ export const AchievementChangelog: FC = () => {
         <AchievementChangelogEntry key={`entry-${index}`} entry={entry} />
       ))}
 
-      {/* Visually aligned with entry content but without its own timeline dot. */}
+      {/* No timeline dot here -- the collapse toggle sits between entries. */}
       <li className="relative pb-6">
         <div className="absolute -bottom-1 left-[3px] top-0 w-px bg-neutral-700" />
 

@@ -1368,7 +1368,6 @@
     "Demoted": "Demoted",
     "Description updated": "Description updated",
     "Title updated": "Title updated",
-    "Points changed from {{oldVal}} to {{newVal}}": "Points changed from {{oldVal}} to {{newVal}}",
     "Points changed": "Points changed",
     "Badge updated": "Badge updated",
     "Embed URL updated": "Embed URL updated",
@@ -1379,5 +1378,6 @@
     "Type set": "Type set",
     "Type changed": "Type changed",
     "Type removed": "Type removed",
+    "Removed type {{typeName}}": "Removed type {{typeName}}",
     "({{count}} times)": "({{count}} times)"
 }
