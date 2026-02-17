@@ -325,4 +325,41 @@ describe('Component: AchievementAvatar', () => {
     const imgEl = screen.getByRole('img');
     expect(imgEl).toHaveAttribute('src', 'https://example.com/unlocked.png');
   });
+
+  it('given shouldLink is false, renders a span instead of a link', () => {
+    // ARRANGE
+    const achievement = createAchievement({ title: 'No Link Ach' });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} shouldLink={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText('No Link Ach')).toBeVisible();
+  });
+
+  it('given a custom href, uses it instead of the default route', () => {
+    // ARRANGE
+    const achievement = createAchievement({ title: 'Custom Link' });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} href="/custom/path" />);
+
+    // ASSERT
+    const linkEl = screen.getAllByRole('link')[0];
+    expect(linkEl).toHaveAttribute('href', '/custom/path');
+  });
+
+  it('given asClientSideRoute is true, renders an InertiaLink instead of a plain anchor', () => {
+    // ARRANGE
+    const achievement = createAchievement({ title: 'Client Route Ach' });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} asClientSideRoute={true} />);
+
+    // ASSERT
+    // ... InertiaLink renders with data-testid="link", distinguishing it from a plain <a> ...
+    const linkEl = screen.getAllByTestId('link')[0];
+    expect(linkEl).toBeVisible();
+  });
 });

@@ -15,6 +15,7 @@ class AchievementShowPagePropsData extends Data
 {
     /**
      * @param Collection<int, CommentData> $recentVisibleComments
+     * @param AchievementData[]|null $proximityAchievements
      */
     public function __construct(
         public AchievementData $achievement,
@@ -24,6 +25,8 @@ class AchievementShowPagePropsData extends Data
         public Collection $recentVisibleComments,
         public ?GameData $backingGame = null,
         public ?GameAchievementSetData $gameAchievementSet = null,
+        public ?array $proximityAchievements = null,
+        public int $promotedAchievementCount = 0,
     ) {
     }
 }
