@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { SEO } from '@/common/components/SEO';
 import { SEOPreloadBanner } from '@/common/components/SEOPreloadBanner';
+import { SEOPreloadImage } from '@/common/components/SEOPreloadImage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -66,7 +67,12 @@ const GameShow: AppPage = () => {
         noindex={noindex}
       />
 
-      <SEOPreloadBanner banner={banner} device={ziggy.device} />
+      {/* Mobile uses the in-game screenshot when there's no custom banner, so preload that instead. */}
+      {ziggy.device === 'mobile' && banner?.isFallback && game.imageIngameUrl ? (
+        <SEOPreloadImage src={game.imageIngameUrl} type="image/png" media="(max-width: 767px)" />
+      ) : (
+        <SEOPreloadBanner banner={banner} device={ziggy.device} />
+      )}
 
       {ziggy.device === 'mobile' ? (
         <AppLayout.Main>
