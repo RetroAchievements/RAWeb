@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\AchievementSetType;
 use App\Support\Database\Eloquent\BasePivot;
 use Database\Factories\PlayerAchievementSetFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -73,6 +74,9 @@ class PlayerAchievementSet extends BasePivot
     }
 
     /**
+     * Prefer the non-core attachment so we return the
+     * parent game rather than the subset backing game.
+     *
      * @return HasOneThrough<Game, GameAchievementSet, $this>
      */
     public function game(): HasOneThrough
@@ -84,7 +88,7 @@ class PlayerAchievementSet extends BasePivot
             'id',                 // FK on games (its primary key)
             'achievement_set_id', // Local key
             'game_id'             // Local key
-        );
+        )->orderByRaw("CASE WHEN game_achievement_sets.type != ? THEN 0 ELSE 1 END", [AchievementSetType::Core->value]);
     }
 
     // == scopes

@@ -337,6 +337,47 @@ class PlayerAchievementSetsTest extends TestCase
         $this->assertEquals('Sonic the Hedgehog', $included[0]['attributes']['title']);
     }
 
+    public function testItIncludesRealGameInsteadOfSubsetBackingGame(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $player = User::factory()->create();
+
+        $realGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Real Game']);
+        $backingGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Backing Game']);
+
+        $achievementSet = AchievementSet::factory()->create();
+        GameAchievementSet::factory()->create([
+            'game_id' => $realGame->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Bonus,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $backingGame->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+
+        PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $achievementSet->id,
+            'last_unlock_hardcore_at' => now(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievement-sets?include=game");
+
+        // Assert
+        $response->assertSuccessful();
+        $included = $response->json('included');
+        $this->assertCount(1, $included);
+        $this->assertEquals('Real Game', $included[0]['attributes']['title']);
+    }
+
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
@@ -391,7 +432,6 @@ class PlayerAchievementSetsTest extends TestCase
             'achievement_set_id' => $achievementSet->id,
             'achievements_unlocked' => 15,
             'achievements_unlocked_hardcore' => 12,
-            'achievements_unlocked_softcore' => 3,
             'points' => 300,
             'points_hardcore' => 240,
             'points_weighted' => 600,
@@ -410,7 +450,6 @@ class PlayerAchievementSetsTest extends TestCase
 
         $this->assertEquals(15, $attributes['achievementsUnlocked']);
         $this->assertEquals(12, $attributes['achievementsUnlockedHardcore']);
-        $this->assertEquals(3, $attributes['achievementsUnlockedSoftcore']);
         $this->assertEquals(300, $attributes['points']);
         $this->assertEquals(240, $attributes['pointsHardcore']);
         $this->assertEquals(600, $attributes['pointsWeighted']);
@@ -491,8 +530,86 @@ class PlayerAchievementSetsTest extends TestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.0.attributes');
 
-        $this->assertEquals(7200, $attributes['timeTaken']);
-        $this->assertEquals(5400, $attributes['timeTakenHardcore']);
+        $this->assertEquals(7200, $attributes['timeTakenSeconds']);
+        $this->assertEquals(5400, $attributes['timeTakenHardcoreSeconds']);
+    }
+
+    public function testItReturnsSetContext(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $player = User::factory()->create();
+
+        $achievementSet = AchievementSet::factory()->create();
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Bonus,
+        ]);
+        PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $achievementSet->id,
+            'last_unlock_hardcore_at' => now(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievement-sets");
+
+        // Assert
+        $response->assertSuccessful();
+        $attributes = $response->json('data.0.attributes');
+
+        $this->assertNotEmpty($attributes['setContext']);
+        $this->assertEquals($game->id, $attributes['setContext'][0]['gameId']);
+        $this->assertEquals('bonus', $attributes['setContext'][0]['type']);
+    }
+
+    public function testItExcludesSubsetBackingGameFromSetContext(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $player = User::factory()->create();
+
+        // The achievement set is core on one game (the backing game) and bonus on another.
+        $backingGame = Game::factory()->create(['system_id' => $system->id]);
+        $realGame = Game::factory()->create(['system_id' => $system->id]);
+        $achievementSet = AchievementSet::factory()->create();
+        GameAchievementSet::factory()->create([
+            'game_id' => $backingGame->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $realGame->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Bonus,
+        ]);
+        PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $achievementSet->id,
+            'last_unlock_hardcore_at' => now(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievement-sets");
+
+        // Assert
+        $response->assertSuccessful();
+        $setContext = $response->json('data.0.attributes.setContext');
+
+        // The backing game (core) should be excluded, only the real game (bonus) remains.
+        $this->assertCount(1, $setContext);
+        $this->assertEquals($realGame->id, $setContext[0]['gameId']);
+        $this->assertEquals('bonus', $setContext[0]['type']);
     }
 
     public function testItDoesNotIncludeSelfLinks(): void
@@ -578,5 +695,13 @@ class PlayerAchievementSetsTest extends TestCase
 
         $types = collect($included)->pluck('type')->unique()->toArray();
         $this->assertEquals(['player-achievement-sets'], $types);
+
+        // The setContext should make the records distinguishable as core vs bonus.
+        $setContextTypes = collect($included)
+            ->pluck('attributes.setContext.0.type')
+            ->sort()
+            ->values()
+            ->toArray();
+        $this->assertEquals(['bonus', 'core'], $setContextTypes);
     }
 }

@@ -74,9 +74,9 @@ class PlayerGameSchema extends Schema
             DateTime::make('beatenHardcoreAt', 'beaten_hardcore_at')->readOnly(),
 
             // Time tracking.
-            Number::make('playtimeTotal', 'playtime_total')->readOnly(),
-            Number::make('timeToBeat', 'time_to_beat')->readOnly(),
-            Number::make('timeToBeatHardcore', 'time_to_beat_hardcore')->readOnly(),
+            Number::make('playtimeTotalSeconds', 'playtime_total')->readOnly(),
+            Number::make('timeToBeatSeconds', 'time_to_beat')->readOnly(),
+            Number::make('timeToBeatHardcoreSeconds', 'time_to_beat_hardcore')->readOnly(),
 
             // Relationships.
             BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),

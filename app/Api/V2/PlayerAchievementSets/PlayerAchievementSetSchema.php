@@ -6,6 +6,7 @@ namespace App\Api\V2\PlayerAchievementSets;
 
 use App\Models\PlayerAchievementSet;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
+use LaravelJsonApi\Eloquent\Fields\ArrayList;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
@@ -59,7 +60,6 @@ class PlayerAchievementSetSchema extends Schema
 
             Number::make('achievementsUnlocked', 'achievements_unlocked')->readOnly(),
             Number::make('achievementsUnlockedHardcore', 'achievements_unlocked_hardcore')->readOnly(),
-            Number::make('achievementsUnlockedSoftcore', 'achievements_unlocked_softcore')->readOnly(),
 
             Number::make('points', 'points')->sortable()->readOnly(),
             Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
@@ -73,11 +73,10 @@ class PlayerAchievementSetSchema extends Schema
             DateTime::make('completedAt', 'completed_at')->sortable()->readOnly(),
             DateTime::make('completedHardcoreAt', 'completed_hardcore_at')->sortable()->readOnly(),
 
-            Number::make('timeTaken', 'time_taken')->sortable()->readOnly(),
-            Number::make('timeTakenHardcore', 'time_taken_hardcore')->sortable()->readOnly(),
+            Number::make('timeTakenSeconds', 'time_taken')->sortable()->readOnly(),
+            Number::make('timeTakenHardcoreSeconds', 'time_taken_hardcore')->sortable()->readOnly(),
 
-            DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
-            DateTime::make('updatedAt', 'updated_at')->readOnly(),
+            ArrayList::make('setContext')->readOnly(),
 
             BelongsTo::make('achievementSet')->type('achievement-sets')->readOnly(),
             HasOneThrough::make('game')->type('games'), // HasOneThrough is always implicitly ->readOnly()
