@@ -44,6 +44,13 @@ class BuildEventShowPagePropsAction
             ? $user->playerGames()->whereGameId($event->legacyGame->id)->first()
             : null;
 
+        $eventBadge = $user
+            ? $user->playerBadges()
+                ->where('award_type', AwardType::Event)
+                ->where('award_key', $event->id)
+                ->first()
+            : null;
+
         $breadcrumbs = $this->buildEventBreadcrumbs($event);
 
         return new EventShowPagePropsData(
@@ -94,6 +101,8 @@ class BuildEventShowPagePropsAction
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($event->legacyGame->id, $user))
                 : null,
+            preferredEventAwardTier: $eventBadge?->display_award_tier,
+            earnedEventAwardTier: $eventBadge?->award_tier,
         );
     }
 

@@ -13,7 +13,7 @@ import { IsPlayableChip } from '../EventHeader/IsPlayableChip';
 import { StartDateChip } from '../EventHeader/StartDateChip';
 
 export const EventShowMainRoot: FC = () => {
-  const { breadcrumbs, event } = usePageProps<App.Platform.Data.EventShowPageProps>();
+  const { breadcrumbs, event, ziggy } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -25,19 +25,23 @@ export const EventShowMainRoot: FC = () => {
 
   return (
     <div data-testid="main" className="flex flex-col gap-3">
-      <EventBreadcrumbs breadcrumbs={breadcrumbs} event={event} />
-      <PlayableHeader
-        badgeUrl={legacyGame.badgeUrl}
-        systemLabel={t('Event')}
-        systemIconUrl="/assets/images/system/events.png"
-        title={legacyGame.title}
-      >
-        <IsPlayableChip event={event} />
-        <StartDateChip event={event} />
-        <EndDateChip event={event} />
-      </PlayableHeader>
+      {ziggy.device !== 'desktop' ? (
+        <>
+          <EventBreadcrumbs breadcrumbs={breadcrumbs} event={event} />
+          <PlayableHeader
+            badgeUrl={legacyGame.badgeUrl}
+            systemLabel={t('Event')}
+            systemIconUrl="/assets/images/system/events.png"
+            title={legacyGame.title}
+          >
+            <IsPlayableChip event={event} />
+            <StartDateChip event={event} />
+            <EndDateChip event={event} />
+          </PlayableHeader>
+        </>
+      ) : null}
 
-      <div className="mt-2 hidden sm:block">
+      <div className="hidden sm:block">
         <PlayableMainMedia
           imageIngameUrl={legacyGame.imageIngameUrl!}
           imageTitleUrl={legacyGame.imageTitleUrl!}

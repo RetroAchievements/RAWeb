@@ -13,7 +13,7 @@ interface EventSidebarFullWidthButtonsProps {
 }
 
 export const EventSidebarFullWidthButtons: FC<EventSidebarFullWidthButtonsProps> = ({ event }) => {
-  const { auth, can } = usePageProps<App.Platform.Data.EventShowPageProps>();
+  const { auth, can, ziggy } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -34,9 +34,12 @@ export const EventSidebarFullWidthButtons: FC<EventSidebarFullWidthButtonsProps>
 
       {can.manageEvents ? (
         <PlayableSidebarButtonsSection headingLabel={t('Management')}>
-          <PlayableSidebarButton href={`/manage/events/${event.id}`} IconComponent={LuWrench}>
-            {t('Event Details')}
-          </PlayableSidebarButton>
+          {/* On desktop, the banner header has a manage button. */}
+          {ziggy.device !== 'desktop' ? (
+            <PlayableSidebarButton href={`/manage/events/${event.id}`} IconComponent={LuWrench}>
+              {t('Event Details')}
+            </PlayableSidebarButton>
+          ) : null}
 
           {!event.legacyGame?.forumTopicId && can.createGameForumTopic ? (
             <GameCreateForumTopicButton game={event.legacyGame!} />

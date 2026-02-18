@@ -12,6 +12,7 @@ use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
+use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -68,6 +69,8 @@ class RouteServiceProvider extends ServiceProvider
             });
 
             Route::middleware(['web', 'inertia'])->group(function () {
+                Route::get('achievement2/{achievement}', [AchievementController::class, 'show'])->name('achievement2.show');
+
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
                 Route::get('event/{event}/award-earners', [EventAwardEarnersController::class, 'index'])->name('event.award-earners.index');
 
@@ -88,7 +91,6 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('user/{user}/game/{game}/activity', [PlayerGameController::class, 'activity'])->name('user.game.activity.show');
             });
 
-            // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
             // Route::resource('achievements', AchievementController::class)->only('index')->names(['index' => 'achievement.index']);
             // Route::get(
             //     'achievement/{achievement}/players',
@@ -147,6 +149,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/game-achievement-set/preferences', [UserGameAchievementSetPreferenceController::class, 'update'])
                         ->name('api.user.game-achievement-set.preferences.update');
 
+                    Route::put('user/event-award-tier-preference', [UserEventAwardTierPreferenceApiController::class, 'update'])
+                        ->name('api.user.event-award-tier-preference.update');
+
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
                 });
 
@@ -154,7 +159,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
 
                 Route::middleware(['inertia'])->group(function () {
-                    Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue.index');
+                    Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
                 });
             });

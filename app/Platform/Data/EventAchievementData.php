@@ -62,6 +62,7 @@ class EventAchievementData extends Data
                     unlockPercentage: Lazy::create(fn () => $eventAchievement->achievement->unlock_percentage),
                     unlocksHardcore: Lazy::create(fn () => $eventAchievement->achievement->unlocks_hardcore),
                     unlocksTotal: Lazy::create(fn () => $eventAchievement->achievement->unlocks_total),
+                    numUnresolvedTickets: Lazy::create(fn () => 0),
                 )),
                 sourceAchievement: Lazy::create(fn () => null), // Force sourceAchievement to be null
                 event: Lazy::create(fn () => EventData::fromEvent($eventAchievement->event)),

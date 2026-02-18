@@ -17,6 +17,8 @@ import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
+import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
@@ -84,7 +86,12 @@ export const GameShowMobileRoot: FC = () => {
       <BaseTabs value={currentTab} onValueChange={(value) => setCurrentTab(value as GameShowTab)}>
         {/* Tabs list */}
         <div className="-mx-2.5 -mt-3 overflow-x-auto">
-          <BaseTabsList className="mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
+          <BaseTabsList
+            className={cn(
+              'mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0',
+              'light:bg-white light:pt-1',
+            )}
+          >
             <BaseTabsTrigger value="achievements" variant="underlined">
               {t('Achievement Set')}
             </BaseTabsTrigger>
@@ -134,6 +141,7 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableMainMedia
               imageIngameUrl={game.imageIngameUrl!}
               imageTitleUrl={game.imageTitleUrl!}
+              isPixelated={getIsSystemPixelated(game.system!.id)}
             />
           </div>
 
