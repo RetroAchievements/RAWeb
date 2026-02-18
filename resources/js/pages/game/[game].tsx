@@ -3,7 +3,7 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { useEffect } from 'react';
 
 import { SEO } from '@/common/components/SEO';
-import { SEOPreloadImage } from '@/common/components/SEOPreloadImage';
+import { SEOPreloadBanner } from '@/common/components/SEOPreloadBanner';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -46,7 +46,8 @@ const GameShow: AppPage = () => {
     //
   ]);
 
-  // Reset the sort order when switching between achievement sets.
+  // useHydrateAtoms only sets atoms on initial mount. When the user switches
+  // achievement sets, the sort needs to be re-synced from the server props.
   // TODO this probably shouldn't live at the page component level
   useEffect(() => {
     setCurrentPlayableListSort(initialSort);
@@ -65,29 +66,7 @@ const GameShow: AppPage = () => {
         noindex={noindex}
       />
 
-      {/* TODO when banners get used on other pages, build a SEOPreloadBanner component */}
-      {ziggy.device === 'mobile' && (banner?.mobileSmAvif || game.imageIngameUrl) ? (
-        <SEOPreloadImage
-          src={banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
-          type={banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
-          media="(max-width: 767px)"
-        />
-      ) : null}
-      {ziggy.device === 'desktop' && banner?.desktopMdAvif ? (
-        <SEOPreloadImage
-          src={banner.desktopMdAvif}
-          media="(min-width: 768px)"
-          imageSrcSet={[
-            banner.desktopMdAvif && `${banner.desktopMdAvif} 1024w`,
-            banner.desktopLgAvif && `${banner.desktopLgAvif} 1280w`,
-            banner.desktopXlAvif && `${banner.desktopXlAvif} 1920w`,
-          ]
-            .filter(Boolean)
-            .join(', ')}
-          imageSizes="100vw"
-          type="image/avif"
-        />
-      ) : null}
+      <SEOPreloadBanner banner={banner} device={ziggy.device} />
 
       {ziggy.device === 'mobile' ? (
         <AppLayout.Main>

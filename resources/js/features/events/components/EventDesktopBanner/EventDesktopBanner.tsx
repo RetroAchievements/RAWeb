@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { LuCalendarRange, LuWrench } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
+import { DesktopBanner } from '@/common/components/DesktopBanner';
 import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
@@ -20,7 +21,7 @@ const EventCategoryHubIds = {
   DeveloperEvents: 5,
 } as const;
 
-// Status chips are not links, so they suppress the link-like hover styles.
+// Status chips aren't links, so we suppress the link-like hover styles from the base chip.
 const statusChipClassNames = cn(
   responsiveHeaderChipClassNames,
   'font-medium text-neutral-300 sm:text-sm light:text-neutral-700',
@@ -29,7 +30,7 @@ const statusChipClassNames = cn(
 );
 
 export const EventDesktopBanner: FC = () => {
-  const { breadcrumbs, can, event } = usePageProps<App.Platform.Data.EventShowPageProps>();
+  const { banner, breadcrumbs, can, event } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
@@ -38,7 +39,7 @@ export const EventDesktopBanner: FC = () => {
 
   const legacyGame = event.legacyGame!;
 
-  // Find the event category hub (Community Events or Developer Events) from the breadcrumbs.
+  // Determine which event category to display based on the hub breadcrumb trail.
   const categoryHubIds = Object.values(EventCategoryHubIds) as number[];
   const categoryHubId =
     breadcrumbs?.find((b) => categoryHubIds.includes(b.id))?.id ??
@@ -48,50 +49,12 @@ export const EventDesktopBanner: FC = () => {
       ? t('Developer Events')
       : t('Community Events');
 
-  // When concluded with both dates, show a single date range chip instead of separate chips.
+  // Concluded events with both dates use a combined range chip to save horizontal space.
   const isConcludedWithDateRange =
     event.state === 'concluded' && !!event.activeFrom && !!event.activeThrough;
 
   return (
-    <div
-      data-testid="desktop-banner"
-      className={cn(
-        'relative overflow-hidden',
-        'h-[13.25rem] md:-mt-[44px]',
-        'border-b border-neutral-700',
-        'ml-[calc(50%-50vw)] w-screen',
-        'lg:h-[212px]',
-      )}
-      style={{ background: '#0a0a0a' }}
-    >
-      {/* Color-extracted blurred screenshot. */}
-      <div className="absolute inset-0">
-        <img
-          src={legacyGame.imageIngameUrl}
-          alt=""
-          aria-hidden="true"
-          className="h-full w-full object-cover"
-          style={{
-            filter: 'blur(80px) saturate(1.8)',
-            transform: 'scale(4)',
-          }}
-          data-testid="fallback-color-source"
-        />
-      </div>
-
-      <div className="absolute inset-0 bg-black/35 light:bg-black/25" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-      {/* Noise texture to reduce gradient banding. */}
-      <div
-        className="pointer-events-none absolute inset-0 z-[2] hidden md:block"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          opacity: 0.15,
-          mixBlendMode: 'overlay',
-        }}
-      />
-
+    <DesktopBanner banner={banner}>
       {/* Event info and associated controls. */}
       <div
         className={cn(
@@ -100,7 +63,6 @@ export const EventDesktopBanner: FC = () => {
         )}
       >
         <div className="flex w-full flex-col gap-5 sm:gap-4 md:flex-row md:items-end">
-          {/* Event badge. */}
           <img
             loading="eager"
             decoding="sync"
@@ -118,7 +80,7 @@ export const EventDesktopBanner: FC = () => {
           />
 
           <div className="flex w-full flex-col gap-1 md:gap-2">
-            {/* Event title. */}
+            {/* Event title */}
             <h1
               className={cn(
                 'w-fit font-bold leading-tight text-white',
@@ -132,7 +94,7 @@ export const EventDesktopBanner: FC = () => {
               <GameTitle title={legacyGame.title} />
             </h1>
 
-            {/* Parent hub chip, event status chips, and manage button. */}
+            {/* Parent hub chip, event status chips, and manage button */}
             <div className="flex w-full justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <InertiaLink
@@ -199,15 +161,6 @@ export const EventDesktopBanner: FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Gradient overlay for text readability. */}
-      <div
-        className={cn(
-          'absolute inset-0 md:hidden',
-          'bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
-          'light:from-black/20 light:via-black/30 light:to-black/50',
-        )}
-      />
-    </div>
+    </DesktopBanner>
   );
 };
