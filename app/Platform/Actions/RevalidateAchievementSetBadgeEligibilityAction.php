@@ -237,8 +237,10 @@ class RevalidateAchievementSetBadgeEligibilityAction
                 return;
             }
 
-            // upgraded the badge and update the awarded_at.
+            // upgrade the badge, update the awarded_at, and reset any display preference
+            // so the user sees the new tier they've just earned.
             $existingAward->award_tier = $expectedTier;
+            $existingAward->display_award_tier = null;
             $existingAward->awarded_at = Carbon::now();
             $existingAward->save();
         } else {

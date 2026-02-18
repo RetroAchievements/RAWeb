@@ -29,6 +29,7 @@ class AchievementData extends Data
         public Lazy|bool $isPromoted,
         public Lazy|GameData $game,
         public Lazy|int|null $groupId,
+        public Lazy|int $numUnresolvedTickets,
         public Lazy|int $orderColumn,
         public Lazy|int $points,
         public Lazy|int $pointsWeighted,
@@ -42,6 +43,9 @@ class AchievementData extends Data
         public Lazy|float $unlockPercentage,
         public Lazy|int $unlocksHardcore,
         public Lazy|int $unlocksTotal,
+
+        public Lazy|UserData|null $activeMaintainer = null,
+        public Lazy|Carbon|null $modifiedAt = null,
     ) {
     }
 
@@ -58,10 +62,11 @@ class AchievementData extends Data
             createdAt: Lazy::create(fn () => $achievement->created_at),
             description: Lazy::create(fn () => $achievement->description),
             decorator: Lazy::create(fn () => null),
-            developer: Lazy::create(fn () => UserData::from($achievement->developer)),
+            developer: Lazy::create(fn () => UserData::fromUser($achievement->developer)),
             isPromoted: Lazy::create(fn () => $achievement->is_promoted),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => $achievement->pivot?->achievement_group_id),
+            numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->unresolved()->count()),
             orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),
             pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
@@ -72,6 +77,12 @@ class AchievementData extends Data
             unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
             unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
             unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
+
+            activeMaintainer: Lazy::create(fn () => $achievement->activeMaintainer?->user
+                ? UserData::fromUser($achievement->activeMaintainer->user)
+                : null
+            ),
+            modifiedAt: Lazy::create(fn () => $achievement->modified_at),
         );
     }
 }
