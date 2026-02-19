@@ -777,6 +777,7 @@ declare namespace App.Platform.Data {
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     preferredEventAwardTier: number | null;
     earnedEventAwardTier: number | null;
+    banner: App.Platform.Data.PageBanner;
   };
   export type FollowedPlayerCompletion = {
     user: App.Data.User;
@@ -1042,6 +1043,7 @@ declare namespace App.Platform.Data {
     desktopPlaceholder: string | null;
     leftEdgeColor: string | null;
     rightEdgeColor: string | null;
+    isFallback: boolean;
   };
   export type ParsedUserAgent = {
     client: string;
