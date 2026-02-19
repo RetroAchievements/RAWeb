@@ -1,5 +1,6 @@
 import { type FC, useState } from 'react';
 
+import { DesktopBanner } from '@/common/components/DesktopBanner';
 import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -8,7 +9,6 @@ import { useBannerPreference } from '../../hooks/useBannerPreference';
 import { ResponsiveManageChip } from '../ResponsiveManageChip';
 import { ResponsiveSystemLinkChip } from '../ResponsiveSystemChip';
 import { WantToPlayToggle } from '../WantToPlayToggle';
-import { GameDesktopBannerImage } from './GameDesktopBannerImage';
 
 interface GameDesktopBannerProps {
   banner?: App.Platform.Data.PageBanner | null;
@@ -23,119 +23,17 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
 
   const isViewingSubset = game.id !== backingGame.id;
 
-  const hasCustomBanner = !!banner?.desktopMdWebp;
-
-  const leftColor = banner?.leftEdgeColor ?? '#0a0a0a';
-  const rightColor = banner?.rightEdgeColor ?? '#0a0a0a';
+  // Fallback banners shouldn't expand/collapse since they're generic.
+  const hasCustomBanner = !!banner?.desktopMdWebp && !banner?.isFallback;
 
   return (
-    // Outer container: full viewport width with an edge color gradient for ultrawide displays.
-    <div
-      data-testid="desktop-banner"
-      className={cn(
-        'relative overflow-hidden',
-        'h-[13.25rem] md:-mt-[44px]',
-        'border-b border-neutral-700',
-        'transition-[height,border-color] duration-200',
-        'ml-[calc(50%-50vw)] w-screen',
-
-        // Only allow height variations when there's a custom banner.
-        hasCustomBanner ? 'lg:h-[344px]' : 'lg:h-[212px]',
-        hasCustomBanner && bannerPreference === 'compact' ? 'lg:!h-[212px]' : null,
-        hasCustomBanner && bannerPreference === 'expanded' ? 'lg:!h-[474px]' : null,
-        hasCustomBanner && isDividerHovered ? 'border-neutral-500' : null,
-      )}
-      style={{
-        background: hasCustomBanner
-          ? `linear-gradient(to right, ${leftColor} 0%, ${leftColor} 30%, ${rightColor} 70%, ${rightColor} 100%)`
-          : '#0a0a0a',
-      }}
+    <DesktopBanner
+      banner={banner}
+      hasCustomBanner={hasCustomBanner}
+      bannerPreference={bannerPreference}
+      isDividerHovered={isDividerHovered}
     >
-      {/*
-        Layer 1: For custom banners, use a dark gradient overlay to mute edge colors.
-                 For the fallback, use a color-extracted blurred screenshot.
-      */}
-      {hasCustomBanner ? (
-        <div
-          className="absolute inset-0 z-[1] hidden md:block"
-          style={{
-            background: `linear-gradient(to bottom,
-              transparent 0%,
-              rgba(0,0,0,0.01) 10%,
-              rgba(0,0,0,0.03) 20%,
-              rgba(0,0,0,0.06) 30%,
-              rgba(0,0,0,0.1) 40%,
-              rgba(0,0,0,0.16) 50%,
-              rgba(0,0,0,0.24) 60%,
-              rgba(0,0,0,0.35) 70%,
-              rgba(0,0,0,0.46) 80%,
-              rgba(0,0,0,0.56) 90%,
-              rgba(0,0,0,0.65) 100%
-            )`,
-          }}
-        />
-      ) : (
-        <>
-          <div className="absolute inset-0">
-            <img
-              src={game.imageIngameUrl}
-              alt=""
-              aria-hidden="true"
-              className="h-full w-full object-cover"
-              style={{
-                filter: 'blur(80px) saturate(1.8)',
-                transform: 'scale(4)',
-              }}
-              data-testid="fallback-color-source"
-            />
-          </div>
-
-          <div className="absolute inset-0 bg-black/35 light:bg-black/25" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-        </>
-      )}
-
-      {/* Layer 1b: noise texture to reduce gradient banding */}
-      <div
-        className="pointer-events-none absolute inset-0 z-[2] hidden md:block"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          opacity: 0.15,
-          mixBlendMode: 'overlay',
-        }}
-      />
-
-      {/* Layer 2: blurred image backdrop (only for custom banners) */}
-      {hasCustomBanner ? (
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="relative mx-auto h-full max-w-[1920px]">
-            <img
-              src={banner.desktopMdWebp!}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_10%]"
-              style={{
-                filter: 'blur(15px)',
-              }}
-              aria-hidden="true"
-              data-testid="blurred-backdrop"
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {/* Layer 3: full-res image constrained to max-width with edge shadows (only for custom banners) */}
-      {hasCustomBanner ? (
-        <div
-          className="relative mx-auto h-full max-w-[1920px] overflow-hidden"
-          style={{
-            boxShadow: '0 0 40px 0px rgba(0, 0, 0, 0.5)',
-          }}
-        >
-          <GameDesktopBannerImage banner={banner} />
-        </div>
-      ) : null}
-
-      {/* Layer 4: game info and associated controls */}
+      {/* Positioned at the bottom of the banner so it layers over the image. */}
       <div
         className={cn(
           'absolute inset-x-0 bottom-0 z-[19] mx-auto max-w-screen-xl px-3 pb-4 transition-[padding]',
@@ -143,7 +41,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         )}
       >
         <div className="flex w-full flex-col gap-5 sm:gap-4 md:flex-row md:items-end">
-          {/* Game badge. */}
+          {/* Game badge */}
           <img
             loading="eager"
             decoding="sync"
@@ -197,16 +95,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         </div>
       </div>
 
-      {/* Layer 5: mobile-only gradient overlay for text readability */}
-      <div
-        className={cn(
-          'absolute inset-0 md:hidden',
-          'bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
-          'light:from-black/20 light:via-black/30 light:to-black/50',
-        )}
-      />
-
-      {/* Layer 6: invisible hit area to toggle compact mode. only functional on LG+ with custom banners. */}
+      {/* Invisible hit area to toggle banner height on LG+ with custom banners */}
       {hasCustomBanner ? (
         <button
           onClick={cycleBannerPreference}
@@ -217,6 +106,6 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
           tabIndex={-1}
         />
       ) : null}
-    </div>
+    </DesktopBanner>
   );
 };

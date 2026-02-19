@@ -22,7 +22,7 @@ export const GameMobileBannerImage: FC = () => {
   return (
     <>
       <div className="absolute inset-0 overflow-hidden">
-        {banner?.mobileSmWebp ? (
+        {banner?.mobileSmWebp && !banner.isFallback ? (
           <>
             {/*
              * Blurred placeholder - loads instantly.
