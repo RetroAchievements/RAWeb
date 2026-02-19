@@ -1,3 +1,5 @@
+import { useHydrateAtoms } from 'jotai/utils';
+
 import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
@@ -5,6 +7,7 @@ import type { AppPage } from '@/common/models';
 import { AchievementShowRoot } from '@/features/achievements/components/+show';
 import { AchievementShowSidebarRoot } from '@/features/achievements/components/+show-sidebar';
 import { useAchievementMetaDescription } from '@/features/achievements/hooks/useAchievementMetaDescription';
+import { currentTabAtom } from '@/features/achievements/state/achievements.atoms';
 import type { TranslatedString } from '@/types/i18next';
 
 // The server always provides these fields on this page, but the generated
@@ -18,7 +21,12 @@ type HydratedAchievement = App.Platform.Data.Achievement & {
 };
 
 const AchievementShow: AppPage = () => {
-  const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, initialTab } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+
+  useHydrateAtoms([
+    [currentTabAtom, initialTab],
+    //
+  ]);
 
   const hydratedAchievement = achievement as HydratedAchievement;
 

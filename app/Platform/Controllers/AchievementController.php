@@ -19,6 +19,7 @@ use App\Platform\Data\AchievementData;
 use App\Platform\Data\AchievementShowPagePropsData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
+use App\Platform\Enums\AchievementPageTab;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -67,6 +68,8 @@ class AchievementController extends Controller
 
         [$proximityAchievements, $promotedAchievementCount] = $this->buildProximityAchievements($achievement, $user);
 
+        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
+
         $subscriptionService = new SubscriptionService();
 
         $props = new AchievementShowPagePropsData(
@@ -108,6 +111,7 @@ class AchievementController extends Controller
                 : null,
             proximityAchievements: $proximityAchievements,
             promotedAchievementCount: $promotedAchievementCount,
+            initialTab: $initialTab,
         );
 
         return Inertia::render('achievement/[achievement]', $props);

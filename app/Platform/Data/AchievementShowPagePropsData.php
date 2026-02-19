@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\AchievementPageTab;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -27,6 +28,7 @@ class AchievementShowPagePropsData extends Data
         public ?GameAchievementSetData $gameAchievementSet = null,
         public ?array $proximityAchievements = null,
         public int $promotedAchievementCount = 0,
+        public AchievementPageTab $initialTab = AchievementPageTab::Comments,
     ) {
     }
 }

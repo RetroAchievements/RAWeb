@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { AchievementShowTab } from './achievement-show-tab.model';
-
 export interface TabConfig {
-  value: AchievementShowTab;
+  value: App.Platform.Enums.AchievementPageTab;
   label: ReactNode;
 }
