@@ -89,6 +89,7 @@ class PlayerAchievementSetResource extends BaseJsonApiResource
             : $gameAchievementSets;
 
         return $setsToInclude->map(fn ($gas) => [
+            'achievementSetId' => $gas->achievement_set_id,
             'gameId' => $gas->game_id,
             'type' => $gas->type instanceof AchievementSetType ? $gas->type->value : $gas->type,
         ])->values()->all();

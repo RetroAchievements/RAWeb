@@ -565,6 +565,7 @@ class PlayerAchievementSetsTest extends TestCase
         $attributes = $response->json('data.0.attributes');
 
         $this->assertNotEmpty($attributes['setContext']);
+        $this->assertEquals($achievementSet->id, $attributes['setContext'][0]['achievementSetId']);
         $this->assertEquals($game->id, $attributes['setContext'][0]['gameId']);
         $this->assertEquals('bonus', $attributes['setContext'][0]['type']);
     }
@@ -608,6 +609,7 @@ class PlayerAchievementSetsTest extends TestCase
 
         // The backing game (core) should be excluded, only the real game (bonus) remains.
         $this->assertCount(1, $setContext);
+        $this->assertEquals($achievementSet->id, $setContext[0]['achievementSetId']);
         $this->assertEquals($realGame->id, $setContext[0]['gameId']);
         $this->assertEquals('bonus', $setContext[0]['type']);
     }
