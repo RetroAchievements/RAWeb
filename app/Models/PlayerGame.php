@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Enums\AwardType;
 use App\Support\Database\Eloquent\BasePivot;
+use App\Support\Database\Eloquent\Relations\UserScopedHasManyThrough;
 use Database\Factories\PlayerGameFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -102,6 +103,23 @@ class PlayerGame extends BasePivot
     public function player(): BelongsTo
     {
         return $this->user();
+    }
+
+    /**
+     * @return UserScopedHasManyThrough<PlayerAchievementSet, GameAchievementSet, PlayerGame>
+     */
+    public function playerAchievementSets(): UserScopedHasManyThrough
+    {
+        /** @var UserScopedHasManyThrough<PlayerAchievementSet, GameAchievementSet, PlayerGame> */
+        return new UserScopedHasManyThrough(
+            (new PlayerAchievementSet())->newQuery(),
+            $this,
+            new GameAchievementSet(),
+            'game_id',
+            'achievement_set_id',
+            'game_id',
+            'achievement_set_id'
+        );
     }
 
     // == scopes

@@ -359,6 +359,9 @@ class PlayerGamesTest extends TestCase
             'game_id' => $game->id,
             'beaten_at' => now()->subDays(5),
             'beaten_hardcore_at' => now()->subDays(4),
+            'playtime_total' => 3600,
+            'time_to_beat' => 1800,
+            'time_to_beat_hardcore' => 1500,
             'last_played_at' => now(),
         ]);
 
@@ -374,6 +377,9 @@ class PlayerGamesTest extends TestCase
 
         $this->assertNotNull($attributes['beatenAt']);
         $this->assertNotNull($attributes['beatenHardcoreAt']);
+        $this->assertEquals(3600, $attributes['playtimeTotalSeconds']);
+        $this->assertEquals(1800, $attributes['timeToBeatSeconds']);
+        $this->assertEquals(1500, $attributes['timeToBeatHardcoreSeconds']);
     }
 
     public function testItDoesNotIncludeSelfLinks(): void

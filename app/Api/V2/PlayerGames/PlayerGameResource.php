@@ -33,9 +33,9 @@ class PlayerGameResource extends BaseJsonApiResource
             'beatenHardcoreAt' => $this->resource->beaten_hardcore_at,
 
             // Time tracking.
-            'playtimeTotal' => $this->resource->playtime_total,
-            'timeToBeat' => $this->resource->time_to_beat,
-            'timeToBeatHardcore' => $this->resource->time_to_beat_hardcore,
+            'playtimeTotalSeconds' => $this->resource->playtime_total,
+            'timeToBeatSeconds' => $this->resource->time_to_beat,
+            'timeToBeatHardcoreSeconds' => $this->resource->time_to_beat_hardcore,
         ];
     }
 
@@ -49,6 +49,7 @@ class PlayerGameResource extends BaseJsonApiResource
         return [
             'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
             'game' => $this->relation('game')->withoutLinks(),
+            'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
         ];
     }
 
