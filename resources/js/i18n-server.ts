@@ -18,6 +18,7 @@ export const createServerI18nInstance = async (locale: string) => {
       lng: locale,
       fallbackLng: 'en_US',
       interpolation: { escapeValue: false },
+      showSupportNotice: false,
     });
 
   return i18nInstance;
