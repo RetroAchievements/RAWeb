@@ -32,6 +32,7 @@ class EventShowPagePropsData extends Data
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
         public ?int $preferredEventAwardTier,
         public ?int $earnedEventAwardTier,
+        public PageBannerData $banner,
     ) {
     }
 }

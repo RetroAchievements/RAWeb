@@ -8,7 +8,6 @@ export function buildEasedGradient(
   maxOpacity: number,
 ): string {
   const rgb = color === 'black' ? '0,0,0' : '255,255,255';
-
   const stops = direction === 'to bottom' ? topGradientStops : bottomGradientStops;
 
   const gradientStops = stops
@@ -20,7 +19,7 @@ export function buildEasedGradient(
           )`;
 }
 
-// Focused on navbar blending.
+// Concentrated at the top so the navbar blends smoothly into the banner.
 const topGradientStops: Array<[number, number]> = [
   [1, 0],
   [0.9, 5],
@@ -35,7 +34,7 @@ const topGradientStops: Array<[number, number]> = [
   [0, 58],
 ];
 
-// Focused on text readability.
+// Spread across the full height so overlaid text remains readable at any position.
 const bottomGradientStops: Array<[number, number]> = [
   [1, 0],
   [0.9, 5],
