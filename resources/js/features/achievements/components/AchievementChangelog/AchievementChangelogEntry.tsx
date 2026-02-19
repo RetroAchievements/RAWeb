@@ -66,7 +66,7 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
           ) : null}
         </p>
 
-        {entry.fieldChanges.length > 0 && !hasInlineFieldChanges(entry.type) ? (
+        {entry.fieldChanges.length > 0 && entry.type !== 'moved-to-different-game' ? (
           <div className="flex flex-col gap-0.5">
             {entry.fieldChanges.map((change, index) => (
               <FieldChangeDiff key={`change-${index}`} change={change} type={entry.type} />
@@ -121,27 +121,20 @@ const FieldChangeDiff: FC<FieldChangeDiffProps> = ({ change, type }) => {
   );
 };
 
-/**
- * Avoid rendering a separate diff block for types that already show values inline.
- */
-function hasInlineFieldChanges(type: EntryType): boolean {
-  return type === 'type-set' || type === 'type-removed' || type === 'moved-to-different-game';
-}
-
 function getDotColor(type: EntryType, isCreatedAsPromoted?: boolean): string {
   switch (type) {
     case 'created':
       return isCreatedAsPromoted ? 'bg-green-500' : 'bg-blue-500';
-
-    case 'deleted':
-    case 'demoted':
-      return 'bg-red-500';
 
     case 'restored':
       return 'bg-blue-500';
 
     case 'promoted':
       return 'bg-green-500';
+
+    case 'deleted':
+    case 'demoted':
+      return 'bg-red-500';
 
     default:
       return 'bg-neutral-600';
@@ -195,20 +188,14 @@ function buildHeader(entry: App.Platform.Data.AchievementChangelogEntry, t: TFun
         : t('Transferred to a different achievement set');
     }
 
-    case 'type-set': {
-      const typeName = entry.fieldChanges[0]?.newValue;
-
-      return typeName ? t('Type set to {{typeName}}', { typeName }) : t('Type set');
-    }
+    case 'type-set':
+      return t('Type set');
 
     case 'type-changed':
       return t('Type changed');
 
-    case 'type-removed': {
-      const typeName = entry.fieldChanges[0]?.oldValue;
-
-      return typeName ? t('Removed type {{typeName}}', { typeName }) : t('Type removed');
-    }
+    case 'type-removed':
+      return t('Type removed');
 
     default:
       return t('Edited');

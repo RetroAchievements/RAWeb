@@ -29,6 +29,7 @@ describe('Component: AchievementChangelogEntry', () => {
     ['embed-url-updated', 'Embed URL updated'],
     ['logic-updated', 'Logic updated'],
     ['moved-to-different-game', 'Transferred to a different achievement set'],
+    ['type-set', 'Type set'],
     ['type-changed', 'Type changed'],
     ['type-removed', 'Type removed'],
   ] as const)('given type is %s, displays "%s"', (type, expectedText) => {
@@ -76,21 +77,22 @@ describe('Component: AchievementChangelogEntry', () => {
     expect(screen.getByText('Points changed')).toBeVisible();
   });
 
-  it('given the type is type-set with a field change, displays the type name inline', () => {
+  it('given the type is type-set with a field change, displays the new value as a diff', () => {
     // ARRANGE
     render(
       <ul>
         <AchievementChangelogEntry
           entry={createAchievementChangelogEntry({
             type: 'type-set',
-            fieldChanges: [{ oldValue: null, newValue: 'missable' }],
+            fieldChanges: [{ oldValue: null, newValue: 'Missable' }],
           })}
         />
       </ul>,
     );
 
     // ASSERT
-    expect(screen.getByText(/type set to missable/i)).toBeVisible();
+    expect(screen.getByText('Type set')).toBeVisible();
+    expect(screen.getByText('Missable')).toBeVisible();
   });
 
   it('given the type is type-set without a field change, displays a generic label', () => {
@@ -134,7 +136,7 @@ describe('Component: AchievementChangelogEntry', () => {
     );
   });
 
-  it('given the type is type-removed with a field change, displays the old type name inline', () => {
+  it('given the type is type-removed with a field change, displays the old value as a diff', () => {
     // ARRANGE
     render(
       <ul>
@@ -148,7 +150,8 @@ describe('Component: AchievementChangelogEntry', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/removed type Win Condition/i)).toBeVisible();
+    expect(screen.getByText('Type removed')).toBeVisible();
+    expect(screen.getByText('Win Condition')).toBeVisible();
   });
 
   it('given the type is moved-to-different-game with field changes, displays game names inline', () => {
@@ -168,9 +171,7 @@ describe('Component: AchievementChangelogEntry', () => {
 
     // ASSERT
     expect(
-      screen.getByText(
-        /transferred from Super Mario Bros\. to Super Mario Bros\. \[Subset - Bonus\]/i,
-      ),
+      screen.getByText('Transferred from Super Mario Bros. to Super Mario Bros. [Subset - Bonus]'),
     ).toBeVisible();
   });
 
