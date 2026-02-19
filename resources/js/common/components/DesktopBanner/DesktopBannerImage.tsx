@@ -1,17 +1,14 @@
 import { type FC, useRef, useState } from 'react';
 
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { buildEasedGradient } from './buildEasedGradient';
 
-interface GameDesktopBannerImageProps {
+interface DesktopBannerImageProps {
   banner: App.Platform.Data.PageBanner;
 }
 
-export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner }) => {
-  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
+export const DesktopBannerImage: FC<DesktopBannerImageProps> = ({ banner }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -25,9 +22,8 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
 
   return (
     <>
-      {/* Sharp image layer. */}
+      {/* The sharp image fades in once loaded, replacing the blurred backdrop */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Full-resolution image with responsive srcset. */}
         <picture
           className={cn('absolute inset-0', isImageLoaded ? 'opacity-100' : 'opacity-0')}
           style={{
@@ -35,7 +31,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             willChange: 'opacity',
           }}
         >
-          {/* Mobile-optimized images for small viewports. */}
+          {/* Smaller viewports get a smaller crop to save bandwidth */}
           <source
             type="image/avif"
             media="(max-width: 767px)"
@@ -47,7 +43,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             srcSet={banner.mobileSmWebp ?? undefined}
           />
 
-          {/* Desktop images for larger viewports. */}
+          {/* Desktop viewports use responsive srcSet so the browser picks the best resolution */}
           <source
             type="image/avif"
             srcSet={[
@@ -71,10 +67,9 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             sizes="100vw"
           />
 
-          {/* Legacy fallback to in-game screenshot. This should _never_ happen. */}
           <img
             ref={handleImageRef}
-            src={game.imageIngameUrl}
+            src={banner.desktopMdWebp ?? undefined}
             alt=""
             className="h-full w-full object-cover object-center lg:object-[50%_10%]"
             onLoad={() => setIsImageLoaded(true)}
@@ -85,7 +80,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
         </picture>
       </div>
 
-      {/* Top gradient for navbar blending. */}
+      {/* These gradients ensure the navbar and content text remain readable over any image */}
       <div
         data-testid="top-gradient-dark"
         className="absolute inset-0 hidden light:hidden md:block"
@@ -97,7 +92,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
         style={{ background: buildEasedGradient('to bottom', 'white', 0.7) }}
       />
 
-      {/* Bottom gradient for game info text readability */}
+      {/* Bottom gradients protect the game title and action chips from low-contrast images */}
       <div
         data-testid="bottom-gradient-dark"
         className="absolute inset-0 hidden light:hidden md:block"
