@@ -14,6 +14,7 @@ import type { TranslatedString } from '@/types/i18next';
 
 import { useAchievementShowTabs } from '../../hooks/useAchievementShowTabs';
 import type { TabConfig } from '../../models';
+import { AchievementChangelog } from '../AchievementChangelog';
 import { AchievementCommentList } from '../AchievementCommentList';
 import { AchievementGamePanel } from '../AchievementGamePanel';
 import { AchievementHero } from '../AchievementHero';
@@ -146,7 +147,9 @@ export const AchievementShowRoot: FC = () => {
 
             <BaseTabsContent value="unlocks">{'AchievementRecentUnlocks'}</BaseTabsContent>
 
-            <BaseTabsContent value="changelog">{'AchievementChangelog'}</BaseTabsContent>
+            <BaseTabsContent value="changelog">
+              <AchievementChangelog />
+            </BaseTabsContent>
           </BaseTabs>
         </div>
       </div>

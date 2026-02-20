@@ -1,4 +1,5 @@
 export * from './createAchievement';
+export * from './createAchievementChangelogEntry';
 export * from './createAchievementChecklistGroup';
 export * from './createAchievementSet';
 export * from './createAchievementSetClaim';
