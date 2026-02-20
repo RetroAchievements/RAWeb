@@ -19,7 +19,7 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
 {
     protected Leaderboard $leaderboard;
     protected int $score;
-    protected ?GameHash $gameHash;
+    protected ?GameHash $gameHash = null;
     protected Carbon $when;
     protected ClientSupportLevel $clientSupportLevel;
 
