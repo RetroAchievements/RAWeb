@@ -110,6 +110,22 @@ const Terms: AppPage = () => {
                   )}
                 </p>
               </div>
+
+              <div>
+                <p role="heading" aria-level={3} className="text-lg font-medium">
+                  {t('Achievement Data')}
+                </p>
+                <p>
+                  {t(
+                    'Achievement titles, descriptions, and related metadata may be referenced or reused by third parties (eg: for tracking sites or community tools).',
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'Achievement trigger logic (the code and conditions that define how achievements are evaluated) is proprietary to the RetroAchievements community and may not be reused, redistributed, or reproduced without explicit permission. The GPL-3 license covering the RetroAchievements web application source code does not extend to achievement data.',
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 
