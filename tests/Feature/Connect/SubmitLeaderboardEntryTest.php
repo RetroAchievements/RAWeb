@@ -517,6 +517,30 @@ describe('new submission', function () {
             ]);
     });
 
+    test('without game hash', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createEmptyLeaderboard();
+        $leaderboard = $data['leaderboard'];
+        $score = 55555;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 1,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => [
+                        SubmitLeaderboardEntryTestHelpers::buildEntry(1, $this->user, $score, Carbon::now()),
+                    ],
+                ],
+            ]);
+    });
+
     test('unknown leaderboard', function () {
         $score = 55555;
 
