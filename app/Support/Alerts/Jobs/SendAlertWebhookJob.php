@@ -22,7 +22,7 @@ class SendAlertWebhookJob implements ShouldQueue
     use SerializesModels;
 
     public int $tries = 3;
-    public array $backoff = [10, 30, 60];
+    public array $backoff = [10, 30];
 
     /**
      * Optional HTTP client for testing. Not serialized with the job.
