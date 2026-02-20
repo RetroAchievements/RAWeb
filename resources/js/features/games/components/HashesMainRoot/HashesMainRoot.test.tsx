@@ -8,6 +8,16 @@ import {
 
 import { HashesMainRoot } from './HashesMainRoot';
 
+vi.mock('rcheevos', () => {
+  const initialize = vi.fn(() => Promise.resolve(() => ({ initialized: true })));
+
+  return {
+    RCheevos: {
+      initialize,
+    },
+  };
+});
+
 describe('Component: HashesMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -94,7 +104,9 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    const button = screen.queryByRole('button', { name: /other known hashes/i });
+    const button = screen.queryByRole('button', {
+      name: /other known hashes/i,
+    });
     expect(button).toBeNull();
   });
 
