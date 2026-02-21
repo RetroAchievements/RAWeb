@@ -203,15 +203,16 @@ export function sortAchievements(
           return aStatus - bStatus;
         }
 
-        // If status is the same, sort by date.
-        const aDate = new Date(a.createdAt as string).valueOf();
-        const bDate = new Date(b.createdAt as string).valueOf();
-        if (aDate !== bDate) {
-          return aDate - bDate;
+        // If the order column is set, use it.
+        if (a.orderColumn !== b.orderColumn) {
+          return (a.orderColumn as number) - (b.orderColumn as number);
         }
 
-        // If date is the same, sort by orderColumn.
-        return (a.orderColumn as number) - (b.orderColumn as number);
+        // Fallback to sorting by creation date.
+        const aDate = new Date(a.createdAt as string).valueOf();
+        const bDate = new Date(b.createdAt as string).valueOf();
+
+        return aDate - bDate;
       });
 
     default:
