@@ -1,6 +1,9 @@
 import type { FC } from 'react';
+import UserAwardData = App.Community.Data.UserAwardData;
+import { useTranslation } from 'react-i18next';
 
 interface ManualMoveButtonsProps {
+  award: UserAwardData;
   awardCounter: number;
   moveValue: number;
   upLabel?: string;
@@ -11,6 +14,7 @@ interface ManualMoveButtonsProps {
 }
 
 export const ManualMoveButtons: FC<ManualMoveButtonsProps> = ({
+  award,
   awardCounter,
   isHiddenPreChecked,
   moveValue,
@@ -19,6 +23,8 @@ export const ManualMoveButtons: FC<ManualMoveButtonsProps> = ({
   downLabel,
   orientation,
 }) => {
+  const { t } = useTranslation();
+
   const downValue = moveValue;
   const upValue = moveValue * -1;
 
@@ -39,7 +45,7 @@ export const ManualMoveButtons: FC<ManualMoveButtonsProps> = ({
         title={upA11yLabel}
         aria-label={upA11yLabel}
         className="btn py-0.5 text-2xs"
-        onClick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
+        onClick={() => (award.displayOrder += upValue)}
         disabled={isHiddenPreChecked}
       >
         ↑{upLabel}
@@ -49,7 +55,7 @@ export const ManualMoveButtons: FC<ManualMoveButtonsProps> = ({
         title={downA11yLabel}
         aria-label={downA11yLabel}
         className="btn py-0.5 text-2xs"
-        onClick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
+        onClick={() => (award.displayOrder += downValue)}
         disabled={isHiddenPreChecked}
       >
         ↓{downLabel}

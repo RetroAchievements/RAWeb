@@ -17,9 +17,9 @@ export const ReorderSiteAwardsSidebarRoot = () => {
     .filter((award) => award.awardSection === 'game')
     .map((award) => (
       <GameAvatar
-        key={`game-${award.displayOrder}`}
+        key={`game-${award.gameId}`}
         id={award.gameId || 0}
-        title={award.tooltip}
+        title={award.title}
         variant={'inline'}
         size={48}
         showLabel={false}
@@ -28,15 +28,19 @@ export const ReorderSiteAwardsSidebarRoot = () => {
       />
     ));
 
+  const masteries = awards.filter((award) => award.isGold).length;
   const gameAwardList = (
     <UserAwardList
       headingLabel={'Game Awards'}
       headingCountSlot={
-        <UserAwardCounter
-          icon={'👑🎖'}
-          numItems={gameAwardAwards.length}
-          text={'A lot of masteries!!'}
-        />
+        <>
+          <UserAwardCounter icon={'👑'} numItems={masteries} text={`games mastered`} />
+          <UserAwardCounter
+            icon={'🎖'}
+            numItems={gameAwardAwards.length - masteries}
+            text={`games completed`}
+          />
+        </>
       }
       awards={gameAwardAwards}
     />

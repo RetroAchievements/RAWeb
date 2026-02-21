@@ -2,28 +2,30 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { AwardOrderTable } from '@/features/reorder-site-awards/components/AwardOrderTable';
+import { AwardOrderTableOld } from '@/features/reorder-site-awards/components/AwardOrderTableOld';
 
 import { ResetOrderButton } from '../ResetOrderButton';
 import UserAwardData = App.Community.Data.UserAwardData;
-
-export interface AwardProps {
-  AwardData: number;
-  AwardDataExtra: number;
-  AwardType: number;
-  AwardedAt: number;
-  ConsoleID: number;
-  ConsoleName: string;
-  DisplayOrder: number;
-  ImageIcon: string;
-  Title: string;
-}
 
 export const ReorderSiteAwardsMainRoot: FC = () => {
   const { awards } = usePageProps<{
     awards: UserAwardData[];
   }>();
   const { t } = useTranslation();
+
+  const saveAllChangesButton = () => {
+    const mappedTableRows = reorderSiteAwards.collectMappedTableRows();
+
+    try {
+      const withComputedDisplayOrderValues =
+        reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
+
+      postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+      reorderSiteAwards.moveHiddenRowsToTop();
+    } catch (error) {
+      showStatusFailure(error.toString());
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -50,19 +52,19 @@ export const ReorderSiteAwardsMainRoot: FC = () => {
           </label>
           <ResetOrderButton />
         </div>
-        <button /* onClick="handleSaveAllClick()" */ className="btn">Save All Changes</button>
+        <button onClick={saveAllChangesButton} className="btn">
+          {t('Save All Changes')}
+        </button>
       </div>
 
-      {/*<AwardOrderTable*/}
-      {/*  title={'Game Awards'}*/}
-      {/*  awards={gameAwards}*/}
-      {/*  username={'user'}*/}
-      {/*  awardCounter={0}*/}
-      {/*  renderedSectionCount={9}*/}
-      {/*  prefersSeeingSavedHiddenRows={true}*/}
-      {/*  initialSectionOrder={0}*/}
-      {/*  eventData={eventData}*/}
-      {/*/>*/}
+      <AwardOrderTableOld
+        title={'Game Awards'}
+        awards={awards}
+        awardCounter={0}
+        renderedSectionCount={9}
+        prefersSeeingSavedHiddenRows={true}
+        initialSectionOrder={0}
+      />
     </div>
   );
 };

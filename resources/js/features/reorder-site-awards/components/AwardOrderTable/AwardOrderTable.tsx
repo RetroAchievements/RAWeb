@@ -1,228 +1,120 @@
-import React from 'react';
+import type { FC } from 'react';
+import { useRef, useState } from 'react';
+import UserAwardData = App.Community.Data.UserAwardData;
+import { move } from '@dnd-kit/helpers';
+import { DragDropProvider } from '@dnd-kit/react';
+import { useSortable } from '@dnd-kit/react/sortable';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
-import type { AwardProps } from '@/features/reorder-site-awards/components/+root';
-import { ManualMoveButtons } from '@/features/reorder-site-awards/components/ManualMoveButtons';
+type Column = { id: string; name: string };
 
-interface AwardOrderTableProps {
-  title: string;
-  awards: AwardProps[];
-  awardOwnerUsername: string;
-  awardCounterStart: number;
-  renderedSectionCount: number;
-  prefersSeeingSavedHiddenRows: boolean;
-  initialSectionOrder: number;
-  eventData: any;
-  reorderSiteAwards: any; // your drag + checkbox handlers
-  RenderAward: React.ComponentType<any>;
-}
+const columns: Column[] = [
+  { id: 'imageUrl', name: 'Badge' },
+  { id: 'title', name: 'Site Award' },
+  { id: 'hidden', name: 'Hidden' },
+  { id: 'manualMove', name: 'Manual Move' },
+];
+// https://tanstack.com/table/latest/docs/framework/react/examples/row-dnd?panel=sandbox
+export const AwardOrderTable: FC<{ awards: UserAwardData[] }> = ({ awards }) => {
+  'use no memo'; // useReactTable does not support React Compiler
 
-export const AwardOrderTable: React.FC<AwardOrderTableProps> = ({
-  title,
-  awards,
-  awardOwnerUsername,
-  awardCounterStart,
-  renderedSectionCount,
-  prefersSeeingSavedHiddenRows,
-  initialSectionOrder,
-  eventData,
-  reorderSiteAwards,
-  RenderAward,
-}) => {
-  const humanReadableAwardKind = title.split(' ')[0].toLowerCase();
+  const [data, setData] = useState<UserAwardData[]>(awards);
 
-  let awardCounter = awardCounterStart;
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-  const renderAwardTitle = (award: AwardProps) => {
-    switch (award.AwardType) {
-      case 1: // Mastery (replace with enum if desired)
-        return <span className="game-title">{award.Title}</span>;
-
-      case 2:
-        return 'Achievements Earned by Others';
-
-      case 3:
-        return 'Achievement Points Earned by Others';
-
-      case 4:
-        return 'Patreon Supporter';
-
-      case 5:
-        return 'Certified Legend';
-
-      default:
-        return award.Title;
-    }
-  };
+  const initialOrder = useRef({
+    columns,
+    data,
+  });
 
   return (
-    <>
-      <div className="flex w-full items-center justify-between">
-        <h4>{title}</h4>
+    <DragDropProvider
+      onDragStart={() => {
+        initialOrder.current = {
+          columns,
+          data,
+        };
+      }}
+      onDragOver={(event) => {
+        const { source } = event.operation;
 
-        <select data-award-kind={humanReadableAwardKind}>
-          {Array.from({ length: renderedSectionCount }, (_, i) => {
-            const value = i + 1;
-
-            return (
-              <option key={value} value={value} selected={initialSectionOrder === value}>
-                {value}
-              </option>
-            );
-          })}
-        </select>
+        setData((rows) => move(rows, event));
+      }}
+      onDragEnd={(event) => {
+        if (event.canceled) {
+          // setData(initialOrder.current.rows);
+        }
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 800,
+          marginInline: 'auto',
+          overflow: 'hidden',
+          borderRadius: 8,
+          border: '1px solid #e2e8f0',
+        }}
+      >
+        <table>
+          <thead>
+            <tr>
+              <th />
+              {columns.map((column, index) => (
+                <th key={column.id}>{column.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <SortableRow
+                key={row.gameId}
+                row={row}
+                columns={columns}
+                index={index}
+                lastRow={index === data.length - 1}
+              />
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      <table id={`${humanReadableAwardKind}-reorder-table`} className="mb-8">
-        <thead>
-          <tr className="do-not-highlight">
-            <th>Badge</th>
-            <th width="60%">Site Award</th>
-            <th className="text-center">Hidden</th>
-            <th className="text-right" width="20%">
-              Manual Move
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {awards.map((award, index) => {
-            const awardDisplayOrder = award.DisplayOrder;
-            const isHiddenPreChecked = awardDisplayOrder === -1;
-
-            const subduedOpacityClassName = isHiddenPreChecked ? 'opacity-40' : '';
-
-            const cursorGrabClass = isHiddenPreChecked ? '' : 'cursor-grab';
-
-            const savedHiddenClass = isHiddenPreChecked ? 'saved-hidden' : '';
-
-            const hiddenClass = !prefersSeeingSavedHiddenRows && isHiddenPreChecked ? 'hidden' : '';
-
-            const rowClassNames = `
-              award-table-row
-              select-none
-              transition
-              ${cursorGrabClass}
-              ${savedHiddenClass}
-              ${hiddenClass}
-            `;
-
-            const currentCounter = awardCounter++;
-
-            return (
-              <tr
-                key={currentCounter}
-                data-row-index={currentCounter}
-                data-award-kind={humanReadableAwardKind}
-                data-award-date={award.AwardedAt}
-                draggable={!isHiddenPreChecked}
-                className={rowClassNames}
-                /* onDragStart={reorderSiteAwards.handleRowDragStart}
-                onDragEnter={reorderSiteAwards.handleRowDragEnter}
-                onDragLeave={reorderSiteAwards.handleRowDragLeave}
-                onDragOver={reorderSiteAwards.handleRowDragOver}
-                onDragEnd={reorderSiteAwards.handleRowDragEnd}
-                onDrop={reorderSiteAwards.handleRowDrop} */
-              >
-                {/* Badge */}
-                <td className={`${subduedOpacityClassName} transition`}>
-                  <RenderAward
-                    award={award}
-                    size={32}
-                    awardOwnerUsername={awardOwnerUsername}
-                    eventData={eventData}
-                    someFlag={false}
-                  />
-                </td>
-
-                {/* Title */}
-                <td className={`${subduedOpacityClassName} transition`}>
-                  <span>{renderAwardTitle(award)}</span>
-                </td>
-
-                {/* Hidden checkbox */}
-                <td className="text-center !opacity-100">
-                  <input
-                    name={`${currentCounter}-is-hidden`}
-                    type="checkbox"
-                    defaultChecked={isHiddenPreChecked}
-                    onChange={(e) =>
-                      reorderSiteAwards.handleRowHiddenCheckedChange(e, currentCounter)
-                    }
-                  />
-                </td>
-
-                {/* Manual Move */}
-                <td>
-                  <div
-                    className={`award-movement-buttons flex justify-end transition ${
-                      isHiddenPreChecked ? 'opacity-0' : 'opacity-100'
-                    }`}
-                  >
-                    {awards.length > 50 && (
-                      <>
-                        <ManualMoveButtons
-                          awardCounter={currentCounter}
-                          moveValue={99999}
-                          upLabel={' Top'}
-                          downLabel={' Bottom'}
-                          autoScroll={true}
-                          orientation={'vertical'}
-                          isHiddenPreChecked={isHiddenPreChecked}
-                        />
-                        <ManualMoveButtons
-                          awardCounter={currentCounter}
-                          moveValue={50}
-                          upLabel={'50'}
-                          downLabel={'50'}
-                          autoScroll={true}
-                          isHiddenPreChecked={isHiddenPreChecked}
-                        />
-                        <ManualMoveButtons
-                          awardCounter={currentCounter}
-                          moveValue={1}
-                          isHiddenPreChecked={isHiddenPreChecked}
-                        />
-                      </>
-                    )}
-
-                    {awards.length > 15 && awards.length <= 50 && (
-                      <>
-                        <ManualMoveButtons
-                          awardCounter={currentCounter}
-                          moveValue={10}
-                          upLabel={'10'}
-                          downLabel={'10'}
-                          autoScroll={true}
-                          isHiddenPreChecked={isHiddenPreChecked}
-                        />
-                        <ManualMoveButtons
-                          awardCounter={currentCounter}
-                          moveValue={1}
-                          isHiddenPreChecked={isHiddenPreChecked}
-                        />
-                      </>
-                    )}
-
-                    {awards.length <= 15 && (
-                      <ManualMoveButtons
-                        awardCounter={currentCounter}
-                        moveValue={1}
-                        orientation={'horizontal'}
-                        isHiddenPreChecked={isHiddenPreChecked}
-                      />
-                    )}
-                  </div>
-                </td>
-
-                {/* Hidden inputs */}
-                <input type="hidden" name="type" value={award.AwardType} />
-                <input type="hidden" name="data" value={award.AwardData} />
-                <input type="hidden" name="extra" value={award.AwardDataExtra} />
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </>
+    </DragDropProvider>
   );
 };
+
+interface SortableRowProps {
+  row: UserAwardData;
+  columns: Column[];
+  index: number;
+  lastRow?: boolean;
+}
+
+function SortableRow({ row, columns, index, lastRow }: SortableRowProps) {
+  const { ref, handleRef, isDragging } = useSortable({
+    id: row.gameId,
+    index,
+    type: 'row',
+    accept: 'row',
+  });
+
+  return (
+    <tr
+      ref={ref}
+      style={{
+        boxShadow: isDragging
+          ? '0 0 0 1px rgba(63, 63, 68, 0.05), 0px 15px 15px 0 rgba(34, 33, 81, 0.25)'
+          : undefined,
+        opacity: isDragging ? 0.9 : undefined,
+      }}
+    >
+      <td>True</td>
+      {columns.map((column) => (
+        <td key={column.id}>True</td>
+      ))}
+    </tr>
+  );
+}

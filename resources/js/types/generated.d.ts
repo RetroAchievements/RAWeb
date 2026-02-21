@@ -167,6 +167,7 @@ declare namespace App.Community.Data {
     undoToken: string | null;
   };
   export type UserAwardData = {
+    title: string;
     imageUrl: string;
     tooltip: string;
     link: string | null;

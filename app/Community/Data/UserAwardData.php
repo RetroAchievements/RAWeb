@@ -10,6 +10,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class UserAwardData extends Data
 {
     public function __construct(
+        public string $title,
         public string $imageUrl,
         public string $tooltip,
         public ?string $link,

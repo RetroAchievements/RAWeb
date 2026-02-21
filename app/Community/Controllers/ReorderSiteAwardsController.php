@@ -80,6 +80,8 @@ class ReorderSiteAwardsController extends Controller
         $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
         foreach ($dbResult as &$award) {
+            // dd($dbResult);
+
             unset($award['user_id']);
 
             $award['AwardType'] = AwardType::from($award['award_type']);
@@ -222,6 +224,7 @@ class ReorderSiteAwardsController extends Controller
             }
 
             $newAward = new UserAwardData(
+                title: $award["Title"],
                 imageUrl: $award['ImageIcon'] ?? '',
                 tooltip: $award['Tooltip'] ?? '',
                 link: $award['Link'] ?? '',
@@ -230,7 +233,7 @@ class ReorderSiteAwardsController extends Controller
                 dateAwarded: $award['AwardedAt'] . "",
                 awardType: $award['AwardType'],
                 awardSection: $section,
-                displayOrder: $award['DisplayOrder'],
+                displayOrder: $award['DisplayOrder']
             );
 
             $awards[] = $newAward;
@@ -251,6 +254,7 @@ class ReorderSiteAwardsController extends Controller
             case AwardType::AchievementPointsYield:
                 $data = $award["AwardData"];
                 $points = PlayerBadge::getBadgeThreshold(AwardType::AchievementPointsYield, $data);
+                $award['Title'] = "Achievement Points Earned by Others";
                 $award['Tooltip'] = "Awarded for producing many valuable achievements, providing over $points points to the community!";
                 $award["ImageIcon"] = asset("/assets/images/badge/contribPoints-$data.png");
                 $award["IsGold"] = true;
@@ -259,6 +263,7 @@ class ReorderSiteAwardsController extends Controller
             case AwardType::AchievementUnlocksYield:
                 $data = $award["AwardData"];
                 $points = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $data);
+                $award["Title"] = "Achievements Earned by Others";
                 $award['Tooltip'] = "Awarded for being a hard-working developer and producing achievements that have been earned over $points times!";
                 $award["ImageIcon"] = asset("/assets/images/badge/contribYield-$data.png");
                 $award["IsGold"] = true;
@@ -266,12 +271,14 @@ class ReorderSiteAwardsController extends Controller
                 return;
 
             case AwardType::CertifiedLegend:
+                $award["Title"] = "Certified Legend";
                 $award['Tooltip'] = 'Specially Awarded to a Certified RetroAchievements Legend';
                 $award["ImageIcon"] = asset('/assets/images/badge/legend.png');
                 $award["IsGold"] = true;
 
                 return;
             case AwardType::PatreonSupporter:
+                $award["Title"] = "Patreon Supporter";
                 $award['Tooltip'] = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
                 $award["ImageIcon"] = asset('/assets/images/badge/patreon.png');
                 $award["IsGold"] = true;
