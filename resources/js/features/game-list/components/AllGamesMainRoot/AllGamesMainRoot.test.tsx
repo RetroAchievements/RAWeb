@@ -799,7 +799,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
       numUnresolvedTickets: 2,
       timesBeatenHardcore: 0,
-      playersTotal: 9,
+      playersHardcore: 9,
       medianTimeToBeatHardcore: undefined,
     });
 
@@ -845,7 +845,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
       numUnresolvedTickets: 2,
       timesBeatenHardcore: 3,
-      playersTotal: 9, // specifically chosen to test rounding of displayed value
+      playersHardcore: 9, // specifically chosen to test rounding of displayed value
       medianTimeToBeatHardcore: 1234,
     });
 
@@ -889,7 +889,7 @@ describe('Component: AllGamesMainRoot', () => {
       pointsWeighted: 1000,
       releasedAt: '2006-08-24T00:56:00+00:00',
       releasedAtGranularity: 'day',
-      // ... playersTotal and timesBeatenHardcore are intentionally omitted ...
+      // ... playersHardcore and timesBeatenHardcore are intentionally omitted ...
     });
 
     render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
@@ -929,7 +929,7 @@ describe('Component: AllGamesMainRoot', () => {
       pointsWeighted: 1000,
       releasedAt: '2006-08-24T00:56:00+00:00',
       releasedAtGranularity: 'day',
-      playersTotal: 10,
+      playersHardcore: 10,
       // ... timesBeatenHardcore is intentionally omitted ...
     });
 
@@ -969,7 +969,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAt: '2006-08-24T00:56:00+00:00',
       releasedAtGranularity: 'day',
       timesBeatenHardcore: 7,
-      playersTotal: 15,
+      playersHardcore: 15,
       // ... medianTimeToBeatHardcore is intentionally omitted ...
     });
 
@@ -1010,7 +1010,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
       numUnresolvedTickets: 2,
       timesBeatenHardcore: 5,
-      playersTotal: 9, // specifically chosen to test rounding of displayed value
+      playersHardcore: 9, // specifically chosen to test rounding of displayed value
       medianTimeToBeatHardcore: 1234,
     });
 

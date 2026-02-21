@@ -18,15 +18,15 @@ class UpdateGameBeatenMetricsAction
         $query = PlayerGame::where('player_games.game_id', $game->id)
             ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
             ->whereNull('unranked_users.id')
-            ->whereNotNull('player_games.time_to_beat')
-            ->whereNull('player_games.time_to_beat_hardcore');
+            ->whereNotNull('player_games.beaten_at')
+            ->whereNull('player_games.beaten_hardcore_at');
         [$game->times_beaten, $game->median_time_to_beat] = $this->getMedian($query, 'player_games.time_to_beat');
 
         // Get median time to beat (hardcore).
         $query = PlayerGame::where('player_games.game_id', $game->id)
             ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
             ->whereNull('unranked_users.id')
-            ->whereNotNull('player_games.time_to_beat_hardcore');
+            ->whereNotNull('player_games.beaten_hardcore_at');
         [$game->times_beaten_hardcore, $game->median_time_to_beat_hardcore] =
              $this->getMedian($query, 'player_games.time_to_beat_hardcore');
 
