@@ -7,7 +7,9 @@ namespace App\Platform\Data;
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
 use Illuminate\Support\Collection;
+use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('AchievementShowPageProps')]
@@ -16,6 +18,7 @@ class AchievementShowPagePropsData extends Data
     /**
      * @param Collection<int, CommentData> $recentVisibleComments
      * @param AchievementData[]|null $proximityAchievements
+     * @param Collection<int, AchievementRecentUnlockData> $recentUnlocks
      */
     public function __construct(
         public AchievementData $achievement,
@@ -27,6 +30,8 @@ class AchievementShowPagePropsData extends Data
         public ?GameAchievementSetData $gameAchievementSet = null,
         public ?array $proximityAchievements = null,
         public int $promotedAchievementCount = 0,
+        #[AutoInertiaDeferred]
+        public Lazy|Collection $recentUnlocks = new Collection(),
     ) {
     }
 }

@@ -19,7 +19,7 @@ class DeveloperFeedPagePropsData extends Data
         public int $awardsContributed,
         public int $leaderboardEntriesContributed,
         public PaginatedData $activePlayers,
-        /** @var RecentUnlockData[] */
+        /** @var FeedRecentUnlockData[] */
         public array $recentUnlocks,
         /** @var RecentPlayerBadgeData[] */
         public array $recentPlayerBadges,

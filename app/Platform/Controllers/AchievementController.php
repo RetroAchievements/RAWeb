@@ -7,6 +7,7 @@ namespace App\Platform\Controllers;
 use App\Community\Data\CommentData;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
+use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
@@ -16,6 +17,7 @@ use App\Models\PlayerAchievement;
 use App\Models\Role;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
+use App\Platform\Data\AchievementRecentUnlockData;
 use App\Platform\Data\AchievementShowPagePropsData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
@@ -25,6 +27,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Spatie\LaravelData\Lazy;
 
 class AchievementController extends Controller
 {
@@ -108,6 +111,20 @@ class AchievementController extends Controller
                 : null,
             proximityAchievements: $proximityAchievements,
             promotedAchievementCount: $promotedAchievementCount,
+            recentUnlocks: Lazy::inertiaDeferred(function () use ($achievement) {
+                return PlayerAchievement::with('user')
+                    ->whereHas('user')
+                    ->where('achievement_id', $achievement->id)
+                    ->ranked()
+                    ->orderByDesc('unlocked_effective_at')
+                    ->limit(50)
+                    ->get()
+                    ->map(fn ($pa) => new AchievementRecentUnlockData(
+                        user: UserData::fromUser($pa->user)->include('displayName', 'avatarUrl'),
+                        unlockedAt: $pa->unlocked_effective_at,
+                        isHardcore: $pa->unlocked_hardcore_at !== null,
+                    ));
+            }),
         );
 
         return Inertia::render('achievement/[achievement]', $props);

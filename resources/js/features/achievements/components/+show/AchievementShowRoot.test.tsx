@@ -129,7 +129,7 @@ describe('Component: AchievementShowRoot', () => {
     await userEvent.click(screen.getByRole('tab', { name: /unlocks/i }));
 
     // ASSERT
-    expect(screen.getByText(/AchievementRecentUnlocks/i)).toBeVisible();
+    expect(screen.getByRole('table')).toBeVisible();
   });
 
   it('given the user hovers over an inactive tab, applies the hover text style', async () => {
