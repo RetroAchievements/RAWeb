@@ -41,9 +41,16 @@ declare namespace App.Community.Data {
     awardsContributed: number;
     leaderboardEntriesContributed: number;
     activePlayers: App.Data.PaginatedData<TItems>;
-    recentUnlocks: Array<App.Community.Data.RecentUnlock>;
+    recentUnlocks: Array<App.Community.Data.FeedRecentUnlock>;
     recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
     recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
+  };
+  export type FeedRecentUnlock = {
+    achievement: App.Platform.Data.Achievement;
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    unlockedAt: string;
+    isHardcore: boolean;
   };
   export type GameActivitySnapshot = {
     game: App.Platform.Data.Game;
@@ -132,13 +139,6 @@ declare namespace App.Community.Data {
   };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
-  };
-  export type RecentUnlock = {
-    achievement: App.Platform.Data.Achievement;
-    game: App.Platform.Data.Game;
-    user: App.Data.User;
-    unlockedAt: string;
-    isHardcore: boolean;
   };
   export type RedirectPagePropsData = {
     url: string;
@@ -625,6 +625,11 @@ declare namespace App.Platform.Data {
     activeMaintainer?: App.Data.User | null;
     modifiedAt?: string | null;
   };
+  export type AchievementRecentUnlock = {
+    user: App.Data.User;
+    unlockedAt: string;
+    isHardcore: boolean;
+  };
   export type AchievementSetClaim = {
     id: number;
     user?: App.Data.User;
@@ -679,6 +684,8 @@ declare namespace App.Platform.Data {
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
     proximityAchievements: Array<App.Platform.Data.Achievement> | null;
     promotedAchievementCount: number;
+    recentUnlocks?: Array<App.Platform.Data.AchievementRecentUnlock>;
+    initialTab: App.Platform.Enums.AchievementPageTab;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -777,6 +784,7 @@ declare namespace App.Platform.Data {
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     preferredEventAwardTier: number | null;
     earnedEventAwardTier: number | null;
+    banner: App.Platform.Data.PageBanner;
   };
   export type FollowedPlayerCompletion = {
     user: App.Data.User;
@@ -1042,6 +1050,7 @@ declare namespace App.Platform.Data {
     desktopPlaceholder: string | null;
     leftEdgeColor: string | null;
     rightEdgeColor: string | null;
+    isFallback: boolean;
   };
   export type ParsedUserAgent = {
     client: string;
@@ -1222,6 +1231,7 @@ declare namespace App.Platform.Data {
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
   export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type AchievementSetType =
     | 'core'

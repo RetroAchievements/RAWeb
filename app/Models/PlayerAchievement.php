@@ -87,4 +87,16 @@ class PlayerAchievement extends BasePivot
             $query->where('game_id', $game->id);
         });
     }
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeRanked(Builder $query): Builder
+    {
+        return $query
+            ->addSelect('player_achievements.*')
+            ->leftJoin('unranked_users', 'player_achievements.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.id');
+    }
 }

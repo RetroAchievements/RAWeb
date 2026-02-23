@@ -25,6 +25,30 @@ class PageBannerData extends Data
         public ?string $desktopPlaceholder,
         public ?string $leftEdgeColor,
         public ?string $rightEdgeColor,
+        public bool $isFallback = false,
     ) {
+    }
+
+    public static function fallback(): self
+    {
+        $base = 'assets/images/banner';
+
+        return new self(
+            mobileSmWebp: asset("{$base}/fallback-mobile-sm.webp"),
+            mobileSmAvif: asset("{$base}/fallback-mobile-sm.avif"),
+            mobileMdWebp: asset("{$base}/fallback-mobile-md.webp"),
+            mobileMdAvif: asset("{$base}/fallback-mobile-md.avif"),
+            desktopMdWebp: asset("{$base}/fallback-desktop-md.webp"),
+            desktopMdAvif: asset("{$base}/fallback-desktop-md.avif"),
+            desktopLgWebp: asset("{$base}/fallback-desktop-lg.webp"),
+            desktopLgAvif: asset("{$base}/fallback-desktop-lg.avif"),
+            desktopXlWebp: asset("{$base}/fallback-desktop-xl.webp"),
+            desktopXlAvif: asset("{$base}/fallback-desktop-xl.avif"),
+            mobilePlaceholder: asset("{$base}/fallback-mobile-placeholder.webp"),
+            desktopPlaceholder: asset("{$base}/fallback-desktop-placeholder.webp"),
+            leftEdgeColor: '#151936',
+            rightEdgeColor: '#261c12',
+            isFallback: true,
+        );
     }
 }

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createGame, createGameSet, createRaEvent } from '@/test/factories';
+import { createGame, createGameSet, createPageBanner, createRaEvent } from '@/test/factories';
 
 import { EventDesktopBanner } from './EventDesktopBanner';
 
@@ -83,20 +83,27 @@ describe('Component: EventDesktopBanner', () => {
     expect(screen.getByText('Developer Events')).toBeVisible();
   });
 
-  it('renders the color-extracted background from the ingame screenshot', () => {
+  it('renders the blurred backdrop from the fallback banner', () => {
     // ARRANGE
+    const banner = createPageBanner({
+      desktopMdWebp: '/assets/images/banner/fallback-desktop-md.webp',
+      isFallback: true,
+    });
+
     render(<EventDesktopBanner />, {
       pageProps: {
-        event: createRaEvent({
-          legacyGame: createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' }),
-        }),
+        event: createRaEvent(),
+        banner,
         can: {},
       },
     });
 
     // ASSERT
-    const colorSourceImg = screen.getByTestId('fallback-color-source');
-    expect(colorSourceImg).toHaveAttribute('src', 'https://example.com/ingame.jpg');
+    const blurredBackdrop = screen.getByTestId('blurred-backdrop');
+    expect(blurredBackdrop).toHaveAttribute(
+      'src',
+      '/assets/images/banner/fallback-desktop-md.webp',
+    );
   });
 
   it('given a long title, applies a smaller font size class', () => {

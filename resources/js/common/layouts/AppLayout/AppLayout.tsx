@@ -25,7 +25,7 @@ interface AppLayoutMainProps {
 
 const AppLayoutMain: FC<AppLayoutMainProps> = ({ children, className }) => {
   return (
-    <article className={cn('relative z-10 !px-2.5 sm:!px-4 md:!px-5', className)}>
+    <article className={cn('relative z-10 min-w-0 !px-2.5 sm:!px-4 md:!px-5', className)}>
       {children}
     </article>
   );

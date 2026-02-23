@@ -1,6 +1,11 @@
 import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
-import { createAchievement, createGame, createRecentUnlock, createUser } from '@/test/factories';
+import {
+  createAchievement,
+  createFeedRecentUnlock,
+  createGame,
+  createUser,
+} from '@/test/factories';
 
 import { RecentUnlocksTable } from './RecentUnlocksTable';
 
@@ -23,7 +28,7 @@ describe('Component: RecentUnlocksTable', () => {
 
   it('given there are recent unlocks, displays them in a table', () => {
     // ARRANGE
-    const recentUnlock = createRecentUnlock({
+    const recentUnlock = createFeedRecentUnlock({
       achievement: createAchievement({ id: 1, title: 'Test Achievement' }),
       game: createGame({ id: 1, title: 'Test Game' }),
       user: createUser({ displayName: 'Scott' }),
@@ -42,7 +47,7 @@ describe('Component: RecentUnlocksTable', () => {
 
   it('given an unlock is softcore, displays a softcore indicator', () => {
     // ARRANGE
-    const recentUnlock = createRecentUnlock({ isHardcore: false });
+    const recentUnlock = createFeedRecentUnlock({ isHardcore: false });
 
     render(<RecentUnlocksTable recentUnlocks={[recentUnlock]} />);
 
@@ -52,7 +57,7 @@ describe('Component: RecentUnlocksTable', () => {
 
   it('given an unlock is hardcore, does not display a softcore indicator', () => {
     // ARRANGE
-    const recentUnlock = createRecentUnlock({ isHardcore: true });
+    const recentUnlock = createFeedRecentUnlock({ isHardcore: true });
 
     render(<RecentUnlocksTable recentUnlocks={[recentUnlock]} />);
 
@@ -62,7 +67,9 @@ describe('Component: RecentUnlocksTable', () => {
 
   it('given the user prefers absolute dates, shows the timestamp in absolute format', () => {
     // ARRANGE
-    const recentUnlock = createRecentUnlock({ unlockedAt: new Date('2023-05-05').toISOString() });
+    const recentUnlock = createFeedRecentUnlock({
+      unlockedAt: new Date('2023-05-05').toISOString(),
+    });
 
     render(<RecentUnlocksTable recentUnlocks={[recentUnlock]} />, {
       pageProps: {

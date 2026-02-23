@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Data\DeveloperFeedPagePropsData;
+use App\Community\Data\FeedRecentUnlockData;
 use App\Community\Data\RecentLeaderboardEntryData;
 use App\Community\Data\RecentPlayerBadgeData;
-use App\Community\Data\RecentUnlockData;
 use App\Community\Enums\AwardType;
 use App\Data\UserData;
 use App\Models\LeaderboardEntry;
@@ -118,7 +118,7 @@ class BuildDeveloperFeedDataAction
 
     /**
      * @param Collection<int, int> $achievementIds
-     * @return RecentUnlockData[]
+     * @return FeedRecentUnlockData[]
      */
     private function getRecentUnlocks(Collection $achievementIds, bool $shouldUseDateRange = false): array
     {
@@ -135,7 +135,7 @@ class BuildDeveloperFeedDataAction
             ->take(200)
             ->get()
             ->reject(fn ($unlock) => $unlock->user->unranked_at !== null)
-            ->map(fn ($unlock) => new RecentUnlockData(
+            ->map(fn ($unlock) => new FeedRecentUnlockData(
                 achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
                 game: GameData::fromGame($unlock->achievement->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 user: UserData::fromUser($unlock->user),

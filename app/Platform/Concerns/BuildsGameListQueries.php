@@ -346,7 +346,7 @@ trait BuildsGameListQueries
                     break;
 
                 /*
-                 * median time to beat the game in hardcore / total_players
+                 * percentage of hardcore players for the game that have beaten the game
                  */
                 case GameListSortField::BeatRatio->value:
                     $query
@@ -356,7 +356,7 @@ trait BuildsGameListQueries
                                 ELSE 0
                             END AS can_be_beaten"
                         )
-                        ->selectRaw('times_beaten_hardcore / players_total as beat_ratio')
+                        ->selectRaw('times_beaten_hardcore / players_hardcore as beat_ratio')
                         ->orderByDesc('can_be_beaten')
                         ->orderBy('beat_ratio', $sortDirection)
                         ->orderByDesc('players_total');

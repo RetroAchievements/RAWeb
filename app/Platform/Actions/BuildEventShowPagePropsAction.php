@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventShowPagePropsData;
 use App\Platform\Data\GameSetData;
+use App\Platform\Data\PageBannerData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 
@@ -103,6 +104,7 @@ class BuildEventShowPagePropsAction
                 : null,
             preferredEventAwardTier: $eventBadge?->display_award_tier,
             earnedEventAwardTier: $eventBadge?->award_tier,
+            banner: PageBannerData::fallback(),
         );
     }
 
@@ -117,7 +119,7 @@ class BuildEventShowPagePropsAction
             return [];
         }
 
-        // Prefer hubs that match the "[Events - *]" pattern.
+        // Event-specific hubs (eg: "[Events - Community]") provide the most relevant breadcrumb trail.
         $eventHub = $hubs->first(fn ($hub) => str_starts_with($hub->title, '[Events - '));
 
         // Fall back to the first hub if no event hub is found.
@@ -125,7 +127,6 @@ class BuildEventShowPagePropsAction
             $eventHub = $hubs->first();
         }
 
-        // Build the breadcrumb trail using the existing hub breadcrumbs action.
         return $this->buildHubBreadcrumbsAction->execute($eventHub);
     }
 }

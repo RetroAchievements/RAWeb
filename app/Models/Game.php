@@ -493,7 +493,11 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     {
         $currentBanner = $this->current_banner_media;
 
-        $url = fn (string $conversion): ?string => $currentBanner?->getUrl($conversion) ?: null;
+        if (!$currentBanner) {
+            return PageBannerData::fallback();
+        }
+
+        $url = fn (string $conversion): ?string => $currentBanner->getUrl($conversion) ?: null;
 
         return new PageBannerData(
             mobileSmWebp: $url('mobile-sm-webp'),
@@ -508,8 +512,8 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
             desktopXlAvif: $url('desktop-xl-avif'),
             mobilePlaceholder: $url('mobile-placeholder'),
             desktopPlaceholder: $url('desktop-placeholder'),
-            leftEdgeColor: $currentBanner?->getCustomProperty('left_edge_color'),
-            rightEdgeColor: $currentBanner?->getCustomProperty('right_edge_color'),
+            leftEdgeColor: $currentBanner->getCustomProperty('left_edge_color'),
+            rightEdgeColor: $currentBanner->getCustomProperty('right_edge_color'),
         );
     }
 
