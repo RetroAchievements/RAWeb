@@ -346,7 +346,7 @@ trait BuildsGameListQueries
                     break;
 
                 /*
-                 * median time to beat the game in hardcore / total_players
+                 * percentage of hardcore players for the game that have beaten the game
                  */
                 case GameListSortField::BeatRatio->value:
                     $query
