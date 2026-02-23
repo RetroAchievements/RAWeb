@@ -350,6 +350,38 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([2, 3, 4, 5, 1]);
   });
 
+  it('given active sort and same status, prioritizes orderColumn over createdAt', () => {
+    // ARRANGE
+    const baseAchievement = createAchievement();
+    const achievements = [
+      { ...baseAchievement, id: 1, orderColumn: 5, createdAt: '2023-01-01' },
+      { ...baseAchievement, id: 2, orderColumn: 3, createdAt: '2023-06-01' },
+    ];
+
+    const eventAchievements: App.Platform.Data.EventAchievement[] = [
+      {
+        achievement: achievements[0],
+        activeFrom: dayjs().subtract(1, 'day').toISOString(),
+        activeThrough: dayjs().add(1, 'day').toISOString(),
+        activeUntil: dayjs().add(2, 'day').toISOString(),
+        isObfuscated: false,
+      },
+      {
+        achievement: achievements[1],
+        activeFrom: dayjs().subtract(1, 'day').toISOString(),
+        activeThrough: dayjs().add(1, 'day').toISOString(),
+        activeUntil: dayjs().add(2, 'day').toISOString(),
+        isObfuscated: false,
+      },
+    ];
+
+    // ACT
+    const result = sortAchievements(achievements, 'active', eventAchievements);
+
+    // ASSERT
+    expect(result.map((a) => a.id)).toEqual([2, 1]);
+  });
+
   it('given an invalid sort order, returns achievements unmodified', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
