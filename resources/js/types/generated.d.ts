@@ -667,6 +667,7 @@ declare namespace App.Platform.Data {
     gameAchievementSet: App.Platform.Data.GameAchievementSet | null;
     proximityAchievements: Array<App.Platform.Data.Achievement> | null;
     promotedAchievementCount: number;
+    initialTab: App.Platform.Enums.AchievementPageTab;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -1212,6 +1213,7 @@ declare namespace App.Platform.Data {
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
   export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type AchievementSetType =
     | 'core'

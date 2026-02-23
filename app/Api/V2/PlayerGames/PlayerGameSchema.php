@@ -16,6 +16,7 @@ use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -73,16 +74,14 @@ class PlayerGameSchema extends Schema
             DateTime::make('beatenHardcoreAt', 'beaten_hardcore_at')->readOnly(),
 
             // Time tracking.
-            Number::make('playtimeTotal', 'playtime_total')->readOnly(),
-            Number::make('timeToBeat', 'time_to_beat')->readOnly(),
-            Number::make('timeToBeatHardcore', 'time_to_beat_hardcore')->readOnly(),
+            Number::make('playtimeTotalSeconds', 'playtime_total')->readOnly(),
+            Number::make('timeToBeatSeconds', 'time_to_beat')->readOnly(),
+            Number::make('timeToBeatHardcoreSeconds', 'time_to_beat_hardcore')->readOnly(),
 
             // Relationships.
             BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),
             BelongsTo::make('game')->readOnly(),
-
-            // TODO add relationships
-            // - playerAchievementSets (HasMany PlayerAchievementSet) - per-set player progress
+            HasManyThrough::make('playerAchievementSets')->type('player-achievement-sets'),
         ];
     }
 
