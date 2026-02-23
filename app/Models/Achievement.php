@@ -691,7 +691,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeForGame(Builder $query, int $gameId): Builder
+    public function scopeForGameId(Builder $query, int $gameId): Builder
     {
         return $query->whereExists(function ($subQuery) use ($gameId) {
             $subQuery->select(DB::raw(1))

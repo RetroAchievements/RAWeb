@@ -21,6 +21,7 @@ use App\Platform\Data\AchievementRecentUnlockData;
 use App\Platform\Data\AchievementShowPagePropsData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
+use App\Platform\Enums\AchievementPageTab;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -69,6 +70,8 @@ class AchievementController extends Controller
             ->first();
 
         [$proximityAchievements, $promotedAchievementCount] = $this->buildProximityAchievements($achievement, $user);
+
+        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
 
         $subscriptionService = new SubscriptionService();
 
@@ -125,6 +128,7 @@ class AchievementController extends Controller
                         isHardcore: $pa->unlocked_hardcore_at !== null,
                     ));
             }),
+            initialTab: $initialTab,
         );
 
         return Inertia::render('achievement/[achievement]', $props);

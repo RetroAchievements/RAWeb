@@ -1,5 +1,3 @@
 import { atom } from 'jotai';
 
-import type { AchievementShowTab } from '../models';
-
-export const currentTabAtom = atom<AchievementShowTab>('comments');
+export const currentTabAtom = atom<App.Platform.Enums.AchievementPageTab>('comments');

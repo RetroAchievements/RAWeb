@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\AchievementPageTab;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
@@ -32,6 +33,7 @@ class AchievementShowPagePropsData extends Data
         public int $promotedAchievementCount = 0,
         #[AutoInertiaDeferred]
         public Lazy|Collection $recentUnlocks = new Collection(),
+        public AchievementPageTab $initialTab = AchievementPageTab::Comments,
     ) {
     }
 }

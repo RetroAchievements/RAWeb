@@ -20,6 +20,9 @@ class UnlockPlayerAchievementJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    public int $tries = 3;
+    public array $backoff = [10, 30];
+
     public function __construct(
         private readonly int $userId,
         private readonly int $achievementId,
