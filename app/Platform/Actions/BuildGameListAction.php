@@ -242,6 +242,7 @@ class BuildGameListAction
                     'medianTimeToBeatHardcore',
                     'numRequests',
                     'numVisibleLeaderboards',
+                    'playersHardcore',
                     'playersTotal',
                     'pointsTotal',
                     'pointsWeighted',
