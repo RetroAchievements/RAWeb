@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createAchievement, createGame, createSystem } from '@/test/factories';
 
@@ -123,5 +125,40 @@ describe('Component: AchievementTabs', () => {
 
     expect(commentsTabs[0]).toHaveTextContent('Comments');
     expect(commentsTabs[1]).toHaveTextContent('Comments');
+  });
+
+  it('given the user hovers over a desktop tab and then leaves, does not crash', async () => {
+    // ARRANGE
+    const tabConfigs: TabConfig[] = [
+      { value: 'comments', label: 'Comments' },
+      { value: 'unlocks', label: 'Unlocks' },
+    ];
+
+    render(
+      <AchievementTabs tabConfigs={tabConfigs}>
+        <p>content</p>
+      </AchievementTabs>,
+      {
+        pageProps: {
+          achievement: createAchievement({
+            game: createGame({ system: createSystem() }),
+          }),
+          backingGame: null,
+          gameAchievementSet: null,
+          can: { createAchievementComments: false },
+          isSubscribedToComments: false,
+          numComments: 0,
+          recentVisibleComments: [],
+        },
+      },
+    );
+
+    // ACT
+    const desktopUnlocksTab = screen.getAllByRole('tab', { name: /unlocks/i })[1];
+    await userEvent.hover(desktopUnlocksTab);
+    await userEvent.unhover(desktopUnlocksTab);
+
+    // ASSERT
+    expect(desktopUnlocksTab).toBeVisible();
   });
 });
