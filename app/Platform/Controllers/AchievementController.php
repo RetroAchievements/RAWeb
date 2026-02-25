@@ -16,6 +16,7 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\AchievementRecentUnlockData;
 use App\Platform\Data\AchievementShowPagePropsData;
@@ -74,6 +75,7 @@ class AchievementController extends Controller
         $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
 
         $subscriptionService = new SubscriptionService();
+        $changelog = (new BuildAchievementChangelogAction())->execute($achievement);
 
         $props = new AchievementShowPagePropsData(
             achievement: AchievementData::fromAchievement($achievement, $playerAchievement)
@@ -97,6 +99,7 @@ class AchievementController extends Controller
                     'unlockPercentage',
                     'unlocksHardcore',
                     'unlocksTotal',
+                    'isPromoted',
                     'numUnresolvedTickets',
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)
@@ -112,6 +115,7 @@ class AchievementController extends Controller
             gameAchievementSet: $gameAchievementSet
                 ? GameAchievementSetData::from($gameAchievementSet)->include('type', 'title', 'achievementSet.imageAssetPathUrl')
                 : null,
+            changelog: $changelog,
             proximityAchievements: $proximityAchievements,
             promotedAchievementCount: $promotedAchievementCount,
             recentUnlocks: Lazy::inertiaDeferred(function () use ($achievement) {

@@ -237,6 +237,7 @@ describe('Component: AchievementShowRoot', () => {
         backingGame: null,
         gameAchievementSet: null,
         can: { createAchievementComments: false },
+        changelog: [],
         isSubscribedToComments: false,
         numComments: 0,
         recentVisibleComments: [],
@@ -247,6 +248,6 @@ describe('Component: AchievementShowRoot', () => {
     await userEvent.click(screen.getAllByRole('tab', { name: /changelog/i })[0]);
 
     // ASSERT
-    expect(screen.getByText(/AchievementChangelog/i)).toBeVisible();
+    expect(screen.getByText(/no changelog entries found/i)).toBeVisible();
   });
 });

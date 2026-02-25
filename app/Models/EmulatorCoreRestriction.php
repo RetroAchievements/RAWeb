@@ -21,6 +21,7 @@ class EmulatorCoreRestriction extends BaseModel
     protected $fillable = [
         'core_name',
         'support_level',
+        'minimum_version',
         'recommendation',
         'notes',
     ];
@@ -37,6 +38,7 @@ class EmulatorCoreRestriction extends BaseModel
             ->logOnly([
                 'core_name',
                 'support_level',
+                'minimum_version',
                 'recommendation',
                 'notes',
             ])

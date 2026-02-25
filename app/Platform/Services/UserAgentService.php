@@ -261,7 +261,7 @@ class UserAgentService
 
     private static function splitVersion(string $version): array
     {
-        $parts = explode('.', str_replace('-', '.', $version));
+        $parts = explode('.', str_replace(['-', '_'], '.', $version));
         $count = count($parts);
 
         // ignore any chunks preceding the numeric part
@@ -363,15 +363,26 @@ class UserAgentService
 
         // Core-specific restrictions can override the emulator-level result.
         $coreIdentifier = $this->extractCoreIdentifier($data);
-        if ($coreIdentifier) {
-            $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
-
-            if ($coreRestriction) {
-                return [$coreRestriction->support_level, $coreRestriction];
-            }
+        if (!$coreIdentifier) {
+            return [ClientSupportLevel::Full, null];
         }
 
-        return [ClientSupportLevel::Full, null];
+        $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
+        if (!$coreRestriction) {
+            return [ClientSupportLevel::Full, null];
+        }
+
+        // If the core meets the minimum version threshold, ignore the restriction entirely.
+        $coreVersion = $data['extra'][$coreIdentifier] ?? null;
+        if (
+            $coreRestriction->minimum_version
+            && $coreVersion !== null
+            && UserAgentService::versionCompare($coreVersion, $coreRestriction->minimum_version) >= 0
+        ) {
+            return [ClientSupportLevel::Full, null];
+        }
+
+        return [$coreRestriction->support_level, $coreRestriction];
     }
 
     /**
