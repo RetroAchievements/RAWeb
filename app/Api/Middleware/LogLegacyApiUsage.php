@@ -7,6 +7,7 @@ namespace App\Api\Middleware;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LogLegacyApiUsage
 {
@@ -15,7 +16,7 @@ class LogLegacyApiUsage
         /** @var User $user */
         $user = $request->user('api-token');
 
-        $user->increment('web_api_calls');
+        DB::transaction(fn () => $user->increment('web_api_calls'), attempts: 3);
 
         return $next($request);
     }

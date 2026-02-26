@@ -72,7 +72,10 @@ describe('Component: ForumCommentResultDisplay', () => {
 
   it('given the comment has no forum topic, does not display a topic section', () => {
     // ARRANGE
-    const forumComment = createForumTopicComment({ forumTopic: undefined });
+    const forumComment = createForumTopicComment({
+      forumTopic: undefined,
+      body: 'Some post text.',
+    });
 
     render(<ForumCommentResultDisplay forumComment={forumComment} />);
 
@@ -82,7 +85,7 @@ describe('Component: ForumCommentResultDisplay', () => {
 
   it('displays when the comment was posted', () => {
     // ARRANGE
-    const forumComment = createForumTopicComment();
+    const forumComment = createForumTopicComment({ body: 'Some post text.' });
 
     render(<ForumCommentResultDisplay forumComment={forumComment} />);
 

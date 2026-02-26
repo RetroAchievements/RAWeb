@@ -27,6 +27,7 @@ class PlayerBadge extends BaseModel
         'award_type',
         'award_key',
         'award_tier',
+        'display_award_tier',
         'awarded_at',
         'order_column',
     ];
@@ -35,6 +36,7 @@ class PlayerBadge extends BaseModel
         'award_type' => AwardType::class,
         'award_key' => 'int',
         'award_tier' => 'int',
+        'display_award_tier' => 'int',
         'order_column' => 'int',
     ];
 

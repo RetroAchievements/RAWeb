@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -36,6 +37,7 @@ export const GameShowMainRoot: FC = () => {
       <PlayableMainMedia
         imageIngameUrl={game.imageIngameUrl!}
         imageTitleUrl={game.imageTitleUrl!}
+        isPixelated={getIsSystemPixelated(game.system!.id)}
       />
 
       <div className="flex flex-col gap-6">

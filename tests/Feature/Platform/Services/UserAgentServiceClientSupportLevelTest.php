@@ -257,4 +257,87 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertEquals(ClientSupportLevel::Warned, $restriction->support_level);
         $this->assertEquals('Consider using a different core for best results.', $restriction->recommendation);
     }
+
+    public function testCoreRestrictionMinimumVersionBypass(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $retroArch = Emulator::create(['name' => 'RetroArch', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $retroArch->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+
+        // blocked restriction with a minimum version bypass at 2.0.0
+        EmulatorCoreRestriction::create([
+            'core_name' => 'dolphin_libretro',
+            'support_level' => ClientSupportLevel::Blocked,
+            'minimum_version' => '2.0.0',
+            'notes' => 'accuracy issues fixed in 2.0.0',
+        ]);
+
+        // unsupported restriction with a minimum version bypass at 1.5.0
+        EmulatorCoreRestriction::create([
+            'core_name' => 'problemcore_libretro',
+            'support_level' => ClientSupportLevel::Unsupported,
+            'minimum_version' => '1.5.0',
+            'notes' => 'issues fixed in 1.5.0',
+        ]);
+
+        // restriction with no minimum_version should always apply
+        EmulatorCoreRestriction::create([
+            'core_name' => 'alwaysblocked_libretro',
+            'support_level' => ClientSupportLevel::Blocked,
+            'notes' => 'permanently restricted',
+        ]);
+
+        // core version below minimum, so the restriction applies
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/1.9.9'));
+
+        // core version exactly at minimum, so the restriction is bypassed
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/2.0.0'));
+
+        // core version above minimum, so the restriction is bypassed
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/2.1.0'));
+
+        // version with a trailing commit hash suffix still bypasses the restriction
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/2.0.0_abcdef'));
+
+        // bare commit hash is treated as below any semver, therefore the restriction is not bypassed
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75'));
+
+        // no minimum_version set, so the restriction always applies
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) alwaysblocked_libretro/99.99.99'));
+
+        // unsupported restriction with a version below the minimum, so the restriction applies
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) problemcore_libretro/1.4.9'));
+
+        // unsupported restriction with a version at the minimum, so the restriction is bypassed
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) problemcore_libretro/1.5.0'));
+
+        // core version with a "v" prefix at the minimum should also bypass the restriction
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/v2.0.0'));
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/2.0.0');
+        $this->assertNull($restriction);
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/1.9.9');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('dolphin_libretro', $restriction->core_name);
+        $this->assertEquals(ClientSupportLevel::Blocked, $restriction->support_level);
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('dolphin_libretro', $restriction->core_name);
+    }
 }

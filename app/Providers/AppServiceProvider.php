@@ -14,6 +14,7 @@ use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
+use App\Console\Commands\ProcessFallbackBanner;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
@@ -79,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
                 FlushUserActivityToDatabase::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
+                ProcessFallbackBanner::class,
                 SquashMigrations::class,
 
                 // User Accounts

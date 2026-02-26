@@ -1,14 +1,14 @@
-/* eslint-disable testing-library/no-container */
+/* eslint-disable testing-library/no-container -- picture/source elements are decorative with no accessible attributes, so testing-library queries can't reach them */
 
 import { act, render, screen } from '@/test';
 import { createGame, createPageBanner } from '@/test/factories';
 
-import { GameDesktopBannerImage } from './GameDesktopBannerImage';
+import { DesktopBannerImage } from './DesktopBannerImage';
 
-describe('Component: GameDesktopBannerImage', () => {
+describe('Component: DesktopBannerImage', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: {
         game: createGame(),
       },
@@ -25,7 +25,7 @@ describe('Component: GameDesktopBannerImage', () => {
       mobileSmWebp: null,
     });
 
-    const { container } = render(<GameDesktopBannerImage banner={banner} />, {
+    const { container } = render(<DesktopBannerImage banner={banner} />, {
       pageProps: { game: createGame() },
     });
 
@@ -51,9 +51,9 @@ describe('Component: GameDesktopBannerImage', () => {
       desktopXlWebp: 'https://example.com/banner-xl.webp',
     });
 
-    const { container } = render(<GameDesktopBannerImage banner={banner} />, {
+    const { container } = render(<DesktopBannerImage banner={banner} />, {
       pageProps: {
-        game: createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' }),
+        game: createGame(),
       },
     });
 
@@ -64,24 +64,24 @@ describe('Component: GameDesktopBannerImage', () => {
     const sources = picture?.querySelectorAll('source');
     expect(sources).toHaveLength(4);
 
-    // ... mobile AVIF source ...
+    // Mobile AVIF source.
     expect(sources?.[0]).toHaveAttribute('type', 'image/avif');
     expect(sources?.[0]).toHaveAttribute('media', '(max-width: 767px)');
     expect(sources?.[0]).toHaveAttribute('srcset', 'https://example.com/banner-mobile.avif');
 
-    // ... mobile WebP source ...
+    // Mobile WebP source.
     expect(sources?.[1]).toHaveAttribute('type', 'image/webp');
     expect(sources?.[1]).toHaveAttribute('media', '(max-width: 767px)');
     expect(sources?.[1]).toHaveAttribute('srcset', 'https://example.com/banner-mobile.webp');
 
-    // ... desktop AVIF source ...
+    // Desktop AVIF source.
     expect(sources?.[2]).toHaveAttribute('type', 'image/avif');
     expect(sources?.[2]).toHaveAttribute(
       'srcset',
       'https://example.com/banner-md.avif 1024w, https://example.com/banner-lg.avif 1280w, https://example.com/banner-xl.avif 1920w',
     );
 
-    // ... desktop WebP source ...
+    // Desktop WebP source.
     expect(sources?.[3]).toHaveAttribute('type', 'image/webp');
     expect(sources?.[3]).toHaveAttribute(
       'srcset',
@@ -89,25 +89,26 @@ describe('Component: GameDesktopBannerImage', () => {
     );
   });
 
-  it('as an edge case, uses the ingame screenshot as the fallback img src', () => {
+  it('uses desktopMdWebp as the fallback img src', () => {
     // ARRANGE
-    const banner = createPageBanner();
-    const game = createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' });
+    const banner = createPageBanner({
+      desktopMdWebp: 'https://example.com/banner-md.webp',
+    });
 
-    const { container } = render(<GameDesktopBannerImage banner={banner} />, {
-      pageProps: { game },
+    const { container } = render(<DesktopBannerImage banner={banner} />, {
+      pageProps: { game: createGame() },
     });
 
     // ASSERT
     const img = container.querySelector('picture img');
-    expect(img).toHaveAttribute('src', 'https://example.com/ingame.jpg');
+    expect(img).toHaveAttribute('src', 'https://example.com/banner-md.webp');
     expect(img).toHaveAttribute('fetchpriority', 'high');
     expect(img).toHaveAttribute('loading', 'eager');
   });
 
   it('initially renders the picture with opacity-0', () => {
     // ARRANGE
-    const { container } = render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
 
@@ -118,14 +119,13 @@ describe('Component: GameDesktopBannerImage', () => {
 
   it('given the image loads, transitions the picture to opacity-100', () => {
     // ARRANGE
-    const { container } = render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
 
     const picture = container.querySelector('picture');
     const img = picture?.querySelector('img');
 
-    // ... initially invisible ...
     expect(picture).toHaveClass('opacity-0');
 
     // ACT
@@ -144,7 +144,7 @@ describe('Component: GameDesktopBannerImage', () => {
       get: () => true,
     });
 
-    const { container } = render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
 
@@ -152,13 +152,25 @@ describe('Component: GameDesktopBannerImage', () => {
     const picture = container.querySelector('picture');
     expect(picture).toHaveClass('opacity-100');
 
-    // ... cleanup to avoid memory leaks ...
     delete (HTMLImageElement.prototype as any).complete;
+  });
+
+  it('given desktopMdWebp is null, does not set a src attribute on the fallback img', () => {
+    // ARRANGE
+    const banner = createPageBanner({ desktopMdWebp: null });
+
+    const { container } = render(<DesktopBannerImage banner={banner} />, {
+      pageProps: { game: createGame() },
+    });
+
+    // ASSERT
+    const img = container.querySelector('picture img');
+    expect(img).not.toHaveAttribute('src');
   });
 
   it('renders gradient overlays for navbar blending and text readability', () => {
     // ARRANGE
-    render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
 

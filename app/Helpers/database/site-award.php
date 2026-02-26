@@ -65,7 +65,7 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon, NULL AS display_award_tier
             FROM user_awards AS saw
             LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
             LEFT JOIN systems AS s ON s.id = gd.system_id
@@ -86,7 +86,7 @@ function getUsersSiteAwards(?User $user): array
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon, saw.display_award_tier
             FROM user_awards AS saw
             LEFT JOIN events e ON e.id = saw.award_key
             LEFT JOIN games gd ON gd.id = e.legacy_game_id
@@ -95,7 +95,7 @@ function getUsersSiteAwards(?User $user): array
                 AND saw.user_id = :userId3
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, NULL
             FROM user_awards AS saw
             WHERE
                 saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "')

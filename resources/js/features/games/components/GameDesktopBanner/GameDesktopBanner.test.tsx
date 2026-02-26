@@ -183,7 +183,7 @@ describe('Component: GameDesktopBanner', () => {
     expect(blurredImg).toHaveStyle({ filter: 'blur(15px)' });
   });
 
-  it('given banner sources are null, renders a fallback banner with solid background color', () => {
+  it('given banner sources are null, does not render the blurred backdrop', () => {
     // ARRANGE
     const banner = createPageBanner({
       desktopMdWebp: null,
@@ -202,18 +202,11 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     expect(screen.queryByTestId('blurred-backdrop')).not.toBeInTheDocument();
-
-    const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toBeInTheDocument();
-    expect(bannerEl.style.background).toEqual('#0a0a0a');
   });
 
-  it('given no custom banner, uses a fixed compact height regardless of preference', () => {
+  it('given a fallback banner, uses a fixed compact height regardless of preference', () => {
     // ARRANGE
-    const banner = createPageBanner({
-      desktopMdWebp: null,
-      desktopMdAvif: null,
-    });
+    const banner = createPageBanner({ isFallback: true });
     const game = createGame();
 
     render(<GameDesktopBanner banner={banner} />, {
@@ -229,16 +222,13 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
 
-    expect(bannerEl).toHaveClass('lg:h-[212px]'); // fallback always uses fixed compact height
+    expect(bannerEl).toHaveClass('lg:h-[212px]');
     expect(bannerEl).not.toHaveClass('lg:!h-[474px]');
   });
 
-  it('given no custom banner, does not render the expand/collapse button', () => {
+  it('given a fallback banner, does not render the expand/collapse button', () => {
     // ARRANGE
-    const banner = createPageBanner({
-      desktopMdWebp: null,
-      desktopMdAvif: null,
-    });
+    const banner = createPageBanner({ isFallback: true });
     const game = createGame();
 
     render(<GameDesktopBanner banner={banner} />, {
@@ -255,13 +245,13 @@ describe('Component: GameDesktopBanner', () => {
     expect(screen.queryByRole('button', { name: /collapse banner/i })).not.toBeInTheDocument();
   });
 
-  it('given no custom banner, renders the color-extracted background from the ingame screenshot', () => {
+  it('given a fallback banner, still renders the blurred backdrop and banner image', () => {
     // ARRANGE
     const banner = createPageBanner({
-      desktopMdWebp: null,
-      desktopMdAvif: null,
+      desktopMdWebp: '/assets/images/banner/fallback-desktop-md.webp',
+      isFallback: true,
     });
-    const game = createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' });
+    const game = createGame();
 
     render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
@@ -273,10 +263,11 @@ describe('Component: GameDesktopBanner', () => {
     });
 
     // ASSERT
-    const colorSourceImg = screen.getByTestId('fallback-color-source');
-
-    expect(colorSourceImg).toBeInTheDocument();
-    expect(colorSourceImg).toHaveAttribute('src', 'https://example.com/ingame.jpg');
+    const blurredBackdrop = screen.getByTestId('blurred-backdrop');
+    expect(blurredBackdrop).toHaveAttribute(
+      'src',
+      '/assets/images/banner/fallback-desktop-md.webp',
+    );
   });
 
   it('given a title longer than 30 characters, applies smaller text size for mobile', () => {

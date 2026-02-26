@@ -17,7 +17,7 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 interface RecentUnlocksTableProps {
-  recentUnlocks: App.Community.Data.RecentUnlock[];
+  recentUnlocks: App.Community.Data.FeedRecentUnlock[];
 }
 
 export const RecentUnlocksTable: FC<RecentUnlocksTableProps> = ({ recentUnlocks }) => {

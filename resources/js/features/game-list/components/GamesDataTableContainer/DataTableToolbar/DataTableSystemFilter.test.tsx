@@ -213,8 +213,8 @@ describe('Component: DataTableSystemFilter', () => {
     render(
       <DataTableSystemFilterHarness
         filterableSystemOptions={[
-          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
-          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+          createSystem({ id: 1, name: 'Nintendo 64', nameShort: 'N64' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
         ]}
       />,
     );

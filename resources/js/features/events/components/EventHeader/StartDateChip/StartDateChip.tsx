@@ -11,13 +11,14 @@ dayjs.extend(utc);
 
 interface StartDateChipProps {
   event: App.Platform.Data.Event;
+
+  className?: string;
 }
 
-export const StartDateChip: FC<StartDateChipProps> = ({ event }) => {
+export const StartDateChip: FC<StartDateChipProps> = ({ event, className }) => {
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
 
-  // If the event has no start date, bail.
   if (!event.activeFrom) {
     return null;
   }
@@ -28,7 +29,7 @@ export const StartDateChip: FC<StartDateChipProps> = ({ event }) => {
   const eventStartDate = formatDate(event.activeFrom, 'll');
 
   return (
-    <BaseChip>
+    <BaseChip className={className}>
       <LuAlarmClockCheck className="size-4" />
       {hasStarted
         ? t('Started {{eventStartDate}}', { eventStartDate })

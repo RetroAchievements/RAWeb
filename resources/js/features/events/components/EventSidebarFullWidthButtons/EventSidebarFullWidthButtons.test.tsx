@@ -1,6 +1,6 @@
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame, createRaEvent } from '@/test/factories';
+import { createGame, createRaEvent, createZiggyProps } from '@/test/factories';
 
 import { EventSidebarFullWidthButtons } from './EventSidebarFullWidthButtons';
 
@@ -49,7 +49,7 @@ describe('Component: EventSidebarFullWidthButtons', () => {
     expect(screen.queryByRole('link', { name: /forum topic/i })).not.toBeInTheDocument();
   });
 
-  it('given the user has permission to manage events, renders the manage section with an event details link button', () => {
+  it('given the user can manage events and is on mobile, shows the event details link', () => {
     // ARRANGE
     const mockEvent = createRaEvent({
       id: 123,
@@ -58,29 +58,32 @@ describe('Component: EventSidebarFullWidthButtons', () => {
 
     render(<EventSidebarFullWidthButtons event={mockEvent} />, {
       pageProps: {
-        can: {
-          manageEvents: true, // !!
-        },
+        ziggy: createZiggyProps({ device: 'mobile' }),
+        can: { manageEvents: true },
       },
     });
 
     // ASSERT
-    expect(screen.getByText(/manage/i)).toBeVisible();
+    expect(screen.getByText(/management/i)).toBeVisible();
     expect(screen.getByRole('link', { name: /event details/i })).toBeVisible();
   });
 
-  it('given the user does not have permission to manage events, does not render the manage event link button', () => {
+  it('given the user can manage events and is on desktop, does not show the event details link', () => {
     // ARRANGE
     const mockEvent = createRaEvent({
-      legacyGame: createGame({ id: 1, title: 'Test Game' }),
+      id: 123,
+      legacyGame: createGame({ id: 1, title: 'Sonic the Hedgehog' }),
     });
 
     render(<EventSidebarFullWidthButtons event={mockEvent} />, {
-      pageProps: { can: { manageEvents: false } },
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        can: { manageEvents: true },
+      },
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /event details/i })).not.toBeInTheDocument();
   });
 
   it('given the user can manage events and the event does not have a forum topic, shows a button to create the forum topic', () => {
@@ -92,12 +95,33 @@ describe('Component: EventSidebarFullWidthButtons', () => {
     render(<EventSidebarFullWidthButtons event={mockEvent} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps({ device: 'mobile' }),
         can: { manageEvents: true, createGameForumTopic: true },
       },
     });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /create new forum topic/i })).toBeVisible();
+  });
+
+  it('given the user can manage events and the event already has a forum topic, does not show the create forum topic button', () => {
+    // ARRANGE
+    const mockEvent = createRaEvent({
+      legacyGame: createGame({ id: 1, title: 'Test Game', forumTopicId: 9 }),
+    });
+
+    render(<EventSidebarFullWidthButtons event={mockEvent} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps({ device: 'mobile' }),
+        can: { manageEvents: true, createGameForumTopic: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('button', { name: /create new forum topic/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('given the user is not logged in and the event has no forum topic, displays nothing', () => {

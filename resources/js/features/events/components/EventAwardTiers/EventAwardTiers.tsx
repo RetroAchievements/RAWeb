@@ -1,8 +1,11 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 import { createVirtualAward } from '../../utils/createVirtualAward';
 import { AwardTierItem } from './AwardTierItem';
+import { PreferredTierButton } from './PreferredTierButton';
 
 interface EventAwardTiersProps {
   event: App.Platform.Data.Event;
@@ -10,6 +13,7 @@ interface EventAwardTiersProps {
 }
 
 export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event, numMasters }) => {
+  const { earnedEventAwardTier } = usePageProps<App.Platform.Data.EventShowPageProps>();
   const { t } = useTranslation();
 
   if (!event.legacyGame?.badgeUrl || (!event.eventAchievements?.length && numMasters === 0)) {
@@ -31,7 +35,11 @@ export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event, numMasters })
 
   return (
     <div data-testid="award-tiers">
-      <h2 className="mb-0 border-0 text-lg font-semibold">{t('Award Tiers')}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="mb-0 border-0 text-lg font-semibold">{t('Award Tiers')}</h2>
+
+        <PreferredTierButton />
+      </div>
 
       <div className="rounded-lg bg-embed p-2 light:border light:border-neutral-200 light:bg-white">
         <div className="flex flex-col gap-3">
@@ -41,6 +49,9 @@ export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event, numMasters })
               event={event}
               eventAward={eventAward}
               hasVirtualTier={!event.eventAwards?.length}
+              isEarned={
+                earnedEventAwardTier !== null && eventAward.tierIndex <= earnedEventAwardTier
+              }
             />
           ))}
         </div>

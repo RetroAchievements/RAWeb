@@ -1,17 +1,18 @@
 import type { FC } from 'react';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
-
-import { responsiveHeaderChipClassNames } from '../../utils/responsiveHeaderChipClassNames';
+import { responsiveHeaderChipClassNames } from '@/common/utils/responsiveHeaderChipClassNames';
 
 export const ResponsiveSystemLinkChip: FC = () => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   return (
-    <a
+    <InertiaLink
       href={route('system.game.index', { system: game.system!.id })}
       className={responsiveHeaderChipClassNames}
+      prefetch="desktop-hover-only"
     >
       <img
         src={game.system?.iconUrl}
@@ -23,6 +24,6 @@ export const ResponsiveSystemLinkChip: FC = () => {
         <span className="sm:hidden">{game.system?.nameShort}</span>
         <span className="hidden sm:inline">{game.system?.name}</span>
       </span>
-    </a>
+    </InertiaLink>
   );
 };

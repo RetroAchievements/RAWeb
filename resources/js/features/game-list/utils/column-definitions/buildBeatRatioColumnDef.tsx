@@ -39,12 +39,12 @@ export function buildBeatRatioColumnDef<TEntry extends App.Platform.Data.GameLis
       // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
       const { formatPercentage } = useFormatPercentage();
 
-      const playersTotal = row.original.game.playersTotal ?? 0;
+      const playersHardcore = row.original.game.playersHardcore ?? 0;
       const beatRatio =
-        playersTotal > 0 ? (row.original.game.timesBeatenHardcore ?? 0) / playersTotal : 0.0;
+        playersHardcore > 0 ? (row.original.game.timesBeatenHardcore ?? 0) / playersHardcore : 0.0;
 
       return (
-        <p className={playersTotal === 0 ? 'text-muted' : ''}>
+        <p className={playersHardcore === 0 ? 'text-muted' : ''}>
           {formatPercentage(beatRatio, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
         </p>
       );

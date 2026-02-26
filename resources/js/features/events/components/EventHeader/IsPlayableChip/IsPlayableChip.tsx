@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,14 +8,15 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { useEventStateMeta } from '@/common/hooks/useEventStateMeta';
-
-dayjs.extend(utc);
+import { cn } from '@/common/utils/cn';
 
 interface IsPlayableChipProps {
   event: App.Platform.Data.Event;
+
+  className?: string;
 }
 
-export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
+export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event, className }) => {
   const { t } = useTranslation();
 
   const { eventStateMeta } = useEventStateMeta();
@@ -28,59 +27,39 @@ export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
 
   const { label, icon: Icon } = eventStateMeta[event.state!];
 
+  const isActiveState = event.state === 'active' || event.state === 'evergreen';
+
+  let tooltipText: string;
   if (event.state === 'active') {
-    return (
-      <BaseTooltip>
-        <BaseTooltipTrigger>
-          <BaseChip
-            className="text-green-400 light:border light:border-neutral-300 light:text-green-700"
-            data-testid="playable"
-          >
-            <Icon className="size-4" />
-            {label}
-          </BaseChip>
-        </BaseTooltipTrigger>
-
-        <BaseTooltipContent className="max-w-72 text-center">
-          {t(
-            'This event is currently running and has a set end date. Join now to participate and earn an award before it ends.',
-          )}
-        </BaseTooltipContent>
-      </BaseTooltip>
+    tooltipText = t(
+      'This event is currently running and has a set end date. Join now to participate and earn an award before it ends.',
     );
-  }
-
-  if (event.state === 'evergreen') {
-    return (
-      <BaseTooltip>
-        <BaseTooltipTrigger>
-          <BaseChip className="text-green-400" data-testid="playable">
-            <Icon className="size-4" />
-            {label}
-          </BaseChip>
-        </BaseTooltipTrigger>
-
-        <BaseTooltipContent className="max-w-72 text-center">
-          {t(
-            'This event has no end date. You can start participating at any time and progress at your own pace.',
-          )}
-        </BaseTooltipContent>
-      </BaseTooltip>
+  } else if (event.state === 'evergreen') {
+    tooltipText = t(
+      'This event has no end date. You can start participating at any time and progress at your own pace.',
     );
+  } else {
+    tooltipText = t('This event has ended and is no longer accepting new participants.');
   }
 
   return (
     <BaseTooltip>
       <BaseTooltipTrigger>
-        <BaseChip data-testid="playable">
+        <BaseChip
+          className={cn(
+            className,
+            isActiveState && 'text-green-400',
+            event.state === 'active' &&
+              'light:border light:border-neutral-300 light:text-green-700',
+          )}
+          data-testid="playable"
+        >
           <Icon className="size-4" />
           {label}
         </BaseChip>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent className="max-w-72 text-center">
-        {t('This event has ended and is no longer accepting new participants.')}
-      </BaseTooltipContent>
+      <BaseTooltipContent className="max-w-72 text-center">{tooltipText}</BaseTooltipContent>
     </BaseTooltip>
   );
 };

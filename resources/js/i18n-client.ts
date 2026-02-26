@@ -20,6 +20,7 @@ i18n
     detection: {
       order: ['htmlTag'],
     },
+    showSupportNotice: false,
   });
 
 export default i18n;

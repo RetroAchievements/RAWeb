@@ -11,13 +11,14 @@ dayjs.extend(utc);
 
 interface EndDateChipProps {
   event: App.Platform.Data.Event;
+
+  className?: string;
 }
 
-export const EndDateChip: FC<EndDateChipProps> = ({ event }) => {
+export const EndDateChip: FC<EndDateChipProps> = ({ event, className }) => {
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
 
-  // If the event has no end date, bail.
   if (!event.activeThrough) {
     return null;
   }
@@ -28,7 +29,7 @@ export const EndDateChip: FC<EndDateChipProps> = ({ event }) => {
   const eventEndDate = formatDate(event.activeThrough, 'll');
 
   return (
-    <BaseChip>
+    <BaseChip className={className}>
       <LuAlarmClockMinus className="size-4" />
       {hasEnded
         ? t('Ended {{eventEndDate}}', { eventEndDate })

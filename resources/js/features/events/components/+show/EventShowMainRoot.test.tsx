@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createGame, createRaEvent } from '@/test/factories';
+import { createGame, createRaEvent, createZiggyProps } from '@/test/factories';
 
 import { EventShowMainRoot } from './EventShowMainRoot';
 
@@ -26,6 +26,7 @@ describe('Component: EventShowMainRoot', () => {
     const { container } = render(<EventShowMainRoot />, {
       pageProps: {
         event,
+        ziggy: createZiggyProps({ device: 'mobile' }),
         can: { manageEvents: false },
       },
     });
@@ -51,7 +52,7 @@ describe('Component: EventShowMainRoot', () => {
     expect(screen.queryByTestId('main')).not.toBeInTheDocument();
   });
 
-  it('given the user does not have event management permissions, does not show the manage button', () => {
+  it('given the device is not desktop, renders the header and breadcrumbs', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame({
@@ -64,11 +65,36 @@ describe('Component: EventShowMainRoot', () => {
     render(<EventShowMainRoot />, {
       pageProps: {
         event,
+        ziggy: createZiggyProps({ device: 'mobile' }),
         can: { manageEvents: false },
       },
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /achievement of the week 2025/i })).toBeVisible();
+  });
+
+  it('given the device is desktop, does not render the header inline', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      legacyGame: createGame({
+        title: 'Achievement of the Week 2025',
+        imageIngameUrl: 'test.jpg',
+        imageTitleUrl: 'test.jpg',
+      }),
+    });
+
+    render(<EventShowMainRoot />, {
+      pageProps: {
+        event,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        can: { manageEvents: false },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('heading', { name: /achievement of the week 2025/i }),
+    ).not.toBeInTheDocument();
   });
 });

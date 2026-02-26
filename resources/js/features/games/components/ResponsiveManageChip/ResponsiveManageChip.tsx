@@ -5,8 +5,7 @@ import { LuWrench } from 'react-icons/lu';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-
-import { responsiveHeaderChipClassNames } from '../../utils/responsiveHeaderChipClassNames';
+import { responsiveHeaderChipClassNames } from '@/common/utils/responsiveHeaderChipClassNames';
 
 interface ResponsiveManageChipProps {
   className?: string;

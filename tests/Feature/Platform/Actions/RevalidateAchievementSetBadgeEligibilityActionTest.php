@@ -45,9 +45,9 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $game->points_total = 8;
         $game->save();
         $event = Event::create(['legacy_game_id' => $game->id]);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'points_required' => 6, 'image_asset_path' => '/Images/000003.png']);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 1, 'points_required' => 2]);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 2, 'points_required' => 4]);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 3, 'points_required' => 6]);
 
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
@@ -127,9 +127,9 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 2]);
         $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 2]);
         $event = Event::create(['legacy_game_id' => $game->id]);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'points_required' => 6, 'image_asset_path' => '/Images/000003.png']);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 1, 'points_required' => 2]);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 2, 'points_required' => 4]);
+        EventAward::factory()->create(['event_id' => $event->id, 'tier_index' => 3, 'points_required' => 6]);
 
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
