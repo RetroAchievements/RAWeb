@@ -38,13 +38,13 @@ class AnonymousCacheProfile extends BaseCacheProfile
     {
         $contentType = $response->headers->get('Content-Type', '');
 
-        return (
+        return
             $response->isSuccessful() && (
                 str_starts_with($contentType, 'text/html')
                 || str_contains($contentType, '/json')
                 || str_contains($contentType, '+json')
             )
-        );
+        ;
     }
 
     /**
