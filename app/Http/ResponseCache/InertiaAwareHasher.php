@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\ResponseCache;
 
+use App\Actions\GetUserDeviceKindAction;
 use Illuminate\Http\Request;
 use Spatie\ResponseCache\CacheProfiles\CacheProfile;
 use Spatie\ResponseCache\Hasher\RequestHasher;
@@ -12,6 +13,7 @@ class InertiaAwareHasher implements RequestHasher
 {
     public function __construct(
         protected CacheProfile $cacheProfile,
+        protected GetUserDeviceKindAction $getDeviceKind,
     ) {
     }
 
@@ -24,11 +26,17 @@ class InertiaAwareHasher implements RequestHasher
         // the two response formats would share a single cache entry.
         $format = $request->headers->has('X-Inertia') ? 'inertia' : 'html';
 
+        // Many pages render different layouts for mobile vs desktop via
+        // `ziggy.device`. Without this segment both device types would
+        // share a single cache entry, serving wrong layouts.
+        $deviceKind = $this->getDeviceKind->execute();
+
         return 'responsecache-' . hash('xxh128', implode('-', [
             $request->getHost(),
             $this->getNormalizedRequestUri($request),
             $request->getMethod(),
             $format,
+            $deviceKind,
             $cacheNameSuffix,
         ]));
     }

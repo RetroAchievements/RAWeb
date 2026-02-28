@@ -2,16 +2,38 @@
 
 declare(strict_types=1);
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Http\ResponseCache\AnonymousCacheProfile;
 use App\Http\ResponseCache\InertiaAwareHasher;
 use Illuminate\Http\Request;
 
-function createHasher(): InertiaAwareHasher
+function createHasher(?GetUserDeviceKindAction $deviceAction = null): InertiaAwareHasher
 {
-    return new InertiaAwareHasher(new AnonymousCacheProfile());
+    return new InertiaAwareHasher(
+        new AnonymousCacheProfile(),
+        $deviceAction ?? new GetUserDeviceKindAction(),
+    );
 }
 
 describe('getHashFor', function () {
+    it('produces different hashes for mobile vs desktop requests to the same URL', function () {
+        // ARRANGE
+        $request = Request::create('/game/1', 'GET');
+
+        $mobileAction = Mockery::mock(GetUserDeviceKindAction::class);
+        $mobileAction->shouldReceive('execute')->andReturn('mobile');
+
+        $desktopAction = Mockery::mock(GetUserDeviceKindAction::class);
+        $desktopAction->shouldReceive('execute')->andReturn('desktop');
+
+        // ACT
+        $mobileHash = createHasher($mobileAction)->getHashFor($request);
+        $desktopHash = createHasher($desktopAction)->getHashFor($request);
+
+        // ASSERT
+        expect($mobileHash)->not->toEqual($desktopHash);
+    });
+
     it('produces different hashes for HTML vs Inertia requests to the same URL', function () {
         // ARRANGE
         $hasher = createHasher();
