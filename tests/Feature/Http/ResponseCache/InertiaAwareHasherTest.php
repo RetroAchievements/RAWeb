@@ -6,8 +6,9 @@ use App\Actions\GetUserDeviceKindAction;
 use App\Http\ResponseCache\AnonymousCacheProfile;
 use App\Http\ResponseCache\InertiaAwareHasher;
 use Illuminate\Http\Request;
+use Mockery\MockInterface;
 
-function createHasher(?GetUserDeviceKindAction $deviceAction = null): InertiaAwareHasher
+function createHasher(GetUserDeviceKindAction|MockInterface|null $deviceAction = null): InertiaAwareHasher
 {
     return new InertiaAwareHasher(
         new AnonymousCacheProfile(),
