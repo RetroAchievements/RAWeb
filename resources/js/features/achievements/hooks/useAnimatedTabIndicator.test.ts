@@ -206,6 +206,95 @@ describe('Hook: useAnimatedTabIndicator', () => {
     expect(result.current.activeIndicatorStyles.width).toEqual('0px');
   });
 
+  it('given a hover indicator ref and a hovered tab, positions the hover indicator with a fade transition', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useAnimatedTabIndicator(0));
+
+    const mockHoverEl = { style: {} } as unknown as HTMLDivElement;
+    const mockTabElements = [
+      { offsetLeft: 0, offsetWidth: 70, offsetTop: 0, offsetHeight: 30 } as HTMLElement,
+      { offsetLeft: 74, offsetWidth: 110, offsetTop: 0, offsetHeight: 30 } as HTMLElement,
+    ];
+
+    act(() => {
+      result.current.hoverIndicatorRef.current = mockHoverEl;
+      result.current.tabRefs.current = mockTabElements;
+    });
+
+    // ACT
+    act(() => {
+      result.current.setHoveredIndex(1);
+    });
+
+    // ASSERT
+    expect(mockHoverEl.style.transition).toEqual('opacity 150ms ease-out');
+    expect(mockHoverEl.style.transform).toEqual('translateX(74px) translateY(0px)');
+    expect(mockHoverEl.style.width).toEqual('110px');
+    expect(mockHoverEl.style.height).toEqual('30px');
+    expect(mockHoverEl.style.opacity).toEqual('1');
+  });
+
+  it('given the user slides from one tab to another, uses the slide transition', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useAnimatedTabIndicator(0));
+
+    const mockHoverEl = { style: {} } as unknown as HTMLDivElement;
+    const mockTabElements = [
+      { offsetLeft: 0, offsetWidth: 70, offsetTop: 0, offsetHeight: 30 } as HTMLElement,
+      { offsetLeft: 74, offsetWidth: 110, offsetTop: 0, offsetHeight: 30 } as HTMLElement,
+    ];
+
+    act(() => {
+      result.current.hoverIndicatorRef.current = mockHoverEl;
+      result.current.tabRefs.current = mockTabElements;
+    });
+
+    act(() => {
+      result.current.setHoveredIndex(0);
+    });
+
+    // ACT
+    act(() => {
+      result.current.setHoveredIndex(1);
+    });
+
+    // ASSERT
+    expect(mockHoverEl.style.transition).toEqual('all 150ms cubic-bezier(0.32, 0.72, 0, 1)');
+    expect(mockHoverEl.style.transform).toEqual('translateX(74px) translateY(0px)');
+  });
+
+  it('given the user stops hovering, fades out the hover indicator', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useAnimatedTabIndicator(0));
+
+    const mockHoverEl = { style: {} } as unknown as HTMLDivElement;
+    const mockTabElements = [
+      { offsetLeft: 0, offsetWidth: 70, offsetTop: 0, offsetHeight: 30 } as HTMLElement,
+    ];
+
+    act(() => {
+      result.current.hoverIndicatorRef.current = mockHoverEl;
+      result.current.tabRefs.current = mockTabElements;
+    });
+
+    act(() => {
+      result.current.setHoveredIndex(0);
+    });
+
+    // ACT
+    act(() => {
+      result.current.setHoveredIndex(null);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(75);
+    });
+
+    // ASSERT
+    expect(mockHoverEl.style.transition).toEqual('opacity 150ms ease-out');
+    expect(mockHoverEl.style.opacity).toEqual('0');
+  });
+
   it('given the active tab element has a nonzero offset, positions the active indicator below it', () => {
     // ARRANGE
     const { result } = renderHook(() => useAnimatedTabIndicator(1));
