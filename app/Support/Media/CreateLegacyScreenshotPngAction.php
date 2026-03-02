@@ -29,7 +29,8 @@ class CreateLegacyScreenshotPngAction
         [$targetWidth, $targetHeight] = $this->calculateTargetDimensions($sourceWidth, $sourceHeight);
 
         $resized = imagecreatetruecolor($targetWidth, $targetHeight);
-        imagecopyresampled($resized, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
+
+        imagecopyresized($resized, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
 
         $imagePath = '/Images/' . FilenameIterator::getImageIterator() . '.png';
         $localPath = storage_path('app/media' . $imagePath);

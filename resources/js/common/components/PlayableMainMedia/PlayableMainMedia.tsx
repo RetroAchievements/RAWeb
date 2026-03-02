@@ -40,10 +40,9 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   const dimensionProps =
     expectedWidth && expectedHeight ? { width: expectedWidth, height: expectedHeight } : {};
 
-  // CRT systems displayed non-square pixels stretched to 4:3. Only apply
-  // aspect ratio scaling when we also have known resolutions, otherwise we
-  // can't predict the image dimensions (eg: Atari 2600, Arcade).
-  const aspectRatio = hasAnalogTvOutput && expectedWidth ? 4 / 3 : undefined;
+  // CRT systems displayed non-square pixels stretched to 4:3. The aspect
+  // ratio is always 4:3 regardless of the native pixel resolution.
+  const aspectRatio = hasAnalogTvOutput ? 4 / 3 : undefined;
   const aspectRatioStyle = aspectRatio ? { aspectRatio } : undefined;
 
   return (

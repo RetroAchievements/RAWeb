@@ -106,7 +106,7 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
   });
 
-  it('given the system has analog TV output but no known resolutions, does not apply a 4:3 aspect ratio', () => {
+  it('given the system has analog TV output but no known resolutions, still applies a 4:3 aspect ratio', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
@@ -120,8 +120,8 @@ describe('Component: PlayableMainMedia', () => {
     const titleImage = screen.getByRole('img', { name: /title screenshot/i });
     const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
 
-    expect(titleImage).not.toHaveStyle({ aspectRatio: `${4 / 3}` });
-    expect(ingameImage).not.toHaveStyle({ aspectRatio: `${4 / 3}` });
+    expect(titleImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
+    expect(ingameImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
   });
 
   it('given the system does not have analog TV output, does not apply a 4:3 aspect ratio', () => {
