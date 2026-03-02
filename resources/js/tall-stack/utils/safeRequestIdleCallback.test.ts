@@ -1,13 +1,3 @@
-import {
-  // @prettier-ignore
-  afterAll,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
-
 import { safeRequestIdleCallback } from './safeRequestIdleCallback';
 
 describe('Util: safeRequestIdleCallback', () => {

@@ -31,8 +31,7 @@ const baseButtonVariants = cva(['btn-base'], {
 });
 
 export interface BaseButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof baseButtonVariants> {
+  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof baseButtonVariants> {
   asChild?: boolean;
 }
 

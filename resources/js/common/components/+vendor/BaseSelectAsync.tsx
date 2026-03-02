@@ -114,6 +114,7 @@ export function BaseSelectAsync<T>({
           id={id}
           variant="outline"
           role="combobox"
+          aria-controls={id ? `${id}-listbox` : undefined}
           aria-expanded={open}
           className={cn(
             'h-10 justify-between rounded-md px-3',
@@ -153,7 +154,7 @@ export function BaseSelectAsync<T>({
             ) : null}
           </div>
 
-          <BaseCommandList>
+          <BaseCommandList id={id ? `${id}-listbox` : undefined}>
             {query.error ? (
               <div className="text-destructive p-4 text-center">
                 {query.error instanceof Error ? query.error.message : 'Failed to fetch options'}

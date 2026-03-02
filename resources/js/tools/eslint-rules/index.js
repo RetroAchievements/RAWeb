@@ -8,6 +8,9 @@ import {
 } from './no-cross-boundary-imports.js';
 
 export default {
+  meta: {
+    name: '@retroachievements/eslint-plugin',
+  },
   rules: {
     [ENFORCE_TYPESCRIPT_IN_APP_CODE]: enforceTypeScriptInAppCode,
     [NO_CROSS_BOUNDARY_IMPORTS]: noCrossBoundaryImports,

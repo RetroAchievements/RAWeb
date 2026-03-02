@@ -72,9 +72,7 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   randomGameApiRouteName,
   shouldHideItemIfNotInBacklog = false,
 }) => {
-  // eslint-disable-next-line react-compiler/react-compiler -- useReactTable does not support React Compiler.
-  'use no memo';
-
+  'use no memo'; // useReactTable does not support React Compiler
   const { ziggy } = usePageProps();
 
   const gameListQuery = useGameListPaginatedQuery({

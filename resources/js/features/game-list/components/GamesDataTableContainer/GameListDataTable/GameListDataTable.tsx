@@ -24,9 +24,7 @@ interface GameListDataTableProps {
 }
 
 export function GameListDataTable({ table, isLoading = false }: GameListDataTableProps) {
-  // eslint-disable-next-line react-compiler/react-compiler -- useReactTable does not support React Compiler.
-  'use no memo';
-
+  'use no memo'; // useReactTable does not support React Compiler
   const { t } = useTranslation();
 
   const wasShowingGroups = useRef(false);

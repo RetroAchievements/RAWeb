@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions -- this is handled manually */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions -- interactive role is applied conditionally via role={!isCurrent ? 'button' : undefined} */
 
 import { type FC, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';

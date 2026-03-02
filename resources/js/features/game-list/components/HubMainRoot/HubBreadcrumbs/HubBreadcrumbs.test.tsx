@@ -27,9 +27,10 @@ describe('Component: HubBreadcrumbs', () => {
     render(<HubBreadcrumbs breadcrumbs={[breadcrumb]} />);
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /all hubs/i });
+    const pageEl = screen.getByText(/all hubs/i);
 
-    expect(linkEl).toBeVisible();
+    expect(pageEl).toBeVisible();
+    expect(pageEl).toHaveAttribute('aria-current', 'page');
   });
 
   it('given multiple breadcrumbs, renders them in correct order', () => {
