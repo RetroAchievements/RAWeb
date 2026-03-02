@@ -261,7 +261,7 @@ class UserAgentService
 
     private static function splitVersion(string $version): array
     {
-        $parts = explode('.', str_replace(['-', '_'], '.', $version));
+        $parts = explode('.', str_replace(['-', '_', '+'], '.', $version));
         $count = count($parts);
 
         // ignore any chunks preceding the numeric part

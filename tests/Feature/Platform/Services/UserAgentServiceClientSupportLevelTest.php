@@ -339,5 +339,30 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75');
         $this->assertNotNull($restriction);
         $this->assertEquals('dolphin_libretro', $restriction->core_name);
+
+        // RetroArch iOS uses dot-separated core names (ie: "dolphin.libretro") due to how it gets packaged.
+        // A single DB row with underscores should still match both variants.
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (iOS 26.2) dolphin.libretro/2512.0.227+056fcc878e'));
+
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (iOS 26.2) dolphin.libretro/1.9.9'));
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (iOS 26.2) dolphin.libretro/1.9.9');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('dolphin_libretro', $restriction->core_name);
+        $this->assertEquals(ClientSupportLevel::Blocked, $restriction->support_level);
+
+        $this->assertEquals(ClientSupportLevel::Full,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Windows 11) dolphin_libretro/2512.0.227+056fcc878e'));
+
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Windows 11) dolphin_libretro/1.9.9'));
+
+        $restriction = $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Windows 11) dolphin_libretro/1.9.9');
+        $this->assertNotNull($restriction);
+        $this->assertEquals('dolphin_libretro', $restriction->core_name);
+        $this->assertEquals(ClientSupportLevel::Blocked, $restriction->support_level);
     }
 }

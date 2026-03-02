@@ -69,7 +69,7 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
-            Route::middleware(['inertia'])->group(function () {
+            Route::middleware(['cacheResponse', 'inertia'])->group(function () {
                 Route::get('/', [HomeController::class, 'index'])->name('home');
 
                 Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');

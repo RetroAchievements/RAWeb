@@ -68,7 +68,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('system/{systemId}/games/random', [SystemApiController::class, 'random'])->name('api.system.game.random');
             });
 
-            Route::middleware(['web', 'inertia'])->group(function () {
+            Route::middleware(['cacheResponse', 'inertia'])->group(function () {
                 Route::get('achievement2/{achievement}', [AchievementController::class, 'show'])->name('achievement2.show');
 
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
