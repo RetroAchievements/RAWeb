@@ -63,10 +63,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
               }}
               className="overflow-hidden"
             >
-              <div
-                ref={contentRef}
-                className="flex flex-col gap-6 rounded-b-lg rounded-tr-lg bg-embed p-4"
-              >
+              <div ref={contentRef} className="flex flex-col gap-6 rounded-b-lg bg-embed p-4">
                 <>
                   {canShowManagement ? <SidebarManagementSection game={game} /> : null}
 
