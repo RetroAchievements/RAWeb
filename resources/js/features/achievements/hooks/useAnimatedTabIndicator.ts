@@ -1,11 +1,4 @@
-import {
-  type CSSProperties,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type CSSProperties, type RefObject, useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 
 // BaseTabsList uses h-10 (40px), matching the trigger's offsetHeight.
@@ -43,7 +36,7 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
 
   // Debounce null values so moving between tabs doesn't
   // briefly reset the hover state and break the slide animation.
-  const setHoveredIndexDebounced = useCallback((index: number | null) => {
+  const setHoveredIndexDebounced = (index: number | null) => {
     if (hoverLeaveTimerRef.current) {
       clearTimeout(hoverLeaveTimerRef.current);
       hoverLeaveTimerRef.current = null;
@@ -56,7 +49,7 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
         setHoveredIndex(null);
       }, 75);
     }
-  }, []);
+  };
 
   // Clean up the debounce timer on unmount.
   useEffect(() => {

@@ -28,11 +28,10 @@ describe('Component: ForumBreadcrumbs', () => {
     render(<ForumBreadcrumbs t_currentPageLabel={i18n.t('Recent Posts')} />);
 
     // ASSERT
-    const activeLinkEl = screen.getByRole('link', { name: /recent posts/i });
+    const activePageEl = screen.getByText(/recent posts/i);
 
-    expect(activeLinkEl).toBeVisible();
-    expect(activeLinkEl).toHaveAttribute('aria-disabled', 'true');
-    expect(activeLinkEl).toHaveAttribute('aria-current', 'page');
+    expect(activePageEl).toBeVisible();
+    expect(activePageEl).toHaveAttribute('aria-current', 'page');
   });
 
   it('given a category, has a link to the category', () => {

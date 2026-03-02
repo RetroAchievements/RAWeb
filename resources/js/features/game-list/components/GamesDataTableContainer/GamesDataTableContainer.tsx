@@ -73,7 +73,6 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   shouldHideItemIfNotInBacklog = false,
 }) => {
   'use no memo'; // useReactTable does not support React Compiler
-
   const { ziggy } = usePageProps();
 
   const gameListQuery = useGameListPaginatedQuery({

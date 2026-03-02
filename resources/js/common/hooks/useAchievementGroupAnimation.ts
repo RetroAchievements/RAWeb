@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 export function useAchievementGroupAnimation(options: { isInitiallyOpened: boolean }) {
+  // eslint-disable-next-line react-compiler/react-compiler -- Imperative DOM manipulation through refs is incompatible with automatic memoization.
+  'use no memo';
+
   const [isOpen, setIsOpen] = useState(options.isInitiallyOpened);
 
   const contentRef = useRef<HTMLDivElement>(null);

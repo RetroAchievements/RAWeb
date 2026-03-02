@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList';
@@ -9,7 +9,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
-export const LeaderboardCommentsMainRoot: FC = memo(() => {
+export const LeaderboardCommentsMainRoot: FC = () => {
   const { canComment, leaderboard, paginatedComments } =
     usePageProps<App.Community.Data.CommentPageProps>();
 
@@ -68,4 +68,4 @@ export const LeaderboardCommentsMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

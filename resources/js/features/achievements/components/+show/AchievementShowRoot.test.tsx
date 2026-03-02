@@ -126,7 +126,7 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('tab', { name: /unlocks/i }));
+    await userEvent.click(screen.getAllByRole('tab', { name: /unlocks/i })[0]);
 
     // ASSERT
     expect(screen.getByRole('table')).toBeVisible();
@@ -153,11 +153,12 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.hover(screen.getByRole('tab', { name: /unlocks/i }));
-    await userEvent.unhover(screen.getByRole('tab', { name: /unlocks/i }));
+    const unlocksTabs = screen.getAllByRole('tab', { name: /unlocks/i });
+    await userEvent.hover(unlocksTabs[0]);
+    await userEvent.unhover(unlocksTabs[0]);
 
     // ASSERT
-    expect(screen.getByRole('tab', { name: /unlocks/i })).toBeVisible();
+    expect(unlocksTabs[0]).toBeVisible();
   });
 
   it('given the user hovers between tabs sequentially, applies the slide transition', async () => {
@@ -181,11 +182,11 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.hover(screen.getByRole('tab', { name: /unlocks/i }));
-    await userEvent.hover(screen.getByRole('tab', { name: /changelog/i }));
+    await userEvent.hover(screen.getAllByRole('tab', { name: /unlocks/i })[0]);
+    await userEvent.hover(screen.getAllByRole('tab', { name: /changelog/i })[0]);
 
     // ASSERT
-    expect(screen.getByRole('tab', { name: /changelog/i })).toBeVisible();
+    expect(screen.getAllByRole('tab', { name: /changelog/i })[0]).toBeVisible();
   });
 
   it('given the animation becomes ready, applies cubic-bezier timing to the active indicator', () => {
@@ -244,7 +245,7 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('tab', { name: /changelog/i }));
+    await userEvent.click(screen.getAllByRole('tab', { name: /changelog/i })[0]);
 
     // ASSERT
     expect(screen.getByText(/no changelog entries found/i)).toBeVisible();

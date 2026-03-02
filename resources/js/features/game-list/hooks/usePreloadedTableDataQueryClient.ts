@@ -60,7 +60,8 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
       );
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- needed for ssr
+    /* eslint-disable react-compiler/react-compiler -- exhaustive-deps is intentionally constrained */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps -- needed for ssr */
   }, [queryClient]);
 
   return { queryClientWithInitialData: queryClient };

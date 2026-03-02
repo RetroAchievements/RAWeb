@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuSave } from 'react-icons/lu';
 import { route } from 'ziggy-js';
@@ -13,7 +13,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { HashesList } from './HashesList';
 import { OtherHashesSection } from './OtherHashesSection';
 
-export const HashesMainRoot: FC = memo(() => {
+export const HashesMainRoot: FC = () => {
   const { can, game, hashes, targetAchievementSet } =
     usePageProps<App.Platform.Data.GameHashesPageProps>();
 
@@ -111,4 +111,4 @@ export const HashesMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

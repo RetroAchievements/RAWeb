@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
@@ -14,14 +13,7 @@ export const GameSetRequestsRoot: FC = () => {
   const { t } = useTranslation();
 
   // Combine initial and deferred requestors once deferred props finish loading.
-  const allRequestors = useMemo(() => {
-    const requestors = [...initialRequestors];
-    if (deferredRequestors) {
-      requestors.push(...deferredRequestors);
-    }
-
-    return requestors;
-  }, [initialRequestors, deferredRequestors]);
+  const allRequestors = [...initialRequestors, ...(deferredRequestors ?? [])];
 
   return (
     <div className="flex flex-col gap-5">

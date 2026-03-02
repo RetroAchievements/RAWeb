@@ -60,6 +60,10 @@ class EmulatorCoreRestriction extends BaseModel
      */
     public function scopeForCore(Builder $query, string $coreName): Builder
     {
-        return $query->whereRaw('LOWER(core_name) = ?', [strtolower($coreName)]);
+        // Normalize dots to underscores so iOS-packaged cores (ie: "dolphin.libretro")
+        // match the underscore form stored in the database.
+        $normalized = strtolower(str_replace('.', '_', $coreName));
+
+        return $query->whereRaw("LOWER(REPLACE(core_name, '.', '_')) = ?", [$normalized]);
     }
 }
