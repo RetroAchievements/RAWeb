@@ -39,8 +39,17 @@ use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Sentry\State\Scope;
+
+use function Sentry\configureScope;
 
 $requestType = request()->input('r');
+
+// Tag the request type so Sentry can group dorequest.php calls by routine.
+configureScope(function (Scope $scope) use ($requestType) {
+    $scope->setTag('dorequest.type', $requestType ?? 'unknown');
+});
+
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
     'achievementsets' => new GetAchievementSetsAction(),
