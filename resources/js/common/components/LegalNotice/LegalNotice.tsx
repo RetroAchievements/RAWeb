@@ -6,9 +6,7 @@ export const LegalNotice: FC = () => {
 
   return (
     <div>
-      <p role="heading" aria-level={3} className="text-lg font-medium">
-        {t('Disclaimer about ROMs')}
-      </p>
+      <h3 className="mb-0 border-b-0 text-lg font-medium">{t('Disclaimer about ROMs')}</h3>
 
       <p className="font-bold">
         {t(

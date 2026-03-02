@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- this file has known type issues that are safe and part of the official Inertia.js docs
+// eslint-disable-next-line typescript/ban-ts-comment -- this file has known type issues that are safe and part of the official Inertia.js docs.
 // @ts-nocheck
 
 import { createInertiaApp } from '@inertiajs/react';
@@ -7,7 +7,6 @@ import * as Sentry from '@sentry/node';
 import dayjs from 'dayjs';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
-import type { RouteName, RouteParams } from 'ziggy-js';
 
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
@@ -50,8 +49,8 @@ createServer(
           resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
         async setup({ App, props }) {
-          global.route<RouteName> = (name, params, absolute) =>
-            route(name, params as RouteParams<string & object>, absolute, {
+          global['route'] = (name, params, absolute) =>
+            route(name, params, absolute, {
               ...page.props.ziggy,
               location: new URL(page.props.ziggy.location),
             });

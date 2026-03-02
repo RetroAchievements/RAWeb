@@ -121,6 +121,7 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children, className }) => {
 
   return (
     <span
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- intentionally not a <button> because this represents a permanently disabled state.
       role="button"
       aria-disabled={true}
       className={baseButtonVariants({

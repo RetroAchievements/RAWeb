@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { type FC, Fragment, useMemo } from 'react';
+import { type FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuLock, LuWrench } from 'react-icons/lu';
 
@@ -41,18 +41,16 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
 
   const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 
-  const nonAuthorUniqueContributors = useMemo(() => {
-    const authorNames = new Set(
-      aggregateCredits.achievementsAuthors.map((author) => author.displayName),
-    );
+  const authorNames = new Set(
+    aggregateCredits.achievementsAuthors.map((author) => author.displayName),
+  );
 
-    // Don't double-count authors as contributors.
-    return deduplicateUserCredits([
-      ...artCreditUsers,
-      ...codingCreditUsers,
-      ...designCreditUsers,
-    ]).filter((user) => !authorNames.has(user.displayName));
-  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
+  // Don't double-count authors as contributors.
+  const nonAuthorUniqueContributors = deduplicateUserCredits([
+    ...artCreditUsers,
+    ...codingCreditUsers,
+    ...designCreditUsers,
+  ]).filter((user) => !authorNames.has(user.displayName));
 
   // If there's no claims or credit to show, then bail.
   if (

@@ -1,4 +1,4 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
@@ -12,14 +12,9 @@ export const PatreonSupportersRoot: FC = () => {
   const { t } = useTranslation();
 
   // Combine initial and deferred supporters once deferred props finish loading.
-  const allSupporters = useMemo(() => {
-    const supporters = [...initialSupporters];
-    if (deferredSupporters) {
-      supporters.push(...deferredSupporters);
-    }
-
-    return supporters;
-  }, [initialSupporters, deferredSupporters]);
+  const allSupporters = deferredSupporters
+    ? [...initialSupporters, ...deferredSupporters]
+    : [...initialSupporters];
 
   return (
     <div className="flex flex-col gap-5">

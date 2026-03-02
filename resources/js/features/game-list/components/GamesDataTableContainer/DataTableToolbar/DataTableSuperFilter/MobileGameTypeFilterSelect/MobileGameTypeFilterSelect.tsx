@@ -28,7 +28,7 @@ export function MobileGameTypeFilterSelect<TData>({
 
     setFilterValue: (value) => {
       if (value[0] === 'null') {
-        table.setColumnFilters((prev) => [...prev.filter((f) => f.id !== 'game-type')]);
+        table.setColumnFilters((prev) => prev.filter((f) => f.id !== 'game-type'));
 
         return;
       }

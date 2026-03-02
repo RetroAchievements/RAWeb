@@ -34,7 +34,7 @@ export const ChangePasswordSectionCard: FC = () => {
     >
       <div className="@container">
         <div className="flex flex-col gap-5">
-          {/* 
+          {/*
             Included for a11y. This helps some password managers suggest new passwords.
             @see https://www.chromium.org/developers/design-documents/create-amazing-password-forms/#use-hidden-fields-for-implicit-information
           */}

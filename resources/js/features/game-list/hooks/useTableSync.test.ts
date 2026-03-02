@@ -34,7 +34,10 @@ describe('Hook: useTableSync', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
+    });
     cookieSpy.mockRestore();
     pushStateSpy.mockRestore();
   });

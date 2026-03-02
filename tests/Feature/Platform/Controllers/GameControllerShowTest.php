@@ -221,6 +221,24 @@ describe('Redirects', function () {
         ]));
     });
 
+    it('given a subset game whose achievement set is NOT linked to the parent, does not redirect', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $parentGame = createGameWithAchievements($system, 'Dragon Quest III', 10);
+        $subsetGame = createGameWithAchievements($system, 'Dragon Quest III [Subset - Bonus]', 6);
+
+        /**
+         * We intentionally don't execute `AssociateAchievementSetToGameAction` here.
+         * The parent exists and the title matches, but there's no GameAchievementSet link.
+         */
+
+        // ACT
+        $response = get(route('game.show', ['game' => $subsetGame]));
+
+        // ASSERT
+        $response->assertOk();
+    });
+
     it('given a set query param is already provided, does not redirect', function () {
         // ARRANGE
         $system = System::factory()->create();
