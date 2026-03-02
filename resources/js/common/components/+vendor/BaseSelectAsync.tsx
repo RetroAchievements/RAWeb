@@ -1,6 +1,6 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { Dispatch, FC, SetStateAction } from 'react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { LuCheck, LuChevronsUpDown, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
 
@@ -85,7 +85,7 @@ export function BaseSelectAsync<T>({
   const [localSearchTerm, setLocalSearchTerm] = useState(query.searchTerm);
   const isInitialLoad = useRef(true);
 
-  const options = useMemo(() => query.data || [], [query.data]);
+  const options = query.data || [];
 
   useDebounce(
     () => {
@@ -98,17 +98,14 @@ export function BaseSelectAsync<T>({
     [localSearchTerm],
   );
 
-  const handleSelect = useCallback(
-    (currentValue: string) => {
-      const newValue = clearable && currentValue === value ? '' : currentValue;
-      setInternalSelectedOption(
-        options.find((option) => getOptionValue(option) === newValue) || null,
-      );
-      onChange(newValue);
-      setOpen(false);
-    },
-    [value, onChange, clearable, options, getOptionValue],
-  );
+  const handleSelect = (currentValue: string) => {
+    const newValue = clearable && currentValue === value ? '' : currentValue;
+    setInternalSelectedOption(
+      options.find((option) => getOptionValue(option) === newValue) || null,
+    );
+    onChange(newValue);
+    setOpen(false);
+  };
 
   return (
     <BasePopover open={open} onOpenChange={setOpen}>

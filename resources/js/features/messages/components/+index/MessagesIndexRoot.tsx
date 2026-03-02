@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuSend } from 'react-icons/lu';
 import { route } from 'ziggy-js';
@@ -14,7 +14,7 @@ import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 import { MessagesCardList } from '../MessagesCardList';
 import { MessagesTable } from '../MessagesTable';
 
-export const MessagesIndexRoot: FC = memo(() => {
+export const MessagesIndexRoot: FC = () => {
   const {
     auth,
     can,
@@ -115,4 +115,4 @@ export const MessagesIndexRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

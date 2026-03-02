@@ -6,6 +6,7 @@ import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
 import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sortKeysShorthand from 'eslint-plugin-sort-keys-shorthand';
@@ -62,6 +63,7 @@ export default tseslint.config(
       vitest,
       '@tanstack/query': tanstackQuery,
       'sort-keys-shorthand': sortKeysShorthand,
+      'react-compiler': reactCompiler,
       '@retroachievements': localRules,
     },
 
@@ -194,6 +196,8 @@ export default tseslint.config(
           ],
         },
       ],
+
+      'react-compiler/react-compiler': 'error',
 
       '@retroachievements/enforce-typescript-in-app-code': 'error',
       '@retroachievements/no-cross-boundary-imports': 'error',

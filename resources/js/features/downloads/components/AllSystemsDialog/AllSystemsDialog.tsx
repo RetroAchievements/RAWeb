@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { type ChangeEvent, type FC, useMemo, useState } from 'react';
+import { type ChangeEvent, type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 
@@ -29,20 +29,18 @@ export const AllSystemsDialog: FC = () => {
   const sortedSystems = allSystems.sort((a, b) => a.name.localeCompare(b.name));
 
   // Filter systems based on search query matching id, name, or nameShort.
-  const filteredSystems = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return sortedSystems;
+  const query = searchQuery.toLowerCase().trim();
+  const filteredSystems = query
+    ? sortedSystems.filter((system) => {
+        const searchableFields = [
+          system.id.toString(),
+          system.name.toLowerCase(),
+          system.nameShort!.toLowerCase(),
+        ];
 
-    return sortedSystems.filter((system) => {
-      const searchableFields = [
-        system.id.toString(),
-        system.name.toLowerCase(),
-        system.nameShort!.toLowerCase(),
-      ];
-
-      return searchableFields.some((field) => field.includes(query));
-    });
-  }, [sortedSystems, searchQuery]);
+        return searchableFields.some((field) => field.includes(query));
+      })
+    : sortedSystems;
 
   const handleSystemSelect = (systemId?: number) => {
     setSelectedSystemId(systemId);

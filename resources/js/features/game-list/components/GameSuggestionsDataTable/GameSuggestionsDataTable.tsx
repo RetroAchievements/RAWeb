@@ -14,7 +14,8 @@ interface GameSuggestionsDataTableProps {
 export const GameSuggestionsDataTable: FC<GameSuggestionsDataTableProps> = ({
   showSourceGame = true,
 }) => {
-  'use no memo'; // useReactTable does not support React Compiler
+  // eslint-disable-next-line react-compiler/react-compiler -- useReactTable does not support React Compiler.
+  'use no memo';
 
   const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 

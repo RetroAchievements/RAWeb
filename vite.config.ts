@@ -55,7 +55,11 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         refresh: ['resources/views/**'],
       }),
 
-      react(),
+      react({
+        babel: {
+          plugins: ['babel-plugin-react-compiler'],
+        },
+      }),
 
       sentryVitePlugin({
         org: 'retroachievementsorg',

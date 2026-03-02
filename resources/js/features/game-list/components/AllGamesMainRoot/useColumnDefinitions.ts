@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -27,51 +26,47 @@ export function useColumnDefinitions(options: {
   const { auth } = usePageProps();
   const { t, i18n } = useTranslation();
 
-  const columnDefinitions = useMemo(() => {
-    const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
-      buildTitleColumnDef({ t_label: t('Title'), forUsername: options.forUsername }),
-      buildSystemColumnDef({ t_label: t('System') }),
-      buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }),
-      buildPointsTotalColumnDef({ t_label: t('Points') }),
-      buildRetroRatioColumnDef({ t_label: t('RetroRatio'), strings: { t_none: t('none') } }),
-      buildBeatRatioColumnDef({ t_label: t('Beat %') }),
-      buildBeatTimeColumnDef({
-        t_label: t('Time to Beat'),
-        strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
+  const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
+    buildTitleColumnDef({ t_label: t('Title'), forUsername: options.forUsername }),
+    buildSystemColumnDef({ t_label: t('System') }),
+    buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }),
+    buildPointsTotalColumnDef({ t_label: t('Points') }),
+    buildRetroRatioColumnDef({ t_label: t('RetroRatio'), strings: { t_none: t('none') } }),
+    buildBeatRatioColumnDef({ t_label: t('Beat %') }),
+    buildBeatTimeColumnDef({
+      t_label: t('Time to Beat'),
+      strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
+    }),
+    buildLastUpdatedColumnDef({ locale: i18n.language, t_label: t('Last Updated') }),
+    buildReleasedAtColumnDef({
+      locale: i18n.language,
+      t_label: t('Release Date'),
+      strings: { t_unknown: t('unknown') },
+    }),
+    buildPlayersTotalColumnDef({ t_label: t('Players') }),
+    buildNumVisibleLeaderboardsColumnDef({ t_label: t('Leaderboards') }),
+  ];
+
+  if (options.canSeeOpenTicketsColumn) {
+    columns.push(buildNumUnresolvedTicketsColumnDef({ t_label: t('Tickets') }));
+  }
+
+  if (auth?.user) {
+    columns.push(buildPlayerGameProgressColumnDef({ t_label: t('Progress') }));
+  }
+
+  columns.push(
+    ...([
+      buildHasActiveOrInReviewClaimsColumnDef({
+        t_label: t('Claimed'),
+        strings: {
+          t_no: t('No'),
+          t_yes: t('Yes'),
+        },
       }),
-      buildLastUpdatedColumnDef({ locale: i18n.language, t_label: t('Last Updated') }),
-      buildReleasedAtColumnDef({
-        locale: i18n.language,
-        t_label: t('Release Date'),
-        strings: { t_unknown: t('unknown') },
-      }),
-      buildPlayersTotalColumnDef({ t_label: t('Players') }),
-      buildNumVisibleLeaderboardsColumnDef({ t_label: t('Leaderboards') }),
-    ];
+      buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
+    ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
+  );
 
-    if (options.canSeeOpenTicketsColumn) {
-      columns.push(buildNumUnresolvedTicketsColumnDef({ t_label: t('Tickets') }));
-    }
-
-    if (auth?.user) {
-      columns.push(buildPlayerGameProgressColumnDef({ t_label: t('Progress') }));
-    }
-
-    columns.push(
-      ...([
-        buildHasActiveOrInReviewClaimsColumnDef({
-          t_label: t('Claimed'),
-          strings: {
-            t_no: t('No'),
-            t_yes: t('Yes'),
-          },
-        }),
-        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
-      ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
-    );
-
-    return columns;
-  }, [auth?.user, i18n.language, options.canSeeOpenTicketsColumn, options.forUsername, t]);
-
-  return columnDefinitions;
+  return columns;
 }

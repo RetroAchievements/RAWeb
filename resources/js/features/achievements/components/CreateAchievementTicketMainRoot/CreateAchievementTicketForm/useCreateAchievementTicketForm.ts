@@ -60,6 +60,7 @@ export function useCreateAchievementTicketForm(
             const { ticketId } = submitResponse.data;
 
             // TODO use router.visit after migrating this page to React
+            // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional. Eventually when ticket.show is powered by Inertia, this can be changed.
             window.location.href = route('ticket.show', { ticket: ticketId });
           }, 1000);
 

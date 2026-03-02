@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -12,24 +11,20 @@ import { useChangePasswordMutation } from '@/features/settings/hooks/mutations/u
 export function useChangePasswordForm() {
   const { t } = useTranslation();
 
-  const changePasswordFormSchema = useMemo(
-    () =>
-      z
-        .object({
-          currentPassword: z.string().min(1, { message: t('Required') }),
-          newPassword: z
-            .string()
-            .min(10, { message: t('Must be at least {{val, number}} characters.', { val: 10 }) }),
-          confirmPassword: z
-            .string()
-            .min(10, { message: t('Must be at least {{val, number}} characters.', { val: 10 }) }),
-        })
-        .refine((data) => data.newPassword === data.confirmPassword, {
-          message: t('Passwords must match.'),
-          path: ['confirmPassword'],
-        }),
-    [t],
-  );
+  const changePasswordFormSchema = z
+    .object({
+      currentPassword: z.string().min(1, { message: t('Required') }),
+      newPassword: z
+        .string()
+        .min(10, { message: t('Must be at least {{val, number}} characters.', { val: 10 }) }),
+      confirmPassword: z
+        .string()
+        .min(10, { message: t('Must be at least {{val, number}} characters.', { val: 10 }) }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('Passwords must match.'),
+      path: ['confirmPassword'],
+    });
 
   type FormValues = z.infer<typeof changePasswordFormSchema>;
 
@@ -48,6 +43,7 @@ export function useChangePasswordForm() {
     toastMessage.promise(mutation.mutateAsync({ payload: formValues }), {
       loading: t('Changing password...'),
       success: () => {
+        // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional.
         window.location.href = route('login');
 
         return '';

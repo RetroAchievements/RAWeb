@@ -124,6 +124,7 @@ export const ProximityAchievements: FC = () => {
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <p
                       ref={(el) => {
+                        // eslint-disable-next-line react-compiler/react-compiler -- Standard ref callback pattern.
                         titleRefs.current[index] = el;
                       }}
                       className={cn(

@@ -64,6 +64,7 @@ const TestHarness: FC<TestHarnessProps> = ({
             <p
               ref={(el) => {
                 if (wireTitleRefs) {
+                  // eslint-disable-next-line react-compiler/react-compiler -- Standard ref callback pattern.
                   titleRefs.current[index] = el;
                 }
               }}
