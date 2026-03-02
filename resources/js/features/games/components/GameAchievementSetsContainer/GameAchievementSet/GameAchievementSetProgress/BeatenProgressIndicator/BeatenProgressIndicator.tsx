@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleDot, LuCircleDotDashed } from 'react-icons/lu';
 
@@ -38,7 +37,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
     unlockedProgression,
     unlockedWin,
     winConditionAchievements,
-  } = useMemo(() => getBeatenProgressData(achievements, auth?.user), [achievements, auth]);
+  } = getBeatenProgressData(achievements, auth?.user);
 
   const Icon = isBeaten ? LuCircleDot : LuCircleDotDashed;
 

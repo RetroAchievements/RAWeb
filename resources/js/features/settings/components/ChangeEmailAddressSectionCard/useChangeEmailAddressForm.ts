@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -14,19 +13,15 @@ export function useChangeEmailAddressForm(props: {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
   const { t } = useTranslation();
 
-  const changeEmailAddressFormSchema = useMemo(
-    () =>
-      z
-        .object({
-          newEmail: z.string().email(),
-          confirmEmail: z.string().email(),
-        })
-        .refine((data) => data.newEmail === data.confirmEmail, {
-          message: t('Email addresses must match.'),
-          path: ['confirmEmail'],
-        }),
-    [t],
-  );
+  const changeEmailAddressFormSchema = z
+    .object({
+      newEmail: z.string().email(),
+      confirmEmail: z.string().email(),
+    })
+    .refine((data) => data.newEmail === data.confirmEmail, {
+      message: t('Email addresses must match.'),
+      path: ['confirmEmail'],
+    });
 
   type FormValues = z.infer<typeof changeEmailAddressFormSchema>;
 

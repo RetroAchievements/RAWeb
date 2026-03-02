@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 
@@ -15,10 +15,8 @@ export const AchievementChangelog: FC = () => {
   const { achievement, changelog } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
-  const { postPromotion, prePromotion, created, isCreatedAsPromoted } = useMemo(
-    () => splitAchievementChangelogEntries(changelog, { isPromoted: achievement.isPromoted }),
-    [achievement.isPromoted, changelog],
-  );
+  const { postPromotion, prePromotion, created, isCreatedAsPromoted } =
+    splitAchievementChangelogEntries(changelog, { isPromoted: achievement.isPromoted });
 
   const { contentHeight, contentRef, isOpen, setIsOpen } = useAnimatedCollapse<HTMLUListElement>();
 

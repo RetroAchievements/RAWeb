@@ -62,6 +62,7 @@ export const AchievementTabs: FC<AchievementTabsProps> = ({ tabConfigs, children
               <BaseTabsTrigger
                 key={value}
                 ref={(el) => {
+                  // eslint-disable-next-line react-compiler/react-compiler -- Standard ref callback pattern.
                   tabRefs.current[index] = el;
                 }}
                 value={value}

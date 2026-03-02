@@ -18,6 +18,9 @@ export const EventAchievementSection: FC<AchievementSectionProps> = ({
   isInitiallyOpened,
   title,
 }) => {
+  // eslint-disable-next-line react-compiler/react-compiler -- Reads isInitialRender.current during render, which the compiler can't track reactively.
+  'use no memo';
+
   const { t } = useTranslation();
 
   const { childContainerRef, contentRef, isInitialRender, isOpen, setIsOpen } =

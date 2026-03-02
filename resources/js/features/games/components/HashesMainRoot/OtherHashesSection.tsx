@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 
@@ -16,7 +16,7 @@ import { cn } from '@/common/utils/cn';
 
 import { HashesList } from './HashesList';
 
-export const OtherHashesSection: FC = memo(() => {
+export const OtherHashesSection: FC = () => {
   const { incompatibleHashes, untestedHashes, patchRequiredHashes } =
     usePageProps<App.Platform.Data.GameHashesPageProps>();
 
@@ -95,4 +95,4 @@ export const OtherHashesSection: FC = memo(() => {
       </AnimatePresence>
     </BaseCollapsible>
   );
-});
+};

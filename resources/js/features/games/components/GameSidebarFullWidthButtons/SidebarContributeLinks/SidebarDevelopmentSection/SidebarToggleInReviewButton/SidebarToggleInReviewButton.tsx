@@ -1,4 +1,4 @@
-import { type FC, useMemo, useState } from 'react';
+import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuLock, LuLockOpen } from 'react-icons/lu';
 
@@ -29,13 +29,10 @@ export const SidebarToggleInReviewButton: FC = () => {
   const updateStatusMutation = useUpdateClaimStatusMutation();
 
   // Find the primary claim from the claims list.
-  const primaryClaim = useMemo(() => {
-    return achievementSetClaims.find(
-      (claim) =>
-        claim.claimType === 'primary' &&
-        (claim.status === 'active' || claim.status === 'in_review'),
-    );
-  }, [achievementSetClaims]);
+  const primaryClaim = achievementSetClaims.find(
+    (claim) =>
+      claim.claimType === 'primary' && (claim.status === 'active' || claim.status === 'in_review'),
+  );
 
   // If there's no primary claim or the user can't toggle review status for claims, bail.
   if (!can.reviewAchievementSetClaims || !primaryClaim) {

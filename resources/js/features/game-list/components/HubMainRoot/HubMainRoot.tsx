@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -17,7 +17,7 @@ import { RelatedHubs } from './RelatedHubs';
 import { useColumnDefinitions } from './useColumnDefinitions';
 import { useHubGamesDefaultColumnState } from './useHubGamesDefaultColumnState';
 
-export const HubMainRoot: FC = memo(() => {
+export const HubMainRoot: FC = () => {
   const { breadcrumbs, can, defaultDesktopPageSize, hub, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
 
@@ -104,4 +104,4 @@ export const HubMainRoot: FC = memo(() => {
       </HydrationBoundary>
     </div>
   );
-});
+};
