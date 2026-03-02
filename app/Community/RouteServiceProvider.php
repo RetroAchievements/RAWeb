@@ -148,7 +148,7 @@ class RouteServiceProvider extends ServiceProvider
                     });
                 });
 
-                Route::middleware(['inertia'])->group(function () {
+                Route::middleware(['cacheResponse', 'inertia'])->group(function () {
                     Route::get('achievement/{achievement}/comments', [AchievementCommentController::class, 'index'])->name('achievement.comment.index');
 
                     Route::get('comment/{comment}', [CommentController::class, 'show'])->name('comment.show');
@@ -176,12 +176,15 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
                     Route::get('user/{user}/game-checklist', [UserGameChecklistController::class, 'show'])->name('user.game-checklist');
+                });
 
-                    /**
-                     * @see Middleware\ValidateSignature::class
-                     * This is a deliberately unauthenticated route.
-                     * Supports both GET (browser) and POST (RFC 8058 one-click).
-                     */
+                /**
+                 * @see Middleware\ValidateSignature::class
+                 * This is a deliberately unauthenticated route.
+                 * Supports both GET (browser) and POST (RFC 8058 one-click).
+                 * We also intentionally exclude this from `cacheResponse`.
+                 */
+                Route::middleware(['inertia'])->group(function () {
                     Route::match(['get', 'post'], 'unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
                 });
 
