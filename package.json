@@ -25,6 +25,8 @@
         "@bbob/plugin-helper": "^4.2.0",
         "@bbob/preset-react": "^4.2.0",
         "@bbob/react": "^4.2.0",
+        "@dnd-kit/helpers": "^0.3.2",
+        "@dnd-kit/react": "^0.3.2",
         "@floating-ui/core": "^1.6.8",
         "@floating-ui/dom": "^1.5.1",
         "@hookform/resolvers": "^5.0.1",
