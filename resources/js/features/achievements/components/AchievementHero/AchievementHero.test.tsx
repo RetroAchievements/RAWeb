@@ -248,4 +248,38 @@ describe('Component: AchievementHero', () => {
     expect(screen.queryByText(/300 hardcore/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/unlock rate/i)).not.toBeInTheDocument();
   });
+
+  it('given an unpromoted achievement, displays the "Not promoted" label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: false,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 500,
+      unlocksHardcore: 300,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.getAllByText(/not promoted/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('given a promoted achievement, does not display the "Not promoted" label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: true,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 500,
+      unlocksHardcore: 300,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/not promoted/i)).not.toBeInTheDocument();
+  });
 });

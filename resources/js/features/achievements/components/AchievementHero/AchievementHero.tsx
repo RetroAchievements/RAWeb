@@ -65,11 +65,15 @@ export const AchievementHero: FC = () => {
             <div className="flex flex-col gap-3">
               <p>{achievement.description}</p>
 
-              <div className="hidden md:block">
+              <div className="hidden gap-3 md:flex">
                 <PointsLabels
                   points={achievement.points}
                   pointsWeighted={achievement.pointsWeighted}
                 />
+
+                {!achievement.isPromoted ? (
+                  <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+                ) : null}
               </div>
             </div>
           </div>
@@ -87,7 +91,11 @@ export const AchievementHero: FC = () => {
               <span />
             )}
 
-            <div className="md:hidden">
+            <div className="flex gap-3 md:hidden">
+              {!achievement.isPromoted ? (
+                <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+              ) : null}
+
               <PointsLabels
                 points={achievement.points}
                 pointsWeighted={achievement.pointsWeighted}
