@@ -12,7 +12,11 @@ export const VideoEmbed: FC<VideoEmbedProps> = ({ src }) => {
   const processedVideo = processVideoUrl(src);
 
   if (!processedVideo) {
-    return null;
+    return (
+      <a href={src} target="_blank" rel="noreferrer">
+        {src}
+      </a>
+    );
   }
 
   let embedUrl = '';

@@ -11,12 +11,16 @@ describe('Component: VideoEmbed', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given an invalid video URL, renders nothing', () => {
+  it('given an unrecognized URL, renders a fallback link', () => {
     // ARRANGE
-    render(<VideoEmbed src="https://invalid-url.com" />);
+    render(<VideoEmbed src="https://ibb.co/9gShSmF" />);
 
     // ASSERT
     expect(screen.queryByTestId('video-embed')).not.toBeInTheDocument();
+
+    const linkEl = screen.getByRole('link');
+    expect(linkEl).toHaveAttribute('href', 'https://ibb.co/9gShSmF');
+    expect(linkEl).toHaveAttribute('target', '_blank');
   });
 
   it('given a YouTube URL, renders a YouTube embed iframe', () => {

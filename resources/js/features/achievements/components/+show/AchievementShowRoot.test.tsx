@@ -223,7 +223,7 @@ describe('Component: AchievementShowRoot', () => {
     vi.useRealTimers();
   });
 
-  it('given the achievement has an embed URL, shows the Video tab', () => {
+  it('given the achievement has an embed URL, shows the Media tab', () => {
     // ARRANGE
     const achievement = createAchievement({
       game: createGame({ playersTotal: 1000, system: createSystem() }),
@@ -245,10 +245,37 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getAllByRole('tab', { name: /video/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('tab', { name: /media/i }).length).toBeGreaterThan(0);
   });
 
-  it('given the achievement has no embed URL, does not show the Video tab', () => {
+  it('given the embed URL is an image, renders an img tag instead of a video embed', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+      embedUrl: 'https://i.imgur.com/7ma23Se.png',
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    const imgEl = screen.getByRole('img', { name: /media/i });
+    expect(imgEl).toHaveAttribute('src', 'https://i.imgur.com/7ma23Se.png');
+    expect(screen.queryByTestId('video-embed')).not.toBeInTheDocument();
+  });
+
+  it('given the achievement has no embed URL, does not show the Media tab', () => {
     // ARRANGE
     const achievement = createAchievement({
       game: createGame({ playersTotal: 1000, system: createSystem() }),
@@ -269,7 +296,7 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryAllByRole('tab', { name: /video/i })).toHaveLength(0);
+    expect(screen.queryAllByRole('tab', { name: /media/i })).toHaveLength(0);
   });
 
   it('allows switching to the changelog tab', async () => {
