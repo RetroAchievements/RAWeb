@@ -47,6 +47,10 @@
     @apply h-9 px-4 py-2;
   }
 
+  .btn-base--size-xs {
+    @apply h-6 rounded-md px-2 text-xs;
+  }
+
   .btn-base--size-sm {
     @apply h-[30px] rounded-md px-3 !text-[13px];
   }

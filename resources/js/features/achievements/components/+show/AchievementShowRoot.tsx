@@ -14,6 +14,7 @@ import { AchievementHero } from '../AchievementHero';
 import { AchievementInlineActions } from '../AchievementInlineActions';
 import { AchievementRecentUnlocks } from '../AchievementRecentUnlocks';
 import { AchievementTabs } from '../AchievementTabsList';
+import { ResetProgressDialog } from '../ResetProgressDialog';
 
 export const AchievementShowRoot: FC = () => {
   const { achievement, backingGame, gameAchievementSet } =
@@ -31,6 +32,8 @@ export const AchievementShowRoot: FC = () => {
 
   return (
     <div>
+      {achievement.unlockedAt || achievement.unlockedHardcoreAt ? <ResetProgressDialog /> : null}
+
       <AchievementBreadcrumbs
         t_currentPageLabel={achievement.title as TranslatedString}
         system={breadcrumbGame?.system}
