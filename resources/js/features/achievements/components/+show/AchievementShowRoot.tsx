@@ -1,4 +1,4 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseTabsContent } from '@/common/components/+vendor/BaseTabs';
@@ -21,20 +21,12 @@ export const AchievementShowRoot: FC = () => {
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
-  const tabConfigs: TabConfig[] = useMemo(() => {
-    const configs: TabConfig[] = [{ value: 'comments', label: t('Comments') }];
-
-    if (achievement.embedUrl) {
-      configs.push({ value: 'video', label: t('Video') });
-    }
-
-    configs.push(
-      { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
-      { value: 'changelog', label: t('Changelog') },
-    );
-
-    return configs;
-  }, [achievement.embedUrl, t]);
+  const tabConfigs: TabConfig[] = [
+    { value: 'comments', label: t('Comments') },
+    ...(achievement.embedUrl ? [{ value: 'video' as const, label: t('Video') }] : []),
+    { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
+    { value: 'changelog', label: t('Changelog') },
+  ];
 
   // When the achievement belongs to a subset game, use the backing game for breadcrumbs.
   const breadcrumbGame = backingGame ?? achievement.game;

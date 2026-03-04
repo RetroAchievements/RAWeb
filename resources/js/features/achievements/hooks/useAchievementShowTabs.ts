@@ -1,5 +1,3 @@
-import { useCallback, useMemo } from 'react';
-
 import { useShowPageTabs } from '@/common/hooks/useShowPageTabs';
 
 import type { TabConfig } from '../models';
@@ -9,7 +7,7 @@ import { useAnimatedTabIndicator } from './useAnimatedTabIndicator';
 type AchievementTab = App.Platform.Enums.AchievementPageTab;
 
 export function useAchievementShowTabs(tabConfigs: TabConfig[]) {
-  const tabValues = useMemo(() => tabConfigs.map((c) => c.value), [tabConfigs]);
+  const tabValues = tabConfigs.map((c) => c.value);
 
   const { currentTab, setCurrentTab } = useShowPageTabs(currentTabAtom, 'comments');
 
@@ -18,17 +16,14 @@ export function useAchievementShowTabs(tabConfigs: TabConfig[]) {
   const { activeIndex, setActiveIndex, setHoveredIndex, ...animation } =
     useAnimatedTabIndicator(initialIndex);
 
-  const handleValueChange = useCallback(
-    (value: string) => {
-      const index = tabValues.indexOf(value as AchievementTab);
-      if (index !== -1) {
-        setActiveIndex(index);
-      }
+  const handleValueChange = (value: string) => {
+    const index = tabValues.indexOf(value as AchievementTab);
+    if (index !== -1) {
+      setActiveIndex(index);
+    }
 
-      setCurrentTab(value as AchievementTab);
-    },
-    [setActiveIndex, setCurrentTab, tabValues],
-  );
+    setCurrentTab(value as AchievementTab);
+  };
 
   return {
     currentTab,

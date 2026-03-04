@@ -1,0 +1,3 @@
+resources/js/**/generated.d.ts
+resources/js/common/utils/generatedAppConstants.ts
+resources/js/ziggy.*

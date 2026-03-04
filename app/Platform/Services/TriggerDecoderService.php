@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Models\GameAchievementSet;
 use App\Models\MemoryNote;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Support\Str;
 
 class TriggerDecoderService
@@ -363,6 +365,28 @@ class TriggerDecoderService
             }
         }
 
+        // if this is a subset, merge the parent notes first so the subset notes can overwrite them
+        $subsetGameAchievementSet = GameAchievementSet::query()
+            ->whereIn('achievement_set_id',
+                GameAchievementSet::where('game_id', $gameId)
+                    ->where('type', AchievementSetType::Core)
+                    ->pluck('achievement_set_id')
+            )
+            ->where('type', '!=', AchievementSetType::Core)
+            // exclusive subsets can maintain their own notes
+            ->where('type', '!=', AchievementSetType::Exclusive)
+            ->first();
+
+        if ($subsetGameAchievementSet) {
+            $baseGameId = $subsetGameAchievementSet->game_id;
+            $this->fetchAndMergeCodeNotes($groups, $baseGameId, $memoryReferences);
+        }
+
+        $this->fetchAndMergeCodeNotes($groups, $gameId, $memoryReferences);
+    }
+
+    private function fetchAndMergeCodeNotes(array &$groups, int $gameId, array $memoryReferences): void
+    {
         $codeNotes = MemoryNote::where('game_id', $gameId)
             ->where(function ($q) use ($memoryReferences) {
                 $q->whereIn('address', $memoryReferences);
