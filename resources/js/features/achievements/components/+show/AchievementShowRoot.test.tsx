@@ -248,7 +248,7 @@ describe('Component: AchievementShowRoot', () => {
     expect(screen.getAllByRole('tab', { name: /media/i }).length).toBeGreaterThan(0);
   });
 
-  it('given the embed URL is an image, renders an img tag instead of a video embed', () => {
+  it('given the embed URL is an image, renders an img tag instead of a video embed', async () => {
     // ARRANGE
     const achievement = createAchievement({
       game: createGame({ playersTotal: 1000, system: createSystem() }),
@@ -268,6 +268,9 @@ describe('Component: AchievementShowRoot', () => {
         recentVisibleComments: [],
       },
     });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('tab', { name: /media/i })[0]);
 
     // ASSERT
     const imgEl = screen.getByRole('img', { name: /media/i });
