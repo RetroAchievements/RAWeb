@@ -136,31 +136,15 @@ const BaseChartTooltipContent = React.forwardRef<
 
     const { formatNumber } = useFormatNumber();
 
-    const tooltipLabel = React.useMemo(() => {
-      if (hideLabel || !payload?.length) {
-        return null;
-      }
-
-      const [item] = payload;
-      const key = `${labelKey || item.dataKey || item.name || 'value'}`;
-      const itemConfig = getPayloadConfigFromPayload(config, item, key);
-      const value =
-        !labelKey && typeof label === 'string'
-          ? config[label as keyof typeof config]?.label || label
-          : itemConfig?.label;
-
-      if (labelFormatter) {
-        return (
-          <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, payload)}</div>
-        );
-      }
-
-      if (!value) {
-        return null;
-      }
-
-      return <div className={cn('font-medium', labelClassName)}>{value}</div>;
-    }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
+    const tooltipLabel = buildTooltipLabel({
+      hideLabel,
+      payload,
+      labelKey,
+      config,
+      label,
+      labelFormatter,
+      labelClassName,
+    });
 
     if (!active || !payload?.length) {
       return null;
@@ -304,6 +288,47 @@ const BaseChartLegendContent = React.forwardRef<
   );
 });
 BaseChartLegendContent.displayName = 'BaseChartLegendContent';
+
+function buildTooltipLabel({
+  hideLabel,
+  payload,
+  labelKey,
+  config,
+  label,
+  labelFormatter,
+  labelClassName,
+}: Pick<
+  React.ComponentProps<typeof RechartsPrimitive.Tooltip>,
+  'payload' | 'label' | 'labelFormatter' | 'labelClassName'
+> & {
+  hideLabel: boolean;
+  labelKey?: string;
+  config: BaseChartConfig;
+}): React.ReactNode {
+  if (hideLabel || !payload?.length) {
+    return null;
+  }
+
+  const [item] = payload;
+  const key = `${labelKey || item.dataKey || item.name || 'value'}`;
+  const itemConfig = getPayloadConfigFromPayload(config, item, key);
+  const value =
+    !labelKey && typeof label === 'string'
+      ? config[label as keyof typeof config]?.label || label
+      : itemConfig?.label;
+
+  if (labelFormatter) {
+    return (
+      <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, payload)}</div>
+    );
+  }
+
+  if (!value) {
+    return null;
+  }
+
+  return <div className={cn('font-medium', labelClassName)}>{value}</div>;
+}
 
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(config: BaseChartConfig, payload: unknown, key: string) {

@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
@@ -16,7 +16,7 @@ import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { useColumnDefinitions } from './useColumnDefinitions';
 import { useSystemGamesDefaultColumnState } from './useSystemGamesDefaultColumnState';
 
-export const SystemGamesMainRoot: FC = memo(() => {
+export const SystemGamesMainRoot: FC = () => {
   const { can, defaultDesktopPageSize, system, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.SystemGameListPageProps>();
 
@@ -101,4 +101,4 @@ export const SystemGamesMainRoot: FC = memo(() => {
       </HydrationBoundary>
     </div>
   );
-});
+};

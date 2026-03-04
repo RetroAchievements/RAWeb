@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role -- doesn't matter in a test suite */
+/* eslint-disable jsx-a11y/prefer-tag-over-role -- test harness mirrors the production <li role="button"> pattern */
 
 import { router } from '@inertiajs/react';
 import type { FC } from 'react';
@@ -64,6 +64,7 @@ const TestHarness: FC<TestHarnessProps> = ({
             <p
               ref={(el) => {
                 if (wireTitleRefs) {
+                  // eslint-disable-next-line react-compiler/react-compiler -- Standard ref callback pattern.
                   titleRefs.current[index] = el;
                 }
               }}

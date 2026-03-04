@@ -65,11 +65,15 @@ export const AchievementHero: FC = () => {
             <div className="flex flex-col gap-3">
               <p>{achievement.description}</p>
 
-              <div className="hidden md:block">
+              <div className="hidden gap-3 md:flex">
                 <PointsLabels
                   points={achievement.points}
                   pointsWeighted={achievement.pointsWeighted}
                 />
+
+                {!achievement.isPromoted ? (
+                  <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+                ) : null}
               </div>
             </div>
           </div>
@@ -87,7 +91,11 @@ export const AchievementHero: FC = () => {
               <span />
             )}
 
-            <div className="md:hidden">
+            <div className="flex gap-3 md:hidden">
+              {!achievement.isPromoted ? (
+                <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+              ) : null}
+
               <PointsLabels
                 points={achievement.points}
                 pointsWeighted={achievement.pointsWeighted}
@@ -121,44 +129,46 @@ export const AchievementHero: FC = () => {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3">
-            <BaseProgress
-              className="h-1.5"
-              max={playersTotal > 0 ? playersTotal : undefined}
-              segments={[
-                {
-                  value: unlocksHardcoreTotal,
-                  className: 'bg-gradient-to-r from-amber-500 to-[gold]',
-                },
-                {
-                  value: unlocksTotal - unlocksHardcoreTotal,
-                  className: 'bg-neutral-500',
-                },
-              ]}
-            />
+        {achievement.isPromoted ? (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-3">
+              <BaseProgress
+                className="h-1.5"
+                max={playersTotal > 0 ? playersTotal : undefined}
+                segments={[
+                  {
+                    value: unlocksHardcoreTotal,
+                    className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                  },
+                  {
+                    value: unlocksTotal - unlocksHardcoreTotal,
+                    className: 'bg-neutral-500',
+                  },
+                ]}
+              />
 
-            <p className="-mt-px text-xs font-semibold">
-              <span className="md:hidden">{formattedUnlockPercentage}</span>
+              <p className="-mt-px text-xs font-semibold">
+                <span className="md:hidden">{formattedUnlockPercentage}</span>
 
-              <span className="hidden whitespace-nowrap md:block">
-                {t('{{percentage}} unlock rate', {
-                  percentage: formattedUnlockPercentage,
-                })}
-              </span>
-            </p>
+                <span className="hidden whitespace-nowrap md:block">
+                  {t('{{percentage}} unlock rate', {
+                    percentage: formattedUnlockPercentage,
+                  })}
+                </span>
+              </p>
+            </div>
+
+            <div className="hidden text-xs md:block">
+              <p className="flex gap-1">
+                <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
+                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                <span>{t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}</span>
+                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
+              </p>
+            </div>
           </div>
-
-          <div className="hidden text-xs md:block">
-            <p className="flex gap-1">
-              <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
-              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
-              <span>{t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}</span>
-              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
-              <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
-            </p>
-          </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );

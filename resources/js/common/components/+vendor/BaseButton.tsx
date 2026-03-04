@@ -2,7 +2,7 @@
 
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Slot } from 'radix-ui';
-import { type ButtonHTMLAttributes, forwardRef, useMemo } from 'react';
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
 
 import { cn } from '@/common/utils/cn';
 
@@ -31,8 +31,7 @@ const baseButtonVariants = cva(['btn-base'], {
 });
 
 export interface BaseButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof baseButtonVariants> {
+  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof baseButtonVariants> {
   asChild?: boolean;
 }
 
@@ -40,10 +39,7 @@ const BaseButton = forwardRef<HTMLButtonElement, BaseButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot.Root : 'button';
 
-    const computedClassName = useMemo(
-      () => cn(baseButtonVariants({ variant, size, className })),
-      [variant, size, className],
-    );
+    const computedClassName = cn(baseButtonVariants({ variant, size, className }));
 
     return <Comp className={computedClassName} ref={ref} {...props} />;
   },

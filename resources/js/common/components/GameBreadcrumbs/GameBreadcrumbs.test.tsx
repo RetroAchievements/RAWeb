@@ -111,10 +111,9 @@ describe('Component: GameBreadcrumbs', () => {
     );
 
     // ASSERT
-    expect(screen.getByText('Bonus Set')).toBeVisible();
-    // BaseBreadcrumbPage renders with role="link" but aria-disabled="true"
-    const breadcrumbPageEl = screen.getByRole('link', { name: /bonus set/i });
-    expect(breadcrumbPageEl).toHaveAttribute('aria-disabled', 'true');
+    const breadcrumbPageEl = screen.getByText('Bonus Set');
+    expect(breadcrumbPageEl).toBeVisible();
+    expect(breadcrumbPageEl).toHaveAttribute('aria-current', 'page');
   });
 
   it('given game with t_currentPageLabel, renders game as link', () => {
@@ -149,10 +148,10 @@ describe('Component: GameBreadcrumbs', () => {
     );
 
     // ASSERT
-    expect(screen.getByText('Super Mario World')).toBeVisible();
-    // BaseBreadcrumbPage renders with role="link" but aria-disabled="true"
-    const breadcrumbPageEl = screen.getByRole('link', { name: /super mario world/i });
-    expect(breadcrumbPageEl).toHaveAttribute('aria-disabled', 'true');
+    const textEl = screen.getByText('Super Mario World');
+    expect(textEl).toBeVisible();
+
+    expect(textEl.closest('[aria-current="page"]')).toBeTruthy();
   });
 
   it('given game with gameAchievementSet but no t_currentPageLabel, renders game as link', () => {
@@ -192,10 +191,9 @@ describe('Component: GameBreadcrumbs', () => {
     );
 
     // ASSERT
-    expect(screen.getByText('Achievements')).toBeVisible();
-    // BaseBreadcrumbPage renders with role="link" but aria-disabled="true"
-    const breadcrumbPageEl = screen.getByRole('link', { name: /achievements/i });
-    expect(breadcrumbPageEl).toHaveAttribute('aria-disabled', 'true');
+    const breadcrumbPageEl = screen.getByText('Achievements');
+    expect(breadcrumbPageEl).toBeVisible();
+    expect(breadcrumbPageEl).toHaveAttribute('aria-current', 'page');
   });
 
   it('renders only All Games link when no other props provided', () => {

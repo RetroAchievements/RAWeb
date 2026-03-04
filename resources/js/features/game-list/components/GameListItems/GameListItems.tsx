@@ -7,8 +7,7 @@ import type {
   PaginationState,
   SortingState,
 } from '@tanstack/react-table';
-import { type FC, useEffect, useState } from 'react';
-import { Fragment } from 'react';
+import { type FC, Fragment, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 

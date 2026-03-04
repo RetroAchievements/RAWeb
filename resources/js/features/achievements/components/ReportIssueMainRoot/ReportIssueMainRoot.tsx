@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -13,7 +13,7 @@ import { ReportToDeveloperComplianceListItem } from './ReportToDeveloperComplian
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
-export const ReportIssueMainRoot: FC = memo(() => {
+export const ReportIssueMainRoot: FC = () => {
   const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
   const { t } = useTranslation();
@@ -74,4 +74,4 @@ export const ReportIssueMainRoot: FC = memo(() => {
       </ul>
     </div>
   );
-});
+};

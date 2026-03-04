@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { AnimatePresence } from 'motion/react';
 import * as motion from 'motion/react-m';
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
@@ -53,32 +53,17 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const missableAchievements = achievements.filter((a) => a.type === 'missable');
   const unlockedAchievements = achievements.filter((a) => !!a.unlockedAt);
 
-  const sortedAchievements = useMemo(
-    () => sortAchievements(achievements, currentAchievementSort),
-    [achievements, currentAchievementSort],
-  );
+  const sortedAchievements = sortAchievements(achievements, currentAchievementSort);
 
-  const filteredAndSortedAchievements = useMemo(
-    () =>
-      filterAchievements(sortedAchievements, {
-        showLockedOnly:
-          !!lockedAchievements.length && !!unlockedAchievements.length && isLockedOnlyFilterEnabled,
-        showMissableOnly: !!missableAchievements.length && isMissableOnlyFilterEnabled,
-      }),
-    [
-      isLockedOnlyFilterEnabled,
-      isMissableOnlyFilterEnabled,
-      lockedAchievements.length,
-      missableAchievements.length,
-      sortedAchievements,
-      unlockedAchievements.length,
-    ],
-  );
+  const filteredAndSortedAchievements = filterAchievements(sortedAchievements, {
+    showLockedOnly:
+      !!lockedAchievements.length && !!unlockedAchievements.length && isLockedOnlyFilterEnabled,
+    showMissableOnly: !!missableAchievements.length && isMissableOnlyFilterEnabled,
+  });
 
-  const sortedLeaderboards = useMemo(
-    () => (allLeaderboards ? sortLeaderboards(allLeaderboards, currentAchievementSort) : []),
-    [allLeaderboards, currentAchievementSort],
-  );
+  const sortedLeaderboards = allLeaderboards
+    ? sortLeaderboards(allLeaderboards, currentAchievementSort)
+    : [];
 
   const isLargeAchievementsList = sortedAchievements.length > 50;
   const isLargeLeaderboardsList = numLeaderboards > 50;

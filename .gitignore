@@ -56,7 +56,6 @@ Homestead.yaml
 # Caches
 *.tsbuildinfo
 .deptrac.cache
-.eslintcache
 /.pnpm-store
 
 # IDE and editor
@@ -67,7 +66,9 @@ Homestead.yaml
 /.nova
 /.project
 /.settings
-/.vscode
+/.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 nbproject
 
 # Docker and local dev
