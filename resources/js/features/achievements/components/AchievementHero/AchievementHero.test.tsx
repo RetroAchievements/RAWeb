@@ -226,7 +226,7 @@ describe('Component: AchievementHero', () => {
 
     // ASSERT
     const progressBarEl = screen.getByRole('progressbar');
-    expect(progressBarEl).not.toHaveAttribute('aria-valuemax');
+    expect(progressBarEl).toHaveAttribute('aria-valuemax', '100');
   });
 
   it('displays softcore and hardcore unlock counts', () => {
