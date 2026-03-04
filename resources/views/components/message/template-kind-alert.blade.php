@@ -24,6 +24,10 @@
                             consult the docs.
                         </a>
                     </p>
+
+                    <p>
+                        Please note that DevCompliance does not rescore or rebalance achievements. If the concept is fine but the difficulty or reward is not, please suggest a change in the forum thread instead.
+                    </p>
                 </div>
                 @break
 
