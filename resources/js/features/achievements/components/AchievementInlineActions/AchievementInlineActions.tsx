@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -15,7 +16,7 @@ export const AchievementInlineActions: FC = () => {
   const setIsResetProgressDialogOpen = useSetAtom(isResetProgressDialogOpenAtom);
 
   return (
-    <div className="flex flex-col gap-2 text-xs md:flex-row md:justify-between">
+    <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between">
       <div className="flex divide-x divide-neutral-700">
         <InertiaLink
           href={route('achievement.report-issue', { achievement })}
@@ -38,9 +39,13 @@ export const AchievementInlineActions: FC = () => {
 
       {achievement.unlockedAt || achievement.unlockedHardcoreAt ? (
         <div className="flex divide-x divide-neutral-700">
-          <button className="text-text-danger" onClick={() => setIsResetProgressDialogOpen(true)}>
+          <BaseButton
+            onClick={() => setIsResetProgressDialogOpen(true)}
+            variant="destructive"
+            size="xs"
+          >
             {t('Reset progress')}
-          </button>
+          </BaseButton>
         </div>
       ) : null}
     </div>

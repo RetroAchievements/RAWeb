@@ -2,6 +2,10 @@
   "php.version": "8.4.15",
   "typescript.experimental.useTsgo": true,
   "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit"
+  },
+  "oxc.lint.enable": true,
   "vitest.disableWorkspaceWarning": true,
   "[javascript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode",

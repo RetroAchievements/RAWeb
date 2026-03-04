@@ -211,6 +211,24 @@ describe('Component: AchievementHero', () => {
     expect(screen.getAllByText(/0\.00/i).length).toBeGreaterThanOrEqual(1);
   });
 
+  it('given the game has zero players total, does not set a max on the progress bar', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: true,
+      game: createGame({ playersTotal: 0 }),
+      unlocksTotal: 0,
+      unlocksHardcore: 0,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    const progressBarEl = screen.getByRole('progressbar');
+    expect(progressBarEl).not.toHaveAttribute('aria-valuemax');
+  });
+
   it('displays softcore and hardcore unlock counts', () => {
     // ARRANGE
     const achievement = createAchievement({
