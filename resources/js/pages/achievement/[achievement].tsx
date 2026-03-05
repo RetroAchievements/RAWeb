@@ -43,6 +43,8 @@ const AchievementShow: AppPage = () => {
         }
         description={metaDescription}
         ogImage={hydratedAchievement.game.badgeUrl}
+        noindex={!achievement.isPromoted}
+        nofollow={!achievement.isPromoted}
       />
 
       <AppLayout.Main>

@@ -223,6 +223,55 @@ describe('Component: AchievementShowRoot', () => {
     vi.useRealTimers();
   });
 
+  it('given the user has unlocked the achievement, renders the reset progress link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlockedAt: '2024-03-15T12:00:00Z',
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /reset progress/i })).toBeVisible();
+  });
+
+  it('given the user has not unlocked the achievement, does not render the reset progress link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
   it('allows switching to the changelog tab', async () => {
     // ARRANGE
     const achievement = createAchievement({

@@ -1,6 +1,9 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createAchievement } from '@/test/factories';
 
+import { ResetProgressDialog } from '../ResetProgressDialog';
 import { AchievementInlineActions } from './AchievementInlineActions';
 
 describe('Component: AchievementInlineActions', () => {
@@ -102,5 +105,25 @@ describe('Component: AchievementInlineActions', () => {
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user clicks the reset progress button, opens the reset progress dialog', async () => {
+    // ARRANGE
+    const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
+
+    render(
+      <>
+        <AchievementInlineActions />
+        <ResetProgressDialog />
+      </>,
+      { pageProps: { achievement } },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /reset progress/i }));
+
+    // ASSERT
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByRole('heading', { name: /reset progress/i })).toBeVisible();
   });
 });

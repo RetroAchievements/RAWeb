@@ -1,19 +1,22 @@
+import { useSetAtom } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-// TODO manage link
-// TODO promoted status toggle
+import { isResetProgressDialogOpenAtom } from '../../state/achievements.atoms';
 
 export const AchievementInlineActions: FC = () => {
   const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
+  const setIsResetProgressDialogOpen = useSetAtom(isResetProgressDialogOpenAtom);
+
   return (
-    <div className="flex flex-col gap-2 text-xs md:flex-row md:justify-between">
+    <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between">
       <div className="flex divide-x divide-neutral-700">
         <InertiaLink
           href={route('achievement.report-issue', { achievement })}
@@ -36,7 +39,13 @@ export const AchievementInlineActions: FC = () => {
 
       {achievement.unlockedAt || achievement.unlockedHardcoreAt ? (
         <div className="flex divide-x divide-neutral-700">
-          <button className="text-text-danger">{t('Reset progress')}</button>
+          <BaseButton
+            onClick={() => setIsResetProgressDialogOpen(true)}
+            variant="destructive"
+            size="xs"
+          >
+            {t('Reset progress')}
+          </BaseButton>
         </div>
       ) : null}
     </div>

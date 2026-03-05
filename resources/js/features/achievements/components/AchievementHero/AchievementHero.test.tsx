@@ -178,6 +178,7 @@ describe('Component: AchievementHero', () => {
   it('displays the unlock rate percentage', () => {
     // ARRANGE
     const achievement = createAchievement({
+      isPromoted: true,
       unlockPercentage: '0.4567',
       game: createGame({ playersTotal: 1000 }),
       unlocksTotal: 250,
@@ -195,6 +196,7 @@ describe('Component: AchievementHero', () => {
   it('given no unlock percentage, falls back to zero', () => {
     // ARRANGE
     const achievement = createAchievement({
+      isPromoted: true,
       unlockPercentage: undefined,
       game: createGame({ playersTotal: 1000 }),
       unlocksTotal: 250,
@@ -209,9 +211,28 @@ describe('Component: AchievementHero', () => {
     expect(screen.getAllByText(/0\.00/i).length).toBeGreaterThanOrEqual(1);
   });
 
+  it('given the game has zero players total, does not set a max on the progress bar', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: true,
+      game: createGame({ playersTotal: 0 }),
+      unlocksTotal: 0,
+      unlocksHardcore: 0,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    const progressBarEl = screen.getByRole('progressbar');
+    expect(progressBarEl).toHaveAttribute('aria-valuemax', '100');
+  });
+
   it('displays softcore and hardcore unlock counts', () => {
     // ARRANGE
     const achievement = createAchievement({
+      isPromoted: true,
       game: createGame({ playersTotal: 1000 }),
       unlocksTotal: 500,
       unlocksHardcore: 300,
@@ -224,5 +245,59 @@ describe('Component: AchievementHero', () => {
     // ASSERT
     expect(screen.getByText(/200 softcore/i)).toBeVisible();
     expect(screen.getByText(/300 hardcore/i)).toBeVisible();
+  });
+
+  it('given an unpromoted achievement, does not display the progress bar or player counts', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: false,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 500,
+      unlocksHardcore: 300,
+      unlockPercentage: '0.50',
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/200 softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/300 hardcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/unlock rate/i)).not.toBeInTheDocument();
+  });
+
+  it('given an unpromoted achievement, displays the "Not promoted" label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: false,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 500,
+      unlocksHardcore: 300,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.getAllByText(/not promoted/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('given a promoted achievement, does not display the "Not promoted" label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: true,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 500,
+      unlocksHardcore: 300,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/not promoted/i)).not.toBeInTheDocument();
   });
 });
