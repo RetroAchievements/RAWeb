@@ -135,20 +135,24 @@ class GamePolicy
 
         // Aggregate the allowed fields for all roles the user has.
         $allowedFieldsForUser = collect($roleFieldPermissions)
-            ->filter(function ($fields, $role) use ($userRoles) {
-                return $userRoles->contains($role);
+            ->filter(function ($fields, $role) use ($user, $userRoles, $game) {
+
+                // If they can't edit at all, return false
+                if (! $userRoles->contains($role)) {
+                    return false;
+                }
+
+                // Apply claim restriction ONLY to Junior Dev permissions
+                if ($role === Role::DEVELOPER_JUNIOR) {
+                    return $this->canDeveloperJuniorUpdateGame($user, $game);
+                }
+
+                return true;
             })
             ->collapse()
             ->unique()
             ->all();
 
-        // Junior Developers need to have a claim on the game if they want to edit game fields.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$this->canDeveloperJuniorUpdateGame($user, $game)) {
-            return false;
-        }
-
-        // If any of the user's roles allow updating the specified field, return true.
-        // Otherwise, they can't edit the field.
         return in_array($fieldName, $allowedFieldsForUser, true);
     }
 
