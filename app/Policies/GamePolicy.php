@@ -87,11 +87,6 @@ class GamePolicy
 
     public function updateField(User $user, Game $game, string $fieldName): bool
     {
-        // Some roles can edit everything.
-        if ($user->hasAnyRole([Role::ROOT, Role::GAME_HASH_MANAGER, Role::MODERATOR])) {
-            return true;
-        }
-
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [
@@ -131,18 +126,22 @@ class GamePolicy
             ],
         ];
 
+        // Some roles can edit everything.
+        if ($user->hasAnyRole([Role::ROOT, Role::GAME_HASH_MANAGER, Role::MODERATOR])) {
+            return true;
+        }
+
         $userRoles = $user->getRoleNames();
 
         // Aggregate the allowed fields for all roles the user has.
         $allowedFieldsForUser = collect($roleFieldPermissions)
-            ->filter(function ($fields, $role) use ($user, $userRoles, $game) {
-
-                // If they can't edit at all, return false
+            ->filter(function ($fields, $role) use ($userRoles, $user, $game) {
                 if (!$userRoles->contains($role)) {
                     return false;
                 }
 
-                // Apply claim restriction ONLY to Junior Dev permissions
+                // Junior Developers have additional specific criteria that must be satisfied
+                // before they are allowed to edit achievement fields.
                 if ($role === Role::DEVELOPER_JUNIOR) {
                     return $this->canDeveloperJuniorUpdateGame($user, $game);
                 }
@@ -153,6 +152,8 @@ class GamePolicy
             ->unique()
             ->all();
 
+        // If any of the user's roles allow updating the specified field, return true.
+        // Otherwise, they can't edit the field.
         return in_array($fieldName, $allowedFieldsForUser, true);
     }
 
