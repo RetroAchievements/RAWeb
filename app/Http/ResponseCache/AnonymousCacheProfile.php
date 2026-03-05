@@ -36,6 +36,13 @@ class AnonymousCacheProfile extends BaseCacheProfile
 
     public function shouldCacheResponse(Response $response): bool
     {
+        // Don't cache responses that carry flash data. Otherwise a flash
+        // message (eg "your email has been verified") gets baked into the
+        // cached page and shown to every subsequent anonymous visitor.
+        if (session('message') || session('success') || session('error') || session('status')) {
+            return false;
+        }
+
         $contentType = $response->headers->get('Content-Type', '');
 
         return

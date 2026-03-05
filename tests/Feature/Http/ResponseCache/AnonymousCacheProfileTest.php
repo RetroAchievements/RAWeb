@@ -78,6 +78,18 @@ describe('shouldCacheResponse', function () {
         'application/json',
     ]);
 
+    it('rejects responses when the session has flash data', function () {
+        // ARRANGE
+        session()->flash('success', 'Your email has been verified.');
+        $response = new Response('OK', 200, ['Content-Type' => 'text/html']);
+
+        // ACT
+        $result = $this->profile->shouldCacheResponse($response);
+
+        // ASSERT
+        expect($result)->toBeFalse();
+    });
+
     it('rejects redirects, errors, and binary responses', function (int $status, string $contentType) {
         // ARRANGE
         $response = new Response('', $status, ['Content-Type' => $contentType]);
