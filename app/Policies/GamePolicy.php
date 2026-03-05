@@ -138,7 +138,7 @@ class GamePolicy
             ->filter(function ($fields, $role) use ($user, $userRoles, $game) {
 
                 // If they can't edit at all, return false
-                if (! $userRoles->contains($role)) {
+                if (!$userRoles->contains($role)) {
                     return false;
                 }
 
