@@ -24,7 +24,7 @@ export const AchievementShowRoot: FC = () => {
 
   const tabConfigs: TabConfig[] = [
     { value: 'comments', label: t('Comments') },
-    ...(achievement.embedUrl ? [{ value: 'video' as const, label: t('Media') }] : []),
+    ...(achievement.embedUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
     { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
     { value: 'changelog', label: t('Changelog') },
   ];
@@ -59,7 +59,7 @@ export const AchievementShowRoot: FC = () => {
             </BaseTabsContent>
 
             {achievement.embedUrl ? (
-              <BaseTabsContent value="video">
+              <BaseTabsContent value="tips">
                 {/\.(png|jpg|jpeg|gif|webp)$/i.test(achievement.embedUrl) ? (
                   <a href={achievement.embedUrl} target="_blank" rel="noreferrer">
                     <img src={achievement.embedUrl} alt={t('Media')} className="max-w-full" />
