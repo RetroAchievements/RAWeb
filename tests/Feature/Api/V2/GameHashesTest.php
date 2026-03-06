@@ -101,7 +101,7 @@ class GameHashesTest extends TestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.0.attributes');
 
-        $this->assertEquals('abc123def456', $attributes['md5']);
+        $this->assertEquals('abc123def456', $attributes['raMd5']);
         $this->assertEquals('Super Mario Bros (USA).nes', $attributes['name']);
         $this->assertEquals(['nointro', 'redump'], $attributes['labels']);
         $this->assertEquals('compatible', $attributes['compatibility']);
@@ -226,6 +226,25 @@ class GameHashesTest extends TestCase
         $ids = collect($data)->pluck('id')->toArray();
         $this->assertContains((string) $compatibleHash->id, $ids);
         $this->assertContains((string) $patchRequiredHash->id, $ids);
+    }
+
+    public function testItReturnsErrorWhenFilteringByInvalidCompatibility(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        GameHash::factory()->create(['game_id' => $game->id, 'system_id' => $system->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('game-hashes')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/games/{$game->id}/hashes?filter[compatibility]=invalid-value");
+
+        // Assert
+        $response->assertStatus(400);
     }
 
     public function testItDoesNotIncludeSelfLinks(): void

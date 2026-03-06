@@ -44,7 +44,7 @@ class GameHashSchema extends Schema
         return [
             ID::make(),
 
-            Str::make('md5')->readOnly(),
+            Str::make('raMd5', 'md5')->readOnly(),
             Str::make('name')->readOnly(),
             Str::make('compatibility')->readOnly(),
             Str::make('patchUrl', 'patch_url')->readOnly(),

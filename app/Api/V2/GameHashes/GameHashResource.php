@@ -22,7 +22,7 @@ class GameHashResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
-            'md5' => $this->resource->md5,
+            'raMd5' => $this->resource->md5,
             'name' => $this->resource->name,
             'labels' => array_values(array_filter(explode(',', $this->resource->labels ?? ''))),
             'compatibility' => $this->resource->compatibility?->value,
