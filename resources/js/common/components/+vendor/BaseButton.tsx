@@ -19,6 +19,7 @@ const baseButtonVariants = cva(['btn-base'], {
     },
     size: {
       default: 'btn-base--size-default',
+      xs: 'btn-base--size-xs',
       sm: 'btn-base--size-sm',
       lg: 'btn-base--size-lg',
       icon: 'btn-base--size-icon',
