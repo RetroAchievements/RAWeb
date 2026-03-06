@@ -495,6 +495,7 @@ createdAt?: string;
 description?: string;
 decorator?: string | null;
 developer?: App.Data.User;
+embedUrl?: string | null;
 isPromoted?: boolean;
 game?: App.Platform.Data.Game;
 groupId?: number | null;

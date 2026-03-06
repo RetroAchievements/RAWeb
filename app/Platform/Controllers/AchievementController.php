@@ -84,6 +84,7 @@ class AchievementController extends Controller
                     'createdAt',
                     'description',
                     'developer',
+                    'embedUrl',
                     'game',
                     'game.badgeUrl',
                     'game.playersTotal',
