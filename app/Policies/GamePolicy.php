@@ -141,7 +141,7 @@ class GamePolicy
                 }
 
                 // Junior Developers have additional specific criteria that must be satisfied
-                // before they are allowed to edit achievement fields.
+                // before they are allowed to edit game fields.
                 if ($role === Role::DEVELOPER_JUNIOR) {
                     return $this->canDeveloperJuniorUpdateGame($user, $game);
                 }
