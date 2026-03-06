@@ -113,7 +113,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Allow the main app server to fetch logs from this worker via bearer token.
         LogViewer::auth(function ($request) {
-            $token = env('LOG_VIEWER_WORKER_TOKEN');
+            $token = config('log-viewer.hosts.worker.auth.token');
             if ($token && $request->bearerToken() === $token) {
                 return true;
             }
