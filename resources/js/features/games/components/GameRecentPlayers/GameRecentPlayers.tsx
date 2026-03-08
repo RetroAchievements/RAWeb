@@ -15,12 +15,12 @@ export const GameRecentPlayers: FC = () => {
   const [, setCookieValue] = useCookie('prefers_expanded_rich_presence');
   const [isExpanded, setIsExpanded] = useState(isRichPresenceExpanded);
 
-  // Only show a pointer cursor if at least one RP message is long enough to actually truncate.
-  const hasAnyTruncatedRichPresence = recentPlayers.some((p) => p.richPresence.length >= 40);
-
   if (!recentPlayers?.length) {
     return null;
   }
+
+  // Only show a pointer cursor if at least one RP message is long enough to actually truncate.
+  const hasAnyTruncatedRichPresence = recentPlayers.some((p) => p.richPresence.length >= 40);
 
   const handleToggleExpanded = () => {
     const next = !isExpanded;
