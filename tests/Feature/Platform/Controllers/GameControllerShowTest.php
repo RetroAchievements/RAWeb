@@ -453,7 +453,7 @@ describe('User State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         // ACT
-        $response = test()->withUnencryptedCookie('prefers_expanded_rich_presence', 'true')
+        $response = $this->withUnencryptedCookie('prefers_expanded_rich_presence', 'true')
             ->get(route('game.show', ['game' => $game]));
 
         // ASSERT
