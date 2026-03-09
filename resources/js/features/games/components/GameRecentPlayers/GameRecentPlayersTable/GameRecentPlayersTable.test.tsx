@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen, within } from '@/test';
 import { createGame, createGameRecentPlayer, createUser } from '@/test/factories';
 
@@ -6,13 +8,20 @@ import { GameRecentPlayersTable } from './GameRecentPlayersTable';
 describe('Component: GameRecentPlayersTable', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame(),
-        recentPlayers: [],
+    const { container } = render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame(),
+          recentPlayers: [],
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -26,13 +35,20 @@ describe('Component: GameRecentPlayersTable', () => {
       createGameRecentPlayer(),
     ];
 
-    render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame(),
-        recentPlayers,
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame(),
+          recentPlayers,
+        },
       },
-    });
+    );
 
     // ASSERT
     const rows = screen.getAllByRole('row');
@@ -46,18 +62,25 @@ describe('Component: GameRecentPlayersTable', () => {
       user: createUser({ displayName: 'ActiveUser' }),
     });
 
-    render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame(),
-        recentPlayers: [activePlayer],
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame(),
+          recentPlayers: [activePlayer],
+        },
       },
-    });
+    );
 
     // ASSERT
     const table = screen.getByRole('table');
     const timestampElement = within(table).getByText(/\d+[hms]?\s+ago/i);
-    expect(timestampElement).toHaveClass('text-green-500'); // !! active player timestamp in green
+    expect(timestampElement).toHaveClass('text-green-500');
   });
 
   it('given a player is not active, shows their timestamp in neutral color', () => {
@@ -67,51 +90,219 @@ describe('Component: GameRecentPlayersTable', () => {
       user: createUser({ displayName: 'InactiveUser' }),
     });
 
-    render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame(),
-        recentPlayers: [inactivePlayer],
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame(),
+          recentPlayers: [inactivePlayer],
+        },
       },
-    });
+    );
 
     // ASSERT
     const table = screen.getByRole('table');
     const timestampElement = within(table).getByText(/\d+[hms]?\s+ago/i);
-    expect(timestampElement).toHaveClass('text-neutral-500'); // !! inactive player timestamp in neutral color
+    expect(timestampElement).toHaveClass('text-neutral-500');
   });
 
-  it("given a player has a rich presence message, displays the player's rich presence with tooltip", () => {
+  it("given a player has a rich presence message, displays the player's rich presence", () => {
     // ARRANGE
     const richPresenceMessage = 'Playing Stage 3 - Boss Fight';
     const player = createGameRecentPlayer({
       richPresence: richPresenceMessage,
     });
 
-    render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame({ title: 'Super Mario World' }),
-        recentPlayers: [player],
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText(richPresenceMessage)).toBeVisible();
+  });
 
-    const richPresenceElement = screen.getByTitle(richPresenceMessage);
-    expect(richPresenceElement).toBeVisible();
+  it('given isExpanded is false, the activity cell has line-clamp-1', () => {
+    // ARRANGE
+    const player = createGameRecentPlayer({
+      richPresence: 'Playing Stage 3 - Boss Fight',
+      user: createUser({ displayName: 'TestUser' }),
+    });
+
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
+      },
+    );
+
+    // ASSERT
+    const richPresenceElement = screen.getByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    expect(richPresenceElement).toHaveClass('line-clamp-1');
+  });
+
+  it('given isExpanded is true, the activity cell does not have line-clamp-1', () => {
+    // ARRANGE
+    const player = createGameRecentPlayer({
+      richPresence: 'Playing Stage 3 - Boss Fight',
+      user: createUser({ displayName: 'TestUser' }),
+    });
+
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={true}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
+      },
+    );
+
+    // ASSERT
+    const richPresenceElement = screen.getByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    expect(richPresenceElement).not.toHaveClass('line-clamp-1');
+  });
+
+  it('given an RP message is clicked, calls onToggleExpanded', async () => {
+    // ARRANGE
+    const onToggleExpanded = vi.fn();
+    const player = createGameRecentPlayer({
+      richPresence: 'Playing Stage 3 - Boss Fight',
+      user: createUser({ displayName: 'TestUser' }),
+    });
+
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={onToggleExpanded}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
+      },
+    );
+
+    // ACT
+    const richPresenceElement = screen.getByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    await userEvent.click(richPresenceElement);
+
+    // ASSERT
+    expect(onToggleExpanded).toHaveBeenCalledOnce();
+  });
+
+  it('given isExpanded is false, adds a title attribute for a tooltip', () => {
+    // ARRANGE
+    const richPresenceMessage = 'Playing Stage 3 - Boss Fight';
+    const player = createGameRecentPlayer({
+      richPresence: richPresenceMessage,
+      user: createUser({ displayName: 'TestUser' }),
+    });
+
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
+      },
+    );
+
+    // ASSERT
+    const richPresenceElement = screen.getByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    expect(richPresenceElement).toHaveAttribute('title', richPresenceMessage);
+  });
+
+  it('given isExpanded is true, does not add a title attribute', () => {
+    // ARRANGE
+    const player = createGameRecentPlayer({
+      richPresence: 'Playing Stage 3 - Boss Fight',
+      user: createUser({ displayName: 'TestUser' }),
+    });
+
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={true}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame({ title: 'Super Mario World' }),
+          recentPlayers: [player],
+        },
+      },
+    );
+
+    // ASSERT
+    const richPresenceElement = screen.getByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    expect(richPresenceElement).not.toHaveAttribute('title');
   });
 
   it('renders table headers for accessibility', () => {
     // ARRANGE
-    render(<GameRecentPlayersTable />, {
-      pageProps: {
-        backingGame: createGame(),
-        game: createGame(),
-        recentPlayers: [createGameRecentPlayer()],
+    render(
+      <GameRecentPlayersTable
+        canToggleExpanded={true}
+        isExpanded={false}
+        onToggleExpanded={vi.fn()}
+      />,
+      {
+        pageProps: {
+          backingGame: createGame(),
+          game: createGame(),
+          recentPlayers: [createGameRecentPlayer()],
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('Player')).toBeInTheDocument();
