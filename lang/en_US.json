@@ -1394,5 +1394,6 @@
     "Achievement trigger logic (the code and conditions that define how achievements are evaluated) is proprietary to the RetroAchievements community and may not be reused, redistributed, or reproduced without explicit permission. The GPL-3 license covering the RetroAchievements web application source code does not extend to achievement data.": "Achievement trigger logic (the code and conditions that define how achievements are evaluated) is proprietary to the RetroAchievements community and may not be reused, redistributed, or reproduced without explicit permission. The GPL-3 license covering the RetroAchievements web application source code does not extend to achievement data.",
     "Media": "Media",
     "You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>": "You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>",
-    "Not promoted": "Not promoted"
+    "Not promoted": "Not promoted",
+    "Toggle rich presence details": "Toggle rich presence details"
 }

@@ -17,7 +17,17 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-export const GameRecentPlayersTable: FC = () => {
+interface GameRecentPlayersTableProps {
+  canToggleExpanded: boolean;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+}
+
+export const GameRecentPlayersTable: FC<GameRecentPlayersTableProps> = ({
+  canToggleExpanded,
+  isExpanded,
+  onToggleExpanded,
+}) => {
   const { backingGame, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -78,18 +88,24 @@ export const GameRecentPlayersTable: FC = () => {
             </BaseTableCell>
 
             <BaseTableCell>
-              <span
+              <button
+                type="button"
                 className={cn(
-                  'line-clamp-1',
-                  recentPlayer.richPresence.length >= 70 ? 'text-2xs' : null,
+                  'text-left',
+                  canToggleExpanded && 'cursor-pointer',
+                  !isExpanded && 'line-clamp-1',
+                  !isExpanded && recentPlayer.richPresence.length >= 70 && 'text-2xs',
                 )}
-                title={recentPlayer.richPresence}
+                title={!isExpanded ? recentPlayer.richPresence : undefined}
+                onClick={onToggleExpanded}
+                aria-expanded={isExpanded}
+                aria-label={t('Toggle rich presence details')}
               >
                 <RichPresenceMessage
                   gameTitle={backingGame.title}
                   message={recentPlayer.richPresence}
                 />
-              </span>
+              </button>
             </BaseTableCell>
           </BaseTableRow>
         ))}
