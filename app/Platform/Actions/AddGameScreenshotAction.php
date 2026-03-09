@@ -57,7 +57,8 @@ class AddGameScreenshotAction
         }
 
         // Add the file to the screenshots MediaLibrary collection.
-        $customProperties = ['sha1' => $hash];
+        [$width, $height] = getimagesize($file->getRealPath());
+        $customProperties = ['sha1' => $hash, 'width' => $width, 'height' => $height];
         if ($legacyPath !== null) {
             $customProperties['legacy_path'] = $legacyPath;
         }
