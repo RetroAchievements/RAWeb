@@ -104,7 +104,16 @@ class AchievementController extends Controller
                     'numUnresolvedTickets',
                 ),
             can: UserPermissionsData::fromUser($user, triggerable: $achievement)
-                ->include('createAchievementComments'),
+                ->include(
+                    'createAchievementComments',
+                    'develop',
+                    'updateAchievementDescription',
+                    'updateAchievementIsPromoted',
+                    'updateAchievementPoints',
+                    'updateAchievementTitle',
+                    'updateAchievementType',
+                    'viewAchievementLogic',
+                ),
             isSubscribedToComments: $subscriptionService->isSubscribed($user, SubscriptionSubjectType::Achievement, $achievement->id), // TODO $user conditional
             numComments: $achievement->visibleComments($user)->notAutomated()->count(),
             recentVisibleComments: Collection::make(array_reverse(
