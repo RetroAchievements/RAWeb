@@ -81,7 +81,7 @@ export const AchievementInlineActions: FC = () => {
 
         {isEditMode && can?.develop ? (
           <div className="flex items-center gap-3">
-            <BaseButton onClick={handleCancel} size="xs" className="gap-1 lg:hidden">
+            <BaseButton onClick={handleCancel} size="xs" className="gap-1">
               <LuX className="size-3" />
               {t('Cancel')}
             </BaseButton>
