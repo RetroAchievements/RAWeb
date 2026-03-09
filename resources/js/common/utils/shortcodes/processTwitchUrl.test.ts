@@ -84,6 +84,21 @@ describe('Util: processTwitchUrl', () => {
     });
   });
 
+  it('given a legacy /c/ collection URL, returns the collection details', () => {
+    // ARRANGE
+    const url = 'http://www.twitch.tv/retroachievementsorg/c/3400323';
+
+    // ACT
+    const result = processTwitchUrl(url);
+
+    // ASSERT
+    expect(result).toEqual({
+      type: 'twitch-collection',
+      videoId: '3400323',
+      params: {},
+    });
+  });
+
   it('given a collection URL without protocol, still processes it correctly', () => {
     // ARRANGE
     const url = 'twitch.tv/collections/aabbccdd';

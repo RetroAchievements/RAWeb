@@ -13,8 +13,7 @@ export const AchievementShowSidebarRoot: FC = () => {
 
       <AchievementMetaDetails />
 
-      {/* TODO guide references */}
-      <p>{'AchievementGuideReferences'}</p>
+      {/* TODO AchievementGuideReferences */}
 
       <ProximityAchievements />
     </div>

@@ -1,18 +1,22 @@
 import type { FC } from 'react';
 
-import { processVideoUrl } from '../../../utils/shortcodes/processVideoUrl';
+import { processVideoUrl } from '../../utils/shortcodes/processVideoUrl';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-interface ShortcodeVideoProps {
+interface VideoEmbedProps {
   src: string;
 }
 
-export const ShortcodeVideo: FC<ShortcodeVideoProps> = ({ src }) => {
+export const VideoEmbed: FC<VideoEmbedProps> = ({ src }) => {
   const processedVideo = processVideoUrl(src);
 
   if (!processedVideo) {
-    return null;
+    return (
+      <a href={src} target="_blank" rel="noreferrer">
+        {src}
+      </a>
+    );
   }
 
   let embedUrl = '';
@@ -56,7 +60,7 @@ export const ShortcodeVideo: FC<ShortcodeVideoProps> = ({ src }) => {
 
   return (
     <div data-testid="video-embed" className="embed-responsive aspect-[16/9]">
-      {/* eslint-disable-next-line jsx-a11y/iframe-has-title -- the shortcode doesn't support alt attributes */}
+      {/* eslint-disable-next-line jsx-a11y/iframe-has-title -- the video URL doesn't carry a title */}
       <iframe
         data-testid="video-embed-iframe"
         className="embed-responsive-item"
