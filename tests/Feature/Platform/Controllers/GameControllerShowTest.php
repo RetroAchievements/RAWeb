@@ -447,6 +447,35 @@ describe('User State Props', function () {
         );
     });
 
+    it('given the prefers_expanded_rich_presence cookie is true, sets isRichPresenceExpanded to true', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookie('prefers_expanded_rich_presence', 'true')
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isRichPresenceExpanded', true)
+        );
+    });
+
+    it('given no prefers_expanded_rich_presence cookie, sets isRichPresenceExpanded to false', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isRichPresenceExpanded', false)
+        );
+    });
+
     it('given the user is an unauthenticated guest, the list state props are always false', function () {
         // ARRANGE
         $system = System::factory()->create();

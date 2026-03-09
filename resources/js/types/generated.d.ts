@@ -839,6 +839,7 @@ isLockedOnlyFilterEnabled: boolean;
 isMissableOnlyFilterEnabled: boolean;
 isOnWantToDevList: boolean;
 isOnWantToPlayList: boolean;
+isRichPresenceExpanded: boolean;
 isSubscribedToAchievementComments: boolean;
 isSubscribedToComments: boolean;
 isSubscribedToTickets: boolean;
