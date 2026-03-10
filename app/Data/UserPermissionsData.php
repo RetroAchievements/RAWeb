@@ -46,12 +46,18 @@ class UserPermissionsData extends Data
         public Lazy|bool $manipulateApiKeys,
         public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
+        public Lazy|bool $updateAchievementDescription,
+        public Lazy|bool $updateAchievementIsPromoted,
+        public Lazy|bool $updateAchievementPoints,
+        public Lazy|bool $updateAchievementTitle,
+        public Lazy|bool $updateAchievementType,
         public Lazy|bool $updateAnyAchievementSetClaim,
         public Lazy|bool $updateAvatar,
         public Lazy|bool $updateGame,
         public Lazy|bool $updateGameSet,
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
+        public Lazy|bool $viewAchievementLogic,
         public Lazy|bool $viewAnyAchievementSetClaim,
         public Lazy|bool $viewDeveloperInterest,
     ) {
@@ -113,12 +119,36 @@ class UserPermissionsData extends Data
                 ? $user->can('review', $claim)
                 : false
             ),
+            updateAchievementDescription: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'description'])
+                : false
+            ),
+            updateAchievementIsPromoted: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'is_promoted'])
+                : false
+            ),
+            updateAchievementPoints: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'points'])
+                : false
+            ),
+            updateAchievementTitle: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'title'])
+                : false
+            ),
+            updateAchievementType: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'type'])
+                : false
+            ),
             updateAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('updateAny', AchievementSetClaim::class) : false),
             updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
             updateForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('update', $forumTopic) : false),
             updateGame: Lazy::create(fn () => $user && $game ? $user->can('update', $game) : false),
             updateGameSet: Lazy::create(fn () => $user && $gameSet ? $user->can('update', $gameSet) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
+            viewAchievementLogic: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('viewLogic', $triggerable)
+                : false
+            ),
             viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
             viewDeveloperInterest: Lazy::create(fn () => $user && $game
                 ? $user->can('viewDeveloperInterest', $game)
