@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseTabsContent } from '@/common/components/+vendor/BaseTabs';
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { VideoEmbed } from '@/common/components/VideoEmbed';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -15,14 +16,16 @@ import { AchievementInlineActions } from '../AchievementInlineActions';
 import { AchievementRecentUnlocks } from '../AchievementRecentUnlocks';
 import { AchievementTabs } from '../AchievementTabsList';
 import { ResetProgressDialog } from '../ResetProgressDialog';
+import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
 
 export const AchievementShowRoot: FC = () => {
-  const { achievement, backingGame, gameAchievementSet } =
+  const { achievement, backingGame, can, gameAchievementSet } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
   const tabConfigs: TabConfig[] = [
     { value: 'comments', label: t('Comments') },
+    ...(achievement.embedUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
     { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
     { value: 'changelog', label: t('Changelog') },
   ];
@@ -32,6 +35,7 @@ export const AchievementShowRoot: FC = () => {
 
   return (
     <div>
+      {can?.updateAchievementIsPromoted ? <UpdatePromotedStatusDialog /> : null}
       {achievement.unlockedAt || achievement.unlockedHardcoreAt ? <ResetProgressDialog /> : null}
 
       <AchievementBreadcrumbs
@@ -55,6 +59,18 @@ export const AchievementShowRoot: FC = () => {
             <BaseTabsContent value="comments" className="md:-mt-1">
               <AchievementCommentList />
             </BaseTabsContent>
+
+            {achievement.embedUrl ? (
+              <BaseTabsContent value="tips">
+                {/\.(png|jpg|jpeg|gif|webp)$/i.test(achievement.embedUrl) ? (
+                  <a href={achievement.embedUrl} target="_blank" rel="noreferrer">
+                    <img src={achievement.embedUrl} alt={t('Media')} className="max-w-full" />
+                  </a>
+                ) : (
+                  <VideoEmbed src={achievement.embedUrl} />
+                )}
+              </BaseTabsContent>
+            ) : null}
 
             <BaseTabsContent value="unlocks">
               <AchievementRecentUnlocks />
