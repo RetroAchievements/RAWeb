@@ -31,7 +31,7 @@ class AddGameScreenshotAction
         $this->validateFile($file);
         $this->validateResolution($file, $game);
         $hash = $this->validateHash($file, $game);
-        $this->validateCap($game, $type);
+        $this->validateCap($game, $type, $isPrimary);
 
         // Auto-promote to primary if explicitly requested or if no approved screenshots of this type exist yet.
         $shouldBePrimary = $isPrimary || !$game->gameScreenshots()
@@ -151,8 +151,15 @@ class AddGameScreenshotAction
     /**
      * @throws ValidationException
      */
-    private function validateCap(Game $game, ScreenshotType $type): void
+    private function validateCap(Game $game, ScreenshotType $type, bool $isPrimary = false): void
     {
+        // When isPrimary is true, the caller intends to replace the existing
+        // primary. The demotion logic runs after validation, so we skip the
+        // cap check to allow the replacement flow to proceed.
+        if ($isPrimary) {
+            return;
+        }
+
         $cap = match ($type) {
             ScreenshotType::Ingame => 20,
             ScreenshotType::Title, ScreenshotType::Completion => 1,

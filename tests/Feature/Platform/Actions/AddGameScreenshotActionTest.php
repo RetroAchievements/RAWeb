@@ -125,6 +125,22 @@ it('enforces a cap of 1 approved screenshot for title and completion types', fun
     'completion' => [ScreenshotType::Completion],
 ]);
 
+it('demotes the existing title primary image when a new title screenshot is forced as primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('title1.png', 256, 224), ScreenshotType::Title);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('title2.png', 320, 240), ScreenshotType::Title, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+});
+
 it('rejects a file smaller than 64x64', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);

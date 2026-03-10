@@ -75,6 +75,8 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     use Searchable;
     use SoftDeletes;
 
+    public const PLACEHOLDER_IMAGE_PATH = '/Images/000002.png';
+
     // TODO migrate forum_topic_id to forumable morph
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     protected $table = 'games';
@@ -500,16 +502,16 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
         $primaryIngame = $primaries->get('ingame');
         if ($primaryIngame) {
-            $updates['image_ingame_asset_path'] = $primaryIngame->media?->getCustomProperty('legacy_path') ?? '/Images/000002.png';
+            $updates['image_ingame_asset_path'] = $primaryIngame->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
         } elseif ($resetType === ScreenshotType::Ingame) {
-            $updates['image_ingame_asset_path'] = '/Images/000002.png';
+            $updates['image_ingame_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
         }
 
         $primaryTitle = $primaries->get('title');
         if ($primaryTitle) {
-            $updates['image_title_asset_path'] = $primaryTitle->media?->getCustomProperty('legacy_path') ?? '/Images/000002.png';
+            $updates['image_title_asset_path'] = $primaryTitle->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
         } elseif ($resetType === ScreenshotType::Title) {
-            $updates['image_title_asset_path'] = '/Images/000002.png';
+            $updates['image_title_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
         }
 
         if (!empty($updates)) {

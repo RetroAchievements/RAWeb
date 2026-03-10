@@ -136,12 +136,12 @@ class Media extends EditRecord
                 Schemas\Components\Section::make('Title Screenshot')
                     ->icon('heroicon-s-tv')
                     ->schema([
-                        Forms\Components\FileUpload::make('image_title_asset_path')
+                        Forms\Components\FileUpload::make('title_screenshot_upload')
                             ->label('Title')
                             ->disk('livewire-tmp')
                             ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                            ->maxSize(4096)
                             ->maxFiles(1)
                             ->previewable(true)
                             ->rules($this->getScreenshotValidationRules())
@@ -158,7 +158,7 @@ class Media extends EditRecord
                         // creation, and GameScreenshot record creation would only happen in a fragile
                         // afterSave() reconciliation. By using a standard FileUpload, the action is the
                         // single entry point for all validation and side effects.
-                        Forms\Components\FileUpload::make('screenshot_uploads')
+                        Forms\Components\FileUpload::make('ingame_screenshot_upload')
                             ->label('Upload New Screenshot')
                             ->disk('livewire-tmp')
                             ->image()
@@ -179,14 +179,13 @@ class Media extends EditRecord
 
         $action = new ApplyUploadedImageToDataAction();
         $action->execute($data, 'image_icon_asset_path', ImageUploadType::GameBadge);
-        $action->execute($data, 'image_title_asset_path', ImageUploadType::GameTitle);
         $action->execute($data, 'image_box_art_asset_path', ImageUploadType::GameBoxArt);
 
         // Banner is handled by MediaLibrary, not a database column.
         unset($data['banner']);
 
         // Screenshots are processed in afterSave() via AddGameScreenshotAction.
-        unset($data['screenshot_uploads']);
+        unset($data['ingame_screenshot_upload'], $data['title_screenshot_upload']);
 
         return $data;
     }
@@ -197,38 +196,8 @@ class Media extends EditRecord
         $game = $this->record;
 
         // Process new screenshot uploads through AddGameScreenshotAction.
-        $uploads = $this->data['screenshot_uploads'] ?? [];
-        if (!empty($uploads)) {
-            $addAction = new AddGameScreenshotAction();
-            $failureMessages = [];
-
-            foreach ($uploads as $upload) {
-                $filePath = storage_path('app/livewire-tmp/' . $upload);
-                if (!file_exists($filePath)) {
-                    continue;
-                }
-
-                $uploadedFile = new UploadedFile($filePath, basename($filePath), test: true);
-
-                try {
-                    // Always mark as primary so each new upload replaces the current
-                    // ingame screenshot, matching pre-migration behavior where every
-                    // upload became "the" screenshot. The action handles demoting the
-                    // old primary automatically.
-                    $addAction->execute($game, $uploadedFile, ScreenshotType::Ingame, isPrimary: true);
-                } catch (ValidationException $e) {
-                    $failureMessages[] = collect($e->errors())->flatten()->first();
-                }
-            }
-
-            if (!empty($failureMessages)) {
-                Notification::make()
-                    ->warning()
-                    ->title('Some screenshots were not uploaded')
-                    ->body(implode("\n", array_unique($failureMessages)))
-                    ->send();
-            }
-        }
+        $this->processScreenshotUploads($game, 'ingame_screenshot_upload', ScreenshotType::Ingame);
+        $this->processScreenshotUploads($game, 'title_screenshot_upload', ScreenshotType::Title);
 
         // Extract and store edge colors for newly uploaded banners.
         $banner = $game->current_banner_media;
@@ -251,6 +220,44 @@ class Media extends EditRecord
             } catch (Exception $e) {
                 // Silently fail if color extraction fails - this isn't critical.
             }
+        }
+    }
+
+    private function processScreenshotUploads(Game $game, string $dataKey, ScreenshotType $type): void
+    {
+        $uploads = $this->data[$dataKey] ?? [];
+        if (empty($uploads)) {
+            return;
+        }
+
+        $addAction = new AddGameScreenshotAction();
+        $failureMessages = [];
+
+        foreach ($uploads as $upload) {
+            $filePath = storage_path('app/livewire-tmp/' . $upload);
+            if (!file_exists($filePath)) {
+                continue;
+            }
+
+            $uploadedFile = new UploadedFile($filePath, basename($filePath), test: true);
+
+            try {
+                // Always mark as primary so each new upload replaces the current
+                // screenshot, matching pre-migration behavior where every upload
+                // became "the" screenshot. The action handles demoting the old
+                // primary automatically.
+                $addAction->execute($game, $uploadedFile, $type, isPrimary: true);
+            } catch (ValidationException $e) {
+                $failureMessages[] = collect($e->errors())->flatten()->first();
+            }
+        }
+
+        if (!empty($failureMessages)) {
+            Notification::make()
+                ->warning()
+                ->title('Some screenshots were not uploaded')
+                ->body(implode("\n", array_unique($failureMessages)))
+                ->send();
         }
     }
 
