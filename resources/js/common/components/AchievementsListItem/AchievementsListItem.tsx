@@ -7,11 +7,11 @@ import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
+import { AchievementTypeIndicator } from '../AchievementTypeIndicator';
 import { UserAvatar } from '../UserAvatar';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
 import { AchievementPoints } from './AchievementPoints';
-import { AchievementTypeIndicator } from './AchievementTypeIndicator';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
