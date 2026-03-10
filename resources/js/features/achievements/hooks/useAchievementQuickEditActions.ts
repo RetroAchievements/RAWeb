@@ -13,7 +13,6 @@ export function useAchievementQuickEditActions() {
 
   const handleSave = () => {
     quickEditSaveHandler?.();
-    setIsEditMode(false);
   };
 
   const handleCancel = () => {
