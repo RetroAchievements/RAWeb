@@ -160,6 +160,7 @@ class AddGameScreenshotAction
             return;
         }
 
+
         $cap = match ($type) {
             ScreenshotType::Ingame => 20,
             ScreenshotType::Title, ScreenshotType::Completion => 1,

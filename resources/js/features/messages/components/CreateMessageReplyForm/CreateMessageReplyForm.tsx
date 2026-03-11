@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
@@ -31,7 +32,7 @@ export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPrev
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useCreateMessageReplyForm();
-  const [body] = form.watch(['body']);
+  const body = useWatch({ name: 'body', control: form.control });
 
   const formRef = useRef<HTMLFormElement>(null);
   useSubmitOnMetaEnter({
