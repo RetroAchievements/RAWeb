@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 
@@ -45,7 +46,7 @@ export const ResetGameProgressSectionCard: FC = () => {
     },
   });
 
-  const [selectedGameId] = form.watch(['gameId']);
+  const selectedGameId = useWatch({ name: 'gameId', control: form.control });
 
   return (
     <SectionFormCard
