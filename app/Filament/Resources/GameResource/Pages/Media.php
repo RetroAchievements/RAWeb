@@ -261,7 +261,6 @@ class Media extends EditRecord
         }
     }
 
-
     private function getScreenshotValidationRules(): Closure
     {
         return fn () => array_filter([

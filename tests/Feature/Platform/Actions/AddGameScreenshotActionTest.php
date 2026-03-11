@@ -141,7 +141,6 @@ it('demotes the existing title primary image when a new title screenshot is forc
     expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
 });
 
-
 it('rejects a file smaller than 64x64', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
