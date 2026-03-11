@@ -21,7 +21,7 @@ export const AchievementTabs: FC<AchievementTabsProps> = ({ tabConfigs, children
     hoverIndicatorRef,
     activeIndicatorStyles,
     isAnimationReady,
-  } = useAchievementShowTabs();
+  } = useAchievementShowTabs(tabConfigs);
 
   return (
     <BaseTabs value={currentTab} onValueChange={handleValueChange}>

@@ -40,6 +40,7 @@ use Inertia\ResponseFactory;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -109,6 +110,16 @@ class AppServiceProvider extends ServiceProvider
             'name' => $user->username,
             'avatar' => $user->avatarUrl,
         ]);
+
+        // Allow the main app server to fetch logs from this worker via bearer token.
+        LogViewer::auth(function ($request) {
+            $token = config('log-viewer.hosts.worker.auth.token');
+            if ($token && $request->bearerToken() === $token) {
+                return true;
+            }
+
+            return $request->user()?->can('viewLogViewer') ?? false;
+        });
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);

@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
@@ -33,7 +34,7 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
     { body: forumTopicComment.body, postAsUserId: 'self' },
   );
 
-  const [watchedBody] = form.watch(['body']);
+  const watchedBody = useWatch({ name: 'body', control: form.control });
 
   const formRef = useRef<HTMLFormElement>(null);
   useSubmitOnMetaEnter({
