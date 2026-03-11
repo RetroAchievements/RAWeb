@@ -78,6 +78,8 @@ class System extends BaseModel implements HasMedia
         'name',
         'name_full',
         'name_short',
+        'screenshot_resolutions',
+        'has_analog_tv_output',
         'manufacturer',
         'order_column',
         'active',
@@ -94,6 +96,8 @@ class System extends BaseModel implements HasMedia
 
     protected $casts = [
         'active' => 'boolean',
+        'screenshot_resolutions' => 'array',
+        'has_analog_tv_output' => 'boolean',
     ];
 
     // == constants
