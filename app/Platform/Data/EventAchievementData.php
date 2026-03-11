@@ -47,6 +47,7 @@ class EventAchievementData extends Data
                     decorator: Lazy::create(fn () => $eventAchievement->decorator),
                     description: Lazy::create(fn () => '?????'),
                     developer: Lazy::create(fn () => null),
+                    embedUrl: Lazy::create(fn () => null),
                     game: Lazy::create(fn () => GameData::fromGame($eventAchievement->achievement->game)),
                     groupId: Lazy::create(fn () => null),
                     id: $eventAchievement->achievement->id,

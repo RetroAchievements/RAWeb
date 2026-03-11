@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-import { BaseDialog, BaseDialogTrigger } from '../../+vendor/BaseDialog';
-import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../../+vendor/BaseTooltip';
-import { RaMissable } from '../../RaMissable';
-import { RaProgression } from '../../RaProgression';
-import { RaWinCondition } from '../../RaWinCondition';
+import { BaseDialog, BaseDialogTrigger } from '../+vendor/BaseDialog';
+import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
+import { RaMissable } from '../RaMissable';
+import { RaProgression } from '../RaProgression';
+import { RaWinCondition } from '../RaWinCondition';
 
 interface AchievementTypeIndicatorProps {
   type: NonNullable<App.Platform.Data.Achievement['type']>;
