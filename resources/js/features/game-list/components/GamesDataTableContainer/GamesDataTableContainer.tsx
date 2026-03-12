@@ -83,8 +83,7 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
     isEnabled: ziggy.device === 'desktop',
   });
 
-  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
-  const tableInstance = useReactTable({
+  const table = useReactTable({
     columns: columnDefinitions,
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
@@ -94,7 +93,7 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
     pageCount: gameListQuery.data?.lastPage,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: (updateOrValue) => {
-      tableInstance.setPageIndex(0);
+      table.setPageIndex(0);
 
       setColumnFilters(updateOrValue);
     },
@@ -102,18 +101,13 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
       setPagination(newPaginationValue);
     },
     onSortingChange: (newSortingValue) => {
-      tableInstance.setPageIndex(0);
+      table.setPageIndex(0);
 
       setSorting(newSortingValue);
     },
     getCoreRowModel: getCoreRowModel(),
     state: { columnFilters, columnVisibility, pagination, sorting },
   });
-
-  // Spread to break the stable reference. useReactTable returns the same
-  // object identity across renders, which causes React Compiler to skip
-  // re-evaluating table.get*() calls in child components.
-  const table = { ...tableInstance } as typeof tableInstance;
 
   return (
     <div className="flex flex-col gap-3">
