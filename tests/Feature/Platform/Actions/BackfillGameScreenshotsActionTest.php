@@ -83,7 +83,7 @@ it('skips when the file does not exist on the media disk', function () {
     expect(GameScreenshot::where('game_id', $game->id)->count())->toEqual(0);
 });
 
-it('is idempotent and does not duplicate when the SHA1 already exists', function () {
+it('is idempotent and does not duplicate when the type already has a screenshot', function () {
     // ARRANGE
     Storage::disk('media')->put('/Images/012345.png', createRealPngBytes());
 
@@ -101,6 +101,30 @@ it('is idempotent and does not duplicate when the SHA1 already exists', function
 
     // ASSERT
     expect(GameScreenshot::where('game_id', $game->id)->count())->toEqual(1);
+});
+
+it('promotes an existing screenshot to primary if the type has no primary', function () {
+    // ARRANGE
+    Storage::disk('media')->put('/Images/012345.png', createRealPngBytes());
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_ingame_asset_path' => '/Images/012345.png',
+        'image_title_asset_path' => '/Images/000002.png',
+    ]);
+
+    $existing = GameScreenshot::factory()->create([
+        'game_id' => $game->id,
+        'type' => ScreenshotType::Ingame,
+        'is_primary' => false,
+    ]);
+
+    // ACT
+    (new BackfillGameScreenshotsAction())->execute($game);
+
+    // ASSERT
+    expect(GameScreenshot::where('game_id', $game->id)->count())->toEqual(1);
+    expect($existing->fresh()->is_primary)->toBeTrue();
 });
 
 it('sets the legacy_path custom property to the original asset path', function () {

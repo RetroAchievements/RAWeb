@@ -25,6 +25,18 @@ class BackfillGameScreenshotsAction
             return;
         }
 
+        // If this type already has any screenshot, ensure one is primary and move on.
+        // This handles both re-runs of the backfill and games that already received
+        // uploads via Filament before the backfill ran.
+        $latestOfType = $game->gameScreenshots()->ofType($type)->latest()->first();
+        if ($latestOfType) {
+            if (!$latestOfType->is_primary && !$game->gameScreenshots()->ofType($type)->primary()->exists()) {
+                $latestOfType->update(['is_primary' => true]);
+            }
+
+            return;
+        }
+
         $fileContents = Storage::disk('media')->get($assetPath);
         if ($fileContents === null) {
             Log::warning("BackfillGameScreenshots: file not found on media disk for game {$game->id}: {$assetPath}");
@@ -33,17 +45,6 @@ class BackfillGameScreenshotsAction
         }
 
         $hash = sha1($fileContents);
-
-        // Check idempotency, and bail if this type already has this exact image.
-        // Scoped by type so identical content used for both title and ingame still creates both records.
-        $alreadyExists = $game->gameScreenshots()
-            ->ofType($type)
-            ->whereHas('media', fn ($q) => $q->where('custom_properties->sha1', $hash))
-            ->exists();
-
-        if ($alreadyExists) {
-            return;
-        }
 
         $tempPath = tempnam(sys_get_temp_dir(), 'backfill-') . '.png';
 
