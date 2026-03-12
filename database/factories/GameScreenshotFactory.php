@@ -37,6 +37,8 @@ class GameScreenshotFactory extends Factory
                 'generated_conversions' => [],
                 'responsive_images' => [],
             ])->id,
+            'width' => 256,
+            'height' => 224,
             'type' => ScreenshotType::Ingame,
             'is_primary' => false,
             'status' => GameScreenshotStatus::Approved,
