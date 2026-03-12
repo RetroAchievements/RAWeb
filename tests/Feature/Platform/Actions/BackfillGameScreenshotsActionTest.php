@@ -117,11 +117,13 @@ it('sets the legacy_path custom property to the original asset path', function (
     (new BackfillGameScreenshotsAction())->execute($game);
 
     // ASSERT
+    $screenshot = GameScreenshot::where('game_id', $game->id)->first();
+    expect($screenshot->width)->toEqual(64);
+    expect($screenshot->height)->toEqual(64);
+
     $media = $game->fresh()->getMedia('screenshots')->first();
     expect($media->getCustomProperty('legacy_path'))->toEqual('/Images/012345.png');
     expect($media->getCustomProperty('sha1'))->not->toBeNull();
-    expect($media->getCustomProperty('width'))->toEqual(64);
-    expect($media->getCustomProperty('height'))->toEqual(64);
 });
 
 it('creates both records when the title and ingame images use identical content', function () {

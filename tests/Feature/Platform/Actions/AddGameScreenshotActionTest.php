@@ -35,11 +35,11 @@ it('creates a primary game screenshot with media on first upload', function () {
     expect($screenshot->status)->toEqual(GameScreenshotStatus::Approved);
     expect($screenshot->is_primary)->toBeTrue();
     expect($screenshot->media_id)->not->toBeNull();
+    expect($screenshot->width)->toEqual(256);
+    expect($screenshot->height)->toEqual(224);
 
     $media = $game->fresh()->getMedia('screenshots')->first();
     expect($media->getCustomProperty('sha1'))->not->toBeNull();
-    expect($media->getCustomProperty('width'))->toEqual(256);
-    expect($media->getCustomProperty('height'))->toEqual(224);
 });
 
 it('does not set subsequent screenshots as primary', function () {

@@ -29,7 +29,9 @@ class AddGameScreenshotAction
         bool $isPrimary = false,
     ): GameScreenshot {
         $this->validateFile($file);
-        $this->validateResolution($file, $game);
+
+        [$width, $height] = getimagesize($file->getRealPath());
+        $this->validateResolution($width, $height, $game);
         $hash = $this->validateHash($file, $game);
         $this->validateCap($game, $type, $isPrimary);
 
@@ -57,8 +59,7 @@ class AddGameScreenshotAction
         }
 
         // Add the file to the screenshots MediaLibrary collection.
-        [$width, $height] = getimagesize($file->getRealPath());
-        $customProperties = ['sha1' => $hash, 'width' => $width, 'height' => $height];
+        $customProperties = ['sha1' => $hash];
         if ($legacyPath !== null) {
             $customProperties['legacy_path'] = $legacyPath;
         }
@@ -72,6 +73,8 @@ class AddGameScreenshotAction
         return GameScreenshot::create([
             'game_id' => $game->id,
             'media_id' => $media->id,
+            'width' => $width,
+            'height' => $height,
             'type' => $type,
             'is_primary' => $shouldBePrimary,
             'status' => GameScreenshotStatus::Approved,
@@ -133,19 +136,30 @@ class AddGameScreenshotAction
     /**
      * @throws ValidationException
      */
-    private function validateResolution(UploadedFile $file, Game $game): void
+    private function validateResolution(int $width, int $height, Game $game): void
     {
         $system = $game->system;
         if (!$system) {
             return;
         }
 
-        $validator = Validator::make(
-            ['screenshot' => $file],
-            ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
-        );
+        if (ValidScreenshotResolutionRule::isValidResolution($width, $height, $system)) {
+            return;
+        }
 
-        $validator->validate();
+        $resolutions = $system->screenshot_resolutions;
+        $formatted = collect($resolutions)
+            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
+            ->join(', ');
+
+        $smpteNote = '';
+        if ($system->has_analog_tv_output) {
+            $smpteNote = ' SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
+        }
+
+        throw ValidationException::withMessages([
+            'screenshot' => "This screenshot's dimensions ({$width}x{$height}) don't match the expected resolutions for {$system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}",
+        ]);
     }
 
     /**

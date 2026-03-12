@@ -58,8 +58,6 @@ class BackfillGameScreenshotsAction
                 ->addMedia($tempPath)
                 ->withCustomProperties([
                     'sha1' => $hash,
-                    'width' => $width,
-                    'height' => $height,
                     'legacy_path' => $assetPath,
                 ])
                 ->toMediaCollection('screenshots');
@@ -67,6 +65,8 @@ class BackfillGameScreenshotsAction
             GameScreenshot::create([
                 'game_id' => $game->id,
                 'media_id' => $media->id,
+                'width' => $width,
+                'height' => $height,
                 'type' => $type,
                 'is_primary' => true,
                 'status' => GameScreenshotStatus::Approved,

@@ -60,7 +60,7 @@ class ValidScreenshotResolutionRule implements ValidationRule
 
         [$width, $height] = $imageInfo;
 
-        if ($this->isValidResolution($width, $height, $resolutions)) {
+        if (self::isValidResolution($width, $height, $this->system)) {
             return;
         }
 
@@ -80,11 +80,13 @@ class ValidScreenshotResolutionRule implements ValidationRule
         $fail("This screenshot's dimensions ({$width}x{$height}) don't match the expected resolutions for {$this->system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}");
     }
 
-    /**
-     * @param array<int, array{width: int, height: int}> $resolutions
-     */
-    private function isValidResolution(int $width, int $height, array $resolutions): bool
+    public static function isValidResolution(int $width, int $height, System $system): bool
     {
+        $resolutions = $system->screenshot_resolutions;
+        if (empty($resolutions)) {
+            return true;
+        }
+
         foreach ($resolutions as $resolution) {
             $baseW = $resolution['width'];
             $baseH = $resolution['height'];
@@ -105,7 +107,7 @@ class ValidScreenshotResolutionRule implements ValidationRule
         }
 
         // SMPTE 601 resolutions are checked for an exact match only (no scaling).
-        if ($this->system->has_analog_tv_output) {
+        if ($system->has_analog_tv_output) {
             foreach (self::SMPTE_601_RESOLUTIONS as $smpte) {
                 if ($width === $smpte['width'] && $height === $smpte['height']) {
                     return true;

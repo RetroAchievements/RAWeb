@@ -25,6 +25,8 @@ class GameScreenshot extends BaseModel
     protected $fillable = [
         'game_id',
         'media_id',
+        'width',
+        'height',
         'type',
         'is_primary',
         'status',
@@ -38,6 +40,8 @@ class GameScreenshot extends BaseModel
         'type' => ScreenshotType::class,
         'status' => GameScreenshotStatus::class,
         'is_primary' => 'boolean',
+        'width' => 'integer',
+        'height' => 'integer',
         'reviewed_at' => 'datetime',
     ];
 
