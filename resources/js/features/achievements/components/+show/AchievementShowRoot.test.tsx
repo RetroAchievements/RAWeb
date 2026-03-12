@@ -11,7 +11,12 @@ import { AchievementShowRoot } from './AchievementShowRoot';
 describe('Component: AchievementShowRoot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
+    vi.spyOn(router, 'reload').mockImplementation((options?: Record<string, unknown>) => {
+      if (options && typeof options.onFinish === 'function') {
+        (options.onFinish as () => void)();
+      }
+    });
 
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -552,6 +557,52 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     expect(router.reload).toHaveBeenCalled();
+  });
+
+  it('given a successful save, exits edit mode after the page reloads', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Old Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+
+    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New Title');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/saved!/i)).toBeVisible();
+    });
+
+    expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
   });
 
   it('given the user changes the points, sends the updated points to the API', async () => {

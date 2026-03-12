@@ -63,24 +63,28 @@ export const AchievementHero: FC = () => {
 
           <div className="min-w-0 flex-1">
             <div className="flex min-h-[30px] items-center justify-between gap-2">
-              <Controller
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <input
-                    {...field}
-                    aria-label={t('Achievement title')}
-                    readOnly={!canEditTitle}
-                    tabIndex={canEditTitle ? 0 : -1}
-                    maxLength={64}
-                    className={cn(
-                      'm-0 w-full border-0 bg-transparent p-0 pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900 read-only:!text-neutral-100 light:read-only:!text-neutral-900',
-                      canEditTitle ? editableAchievementClassNames.field : 'pointer-events-none',
-                    )}
-                    placeholder={t('Achievement title')}
-                  />
-                )}
-              />
+              {canEditTitle ? (
+                <Controller
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      aria-label={t('Achievement title')}
+                      maxLength={64}
+                      className={cn(
+                        'm-0 w-full border-0 bg-transparent p-0 pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900',
+                        editableAchievementClassNames.field,
+                      )}
+                      placeholder={t('Achievement title')}
+                    />
+                  )}
+                />
+              ) : (
+                <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
+                  {achievement.title}
+                </p>
+              )}
 
               {canEditType ? (
                 <AchievementTypeSelect form={form} isSubset={isSubset} />
@@ -96,35 +100,35 @@ export const AchievementHero: FC = () => {
             </div>
 
             <div className="flex flex-col gap-3">
-              <Controller
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <TextareaAutosize
-                    {...field}
-                    aria-label={t('Achievement description')}
-                    onChange={(e) => {
-                      field.onChange(e.target.value.replace(/\n/g, ''));
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
-                    readOnly={!canEditDescription}
-                    tabIndex={canEditDescription ? 0 : -1}
-                    maxLength={255}
-                    minRows={1}
-                    className={cn(
-                      'm-0 w-full resize-none border-0 bg-transparent p-0 text-sm leading-normal text-text read-only:!text-text',
-                      canEditDescription
-                        ? editableAchievementClassNames.field
-                        : 'pointer-events-none',
-                    )}
-                    placeholder={t('Achievement description')}
-                  />
-                )}
-              />
+              {canEditDescription ? (
+                <Controller
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <TextareaAutosize
+                      {...field}
+                      aria-label={t('Achievement description')}
+                      onChange={(e) => {
+                        field.onChange(e.target.value.replace(/\n/g, ''));
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
+                      maxLength={255}
+                      minRows={1}
+                      className={cn(
+                        'm-0 w-full resize-none border-0 bg-transparent p-0 text-sm leading-normal text-text',
+                        editableAchievementClassNames.field,
+                      )}
+                      placeholder={t('Achievement description')}
+                    />
+                  )}
+                />
+              ) : (
+                <p className="text-sm leading-normal text-text">{achievement.description}</p>
+              )}
 
               <div className="hidden gap-3 md:flex">
                 {canEditPoints ? (

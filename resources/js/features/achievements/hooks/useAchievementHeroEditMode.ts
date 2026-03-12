@@ -30,11 +30,13 @@ export function useAchievementHeroEditMode() {
     type: achievement.type ?? 'none',
   });
 
-  // Keep a ref to the latest onSubmit so the effect below doesn't
-  // depend on it. onSubmit is recreated every render because
-  // useMutation returns a new object each time.
+  // Keep refs to values that change every render so the effect
+  // below doesn't depend on them and re-run unnecessarily.
   const onSubmitRef = useRef(onSubmit);
   onSubmitRef.current = onSubmit;
+
+  const achievementRef = useRef(achievement);
+  achievementRef.current = achievement;
 
   // Sync the mutation's pending state to the atom so other components can read it.
   const isSavingRef = useRef(false);
@@ -50,7 +52,14 @@ export function useAchievementHeroEditMode() {
       // are still visible and resetting would flash the old values
       // until router.reload() refreshes page props.
       if (!isSavingRef.current) {
-        form.reset();
+        const current = achievementRef.current;
+
+        form.reset({
+          description: current.description!,
+          points: current.points!,
+          title: current.title,
+          type: current.type ?? 'none',
+        });
       }
 
       return;
