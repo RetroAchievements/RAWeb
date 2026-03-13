@@ -39,7 +39,14 @@ class AnonymousCacheProfile extends BaseCacheProfile
         // Don't cache responses that carry flash data. Otherwise a flash
         // message (eg "your email has been verified") gets baked into the
         // cached page and shown to every subsequent anonymous visitor.
-        if (session()->has('_flash.new') && filled(session()->get('_flash.new'))) {
+        // We check both _flash.new and _flash.old because Laravel's
+        // ageFlashData() runs at session start, moving new to old before
+        // the response is built. The rendered page still displays the
+        // old flash data, so we must catch it here too.
+        if (
+            (session()->has('_flash.new') && filled(session()->get('_flash.new')))
+            || (session()->has('_flash.old') && filled(session()->get('_flash.old')))
+        ) {
             return false;
         }
 
