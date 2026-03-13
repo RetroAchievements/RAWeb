@@ -142,7 +142,7 @@
         "lint": "@php vendor/bin/pint --test",
         "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
         "mfs": "@php artisan migrate:refresh --seed",
-        "octane": "@php artisan octane:start --watch --port=64888",
+        "octane": "@php artisan octane:start --watch --port=8888 --caddyfile=docker/octane/Caddyfile",
         "paratest": "@php artisan test --parallel",
         "rector": "@php vendor/bin/rector process",
         "setup": [
@@ -151,7 +151,8 @@
             "@php artisan key:generate --ansi",
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
             "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\"",
-            "@php -r \"(file_exists('storage/oauth-private.key') && file_exists('storage/oauth-public.key')) ? print('Passport Keys already exist, to regenerate them run: php artisan passport:keys --force' . PHP_EOL) : passthru('php artisan passport:keys');\""
+            "@php -r \"(file_exists('storage/oauth-private.key') && file_exists('storage/oauth-public.key')) ? print('Passport Keys already exist, to regenerate them run: php artisan passport:keys --force' . PHP_EOL) : passthru('php artisan passport:keys');\"",
+            "@php artisan octane:install --server=frankenphp"
         ],
         "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-baseline": "@php vendor/bin/phpstan analyse --generate-baseline --memory-limit 1G",
