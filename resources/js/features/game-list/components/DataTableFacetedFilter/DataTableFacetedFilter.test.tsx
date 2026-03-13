@@ -603,4 +603,62 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(commandContainer).toHaveClass('border-neutral-800');
     expect(commandContainer).toHaveClass('light:border-neutral-200');
   });
+
+  it('given checkbox multi-select mode and an option is already selected, clicking it again removes it from the filter', async () => {
+    // ARRANGE
+    const setFilterValueSpy = vi.fn();
+    const customColumn = {
+      ...mockColumn,
+      getFilterValue: () => ['opt1', 'opt2'],
+      setFilterValue: setFilterValueSpy,
+    } as unknown as Column<any, any>;
+
+    render(
+      <DataTableFacetedFilter
+        options={mockOptions}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={false}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+    const popoverContent = screen.getByRole('listbox');
+    const opt1 = within(popoverContent).getByRole('option', { name: /option 1/i });
+    await userEvent.click(opt1);
+
+    // ASSERT
+    expect(setFilterValueSpy).toHaveBeenCalledWith(['opt2']);
+  });
+
+  it('given multiselect mode and an option has a falsy value, does not toggle the filter when clicked', async () => {
+    // ARRANGE
+    const setFilterValueSpy = vi.fn();
+    const customColumn = {
+      ...mockColumn,
+      setFilterValue: setFilterValueSpy,
+    } as unknown as Column<any, any>;
+
+    const optionsWithFalsyValue = [
+      { t_label: 'Empty Value' as TranslatedString, value: '' },
+      { t_label: 'Option 1' as TranslatedString, value: 'opt1' },
+    ];
+
+    render(
+      <DataTableFacetedFilter
+        options={optionsWithFalsyValue}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={false}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+    await userEvent.click(screen.getByText(/empty value/i));
+
+    // ASSERT
+    expect(setFilterValueSpy).not.toHaveBeenCalled();
+  });
 });
