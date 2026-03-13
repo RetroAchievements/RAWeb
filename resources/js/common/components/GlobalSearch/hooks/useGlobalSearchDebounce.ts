@@ -19,12 +19,16 @@ export function useGlobalSearchDebounce({ rawQuery, setSearchTerm }: UseGlobalSe
         return;
       }
 
+      // Clear search immediately when input is cleared.
+      if (rawQuery.length === 0) {
+        setSearchTerm('');
+
+        return;
+      }
+
       // Only trigger search if we have a meaningful query.
       if (rawQuery.length >= 3) {
         setSearchTerm(rawQuery);
-      } else if (rawQuery.length === 0) {
-        // Clear search immediately when input is cleared.
-        setSearchTerm('');
       }
     },
     getDebounceDuration(rawQuery),

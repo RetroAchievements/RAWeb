@@ -176,4 +176,61 @@ describe('Hook: useGlobalSearchDebounce', () => {
 
     expect(mockSetSearchTerm).not.toHaveBeenCalled();
   });
+
+  it('given a query with 1-2 characters after first render, does not call setSearchTerm', () => {
+    // ARRANGE
+    const mockSetSearchTerm = vi.fn();
+    const { rerender } = renderHook(
+      ({ rawQuery }) => useGlobalSearchDebounce({ rawQuery, setSearchTerm: mockSetSearchTerm }),
+      { initialProps: { rawQuery: '' } },
+    );
+
+    // ... advance past first render ...
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+
+    // ACT
+    rerender({ rawQuery: 'ab' });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    // ASSERT
+    expect(mockSetSearchTerm).not.toHaveBeenCalled();
+  });
+
+  it('given the raw query is cleared after having a value, calls setSearchTerm with empty string', () => {
+    // ARRANGE
+    const mockSetSearchTerm = vi.fn();
+    const { rerender } = renderHook(
+      ({ rawQuery }) => useGlobalSearchDebounce({ rawQuery, setSearchTerm: mockSetSearchTerm }),
+      { initialProps: { rawQuery: '' } },
+    );
+
+    // ... advance past first render ...
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+
+    // ... set a valid query and wait for it to resolve ...
+    rerender({ rawQuery: 'search' });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(mockSetSearchTerm).toHaveBeenCalledWith('search');
+    mockSetSearchTerm.mockClear();
+
+    // ACT
+    rerender({ rawQuery: '' });
+
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+
+    // ASSERT
+    expect(mockSetSearchTerm).toHaveBeenCalledWith('');
+    expect(mockSetSearchTerm).toHaveBeenCalledTimes(1);
+  });
 });

@@ -151,4 +151,25 @@ describe('Hook: useAchievementMetaDescription', () => {
       'Easy achievement [5 points], won by 12,345 players - Popular Game for NES',
     );
   });
+
+  it('given an achievement with a type that has no label, skips including a type label', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'Arcade' });
+    const game = createGame({ title: 'Pac-Man', system });
+
+    const achievement = createAchievement({
+      description: 'Clear level 1',
+      points: 15,
+      unlocksTotal: 245,
+      type: 'unknown_type' as any,
+    });
+
+    // ACT
+    const { result } = renderHook(() => useAchievementMetaDescription(achievement, game));
+
+    // ASSERT
+    expect(result.current).toEqual(
+      'Clear level 1 [15 points], won by 245 players - Pac-Man for Arcade',
+    );
+  });
 });

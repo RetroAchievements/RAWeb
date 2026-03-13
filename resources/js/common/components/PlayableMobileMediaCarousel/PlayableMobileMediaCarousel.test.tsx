@@ -8,16 +8,6 @@ describe('Component: PlayableMobileMediaCarousel', () => {
     imageIngameUrl: 'https://example.com/ingame.jpg',
   };
 
-  beforeEach(() => {
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
-  });
-
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<PlayableMobileMediaCarousel {...defaultProps} />);

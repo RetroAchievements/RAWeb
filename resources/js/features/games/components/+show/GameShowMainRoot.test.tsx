@@ -16,16 +16,6 @@ import { currentListViewAtom } from '../../state/games.atoms';
 import { GameShowMainRoot } from './GameShowMainRoot';
 
 describe('Component: GameShowMainRoot', () => {
-  beforeEach(() => {
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
-  });
-
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame({
