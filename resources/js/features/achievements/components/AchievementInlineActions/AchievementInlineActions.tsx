@@ -16,7 +16,8 @@ import {
 } from '../../state/achievements.atoms';
 
 export const AchievementInlineActions: FC = () => {
-  const { achievement, can } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, can, isEventGame } =
+    usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
   const setIsUpdatePromotedStatusDialogOpen = useSetAtom(isUpdatePromotedStatusDialogOpenAtom);
@@ -29,25 +30,30 @@ export const AchievementInlineActions: FC = () => {
 
   return (
     <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between">
-      <div className="flex divide-x divide-neutral-700">
-        <InertiaLink
-          href={route('achievement.report-issue', { achievement })}
-          prefetch="desktop-hover-only"
-        >
-          <span className="pr-3">{t('Report an issue')}</span>
-        </InertiaLink>
+      {!isEventGame ? (
+        <div className="flex divide-x divide-neutral-700">
+          <InertiaLink
+            href={route('achievement.report-issue', { achievement })}
+            prefetch="desktop-hover-only"
+          >
+            <span className="pr-3">{t('Report an issue')}</span>
+          </InertiaLink>
 
-        {achievement.numUnresolvedTickets ? (
-          <a href={route('achievement.tickets', { achievement: achievement.id })} className="px-3">
-            {t('openTicketCount', {
-              count: achievement.numUnresolvedTickets,
-              val: achievement.numUnresolvedTickets,
-            })}
-          </a>
-        ) : (
-          <p className="px-3 italic text-neutral-600">{t('No open tickets')}</p>
-        )}
-      </div>
+          {achievement.numUnresolvedTickets ? (
+            <a
+              href={route('achievement.tickets', { achievement: achievement.id })}
+              className="px-3"
+            >
+              {t('openTicketCount', {
+                count: achievement.numUnresolvedTickets,
+                val: achievement.numUnresolvedTickets,
+              })}
+            </a>
+          ) : (
+            <p className="px-3 italic text-neutral-600">{t('No open tickets')}</p>
+          )}
+        </div>
+      ) : null}
 
       <div className="flex items-center gap-3">
         {can?.develop && !isEditMode ? (
@@ -61,7 +67,7 @@ export const AchievementInlineActions: FC = () => {
               {t('Manage')}
             </a>
 
-            {can.viewAchievementLogic ? (
+            {!isEventGame && can.viewAchievementLogic ? (
               <a
                 href={`/manage/achievements/${achievement.id}/logic`}
                 target="_blank"
@@ -72,10 +78,12 @@ export const AchievementInlineActions: FC = () => {
               </a>
             ) : null}
 
-            <BaseButton onClick={() => setIsEditMode(true)} size="xs" className="gap-1">
-              <LuPencil className="size-3" />
-              {t('Quick edit')}
-            </BaseButton>
+            {!isEventGame ? (
+              <BaseButton onClick={() => setIsEditMode(true)} size="xs" className="gap-1">
+                <LuPencil className="size-3" />
+                {t('Quick edit')}
+              </BaseButton>
+            ) : null}
           </div>
         ) : null}
 
@@ -103,7 +111,7 @@ export const AchievementInlineActions: FC = () => {
           </BaseButton>
         ) : null}
 
-        {hasUnlocked ? (
+        {hasUnlocked && !isEventGame ? (
           <BaseButton
             onClick={() => setIsResetProgressDialogOpen(true)}
             variant="destructive"

@@ -17,6 +17,8 @@ import { useProximityAnimation, VISIBLE_COUNT } from './useProximityAnimation';
 export const ProximityAchievements: FC = () => {
   const {
     achievement,
+    areAllAchievementsOnePoint,
+    isEventGame,
     promotedAchievementCount,
     backingGame,
     gameAchievementSet,
@@ -64,7 +66,9 @@ export const ProximityAchievements: FC = () => {
 
   return (
     <div>
-      <h2 className="mb-0 border-0 text-lg font-semibold">{t('More from this set')}</h2>
+      <h2 className="mb-0 border-0 text-lg font-semibold">
+        {isEventGame ? t('More from this event') : t('More from this set')}
+      </h2>
 
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <div
@@ -139,14 +143,21 @@ export const ProximityAchievements: FC = () => {
                       {proximityAchievement.description}
                     </p>
 
-                    <span className="text-2xs text-neutral-400 light:text-neutral-500">
-                      {t('{{val, number}} points', { val: points, count: points })}
-                      {' · '}
-                      {formatPercentage(Number(proximityAchievement.unlockPercentage ?? 0), {
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 1,
-                      })}
-                    </span>
+                    {!(isEventGame && Number(proximityAchievement.unlockPercentage ?? 0) === 0) ? (
+                      <span className="text-2xs text-neutral-400 light:text-neutral-500">
+                        {!(isEventGame && areAllAchievementsOnePoint) ? (
+                          <>
+                            {t('{{val, number}} points', { val: points, count: points })}
+                            {' · '}
+                          </>
+                        ) : null}
+
+                        {formatPercentage(Number(proximityAchievement.unlockPercentage ?? 0), {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        })}
+                      </span>
+                    ) : null}
                   </div>
 
                   {buildUnlockCheckIcon(
