@@ -19,7 +19,13 @@ export const AchievementShowSidebarRoot: FC = () => {
         <AchievementGamePanel />
       </div>
 
-      {isEventGame ? <AchievementEventInfo /> : <AchievementMetaDetails />}
+      {isEventGame ? (
+        <div className="hidden lg:block">
+          <AchievementEventInfo />
+        </div>
+      ) : (
+        <AchievementMetaDetails />
+      )}
 
       {/* TODO AchievementGuideReferences */}
 
