@@ -42,25 +42,6 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('given there is no source game and no active dates, renders nothing', () => {
-    // ARRANGE
-    const achievement = createAchievement();
-
-    render(<AchievementEventInfo />, {
-      pageProps: {
-        achievement,
-        eventAchievement: createEventAchievement({
-          sourceAchievement: null,
-          activeFrom: undefined,
-          activeThrough: undefined,
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
-  });
-
   it('given the event achievement has a source game, displays the source game avatar', () => {
     // ARRANGE
     const achievement = createAchievement();
@@ -72,15 +53,30 @@ describe('Component: AchievementEventInfo', () => {
           sourceAchievement: createAchievement({
             game: createGame({ title: 'Sonic the Hedgehog', system: createSystem() }),
           }),
-          activeFrom: undefined,
-          activeThrough: undefined,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+  });
+
+  it('given the event achievement has no source game, shows a dash for the From row', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementEventInfo />, {
+      pageProps: {
+        achievement,
+        eventAchievement: createEventAchievement({
+          sourceAchievement: null,
         }),
       },
     });
 
     // ASSERT
     expect(screen.getByText(/from/i)).toBeVisible();
-    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+    expect(screen.getAllByText('–').length).toBeGreaterThan(0);
   });
 
   it('given the event achievement has active dates, displays the date range', () => {
@@ -99,9 +95,28 @@ describe('Component: AchievementEventInfo', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/active/i)).toBeVisible();
     expect(screen.getByText(/jan 6, 2025/i)).toBeVisible();
     expect(screen.getByText(/jan 12, 2025/i)).toBeVisible();
+  });
+
+  it('given the event achievement has no active dates, shows a dash for the Active row', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementEventInfo />, {
+      pageProps: {
+        achievement,
+        eventAchievement: createEventAchievement({
+          sourceAchievement: null,
+          activeFrom: undefined,
+          activeThrough: undefined,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/active/i)).toBeVisible();
+    expect(screen.getAllByText('–').length).toBeGreaterThan(0);
   });
 
   it('given the event achievement has both a source game and active dates, displays both', () => {

@@ -566,6 +566,29 @@ describe('Component: ProximityAchievements', () => {
     expect(screen.getByText(/23\.9%/)).toBeVisible();
   });
 
+  it('given an event game with a 0% unlock rate achievement, hides the percentage for that achievement', () => {
+    // ARRANGE
+    const achievement = createAchievement({ game: createGame() });
+    const proximityAchievements = [
+      createAchievement({ id: 1, title: 'Active Ach', points: 1, unlockPercentage: '0.457' }),
+      createAchievement({ id: 2, title: 'Upcoming Ach', points: 1, unlockPercentage: '0' }),
+    ];
+
+    render(<ProximityAchievements />, {
+      pageProps: {
+        achievement,
+        proximityAchievements,
+        promotedAchievementCount: 10,
+        isEventGame: true,
+        areAllAchievementsOnePoint: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/45\.7%/)).toBeVisible();
+    expect(screen.queryByText(/0\.0%/)).not.toBeInTheDocument();
+  });
+
   it('given the achievement is for an event game, shows "More from this event" heading', () => {
     // ARRANGE
     const achievement = createAchievement({ game: createGame() });

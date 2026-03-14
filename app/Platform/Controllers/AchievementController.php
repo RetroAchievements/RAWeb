@@ -234,7 +234,10 @@ class AchievementController extends Controller
 
         $windowIds = $this->resolveProximityWindow($achievement->id, $promotedIds);
 
-        $achievements = Achievement::whereIn('id', $windowIds)->get()->keyBy('id');
+        $achievements = Achievement::with('eventData')
+            ->whereIn('id', $windowIds)
+            ->get()
+            ->keyBy('id');
 
         $playerAchievements = $user
             ? PlayerAchievement::where('user_id', $user->id)
@@ -247,6 +250,13 @@ class AchievementController extends Controller
             $proximityAchievement = $achievements->get($id);
             if (!$proximityAchievement) {
                 return null;
+            }
+
+            // Scrub upcoming event achievements so their real details aren't leaked.
+            $eventData = $proximityAchievement->eventData;
+            if ($eventData?->active_from?->isFuture() && $eventData->source_achievement_id !== null) {
+                return AchievementData::fromObfuscated($proximityAchievement, $playerAchievements[$id] ?? null)
+                    ->include('description', 'points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
             }
 
             return AchievementData::fromAchievement($proximityAchievement, $playerAchievements[$id] ?? null)

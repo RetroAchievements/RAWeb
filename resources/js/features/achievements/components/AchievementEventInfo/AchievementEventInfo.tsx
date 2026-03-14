@@ -23,41 +23,38 @@ export const AchievementEventInfo: FC = () => {
   }
 
   const sourceGame = eventAchievement.sourceAchievement?.game;
-  const hasActiveDates = eventAchievement.activeFrom && eventAchievement.activeThrough;
-
-  if (!sourceGame && !hasActiveDates) {
-    return null;
-  }
 
   return (
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
         <BaseTableBody>
-          {sourceGame ? (
-            <BaseTableRow>
-              <BaseTableHead scope="row" className="h-auto text-right align-middle text-text">
-                {t('From')}
-              </BaseTableHead>
+          <BaseTableRow>
+            <BaseTableHead scope="row" className="h-auto text-right align-middle text-text">
+              {t('From')}
+            </BaseTableHead>
 
-              <BaseTableCell>
-                <GameAvatar {...sourceGame} size={24} />
-              </BaseTableCell>
-            </BaseTableRow>
-          ) : null}
+            <BaseTableCell className="h-[42px]">
+              {sourceGame ? <GameAvatar {...sourceGame} size={24} /> : <span>{'–'}</span>}
+            </BaseTableCell>
+          </BaseTableRow>
 
-          {hasActiveDates ? (
-            <BaseTableRow>
-              <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
-                {t('Active')}
-              </BaseTableHead>
+          <BaseTableRow>
+            <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
+              {t('Active')}
+            </BaseTableHead>
 
-              <BaseTableCell>
-                {formatDate(eventAchievement.activeFrom!, 'll')}
-                {' – '}
-                {formatDate(eventAchievement.activeThrough!, 'll')}
-              </BaseTableCell>
-            </BaseTableRow>
-          ) : null}
+            <BaseTableCell>
+              {eventAchievement.activeFrom && eventAchievement.activeThrough ? (
+                <>
+                  {formatDate(eventAchievement.activeFrom, 'll')}
+                  {' – '}
+                  {formatDate(eventAchievement.activeThrough, 'll')}
+                </>
+              ) : (
+                <span>{'–'}</span>
+              )}
+            </BaseTableCell>
+          </BaseTableRow>
         </BaseTableBody>
       </BaseTable>
     </div>

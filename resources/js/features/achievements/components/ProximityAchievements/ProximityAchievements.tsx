@@ -143,19 +143,21 @@ export const ProximityAchievements: FC = () => {
                       {proximityAchievement.description}
                     </p>
 
-                    <span className="text-2xs text-neutral-400 light:text-neutral-500">
-                      {!(isEventGame && areAllAchievementsOnePoint) ? (
-                        <>
-                          {t('{{val, number}} points', { val: points, count: points })}
-                          {' · '}
-                        </>
-                      ) : null}
+                    {!(isEventGame && Number(proximityAchievement.unlockPercentage ?? 0) === 0) ? (
+                      <span className="text-2xs text-neutral-400 light:text-neutral-500">
+                        {!(isEventGame && areAllAchievementsOnePoint) ? (
+                          <>
+                            {t('{{val, number}} points', { val: points, count: points })}
+                            {' · '}
+                          </>
+                        ) : null}
 
-                      {formatPercentage(Number(proximityAchievement.unlockPercentage ?? 0), {
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 1,
-                      })}
-                    </span>
+                        {formatPercentage(Number(proximityAchievement.unlockPercentage ?? 0), {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        })}
+                      </span>
+                    ) : null}
                   </div>
 
                   {buildUnlockCheckIcon(
