@@ -173,7 +173,7 @@ class AchievementController extends Controller
     }
 
     /**
-     * Event achievements always show the unlocks by default, so the data 
+     * Event achievements always show the unlocks by default, so the data
      * must be available on initial render rather than via a deferred partial.
      */
     private function buildRecentUnlocks(Achievement $achievement, bool $isEventGame): Lazy
