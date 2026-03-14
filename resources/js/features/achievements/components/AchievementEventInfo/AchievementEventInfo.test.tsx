@@ -42,6 +42,25 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
+  it('given there is no source game and no active dates, renders nothing', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementEventInfo />, {
+      pageProps: {
+        achievement,
+        eventAchievement: createEventAchievement({
+          sourceAchievement: null,
+          activeFrom: undefined,
+          activeThrough: undefined,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
   it('given the event achievement has a source game, displays the source game avatar', () => {
     // ARRANGE
     const achievement = createAchievement();
@@ -61,7 +80,7 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
   });
 
-  it('given the event achievement has no source game, shows a dash for the From row', () => {
+  it('given the event achievement has no source game but has active dates, shows a dash for the From row', () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -70,6 +89,8 @@ describe('Component: AchievementEventInfo', () => {
         achievement,
         eventAchievement: createEventAchievement({
           sourceAchievement: null,
+          activeFrom: '2025-01-06',
+          activeThrough: '2025-01-12',
         }),
       },
     });
@@ -99,7 +120,7 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.getByText(/jan 12, 2025/i)).toBeVisible();
   });
 
-  it('given the event achievement has no active dates, shows a dash for the Active row', () => {
+  it('given the event achievement has no active dates but has a source game, shows a dash for the Active row', () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -107,7 +128,9 @@ describe('Component: AchievementEventInfo', () => {
       pageProps: {
         achievement,
         eventAchievement: createEventAchievement({
-          sourceAchievement: null,
+          sourceAchievement: createAchievement({
+            game: createGame({ title: 'Some Game', system: createSystem() }),
+          }),
           activeFrom: undefined,
           activeThrough: undefined,
         }),

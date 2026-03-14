@@ -23,6 +23,11 @@ export const AchievementEventInfo: FC = () => {
   }
 
   const sourceGame = eventAchievement.sourceAchievement?.game;
+  const hasActiveDates = eventAchievement.activeFrom && eventAchievement.activeThrough;
+
+  if (!sourceGame && !hasActiveDates) {
+    return null;
+  }
 
   return (
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
