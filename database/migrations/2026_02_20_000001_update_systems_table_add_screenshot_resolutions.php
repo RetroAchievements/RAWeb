@@ -258,11 +258,11 @@ return new class extends Migration {
             // Atari ST - RA docs: 320x200.
             36 => [[320, 200]],
 
-            // Amstrad CPC - RA docs: 320x226.
-            37 => [[320, 226]],
+            // Amstrad CPC - RA docs: 192x272.
+            37 => [[192, 272]],
 
-            // Apple II - RA docs: 320x219.
-            38 => [[320, 219]],
+            // Apple II - RA docs: 280x192.
+            38 => [[280, 192]],
 
             // PC-8000/8800 - RA docs: 320x200.
             47 => [[320, 200]],
