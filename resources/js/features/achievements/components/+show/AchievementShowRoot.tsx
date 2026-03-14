@@ -10,6 +10,7 @@ import type { TranslatedString } from '@/types/i18next';
 import type { TabConfig } from '../../models';
 import { AchievementChangelog } from '../AchievementChangelog';
 import { AchievementCommentList } from '../AchievementCommentList';
+import { AchievementEventInfo } from '../AchievementEventInfo';
 import { AchievementGamePanel } from '../AchievementGamePanel';
 import { AchievementHero } from '../AchievementHero';
 import { AchievementInlineActions } from '../AchievementInlineActions';
@@ -19,16 +20,18 @@ import { ResetProgressDialog } from '../ResetProgressDialog';
 import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
 
 export const AchievementShowRoot: FC = () => {
-  const { achievement, backingGame, can, gameAchievementSet } =
+  const { achievement, backingGame, can, gameAchievementSet, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
-  const tabConfigs: TabConfig[] = [
-    { value: 'comments', label: t('Comments') },
-    ...(achievement.embedUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
-    { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
-    { value: 'changelog', label: t('Changelog') },
-  ];
+  const tabConfigs: TabConfig[] = isEventGame
+    ? []
+    : [
+        { value: 'comments', label: t('Comments') },
+        ...(achievement.embedUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
+        { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
+        { value: 'changelog', label: t('Changelog') },
+      ];
 
   // When the achievement belongs to a subset game, use the backing game for breadcrumbs.
   const breadcrumbGame = backingGame ?? achievement.game;
@@ -36,7 +39,10 @@ export const AchievementShowRoot: FC = () => {
   return (
     <div>
       {can?.updateAchievementIsPromoted ? <UpdatePromotedStatusDialog /> : null}
-      {achievement.unlockedAt || achievement.unlockedHardcoreAt ? <ResetProgressDialog /> : null}
+
+      {!isEventGame && (achievement.unlockedAt || achievement.unlockedHardcoreAt) ? (
+        <ResetProgressDialog />
+      ) : null}
 
       <AchievementBreadcrumbs
         t_currentPageLabel={achievement.title as TranslatedString}
@@ -52,34 +58,44 @@ export const AchievementShowRoot: FC = () => {
           <AchievementGamePanel />
         </div>
 
+        {isEventGame ? (
+          <div className="lg:hidden">
+            <AchievementEventInfo />
+          </div>
+        ) : null}
+
         <div className="flex flex-col gap-6">
           <AchievementInlineActions />
 
-          <AchievementTabs tabConfigs={tabConfigs}>
-            <BaseTabsContent value="comments" className="md:-mt-1">
-              <AchievementCommentList />
-            </BaseTabsContent>
-
-            {achievement.embedUrl ? (
-              <BaseTabsContent value="tips">
-                {/\.(png|jpg|jpeg|gif|webp)$/i.test(achievement.embedUrl) ? (
-                  <a href={achievement.embedUrl} target="_blank" rel="noreferrer">
-                    <img src={achievement.embedUrl} alt={t('Media')} className="max-w-full" />
-                  </a>
-                ) : (
-                  <VideoEmbed src={achievement.embedUrl} />
-                )}
+          {isEventGame ? (
+            <AchievementRecentUnlocks />
+          ) : (
+            <AchievementTabs tabConfigs={tabConfigs}>
+              <BaseTabsContent value="comments" className="md:-mt-1">
+                <AchievementCommentList />
               </BaseTabsContent>
-            ) : null}
 
-            <BaseTabsContent value="unlocks">
-              <AchievementRecentUnlocks />
-            </BaseTabsContent>
+              {achievement.embedUrl ? (
+                <BaseTabsContent value="tips">
+                  {/\.(png|jpg|jpeg|gif|webp)$/i.test(achievement.embedUrl) ? (
+                    <a href={achievement.embedUrl} target="_blank" rel="noreferrer">
+                      <img src={achievement.embedUrl} alt={t('Media')} className="max-w-full" />
+                    </a>
+                  ) : (
+                    <VideoEmbed src={achievement.embedUrl} />
+                  )}
+                </BaseTabsContent>
+              ) : null}
 
-            <BaseTabsContent value="changelog">
-              <AchievementChangelog />
-            </BaseTabsContent>
-          </AchievementTabs>
+              <BaseTabsContent value="unlocks">
+                <AchievementRecentUnlocks />
+              </BaseTabsContent>
+
+              <BaseTabsContent value="changelog">
+                <AchievementChangelog />
+              </BaseTabsContent>
+            </AchievementTabs>
+          )}
         </div>
       </div>
     </div>

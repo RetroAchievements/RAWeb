@@ -18,7 +18,8 @@ import { editableAchievementClassNames } from './editableAchievementClassNames';
 import { PointsLabels } from './PointsLabels';
 
 export const AchievementHero: FC = () => {
-  const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, areAllAchievementsOnePoint, isEventGame } =
+    usePageProps<App.Platform.Data.AchievementShowPageProps>();
 
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
@@ -131,14 +132,15 @@ export const AchievementHero: FC = () => {
               )}
 
               <div className="hidden gap-3 md:flex">
-                {canEditPoints ? (
-                  <AchievementPointsSelect form={form} />
-                ) : (
+                {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
+
+                {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
                   <PointsLabels
                     points={achievement.points}
                     pointsWeighted={achievement.pointsWeighted}
+                    showRetroPoints={!isEventGame}
                   />
-                )}
+                ) : null}
 
                 {!isEditMode && !achievement.isPromoted ? (
                   <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
@@ -167,14 +169,15 @@ export const AchievementHero: FC = () => {
               <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
             ) : null}
 
-            {canEditPoints ? (
-              <AchievementPointsSelect form={form} />
-            ) : (
+            {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
+
+            {!canEditPoints && !areAllAchievementsOnePoint ? (
               <PointsLabels
                 points={achievement.points}
                 pointsWeighted={achievement.pointsWeighted}
+                showRetroPoints={!isEventGame}
               />
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -246,9 +249,22 @@ export const AchievementHero: FC = () => {
 
             <div className="hidden text-xs md:block">
               <p className="flex gap-1">
-                <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
-                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
-                <span>{t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}</span>
+                {!isEventGame ? (
+                  <>
+                    <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
+                    <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                  </>
+                ) : null}
+
+                {/* Events are hardcore-only, so unlocksHardcoreTotal is the true total */}
+                <span>
+                  {isEventGame
+                    ? t('{{val, number}} unlocks', {
+                        val: unlocksHardcoreTotal,
+                        count: unlocksHardcoreTotal,
+                      })
+                    : t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}
+                </span>
                 <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
                 <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
               </p>

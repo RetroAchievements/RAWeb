@@ -260,6 +260,46 @@ describe('Component: AchievementInlineActions', () => {
     expect(screen.getByText(/are you sure you want to promote this achievement/i)).toBeVisible();
   });
 
+  it('given the achievement is for an event game, does not show the report issue link or ticket count', () => {
+    // ARRANGE
+    const achievement = createAchievement({ numUnresolvedTickets: 3 });
+    render(<AchievementInlineActions />, {
+      pageProps: { achievement, isEventGame: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report an issue/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /3/i })).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {
+    // ARRANGE
+    const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
+    render(<AchievementInlineActions />, {
+      pageProps: { achievement, isEventGame: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user can develop, does not show Quick Edit or Logic', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        can: { develop: true, viewAchievementLogic: true },
+        isEventGame: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
+  });
+
   it('given the user cannot update the promoted status, does not show the Promote or Demote button in edit mode', async () => {
     // ARRANGE
     const achievement = createAchievement({ isPromoted: false });

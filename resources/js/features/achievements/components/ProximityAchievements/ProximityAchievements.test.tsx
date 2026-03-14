@@ -542,4 +542,45 @@ describe('Component: ProximityAchievements', () => {
     expect(screen.getByText(/25 points/)).toBeVisible();
     expect(screen.getByText(/85\.2%/)).toBeVisible();
   });
+
+  it('given an event game where all achievements are one point, hides the points display', () => {
+    // ARRANGE
+    const achievement = createAchievement({ game: createGame() });
+    const proximityAchievements = [
+      createAchievement({ id: 1, title: 'Test Ach', points: 1, unlockPercentage: '0.239' }),
+      createAchievement({ id: 2, points: 1 }),
+    ];
+
+    render(<ProximityAchievements />, {
+      pageProps: {
+        achievement,
+        proximityAchievements,
+        promotedAchievementCount: 10,
+        isEventGame: true, // !!
+        areAllAchievementsOnePoint: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/1 point/)).not.toBeInTheDocument();
+    expect(screen.getByText(/23\.9%/)).toBeVisible();
+  });
+
+  it('given the achievement is for an event game, shows "More from this event" heading', () => {
+    // ARRANGE
+    const achievement = createAchievement({ game: createGame() });
+    const proximityAchievements = [createAchievement({ id: 1 }), createAchievement({ id: 2 })];
+
+    render(<ProximityAchievements />, {
+      pageProps: {
+        achievement,
+        proximityAchievements,
+        promotedAchievementCount: 5,
+        isEventGame: true, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('More from this event')).toBeVisible();
+  });
 });

@@ -15,11 +15,13 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
 use App\Models\Role;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\AchievementRecentUnlockData;
 use App\Platform\Data\AchievementShowPagePropsData;
+use App\Platform\Data\EventAchievementData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Enums\AchievementPageTab;
@@ -63,6 +65,12 @@ class AchievementController extends Controller
             },
         ]);
 
+        $isEventGame = $achievement->game->system_id === System::Events;
+
+        if ($isEventGame) {
+            $achievement->loadMissing('eventData.sourceAchievement.game.system');
+        }
+
         [$backingGame, $gameAchievementSet] = $this->resolveSubsetContext($achievement);
 
         // TODO $user conditional
@@ -70,15 +78,41 @@ class AchievementController extends Controller
             ->where('achievement_id', $achievement->id)
             ->first();
 
-        [$proximityAchievements, $promotedAchievementCount] = $this->buildProximityAchievements($achievement, $user);
+        ['achievements' => $proximityAchievements, 'totalCount' => $promotedAchievementCount, 'areAllOnePoint' => $areAllOnePoint]
+            = $this->buildProximityAchievements($achievement, $user);
 
-        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
+        // Build event-specific data if this achievement belongs to an event game.
+        $eventAchievementData = null;
+        $achievementData = AchievementData::fromAchievement($achievement, $playerAchievement);
+
+        if ($isEventGame && $achievement->eventData) {
+            $eventAchievementData = EventAchievementData::fromEventAchievement($achievement->eventData)
+                ->include(
+                    'sourceAchievement',
+                    'sourceAchievement.game',
+                    'sourceAchievement.game.badgeUrl',
+                    'sourceAchievement.game.system',
+                    'sourceAchievement.game.system.iconUrl',
+                    'sourceAchievement.game.system.nameShort',
+                    'activeFrom',
+                    'activeThrough',
+                );
+
+            // When the event achievement is obfuscated (upcoming achievement),
+            // use the scrubbed achievement data so the real details aren't leaked.
+            if ($eventAchievementData->isObfuscated) {
+                $achievementData = $eventAchievementData->achievement;
+            }
+        }
+
+        $defaultTab = $isEventGame ? AchievementPageTab::Unlocks : AchievementPageTab::Comments;
+        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? $defaultTab;
 
         $subscriptionService = new SubscriptionService();
         $changelog = (new BuildAchievementChangelogAction())->execute($achievement);
 
         $props = new AchievementShowPagePropsData(
-            achievement: AchievementData::fromAchievement($achievement, $playerAchievement)
+            achievement: $achievementData
                 ->include(
                     'activeMaintainer',
                     'createdAt',
@@ -128,50 +162,74 @@ class AchievementController extends Controller
             changelog: $changelog,
             proximityAchievements: $proximityAchievements,
             promotedAchievementCount: $promotedAchievementCount,
-            recentUnlocks: Lazy::inertiaDeferred(function () use ($achievement) {
-                return PlayerAchievement::with('user')
-                    ->whereHas('user')
-                    ->where('achievement_id', $achievement->id)
-                    ->ranked()
-                    ->orderByDesc('unlocked_effective_at')
-                    ->limit(50)
-                    ->get()
-                    ->map(fn ($pa) => new AchievementRecentUnlockData(
-                        user: UserData::fromUser($pa->user)->include('displayName', 'avatarUrl'),
-                        unlockedAt: $pa->unlocked_effective_at,
-                        isHardcore: $pa->unlocked_hardcore_at !== null,
-                    ));
-            }),
+            recentUnlocks: $this->buildRecentUnlocks($achievement, $isEventGame),
             initialTab: $initialTab,
+            eventAchievement: $eventAchievementData,
+            isEventGame: $isEventGame,
+            areAllAchievementsOnePoint: $areAllOnePoint,
         );
 
         return Inertia::render('achievement/[achievement]', $props);
     }
 
     /**
-     * @return array{0: ?AchievementData[], 1: int}
+     * Event achievements always show the unlocks by default, so the data 
+     * must be available on initial render rather than via a deferred partial.
+     */
+    private function buildRecentUnlocks(Achievement $achievement, bool $isEventGame): Lazy
+    {
+        $query = fn () => PlayerAchievement::with('user')
+            ->whereHas('user')
+            ->where('achievement_id', $achievement->id)
+            ->ranked()
+            ->orderByDesc('unlocked_effective_at')
+            ->limit(50)
+            ->get()
+            ->map(fn ($pa) => new AchievementRecentUnlockData(
+                user: UserData::fromUser($pa->user)->include('displayName', 'avatarUrl'),
+                unlockedAt: $pa->unlocked_effective_at,
+                isHardcore: $pa->unlocked_hardcore_at !== null,
+            ));
+
+        /**
+         * Lazy::create()->defaultIncluded() bypasses the #[AutoInertiaDeferred]
+         * attribute on the DTO prop while still being a Lazy instance. This
+         * ensures the data is included in the initial page payload.
+         */
+        if ($isEventGame) {
+            return Lazy::create($query)->defaultIncluded();
+        }
+
+        return Lazy::inertiaDeferred($query);
+    }
+
+    /**
+     * @return array{achievements: ?AchievementData[], totalCount: int, areAllOnePoint: bool}
      */
     private function buildProximityAchievements(Achievement $achievement, ?User $user): array
     {
         $achievementSet = $achievement->achievementSet;
         if (!$achievementSet) {
-            return [null, 0];
+            return ['achievements' => null, 'totalCount' => 0, 'areAllOnePoint' => false];
         }
 
-        // Get just the IDs of promoted achievements in set order.
+        // Get the IDs and points of promoted achievements in set order.
         // We use DB::table() to avoid model bootstrapping overhead.
-        $promotedIds = DB::table('achievement_set_achievements')
+        $promoted = DB::table('achievement_set_achievements')
             ->join('achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
             ->where('achievement_set_achievements.achievement_set_id', $achievementSet->id)
             ->where('achievements.is_promoted', true)
             ->orderBy('achievement_set_achievements.order_column')
             ->orderBy('achievement_set_achievements.created_at')
-            ->pluck('achievement_set_achievements.achievement_id')
-            ->all();
+            ->select('achievement_set_achievements.achievement_id', 'achievements.points')
+            ->get();
+
+        $promotedIds = $promoted->pluck('achievement_id')->all();
+        $areAllOnePoint = $promoted->isNotEmpty() && $promoted->every(fn ($row) => (int) $row->points === 1);
 
         $totalCount = count($promotedIds);
         if ($totalCount === 0) {
-            return [null, 0];
+            return ['achievements' => null, 'totalCount' => 0, 'areAllOnePoint' => $areAllOnePoint];
         }
 
         $windowIds = $this->resolveProximityWindow($achievement->id, $promotedIds);
@@ -195,7 +253,11 @@ class AchievementController extends Controller
                 ->include('description', 'points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
         }, $windowIds);
 
-        return [array_values(array_filter($proximityAchievementDtos)), $totalCount];
+        return [
+            'achievements' => array_values(array_filter($proximityAchievementDtos)),
+            'totalCount' => $totalCount,
+            'areAllOnePoint' => $areAllOnePoint,
+        ];
     }
 
     /**
