@@ -94,6 +94,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'trigger_id',
         'legacy_guide_url',
         'comments_locked_at',
+        'is_media_restricted',
         'image_icon_asset_path',
         'image_title_asset_path',
         'image_ingame_asset_path',
@@ -102,6 +103,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     protected $casts = [
         'comments_locked_at' => 'datetime',
+        'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',
@@ -535,17 +537,17 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getImageBoxArtUrlAttribute(): string
     {
-        return media_asset($this->image_box_art_asset_path);
+        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_box_art_asset_path);
     }
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->image_title_asset_path);
+        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->image_ingame_asset_path);
+        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_ingame_asset_path);
     }
 
     /**
