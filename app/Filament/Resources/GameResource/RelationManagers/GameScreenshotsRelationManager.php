@@ -139,12 +139,9 @@ class GameScreenshotsRelationManager extends RelationManager
                     }),
             ])
             ->modifyQueryUsing(function (Builder $query) {
+                /** @var Builder<GameScreenshot> $query */
                 $query->with('media')
-                    ->orderByRaw("FIELD(type, ?, ?, ?)", [
-                        ScreenshotType::Title->value,
-                        ScreenshotType::Ingame->value,
-                        ScreenshotType::Completion->value,
-                    ])
+                    ->orderByType()
                     ->orderBy('order_column');
             })
             ->reorderRecordsTriggerAction(
@@ -276,7 +273,6 @@ class GameScreenshotsRelationManager extends RelationManager
                     Action::make('change_type')
                         ->label('Change Type')
                         ->icon('heroicon-o-tag')
-                        ->hidden(fn (GameScreenshot $record): bool => $record->is_primary)
                         ->schema([
                             Forms\Components\Select::make('type')
                                 ->label('Type')
