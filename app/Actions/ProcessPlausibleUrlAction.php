@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProcessPlausibleUrlAction
 {
     private array $routes = [];
+    private int $maxPrefixDepth = 1;
 
     /**
      * If you're adding new routes to be tracked, you only need to worry about
@@ -45,6 +46,9 @@ class ProcessPlausibleUrlAction
 
         // Routes that just use an ID.
         $this->addIdRoute('ticket');
+
+        // Routes that use a multi-segment prefix with an ID.
+        $this->addIdRoute('forums/topic');
 
         // Legacy routes that need special handling.
         $this->addLegacyRoute('leaderboardinfo.php', ['i' => 'id']);
@@ -67,9 +71,23 @@ class ProcessPlausibleUrlAction
             ];
         }
 
+        // Try matching multi-segment route prefixes first (eg: "forums/topic"),
+        // then fall back to single-segment matching.
         $routePath = $segments[0];
         $param = $segments[1] ?? null;
         $suffix = count($segments) > 2 ? '/' . implode('/', array_slice($segments, 2)) : '';
+
+        for ($prefixLen = min(count($segments) - 1, $this->maxPrefixDepth); $prefixLen >= 2; $prefixLen--) {
+            $candidate = implode('/', array_slice($segments, 0, $prefixLen));
+            if (isset($this->routes[$candidate])) {
+                $routePath = $candidate;
+                $param = $segments[$prefixLen] ?? null;
+                $suffix = count($segments) > $prefixLen + 1
+                    ? '/' . implode('/', array_slice($segments, $prefixLen + 1))
+                    : '';
+                break;
+            }
+        }
 
         if (!isset($this->routes[$routePath])) {
             // Handle unknown paths that might have numeric IDs.
@@ -193,6 +211,8 @@ class ProcessPlausibleUrlAction
         $this->routes[$path] = [
             'type' => 'id',
         ];
+
+        $this->updateMaxPrefixDepth($path);
     }
 
     /**
@@ -223,6 +243,14 @@ class ProcessPlausibleUrlAction
     //     // TODO
     //     return [];
     // }
+
+    private function updateMaxPrefixDepth(string $path): void
+    {
+        $depth = substr_count($path, '/') + 1;
+        if ($depth > $this->maxPrefixDepth) {
+            $this->maxPrefixDepth = $depth;
+        }
+    }
 
     /**
      * Extracts an ID from either a direct ID or an ID-slug route.
