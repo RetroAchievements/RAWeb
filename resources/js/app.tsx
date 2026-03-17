@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import * as Sentry from '@sentry/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
@@ -12,6 +12,17 @@ import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
 globalThis.Ziggy = Ziggy;
+
+/**
+ * When Cloudflare (or anything else) intercepts an Inertia XHR and returns
+ * a non-Inertia response, suppress the dev-only modal and do a full page
+ * reload instead so the browser can handle the challenge/response natively.
+ * @see https://inertiajs.com/docs/v2/advanced/events#invalid
+ */
+router.on('invalid', (event) => {
+  event.preventDefault();
+  window.location.reload();
+});
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
