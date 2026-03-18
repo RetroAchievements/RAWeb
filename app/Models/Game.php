@@ -535,19 +535,39 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
             ->first();
     }
 
+    public function getImageBoxArtAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageTitleAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageIngameAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    private function resolveImageAssetPath(?string $value): string
+    {
+        return $this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : ($value ?? self::PLACEHOLDER_IMAGE_PATH);
+    }
+
     public function getImageBoxArtUrlAttribute(): string
     {
-        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_box_art_asset_path);
+        return media_asset($this->image_box_art_asset_path);
     }
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_title_asset_path);
+        return media_asset($this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : $this->image_ingame_asset_path);
+        return media_asset($this->image_ingame_asset_path);
     }
 
     /**
