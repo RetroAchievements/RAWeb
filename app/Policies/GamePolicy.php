@@ -41,6 +41,11 @@ class GamePolicy
         return true;
     }
 
+    public function viewHashes(?User $user, Game $game): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
