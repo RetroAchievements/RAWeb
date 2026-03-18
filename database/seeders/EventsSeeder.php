@@ -12,6 +12,7 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\GameSetGame;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
@@ -48,6 +49,8 @@ class EventsSeeder extends Seeder
         $date = Carbon::now()->startOfYear();
         $aotw = $this->createEvent("Achievement of the Week {$date->year}", 52, 'Week');
         $aotw->active_from = $date->clone();
+
+        $aotwPlayers = [];
         $aotwAchievements = Achievement::query()
             ->where('game_id', $aotw->legacy_game_id)
             ->with('eventData')
@@ -55,12 +58,61 @@ class EventsSeeder extends Seeder
             ->get();
         foreach ($aotwAchievements as $achievement) {
             if ($date < Carbon::now()) {
-                $sourceAchievement = Achievement::promoted()->inRandomOrder()->first();
+                // pick a random achievement with at least 8 unlocks so there's a decent chance the simulate play will unlock it.
+                $sourceAchievement = Achievement::promoted()->where('unlocks_hardcore', '>', 8)->inRandomOrder()->first();
                 $achievement->title = $sourceAchievement->title;
                 $achievement->image_name = $sourceAchievement->image_name;
                 $achievement->save();
 
                 $achievement->eventData->source_achievement_id = $sourceAchievement->id;
+
+                // between 15 and 40 players will join the first week. each subsequent week, an additional 6-12 will join.
+                $first = empty($aotwPlayers);
+                $newPlayers = $first ? rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(2, 6) : rand(6, 12);
+
+                $users = User::query()
+                    ->where('points_hardcore', '>', 'points')
+                    ->where('created_at', '<', $date)
+                    ->whereNull('unranked_at')
+                    ->whereNotIn('id', array_column($aotwPlayers, 'id'))
+                    ->inRandomOrder()
+                    ->limit($newPlayers)
+                    ->get();
+                foreach ($users as $user) {
+                    if (!in_array($user, $aotwPlayers)) {
+                        $aotwPlayers[] = $user;
+                    }
+                }
+
+                // randomize the player list - players at the end of the list are less likely to play this week
+                shuffle($aotwPlayers);
+
+                // drop a couple players out of the list who have given up on the event.
+                if (!$first && count($aotwPlayers) > 20) {
+                    array_pop($aotwPlayers);
+                    array_pop($aotwPlayers);
+                }
+
+                // have some quantity of players of interested players attempt the AotW.
+                $participantCount = count($aotwPlayers);
+                if (!$first && $participantCount > 20) {
+                    $participantCount = max(10, $participantCount - rand(1, 4) - rand(1, 4) - rand(1, 4) - rand(1, 4) - rand(1, 4));
+                }
+                foreach (array_slice($aotwPlayers, 0, $participantCount) as $user) {
+                    $playerDate = $date->clone()->addMinutes(rand(5, 24 * 60 * 6));
+
+                    $playerSession = PlayerSession::query()
+                        ->where('user_id', $user->id)
+                        ->where('game_id', $sourceAchievement->game_id)
+                        ->where('created_at', '>', $playerDate);
+                    if ($playerSession->exists()) {
+                        // user already played this game after it was AotW - don't try to backfill AotW playthrough.
+                        continue;
+                    }
+
+                    // attempt to play the game. the user may or may not reach the event achievement
+                    PlayerAchievementsSeeder::simulatePlay($user, $sourceAchievement->game, $playerDate, true);
+                }
             }
 
             $achievement->eventData->active_from = $date->clone();
