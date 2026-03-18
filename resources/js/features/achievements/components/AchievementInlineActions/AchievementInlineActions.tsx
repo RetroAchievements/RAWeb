@@ -16,7 +16,7 @@ import {
 } from '../../state/achievements.atoms';
 
 export const AchievementInlineActions: FC = () => {
-  const { achievement, can, isEventGame } =
+  const { achievement, can, eventAchievement, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
@@ -28,25 +28,30 @@ export const AchievementInlineActions: FC = () => {
 
   const hasUnlocked = achievement.unlockedAt || achievement.unlockedHardcoreAt;
 
+  // For event achievements, tickets and reports target the source achievement.
+  const sourceAchievement = eventAchievement?.sourceAchievement;
+  const reportSubject = sourceAchievement ?? achievement;
+  const ticketCount = sourceAchievement?.numUnresolvedTickets ?? achievement.numUnresolvedTickets;
+
   return (
     <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between">
-      {!isEventGame ? (
+      {!isEventGame || sourceAchievement ? (
         <div className="flex divide-x divide-neutral-700">
           <InertiaLink
-            href={route('achievement.report-issue', { achievement })}
+            href={route('achievement.report-issue', { achievement: reportSubject.id })}
             prefetch="desktop-hover-only"
           >
             <span className="pr-3">{t('Report an issue')}</span>
           </InertiaLink>
 
-          {achievement.numUnresolvedTickets ? (
+          {ticketCount ? (
             <a
-              href={route('achievement.tickets', { achievement: achievement.id })}
+              href={route('achievement.tickets', { achievement: reportSubject.id })}
               className="px-3"
             >
               {t('openTicketCount', {
-                count: achievement.numUnresolvedTickets,
-                val: achievement.numUnresolvedTickets,
+                count: ticketCount,
+                val: ticketCount,
               })}
             </a>
           ) : (

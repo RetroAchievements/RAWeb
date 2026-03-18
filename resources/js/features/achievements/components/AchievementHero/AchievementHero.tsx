@@ -171,7 +171,7 @@ export const AchievementHero: FC = () => {
 
             {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
 
-            {!canEditPoints && !areAllAchievementsOnePoint ? (
+            {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
               <PointsLabels
                 points={achievement.points}
                 pointsWeighted={achievement.pointsWeighted}

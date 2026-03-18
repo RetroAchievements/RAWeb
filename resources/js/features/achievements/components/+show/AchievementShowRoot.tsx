@@ -20,18 +20,22 @@ import { ResetProgressDialog } from '../ResetProgressDialog';
 import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
 
 export const AchievementShowRoot: FC = () => {
-  const { achievement, backingGame, can, gameAchievementSet, isEventGame } =
+  const { achievement, backingGame, can, eventAchievement, gameAchievementSet, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
-  const tabConfigs: TabConfig[] = isEventGame
-    ? []
-    : [
-        { value: 'comments', label: t('Comments') },
-        ...(achievement.embedUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
-        { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
-        { value: 'changelog', label: t('Changelog') },
-      ];
+  const sourceAchievement = eventAchievement?.sourceAchievement;
+
+  const isRevealedEventAchievement =
+    isEventGame && !eventAchievement?.isObfuscated && !!sourceAchievement;
+
+  const mediaUrl = isRevealedEventAchievement ? sourceAchievement.embedUrl : achievement.embedUrl;
+
+  const tabConfigs = buildTabConfigs(t, {
+    isEventGame,
+    isRevealedEvent: isRevealedEventAchievement,
+    mediaUrl,
+  });
 
   // When the achievement belongs to a subset game, use the backing game for breadcrumbs.
   const breadcrumbGame = backingGame ?? achievement.game;
@@ -67,7 +71,7 @@ export const AchievementShowRoot: FC = () => {
         <div className="flex flex-col gap-6">
           <AchievementInlineActions />
 
-          {isEventGame ? (
+          {tabConfigs.length === 0 ? (
             <AchievementRecentUnlocks />
           ) : (
             <AchievementTabs tabConfigs={tabConfigs}>
@@ -75,14 +79,14 @@ export const AchievementShowRoot: FC = () => {
                 <AchievementCommentList />
               </BaseTabsContent>
 
-              {achievement.embedUrl ? (
+              {mediaUrl ? (
                 <BaseTabsContent value="tips">
-                  {/\.(png|jpg|jpeg|gif|webp)$/i.test(achievement.embedUrl) ? (
-                    <a href={achievement.embedUrl} target="_blank" rel="noreferrer">
-                      <img src={achievement.embedUrl} alt={t('Media')} className="max-w-full" />
+                  {/\.(png|jpg|jpeg|gif|webp)$/i.test(mediaUrl) ? (
+                    <a href={mediaUrl} target="_blank" rel="noreferrer">
+                      <img src={mediaUrl} alt={t('Media')} className="max-w-full" />
                     </a>
                   ) : (
-                    <VideoEmbed src={achievement.embedUrl} />
+                    <VideoEmbed src={mediaUrl} />
                   )}
                 </BaseTabsContent>
               ) : null}
@@ -101,3 +105,28 @@ export const AchievementShowRoot: FC = () => {
     </div>
   );
 };
+
+function buildTabConfigs(
+  t: ReturnType<typeof useTranslation>['t'],
+  options: { isEventGame: boolean; isRevealedEvent: boolean; mediaUrl?: string | null },
+): TabConfig[] {
+  const { isEventGame, isRevealedEvent, mediaUrl } = options;
+
+  // Obfuscated event achievements show only inline unlocks (no tabs).
+  if (isEventGame && !isRevealedEvent) {
+    return [];
+  }
+
+  const tabs: TabConfig[] = [
+    { value: 'comments', label: t('Comments') },
+    ...(mediaUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
+    { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
+  ];
+
+  // Event achievements don't show a changelog.
+  if (!isEventGame) {
+    tabs.push({ value: 'changelog', label: t('Changelog') });
+  }
+
+  return tabs;
+}

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createEventAchievement } from '@/test/factories';
 
 import { ResetProgressDialog } from '../ResetProgressDialog';
 import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
@@ -260,16 +260,42 @@ describe('Component: AchievementInlineActions', () => {
     expect(screen.getByText(/are you sure you want to promote this achievement/i)).toBeVisible();
   });
 
-  it('given the achievement is for an event game, does not show the report issue link or ticket count', () => {
+  it('given a revealed event source achievement, shows report issue and tickets from that source achievement', () => {
     // ARRANGE
-    const achievement = createAchievement({ numUnresolvedTickets: 3 });
+    const achievement = createAchievement({ id: 100, numUnresolvedTickets: 0 });
+
     render(<AchievementInlineActions />, {
-      pageProps: { achievement, isEventGame: true },
+      pageProps: {
+        achievement,
+        isEventGame: true,
+        eventAchievement: createEventAchievement({
+          sourceAchievement: createAchievement({ id: 555, numUnresolvedTickets: 2 }),
+        }),
+      },
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /report an issue/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /3/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/report an issue/i)).toBeVisible();
+    expect(screen.getByText(/2 open tickets/i)).toBeVisible();
+  });
+
+  it('given an obfuscated event achievement, does not show report issue', () => {
+    // ARRANGE
+    const achievement = createAchievement({ numUnresolvedTickets: 3 });
+
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        isEventGame: true,
+        eventAchievement: createEventAchievement({
+          isObfuscated: true,
+          sourceAchievement: null,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/report an issue/i)).not.toBeInTheDocument();
   });
 
   it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {

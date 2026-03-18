@@ -17,6 +17,7 @@ use App\Models\PlayerAchievement;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
+use App\Policies\AchievementCommentPolicy;
 use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\AchievementRecentUnlockData;
@@ -57,12 +58,6 @@ class AchievementController extends Controller
             'activeMaintainer.user',
             'developer',
             'game.system',
-            'visibleComments' => function ($query) {
-                $query->notAutomated()
-                    ->latest('created_at')
-                    ->limit(20)
-                    ->with(['user' => fn ($q) => $q->withTrashed()]);
-            },
         ]);
 
         $isEventGame = $achievement->game->system_id === System::Events;
@@ -70,6 +65,29 @@ class AchievementController extends Controller
         if ($isEventGame) {
             $achievement->loadMissing('eventData.sourceAchievement.game.system');
         }
+
+        // For non-obfuscated event achievements, the comments, subscriptions, and
+        // tickets target the source achievement so users interact with the original.
+        $sourceAchievement = null;
+        if ($isEventGame && $achievement->eventData?->sourceAchievement) {
+            $isObfuscated = $achievement->eventData->active_from?->isFuture()
+                && $achievement->eventData->source_achievement_id !== null;
+
+            if (!$isObfuscated) {
+                $sourceAchievement = $achievement->eventData->sourceAchievement;
+            }
+        }
+
+        $commentSubject = $sourceAchievement ?? $achievement;
+
+        $commentSubject->loadMissing([
+            'visibleComments' => function ($query) {
+                $query->notAutomated()
+                    ->latest('created_at')
+                    ->limit(20)
+                    ->with(['user' => fn ($q) => $q->withTrashed()]);
+            },
+        ]);
 
         [$backingGame, $gameAchievementSet] = $this->resolveSubsetContext($achievement);
 
@@ -79,7 +97,7 @@ class AchievementController extends Controller
             ->first();
 
         ['achievements' => $proximityAchievements, 'totalCount' => $promotedAchievementCount, 'areAllOnePoint' => $areAllOnePoint]
-            = $this->buildProximityAchievements($achievement, $user);
+            = $this->buildProximityAchievements($achievement, $user, $isEventGame);
 
         // Build event-specific data if this achievement belongs to an event game.
         $eventAchievementData = null;
@@ -89,11 +107,13 @@ class AchievementController extends Controller
             $eventAchievementData = EventAchievementData::fromEventAchievement($achievement->eventData)
                 ->include(
                     'sourceAchievement',
+                    'sourceAchievement.embedUrl',
                     'sourceAchievement.game',
                     'sourceAchievement.game.badgeUrl',
                     'sourceAchievement.game.system',
                     'sourceAchievement.game.system.iconUrl',
                     'sourceAchievement.game.system.nameShort',
+                    'sourceAchievement.numUnresolvedTickets',
                     'activeFrom',
                     'activeThrough',
                 );
@@ -105,11 +125,19 @@ class AchievementController extends Controller
             }
         }
 
-        $defaultTab = $isEventGame ? AchievementPageTab::Unlocks : AchievementPageTab::Comments;
-        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? $defaultTab;
+        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
+
+        // Safeguard: event achievement pages don't have the Changelog tab.
+        // Fall back to comments as the initial tab.
+        if ($isEventGame && $initialTab === AchievementPageTab::Changelog) {
+            $initialTab = AchievementPageTab::Comments;
+        }
 
         $subscriptionService = new SubscriptionService();
-        $changelog = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Event achievements don't have a Changelog tab, so skip the
+        // expensive queries that build it.
+        $changelog = $isEventGame ? [] : (new BuildAchievementChangelogAction())->execute($achievement);
 
         $props = new AchievementShowPagePropsData(
             achievement: $achievementData
@@ -137,21 +165,11 @@ class AchievementController extends Controller
                     'isPromoted',
                     'numUnresolvedTickets',
                 ),
-            can: UserPermissionsData::fromUser($user, triggerable: $achievement)
-                ->include(
-                    'createAchievementComments',
-                    'develop',
-                    'updateAchievementDescription',
-                    'updateAchievementIsPromoted',
-                    'updateAchievementPoints',
-                    'updateAchievementTitle',
-                    'updateAchievementType',
-                    'viewAchievementLogic',
-                ),
-            isSubscribedToComments: $subscriptionService->isSubscribed($user, SubscriptionSubjectType::Achievement, $achievement->id), // TODO $user conditional
-            numComments: $achievement->visibleComments($user)->notAutomated()->count(),
+            can: $this->buildPermissions($user, $achievement, $commentSubject),
+            isSubscribedToComments: $subscriptionService->isSubscribed($user, SubscriptionSubjectType::Achievement, $commentSubject->id), // TODO $user conditional
+            numComments: $commentSubject->visibleComments($user)->notAutomated()->count(),
             recentVisibleComments: Collection::make(array_reverse(
-                CommentData::fromCollection($achievement->visibleComments)
+                CommentData::fromCollection($commentSubject->visibleComments)
             )),
             backingGame: $backingGame
                 ? GameData::fromGame($backingGame)->include('badgeUrl', 'system')
@@ -204,9 +222,38 @@ class AchievementController extends Controller
     }
 
     /**
+     * Editing permissions target the event achievement, but comment permissions
+     * target the comment subject (source achievement for event games).
+     */
+    private function buildPermissions(?User $user, Achievement $achievement, Achievement $commentSubject): UserPermissionsData
+    {
+        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)
+            ->include(
+                'createAchievementComments',
+                'develop',
+                'updateAchievementDescription',
+                'updateAchievementIsPromoted',
+                'updateAchievementPoints',
+                'updateAchievementTitle',
+                'updateAchievementType',
+                'viewAchievementLogic',
+            );
+
+        // When the comment subject differs from the page achievement (event
+        // games pointing to a source achievement), re-check comment permission.
+        if ($commentSubject->id !== $achievement->id) {
+            $can->createAchievementComments = Lazy::create(
+                fn () => $user ? (new AchievementCommentPolicy())->create($user, $commentSubject) : false
+            );
+        }
+
+        return $can;
+    }
+
+    /**
      * @return array{achievements: ?AchievementData[], totalCount: int, areAllOnePoint: bool}
      */
-    private function buildProximityAchievements(Achievement $achievement, ?User $user): array
+    private function buildProximityAchievements(Achievement $achievement, ?User $user, bool $isEventGame): array
     {
         $achievementSet = $achievement->achievementSet;
         if (!$achievementSet) {
@@ -215,14 +262,30 @@ class AchievementController extends Controller
 
         // Get the IDs and points of promoted achievements in set order.
         // We use DB::table() to avoid model bootstrapping overhead.
-        $promoted = DB::table('achievement_set_achievements')
+        $query = DB::table('achievement_set_achievements')
             ->join('achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
             ->where('achievement_set_achievements.achievement_set_id', $achievementSet->id)
             ->where('achievements.is_promoted', true)
             ->orderBy('achievement_set_achievements.order_column')
             ->orderBy('achievement_set_achievements.created_at')
-            ->select('achievement_set_achievements.achievement_id', 'achievements.points')
-            ->get();
+            ->select('achievement_set_achievements.achievement_id', 'achievements.points');
+
+        // For event games, only show achievements that are currently active.
+        // If no achievements are active (concluded event), fall back to showing all.
+        if ($isEventGame) {
+            $now = now();
+            $filteredQuery = (clone $query)
+                ->join('event_achievements', 'event_achievements.achievement_id', '=', 'achievements.id')
+                ->where(fn ($q) => $q->where('event_achievements.active_from', '<=', $now)->orWhereNull('event_achievements.active_from'))
+                ->where(fn ($q) => $q->where('event_achievements.active_until', '>', $now)->orWhereNull('event_achievements.active_until'));
+
+            $filtered = $filteredQuery->get();
+            if ($filtered->isNotEmpty()) {
+                $promoted = $filtered;
+            }
+        }
+
+        $promoted ??= $query->get();
 
         $promotedIds = $promoted->pluck('achievement_id')->all();
         $areAllOnePoint = $promoted->isNotEmpty() && $promoted->every(fn ($row) => (int) $row->points === 1);
@@ -234,7 +297,8 @@ class AchievementController extends Controller
 
         $windowIds = $this->resolveProximityWindow($achievement->id, $promotedIds);
 
-        $achievements = Achievement::with('eventData')
+        $achievements = Achievement::query()
+            ->when($isEventGame, fn ($q) => $q->with('eventData'))
             ->whereIn('id', $windowIds)
             ->get()
             ->keyBy('id');

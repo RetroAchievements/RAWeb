@@ -4,7 +4,13 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { act, render, screen, waitFor } from '@/test';
-import { createAchievement, createComment, createGame, createSystem } from '@/test/factories';
+import {
+  createAchievement,
+  createComment,
+  createEventAchievement,
+  createGame,
+  createSystem,
+} from '@/test/factories';
 
 import { AchievementShowRoot } from './AchievementShowRoot';
 
@@ -712,7 +718,7 @@ describe('Component: AchievementShowRoot', () => {
     });
   });
 
-  it('given the achievement is for an event game, does not show the comments tab', () => {
+  it('given a revealed event achievement, shows Comments and Unlocks tabs but not Changelog', () => {
     // ARRANGE
     const achievement = createAchievement({
       game: createGame({ playersTotal: 1000, system: createSystem() }),
@@ -731,11 +737,77 @@ describe('Component: AchievementShowRoot', () => {
         initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement(),
+        }),
       },
     });
 
     // ASSERT
-    expect(screen.queryAllByRole('tab', { name: /comments/i })).toHaveLength(0);
+    expect(screen.getAllByRole('tab', { name: /comments/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('tab', { name: /unlocks/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('tab', { name: /changelog/i })).not.toBeInTheDocument();
+  });
+
+  it('given a revealed achievement that has an embedUrl, shows the Media tab', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement({ embedUrl: 'https://example.com/video.mp4' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('tab', { name: /media/i }).length).toBeGreaterThan(0);
+  });
+
+  it('given an obfuscated event achievement, shows inline unlocks with no tabs', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: true,
+          sourceAchievement: null,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
   it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {

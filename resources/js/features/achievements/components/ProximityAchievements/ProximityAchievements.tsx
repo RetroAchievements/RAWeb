@@ -90,6 +90,11 @@ export const ProximityAchievements: FC = () => {
                 achievement: proximityAchievement.id,
               });
 
+              // Hide stats entirely for upcoming event achievements.
+              const isUpcomingEventAchievement =
+                isEventGame && Number(proximityAchievement.unlockPercentage ?? 0) === 0;
+              const shouldShowPoints = !(isEventGame && areAllAchievementsOnePoint);
+
               return (
                 <li
                   key={`proximity-${proximityAchievement.id}`}
@@ -143,9 +148,9 @@ export const ProximityAchievements: FC = () => {
                       {proximityAchievement.description}
                     </p>
 
-                    {!(isEventGame && Number(proximityAchievement.unlockPercentage ?? 0) === 0) ? (
+                    {!isUpcomingEventAchievement ? (
                       <span className="text-2xs text-neutral-400 light:text-neutral-500">
-                        {!(isEventGame && areAllAchievementsOnePoint) ? (
+                        {shouldShowPoints ? (
                           <>
                             {t('{{val, number}} points', { val: points, count: points })}
                             {' · '}
