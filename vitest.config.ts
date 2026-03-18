@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 
@@ -17,7 +17,14 @@ export default defineConfig({
     include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
     globals: true,
 
-    pool: 'forks',
+    pool: 'threads',
+
+    /**
+     * @see https://main.vitest.dev/config/experimental.html#experimental-fsmodulecache
+     */
+    experimental: {
+      fsModuleCache: true,
+    },
 
     // Filter out harmless happy-dom errors from stderr.
     onConsoleLog(log, type) {
@@ -79,6 +86,8 @@ export default defineConfig({
         '**/*.test.tsx',
         '**/*.spec.ts',
         '**/*.spec.tsx',
+        '**/.DS_Store',
+        '**/TODO',
       ],
       thresholds: {
         lines: 99,

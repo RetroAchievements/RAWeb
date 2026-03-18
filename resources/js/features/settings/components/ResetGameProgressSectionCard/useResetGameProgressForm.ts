@@ -62,12 +62,9 @@ export function useResetGameProgressForm() {
 
   const mutation = useMutation({
     mutationFn: (payload: Partial<FormValues>) => {
-      let url = '';
-      if (payload.gameId) {
-        url = route('api.user.game.destroy', payload.gameId);
-      } else if (payload.achievementId) {
-        url = route('api.user.achievement.destroy', payload.achievementId);
-      }
+      const url = payload.gameId
+        ? route('api.user.game.destroy', payload.gameId)
+        : route('api.user.achievement.destroy', payload.achievementId!);
 
       return axios.delete(url);
     },

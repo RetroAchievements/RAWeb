@@ -684,6 +684,57 @@ describe('Hook: useTableSync', () => {
     );
   });
 
+  it('given the sorting array is empty, does not include a sort param in the URL', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const emptySorting: SortingState = [];
+    rerender({
+      columnFilters,
+      pagination,
+      sorting: emptySorting,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
+  });
+
+  it('given the active sort matches the default sort, removes sort from URL params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: true }];
+    const defaultColumnSort = { id: 'title', desc: true };
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultColumnSort,
+      },
+    });
+
+    // ACT
+    const updatedSorting: SortingState = [{ id: 'title', desc: true }];
+    rerender({
+      columnFilters,
+      pagination,
+      sorting: updatedSorting,
+      defaultColumnSort,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
+  });
+
   it('given inactive filters are present in the URL, removes them when updating params', () => {
     // ARRANGE
     const columnFilters: ColumnFiltersState = [];
