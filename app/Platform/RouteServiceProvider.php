@@ -7,6 +7,7 @@ namespace App\Platform;
 use App\Models\GameHash;
 use App\Models\System;
 use App\Platform\Controllers\AchievementController;
+use App\Platform\Controllers\Api\AchievementApiController;
 use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
@@ -68,7 +69,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('system/{systemId}/games/random', [SystemApiController::class, 'random'])->name('api.system.game.random');
             });
 
-            Route::middleware(['web', 'inertia'])->group(function () {
+            Route::middleware(['cacheResponse', 'inertia'])->group(function () {
                 Route::get('achievement2/{achievement}', [AchievementController::class, 'show'])->name('achievement2.show');
 
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
@@ -138,6 +139,9 @@ class RouteServiceProvider extends ServiceProvider
                 Route::group([
                     'prefix' => 'internal-api',
                 ], function () {
+                    Route::patch('achievement/{achievement}', [AchievementApiController::class, 'update'])
+                        ->name('api.achievement.update');
+
                     Route::post('game/{game}/set-request', [GameSetRequestApiController::class, 'store'])->name('api.game.set-request.store');
                     Route::delete('game/{game}/set-request', [GameSetRequestApiController::class, 'destroy'])->name('api.game.set-request.destroy');
                     Route::post('game/{game}/topic', [GameApiController::class, 'generateOfficialForumTopic'])->name('api.game.forum-topic.create');

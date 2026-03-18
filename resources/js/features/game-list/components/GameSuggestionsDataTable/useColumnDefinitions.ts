@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -22,32 +21,28 @@ export function useColumnDefinitions(
 
   const { t } = useTranslation();
 
-  const columnDefinitions = useMemo(() => {
-    const columns: ColumnDef<App.Platform.Data.GameSuggestionEntry>[] = [
-      buildTitleColumnDef({
-        t_label: t('Title'),
-        options: { enableSorting: false, isSpaceConstrained: true },
-      }),
-      buildSystemColumnDef({ t_label: t('System'), options: { enableSorting: false } }),
-      buildAchievementsPublishedColumnDef({
-        t_label: t('Achievements'),
-        options: { enableSorting: false },
-      }),
-      buildPointsTotalColumnDef({ t_label: t('Points'), options: { enableSorting: false } }),
-      buildPlayersTotalColumnDef({ t_label: t('Players'), options: { enableSorting: false } }),
-      buildSuggestionReasonColumnDef({
-        sourceGame: options.showSourceGame ? sourceGame : null,
-        t_label: t('Reasoning'),
-      }),
-      buildPlayerGameProgressColumnDef({
-        t_label: t('Progress'),
-        options: { enableSorting: false },
-      }),
-      buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
-    ];
+  const columns: ColumnDef<App.Platform.Data.GameSuggestionEntry>[] = [
+    buildTitleColumnDef({
+      t_label: t('Title'),
+      options: { enableSorting: false, isSpaceConstrained: true },
+    }),
+    buildSystemColumnDef({ t_label: t('System'), options: { enableSorting: false } }),
+    buildAchievementsPublishedColumnDef({
+      t_label: t('Achievements'),
+      options: { enableSorting: false },
+    }),
+    buildPointsTotalColumnDef({ t_label: t('Points'), options: { enableSorting: false } }),
+    buildPlayersTotalColumnDef({ t_label: t('Players'), options: { enableSorting: false } }),
+    buildSuggestionReasonColumnDef({
+      sourceGame: options.showSourceGame ? sourceGame : null,
+      t_label: t('Reasoning'),
+    }),
+    buildPlayerGameProgressColumnDef({
+      t_label: t('Progress'),
+      options: { enableSorting: false },
+    }),
+    buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
+  ];
 
-    return columns;
-  }, [options.showSourceGame, sourceGame, t]);
-
-  return columnDefinitions;
+  return columns;
 }

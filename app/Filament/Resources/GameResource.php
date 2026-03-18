@@ -17,8 +17,6 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Rules\DisallowAnimatedImageRule;
-use App\Rules\UploadedImageAspectRatioRule;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
@@ -291,84 +289,6 @@ class GameResource extends Resource
                             ->suffixIcon('heroicon-m-globe-alt')
                             ->disabled(!$user->can('updateField', [$schema->model, 'legacy_guide_url'])),
                     ]),
-
-                Schemas\Components\Section::make('Media')
-                    ->icon('heroicon-s-photo')
-                    ->hidden(
-                        !$user->can('updateField', [$schema->model, 'image_icon_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_title_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])
-                    )
-                    ->schema([
-                        // Store a temporary file on disk until the user submits.
-                        // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('image_icon_asset_path')
-                            ->label('Badge')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->rules([
-                                'dimensions:width=96,height=96',
-                            ])
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_box_art_asset_path')
-                            ->label('Box Art')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_title_asset_path')
-                            ->label('Title')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_ingame_asset_path')
-                            ->label('In Game')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])),
-
-                        Forms\Components\SpatieMediaLibraryFileUpload::make('banner')
-                            ->label('Banner Image')
-                            ->collection('banner')
-                            ->conversion('desktop-xl-webp')
-                            ->disk('s3')
-                            ->visibility('public')
-                            ->image()
-                            ->rules([
-                                'dimensions:min_width=1920,min_height=540',
-                                new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance.
-                                new DisallowAnimatedImageRule(),
-                            ])
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-                            ->maxSize(5120)
-                            ->maxFiles(1)
-                            ->customProperties(['is_current' => true])
-                            ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true))
-                            ->helperText(new HtmlString('Read: <a href="https://docs.retroachievements.org/guidelines/content/badge-and-icon-guidelines.html#game-page-banners" target="_blank" class="underline">banner rules and guidelines</a>. Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop. Your image should not include text of any kind.'))
-                            ->previewable(true)
-                            ->downloadable(false)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
-                    ])
-                    ->columns(2),
 
                 Schemas\Components\Section::make('Rich Presence')
                     ->icon('heroicon-s-chat-bubble-left-right')
@@ -704,6 +624,7 @@ class GameResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Media::class,
             Pages\Hubs::class,
             Pages\SimilarGames::class,
             Pages\Hashes::class,
@@ -717,6 +638,7 @@ class GameResource extends Resource
             'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'media' => Pages\Media::route('/{record}/media'),
             'hubs' => Pages\Hubs::route('/{record}/hubs'),
             'similar-games' => Pages\SimilarGames::route('/{record}/similar-games'),
             'hashes' => Pages\Hashes::route('/{record}/hashes'),

@@ -4,7 +4,7 @@ return [
     /*
      * Determine if the response cache middleware should be enabled.
      */
-    'enabled' => env('RESPONSE_CACHE_ENABLED', true),
+    'enabled' => env('RESPONSE_CACHE_ENABLED', false),
 
     /*
      *  The given class will determinate if a request should be cached. The
@@ -13,29 +13,29 @@ return [
      *  You can provide your own class given that it implements the
      *  CacheProfile interface.
      */
-    'cache_profile' => Spatie\ResponseCache\CacheProfiles\CacheAllSuccessfulGetRequests::class,
+    'cache_profile' => App\Http\ResponseCache\AnonymousCacheProfile::class,
 
     /*
      *  Optionally, you can specify a header that will force a cache bypass.
      *  This can be useful to monitor the performance of your application.
      */
     'cache_bypass_header' => [
-        'name' => env('CACHE_BYPASS_HEADER_NAME', null),
-        'value' => env('CACHE_BYPASS_HEADER_VALUE', null),
+        'name' => env('CACHE_BYPASS_HEADER_NAME'),
+        'value' => env('CACHE_BYPASS_HEADER_VALUE'),
     ],
 
     /*
      * When using the default CacheRequestFilter this setting controls the
      * default number of seconds responses must be cached.
      */
-    'cache_lifetime_in_seconds' => env('RESPONSE_CACHE_LIFETIME', 60 * 60 * 24 * 7),
+    'cache_lifetime_in_seconds' => env('RESPONSE_CACHE_LIFETIME', 180),
 
     /*
      * This setting determines if a http header named with the cache time
      * should be added to a cached response. This can be handy when
      * debugging.
      */
-    'add_cache_time_header' => env('APP_DEBUG', false),
+    'add_cache_time_header' => env('RESPONSE_CACHE_TIME_HEADER', false),
 
     /*
      * This setting determines the name of the http header that contains
@@ -62,7 +62,7 @@ return [
      * requests. This can be the name of any store that is
      * configured in app/config/cache.php
      */
-    'cache_store' => env('RESPONSE_CACHE_DRIVER', 'file'),
+    'cache_store' => env('RESPONSE_CACHE_DRIVER', 'redis'),
 
     /*
      * Here you may define replacers that dynamically replace content from the response.
@@ -79,13 +79,13 @@ return [
      *
      * You may use a string or an array here.
      */
-    'cache_tag' => '',
+    'cache_tag' => 'response-cache',
 
     /*
      * This class is responsible for generating a hash for a request. This hash
      * is used to look up a cached response.
      */
-    'hasher' => Spatie\ResponseCache\Hasher\DefaultHasher::class,
+    'hasher' => App\Http\ResponseCache\InertiaAwareHasher::class,
 
     /*
      * This class is responsible for serializing responses.

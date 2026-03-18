@@ -231,6 +231,36 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(1905, $playerAchievementSet->points_weighted);
     }
 
+    public function testDoesNotCreatePlayerAchievementSetForUntouchedSubset(): void
+    {
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
+
+        $user = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $subsetGame = $this->seedSubset($game);
+
+        Achievement::factory()->promoted()->count(2)->create(['game_id' => $game->id, 'points' => 3]);
+        Achievement::factory()->promoted()->count(3)->create(['game_id' => $subsetGame->id, 'points' => 5]);
+
+        $subsetAchievementSet = $subsetGame->achievementSets()->where('type', AchievementSetType::Core)->first();
+
+        // unlock a core achievement but nothing in the subset
+        $coreAchievement = $game->achievements()->promoted()->first();
+        $this->addHardcoreUnlock($user, $coreAchievement);
+
+        $playerGame = PlayerGame::where('game_id', $game->id)->first();
+
+        (new UpdateGameMetricsAction())->execute($game);
+        (new UpdatePlayerGameMetricsAction())->execute($playerGame);
+
+        // a PlayerAchievementSet should exist for the core set but not the untouched subset
+        $this->assertFalse(
+            PlayerAchievementSet::where('user_id', $user->id)
+                ->where('achievement_set_id', $subsetAchievementSet->id)
+                ->exists()
+        );
+    }
+
     public function testSubsetMetrics(): void
     {
         $time1 = Carbon::now()->startOfSecond();

@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -10,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { TopAchieversList } from './TopAchieversList';
 
-export const TopAchieversMainRoot: FC = memo(() => {
+export const TopAchieversMainRoot: FC = () => {
   const { game, paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
 
   const { t } = useTranslation();
@@ -46,4 +46,4 @@ export const TopAchieversMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

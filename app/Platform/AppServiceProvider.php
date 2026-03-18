@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\BackfillGameScreenshots;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
@@ -78,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
                 RecalculateAchievementWeightedPoints::class,
 
                 // Games
+                BackfillGameScreenshots::class,
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
                 UpdateGameAchievementsMetrics::class,

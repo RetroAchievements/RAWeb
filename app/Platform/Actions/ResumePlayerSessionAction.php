@@ -154,7 +154,7 @@ class ResumePlayerSessionAction
                 $playerSession->save(['touch' => true]);
 
                 if ($doesUserNeedsUpdate) {
-                    $user->saveQuietly();
+                    DB::transaction(fn () => $user->saveQuietly(), attempts: 3);
                 }
 
                 if (!$isBackdated) {
@@ -173,7 +173,7 @@ class ResumePlayerSessionAction
         // TODO deprecated, read from last player_sessions entry where needed
         $user->rich_presence = utf8_sanitize($presence);
         $user->rich_presence_updated_at = $timestamp;
-        $user->saveQuietly();
+        DB::transaction(fn () => $user->saveQuietly(), attempts: 3);
 
         // create new session
         $playerSession = new PlayerSession([
@@ -263,6 +263,6 @@ class ResumePlayerSessionAction
                 ['game_id', 'user_id'],
                 $columnsToUpdate,
             );
-        }, 3);
+        }, attempts: 3);
     }
 }

@@ -21,7 +21,7 @@ const Terms: AppPage = () => {
         <h1 className="mb-4">{t('Legal & Terms')}</h1>
 
         <div className="flex flex-col gap-y-4">
-          {/* 
+          {/*
             scroll-margin-top doesn't seem to work here. Use an invisible div instead
             so we provide some offset for the page sticky nav.
           */}
@@ -42,9 +42,7 @@ const Terms: AppPage = () => {
               </div>
 
               <div>
-                <p role="heading" aria-level={3} className="text-lg font-medium">
-                  {t('Code of Conduct')}
-                </p>
+                <h3 className="mb-0 border-b-0 text-lg font-medium">{t('Code of Conduct')}</h3>
                 <p>
                   <Trans
                     i18nKey="By signing up on RetroAchievements.org, you agree to the <1>Users Code of Conduct</1>."
@@ -74,9 +72,9 @@ const Terms: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Disclaimers')}</h2>
 
-                <p role="heading" aria-level={3} className="text-lg font-medium">
+                <h3 className="mb-0 border-b-0 text-lg font-medium">
                   {t('Accountability for content')}
-                </p>
+                </h3>
                 <p>
                   {t(
                     'We are not obliged to monitor the information transmitted or stored by third parties, nor to investigate circumstances that point to illegal activity. Our obligations to remove or block the use of information under generally applicable laws remain unaffected by this.',
@@ -85,9 +83,9 @@ const Terms: AppPage = () => {
               </div>
 
               <div>
-                <p role="heading" aria-level={3} className="text-lg font-medium">
+                <h3 className="mb-0 border-b-0 text-lg font-medium">
                   {t('Accountability for links')}
-                </p>
+                </h3>
 
                 <p>
                   {t(
@@ -112,9 +110,7 @@ const Terms: AppPage = () => {
               </div>
 
               <div>
-                <p role="heading" aria-level={3} className="text-lg font-medium">
-                  {t('Achievement Data')}
-                </p>
+                <h3 className="mb-0 border-b-0 text-lg font-medium">{t('Achievement Data')}</h3>
                 <p>
                   {t(
                     'Achievement titles, descriptions, and related metadata may be referenced or reused by third parties (eg: for tracking sites or community tools).',
@@ -172,9 +168,9 @@ const Terms: AppPage = () => {
               </p>
 
               <div>
-                <p role="heading" aria-level={3} className="text-lg font-medium">
+                <h3 className="mb-0 border-b-0 text-lg font-medium">
                   {t('Information about cookies')}
-                </p>
+                </h3>
 
                 <p>
                   {t(

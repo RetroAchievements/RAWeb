@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateAchievementMetricsAction
 {
+    private const CHUNK_SIZE = 50;
+
     public function __construct(
         protected readonly CalculateAchievementWeightedPointsAction $calculateWeightedPoints,
     ) {
@@ -132,23 +134,25 @@ class UpdateAchievementMetricsAction
     }
 
     /**
-     * Bulk update achievements using CASE statements to minimize network round trips.
-     *
-     * Uses READ COMMITTED isolation to prevent gap lock deadlocks. The default
-     * REPEATABLE READ acquires gap locks on WHERE IN clauses, which deadlock when
-     * concurrent jobs update non-overlapping achievement ID ranges. READ COMMITTED
-     * only locks the exact rows being updated, eliminating this class of deadlock.
-     *
-     * This is safe because the transaction contains a single UPDATE with pre-computed
-     * values, so we don't need the REPEATABLE READ feature's consistent snapshot guarantees.
-     *
-     * @see https://mariadb.com/kb/en/innodb-lock-modes/ "Gap locks are disabled if ... the isolation level is set to READ COMMITTED."
-     * @see https://mariadb.com/kb/en/set-transaction/ Without GLOBAL/SESSION keyword, scopes to the next transaction only.
+     * Chunks the bulk update into smaller batches to reduce lock hold time.
+     * During the weekly recalc, hundreds of jobs hit this table concurrently.
+     * Smaller batches mean shorter lock windows and fewer deadlocks.
      */
     private function performBulkUpdate(array $bulkUpdates): void
     {
         usort($bulkUpdates, fn ($a, $b) => $a['id'] <=> $b['id']);
 
+        foreach (array_chunk($bulkUpdates, self::CHUNK_SIZE) as $chunk) {
+            $this->updateChunk($chunk);
+        }
+    }
+
+    /**
+     * Executes the CASE-based bulk update within a transaction that
+     * automatically retries on deadlocks (via DB::transaction's second argument).
+     */
+    private function updateChunk(array $chunk): void
+    {
         $columns = [
             'unlocks_total',
             'unlocks_hardcore',
@@ -157,29 +161,23 @@ class UpdateAchievementMetricsAction
             'points_weighted',
         ];
 
-        // Build a CASE expression for each column so all rows update in a single statement.
         $cases = [];
         foreach ($columns as $column) {
             $whens = implode(' ', array_map(
                 fn ($row) => "WHEN {$row['id']} THEN {$row[$column]}",
-                $bulkUpdates,
+                $chunk,
             ));
             $cases[$column] = DB::raw("CASE id {$whens} END");
         }
 
         $cases['updated_at'] = now();
 
-        // Scoped to the next transaction only. Does not affect other queries on this connection.
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
-        }
-
-        $ids = array_column($bulkUpdates, 'id');
+        $ids = array_column($chunk, 'id');
 
         DB::transaction(function () use ($ids, $cases) {
             DB::table('achievements')
                 ->whereIn('id', $ids)
                 ->update($cases);
-        });
+        }, attempts: 5);
     }
 }

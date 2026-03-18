@@ -129,6 +129,50 @@ describe('Component: GameShowMobileRoot', () => {
     expect(screen.queryByTestId('game-mobile')).not.toBeInTheDocument();
   });
 
+  it('given the system has screenshot resolutions, passes expected dimensions to the media component', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=info';
+    window.location.search = '?tab=info';
+
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+        screenshotResolutions: [{ width: 256, height: 224 }],
+      }),
+      imageIngameUrl: 'ingame.jpg',
+      imageTitleUrl: 'title.jpg',
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'info'],
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+    expect(ingameImage).toHaveAttribute('width', '256');
+    expect(ingameImage).toHaveAttribute('height', '224');
+  });
+
   it('given the game has all required fields, renders the view', () => {
     // ARRANGE
     const game = createGame({
@@ -727,7 +771,10 @@ describe('Component: GameShowMobileRoot', () => {
     });
 
     render(<GameShowMobileRoot />, {
-      jotaiAtoms: [[currentTabAtom, 'community']],
+      jotaiAtoms: [
+        [currentTabAtom, 'community'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -767,7 +814,10 @@ describe('Component: GameShowMobileRoot', () => {
     const backingGame = createGame({ forumTopicId: undefined }); // !!
 
     render(<GameShowMobileRoot />, {
-      jotaiAtoms: [[currentTabAtom, 'community']],
+      jotaiAtoms: [
+        [currentTabAtom, 'community'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],

@@ -70,8 +70,12 @@ return [
             ],
         ],
 
-        // Future game media types can go here:
-        // 'screenshot' => [...],
+        'screenshot' => [
+            'sm' => ['width' => 320],
+            'md' => ['width' => 640],
+            'lg' => ['width' => 1280],
+        ],
+
         // 'boxart' => [...],
     ],
 

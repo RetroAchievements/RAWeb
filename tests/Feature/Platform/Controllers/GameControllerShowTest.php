@@ -221,6 +221,24 @@ describe('Redirects', function () {
         ]));
     });
 
+    it('given a subset game whose achievement set is NOT linked to the parent, does not redirect', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $parentGame = createGameWithAchievements($system, 'Dragon Quest III', 10);
+        $subsetGame = createGameWithAchievements($system, 'Dragon Quest III [Subset - Bonus]', 6);
+
+        /**
+         * We intentionally don't execute `AssociateAchievementSetToGameAction` here.
+         * The parent exists and the title matches, but there's no GameAchievementSet link.
+         */
+
+        // ACT
+        $response = get(route('game.show', ['game' => $subsetGame]));
+
+        // ASSERT
+        $response->assertOk();
+    });
+
     it('given a set query param is already provided, does not redirect', function () {
         // ARRANGE
         $system = System::factory()->create();
@@ -426,6 +444,35 @@ describe('User State Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('isOnWantToDevList', true)
+        );
+    });
+
+    it('given the prefers_expanded_rich_presence cookie is true, sets isRichPresenceExpanded to true', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookie('prefers_expanded_rich_presence', 'true')
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isRichPresenceExpanded', true)
+        );
+    });
+
+    it('given no prefers_expanded_rich_presence cookie, sets isRichPresenceExpanded to false', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isRichPresenceExpanded', false)
         );
     });
 

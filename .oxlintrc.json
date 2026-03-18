@@ -1,0 +1,128 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "jsx-a11y", "import"],
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "ignorePatterns": [
+    "**/generated.d.ts",
+    "**/ziggy.d.ts",
+    "**/ziggy.js",
+    "dist/**",
+    "node_modules/**",
+    "vendor/**",
+    "public/build/**",
+    "public/hot/**",
+    "storage/**",
+    "bootstrap/cache/**"
+  ],
+  "jsPlugins": [
+    "eslint-plugin-testing-library",
+    "eslint-plugin-simple-import-sort",
+    "eslint-plugin-sort-keys-shorthand",
+    {
+      "name": "@tanstack/query",
+      "specifier": "@tanstack/eslint-plugin-query"
+    },
+    {
+      "name": "@retroachievements",
+      "specifier": "./resources/js/tools/eslint-rules/index.js"
+    }
+  ],
+  "rules": {
+    "eqeqeq": "error",
+    "no-else-return": "error",
+    "no-return-await": "error",
+    "no-undef": "off",
+    "no-useless-escape": "off",
+    "object-shorthand": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": true
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@inertiajs/react",
+            "importNames": ["Head"],
+            "message": "Use @/common/components/SEO instead."
+          },
+          {
+            "name": "@inertiajs/react",
+            "importNames": ["Link"],
+            "message": "Use @/common/components/InertiaLink instead."
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@testing-library/react"],
+            "message": "Import from @/test instead."
+          },
+          {
+            "group": ["@radix-ui/*"],
+            "message": "Use our wrapped Base* components."
+          },
+          {
+            "group": ["radix-ui"],
+            "message": "Use our wrapped Base* components."
+          },
+          {
+            "group": ["sonner"],
+            "message": "Use toastMessage instead."
+          }
+        ]
+      }
+    ],
+
+    "typescript/no-explicit-any": "error",
+    "typescript/ban-ts-comment": "error",
+
+    "react/display-name": "off",
+    "react/jsx-no-leaked-render": "error",
+    "react/jsx-no-literals": "error",
+    "react/jsx-no-target-blank": "off",
+    "react/no-unescaped-entities": "off",
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+
+    "unicorn/no-array-for-each": "error",
+    "unicorn/no-array-reduce": "error",
+    "unicorn/prefer-includes": "error",
+
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "@retroachievements/enforce-typescript-in-app-code": "error",
+    "@retroachievements/no-cross-boundary-imports": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/generated.d.ts"],
+      "rules": {
+        "typescript/no-explicit-any": "off",
+        "react/jsx-no-literals": "off"
+      }
+    }
+  ]
+}

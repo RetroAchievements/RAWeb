@@ -1,14 +1,20 @@
 import type { FC } from 'react';
+import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
+import TextareaAutosize from 'react-textarea-autosize';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
-import { AchievementTypeIndicator } from '@/common/components/AchievementsListItem/AchievementTypeIndicator';
+import { AchievementTypeIndicator } from '@/common/components/AchievementTypeIndicator';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
+import { useAchievementHeroEditMode } from '../../hooks/useAchievementHeroEditMode';
+import { AchievementPointsSelect } from './AchievementPointsSelect';
+import { AchievementTypeSelect } from './AchievementTypeSelect';
+import { editableAchievementClassNames } from './editableAchievementClassNames';
 import { PointsLabels } from './PointsLabels';
 
 export const AchievementHero: FC = () => {
@@ -17,6 +23,16 @@ export const AchievementHero: FC = () => {
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
   const { formatPercentage } = useFormatPercentage();
+
+  const {
+    canEditDescription,
+    canEditPoints,
+    canEditTitle,
+    canEditType,
+    form,
+    isEditMode,
+    isSubset,
+  } = useAchievementHeroEditMode();
 
   const playersTotal = achievement.game?.playersTotal as number;
   const unlocksTotal = achievement.unlocksTotal as number;
@@ -46,55 +62,128 @@ export const AchievementHero: FC = () => {
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
-              <h1 className="text-h3 mb-0 border-b-0 text-lg font-bold text-neutral-100 light:text-neutral-900">
-                {achievement.title}
-              </h1>
+            <div className="flex min-h-[30px] items-center justify-between gap-2">
+              {canEditTitle ? (
+                <Controller
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      aria-label={t('Achievement title')}
+                      maxLength={64}
+                      className={cn(
+                        'm-0 w-full border-0 bg-transparent p-0 pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900',
+                        editableAchievementClassNames.field,
+                      )}
+                      placeholder={t('Achievement title')}
+                    />
+                  )}
+                />
+              ) : (
+                <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
+                  {achievement.title}
+                </p>
+              )}
 
-              {achievement.type ? (
+              {canEditType ? (
+                <AchievementTypeSelect form={form} isSubset={isSubset} />
+              ) : achievement.type ? (
                 <AchievementTypeIndicator
                   showLabel={true}
                   type={achievement.type}
                   wrapperClassName="hidden !bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800 md:inline-flex"
                 />
               ) : (
-                <span />
+                <div className="hidden h-[30px] md:block" />
               )}
             </div>
 
             <div className="flex flex-col gap-3">
-              <p>{achievement.description}</p>
-
-              <div className="hidden md:block">
-                <PointsLabels
-                  points={achievement.points}
-                  pointsWeighted={achievement.pointsWeighted}
+              {canEditDescription ? (
+                <Controller
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <TextareaAutosize
+                      {...field}
+                      aria-label={t('Achievement description')}
+                      onChange={(e) => {
+                        field.onChange(e.target.value.replace(/\n/g, ''));
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
+                      maxLength={255}
+                      minRows={1}
+                      className={cn(
+                        'm-0 w-full resize-none border-0 bg-transparent p-0 text-sm leading-normal text-text',
+                        editableAchievementClassNames.field,
+                      )}
+                      placeholder={t('Achievement description')}
+                    />
+                  )}
                 />
+              ) : (
+                <p className="text-sm leading-normal text-text">{achievement.description}</p>
+              )}
+
+              <div className="hidden gap-3 md:flex">
+                {canEditPoints ? (
+                  <AchievementPointsSelect form={form} />
+                ) : (
+                  <PointsLabels
+                    points={achievement.points}
+                    pointsWeighted={achievement.pointsWeighted}
+                  />
+                )}
+
+                {!isEditMode && !achievement.isPromoted ? (
+                  <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+                ) : null}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-3">
-            {achievement.type ? (
-              <AchievementTypeIndicator
-                showLabel={true}
-                type={achievement.type}
-                wrapperClassName="!bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800 md:hidden"
-              />
-            ) : (
-              <span />
-            )}
+        {/* Mobile type + points row. Kept outside the disabled container so selects remain interactive during edit mode. */}
+        <div className="flex items-center justify-between gap-3 md:hidden">
+          {canEditType ? (
+            <AchievementTypeSelect form={form} isSubset={isSubset} />
+          ) : achievement.type ? (
+            <AchievementTypeIndicator
+              showLabel={true}
+              type={achievement.type}
+              wrapperClassName="!bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800"
+            />
+          ) : (
+            <div className="h-[30px]" />
+          )}
 
-            <div className="md:hidden">
+          <div className="flex gap-3">
+            {!isEditMode && !achievement.isPromoted ? (
+              <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+            ) : null}
+
+            {canEditPoints ? (
+              <AchievementPointsSelect form={form} />
+            ) : (
               <PointsLabels
                 points={achievement.points}
                 pointsWeighted={achievement.pointsWeighted}
               />
-            </div>
+            )}
           </div>
+        </div>
 
+        <div
+          className={cn(
+            'flex flex-col gap-2',
+            isEditMode && editableAchievementClassNames.disabled,
+          )}
+        >
           {achievement.unlockedHardcoreAt || achievement.unlockedAt ? (
             <div className="flex w-full items-center gap-2 px-1.5">
               <div
@@ -121,44 +210,51 @@ export const AchievementHero: FC = () => {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3">
-            <BaseProgress
-              className="h-1.5"
-              max={playersTotal > 0 ? playersTotal : undefined}
-              segments={[
-                {
-                  value: unlocksHardcoreTotal,
-                  className: 'bg-gradient-to-r from-amber-500 to-[gold]',
-                },
-                {
-                  value: unlocksTotal - unlocksHardcoreTotal,
-                  className: 'bg-neutral-500',
-                },
-              ]}
-            />
+        {achievement.isPromoted ? (
+          <div
+            className={cn(
+              'flex flex-col gap-1',
+              isEditMode && editableAchievementClassNames.disabled,
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <BaseProgress
+                className="h-1.5"
+                max={playersTotal > 0 ? playersTotal : undefined}
+                segments={[
+                  {
+                    value: unlocksHardcoreTotal,
+                    className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                  },
+                  {
+                    value: unlocksTotal - unlocksHardcoreTotal,
+                    className: 'bg-neutral-500',
+                  },
+                ]}
+              />
 
-            <p className="-mt-px text-xs font-semibold">
-              <span className="md:hidden">{formattedUnlockPercentage}</span>
+              <p className="-mt-px text-xs font-semibold">
+                <span className="md:hidden">{formattedUnlockPercentage}</span>
 
-              <span className="hidden whitespace-nowrap md:block">
-                {t('{{percentage}} unlock rate', {
-                  percentage: formattedUnlockPercentage,
-                })}
-              </span>
-            </p>
+                <span className="hidden whitespace-nowrap md:block">
+                  {t('{{percentage}} unlock rate', {
+                    percentage: formattedUnlockPercentage,
+                  })}
+                </span>
+              </p>
+            </div>
+
+            <div className="hidden text-xs md:block">
+              <p className="flex gap-1">
+                <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
+                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                <span>{t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}</span>
+                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
+              </p>
+            </div>
           </div>
-
-          <div className="hidden text-xs md:block">
-            <p className="flex gap-1">
-              <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
-              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
-              <span>{t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}</span>
-              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
-              <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
-            </p>
-          </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );

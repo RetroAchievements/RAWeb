@@ -55,7 +55,24 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         refresh: ['resources/views/**'],
       }),
 
-      react(),
+      react({
+        babel: {
+          plugins: [
+            [
+              'babel-plugin-react-compiler',
+              {
+                // @tanstack/react-table uses a mutable API that's incompatible with
+                // React Compiler's memoization. The useReactTable hook returns a stable
+                // object, so the compiler caches stale results from table/column/row
+                // method calls, breaking column visibility toggling and filter labels.
+                sources: (filename: string) => {
+                  return !filename.includes('features/game-list');
+                },
+              },
+            ],
+          ],
+        },
+      }),
 
       sentryVitePlugin({
         org: 'retroachievementsorg',

@@ -72,8 +72,6 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   randomGameApiRouteName,
   shouldHideItemIfNotInBacklog = false,
 }) => {
-  'use no memo'; // useReactTable does not support React Compiler
-
   const { ziggy } = usePageProps();
 
   const gameListQuery = useGameListPaginatedQuery({
@@ -85,7 +83,6 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
     isEnabled: ziggy.device === 'desktop',
   });
 
-  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     columns: columnDefinitions,
     data: gameListQuery.data?.items ?? [],

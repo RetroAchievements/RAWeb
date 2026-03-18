@@ -18,6 +18,7 @@ class AchievementShowPagePropsData extends Data
 {
     /**
      * @param Collection<int, CommentData> $recentVisibleComments
+     * @param AchievementChangelogEntryData[] $changelog
      * @param AchievementData[]|null $proximityAchievements
      * @param Collection<int, AchievementRecentUnlockData> $recentUnlocks
      */
@@ -29,6 +30,7 @@ class AchievementShowPagePropsData extends Data
         public Collection $recentVisibleComments,
         public ?GameData $backingGame = null,
         public ?GameAchievementSetData $gameAchievementSet = null,
+        public array $changelog = [],
         public ?array $proximityAchievements = null,
         public int $promotedAchievementCount = 0,
         #[AutoInertiaDeferred]

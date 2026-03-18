@@ -289,6 +289,8 @@ class BuildGameShowPagePropsAction
                 'system.active',
                 'system.iconUrl',
                 'system.nameShort',
+                'system.hasAnalogTvOutput',
+                'system.screenshotResolutions',
                 'system',
                 'timesBeaten',
                 'timesBeatenHardcore',
@@ -325,6 +327,7 @@ class BuildGameShowPagePropsAction
             isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
+            isRichPresenceExpanded: Cookie::get('prefers_expanded_rich_presence') === 'true',
             isViewingPublishedAchievements: $isPromoted,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 

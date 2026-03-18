@@ -1,4 +1,4 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { SubsetTag } from '@/common/components/SubsetTag';
@@ -24,10 +24,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   const { achievementSet, title, type } = gameAchievementSet;
   const { achievements } = achievementSet;
 
-  const { pointsTotal, pointsWeighted } = useMemo(
-    () => getAchievementSetPointsStats(achievements),
-    [achievements],
-  );
+  const { pointsTotal, pointsWeighted } = getAchievementSetPointsStats(achievements);
 
   return (
     <div className="relative flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">

@@ -3,17 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BaseDialogFooter } from '@/common/components/+vendor/BaseDialog';
-import {
-  BaseForm,
-  BaseFormControl,
-  BaseFormField,
-  BaseFormItem,
-  BaseFormLabel,
-} from '@/common/components/+vendor/BaseForm';
-import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
+import { BaseForm } from '@/common/components/+vendor/BaseForm';
 import { cn } from '@/common/utils/cn';
-import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
+import { SetToggle } from './SetToggle';
 import { useSubsetConfigurationForm } from './useSubsetConfigurationForm';
 
 interface SubsetConfigurationFormProps {
@@ -32,6 +25,10 @@ export const SubsetConfigurationForm: FC<SubsetConfigurationFormProps> = ({
     onSubmitSuccess,
   });
 
+  const noSetupSets = configurableSets.filter((set) => set.type === 'core' || set.type === 'bonus');
+  const patchRequiredSets = configurableSets.filter((set) => set.type === 'specialty');
+  const hasBothTypes = noSetupSets.length > 0 && patchRequiredSets.length > 0;
+
   return (
     <BaseForm {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} name="subset-configuration">
@@ -41,46 +38,33 @@ export const SubsetConfigurationForm: FC<SubsetConfigurationFormProps> = ({
             'light:border light:border-neutral-200 light:bg-white',
           )}
         >
-          {configurableSets.map((configurableSet) => (
-            <BaseFormField
-              key={`configurable-set-${configurableSet.id}`}
-              control={form.control}
-              name={`preferences.${configurableSet.id}`}
-              render={({ field }) => (
-                <BaseFormItem className="flex w-full items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={configurableSet.achievementSet.imageAssetPathUrl}
-                      alt={configurableSet.title as string}
-                      className="size-8 rounded-sm"
-                    />
+          {hasBothTypes ? (
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-neutral-300 light:text-neutral-600">
+                  {t('No extra setup needed')}
+                </p>
 
-                    <BaseFormLabel>{configurableSet.title ?? BASE_SET_LABEL}</BaseFormLabel>
-                  </div>
+                {noSetupSets.map((set) => (
+                  <SetToggle key={set.id} configurableSet={set} control={form.control} />
+                ))}
+              </div>
 
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        'hidden text-xs sm:block',
-                        field.value ? 'text-text' : 'text-neutral-700',
-                      )}
-                    >
-                      {field.value ? t('Opted In') : t('Opted Out')}
-                    </span>
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-neutral-300 light:text-neutral-600">
+                  {t('Requires a patched game file')}
+                </p>
 
-                    <BaseFormControl>
-                      <BaseSwitch
-                        checked={field.value}
-                        onCheckedChange={(newValue) => {
-                          field.onChange(newValue);
-                        }}
-                      />
-                    </BaseFormControl>
-                  </div>
-                </BaseFormItem>
-              )}
-            />
-          ))}
+                {patchRequiredSets.map((set) => (
+                  <SetToggle key={set.id} configurableSet={set} control={form.control} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            configurableSets.map((set) => (
+              <SetToggle key={set.id} configurableSet={set} control={form.control} />
+            ))
+          )}
         </div>
 
         <BaseDialogFooter className="pt-8">
