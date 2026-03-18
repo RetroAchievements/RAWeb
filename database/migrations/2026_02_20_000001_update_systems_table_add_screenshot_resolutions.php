@@ -258,8 +258,9 @@ return new class extends Migration {
             // Atari ST - RA docs: 320x200.
             36 => [[320, 200]],
 
-            // Amstrad CPC - RA docs: 192x272.
-            37 => [[192, 272]],
+            // Amstrad CPC - 160x200, 320x200, or 640x200 depending on color depth.
+            // The core adds borders (272 height). 4-bpp and 2-bpp modes double the width.
+            37 => [[192, 272], [384, 272], [768, 272]],
 
             // Apple II - RA docs: 280x192.
             38 => [[280, 192]],
