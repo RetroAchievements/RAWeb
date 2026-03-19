@@ -60,7 +60,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
-            Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
+            Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show')->middleware('cacheResponse');
             Route::get('achievement/{achievementId}{slug?}', fn ($achievementId) => $this->handlePageRequest('achievementInfo', $achievementId))->name('achievement.show');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
         });
