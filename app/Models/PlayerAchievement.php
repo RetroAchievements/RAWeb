@@ -9,6 +9,8 @@ use Database\Factories\PlayerAchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Facades\DB;
 
 class PlayerAchievement extends BasePivot
 {
@@ -75,6 +77,21 @@ class PlayerAchievement extends BasePivot
         return $this->user();
     }
 
+    /**
+     * @return HasOneThrough<Game, Achievement, $this>
+     */
+    public function game(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Game::class,
+            Achievement::class,
+            'id',             // FK on achievements (its primary key)
+            'id',             // FK on games (its primary key)
+            'achievement_id', // Local key on player_achievements
+            'game_id'         // Local key on achievements
+        );
+    }
+
     // == scopes
 
     /**
@@ -86,6 +103,49 @@ class PlayerAchievement extends BasePivot
         return $query->whereHas('achievement', function ($query) use ($game) {
             $query->where('game_id', $game->id);
         });
+    }
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeForGameId(Builder $query, int $gameId): Builder
+    {
+        return $query->whereHas('achievement', fn (Builder $q) => $q->where('achievements.game_id', $gameId));
+    }
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeForAchievementSetId(Builder $query, int $achievementSetId): Builder
+    {
+        return $query->whereHas('achievement', function (Builder $q) use ($achievementSetId) {
+            $q->whereExists(function ($sub) use ($achievementSetId) {
+                $sub->select(DB::raw(1))
+                    ->from('achievement_set_achievements')
+                    ->whereColumn('achievement_set_achievements.achievement_id', 'achievements.id')
+                    ->where('achievement_set_achievements.achievement_set_id', $achievementSetId);
+            });
+        });
+    }
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeUnlockedFrom(Builder $query, string $date): Builder
+    {
+        return $query->where('unlocked_at', '>=', $date);
+    }
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeUnlockedTo(Builder $query, string $date): Builder
+    {
+        return $query->where('unlocked_at', '<=', $date);
     }
 
     /**
