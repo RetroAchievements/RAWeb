@@ -292,4 +292,34 @@ describe('Component: PlayableMainMedia', () => {
       expect(screen.getByRole('dialog')).toBeVisible();
     });
   });
+
+  it('given the gallery dialog is open, closing it resets the dialog state', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'title' }),
+      createGameScreenshot({ id: 2, type: 'ingame' }),
+    ];
+
+    render(
+      <PlayableMainMedia
+        imageTitleUrl="https://example.com/title.jpg"
+        imageIngameUrl="https://example.com/ingame.jpg"
+        numScreenshots={2}
+        screenshots={screenshots}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('img', { name: /title screenshot/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeVisible();
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
 });

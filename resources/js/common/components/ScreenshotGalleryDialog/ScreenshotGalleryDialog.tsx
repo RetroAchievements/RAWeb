@@ -100,17 +100,19 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                 </DialogPrimitive.Title>
 
                 {/* Top bar with a close button */}
-                <div className="sticky top-0 z-10 flex w-full max-w-4xl justify-end bg-black/80 px-4 py-2.5 backdrop-blur-sm">
-                  <DialogPrimitive.Close
-                    className={cn(
-                      'flex size-8 items-center justify-center rounded-full',
-                      'text-neutral-100 transition-colors',
-                      'hover:text-white focus:outline-none',
-                    )}
-                  >
-                    <RxCross2 className="size-6" />
-                    <span className="sr-only">{t('Close')}</span>
-                  </DialogPrimitive.Close>
+                <div className="sticky top-0 z-10 flex w-full items-center justify-center bg-black/95 py-2.5 backdrop-blur-sm">
+                  <div className="flex w-full max-w-4xl justify-end px-4">
+                    <DialogPrimitive.Close
+                      className={cn(
+                        'flex size-8 items-center justify-center rounded-full',
+                        'text-neutral-100 transition-colors',
+                        'hover:text-white focus:outline-none',
+                      )}
+                    >
+                      <RxCross2 className="size-6" />
+                      <span className="sr-only">{t('Close')}</span>
+                    </DialogPrimitive.Close>
+                  </div>
                 </div>
 
                 {/* Stacked images */}
