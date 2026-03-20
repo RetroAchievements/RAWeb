@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
 
@@ -51,7 +52,7 @@ export const AvatarSection: FC = () => {
     });
   };
 
-  const [imageData] = form.watch(['imageData']);
+  const imageData = useWatch({ name: 'imageData', control: form.control });
 
   return (
     <div className="flex flex-col gap-4">
@@ -78,9 +79,7 @@ export const AvatarSection: FC = () => {
                           accept=".png,.jpeg,.jpg,.gif"
                           value={(field.value as File & { fileName: string })?.fileName}
                           onChange={(event) => {
-                            if (event.target.files) {
-                              field.onChange(event.target.files[0]);
-                            }
+                            field.onChange(event.target.files![0]);
                           }}
                         />
                       </BaseFormControl>

@@ -33,6 +33,7 @@ class Server extends BaseServer
         return [
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
+            GameHashes\GameHashSchema::class,
             Games\GameSchema::class,
             Hubs\HubSchema::class,
             LeaderboardEntries\LeaderboardEntrySchema::class,

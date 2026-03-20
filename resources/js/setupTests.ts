@@ -1,8 +1,13 @@
+// oxlint-disable typescript/no-explicit-any
 /* eslint-disable no-restricted-imports -- test setup can import from @testing-library/react */
 
 import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
+import {
+  resetIntersectionMocking,
+  setupIntersectionMocking,
+} from 'react-intersection-observer/test-utils';
 
 import i18n from './i18n-client';
 import { loadFaker } from './test/createFactory';
@@ -12,6 +17,26 @@ import { Ziggy } from './ziggy';
 // @ts-expect-error -- we're injecting this on purpose
 globalThis.Ziggy = Ziggy;
 process.env.TZ = 'UTC';
+
+/**
+ * Suppress ECONNREFUSED errors from happy-dom's fetch/iframe teardown.
+ * These bypass Vitest's onConsoleLog when running in threads pool, so
+ * we intercept stderr writes directly.
+ */
+const originalStderrWrite = process.stderr.write.bind(process.stderr);
+process.stderr.write = function (chunk: any, ...args: any[]) {
+  const str = typeof chunk === 'string' ? chunk : (chunk?.toString?.() ?? '');
+
+  if (
+    str.includes('ECONNREFUSED') ||
+    str.includes('AggregateError') ||
+    (str.includes('DOMException') && (str.includes('AbortError') || str.includes('NetworkError')))
+  ) {
+    return true;
+  }
+
+  return originalStderrWrite(chunk, ...args);
+} as typeof process.stderr.write;
 
 // Mock Inertia globally for all tests.
 vi.mock('@inertiajs/react', async (importOriginal) => {
@@ -84,25 +109,45 @@ beforeAll(() => {
       }
     },
   });
+
+  /**
+   * happy-dom doesn't define window.confirm, which causes
+   * vi.spyOn(window, 'confirm') to fail in Vitest 4+.
+   */
+  if (!window.confirm) {
+    window.confirm = () => false;
+  }
 });
 
-beforeEach(() => {
-  // We'll directly dump all arguments given to Ziggy's route() function.
-  vi.mock('ziggy-js', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tests are ok
-    route: vi.fn((...args: any[]) => {
-      // If called with no arguments, return an object with current() method.
-      if (args.length === 0) {
-        return {
-          current: vi.fn(() => 'some.route'),
-          queryParams: {},
-        };
-      }
+// We'll directly dump all arguments given to Ziggy's route() function.
+vi.mock('ziggy-js', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tests are ok
+  route: vi.fn((...args: any[]) => {
+    // If called with no arguments, return an object with current() method.
+    if (args.length === 0) {
+      return {
+        current: vi.fn(() => 'some.route'),
+        queryParams: {},
+      };
+    }
 
-      // Otherwise, return the arguments as before for compatibility.
-      return args;
+    // Otherwise, return the arguments as before for compatibility.
+    return args;
+  }),
+}));
+
+/**
+ * Vitest 4's vi.fn() doesn't wrap arrow functions as constructable.
+ * The library's setup passes an arrow fn to the mock factory, so we
+ * wrap it in a regular function to keep `new IntersectionObserver()` working.
+ */
+beforeEach(() => {
+  // @ts-expect-error -- the library's type signature is narrower than what we need here.
+  setupIntersectionMocking((impl: (...args: any[]) => any) =>
+    vi.fn(function (this: any, ...args: any[]) {
+      return impl.apply(this, args);
     }),
-  }));
+  );
 });
 
 // window.matchMedia is undefined by default in JSDOM.
@@ -126,7 +171,13 @@ afterEach(() => {
   // Run garbage collection for any React components that may still be mounted.
   cleanup();
 
-  // Reset global mocks, such as route(), back to a pristine state.
+  // Tear down the IntersectionObserver mock between tests.
+  resetIntersectionMocking();
+
+  // Vitest 4's restoreAllMocks() only restores spied-on functions.
+  // clearAllMocks() is needed to also reset standalone vi.fn() call history
+  // (eg: the router mock's visit/replace/reload functions).
+  vi.clearAllMocks();
   vi.restoreAllMocks();
 
   // If any fake dates or times are in place, remove them after each test.

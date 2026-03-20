@@ -416,12 +416,18 @@ manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
+updateAchievementDescription?: boolean;
+updateAchievementIsPromoted?: boolean;
+updateAchievementPoints?: boolean;
+updateAchievementTitle?: boolean;
+updateAchievementType?: boolean;
 updateAnyAchievementSetClaim?: boolean;
 updateAvatar?: boolean;
 updateGame?: boolean;
 updateGameSet?: boolean;
 updateForumTopic?: boolean;
 updateMotto?: boolean;
+viewAchievementLogic?: boolean;
 viewAnyAchievementSetClaim?: boolean;
 viewDeveloperInterest?: boolean;
 };
@@ -468,6 +474,7 @@ userCurrentGameMinutesAgo: number | null;
 hasSiteReleaseNotes: boolean;
 hasUnreadSiteReleaseNote: boolean;
 deferredSiteReleaseNotes: Array<App.Data.News>;
+wiiSetCount: number | null;
 };
 export type SearchPageProps = {
 initialQuery: string;
@@ -833,6 +840,7 @@ isLockedOnlyFilterEnabled: boolean;
 isMissableOnlyFilterEnabled: boolean;
 isOnWantToDevList: boolean;
 isOnWantToPlayList: boolean;
+isRichPresenceExpanded: boolean;
 isSubscribedToAchievementComments: boolean;
 isSubscribedToComments: boolean;
 isSubscribedToTickets: boolean;
@@ -1081,10 +1089,12 @@ export type System = {
 id: number;
 name: string;
 active?: boolean;
+hasAnalogTvOutput?: boolean;
+iconUrl?: string;
 manufacturer?: string;
 nameFull?: string;
 nameShort?: string;
-iconUrl?: string;
+screenshotResolutions?: Array<{ width: number; height: number }> | null;
 };
 export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 system: App.Platform.Data.System;
@@ -1120,8 +1130,8 @@ pointsForNext: number;
 }
 declare namespace App.Platform.Enums {
 export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-export type UnlockMode = 0 | 1;
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
+export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner';
 export type AchievementSetType = 'core' | 'bonus' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty';
@@ -1133,6 +1143,7 @@ export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActi
 export type GamePageListSort = 'normal' | 'displayOrder' | '-displayOrder' | 'wonBy' | '-wonBy' | 'points' | '-points' | 'title' | '-title' | 'type' | '-type' | 'rank' | '-rank';
 export type GamePageListView = 'achievements' | 'leaderboards';
 export type GameReleaseRegion = 'as' | 'au' | 'br' | 'ch' | 'eu' | 'jp' | 'kr' | 'nz' | 'na' | 'worldwide' | 'other';
+export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected';
 export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
@@ -1142,6 +1153,7 @@ export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
 export type PlayerProgressResetType = 'account' | 'achievement' | 'achievement_set' | 'game';
 export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks_beaten' | 'all_beaten';
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
+export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }

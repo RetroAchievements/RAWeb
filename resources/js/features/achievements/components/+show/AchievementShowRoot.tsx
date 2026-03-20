@@ -16,9 +16,10 @@ import { AchievementInlineActions } from '../AchievementInlineActions';
 import { AchievementRecentUnlocks } from '../AchievementRecentUnlocks';
 import { AchievementTabs } from '../AchievementTabsList';
 import { ResetProgressDialog } from '../ResetProgressDialog';
+import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
 
 export const AchievementShowRoot: FC = () => {
-  const { achievement, backingGame, gameAchievementSet } =
+  const { achievement, backingGame, can, gameAchievementSet } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
@@ -34,6 +35,7 @@ export const AchievementShowRoot: FC = () => {
 
   return (
     <div>
+      {can?.updateAchievementIsPromoted ? <UpdatePromotedStatusDialog /> : null}
       {achievement.unlockedAt || achievement.unlockedHardcoreAt ? <ResetProgressDialog /> : null}
 
       <AchievementBreadcrumbs

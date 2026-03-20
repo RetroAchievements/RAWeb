@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Events\UserDeleted;
+use App\Models\GameScreenshot;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
@@ -44,6 +45,7 @@ use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Platform\Observers\GameScreenshotObserver;
 use App\Platform\Observers\MediaObserver;
 use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -152,6 +154,7 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        GameScreenshot::observe(GameScreenshotObserver::class);
         Media::observe(MediaObserver::class);
     }
 }
