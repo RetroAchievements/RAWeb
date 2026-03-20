@@ -13,6 +13,7 @@ use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
@@ -76,6 +77,7 @@ class GameSchema extends Schema
             BelongsTo::make('system')->readOnly(),
 
             BelongsToMany::make('achievementSets')->readOnly(),
+            HasMany::make('hashes')->type('game-hashes')->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /games/{id}/achievementSets
