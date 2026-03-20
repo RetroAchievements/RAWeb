@@ -116,11 +116,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
               screenshots={screenshots!}
               initialIndex={openAtIndex ?? 0}
               isOpen={openAtIndex !== null}
-              onOpenChange={(open) => {
-                if (!open) {
-                  setOpenAtIndex(null);
-                }
-              }}
+              onOpenChange={() => setOpenAtIndex(null)}
               hasAnalogTvOutput={hasAnalogTvOutput}
               hasBeatenGame={hasBeatenGame}
               isPixelated={isPixelated}
