@@ -122,4 +122,37 @@ describe('Component: HomeRoot', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
   });
+
+  it('given there is no current game and a wii set count exists, shows the Wii launch banner', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        userCurrentGame: null,
+        userCurrentGameMinutesAgo: null,
+        wiiSetCount: 183,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/explore all 183 achievement sets/i)).toBeVisible();
+  });
+
+  it('given there is a current game and a wii set count exists, shows the current game instead of the Wii banner', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        userCurrentGame: createGame({ title: 'Super Mario Bros.' }),
+        userCurrentGameMinutesAgo: 1,
+        wiiSetCount: 183,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
+    expect(screen.queryByText(/explore all 183 achievement sets/i)).not.toBeInTheDocument();
+  });
 });
