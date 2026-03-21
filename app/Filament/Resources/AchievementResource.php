@@ -69,7 +69,10 @@ class AchievementResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+        /** @var Builder<Achievement> $query */
+        $query = parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+
+        return $query;
     }
 
     /**
@@ -550,11 +553,14 @@ class AchievementResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Achievement> $query */
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
             ->with(['activeMaintainer.user', 'game']);
+
+        return $query;
     }
 
     public static function buildMaintainerForm(?Achievement $record): array

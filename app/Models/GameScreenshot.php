@@ -122,4 +122,17 @@ class GameScreenshot extends BaseModel
     {
         return $query->where('is_primary', true);
     }
+
+    /**
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    public function scopeOrderByType(Builder $query): Builder
+    {
+        return $query->orderByRaw("FIELD(type, ?, ?, ?)", [
+            ScreenshotType::Title->value,
+            ScreenshotType::Ingame->value,
+            ScreenshotType::Completion->value,
+        ]);
+    }
 }

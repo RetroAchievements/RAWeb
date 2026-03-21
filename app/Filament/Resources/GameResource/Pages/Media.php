@@ -11,26 +11,22 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\AddGameScreenshotAction;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\UploadedImageAspectRatioRule;
-use App\Rules\ValidScreenshotResolutionRule;
 use App\Support\MediaLibrary\Actions\ExtractBannerEdgeColorsAction;
 use BackedEnum;
-use Closure;
 use Exception;
 use Filament\Forms;
-use Filament\Notifications\Notification;
+use Filament\Navigation\NavigationItem;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
-use Illuminate\Validation\ValidationException;
 
 class Media extends EditRecord
 {
@@ -44,9 +40,83 @@ class Media extends EditRecord
         return 'Media';
     }
 
+    /**
+     * @param  array<string, mixed>  $urlParameters
+     * @return array<NavigationItem>
+     */
+    public static function getNavigationItems(array $urlParameters = []): array
+    {
+        $items = parent::getNavigationItems($urlParameters);
+
+        if (!isset($urlParameters['record'])) {
+            return $items;
+        }
+
+        $record = $urlParameters['record'];
+        $game = $record instanceof Game
+            ? $record->loadMissing(['gameScreenshots', 'media'])
+            : Game::with(['gameScreenshots', 'media'])->find($record);
+
+        if (!$game) {
+            return $items;
+        }
+
+        $missing = static::getMissingMedia($game);
+
+        foreach ($items as $item) {
+            if (empty($missing)) {
+                $item
+                    ->badge('✓', color: 'success')
+                    ->badgeTooltip('All media is present');
+            } else {
+                $item
+                    ->badge('!', color: 'danger')
+                    ->badgeTooltip('Missing: ' . implode(', ', $missing));
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected static function getMissingMedia(Game $game): array
+    {
+        $missing = [];
+
+        if (!$game->image_icon_asset_path || $game->image_icon_asset_path === Game::PLACEHOLDER_BADGE_PATH) {
+            $missing[] = 'Badge';
+        }
+
+        if (!$game->image_box_art_asset_path || $game->image_box_art_asset_path === Game::PLACEHOLDER_IMAGE_PATH) {
+            $missing[] = 'Box art';
+        }
+
+        if ($game->getMedia('banner')->isEmpty()) {
+            $missing[] = 'Banner';
+        }
+
+        $primaryTypes = $game->gameScreenshots
+            ->where('is_primary', true)
+            ->where('status', GameScreenshotStatus::Approved)
+            ->pluck('type.value')
+            ->toArray();
+
+        foreach (ScreenshotType::cases() as $type) {
+            if (!in_array($type->value, $primaryTypes)) {
+                $missing[] = $type->label() . ' screenshot';
+            }
+        }
+
+        return $missing;
+    }
+
     public function getRelationManagers(): array
     {
-        return [];
+        return [
+            GameResource\RelationManagers\GameScreenshotsRelationManager::class,
+        ];
     }
 
     public function getTitle(): string|Htmlable
@@ -76,22 +146,42 @@ class Media extends EditRecord
 
         return $schema
             ->components([
-                Schemas\Components\Section::make('Badge')
-                    ->icon('heroicon-s-star')
+                Schemas\Components\Grid::make()
+                    ->columns(['lg' => 2])
                     ->schema([
-                        Forms\Components\FileUpload::make('image_icon_asset_path')
-                            ->label('Badge')
-                            ->disk('livewire-tmp')
-                            ->image()
-                            ->rules([
-                                'dimensions:width=96,height=96',
+                        Schemas\Components\Section::make('Badge')
+                            ->icon('heroicon-s-star')
+                            ->columnSpan(1)
+                            ->schema([
+                                Forms\Components\FileUpload::make('image_icon_asset_path')
+                                    ->label('Badge')
+                                    ->disk('livewire-tmp')
+                                    ->image()
+                                    ->rules([
+                                        'dimensions:width=96,height=96',
+                                    ])
+                                    ->acceptedFileTypes(['image/png', 'image/jpeg'])
+                                    ->maxSize(1024)
+                                    ->maxFiles(1)
+                                    ->previewable(true),
                             ])
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true),
-                    ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
+
+                        Schemas\Components\Section::make('Box Art')
+                            ->icon('heroicon-s-rectangle-stack')
+                            ->columnSpan(1)
+                            ->schema([
+                                Forms\Components\FileUpload::make('image_box_art_asset_path')
+                                    ->label('Box Art')
+                                    ->disk('livewire-tmp')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/png', 'image/jpeg'])
+                                    ->maxSize(1024)
+                                    ->maxFiles(1)
+                                    ->previewable(true),
+                            ])
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
+                    ]),
 
                 Schemas\Components\Section::make('Banner Image')
                     ->icon('heroicon-s-photo')
@@ -118,58 +208,6 @@ class Media extends EditRecord
                             ->downloadable(false),
                     ])
                     ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
-
-                Schemas\Components\Section::make('Box Art')
-                    ->icon('heroicon-s-rectangle-stack')
-                    ->schema([
-                        Forms\Components\FileUpload::make('image_box_art_asset_path')
-                            ->label('Box Art')
-                            ->disk('livewire-tmp')
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true),
-                    ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
-
-                Schemas\Components\Section::make('Title Screenshot')
-                    ->icon('heroicon-s-tv')
-                    ->schema([
-                        Forms\Components\FileUpload::make('title_screenshot_upload')
-                            ->label('Title')
-                            ->disk('livewire-tmp')
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-                            ->maxSize(4096)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->rules($this->getScreenshotValidationRules())
-                            ->helperText($this->getScreenshotHelperText()),
-                    ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path'])),
-
-                Schemas\Components\Section::make('In-Game Screenshot')
-                    ->icon('heroicon-s-camera')
-                    ->schema([
-                        // We intentionally use a standard FileUpload instead of SpatieMediaLibraryFileUpload
-                        // here. SpatieMediaLibraryFileUpload manages the media collection directly, which
-                        // would bypass AddGameScreenshotAction. SHA1 dedup, cap enforcement, legacy PNG
-                        // creation, and GameScreenshot record creation would only happen in a fragile
-                        // afterSave() reconciliation. By using a standard FileUpload, the action is the
-                        // single entry point for all validation and side effects.
-                        Forms\Components\FileUpload::make('ingame_screenshot_upload')
-                            ->label('Upload New Screenshot')
-                            ->disk('livewire-tmp')
-                            ->image()
-                            ->maxFiles(1)
-                            ->maxSize(4096)
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-                            ->rules($this->getScreenshotValidationRules())
-                            ->previewable(true)
-                            ->helperText($this->getScreenshotHelperText()),
-                    ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'screenshots'])),
             ]);
     }
 
@@ -184,9 +222,6 @@ class Media extends EditRecord
         // Banner is handled by MediaLibrary, not a database column.
         unset($data['banner']);
 
-        // Screenshots are processed in afterSave() via AddGameScreenshotAction.
-        unset($data['ingame_screenshot_upload'], $data['title_screenshot_upload']);
-
         return $data;
     }
 
@@ -194,10 +229,6 @@ class Media extends EditRecord
     {
         /** @var Game $game */
         $game = $this->record;
-
-        // Process new screenshot uploads through AddGameScreenshotAction.
-        $this->processScreenshotUploads($game, 'ingame_screenshot_upload', ScreenshotType::Ingame);
-        $this->processScreenshotUploads($game, 'title_screenshot_upload', ScreenshotType::Title);
 
         // Extract and store edge colors for newly uploaded banners.
         $banner = $game->current_banner_media;
@@ -221,77 +252,5 @@ class Media extends EditRecord
                 // Silently fail if color extraction fails - this isn't critical.
             }
         }
-    }
-
-    private function processScreenshotUploads(Game $game, string $dataKey, ScreenshotType $type): void
-    {
-        $uploads = $this->data[$dataKey] ?? [];
-        if (empty($uploads)) {
-            return;
-        }
-
-        $addAction = new AddGameScreenshotAction();
-        $failureMessages = [];
-
-        foreach ($uploads as $upload) {
-            $filePath = storage_path('app/livewire-tmp/' . $upload);
-            if (!file_exists($filePath)) {
-                continue;
-            }
-
-            $uploadedFile = new UploadedFile($filePath, basename($filePath), test: true);
-
-            try {
-                // Always mark as primary so each new upload replaces the current
-                // screenshot, matching pre-migration behavior where every upload
-                // became "the" screenshot. The action handles demoting the old
-                // primary automatically.
-                $addAction->execute($game, $uploadedFile, $type, isPrimary: true);
-            } catch (ValidationException $e) {
-                $failureMessages[] = collect($e->errors())->flatten()->first();
-            }
-        }
-
-        if (!empty($failureMessages)) {
-            Notification::make()
-                ->warning()
-                ->title('Some screenshots were not uploaded')
-                ->body(implode("\n", array_unique($failureMessages)))
-                ->send();
-        }
-    }
-
-    private function getScreenshotValidationRules(): Closure
-    {
-        return fn () => array_filter([
-            'dimensions:min_width=64,min_height=64,max_width=1920,max_height=1080',
-            new DisallowAnimatedImageRule(),
-            $this->record?->system
-                ? new ValidScreenshotResolutionRule($this->record->system)
-                : null,
-        ]);
-    }
-
-    private function getScreenshotHelperText(): ?string
-    {
-        $system = $this->record?->system;
-        $resolutions = $system?->screenshot_resolutions;
-        if (empty($resolutions)) {
-            return null;
-        }
-
-        $formatted = collect($resolutions)
-            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
-            ->join(', ');
-
-        $label = count($resolutions) > 1 ? 'Accepted resolutions' : 'Expected resolution';
-
-        $text = "{$label} for {$system->name}: {$formatted} (or 2x/3x integer multiples where dimensions permit)";
-
-        if ($system->has_analog_tv_output) {
-            $text .= '. SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
-        }
-
-        return $text;
     }
 }

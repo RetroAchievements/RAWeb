@@ -75,6 +75,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     use Searchable;
     use SoftDeletes;
 
+    public const PLACEHOLDER_BADGE_PATH = '/Images/000001.png';
     public const PLACEHOLDER_IMAGE_PATH = '/Images/000002.png';
 
     // TODO migrate forum_topic_id to forumable morph

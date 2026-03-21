@@ -20,6 +20,7 @@ use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
+use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -866,6 +867,13 @@ describe('Count Props', function () {
             'system_id' => $system->id,
         ]);
 
+        GameScreenshot::factory()->for($game)->title()->create();
+        GameScreenshot::factory()->for($game)->ingame()->create();
+        GameScreenshot::factory()->for($game)->completion()->create();
+        // ... pending and rejected screenshots should not be counted ...
+        GameScreenshot::factory()->for($game)->ingame()->pending()->create();
+        GameScreenshot::factory()->for($game)->ingame()->rejected()->create();
+
         // ACT
         $response = get(route('game.show', ['game' => $game]));
 
@@ -874,6 +882,7 @@ describe('Count Props', function () {
             ->where('numComments', 3)
             ->where('numLeaderboards', 2)
             ->where('numCompatibleHashes', 4)
+            ->where('numScreenshots', 3) // !! not 5
         );
     });
 
