@@ -188,7 +188,7 @@ it('resets the old type legacy field to placeholder when the last screenshot of 
     expect($game->fresh()->image_title_asset_path)->toEqual('/Images/000002.png');
 });
 
-it('does not auto-publish a rejected screenshot when its type is changed to a type with no primary', function () {
+it('does not auto-publish a non-approved screenshot when its type is changed to a type with no primary', function (GameScreenshotStatus $status) {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
 
@@ -198,19 +198,20 @@ it('does not auto-publish a rejected screenshot when its type is changed to a ty
         'media_id' => $media->id,
         'type' => ScreenshotType::Ingame,
         'is_primary' => false,
-        'status' => GameScreenshotStatus::Rejected,
+        'status' => $status,
     ]);
 
     // ACT
-    // ... change a rejected In-game screenshot to Title, which has no primary ...
     $screenshot->update(['type' => ScreenshotType::Title]);
 
     // ASSERT
-    // ... a rejected screenshot should stay rejected and non-primary ...
     $fresh = $screenshot->fresh();
-    expect($fresh->status)->toEqual(GameScreenshotStatus::Rejected);
+    expect($fresh->status)->toEqual($status);
     expect($fresh->is_primary)->toBeFalse();
-});
+})->with([
+    'rejected' => GameScreenshotStatus::Rejected,
+    'pending' => GameScreenshotStatus::Pending,
+]);
 
 it('promotes the next approved screenshot for the old type when the primary changes type', function () {
     // ARRANGE

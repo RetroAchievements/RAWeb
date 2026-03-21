@@ -102,7 +102,7 @@ class GameScreenshotObserver
             ->where('id', '!=', $screenshot->id)
             ->exists();
 
-        $isPublishable = $screenshot->status !== GameScreenshotStatus::Rejected;
+        $isPublishable = $screenshot->status === GameScreenshotStatus::Approved;
 
         if (!$newTypeHasPrimary && $isPublishable) {
             $screenshot->updateQuietly([
