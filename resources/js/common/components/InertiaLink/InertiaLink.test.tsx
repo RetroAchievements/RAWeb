@@ -205,4 +205,50 @@ describe('Component: InertiaLink', () => {
     const linkEl = screen.getByText('Link Text');
     expect(linkEl).toHaveAttribute('href', '/');
   });
+
+  it('given the browser fires an unhover event without having hovered first, does not throw', async () => {
+    // ARRANGE
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    const linkEl = screen.getByRole('link', { name: /link text/i });
+    await userEvent.unhover(linkEl);
+
+    // ASSERT
+    expect(linkEl).toBeVisible();
+  });
+
+  it('given the user hovers and immediately leaves before the prefetch timeout fires, clears the timeout', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    const linkEl = screen.getByRole('link', { name: /link text/i });
+    await userEvent.hover(linkEl);
+    await userEvent.unhover(linkEl);
+
+    // ASSERT
+    await waitFor(
+      () => {
+        expect(prefetchSpy).not.toHaveBeenCalled();
+      },
+      { timeout: 150 },
+    );
+  });
 });

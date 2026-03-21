@@ -113,7 +113,10 @@ class RouteServiceProvider extends ServiceProvider
 
                             $server->resource('games', GameController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('hashes')->readOnly();
+                                });
 
                             $server->resource('hubs', HubController::class)
                                 ->only('index', 'show')

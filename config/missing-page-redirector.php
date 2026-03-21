@@ -54,7 +54,7 @@ return [
          * achievements
          */
         '/achievementInfo.php' => '/achievement/{ID}',
-        '/achievementinspector.php' => '/game/{g}/achievements',
+        '/achievementinspector.php' => '/manage/games/{g}',
         '/achievementList.php' => '/achievements',
         '/awardedList.php' => '/achievements',
 

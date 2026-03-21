@@ -7,7 +7,6 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementAuthorTask;
@@ -499,23 +498,6 @@ function UploadNewAchievement(
     }
 
     return false;
-}
-
-function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder): bool
-{
-    $achievement = Achievement::find($achievementId);
-
-    if (!$achievement) {
-        return false;
-    }
-
-    $achievement->order_column = $newDisplayOrder;
-    $achievement->save();
-
-    // Double write to achievement_set_achievements to ensure it remains in sync.
-    (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($achievement);
-
-    return true;
 }
 
 function updateAchievementPromotedStatus(int|string|array $inputAchievementIds, bool $isPromoted): void

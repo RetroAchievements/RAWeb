@@ -283,6 +283,25 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertNotContains((string) $missableAchievement->id, $ids);
     }
 
+    public function testItReturnsErrorWhenFilteringByInvalidType(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/achievements?filter[type]=invalid-value');
+
+        // Assert
+        $response->assertStatus(400);
+    }
+
     public function testItExcludesHubGameAchievements(): void
     {
         // Arrange
