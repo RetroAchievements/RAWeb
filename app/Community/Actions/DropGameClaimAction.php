@@ -13,6 +13,8 @@ use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class DropGameClaimAction
 {
@@ -43,13 +45,20 @@ class DropGameClaimAction
 
         $webhookUrl = config('services.discord.webhook.claims');
         if (!empty($webhookUrl)) {
-            $payload = [
-                'username' => 'Claim Bot',
-                'avatar_url' => media_asset('UserPic/QATeam.png'),
-                'content' => route('game.show', $claim->game) . "\n:no_entry_sign: " .
-                                $claim->claim_type->label() . " claim dropped by " . $actingUser->display_name,
-            ];
-            (new Client())->post($webhookUrl, ['json' => $payload]);
+            try {
+                $payload = [
+                    'username' => 'Claim Bot',
+                    'avatar_url' => media_asset('UserPic/QATeam.png'),
+                    'content' => route('game.show', $claim->game) . "\n:no_entry_sign: " .
+                                    $claim->claim_type->label() . " claim dropped by " . $actingUser->display_name,
+                ];
+                (new Client())->post($webhookUrl, ['json' => $payload]);
+            } catch (Throwable $e) {
+                Log::warning('Failed to send Discord webhook for claim drop.', [
+                    'claim_id' => $claim->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }

@@ -76,6 +76,13 @@ nbproject
 /docker/nginx/logs
 /tmp
 
+# FrankenPHP / Octane
+/Caddyfile
+/Caddyfile.template
+/config/caddy/
+/data/caddy/
+/frankenphp
+
 # OS files
 ._*
 .~lock.*

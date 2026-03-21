@@ -118,14 +118,10 @@ describe('Component: CreateMessageThreadForm', () => {
     await userEvent.click(screen.getByText(mockUser.displayName));
 
     // ... then fill out the rest of the form ...
-    await userEvent.type(
-      screen.getByPlaceholderText(/enter your message's subject/i),
-      'this is my subject',
-    );
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this is my message content',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/enter your message's subject/i));
+    await userEvent.paste('this is my subject');
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this is my message content');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
@@ -187,14 +183,10 @@ describe('Component: CreateMessageThreadForm', () => {
     });
     await userEvent.click(screen.getByText(mockUser.displayName));
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/enter your message's subject/i),
-      'this is my subject',
-    );
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this is my message content',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/enter your message's subject/i));
+    await userEvent.paste('this is my subject');
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this is my message content');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
@@ -247,14 +239,10 @@ describe('Component: CreateMessageThreadForm', () => {
     });
     await userEvent.click(screen.getByText(mockUser.displayName));
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/enter your message's subject/i),
-      'this is my subject',
-    );
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this is my message content',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/enter your message's subject/i));
+    await userEvent.paste('this is my subject');
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this is my message content');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
@@ -277,10 +265,8 @@ describe('Component: CreateMessageThreadForm', () => {
     });
 
     // ACT
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this is my message content',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this is my message content');
     await userEvent.click(screen.getByRole('button', { name: /preview/i }));
 
     // ASSERT
@@ -368,14 +354,10 @@ describe('Component: CreateMessageThreadForm', () => {
     });
     await userEvent.click(screen.getByText(mockUser.displayName));
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/enter your message's subject/i),
-      'this is my subject',
-    );
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this is my message content',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/enter your message's subject/i));
+    await userEvent.paste('this is my subject');
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this is my message content');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
@@ -444,12 +426,11 @@ describe('Component: CreateMessageThreadForm', () => {
     });
     await userEvent.click(screen.getByText(mockUser.displayName));
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/enter your message's subject/i),
-      'this is my subject',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/enter your message's subject/i));
+    await userEvent.paste('this is my subject');
     const textArea = screen.getByPlaceholderText(/don't ask for links/i);
-    await userEvent.type(textArea, 'this is my message content');
+    await userEvent.click(textArea);
+    await userEvent.paste('this is my message content');
     await userEvent.keyboard('{Meta>}{Enter}{/Meta}'); // !! Cmd+Enter while focused in form
 
     // ASSERT
@@ -553,10 +534,8 @@ describe('Component: CreateMessageThreadForm', () => {
     });
     await userEvent.click(screen.getByText(mockUser.displayName));
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/don't ask for links/i),
-      'this violates the rules',
-    );
+    await userEvent.click(screen.getByPlaceholderText(/don't ask for links/i));
+    await userEvent.paste('this violates the rules');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT

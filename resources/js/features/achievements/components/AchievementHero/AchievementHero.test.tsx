@@ -47,9 +47,7 @@ describe('Component: AchievementHero', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('textbox', { name: 'Achievement title' })).toHaveValue(
-      'Beat the Final Boss',
-    );
+    expect(screen.getByText('Beat the Final Boss')).toBeVisible();
     expect(screen.getByText(/defeat the last enemy/i)).toBeVisible();
     expect(screen.getAllByText(/points/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/retropoints/i).length).toBeGreaterThanOrEqual(1);
@@ -337,7 +335,7 @@ describe('Component: AchievementHero', () => {
     expect(titleInput).not.toHaveAttribute('readOnly');
   });
 
-  it('given the user is not in edit mode, the title input is read-only', () => {
+  it('given the user is not in edit mode, renders the title as plain text instead of an input', () => {
     // ARRANGE
     const achievement = createAchievement({
       title: 'Original Title',
@@ -354,8 +352,31 @@ describe('Component: AchievementHero', () => {
     });
 
     // ASSERT
-    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
-    expect(titleInput).toHaveAttribute('readOnly');
+    expect(screen.queryByRole('textbox', { name: 'Achievement title' })).not.toBeInTheDocument();
+    expect(screen.getByText('Original Title')).toBeVisible();
+  });
+
+  it('given the user is not in edit mode, renders the description as plain text instead of a textarea', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      description: 'Original description',
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: {
+        achievement,
+        can: { updateAchievementDescription: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('textbox', { name: 'Achievement description' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Original description')).toBeVisible();
   });
 
   it('given the user is in edit mode and can edit the type, shows the type select', () => {
@@ -495,7 +516,6 @@ describe('Component: AchievementHero', () => {
     // ASSERT
     const descriptionTextarea = screen.getByRole('textbox', { name: 'Achievement description' });
     expect(descriptionTextarea).not.toHaveAttribute('readOnly');
-    expect(descriptionTextarea).toHaveAttribute('tabIndex', '0');
   });
 
   it('given a promoted achievement in edit mode, applies disabled styling to the progress bar section', () => {

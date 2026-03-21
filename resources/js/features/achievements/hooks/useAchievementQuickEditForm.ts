@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -7,6 +8,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { isEditModeAtom } from '../state/achievements.atoms';
 import { useUpdateAchievementMutation } from './mutations/useUpdateAchievementMutation';
 
 const achievementQuickEditFormSchema = z.object({
@@ -21,6 +23,7 @@ export function useAchievementQuickEditForm(initialValues: AchievementQuickEditF
   const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
+  const setIsEditMode = useSetAtom(isEditModeAtom);
   const mutation = useUpdateAchievementMutation();
 
   const form = useForm<AchievementQuickEditFormValues>({
@@ -54,7 +57,7 @@ export function useAchievementQuickEditForm(initialValues: AchievementQuickEditF
     toastMessage.promise(mutation.mutateAsync({ achievementId: achievement.id, payload }), {
       loading: t('Saving...'),
       success: () => {
-        router.reload();
+        router.reload({ onFinish: () => setIsEditMode(false) });
 
         return t('Saved!');
       },

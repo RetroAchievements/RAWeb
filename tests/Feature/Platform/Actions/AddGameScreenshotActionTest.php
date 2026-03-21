@@ -35,11 +35,11 @@ it('creates a primary game screenshot with media on first upload', function () {
     expect($screenshot->status)->toEqual(GameScreenshotStatus::Approved);
     expect($screenshot->is_primary)->toBeTrue();
     expect($screenshot->media_id)->not->toBeNull();
+    expect($screenshot->width)->toEqual(256);
+    expect($screenshot->height)->toEqual(224);
 
     $media = $game->fresh()->getMedia('screenshots')->first();
     expect($media->getCustomProperty('sha1'))->not->toBeNull();
-    expect($media->getCustomProperty('width'))->toEqual(256);
-    expect($media->getCustomProperty('height'))->toEqual(224);
 });
 
 it('does not set subsequent screenshots as primary', function () {
@@ -124,6 +124,22 @@ it('enforces a cap of 1 approved screenshot for title and completion types', fun
     'title' => [ScreenshotType::Title],
     'completion' => [ScreenshotType::Completion],
 ]);
+
+it('demotes the existing title primary image when a new title screenshot is forced as primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('title1.png', 256, 224), ScreenshotType::Title);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('title2.png', 320, 240), ScreenshotType::Title, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+});
 
 it('rejects a file smaller than 64x64', function () {
     // ARRANGE

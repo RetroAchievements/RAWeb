@@ -177,6 +177,24 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     expect(screen.getByText(/removed/i)).toBeVisible();
   });
 
+  it('given shouldEnableToast is false when removing, does not pop a toast', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
+
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
+
+    // ACT
+    await act(async () => {
+      await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
+        shouldEnableToast: false,
+      });
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/removed sonic the hedgehog/i)).not.toBeInTheDocument();
+  });
+
   it('on remove, the user can click an undo button in the popped toast to re-add the game to their backlog', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });

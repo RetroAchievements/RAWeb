@@ -78,14 +78,31 @@ describe('shouldCacheResponse', function () {
         'application/json',
     ]);
 
-    it('rejects responses when the session has flash data', function (string $key) {
+    it('rejects responses when the session has fresh flash data', function (string $key) {
+        // ARRANGE
         session()->flash($key, 'Some message.');
         $response = new Response('OK', 200, ['Content-Type' => 'text/html']);
 
+        // ACT
         $result = $this->profile->shouldCacheResponse($response);
 
+        // ASSERT
         expect($result)->toBeFalse();
     })->with(['message', 'success', 'error', 'status']);
+
+    it('rejects responses when the session has aged flash data', function () {
+        // ARRANGE
+        session()->flash('error', 'Invalid token.');
+        session()->ageFlashData();
+
+        $response = new Response('OK', 200, ['Content-Type' => 'text/html']);
+
+        // ACT
+        $result = $this->profile->shouldCacheResponse($response);
+
+        // ASSERT
+        expect($result)->toBeFalse();
+    });
 
     it('rejects redirects, errors, and binary responses', function (int $status, string $contentType) {
         // ARRANGE
