@@ -68,7 +68,7 @@ class EventsSeeder extends Seeder
 
                 // between 15 and 40 players will join the first week. each subsequent week, an additional 6-12 will join.
                 $first = empty($aotwPlayers);
-                $newPlayers = $first ? rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(2, 6) : rand(6, 12);
+                $newPlayers = $first ? rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(3, 8) + rand(3, 8) : rand(6, 12);
 
                 $users = User::query()
                     ->where('points_hardcore', '>', 'points')
@@ -79,9 +79,7 @@ class EventsSeeder extends Seeder
                     ->limit($newPlayers)
                     ->get();
                 foreach ($users as $user) {
-                    if (!in_array($user, $aotwPlayers)) {
-                        $aotwPlayers[] = $user;
-                    }
+                    $aotwPlayers[] = $user;
                 }
 
                 // randomize the player list - players at the end of the list are less likely to play this week
@@ -211,10 +209,9 @@ class EventsSeeder extends Seeder
             'image_asset_path' => '/Images/000001.png',
         ]);
 
-        $achievementCount = 0;
         for ($achievementCount = 0; $achievementCount < $numAchievements; $achievementCount++) {
             $achievement = Achievement::create([
-                'title' => $prefix ? "$prefix $achievementCount" : "Placeholder",
+                'title' => $prefix ? ("$prefix " . ($achievementCount + 1)) : "Placeholder",
                 'description' => 'TBD',
                 'trigger_definition' => '0=1',
                 'points' => 1,
