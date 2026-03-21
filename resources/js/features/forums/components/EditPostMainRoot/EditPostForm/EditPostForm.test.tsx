@@ -11,7 +11,7 @@ import { EditPostForm } from './EditPostForm';
 window.scrollTo = vi.fn();
 
 describe('Component: EditPostForm', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing', async () => {
     // ARRANGE
     const { container } = render(<EditPostForm onPreview={vi.fn()} />, {
       pageProps: {
@@ -20,7 +20,9 @@ describe('Component: EditPostForm', () => {
     });
 
     // ASSERT
-    expect(container).toBeTruthy();
+    await waitFor(() => {
+      expect(container).toBeTruthy();
+    });
   });
 
   it('given the user has not entered any text, disables the preview and submit buttons', () => {
@@ -150,7 +152,7 @@ describe('Component: EditPostForm', () => {
     });
   });
 
-  it('shows the current character count and maximum allowed characters', () => {
+  it('shows the current character count and maximum allowed characters', async () => {
     // ARRANGE
     const comment = createForumTopicComment({ body: 'Hello' });
 
@@ -161,7 +163,9 @@ describe('Component: EditPostForm', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/5.*60,000/)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/5.*60,000/)).toBeVisible();
+    });
   });
 
   it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {

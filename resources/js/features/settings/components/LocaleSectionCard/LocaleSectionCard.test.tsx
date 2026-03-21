@@ -103,6 +103,8 @@ describe('Component: LocaleSectionCard', () => {
 
   it('given the user submits the form, refreshes the page', async () => {
     // ARRANGE
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
     delete (window as any).location;
     (window as any).location = {
       ...originalLocation,
@@ -121,12 +123,11 @@ describe('Component: LocaleSectionCard', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
+    await vi.advanceTimersByTimeAsync(1500);
+
     // ASSERT
-    await waitFor(
-      () => {
-        expect(window.location.reload).toHaveBeenCalledOnce();
-      },
-      { timeout: 2000 },
-    ); // wait longer than the setTimeout delay.
+    await waitFor(() => {
+      expect(window.location.reload).toHaveBeenCalledOnce();
+    });
   });
 });

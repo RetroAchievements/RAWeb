@@ -10,7 +10,7 @@ import { createForumTopic } from '@/test/factories';
 import { TopicOptionsForm } from './TopicOptionsForm';
 
 describe('Component: TopicOptionsForm', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing', async () => {
     // ARRANGE
     const { container } = render(<TopicOptionsForm />, {
       pageProps: {
@@ -19,10 +19,12 @@ describe('Component: TopicOptionsForm', () => {
     });
 
     // ASSERT
-    expect(container).toBeTruthy();
+    await waitFor(() => {
+      expect(container).toBeTruthy();
+    });
   });
 
-  it('given the form loads, fills the title field with the existing topic title', () => {
+  it('given the form loads, fills the title field with the existing topic title', async () => {
     // ARRANGE
     const existingTitle = faker.lorem.words();
 
@@ -33,7 +35,9 @@ describe('Component: TopicOptionsForm', () => {
     });
 
     // ASSERT
-    expect(screen.getByLabelText(/topic title/i)).toHaveValue(existingTitle);
+    await waitFor(() => {
+      expect(screen.getByLabelText(/topic title/i)).toHaveValue(existingTitle);
+    });
   });
 
   it('given the user submits the form with valid data, makes a request to update the topic', async () => {

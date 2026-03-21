@@ -62,9 +62,7 @@ export function useProximityAnimation({
     itemHeightRef.current = itemHeight;
 
     for (const item of items) {
-      if (item) {
-        item.style.height = `${itemHeight}px`;
-      }
+      item!.style.height = `${itemHeight}px`;
     }
 
     const visibleHeight = itemHeight * Math.min(VISIBLE_COUNT, items.length);
@@ -215,9 +213,7 @@ export function useProximityAnimation({
   };
 
   const handleItemMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
+    clearTimeout(hoverTimeoutRef.current);
   };
 
   return {

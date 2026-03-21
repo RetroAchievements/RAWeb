@@ -354,6 +354,20 @@ class UserAgentService
                 return [ClientSupportLevel::Full, null];
             }
 
+            // TODO allow Filament to support this special case
+            /**
+             * special case: Dolphin dev builds use a digits-digits format (eg: "2603-78")
+             * which doesn't compare correctly against the release minimum "2603a".
+             * dev builds >= 2603-78 contain the required stability fixes.
+             */
+            if ($data['client'] === 'Dolphin' && preg_match('/^\d+-\d+$/', $data['clientVersion'])) {
+                if (UserAgentService::versionCompare($data['clientVersion'], '2603-78') < 0) {
+                    return [ClientSupportLevel::Outdated, null];
+                }
+
+                return [ClientSupportLevel::Full, null];
+            }
+
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
                 return [ClientSupportLevel::Outdated, null];
             }

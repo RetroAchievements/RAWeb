@@ -68,9 +68,9 @@ describe('Component: AvatarSection', () => {
       onload: vi.fn(),
     };
 
-    vi.spyOn(window, 'FileReader').mockImplementationOnce(
-      () => mockFileReader as unknown as FileReader,
-    );
+    vi.spyOn(window, 'FileReader').mockImplementationOnce(function () {
+      return mockFileReader as unknown as FileReader;
+    });
 
     render(<AvatarSection />, { pageProps: { can: { updateAvatar: true } } });
 

@@ -23,7 +23,7 @@ export function useCanShowScrollToTopButton() {
         setIsScrollingUp(false);
       } else if (scrollY < lastScrollY.current) {
         setIsScrollingUp(true);
-      } else if (scrollY > lastScrollY.current) {
+      } else {
         setIsScrollingUp(false);
       }
 
