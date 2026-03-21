@@ -73,9 +73,21 @@ class Media extends EditRecord
     {
         /** @var User $user */
         $user = Auth::user();
+        /** @var Game $game */
+        $game = $this->getRecord();
+        $isMediaRestricted = $game->is_media_restricted;
 
         return $schema
             ->components([
+                Schemas\Components\Section::make('Media Restriction Active')
+                    ->icon('heroicon-s-exclamation-triangle')
+                    ->schema([
+                        Forms\Components\Placeholder::make('media_restriction_notice')
+                            ->hiddenLabel()
+                            ->content('This game has a media restriction in effect. Most visual media (screenshots, box art, and banner) are hidden from public view.'),
+                    ])
+                    ->hidden(!$isMediaRestricted),
+
                 Schemas\Components\Section::make('Badge')
                     ->icon('heroicon-s-star')
                     ->schema([
@@ -117,7 +129,7 @@ class Media extends EditRecord
                             ->previewable(true)
                             ->downloadable(false),
                     ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'banner']) || $isMediaRestricted),
 
                 Schemas\Components\Section::make('Box Art')
                     ->icon('heroicon-s-rectangle-stack')
@@ -131,7 +143,7 @@ class Media extends EditRecord
                             ->maxFiles(1)
                             ->previewable(true),
                     ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path']) || $isMediaRestricted),
 
                 Schemas\Components\Section::make('Title Screenshot')
                     ->icon('heroicon-s-tv')
@@ -147,7 +159,7 @@ class Media extends EditRecord
                             ->rules($this->getScreenshotValidationRules())
                             ->helperText($this->getScreenshotHelperText()),
                     ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path']) || $isMediaRestricted),
 
                 Schemas\Components\Section::make('In-Game Screenshot')
                     ->icon('heroicon-s-camera')
@@ -169,7 +181,7 @@ class Media extends EditRecord
                             ->previewable(true)
                             ->helperText($this->getScreenshotHelperText()),
                     ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'screenshots'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'screenshots']) || $isMediaRestricted),
             ]);
     }
 

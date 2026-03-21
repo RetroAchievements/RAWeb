@@ -361,7 +361,7 @@ class BuildGameShowPagePropsAction
             bannerPreference: GameBannerPreference::tryFrom(Cookie::get('banner_state') ?? '') ?? GameBannerPreference::Normal,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
-            banner: $game->banner,
+            banner: $game->is_media_restricted ? null : $game->banner,
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
             targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
             targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
