@@ -270,8 +270,13 @@ class AchievementController extends Controller
             ->orderBy('achievement_set_achievements.created_at')
             ->select('achievement_set_achievements.achievement_id', 'achievements.points');
 
+        // For event games, the "View all" link should reflect the full set
+        // count, not just the active subset shown in the proximity window.
+        $totalCount = $isEventGame ? (clone $query)->count() : 0;
+
         // For event games, only show achievements that are currently active.
         // If no achievements are active (concluded event), fall back to showing all.
+        $promoted = null;
         if ($isEventGame) {
             $now = now();
             $filteredQuery = (clone $query)
@@ -286,11 +291,10 @@ class AchievementController extends Controller
         }
 
         $promoted ??= $query->get();
+        $totalCount = $totalCount ?: count($promoted);
 
         $promotedIds = $promoted->pluck('achievement_id')->all();
         $areAllOnePoint = $promoted->isNotEmpty() && $promoted->every(fn ($row) => (int) $row->points === 1);
-
-        $totalCount = count($promotedIds);
         if ($totalCount === 0) {
             return ['achievements' => null, 'totalCount' => 0, 'areAllOnePoint' => $areAllOnePoint];
         }
@@ -310,14 +314,14 @@ class AchievementController extends Controller
                 ->keyBy('achievement_id')
             : collect();
 
-        $proximityAchievementDtos = array_map(function ($id) use ($achievements, $playerAchievements) {
+        $proximityAchievementDtos = array_map(function ($id) use ($achievements, $playerAchievements, $isEventGame) {
             $proximityAchievement = $achievements->get($id);
             if (!$proximityAchievement) {
                 return null;
             }
 
             // Scrub upcoming event achievements so their real details aren't leaked.
-            $eventData = $proximityAchievement->eventData;
+            $eventData = $isEventGame ? $proximityAchievement->eventData : null;
             if ($eventData?->active_from?->isFuture() && $eventData->source_achievement_id !== null) {
                 return AchievementData::fromObfuscated($proximityAchievement, $playerAchievements[$id] ?? null)
                     ->include('description', 'points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
