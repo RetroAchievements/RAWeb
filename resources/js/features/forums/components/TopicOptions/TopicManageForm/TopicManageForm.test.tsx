@@ -26,7 +26,7 @@ describe('Component: TopicManageForm', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the topic has required permissions set, pre-selects that permission level', () => {
+  it('given the topic has required permissions set, pre-selects that permission level', async () => {
     // ARRANGE
     render(<TopicManageForm />, {
       pageProps: {
@@ -35,7 +35,9 @@ describe('Component: TopicManageForm', () => {
     });
 
     // ASSERT
-    expect(screen.getAllByText(/moderator/i)[1]).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getAllByText(/moderator/i)[1]).toBeVisible();
+    });
   });
 
   it('given the user changes the permission level and submits, makes a request to update the topic', async () => {

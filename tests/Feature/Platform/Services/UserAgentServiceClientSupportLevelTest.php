@@ -10,6 +10,7 @@ use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class UserAgentServiceClientSupportLevelTest extends TestCase
@@ -364,5 +365,43 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertNotNull($restriction);
         $this->assertEquals('dolphin_libretro', $restriction->core_name);
         $this->assertEquals(ClientSupportLevel::Blocked, $restriction->support_level);
+    }
+
+    public static function dolphinHardcoreVersionDataProvider(): array
+    {
+        return [
+            // release builds
+            'old release 2603' => ['Dolphin/2603', ClientSupportLevel::Outdated],
+            'much older release 2509' => ['Dolphin/2509', ClientSupportLevel::Outdated],
+            'exact minimum release 2603a' => ['Dolphin/2603a', ClientSupportLevel::Full],
+            'newer release 2603b' => ['Dolphin/2603b', ClientSupportLevel::Full],
+            'release with Android tag' => ['Dolphin/2603a (Android)', ClientSupportLevel::Full],
+            'old release with Android tag' => ['Dolphin/2603 (Android)', ClientSupportLevel::Outdated],
+
+            // dev builds before the hotfix at 2603-78
+            'dev build before hotfix 2603-5' => ['Dolphin/2603-5', ClientSupportLevel::Outdated],
+            'dev build just before hotfix 2603-77' => ['Dolphin/2603-77', ClientSupportLevel::Outdated],
+            'much older dev build 2509-503' => ['Dolphin/2509-503 (Android)', ClientSupportLevel::Outdated],
+
+            // dev builds at or after the hotfix
+            'dev build at hotfix 2603-78' => ['Dolphin/2603-78', ClientSupportLevel::Full],
+            'dev build after hotfix 2603-86' => ['Dolphin/2603-86', ClientSupportLevel::Full],
+            'dev build with Integration suffix' => ['Dolphin/2603-86 (WindowsNT 10.0) Integration/1.3.1.0', ClientSupportLevel::Full],
+        ];
+    }
+
+    #[DataProvider('dolphinHardcoreVersionDataProvider')]
+    public function testDolphinMinimumHardcoreVersionWithDevBuilds(string $userAgent, ClientSupportLevel $expected): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $dolphin = Emulator::create(['name' => 'Dolphin', 'active' => true]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $dolphin->id,
+            'client' => 'Dolphin',
+            'minimum_hardcore_version' => '2603a',
+        ]);
+
+        $this->assertEquals($expected, $userAgentService->getSupportLevel($userAgent));
     }
 }
