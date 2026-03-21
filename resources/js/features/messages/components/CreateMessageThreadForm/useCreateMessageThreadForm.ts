@@ -7,6 +7,8 @@ import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageThreadMutation } from '@/features/messages/hooks/mutations/useCreateMessageThreadMutation';
 
@@ -25,6 +27,9 @@ export function useCreateMessageThreadForm(
 ) {
   const { t } = useTranslation();
 
+  const draftKey = 'create-message';
+  const draft = loadDraft<FormValues>(draftKey);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,8 +37,11 @@ export function useCreateMessageThreadForm(
       title: '',
       body: '',
       ...defaultValues,
+      ...draft,
     },
   });
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useCreateMessageThreadMutation();
 
@@ -48,6 +56,7 @@ export function useCreateMessageThreadForm(
     await toastMessage.promise(mutation.mutateAsync({ payload: normalizedPayload }), {
       loading: t('Submitting...'),
       success: ({ data }) => {
+        clearDraft();
         router.visit(route('message-thread.show', { messageThread: data.threadId }));
 
         return t('Submitted!');
