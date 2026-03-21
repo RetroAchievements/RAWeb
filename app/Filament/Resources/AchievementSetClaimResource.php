@@ -204,8 +204,11 @@ class AchievementSetClaimResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<AchievementSetClaim> $query */
+        $query = parent::getEloquentQuery()
             ->with(['game.system']);
+
+        return $query;
     }
 
     public static function canCreate(): bool

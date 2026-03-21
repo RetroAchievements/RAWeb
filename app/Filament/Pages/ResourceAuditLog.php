@@ -144,6 +144,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'image_box_art_asset_path',
             'image_title_asset_path',
             'image_ingame_asset_path',
+            'screenshot',
 
             // Legacy column names for historical audit log entries.
             'ImageIcon',
@@ -157,7 +158,8 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     {
         switch ($fieldName) {
             case 'banner':
-                // Banners store the full URL directly, not a relative path.
+            case 'screenshot':
+                // These store the full URL directly, not a relative path.
                 return $path;
 
             case 'image_name':
@@ -171,11 +173,14 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getEventColor(string $event): string
     {
         return match ($event) {
+            'approvedScreenshot' => 'success',
+            'changedScreenshotType' => 'info',
             'created' => 'success',
             'creditCreated' => 'success',
             'creditDeleted' => 'danger',
             'creditUpdated' => 'info',
             'deleted' => 'danger',
+            'deletedScreenshot' => 'danger',
             'linkedHash' => 'success',
             'mergedFromLeaderboard' => 'warning',
             'mergedIntoLeaderboard' => 'warning',
@@ -183,12 +188,17 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'multisetEnabled' => 'info',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
+            'rejectedScreenshot' => 'danger',
             'releaseCreated' => 'success',
             'releaseDeleted' => 'danger',
             'releaseUpdated' => 'info',
+            'reorderedScreenshots' => 'info',
             'resetAllLeaderboardEntries' => 'danger',
+            'setScreenshotAsPrimary' => 'info',
             'unlinkedHash' => 'danger',
+            'unpublishedScreenshot' => 'warning',
             'updatedHash' => 'info',
+            'uploadedScreenshots' => 'success',
             default => 'info',
         };
     }
