@@ -359,7 +359,7 @@ class GameSetsSeeder extends Seeder
             }
         }
 
-        do {
+        while ($sequelSuffixIndex < count($sequelSuffixes)) {
             $newTitle = $title . ' ' . $sequelSuffixes[$sequelSuffixIndex];
             if (!Game::where('title', $newTitle)->exists()) {
                 $series = GameSet::firstWhere('title', "[Series - $title]");
@@ -390,7 +390,7 @@ class GameSetsSeeder extends Seeder
             }
 
             $sequelSuffixIndex++;
-        } while ($sequelSuffixIndex < count($sequelSuffixes));
+        }
 
         return null;
     }
