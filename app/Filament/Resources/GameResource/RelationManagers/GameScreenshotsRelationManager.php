@@ -29,6 +29,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\ActivityLogger;
 
 class GameScreenshotsRelationManager extends RelationManager
 {
@@ -87,10 +88,7 @@ class GameScreenshotsRelationManager extends RelationManager
                             ->previewable(true)
                             ->helperText($this->getScreenshotHelperText()),
                     ])
-                    ->action(function (array $data): void {
-                        /** @var Game $game */
-                        $game = $this->getOwnerRecord();
-
+                    ->action(function (array $data) use ($game): void {
                         $uploads = $data['screenshot_upload'] ?? [];
 
                         if (empty($uploads)) {
@@ -115,6 +113,13 @@ class GameScreenshotsRelationManager extends RelationManager
                             } catch (ValidationException $e) {
                                 $failureMessages[] = collect($e->errors())->flatten()->first();
                             }
+                        }
+
+                        if ($successCount > 0) {
+                            $this->logScreenshotActivity($game)
+                                ->withProperty('attributes', ['count' => $successCount])
+                                ->event('uploadedScreenshots')
+                                ->log("Uploaded {$successCount} screenshot(s)");
                         }
 
                         if (!empty($failureMessages)) {
@@ -238,7 +243,7 @@ class GameScreenshotsRelationManager extends RelationManager
                     ->tooltip('Set as Primary')
                     ->requiresConfirmation()
                     ->hidden(fn (GameScreenshot $record): bool => $record->is_primary)
-                    ->action(function (GameScreenshot $record): void {
+                    ->action(function (GameScreenshot $record) use ($game): void {
                         DB::transaction(function () use ($record) {
                             // Demote the current primary of the same type via Eloquent
                             // so model events fire if the observer ever needs to react.
@@ -252,12 +257,19 @@ class GameScreenshotsRelationManager extends RelationManager
                                 $currentPrimary->update(['is_primary' => false]);
                             }
 
-                            // Promote this record and auto-approve if pending.
                             $record->update([
                                 'is_primary' => true,
                                 'status' => GameScreenshotStatus::Approved,
                             ]);
                         });
+
+                        $this->logScreenshotActivity($game)
+                            ->withProperty('attributes', [
+                                'screenshot' => $record->media?->getUrl(),
+                                'type' => $record->type->label(),
+                            ])
+                            ->event('setScreenshotAsPrimary')
+                            ->log('Set screenshot as primary');
                     }),
 
                 ActionGroup::make([
@@ -266,8 +278,19 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->visible(fn (GameScreenshot $record): bool => $record->status !== GameScreenshotStatus::Approved)
-                        ->action(function (GameScreenshot $record): void {
+                        ->action(function (GameScreenshot $record) use ($game): void {
+                            $oldStatus = $record->status;
+
                             $record->update(['status' => GameScreenshotStatus::Approved]);
+
+                            $this->logScreenshotActivity($game)
+                                ->withProperty('old', ['status' => $oldStatus->name])
+                                ->withProperty('attributes', [
+                                    'screenshot' => $record->media?->getUrl(),
+                                    'status' => GameScreenshotStatus::Approved->name,
+                                ])
+                                ->event('approvedScreenshot')
+                                ->log('Approved screenshot');
                         }),
 
                     Action::make('change_type')
@@ -284,8 +307,20 @@ class GameScreenshotsRelationManager extends RelationManager
                                 ->native(false)
                                 ->helperText('Title: title screen or main menu. In-game: normal gameplay. Completion: ending, credits, or 100% screen.'),
                         ])
-                        ->action(function (GameScreenshot $record, array $data): void {
+                        ->action(function (GameScreenshot $record, array $data) use ($game): void {
+                            $oldType = $record->type;
+
                             $record->update(['type' => $data['type']]);
+
+                            $newType = ScreenshotType::from($data['type']);
+                            $this->logScreenshotActivity($game)
+                                ->withProperty('old', ['type' => $oldType->label()])
+                                ->withProperty('attributes', [
+                                    'screenshot' => $record->media?->getUrl(),
+                                    'type' => $newType->label(),
+                                ])
+                                ->event('changedScreenshotType')
+                                ->log('Changed screenshot type');
                         }),
 
                     Action::make('reject')
@@ -294,8 +329,23 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->color('danger')
                         ->requiresConfirmation()
                         ->visible(fn (GameScreenshot $record): bool => !$record->is_primary && $record->status !== GameScreenshotStatus::Rejected)
-                        ->action(function (GameScreenshot $record): void {
+                        ->action(function (GameScreenshot $record) use ($game): void {
+                            $oldStatus = $record->status;
+
                             $record->update(['status' => GameScreenshotStatus::Rejected]);
+
+                            $event = $oldStatus === GameScreenshotStatus::Approved
+                                ? 'unpublishedScreenshot'
+                                : 'rejectedScreenshot';
+
+                            $this->logScreenshotActivity($game)
+                                ->withProperty('old', ['status' => $oldStatus->name])
+                                ->withProperty('attributes', [
+                                    'screenshot' => $record->media?->getUrl(),
+                                    'status' => GameScreenshotStatus::Rejected->name,
+                                ])
+                                ->event($event)
+                                ->log($oldStatus === GameScreenshotStatus::Approved ? 'Unpublished screenshot' : 'Rejected screenshot');
                         }),
 
                     DeleteAction::make()
@@ -303,15 +353,63 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalDescription(fn (GameScreenshot $record): string => $record->is_primary
                             ? 'This is a primary screenshot. The next published screenshot of this type will be promoted automatically, or the placeholder will be restored.'
                             : 'Are you sure you want to delete this screenshot?')
-                        ->using(function (GameScreenshot $record): void {
-                            // Delete the associated Spatie Media record (handles S3 cleanup).
-                            $record->media?->delete();
+                        ->using(function (GameScreenshot $record) use ($game): void {
+                            $screenshotUrl = $record->media?->getUrl();
+                            $type = $record->type->label();
+                            $wasPrimary = $record->is_primary;
 
-                            // Delete the GameScreenshot record (observer handles promotion/placeholder).
+                            $record->media?->delete();
                             $record->delete();
+
+                            $this->logScreenshotActivity($game)
+                                ->withProperty('attributes', [
+                                    'screenshot' => $screenshotUrl,
+                                    'type' => $type,
+                                    'was_primary' => $wasPrimary,
+                                ])
+                                ->event('deletedScreenshot')
+                                ->log('Deleted screenshot');
                         }),
                 ]),
             ]);
+    }
+
+    public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
+    {
+        parent::reorderTable($order, $draggedRecordKey);
+
+        $this->logReorderingActivity();
+    }
+
+    private function logScreenshotActivity(Game $game): ActivityLogger
+    {
+        return activity()
+            ->useLog('default')
+            ->causedBy(Auth::user())
+            ->performedOn($game);
+    }
+
+    private function logReorderingActivity(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        // Throttle reorder events to avoid flooding the audit log.
+        $recentReorderingActivity = DB::table('audit_log')
+            ->where('causer_id', $user->id)
+            ->where('subject_id', $game->id)
+            ->where('subject_type', 'game')
+            ->where('event', 'reorderedScreenshots')
+            ->where('created_at', '>=', now()->subMinutes(10))
+            ->first();
+
+        if (!$recentReorderingActivity) {
+            $this->logScreenshotActivity($game)
+                ->event('reorderedScreenshots')
+                ->log('Reordered Screenshots');
+        }
     }
 
     /**

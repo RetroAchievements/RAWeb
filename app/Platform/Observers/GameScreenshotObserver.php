@@ -6,14 +6,16 @@ namespace App\Platform\Observers;
 
 use App\Models\GameScreenshot;
 use App\Platform\Enums\GameScreenshotStatus;
+use App\Platform\Enums\ScreenshotType;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class GameScreenshotObserver
 {
     public function saved(GameScreenshot $screenshot): void
     {
-        if (!$screenshot->wasRecentlyCreated && $screenshot->wasChanged('type')) {
+        if ($screenshot->wasChanged('type')) {
             $this->handleTypeChange($screenshot);
 
             return;
@@ -30,6 +32,7 @@ class GameScreenshotObserver
             return;
         }
 
+        $this->moveToTopOfTypeGroup($screenshot);
         $this->ensureLegacyPng($screenshot);
 
         $screenshot->game->syncLegacyScreenshotFields();
@@ -69,7 +72,8 @@ class GameScreenshotObserver
      */
     private function handleTypeChange(GameScreenshot $screenshot): void
     {
-        $oldType = $screenshot->getOriginal('type');
+        $oldTypeRaw = $screenshot->getOriginal('type');
+        $oldType = $oldTypeRaw instanceof ScreenshotType ? $oldTypeRaw : ScreenshotType::from($oldTypeRaw);
         $wasOldPrimary = $screenshot->getOriginal('is_primary');
 
         // If this was the primary of the old type, promote the next approved
@@ -88,19 +92,25 @@ class GameScreenshotObserver
             }
         }
 
-        // Auto-promote to primary if no primary exists for the new type yet.
+        // Auto-promote to primary if no primary exists for the new type yet,
+        // but only if the screenshot is in a publishable state. Rejected
+        // screenshots should not be silently approved just because they
+        // changed type.
         $newTypeHasPrimary = GameScreenshot::where('game_id', $screenshot->game_id)
             ->where('type', $screenshot->type)
             ->where('is_primary', true)
             ->where('id', '!=', $screenshot->id)
             ->exists();
 
-        if (!$newTypeHasPrimary) {
+        $isPublishable = $screenshot->status !== GameScreenshotStatus::Rejected;
+
+        if (!$newTypeHasPrimary && $isPublishable) {
             $screenshot->updateQuietly([
                 'is_primary' => true,
                 'status' => GameScreenshotStatus::Approved,
             ]);
 
+            $this->moveToTopOfTypeGroup($screenshot);
             $this->ensureLegacyPng($screenshot);
         } elseif ($wasOldPrimary) {
             // The new type already has a primary. Demote this screenshot
@@ -108,7 +118,39 @@ class GameScreenshotObserver
             $screenshot->updateQuietly(['is_primary' => false]);
         }
 
-        $screenshot->game->syncLegacyScreenshotFields();
+        // Pass the old type so its legacy field reverts to placeholder
+        // if no primary remains after the move. This also syncs the new
+        // type since the method queries all current primaries.
+        $screenshot->game->syncLegacyScreenshotFields($oldType);
+    }
+
+    /**
+     * Move a screenshot to sort before all others of the same type
+     * so the primary always appears first in the group.
+     */
+    private function moveToTopOfTypeGroup(GameScreenshot $screenshot): void
+    {
+        $lowestOrder = GameScreenshot::where('game_id', $screenshot->game_id)
+            ->where('type', $screenshot->type)
+            ->where('id', '!=', $screenshot->id)
+            ->min('order_column');
+
+        if ($lowestOrder === null || $screenshot->order_column < $lowestOrder) {
+            return;
+        }
+
+        // Push all siblings down by one.
+        DB::transaction(function () use ($screenshot) {
+            DB::table('game_screenshots')
+                ->where('game_id', $screenshot->game_id)
+                ->where('type', $screenshot->type)
+                ->where('id', '!=', $screenshot->id)
+                ->increment('order_column');
+
+            DB::table('game_screenshots')
+                ->where('id', $screenshot->id)
+                ->update(['order_column' => 0]);
+        });
     }
 
     /**
