@@ -87,4 +87,40 @@ class AchievementData extends Data
             modifiedAt: Lazy::create(fn () => $achievement->modified_at),
         );
     }
+
+    /**
+     * Build a scrubbed DTO that hides the real details of an upcoming event achievement.
+     * We can't just hide this in the UI - it leaks into page props.
+     */
+    public static function fromObfuscated(
+        Achievement $achievement,
+        ?PlayerAchievement $playerAchievement = null,
+    ): self {
+        return new self(
+            badgeLockedUrl: media_asset('Badge/00000_lock.png'),
+            badgeUnlockedUrl: media_asset('Badge/00000.png'),
+            id: $achievement->id,
+            title: 'Upcoming Challenge',
+
+            createdAt: Lazy::create(fn () => $achievement->created_at),
+            description: Lazy::create(fn () => '?????'),
+            decorator: Lazy::create(fn () => null),
+            developer: Lazy::create(fn () => null),
+            embedUrl: Lazy::create(fn () => null),
+            isPromoted: Lazy::create(fn () => $achievement->is_promoted),
+            game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
+            groupId: Lazy::create(fn () => null),
+            numUnresolvedTickets: Lazy::create(fn () => 0),
+            orderColumn: Lazy::create(fn () => $achievement->order_column),
+            points: Lazy::create(fn () => $achievement->points),
+            pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
+            type: Lazy::create(fn () => null),
+            unlockedAt: Lazy::create(fn () => $playerAchievement?->unlocked_at),
+            unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at),
+            unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
+            unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
+            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
+        );
+    }
 }

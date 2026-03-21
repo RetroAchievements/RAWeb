@@ -79,9 +79,7 @@ export const AvatarSection: FC = () => {
                           accept=".png,.jpeg,.jpg,.gif"
                           value={(field.value as File & { fileName: string })?.fileName}
                           onChange={(event) => {
-                            if (event.target.files) {
-                              field.onChange(event.target.files[0]);
-                            }
+                            field.onChange(event.target.files![0]);
                           }}
                         />
                       </BaseFormControl>

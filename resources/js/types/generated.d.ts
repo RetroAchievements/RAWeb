@@ -474,6 +474,7 @@ userCurrentGameMinutesAgo: number | null;
 hasSiteReleaseNotes: boolean;
 hasUnreadSiteReleaseNote: boolean;
 deferredSiteReleaseNotes: Array<App.Data.News>;
+wiiSetCount: number | null;
 };
 export type SearchPageProps = {
 initialQuery: string;
@@ -581,6 +582,9 @@ proximityAchievements: Array<App.Platform.Data.Achievement> | null;
 promotedAchievementCount: number;
 recentUnlocks?: Array<App.Platform.Data.AchievementRecentUnlock>;
 initialTab: App.Platform.Enums.AchievementPageTab;
+eventAchievement: App.Platform.Data.EventAchievement | null;
+isEventGame: boolean;
+areAllAchievementsOnePoint: boolean;
 };
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;

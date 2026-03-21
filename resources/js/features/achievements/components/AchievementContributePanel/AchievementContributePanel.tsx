@@ -12,7 +12,8 @@ import { useAchievementQuickEditActions } from '../../hooks/useAchievementQuickE
 import { isEditModeAtom } from '../../state/achievements.atoms';
 
 export const AchievementContributePanel: FC = () => {
-  const { achievement, can } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, can, isEventGame } =
+    usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
   const [isEditMode, setIsEditMode] = useAtom(isEditModeAtom);
@@ -25,17 +26,7 @@ export const AchievementContributePanel: FC = () => {
   return (
     <div className="hidden lg:flex lg:flex-col lg:gap-6">
       <PlayableSidebarButtonsSection headingLabel={t('Contribute')}>
-        {isEditMode ? (
-          <PlayableSidebarButton onClick={handleCancel} IconComponent={LuX}>
-            {t('Cancel Editing')}
-          </PlayableSidebarButton>
-        ) : (
-          <PlayableSidebarButton onClick={() => setIsEditMode(true)} IconComponent={LuPencil}>
-            {t('Quick Edit')}
-          </PlayableSidebarButton>
-        )}
-
-        <div className="grid grid-cols-2 gap-1">
+        {isEventGame ? (
           <PlayableSidebarButton
             href={`/manage/achievements/${achievement.id}`}
             target="_blank"
@@ -43,17 +34,39 @@ export const AchievementContributePanel: FC = () => {
           >
             {t('Manage')}
           </PlayableSidebarButton>
+        ) : (
+          <>
+            {isEditMode ? (
+              <PlayableSidebarButton onClick={handleCancel} IconComponent={LuX}>
+                {t('Cancel Editing')}
+              </PlayableSidebarButton>
+            ) : (
+              <PlayableSidebarButton onClick={() => setIsEditMode(true)} IconComponent={LuPencil}>
+                {t('Quick Edit')}
+              </PlayableSidebarButton>
+            )}
 
-          {can.viewAchievementLogic ? (
-            <PlayableSidebarButton
-              href={`/manage/achievements/${achievement.id}/logic`}
-              target="_blank"
-              IconComponent={LuCode}
-            >
-              {t('Logic')}
-            </PlayableSidebarButton>
-          ) : null}
-        </div>
+            <div className="grid grid-cols-2 gap-1">
+              <PlayableSidebarButton
+                href={`/manage/achievements/${achievement.id}`}
+                target="_blank"
+                IconComponent={LuWrench}
+              >
+                {t('Manage')}
+              </PlayableSidebarButton>
+
+              {can.viewAchievementLogic ? (
+                <PlayableSidebarButton
+                  href={`/manage/achievements/${achievement.id}/logic`}
+                  target="_blank"
+                  IconComponent={LuCode}
+                >
+                  {t('Logic')}
+                </PlayableSidebarButton>
+              ) : null}
+            </div>
+          </>
+        )}
       </PlayableSidebarButtonsSection>
 
       <BaseSeparator />

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createEventAchievement } from '@/test/factories';
 
 import { ResetProgressDialog } from '../ResetProgressDialog';
 import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
@@ -258,6 +258,72 @@ describe('Component: AchievementInlineActions', () => {
 
     // ASSERT
     expect(screen.getByText(/are you sure you want to promote this achievement/i)).toBeVisible();
+  });
+
+  it('given a revealed event source achievement, shows report issue and tickets from that source achievement', () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 100, numUnresolvedTickets: 0 });
+
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        isEventGame: true,
+        eventAchievement: createEventAchievement({
+          sourceAchievement: createAchievement({ id: 555, numUnresolvedTickets: 2 }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/report an issue/i)).toBeVisible();
+    expect(screen.getByText(/2 open tickets/i)).toBeVisible();
+  });
+
+  it('given an obfuscated event achievement, does not show report issue', () => {
+    // ARRANGE
+    const achievement = createAchievement({ numUnresolvedTickets: 3 });
+
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        isEventGame: true,
+        eventAchievement: createEventAchievement({
+          isObfuscated: true,
+          sourceAchievement: null,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/report an issue/i)).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {
+    // ARRANGE
+    const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
+    render(<AchievementInlineActions />, {
+      pageProps: { achievement, isEventGame: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user can develop, does not show Quick Edit or Logic', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        can: { develop: true, viewAchievementLogic: true },
+        isEventGame: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
   });
 
   it('given the user cannot update the promoted status, does not show the Promote or Demote button in edit mode', async () => {

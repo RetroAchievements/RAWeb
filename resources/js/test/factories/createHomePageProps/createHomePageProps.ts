@@ -76,5 +76,7 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
     hasSiteReleaseNotes: false,
     hasUnreadSiteReleaseNote: false,
     deferredSiteReleaseNotes: [],
+
+    wiiSetCount: null,
   };
 });

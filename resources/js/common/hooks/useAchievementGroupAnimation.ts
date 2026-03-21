@@ -39,9 +39,7 @@ export function useAchievementGroupAnimation(options: { isInitiallyOpened: boole
     }
 
     const cleanup = () => {
-      if (contentElement) {
-        contentElement.removeEventListener('transitionend', handleTransitionEnd);
-      }
+      contentElement.removeEventListener('transitionend', handleTransitionEnd);
     };
 
     // This is a Material Design like easing curve.
