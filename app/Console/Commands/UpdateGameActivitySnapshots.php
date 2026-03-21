@@ -135,11 +135,10 @@ class UpdateGameActivitySnapshots extends Command
               AND g.achievements_published > 0
               AND g.players_total >= 15
               AND EXISTS (
-                  SELECT 1 FROM achievement_set_claims claims
-                  WHERE claims.game_id = metrics.game_id
-                    AND claims.status = 'complete'
-                    AND claims.set_type = 'new_set'
-                    AND claims.finished_at <= '{$targetDateStr}' - INTERVAL 48 HOUR
+                  SELECT 1 FROM achievements
+                  WHERE achievements.game_id = metrics.game_id
+                    AND achievements.is_promoted = 1
+                    AND achievements.created_at <= '{$targetDateStr}' - INTERVAL 48 HOUR
               )
               AND NOT EXISTS (
                   SELECT 1 FROM game_set_games gsg
