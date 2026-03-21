@@ -19,10 +19,10 @@ use App\Platform\Actions\UpdateGamePlayerCountAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
 use App\Platform\Enums\AchievementType;
+use Carbon\Carbon;
 use DateTime;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 
 class PlayerAchievementsSeeder extends Seeder
@@ -33,16 +33,10 @@ class PlayerAchievementsSeeder extends Seeder
         $faker = Faker::create();
 
         Game::where('achievements_published', '>', 0)->each(function (Game $game) use ($maxPlayers, $faker) {
-            $numWinConditions = $game->achievements()->promoted()->where('type', AchievementType::WinCondition)->count();
-            $numAchievements = $game->achievements()->promoted()->count();
-
-            $updatePlayerGameMetricsAction = new UpdatePlayerGameMetricsAction();
-            $resumePlayerSessionAction = new ResumePlayerSessionAction();
-
             $set = $game->achievementSets()->first();
 
             $numPlayers = (int) sqrt(rand(1, $maxPlayers * $maxPlayers));
-            foreach (User::inRandomOrder()->limit($numPlayers)->get() as $user) {
+            foreach (User::whereNotNull('email')->inRandomOrder()->limit($numPlayers)->get() as $user) {
                 $userTotalPoints = $user->points_hardcore + $user->points;
                 if ($userTotalPoints > 0 && rand(0, $userTotalPoints) < 10) {
                     // small chance of player loading game without earning any achievements
@@ -59,134 +53,14 @@ class PlayerAchievementsSeeder extends Seeder
                     // player played game before achievements existed
                 }
 
-                $achievementsRemaining = $numAchievements;
                 if ($userTotalPoints === 0) {
                     // slightly skew towards hardcore as that's the default and users can switch to softcore
                     $hardcore = (rand(0, 2) !== 0);
                 } else {
                     $hardcore = ($user->points_hardcore > $user->points);
                 }
-                $keepPlayingChance = rand(75, 100);
-                $num_sessions = 1;
 
-                $playerSession = null;
-                Queue::fakeFor(function () use (&$playerSession, $resumePlayerSessionAction, $user, $game, $date) {
-                    $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
-                });
-                $playerSession->created_at = $date;
-
-                $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->firstOrFail();
-                $playerGame->created_at = $date;
-
-                $date = $date->addSeconds(rand(100, 2000));
-                $checkForBeat = false;
-
-                foreach ($game->achievements()->promoted()->get() as $achievement) {
-                    if ($date < $achievement->created_at || $date < $set->achievements_first_published_at) {
-                        // player playing before set was released. don't unlock any achievements
-                        break;
-                    }
-
-                    if ($achievement->type !== AchievementType::Progression) {
-                        if ($achievement->type === AchievementType::WinCondition) {
-                            if (rand(1, $numWinConditions) !== 1) {
-                                // win condition - 1/X chance of unlocking it
-                                continue;
-                            }
-                            $checkForBeat = true;
-                        } elseif ($achievement->type === AchievementType::Missable) {
-                            if (rand(1, 3) === 1) {
-                                // missable, 33% chance to not unlock it
-                                continue;
-                            }
-                        } elseif (rand(1, 8) === 1) {
-                            // non-progression, 12% chance to not unlock it
-                            continue;
-                        }
-                    }
-
-                    $unlock = $user->playerAchievements()->firstOrCreate([
-                        'achievement_id' => $achievement->id,
-                        'unlocked_at' => $date,
-                        'unlocked_hardcore_at' => $hardcore ? $date : null,
-                    ]);
-
-                    // time advances
-                    $date = $date->addSeconds(rand(0, rand(10, 500) + rand(10, 500) + rand(10, 500) + rand(10, 500)));
-
-                    if (rand(0, $achievementsRemaining + 2) === 0) {
-                        // player gives up
-                        break;
-                    }
-
-                    if ($hardcore) {
-                        // if they have less than 100 points, there's a 1% chance of switching to softcore.
-                        // the more hardcore points a player has, the less likely they are to switch to softcore.
-                        // also, skew the chance by the number of achievements remaining - the player is more likely
-                        // to switch to softcore for the last couple of achievements than the first ones.
-                        $switchToSoftcoreChance = (int) (max(100, $user->points_hardcore) * 0.75 * sqrt($achievementsRemaining));
-
-                        if ($user->points > 0) {
-                            // if user already has some softcore points, they're more likely to switch
-                            $switchToSoftcoreChance = (int) ($switchToSoftcoreChance / 2);
-                        }
-
-                        if (rand(1, $switchToSoftcoreChance) === 1) {
-                            $hardcore = false;
-                        }
-                    }
-
-                    if (rand(0, $keepPlayingChance) === 0) {
-                        // player gave up
-                        break;
-                    }
-                    $keepPlayingChance = max(0, $keepPlayingChance - rand(0, (int) floor($achievementsRemaining / 3)));
-
-                    if (rand(0, (int) floor($numAchievements / $num_sessions)) > $achievementsRemaining) {
-                        // player takes a break
-
-                        $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
-                        $playerSession->rich_presence_updated_at = $date;
-                        $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
-                        $playerSession->save();
-
-                        $date = $date->addMinutes((int) sqrt(rand(500 * 500, 100000 * 100000))); // 8 hours to three month break, weighted toward shorter period
-                        if ($date < Carbon::now()) {
-                            Queue::fakeFor(function () use (&$playerSession, $resumePlayerSessionAction, $user, $game, $date) {
-                                $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
-                            });
-                            $playerSession->created_at = $date;
-                            $date = $date->addSeconds(rand(100, 2000));
-                        }
-                    }
-
-                    if ($date > Carbon::now()) {
-                        break;
-                    }
-
-                    $achievementsRemaining--;
-                }
-
-                // finalize the session
-                $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
-                $playerSession->rich_presence_updated_at = $date;
-                $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
-                $playerSession->save();
-
-                // aggregate metrics for player
-                // use a fake queue to prevent updating game metrics until we're done seeding the game
-                Queue::fakeFor(fn () => $updatePlayerGameMetricsAction->execute($playerGame, silent: true));
-
-                // if at least one win condition achievement was earned, or all achievements were earned, check for beat/mastery
-                if ($checkForBeat || $achievementsRemaining === 0) {
-                    new RevalidateAchievementSetBadgeEligibilityAction()->execute($playerGame);
-                }
-
-                // update points
-                $playerGame->refresh();
-                $user->points_hardcore += $playerGame->points_hardcore;
-                $user->points += ($playerGame->points - $playerGame->points_hardcore); // playerGame->points includes hardcore and softcore
-                $user->saveQuietly();
+                PlayerAchievementsSeeder::simulatePlay($user, $game, $date, $hardcore);
             }
 
             // update player count and unlock metrics
@@ -277,5 +151,149 @@ class PlayerAchievementsSeeder extends Seeder
         foreach ($developers as $developer) {
             $updateDeveloperContributionYieldAction->execute($developer);
         }
+    }
+
+    public static function simulatePlay(User $user, Game $game, Carbon $date, bool $hardcore): void
+    {
+        $numWinConditions = $game->achievements()->promoted()->where('type', AchievementType::WinCondition)->count();
+        $numAchievements = $game->achievements()->promoted()->count();
+        $set = $game->achievementSets()->first();
+
+        $resumePlayerSessionAction = new ResumePlayerSessionAction();
+        $faker = Faker::create();
+
+        $keepPlayingChance = rand(75, 100);
+        $num_sessions = 1;
+        $achievementsRemaining = $numAchievements;
+
+        $playerSession = null;
+        Queue::fakeFor(function () use (&$playerSession, $resumePlayerSessionAction, $user, $game, $date) {
+            $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
+        });
+        $playerSession->created_at = $date;
+
+        $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->firstOrFail();
+        if ($playerGame->created_at > $date) {
+            $playerGame->created_at = $date;
+        }
+
+        $date = $date->addSeconds(rand(100, 2000));
+        $checkForBeat = false;
+
+        foreach ($game->achievements()->promoted()->get() as $achievement) {
+            if ($date < $achievement->created_at || $date < $set->achievements_first_published_at) {
+                // player playing before set was released. don't unlock any achievements
+                break;
+            }
+
+            if ($achievement->type !== AchievementType::Progression) {
+                if ($achievement->type === AchievementType::WinCondition) {
+                    if (rand(1, $numWinConditions) !== 1) {
+                        // win condition - 1/X chance of unlocking it
+                        continue;
+                    }
+                    $checkForBeat = true;
+                } elseif ($achievement->type === AchievementType::Missable) {
+                    if (rand(1, 3) === 1) {
+                        // missable, 33% chance to not unlock it
+                        continue;
+                    }
+                } elseif (rand(1, 8) === 1) {
+                    // non-progression, 12% chance to not unlock it
+                    continue;
+                }
+            }
+
+            $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
+            if ($unlock) {
+                if ($hardcore && !$unlock->unlocked_hardcore_at) {
+                    $unlock->unlocked_hardcore_at = $date;
+                    $unlock->save();
+                }
+            } else {
+                $user->playerAchievements()->create([
+                    'achievement_id' => $achievement->id,
+                    'unlocked_at' => $date,
+                    'unlocked_hardcore_at' => $hardcore ? $date : null,
+                ]);
+            }
+
+            // time advances
+            $date = $date->addSeconds(rand(0, rand(10, 500) + rand(10, 500) + rand(10, 500) + rand(10, 500)));
+
+            if (rand(0, $achievementsRemaining + 2) === 0) {
+                // player gives up
+                break;
+            }
+
+            if ($hardcore) {
+                // if they have less than 100 points, there's a 1% chance of switching to softcore.
+                // the more hardcore points a player has, the less likely they are to switch to softcore.
+                // also, skew the chance by the number of achievements remaining - the player is more likely
+                // to switch to softcore for the last couple of achievements than the first ones.
+                $switchToSoftcoreChance = (int) (max(100, $user->points_hardcore) * 0.75 * sqrt($achievementsRemaining));
+
+                if ($user->points > 0) {
+                    // if user already has some softcore points, they're more likely to switch
+                    $switchToSoftcoreChance = (int) ($switchToSoftcoreChance / 2);
+                }
+
+                if (rand(1, $switchToSoftcoreChance) === 1) {
+                    $hardcore = false;
+                }
+            }
+
+            if (rand(0, $keepPlayingChance) === 0) {
+                // player gave up
+                break;
+            }
+            $keepPlayingChance = max(0, $keepPlayingChance - rand(0, (int) floor($achievementsRemaining / 3)));
+
+            if (rand(0, (int) floor($numAchievements / $num_sessions)) > $achievementsRemaining) {
+                // player takes a break
+
+                $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
+                $playerSession->rich_presence_updated_at = $date;
+                $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
+                $playerSession->save();
+
+                $date = $date->addMinutes((int) sqrt(rand(500 * 500, 100000 * 100000))); // 8 hours to three month break, weighted toward shorter period
+                if ($date < Carbon::now()) {
+                    Queue::fakeFor(function () use (&$playerSession, $resumePlayerSessionAction, $user, $game, $date) {
+                        $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
+                    });
+                    $playerSession->created_at = $date;
+                    $date = $date->addSeconds(rand(100, 2000));
+                }
+            }
+
+            if ($date > Carbon::now()) {
+                break;
+            }
+
+            $achievementsRemaining--;
+        }
+
+        // finalize the session
+        $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
+        $playerSession->rich_presence_updated_at = $date;
+        $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
+        $playerSession->save();
+
+        // aggregate metrics for player
+        // use a fake queue to prevent updating game metrics until we're done seeding the game
+        $updatePlayerGameMetricsAction = new UpdatePlayerGameMetricsAction();
+        Queue::fakeFor(fn () => $updatePlayerGameMetricsAction->execute($playerGame, silent: true));
+
+        // if at least one win condition achievement was earned, or all achievements were earned, check for beat/mastery
+        if ($checkForBeat || $achievementsRemaining === 0) {
+            new RevalidateAchievementSetBadgeEligibilityAction()->execute($playerGame);
+        }
+
+        // update points
+        $playerGame->refresh();
+        $user->points_hardcore += $playerGame->points_hardcore;
+        $user->points += ($playerGame->points - $playerGame->points_hardcore); // playerGame->points includes hardcore and softcore
+        $user->saveQuietly();
     }
 }
