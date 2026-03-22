@@ -24,8 +24,8 @@ class GamePolicy
 
             Role::ARTIST,
 
-            // needs to view leaderboards for games
             Role::EVENT_MANAGER,
+            Role::PLAYTEST_MANAGER,
         ]);
     }
 
@@ -193,6 +193,7 @@ class GamePolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::ARTIST,
+            Role::PLAYTEST_MANAGER,
         ]);
     }
 

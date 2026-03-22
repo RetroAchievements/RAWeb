@@ -14,4 +14,5 @@ enum ImageUploadType
     case GameInGame;
     case AchievementBadge;
     case EventAward;
+    case PlaytestAward;
 }
