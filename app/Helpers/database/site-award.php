@@ -59,6 +59,7 @@ function getUsersSiteAwards(?User $user): array
         'userId' => $user->id,
         'userId2' => $user->id,
         'userId3' => $user->id,
+        'userId4' => $user->id,
     ];
 
     $gameAwardValues = implode("','", AwardType::gameValues());
@@ -94,11 +95,19 @@ function getUsersSiteAwards(?User $user): array
                 saw.award_type = '" . AwardType::Event->value . "'
                 AND saw.user_id = :userId3
         UNION
+        -- playtest awards
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, pa.label AS Title, NULL, NULL, NULL, pa.image_asset_path AS ImageIcon, NULL AS display_award_tier
+            FROM user_awards AS saw
+            LEFT JOIN playtest_awards pa ON pa.id = saw.award_key
+            WHERE
+                saw.award_type = '" . AwardType::Playtest->value . "'
+                AND saw.user_id = :userId4
+        UNION
         -- non-game awards (developer contribution, ...)
         SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, NULL
             FROM user_awards AS saw
             WHERE
-                saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "')
+                saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "','" . AwardType::Playtest->value . "')
                 AND saw.user_id = :userId2
             GROUP BY saw.award_type
         ORDER BY order_column, AwardedAt, award_type, award_tier ASC";
