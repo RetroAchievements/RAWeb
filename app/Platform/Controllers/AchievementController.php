@@ -334,8 +334,14 @@ class AchievementController extends Controller
                 ->include('description', 'points', 'unlockPercentage', 'unlockedAt', 'unlockedHardcoreAt');
         }, $windowIds);
 
+        // The current achievement is already displayed on the page, so exclude it from the sidebar list.
+        $filtered = array_values(array_filter($proximityAchievementDtos, function ($dto) use ($achievement) {
+            return $dto !== null && $dto->id !== $achievement->id;
+        }));
+        $filtered = array_slice($filtered, 0, 4);
+
         return [
-            'achievements' => array_values(array_filter($proximityAchievementDtos)),
+            'achievements' => $filtered ?: null,
             'totalCount' => $totalCount,
             'areAllOnePoint' => $areAllOnePoint,
         ];
@@ -349,7 +355,7 @@ class AchievementController extends Controller
      */
     private function resolveProximityWindow(int $achievementId, array $promotedIds): array
     {
-        $windowSize = 11;
+        $windowSize = 5;
         $totalCount = count($promotedIds);
 
         if ($totalCount <= $windowSize) {
