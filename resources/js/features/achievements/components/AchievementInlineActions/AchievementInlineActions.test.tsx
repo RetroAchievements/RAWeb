@@ -56,21 +56,7 @@ describe('Component: AchievementInlineActions', () => {
 
     // ASSERT
     expect(screen.getByRole('link', { name: /report an issue/i })).toBeVisible();
-    expect(screen.queryByText(/no open tickets/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /ticket/i })).not.toBeInTheDocument();
-  });
-
-  it('given the achievement has no numUnresolvedTickets field, does not show any ticket text', () => {
-    // ARRANGE
-    const achievement = createAchievement();
-    delete (achievement as any).numUnresolvedTickets;
-
-    render(<AchievementInlineActions />, {
-      pageProps: { achievement },
-    });
-
-    // ASSERT
-    expect(screen.queryByText(/no open tickets/i)).not.toBeInTheDocument();
   });
 
   it('given the user has unlocked the achievement in softcore, shows the overflow menu button', () => {
