@@ -61,7 +61,10 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show')->middleware('cacheResponse');
-            Route::get('achievement/{achievementId}{slug?}', fn ($achievementId) => $this->handlePageRequest('achievementInfo', $achievementId))->name('achievement.show');
+            // 301 redirect legacy slugged achievement URLs to the new clean route.
+            Route::get('achievement/{achievementId}{slug}', function ($achievementId) {
+                return redirect(route('achievement.show', ['achievement' => $achievementId]), 301);
+            })->where('achievementId', '[0-9]{1,17}');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
         });
 

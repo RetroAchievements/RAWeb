@@ -150,7 +150,7 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
           {searchResults.results.achievements.map((achievement) => (
             <ResultItem
               key={`achievement-${achievement.id}`}
-              href={route('achievement.show', { achievementId: achievement.id })}
+              href={route('achievement.show', { achievement: achievement.id })}
               isInertiaLink={false}
             >
               <AchievementResultDisplay achievement={achievement} />

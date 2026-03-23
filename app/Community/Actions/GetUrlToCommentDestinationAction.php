@@ -78,7 +78,7 @@ class GetUrlToCommentDestinationAction
 
         return match ($commentableType) {
             CommentableType::Game => route('game.show', ['game' => $commentable, 'tab' => 'community']) . $hashAnchor,
-            CommentableType::Achievement => route('achievement.show', ['achievementId' => $commentable->id]) . $hashAnchor,
+            CommentableType::Achievement => route('achievement.show', ['achievement' => $commentable->id]) . $hashAnchor,
             CommentableType::User => route('user.show', $commentable) . $hashAnchor,
             CommentableType::Leaderboard => route('leaderboard.show', ['leaderboard' => $commentable]) . $hashAnchor,
             default => abort(404),

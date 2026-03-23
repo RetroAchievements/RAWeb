@@ -362,4 +362,17 @@ describe('Component: AchievementAvatar', () => {
     const linkEl = screen.getAllByTestId('link')[0];
     expect(linkEl).toBeVisible();
   });
+
+  it('given asClientSideRoute is false, renders a plain anchor without prefetch', () => {
+    // ARRANGE
+    const achievement = createAchievement({ title: 'Plain Link Ach' });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} asClientSideRoute={false} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link');
+    expect(linkEl).toBeVisible();
+    expect(linkEl).not.toHaveAttribute('data-testid', 'link');
+  });
 });

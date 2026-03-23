@@ -336,7 +336,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
 
     public function getCanonicalUrlAttribute(): string
     {
-        return route('achievement.show', [$this, $this->getSlugAttribute()]);
+        return route('achievement.show', $this);
     }
 
     public function getCanDelegateUnlocks(User $user): bool

@@ -38,7 +38,7 @@ export const ProximityAchievements: FC = () => {
         <ol className="flex flex-col gap-0.5 py-1">
           {proximityAchievements.map((proximityAchievement) => {
             const points = proximityAchievement.points!;
-            const achievementHref = route('achievement2.show', {
+            const achievementHref = route('achievement.show', {
               achievement: proximityAchievement.id,
             });
 
