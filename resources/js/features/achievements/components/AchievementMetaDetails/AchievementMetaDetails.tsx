@@ -32,7 +32,7 @@ export const AchievementMetaDetails: FC = () => {
             </BaseTableCell>
           </BaseTableRow>
 
-          {achievement.activeMaintainer ? (
+          {achievement.activeMaintainer && !achievement.activeMaintainer.isGone ? (
             <BaseTableRow>
               <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
                 {t('Maintained by')}

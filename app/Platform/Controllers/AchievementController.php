@@ -143,9 +143,12 @@ class AchievementController extends Controller
             achievement: $achievementData
                 ->include(
                     'activeMaintainer',
+                    'activeMaintainer.isGone',
                     'createdAt',
                     'description',
                     'developer',
+                    'developer.deletedAt',
+                    'developer.isGone',
                     'embedUrl',
                     'game',
                     'game.badgeUrl',

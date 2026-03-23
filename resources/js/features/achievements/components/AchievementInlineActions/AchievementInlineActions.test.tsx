@@ -47,7 +47,7 @@ describe('Component: AchievementInlineActions', () => {
     expect(ticketLink).toHaveAttribute('href', expect.stringContaining('achievement.tickets'));
   });
 
-  it('given the achievement has no unresolved tickets, shows a "No open tickets" message', () => {
+  it('given the achievement has no unresolved tickets, does not show any ticket text', () => {
     // ARRANGE
     const achievement = createAchievement({ numUnresolvedTickets: 0 });
     render(<AchievementInlineActions />, {
@@ -55,11 +55,12 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/no open tickets/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: /report an issue/i })).toBeVisible();
+    expect(screen.queryByText(/no open tickets/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /ticket/i })).not.toBeInTheDocument();
   });
 
-  it('given the achievement has no numUnresolvedTickets field, shows a "No open tickets" message', () => {
+  it('given the achievement has no numUnresolvedTickets field, does not show any ticket text', () => {
     // ARRANGE
     const achievement = createAchievement();
     delete (achievement as any).numUnresolvedTickets;
@@ -69,32 +70,32 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/no open tickets/i)).toBeVisible();
+    expect(screen.queryByText(/no open tickets/i)).not.toBeInTheDocument();
   });
 
-  it('given the user has unlocked the achievement in softcore, shows a reset progress button', () => {
+  it('given the user has unlocked the achievement in softcore, shows the overflow menu button', () => {
     // ARRANGE
     const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
     render(<AchievementInlineActions />, {
-      pageProps: { achievement },
+      pageProps: { achievement, can: { develop: false } },
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /reset progress/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'More actions' })).toBeVisible();
   });
 
-  it('given the user has unlocked the achievement in hardcore, shows a reset progress button', () => {
+  it('given the user has unlocked the achievement in hardcore, shows the overflow menu button', () => {
     // ARRANGE
     const achievement = createAchievement({ unlockedHardcoreAt: '2024-01-15T12:00:00Z' });
     render(<AchievementInlineActions />, {
-      pageProps: { achievement },
+      pageProps: { achievement, can: { develop: false } },
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /reset progress/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'More actions' })).toBeVisible();
   });
 
-  it('given the user has not unlocked the achievement, does not show a reset progress button', () => {
+  it('given the user is not logged in, does not show the overflow menu button', () => {
     // ARRANGE
     const achievement = createAchievement();
     delete (achievement as any).unlockedAt;
@@ -105,10 +106,10 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'More actions' })).not.toBeInTheDocument();
   });
 
-  it('given the user clicks the reset progress button, opens the reset progress dialog', async () => {
+  it('given the user clicks the overflow menu and then reset progress, opens the reset progress dialog', async () => {
     // ARRANGE
     const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
 
@@ -117,18 +118,39 @@ describe('Component: AchievementInlineActions', () => {
         <AchievementInlineActions />
         <ResetProgressDialog />
       </>,
-      { pageProps: { achievement } },
+      { pageProps: { achievement, can: { develop: true } } },
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /reset progress/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /reset progress/i }));
 
     // ASSERT
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(screen.getByRole('heading', { name: /reset progress/i })).toBeVisible();
   });
 
-  it('given the user can develop and is not in edit mode, shows the Manage link and Quick edit button', () => {
+  it('given the user clicks the desktop reset progress button, opens the reset progress dialog', async () => {
+    // ARRANGE
+    const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
+
+    render(
+      <>
+        <AchievementInlineActions />
+        <ResetProgressDialog />
+      </>,
+      { pageProps: { achievement, can: { develop: false } } },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Reset progress' }));
+
+    // ASSERT
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByRole('heading', { name: /reset progress/i })).toBeVisible();
+  });
+
+  it('given the user can develop and is not in edit mode, shows the Manage and Quick edit items in the dropdown', async () => {
     // ARRANGE
     const achievement = createAchievement({ id: 789 });
 
@@ -139,15 +161,18 @@ describe('Component: AchievementInlineActions', () => {
       },
     });
 
-    // ASSERT
-    const manageLink = screen.getByRole('link', { name: /manage/i });
-    expect(manageLink).toBeVisible();
-    expect(manageLink).toHaveAttribute('href', '/manage/achievements/789');
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
 
-    expect(screen.getByRole('button', { name: /quick edit/i })).toBeVisible();
+    // ASSERT
+    const manageItem = screen.getByRole('menuitem', { name: /manage/i });
+    expect(manageItem).toBeVisible();
+    expect(manageItem).toHaveAttribute('href', '/manage/achievements/789');
+
+    expect(screen.getByRole('menuitem', { name: /quick edit/i })).toBeVisible();
   });
 
-  it('given the user can view achievement logic, shows the Logic link', () => {
+  it('given the user can view achievement logic, shows the Logic item in the dropdown', async () => {
     // ARRANGE
     const achievement = createAchievement({ id: 789 });
 
@@ -158,28 +183,16 @@ describe('Component: AchievementInlineActions', () => {
       },
     });
 
-    // ASSERT
-    const logicLink = screen.getByRole('link', { name: /logic/i });
-    expect(logicLink).toBeVisible();
-    expect(logicLink).toHaveAttribute('href', '/manage/achievements/789/logic');
-  });
-
-  it('given the user cannot view achievement logic, does not show the Logic link', () => {
-    // ARRANGE
-    const achievement = createAchievement();
-
-    render(<AchievementInlineActions />, {
-      pageProps: {
-        achievement,
-        can: { develop: true, viewAchievementLogic: false },
-      },
-    });
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
+    const logicItem = screen.getByRole('menuitem', { name: /logic/i });
+    expect(logicItem).toBeVisible();
+    expect(logicItem).toHaveAttribute('href', '/manage/achievements/789/logic');
   });
 
-  it('given the user clicks Quick Edit, shows Cancel and Save buttons in its place', async () => {
+  it('given the user cannot view achievement logic, does not show the Logic item in the dropdown', async () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -191,12 +204,31 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+
+    // ASSERT
+    expect(screen.queryByRole('menuitem', { name: /logic/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user clicks Quick Edit in the dropdown, shows Cancel and Save buttons', async () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementInlineActions />, {
+      pageProps: {
+        achievement,
+        can: { develop: true, viewAchievementLogic: false },
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     // ASSERT
     expect(screen.getByRole('button', { name: /cancel/i })).toBeVisible();
     expect(screen.getByRole('button', { name: /save/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'More actions' })).not.toBeInTheDocument();
   });
 
   it('given the user is in edit mode and can update the promoted status on an unpromoted achievement, shows the Promote button', async () => {
@@ -211,7 +243,8 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     // ASSERT
     expect(screen.getByRole('button', { name: /promote/i })).toBeVisible();
@@ -229,7 +262,8 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     // ASSERT
     expect(screen.getByRole('button', { name: /demote/i })).toBeVisible();
@@ -253,7 +287,8 @@ describe('Component: AchievementInlineActions', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /promote/i }));
 
     // ASSERT
@@ -302,14 +337,14 @@ describe('Component: AchievementInlineActions', () => {
     // ARRANGE
     const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
     render(<AchievementInlineActions />, {
-      pageProps: { achievement, isEventGame: true },
+      pageProps: { achievement, isEventGame: true, can: { develop: false } },
     });
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'More actions' })).not.toBeInTheDocument();
   });
 
-  it('given the achievement is for an event game and the user can develop, does not show Quick Edit or Logic', () => {
+  it('given the achievement is for an event game and the user can develop, does not show Quick Edit or Logic', async () => {
     // ARRANGE
     const achievement = createAchievement();
     render(<AchievementInlineActions />, {
@@ -320,10 +355,13 @@ describe('Component: AchievementInlineActions', () => {
       },
     });
 
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+
     // ASSERT
-    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /manage/i })).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /logic/i })).not.toBeInTheDocument();
   });
 
   it('given the user cannot update the promoted status, does not show the Promote or Demote button in edit mode', async () => {
@@ -338,7 +376,8 @@ describe('Component: AchievementInlineActions', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /promote/i })).not.toBeInTheDocument();
