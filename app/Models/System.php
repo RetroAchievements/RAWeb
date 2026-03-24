@@ -78,6 +78,8 @@ class System extends BaseModel implements HasMedia
         'name',
         'name_full',
         'name_short',
+        'screenshot_resolutions',
+        'has_analog_tv_output',
         'manufacturer',
         'order_column',
         'active',
@@ -94,6 +96,8 @@ class System extends BaseModel implements HasMedia
 
     protected $casts = [
         'active' => 'boolean',
+        'screenshot_resolutions' => 'array',
+        'has_analog_tv_output' => 'boolean',
     ];
 
     // == constants
@@ -104,6 +108,25 @@ class System extends BaseModel implements HasMedia
     public const Hubs = 100;
     public const Events = 101;
     public const Standalones = 102;
+
+    /**
+     * Systems where emulators can internally upscale 3D rendering,
+     * producing captures that are off by +/- 1px from the expected resolution.
+     */
+    public const UPSCALING_SYSTEM_IDS = [
+        2,  // Nintendo 64
+        12, // PlayStation
+        16, // GameCube
+        18, // Nintendo DS
+        19, // Wii
+        20, // Wii U
+        21, // PlayStation 2
+        39, // Saturn
+        40, // Dreamcast
+        41, // PlayStation Portable
+        62, // Nintendo 3DS
+        78, // Nintendo DSi
+    ];
 
     // == helpers
 

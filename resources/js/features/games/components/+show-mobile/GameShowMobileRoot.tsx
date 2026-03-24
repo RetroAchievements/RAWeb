@@ -141,6 +141,9 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableMainMedia
               imageIngameUrl={game.imageIngameUrl!}
               imageTitleUrl={game.imageTitleUrl!}
+              expectedHeight={game.system?.screenshotResolutions?.[0]?.height}
+              expectedWidth={game.system?.screenshotResolutions?.[0]?.width}
+              hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
               isPixelated={getIsSystemPixelated(game.system!.id)}
             />
           </div>

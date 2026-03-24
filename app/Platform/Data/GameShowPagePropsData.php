@@ -48,6 +48,7 @@ class GameShowPagePropsData extends Data
         public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
+        public bool $isRichPresenceExpanded,
         public bool $isSubscribedToAchievementComments,
         public bool $isSubscribedToComments,
         public bool $isSubscribedToTickets,

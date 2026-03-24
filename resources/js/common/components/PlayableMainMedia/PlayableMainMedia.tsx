@@ -5,13 +5,27 @@ import { cn } from '@/common/utils/cn';
 
 import { ZoomableImage } from '../ZoomableImage';
 
+/**
+ * TODO replace legacy PNG sources with <picture> sourcesets
+ * using the sm/md WebP/AVIF conversions from the screenshots
+ * MediaLibrary collection.
+ */
+
 interface PlayableMainMediaProps {
-  imageTitleUrl: string;
   imageIngameUrl: string;
+  imageTitleUrl: string;
+
+  /** Set width/height on img tags to reserve space and prevent layout shift. */
+  expectedHeight?: number | null;
+  expectedWidth?: number | null;
+  hasAnalogTvOutput?: boolean;
   isPixelated?: boolean;
 }
 
 export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
+  expectedHeight,
+  expectedWidth,
+  hasAnalogTvOutput,
   imageIngameUrl,
   imageTitleUrl,
   isPixelated,
@@ -23,6 +37,14 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
     return null;
   }
 
+  const dimensionProps =
+    expectedWidth && expectedHeight ? { width: expectedWidth, height: expectedHeight } : {};
+
+  // CRT systems displayed non-square pixels stretched to 4:3. The aspect
+  // ratio is always 4:3 regardless of the native pixel resolution.
+  const aspectRatio = hasAnalogTvOutput ? 4 / 3 : undefined;
+  const aspectRatioStyle = aspectRatio ? { aspectRatio } : undefined;
+
   return (
     <div
       className={cn(
@@ -32,15 +54,37 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
         'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
-      <ZoomableImage src={imageTitleUrl} alt={t('title screenshot')} isPixelated={isPixelated}>
+      <ZoomableImage
+        src={imageTitleUrl}
+        alt={t('title screenshot')}
+        aspectRatio={aspectRatio}
+        isPixelated={isPixelated}
+      >
         <div className="flex items-center justify-center overflow-hidden">
-          <img className="w-full rounded-sm" src={imageTitleUrl} alt={t('title screenshot')} />
+          <img
+            className="w-full rounded-sm"
+            src={imageTitleUrl}
+            alt={t('title screenshot')}
+            style={aspectRatioStyle}
+            {...dimensionProps}
+          />
         </div>
       </ZoomableImage>
 
-      <ZoomableImage src={imageIngameUrl} alt={t('ingame screenshot')} isPixelated={isPixelated}>
+      <ZoomableImage
+        src={imageIngameUrl}
+        alt={t('ingame screenshot')}
+        aspectRatio={aspectRatio}
+        isPixelated={isPixelated}
+      >
         <div className="flex items-center justify-center overflow-hidden">
-          <img className="w-full rounded-sm" src={imageIngameUrl} alt={t('ingame screenshot')} />
+          <img
+            className="w-full rounded-sm"
+            src={imageIngameUrl}
+            alt={t('ingame screenshot')}
+            style={aspectRatioStyle}
+            {...dimensionProps}
+          />
         </div>
       </ZoomableImage>
     </div>

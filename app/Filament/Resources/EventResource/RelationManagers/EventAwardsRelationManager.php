@@ -38,38 +38,13 @@ class EventAwardsRelationManager extends RelationManager
         /** @var Event $event */
         $event = $this->getOwnerRecord();
 
-        $minPoints = 1;
-        $maxPoints = $event->publishedAchievements()
+        $totalPoints = $event->publishedAchievements()
             ->get()
             ->sum(function ($eventAchievement) {
                 return $eventAchievement->achievement->points;
             });
 
-        $isNew = true;
-
-        if (!$event->awards()->exists()) {
-            $tierIndex = 1;
-        } else {
-            /** @var EventAward $award */
-            $award = $schema->model;
-            if (is_a($award, EventAward::class)) {
-                $tierIndex = $award->tier_index;
-                $isNew = false;
-            } else { // new record just passes the class name as $form->model
-                $maxTier = $event->awards()->max('tier_index');
-                $tierIndex = $maxTier + 1;
-            }
-
-            $previousTier = $event->awards()->where('tier_index', $tierIndex - 1)->first();
-            if ($previousTier) {
-                $minPoints = $previousTier->points_required + 1;
-            }
-
-            $nextTier = $event->awards()->where('tier_index', $tierIndex + 1)->first();
-            if ($nextTier) {
-                $maxPoints = $nextTier->points_required - 1;
-            }
-        }
+        $defaultTierIndex = ($event->awards()->max('tier_index') ?? 0) + 1;
 
         return $schema
             ->components([
@@ -79,14 +54,35 @@ class EventAwardsRelationManager extends RelationManager
                     ->required(),
 
                 Forms\Components\TextInput::make('points_required')
-                    ->default($maxPoints)
+                    ->default($totalPoints)
                     ->numeric()
-                    ->minValue($minPoints)
-                    ->maxValue($maxPoints)
+                    ->minValue(function (?EventAward $record) use ($event): int {
+                        if (!$record) {
+                            // For new tiers, points must be higher than the current highest tier.
+                            $highestTier = $event->awards()->orderByDesc('tier_index')->first();
+
+                            return $highestTier ? $highestTier->points_required + 1 : 1;
+                        }
+
+                        // For existing tiers, respect the previous tier's boundary.
+                        $previousTier = $event->awards()->where('tier_index', $record->tier_index - 1)->first();
+
+                        return $previousTier ? $previousTier->points_required + 1 : 1;
+                    })
+                    ->maxValue(function (?EventAward $record) use ($event, $totalPoints): int {
+                        if (!$record) {
+                            return $totalPoints;
+                        }
+
+                        // For existing tiers, respect the next tier's boundary.
+                        $nextTier = $event->awards()->where('tier_index', $record->tier_index + 1)->first();
+
+                        return $nextTier ? $nextTier->points_required - 1 : $totalPoints;
+                    })
                     ->required(),
 
                 Forms\Components\TextInput::make('tier_index')
-                    ->default($tierIndex)
+                    ->default($defaultTierIndex)
                     ->numeric()
                     ->readOnly()
                     ->required(),
@@ -106,7 +102,7 @@ class EventAwardsRelationManager extends RelationManager
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->required($isNew)
+                            ->required(fn (?EventAward $record): bool => $record === null)
                             ->previewable(true),
                     ])
                     ->columns(2),

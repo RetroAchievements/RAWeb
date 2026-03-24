@@ -8,7 +8,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
   let formElement: HTMLFormElement;
   let inputElement: HTMLInputElement;
   let outsideElement: HTMLDivElement;
-  let onSubmitSpy: ReturnType<typeof vi.fn>;
+  let onSubmitSpy: ReturnType<typeof vi.fn<() => void>>;
 
   beforeEach(() => {
     // ... create a form with an input inside ...

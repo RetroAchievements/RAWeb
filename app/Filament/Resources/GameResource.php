@@ -17,8 +17,8 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Rules\DisallowAnimatedImageRule;
-use App\Rules\UploadedImageAspectRatioRule;
+use App\Platform\Enums\GameScreenshotStatus;
+use App\Platform\Services\ScreenshotResolutionService;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
@@ -292,84 +292,6 @@ class GameResource extends Resource
                             ->disabled(!$user->can('updateField', [$schema->model, 'legacy_guide_url'])),
                     ]),
 
-                Schemas\Components\Section::make('Media')
-                    ->icon('heroicon-s-photo')
-                    ->hidden(
-                        !$user->can('updateField', [$schema->model, 'image_icon_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_title_asset_path'])
-                        && !$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])
-                    )
-                    ->schema([
-                        // Store a temporary file on disk until the user submits.
-                        // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('image_icon_asset_path')
-                            ->label('Badge')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->rules([
-                                'dimensions:width=96,height=96',
-                            ])
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_box_art_asset_path')
-                            ->label('Box Art')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_title_asset_path')
-                            ->label('Title')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path'])),
-
-                        Forms\Components\FileUpload::make('image_ingame_asset_path')
-                            ->label('In Game')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
-                            ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                            ->maxSize(1024)
-                            ->maxFiles(1)
-                            ->previewable(true)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])),
-
-                        Forms\Components\SpatieMediaLibraryFileUpload::make('banner')
-                            ->label('Banner Image')
-                            ->collection('banner')
-                            ->conversion('desktop-xl-webp')
-                            ->disk('s3')
-                            ->visibility('public')
-                            ->image()
-                            ->rules([
-                                'dimensions:min_width=1920,min_height=540',
-                                new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance.
-                                new DisallowAnimatedImageRule(),
-                            ])
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
-                            ->maxSize(5120)
-                            ->maxFiles(1)
-                            ->customProperties(['is_current' => true])
-                            ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true))
-                            ->helperText(new HtmlString('Read: <a href="https://docs.retroachievements.org/guidelines/content/badge-and-icon-guidelines.html#game-page-banners" target="_blank" class="underline">banner rules and guidelines</a>. Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop. Your image should not include text of any kind.'))
-                            ->previewable(true)
-                            ->downloadable(false)
-                            ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
-                    ])
-                    ->columns(2),
-
                 Schemas\Components\Section::make('Rich Presence')
                     ->icon('heroicon-s-chat-bubble-left-right')
                     ->schema([
@@ -495,7 +417,7 @@ class GameResource extends Resource
                     }),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
-                    ->label('Has core set')
+                    ->label('Has base set')
                     ->placeholder('Any')
                     ->trueLabel('Yes')
                     ->falseLabel('No')
@@ -509,17 +431,17 @@ class GameResource extends Resource
                     ->label('Media')
                     ->placeholder('Select a value')
                     ->options([
-                        'none' => 'Has all media',
-                        'none_excluding_banner' => 'Has all media (excluding banner)',
-                        'has_banner' => 'Has banner',
-                        'all' => 'Missing all media',
-                        'all_excluding_banner' => 'Missing all media (excluding banner)',
                         'any' => 'Missing any media',
-                        'badge' => 'Missing badge icon',
+                        'all' => 'Missing all media',
+                        'none' => 'Has all media',
+                        'badge' => 'Missing badge',
                         'boxart' => 'Missing box art',
-                        'title' => 'Missing title image',
-                        'ingame' => 'Missing in-game image',
+                        'title' => 'Missing title screenshot',
+                        'ingame' => 'Missing in-game screenshot',
                         'banner' => 'Missing banner',
+                        'has_banner' => 'Has banner',
+                        'wrong_resolution' => 'Has wrong-resolution screenshots',
+                        'mixed_resolution' => 'Has mixed-resolution primary screenshots',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (empty($data['value'])) {
@@ -531,87 +453,87 @@ class GameResource extends Resource
                         switch ($data['value']) {
                             case 'none':
                                 return $query->whereNotNull('image_icon_asset_path')
-                                    ->where('image_icon_asset_path', '!=', '/Images/000001.png')
+                                    ->where('image_icon_asset_path', '!=', Game::PLACEHOLDER_BADGE_PATH)
                                     ->whereNotNull('image_title_asset_path')
-                                    ->where('image_title_asset_path', '!=', '/Images/000002.png')
+                                    ->where('image_title_asset_path', '!=', Game::PLACEHOLDER_IMAGE_PATH)
                                     ->whereNotNull('image_ingame_asset_path')
-                                    ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
+                                    ->where('image_ingame_asset_path', '!=', Game::PLACEHOLDER_IMAGE_PATH)
                                     ->whereNotNull('image_box_art_asset_path')
-                                    ->where('image_box_art_asset_path', '!=', '/Images/000002.png')
+                                    ->where('image_box_art_asset_path', '!=', Game::PLACEHOLDER_IMAGE_PATH)
                                     ->whereHas('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
-                            case 'none_excluding_banner':
-                                return $query->whereNotNull('image_icon_asset_path')
-                                    ->where('image_icon_asset_path', '!=', '/Images/000001.png')
-                                    ->whereNotNull('image_title_asset_path')
-                                    ->where('image_title_asset_path', '!=', '/Images/000002.png')
-                                    ->whereNotNull('image_ingame_asset_path')
-                                    ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
-                                    ->whereNotNull('image_box_art_asset_path')
-                                    ->where('image_box_art_asset_path', '!=', '/Images/000002.png');
                             case 'all':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_icon_asset_path')
-                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
+                                        ->orWhere('image_icon_asset_path', Game::PLACEHOLDER_BADGE_PATH);
                                 })->where(function ($query) {
                                     $query->whereNull('image_title_asset_path')
-                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_title_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 })->where(function ($query) {
                                     $query->whereNull('image_ingame_asset_path')
-                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_ingame_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 })->where(function ($query) {
                                     $query->whereNull('image_box_art_asset_path')
-                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_box_art_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 })->whereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
-                            case 'all_excluding_banner':
-                                return $query->where(function ($query) {
-                                    $query->whereNull('image_icon_asset_path')
-                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
-                                })->where(function ($query) {
-                                    $query->whereNull('image_title_asset_path')
-                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
-                                })->where(function ($query) {
-                                    $query->whereNull('image_ingame_asset_path')
-                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
-                                })->where(function ($query) {
-                                    $query->whereNull('image_box_art_asset_path')
-                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
-                                });
                             case 'any':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_icon_asset_path')
-                                        ->orWhere('image_icon_asset_path', '/Images/000001.png')
+                                        ->orWhere('image_icon_asset_path', Game::PLACEHOLDER_BADGE_PATH)
                                         ->orWhereNull('image_title_asset_path')
-                                        ->orWhere('image_title_asset_path', '/Images/000002.png')
+                                        ->orWhere('image_title_asset_path', Game::PLACEHOLDER_IMAGE_PATH)
                                         ->orWhereNull('image_ingame_asset_path')
-                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png')
+                                        ->orWhere('image_ingame_asset_path', Game::PLACEHOLDER_IMAGE_PATH)
                                         ->orWhereNull('image_box_art_asset_path')
-                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png')
+                                        ->orWhere('image_box_art_asset_path', Game::PLACEHOLDER_IMAGE_PATH)
                                         ->orWhereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
                                 });
                             case 'badge':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_icon_asset_path')
-                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
+                                        ->orWhere('image_icon_asset_path', Game::PLACEHOLDER_BADGE_PATH);
                                 });
                             case 'boxart':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_box_art_asset_path')
-                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_box_art_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 });
                             case 'title':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_title_asset_path')
-                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_title_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 });
                             case 'ingame':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_ingame_asset_path')
-                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_ingame_asset_path', Game::PLACEHOLDER_IMAGE_PATH);
                                 });
                             case 'banner':
                                 return $query->whereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
                             case 'has_banner':
                                 return $query->whereHas('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
+                            case 'wrong_resolution':
+                                $service = new ScreenshotResolutionService();
+
+                                return $query->where(function (Builder $outer) use ($service) {
+                                        // build per-system conditions
+                                        $systems = System::whereNotNull('screenshot_resolutions')->get();
+                                        foreach ($systems as $system) {
+                                            $outer->orWhere(function (Builder $perSystem) use ($system, $service) {
+                                                $perSystem->where('system_id', $system->id)
+                                                    ->whereHas('gameScreenshots', fn (Builder $ssQ) => $service->buildWrongResolutionQuery($ssQ, $system));
+                                            });
+                                        }
+                                    });
+                            case 'mixed_resolution':
+                                return $query->whereHas('gameScreenshots', function (Builder $ssQ) {
+                                    $ssQ->where('is_primary', true)
+                                        ->where('status', GameScreenshotStatus::Approved)
+                                        ->whereNotNull('width')
+                                        ->whereNotNull('height')
+                                        ->selectRaw('game_id')
+                                        ->groupBy('game_id')
+                                        ->havingRaw('MIN(width) != MAX(width) OR MIN(height) != MAX(height)');
+                                });
                             default:
                                 return $query;
                         }
@@ -704,6 +626,7 @@ class GameResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Media::class,
             Pages\Hubs::class,
             Pages\SimilarGames::class,
             Pages\Hashes::class,
@@ -717,6 +640,7 @@ class GameResource extends Resource
             'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'media' => Pages\Media::route('/{record}/media'),
             'hubs' => Pages\Hubs::route('/{record}/hubs'),
             'similar-games' => Pages\SimilarGames::route('/{record}/similar-games'),
             'hashes' => Pages\Hashes::route('/{record}/hashes'),
@@ -729,10 +653,13 @@ class GameResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Game> $query */
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
             ->with(['system', 'forumTopic']);
+
+        return $query;
     }
 }

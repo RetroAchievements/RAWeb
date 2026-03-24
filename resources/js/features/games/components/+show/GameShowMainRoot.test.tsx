@@ -16,16 +16,6 @@ import { currentListViewAtom } from '../../state/games.atoms';
 import { GameShowMainRoot } from './GameShowMainRoot';
 
 describe('Component: GameShowMainRoot', () => {
-  beforeEach(() => {
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
-  });
-
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame({
@@ -87,6 +77,41 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
+  });
+
+  it('given the system has screenshot resolutions, passes expected dimensions to the media component', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+        screenshotResolutions: [{ width: 256, height: 224 }],
+      }),
+      imageIngameUrl: 'ingame.jpg',
+      imageTitleUrl: 'title.jpg',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        recentPlayers: [],
+        recentVisibleComments: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+    expect(ingameImage).toHaveAttribute('width', '256');
+    expect(ingameImage).toHaveAttribute('height', '224');
   });
 
   it('given the game has media URLs, shows them in the desktop media viewer', () => {

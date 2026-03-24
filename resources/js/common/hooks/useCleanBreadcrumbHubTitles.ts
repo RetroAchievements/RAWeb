@@ -2,6 +2,21 @@ import { useTranslation } from 'react-i18next';
 
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 
+// Organizational prefixes that are always stripped from breadcrumb hub titles.
+const alwaysStripPrefixes = [
+  'ASB -',
+  'Dev Events -',
+  'Events -',
+  'Genre - ',
+  'Meta|Art - ',
+  'Meta|DevComp - ',
+  'Meta|QA - ',
+  'Misc. - ',
+  'Series Hacks -',
+  'Subgenre - ',
+  'Subseries -',
+];
+
 export function useCleanBreadcrumbHubTitles() {
   const { t } = useTranslation();
 
@@ -26,28 +41,10 @@ export function useCleanBreadcrumbHubTitles() {
       const match = cleaned.match(/DevQuest (\d+)/);
       const number = match ? parseInt(match[1], 10) : null;
 
-      const parts = cleaned.split(']');
-      if (parts.length > 1) {
-        const content = parts[1].trim();
+      const content = cleaned.split(']')[1].trim();
 
-        return number ? `${number}: ${content}` : content;
-      }
+      return number ? `${number}: ${content}` : content;
     }
-
-    // Always strip organizational prefixes first.
-    const alwaysStripPrefixes = [
-      'ASB -',
-      'Dev Events -',
-      'Events -',
-      'Genre - ',
-      'Meta|Art - ',
-      'Meta|DevComp - ',
-      'Meta|QA - ',
-      'Misc. - ',
-      'Series Hacks -',
-      'Subgenre - ',
-      'Subseries -',
-    ];
 
     // Check explicit prefixes first.
     for (const prefix of alwaysStripPrefixes) {

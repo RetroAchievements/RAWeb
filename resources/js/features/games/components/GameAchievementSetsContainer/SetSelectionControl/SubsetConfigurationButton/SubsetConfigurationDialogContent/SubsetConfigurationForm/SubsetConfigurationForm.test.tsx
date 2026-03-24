@@ -240,6 +240,76 @@ describe('Component: SubsetConfigurationForm', () => {
     expect(switches[0]).toBeChecked();
   });
 
+  it('given both bonus and specialty sets exist, shows section headings', () => {
+    // ARRANGE
+    const sets = [
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Specialty Set', type: 'specialty' }),
+    ];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/no extra setup needed/i)).toBeVisible();
+    expect(screen.getByText(/requires a patched game file/i)).toBeVisible();
+  });
+
+  it('given only base + bonus sets exist, does not show section headings', () => {
+    // ARRANGE
+    const sets = [
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Another Bonus', type: 'bonus' }),
+    ];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no extra setup needed/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/requires a patched game file/i)).not.toBeInTheDocument();
+  });
+
+  it('given both types exist, renders no-setup sets before patch-required sets', () => {
+    // ARRANGE
+    const sets = [
+      createGameAchievementSet({ id: 1, title: 'Specialty Set', type: 'specialty' }),
+      createGameAchievementSet({ id: 2, title: 'Bonus Set', type: 'bonus' }),
+    ];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    const noSetupHeading = screen.getByText(/no extra setup needed/i);
+    const patchRequiredHeading = screen.getByText(/requires a patched game file/i);
+
+    // ... the "no setup" heading should appear before the "patched ROM" heading in the DOM ...
+    expect(
+      noSetupHeading.compareDocumentPosition(patchRequiredHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    // ... the bonus set should appear before the specialty set ...
+    const bonusSet = screen.getByText('Bonus Set');
+    const specialtySet = screen.getByText('Specialty Set');
+    expect(
+      bonusSet.compareDocumentPosition(specialtySet) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it('given multiple sets have changes, sends all changed preferences to the API', async () => {
     // ARRANGE
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ data: { success: true } });

@@ -116,6 +116,31 @@ describe('Hook: useCanShowScrollToTopButton', () => {
     });
   });
 
+  it('given the user is past the minimum scroll distance and scrolls further down, returns false', async () => {
+    // ARRANGE
+    const { result } = renderHook(() => useCanShowScrollToTopButton());
+
+    // ACT
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { value: 900, configurable: true });
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual(false);
+    });
+
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { value: 1200, configurable: true });
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(result.current).toEqual(false);
+    });
+  });
+
   it('given the user is within 200px of the bottom of the page, returns false', () => {
     // ARRANGE
     const { result } = renderHook(() => useCanShowScrollToTopButton());
@@ -129,6 +154,38 @@ describe('Hook: useCanShowScrollToTopButton', () => {
 
     // ASSERT
     expect(result.current).toEqual(false);
+  });
+
+  it('given a scroll event fires while a previous rAF is still pending, does not schedule another one', async () => {
+    // ARRANGE
+    let rafCallback: ((time: number) => void) | null = null;
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      rafCallback = cb;
+
+      return 0;
+    });
+
+    renderHook(() => useCanShowScrollToTopButton());
+
+    // ACT
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { value: 900, configurable: true });
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { value: 950, configurable: true });
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    // ASSERT
+    expect(rafSpy).toHaveBeenCalledTimes(1);
+
+    if (rafCallback) {
+      act(() => {
+        rafCallback!(0);
+      });
+    }
   });
 
   it('given the component unmounts, cleans up the event listener', () => {

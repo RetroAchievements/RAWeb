@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
@@ -32,7 +33,8 @@ export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
   const { auth, accessibleTeamAccounts } = usePageProps<App.Data.CreateForumTopicPageProps>();
   const { form, mutation, onSubmit } = useCreateTopicForm();
 
-  const [watchedBody, watchedPostAsUserId] = form.watch(['body', 'postAsUserId']);
+  const watchedBody = useWatch({ name: 'body', control: form.control });
+  const watchedPostAsUserId = useWatch({ name: 'postAsUserId', control: form.control });
 
   const watchedPostAsUser =
     watchedPostAsUserId !== 'self'

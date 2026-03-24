@@ -8,7 +8,9 @@ use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Sentry\Laravel\Integration;
+use Sentry\State\Scope;
+
+use function Sentry\configureScope;
 
 class LogLegacyApiUsage
 {
@@ -19,13 +21,13 @@ class LogLegacyApiUsage
 
         DB::transaction(fn () => $user->increment('web_api_calls'), attempts: 3);
 
-        // Override Sentry's parameterized transaction name so each
-        // endpoint is individually visible instead of all being grouped
-        // under "/API/{method}.php".
+        // Tag the method so Sentry can group by endpoint. Using setTag
+        // instead of setTransaction because Sentry's Laravel integration
+        // overwrites the transaction name from the route at end-of-request.
         $method = $request->route('method');
-        if ($method) {
-            Integration::setTransaction("/API/{$method}.php");
-        }
+        configureScope(function (Scope $scope) use ($method) {
+            $scope->setTag('api.v1.method', $method ?? 'unknown');
+        });
 
         return $next($request);
     }

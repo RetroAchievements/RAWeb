@@ -1,11 +1,34 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+import { route } from 'ziggy-js';
 
-import { act, render, screen } from '@/test';
-import { createAchievement, createComment, createGame, createSystem } from '@/test/factories';
+import { act, render, screen, waitFor } from '@/test';
+import {
+  createAchievement,
+  createComment,
+  createEventAchievement,
+  createGame,
+  createSystem,
+} from '@/test/factories';
 
 import { AchievementShowRoot } from './AchievementShowRoot';
 
 describe('Component: AchievementShowRoot', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    vi.spyOn(router, 'reload').mockImplementation((options?: Record<string, unknown>) => {
+      if (options && typeof options.onFinish === 'function') {
+        (options.onFinish as () => void)();
+      }
+    });
+
+    window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    window.HTMLElement.prototype.setPointerCapture = vi.fn();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const achievement = createAchievement({
@@ -21,6 +44,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -45,6 +69,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -72,6 +97,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -95,6 +121,7 @@ describe('Component: AchievementShowRoot', () => {
         backingGame: null,
         gameAchievementSet: null,
         can: { createAchievementComments: false },
+        initialTab: 'comments',
         isSubscribedToComments: false,
         numComments: 2,
         recentVisibleComments: [createComment({ payload: 'Great achievement!' })],
@@ -120,6 +147,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -147,6 +175,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -176,6 +205,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -206,6 +236,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -239,6 +270,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -264,6 +296,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -273,7 +306,7 @@ describe('Component: AchievementShowRoot', () => {
     await userEvent.click(screen.getAllByRole('tab', { name: /media/i })[0]);
 
     // ASSERT
-    const imgEl = screen.getByRole('img', { name: /media/i });
+    const imgEl = screen.getByRole('img', { name: 'Media' });
     expect(imgEl).toHaveAttribute('src', 'https://i.imgur.com/7ma23Se.png');
     expect(screen.queryByTestId('video-embed')).not.toBeInTheDocument();
   });
@@ -293,6 +326,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -318,6 +352,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -342,6 +377,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -349,6 +385,41 @@ describe('Component: AchievementShowRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user can update promoted status, shows the promote/demote dialog when the button is clicked', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      isPromoted: false,
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementIsPromoted: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getByRole('button', { name: /promote/i }));
+
+    // ASSERT
+    expect(screen.getByText(/are you sure you want to promote this achievement/i)).toBeVisible();
   });
 
   it('allows switching to the changelog tab', async () => {
@@ -367,6 +438,7 @@ describe('Component: AchievementShowRoot', () => {
         can: { createAchievementComments: false },
         changelog: [],
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -377,5 +449,438 @@ describe('Component: AchievementShowRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/no changelog entries found/i)).toBeVisible();
+  });
+
+  it('given the user edits the title and clicks Save, sends the updated title to the API', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Old Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+
+    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New Title');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(patchSpy).toHaveBeenCalledWith(route('api.achievement.update', { achievement: 99 }), {
+        title: 'New Title',
+      });
+    });
+  });
+
+  it('given the user saves without making changes, does not call the API', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Same Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    const patchSpy = vi.spyOn(axios, 'patch');
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    expect(patchSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user saves with changes and the API succeeds, shows a success toast', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Old Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+
+    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New Title');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/saved!/i)).toBeVisible();
+    });
+
+    expect(router.reload).toHaveBeenCalled();
+  });
+
+  it('given a successful save, exits edit mode after the page reloads', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Old Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+
+    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New Title');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/saved!/i)).toBeVisible();
+    });
+
+    expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user changes the points, sends the updated points to the API', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 77,
+      points: 25,
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementPoints: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('combobox', { name: 'Achievement points' })[0]);
+    await userEvent.click(screen.getByRole('option', { name: '10' }));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(patchSpy).toHaveBeenCalledWith(route('api.achievement.update', { achievement: 77 }), {
+        points: 10,
+      });
+    });
+  });
+
+  it('given the user changes the type to "none", sends null to the API', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      type: 'missable',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { success: true } });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementType: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('combobox', { name: 'Achievement type' })[0]);
+    await userEvent.click(screen.getByRole('option', { name: 'None' }));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(patchSpy).toHaveBeenCalledWith(route('api.achievement.update', { achievement: 99 }), {
+        type: null,
+      });
+    });
+  });
+
+  it('given a revealed event achievement, shows Comments and Unlocks tabs but not Changelog', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement(),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('tab', { name: /comments/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('tab', { name: /unlocks/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('tab', { name: /changelog/i })).not.toBeInTheDocument();
+  });
+
+  it('given a revealed achievement that has an embedUrl, shows the Media tab', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement({ embedUrl: 'https://example.com/video.mp4' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('tab', { name: /media/i }).length).toBeGreaterThan(0);
+  });
+
+  it('given an obfuscated event achievement, shows inline unlocks with no tabs', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: true,
+          sourceAchievement: null,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlockedAt: '2024-03-15T12:00:00Z',
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
+  });
+
+  it('given the API returns an error when saving, shows an error toast', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 99,
+      title: 'Old Title',
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    vi.spyOn(axios, 'patch').mockRejectedValueOnce(new Error('Server error'));
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: {
+          createAchievementComments: false,
+          develop: true,
+          updateAchievementTitle: true,
+          viewAchievementLogic: false,
+        },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+
+    const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New Title');
+
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+    });
+
+    expect(router.reload).not.toHaveBeenCalled();
   });
 });

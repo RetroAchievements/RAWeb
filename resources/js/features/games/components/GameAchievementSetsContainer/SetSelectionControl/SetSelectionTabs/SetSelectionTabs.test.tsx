@@ -23,7 +23,7 @@ vi.mock('@/common/components/InertiaLink', () => ({
       {...props}
       onClick={(e: any) => {
         e.preventDefault(); // prevent navigation errors
-        onClick?.();
+        onClick?.(e);
       }}
     >
       {children}

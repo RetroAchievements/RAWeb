@@ -90,17 +90,16 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
     }
 
     if (hoveredIndex !== null) {
-      const tabEl = tabRefs.current[hoveredIndex];
-      if (tabEl) {
-        // Only animate position when sliding between tabs, not when first appearing.
-        const isSliding = prevHoveredRef.current !== null;
+      const tabEl = tabRefs.current[hoveredIndex]!;
 
-        hoverEl.style.transition = isSliding ? SLIDE_TRANSITION : FADE_TRANSITION;
-        hoverEl.style.transform = `translateX(${tabEl.offsetLeft}px) translateY(${tabEl.offsetTop}px)`;
-        hoverEl.style.width = `${tabEl.offsetWidth}px`;
-        hoverEl.style.height = `${tabEl.offsetHeight}px`;
-        hoverEl.style.opacity = '1';
-      }
+      // Only animate position when sliding between tabs, not when first appearing.
+      const isSliding = prevHoveredRef.current !== null;
+
+      hoverEl.style.transition = isSliding ? SLIDE_TRANSITION : FADE_TRANSITION;
+      hoverEl.style.transform = `translateX(${tabEl.offsetLeft}px) translateY(${tabEl.offsetTop}px)`;
+      hoverEl.style.width = `${tabEl.offsetWidth}px`;
+      hoverEl.style.height = `${tabEl.offsetHeight}px`;
+      hoverEl.style.opacity = '1';
     } else {
       hoverEl.style.transition = FADE_TRANSITION;
       hoverEl.style.opacity = '0';
