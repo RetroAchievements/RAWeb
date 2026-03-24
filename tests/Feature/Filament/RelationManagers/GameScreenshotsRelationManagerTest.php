@@ -70,6 +70,7 @@ it('given a new primary image is being set, demotes any old primary and promotes
     // ASSERT
     expect($oldPrimary->fresh()->is_primary)->toBeFalse();
     expect($newPrimary->fresh()->is_primary)->toBeTrue();
+    expect($newPrimary->fresh()->order_column)->toBeLessThan($oldPrimary->fresh()->order_column);
 });
 
 it('given a pending screenshot is promoted to primary, auto-approves it from pending status', function () {

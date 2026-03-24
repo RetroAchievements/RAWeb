@@ -142,7 +142,7 @@
         "lint": "@php vendor/bin/pint --test",
         "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
         "mfs": "@php artisan migrate:refresh --seed",
-        "octane": "@php artisan octane:start --watch --port=64888",
+        "octane": "@php artisan octane:start --watch --port=8888 --caddyfile=docker/octane/Caddyfile",
         "paratest": "@php artisan test --parallel",
         "rector": "@php vendor/bin/rector process",
         "setup": [

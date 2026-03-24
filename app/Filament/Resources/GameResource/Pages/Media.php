@@ -114,6 +114,13 @@ class Media extends EditRecord
 
     public function getRelationManagers(): array
     {
+        /** @var Game $game */
+        $game = $this->getRecord();
+
+        if ($game->is_media_restricted) {
+            return [];
+        }
+
         return [
             GameResource\RelationManagers\GameScreenshotsRelationManager::class,
         ];
@@ -143,9 +150,21 @@ class Media extends EditRecord
     {
         /** @var User $user */
         $user = Auth::user();
+        /** @var Game $game */
+        $game = $this->getRecord();
+        $isMediaRestricted = $game->is_media_restricted;
 
         return $schema
             ->components([
+                Schemas\Components\Section::make('Media Restriction Active')
+                    ->icon('heroicon-s-exclamation-triangle')
+                    ->schema([
+                        Forms\Components\Placeholder::make('media_restriction_notice')
+                            ->hiddenLabel()
+                            ->content('This game has a media restriction in effect. Most visual media (screenshots, box art, and banner) are hidden from public view.'),
+                    ])
+                    ->hidden(!$isMediaRestricted),
+
                 Schemas\Components\Grid::make()
                     ->columns(['lg' => 2])
                     ->schema([
@@ -180,7 +199,7 @@ class Media extends EditRecord
                                     ->maxFiles(1)
                                     ->previewable(true),
                             ])
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path']) || $isMediaRestricted),
                     ]),
 
                 Schemas\Components\Section::make('Banner Image')
@@ -207,7 +226,7 @@ class Media extends EditRecord
                             ->previewable(true)
                             ->downloadable(false),
                     ])
-                    ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'banner']) || $isMediaRestricted),
             ]);
     }
 

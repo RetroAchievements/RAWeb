@@ -582,6 +582,9 @@ proximityAchievements: Array<App.Platform.Data.Achievement> | null;
 promotedAchievementCount: number;
 recentUnlocks?: Array<App.Platform.Data.AchievementRecentUnlock>;
 initialTab: App.Platform.Enums.AchievementPageTab;
+eventAchievement: App.Platform.Data.EventAchievement | null;
+isEventGame: boolean;
+areAllAchievementsOnePoint: boolean;
 };
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -1144,11 +1147,11 @@ pointsForNext: number;
 };
 }
 declare namespace App.Platform.Enums {
-export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
-export type AchievementSetAuthorTask = 'artwork' | 'banner';
+export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
