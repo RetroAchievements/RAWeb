@@ -15,6 +15,9 @@ class LogUsersOnlineCount extends Command
 
     public function handle(UserLastActivityService $userActivityService): void
     {
+        // Flush pending Redis activity to the DB first so the count reflects all recent activity.
+        $userActivityService->flushToDatabase();
+
         $playersOnline = $userActivityService->countOnline(withinMinutes: 10);
 
         UsersOnlineCount::log($playersOnline);
