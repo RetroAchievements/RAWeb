@@ -33,7 +33,7 @@ export const AchievementEventInfo: FC = () => {
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
         <BaseTableBody>
-          <BaseTableRow>
+          <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
             <BaseTableHead scope="row" className="h-auto text-right align-middle text-text">
               {t('From')}
             </BaseTableHead>
@@ -43,23 +43,19 @@ export const AchievementEventInfo: FC = () => {
             </BaseTableCell>
           </BaseTableRow>
 
-          <BaseTableRow>
-            <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
-              {t('Active')}
-            </BaseTableHead>
+          {hasActiveDates ? (
+            <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
+              <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
+                {t('Active')}
+              </BaseTableHead>
 
-            <BaseTableCell>
-              {eventAchievement.activeFrom && eventAchievement.activeThrough ? (
-                <>
-                  {formatDate(eventAchievement.activeFrom, 'll')}
-                  {' – '}
-                  {formatDate(eventAchievement.activeThrough, 'll')}
-                </>
-              ) : (
-                <span>{'–'}</span>
-              )}
-            </BaseTableCell>
-          </BaseTableRow>
+              <BaseTableCell>
+                {formatDate(eventAchievement.activeFrom!, 'll')}
+                {' – '}
+                {formatDate(eventAchievement.activeThrough!, 'll')}
+              </BaseTableCell>
+            </BaseTableRow>
+          ) : null}
         </BaseTableBody>
       </BaseTable>
     </div>

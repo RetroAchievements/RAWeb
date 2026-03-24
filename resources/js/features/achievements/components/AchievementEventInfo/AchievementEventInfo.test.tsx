@@ -120,7 +120,7 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.getByText(/jan 12, 2025/i)).toBeVisible();
   });
 
-  it('given the event achievement has no active dates but has a source game, shows a dash for the Active row', () => {
+  it('given the event achievement has no active dates but has a source game, does not show the Active row', () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -138,8 +138,8 @@ describe('Component: AchievementEventInfo', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/active/i)).toBeVisible();
-    expect(screen.getAllByText('–').length).toBeGreaterThan(0);
+    expect(screen.getByText(/from/i)).toBeVisible();
+    expect(screen.queryByText(/active/i)).not.toBeInTheDocument();
   });
 
   it('given the event achievement has both a source game and active dates, displays both', () => {
