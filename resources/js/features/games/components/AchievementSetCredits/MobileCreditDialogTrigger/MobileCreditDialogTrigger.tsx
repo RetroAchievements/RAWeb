@@ -251,11 +251,11 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
             {aggregateCredits.achievementsTesting.length ? (
               <TooltipCreditsSection headingLabel={t('Playtesters')}>
                 {aggregateCredits.achievementsTesting.map((credit) => (
-                  /**
-                   * TODO show dates
-                   * right now these are attached to achievements... it should probably be set credit
-                   */
-                  <TooltipCreditRow key={`testing-credit-${credit.displayName}`} credit={credit} />
+                  <TooltipCreditRow
+                    key={`testing-credit-${credit.displayName}`}
+                    credit={credit}
+                    showCreditDate={true}
+                  />
                 ))}
               </TooltipCreditsSection>
             ) : null}
