@@ -53,7 +53,7 @@ class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
-        if ($game->trigger_definition === $this->richPresence) {
+        if (($game->trigger_definition ?? '') === $this->richPresence) {
             return [
                 'Success' => true,
             ];

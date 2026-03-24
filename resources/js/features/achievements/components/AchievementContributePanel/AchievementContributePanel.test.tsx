@@ -150,6 +150,25 @@ describe('Component: AchievementContributePanel', () => {
     expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
   });
 
+  it('given the achievement is for an event game, only shows a full-width Manage button', () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 789 });
+
+    render(<AchievementContributePanel />, {
+      pageProps: {
+        achievement,
+        can: { develop: true, viewAchievementLogic: true },
+        isEventGame: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
+
+    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
+  });
+
   it('given the user clicks Cancel Editing, returns to showing the Quick Edit button', async () => {
     // ARRANGE
     const achievement = createAchievement({

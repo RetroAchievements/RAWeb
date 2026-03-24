@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { type MouseEvent as ReactMouseEvent, useRef, useState } from 'react';
 
 interface UseHoverCardClickSuppressionOptions {
   onTabChange?: (index: number) => void;
@@ -37,7 +37,12 @@ export function useHoverCardClickSuppression(options?: UseHoverCardClickSuppress
     setOpenHoverCard(isOpen ? index : null);
   };
 
-  const handleTabClick = (index: number) => {
+  const handleTabClick = (index: number, event: ReactMouseEvent) => {
+    // Don't move the indicator when the user is opening the link in a new tab.
+    if (event.ctrlKey || event.metaKey || event.button === 1) {
+      return;
+    }
+
     // Suppress the hover card reopening until mouse leaves.
     clickSuppressedTabs.current.add(index);
 
