@@ -351,9 +351,12 @@ class EmulatorResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Emulator> $query */
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+
+        return $query;
     }
 }

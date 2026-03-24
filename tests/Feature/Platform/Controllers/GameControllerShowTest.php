@@ -2271,7 +2271,7 @@ describe('Aggregate Credits Props', function () {
         );
     });
 
-    it('includes achievement testing credits', function () {
+    it('includes achievement set testing credits', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
@@ -2285,10 +2285,12 @@ describe('Aggregate Credits Props', function () {
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
-        AchievementAuthor::create([
-            'achievement_id' => $achievement->id,
+        $achievementSetId = $game->gameAchievementSets()->core()->first()->achievement_set_id;
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $achievementSetId,
             'user_id' => $taskAuthor->id,
-            'task' => AchievementAuthorTask::Testing,
+            'task' => AchievementSetAuthorTask::Testing,
         ]);
 
         // ACT

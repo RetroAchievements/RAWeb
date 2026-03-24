@@ -97,11 +97,11 @@ const DesignCreditIcon: FC<DesignCreditIconProps> = ({
           {testingCredits.length ? (
             <TooltipCreditsSection headingLabel={t('Playtesters')}>
               {testingCredits.map((credit) => (
-                /**
-                 * TODO show dates
-                 * right now these are attached to achievements... it should probably be set credit
-                 */
-                <TooltipCreditRow key={`testing-credit-${credit.displayName}`} credit={credit} />
+                <TooltipCreditRow
+                  key={`testing-credit-${credit.displayName}`}
+                  credit={credit}
+                  showCreditDate={true}
+                />
               ))}
             </TooltipCreditsSection>
           ) : null}

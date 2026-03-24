@@ -1,3 +1,5 @@
+import type { MouseEvent as ReactMouseEvent } from 'react';
+
 import { act, renderHook } from '@/test';
 
 import { useHoverCardClickSuppression } from './useHoverCardClickSuppression';
@@ -62,7 +64,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ASSERT
@@ -79,7 +81,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ACT
@@ -104,7 +106,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ... verify it's suppressed ...
@@ -154,7 +156,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ... pointer leaves immediately ...
@@ -185,7 +187,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ... pointer leaves (starts 500ms timeout) ...
@@ -200,7 +202,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ... advance time past what would have been the original timeout ...
@@ -235,7 +237,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: true,
         metaKey: false,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ASSERT
@@ -254,7 +256,7 @@ describe('Hook: useHoverCardClickSuppression', () => {
         ctrlKey: false,
         metaKey: true,
         button: 0,
-      } as React.MouseEvent);
+      } as ReactMouseEvent);
     });
 
     // ASSERT
