@@ -5,27 +5,13 @@ declare(strict_types=1);
 namespace App\Rules;
 
 use App\Models\System;
+use App\Platform\Services\ScreenshotResolutionService;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\UploadedFile;
 
 class ValidScreenshotResolutionRule implements ValidationRule
 {
-    private const MAX_SCALE_FACTOR = 3;
-
-    /**
-     * SMPTE 601 analog capture resolutions accepted for any system with
-     * analog TV output. These represent standard digitization of analog
-     * video signals and do not get integer-multiple scaling.
-     */
-    private const SMPTE_601_RESOLUTIONS = [
-        ['width' => 704, 'height' => 480],  // NTSC
-        ['width' => 720, 'height' => 480],  // NTSC
-        ['width' => 720, 'height' => 486],  // NTSC
-        ['width' => 704, 'height' => 576],  // PAL
-        ['width' => 720, 'height' => 576],  // PAL
-    ];
-
     public function __construct(
         private readonly System $system,
     ) {
@@ -60,7 +46,8 @@ class ValidScreenshotResolutionRule implements ValidationRule
 
         [$width, $height] = $imageInfo;
 
-        if (self::isValidResolution($width, $height, $this->system)) {
+        $service = new ScreenshotResolutionService();
+        if ($service->isValidResolution($width, $height, $this->system)) {
             return;
         }
 
@@ -70,51 +57,11 @@ class ValidScreenshotResolutionRule implements ValidationRule
 
         $smpteNote = '';
         if ($this->system->has_analog_tv_output) {
-            $smpteFormatted = collect(self::SMPTE_601_RESOLUTIONS)
-                ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
-                ->join(', ');
-
-            $smpteNote = " SMPTE 601 capture resolutions ({$smpteFormatted}) are also accepted.";
+            $smpteNote = ' SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
         }
 
-        $fail("This screenshot's dimensions ({$width}x{$height}) don't match the expected resolutions for {$this->system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}");
-    }
+        $filename = $value->getClientOriginalName();
 
-    public static function isValidResolution(int $width, int $height, System $system): bool
-    {
-        $resolutions = $system->screenshot_resolutions;
-        if (empty($resolutions)) {
-            return true;
-        }
-
-        foreach ($resolutions as $resolution) {
-            $baseW = $resolution['width'];
-            $baseH = $resolution['height'];
-
-            if ($width === $baseW && $height === $baseH) {
-                return true;
-            }
-
-            // Both axes must scale by the same integer factor.
-            if ($width % $baseW === 0 && $height % $baseH === 0) {
-                $scaleX = (int) ($width / $baseW);
-                $scaleY = (int) ($height / $baseH);
-
-                if ($scaleX === $scaleY && $scaleX >= 2 && $scaleX <= self::MAX_SCALE_FACTOR) {
-                    return true;
-                }
-            }
-        }
-
-        // SMPTE 601 resolutions are checked for an exact match only (no scaling).
-        if ($system->has_analog_tv_output) {
-            foreach (self::SMPTE_601_RESOLUTIONS as $smpte) {
-                if ($width === $smpte['width'] && $height === $smpte['height']) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        $fail("{$filename} ({$width}x{$height}) doesn't match the expected resolutions for {$this->system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}");
     }
 }

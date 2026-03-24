@@ -109,6 +109,25 @@ class System extends BaseModel implements HasMedia
     public const Events = 101;
     public const Standalones = 102;
 
+    /**
+     * Systems where emulators can internally upscale 3D rendering,
+     * producing captures that are off by +/- 1px from the expected resolution.
+     */
+    public const UPSCALING_SYSTEM_IDS = [
+        2,  // Nintendo 64
+        12, // PlayStation
+        16, // GameCube
+        18, // Nintendo DS
+        19, // Wii
+        20, // Wii U
+        21, // PlayStation 2
+        39, // Saturn
+        40, // Dreamcast
+        41, // PlayStation Portable
+        62, // Nintendo 3DS
+        78, // Nintendo DSi
+    ];
+
     // == helpers
 
     public static function getHomebrewSystems(): array
