@@ -176,6 +176,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                               index={index}
                               isLargeList={isLargeAchievementsList}
                               shouldShowAuthor={!isViewingPublishedAchievements}
+                              shouldShowWeightedPoints={isViewingPublishedAchievements}
                               playersTotal={gameAchievementSet.achievementSet.playersTotal}
                             />
                           ))}
@@ -224,6 +225,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                         index={index}
                         isLargeList={isLargeAchievementsList}
                         shouldShowAuthor={!isViewingPublishedAchievements}
+                        shouldShowWeightedPoints={isViewingPublishedAchievements}
                         playersTotal={gameAchievementSet.achievementSet.playersTotal}
                       />
                     ))}

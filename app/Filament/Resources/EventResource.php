@@ -343,7 +343,10 @@ class EventResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Event> $query */
+        $query = parent::getEloquentQuery()
             ->with(['legacyGame']);
+
+        return $query;
     }
 }
