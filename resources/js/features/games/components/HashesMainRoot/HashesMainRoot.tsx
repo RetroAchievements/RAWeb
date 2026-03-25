@@ -50,7 +50,7 @@ export const HashesMainRoot: FC = () => {
 
         <Embed className="flex flex-col gap-4">
           <p className="font-bold">
-            {t('This page shows you what ROM hashes are compatible with this achievement set.')}
+            {t('This page shows you what game hashes are compatible with this achievement set.')}
           </p>
 
           <p>
