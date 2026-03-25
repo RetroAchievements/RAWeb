@@ -4,7 +4,13 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { act, render, screen, waitFor } from '@/test';
-import { createAchievement, createComment, createGame, createSystem } from '@/test/factories';
+import {
+  createAchievement,
+  createComment,
+  createEventAchievement,
+  createGame,
+  createSystem,
+} from '@/test/factories';
 
 import { AchievementShowRoot } from './AchievementShowRoot';
 
@@ -38,6 +44,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -62,6 +69,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -89,6 +97,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -112,6 +121,7 @@ describe('Component: AchievementShowRoot', () => {
         backingGame: null,
         gameAchievementSet: null,
         can: { createAchievementComments: false },
+        initialTab: 'comments',
         isSubscribedToComments: false,
         numComments: 2,
         recentVisibleComments: [createComment({ payload: 'Great achievement!' })],
@@ -137,6 +147,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -164,6 +175,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -193,6 +205,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -223,6 +236,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -256,6 +270,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -281,6 +296,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -310,6 +326,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -335,6 +352,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -359,6 +377,7 @@ describe('Component: AchievementShowRoot', () => {
         gameAchievementSet: null,
         can: { createAchievementComments: false },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -389,6 +408,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -418,6 +438,7 @@ describe('Component: AchievementShowRoot', () => {
         can: { createAchievementComments: false },
         changelog: [],
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -454,6 +475,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -500,6 +522,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -537,6 +560,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -583,6 +607,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -629,6 +654,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -672,6 +698,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },
@@ -689,6 +716,125 @@ describe('Component: AchievementShowRoot', () => {
         type: null,
       });
     });
+  });
+
+  it('given a revealed event achievement, shows Comments and Unlocks tabs but not Changelog', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement(),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('tab', { name: /comments/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('tab', { name: /unlocks/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('tab', { name: /changelog/i })).not.toBeInTheDocument();
+  });
+
+  it('given a revealed achievement that has an embedUrl, shows the Media tab', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: false,
+          sourceAchievement: createAchievement({ embedUrl: 'https://example.com/video.mp4' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('tab', { name: /media/i }).length).toBeGreaterThan(0);
+  });
+
+  it('given an obfuscated event achievement, shows inline unlocks with no tabs', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+        eventAchievement: createEventAchievement({
+          isObfuscated: true,
+          sourceAchievement: null,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+  });
+
+  it('given the achievement is for an event game and the user has unlocked it, does not show the reset progress button', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlockedAt: '2024-03-15T12:00:00Z',
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        isSubscribedToComments: false,
+        isEventGame: true,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /reset progress/i })).not.toBeInTheDocument();
   });
 
   it('given the API returns an error when saving, shows an error toast', async () => {
@@ -715,6 +861,7 @@ describe('Component: AchievementShowRoot', () => {
           viewAchievementLogic: false,
         },
         isSubscribedToComments: false,
+        initialTab: 'comments',
         numComments: 0,
         recentVisibleComments: [],
       },

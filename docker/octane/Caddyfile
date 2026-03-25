@@ -1,0 +1,22 @@
+{
+	admin :2019
+
+	frankenphp {
+		worker {
+			file /var/www/html/public/frankenphp-worker.php
+		}
+	}
+}
+
+:8888 {
+	route {
+		root * /var/www/html/public
+		encode zstd br gzip
+
+		php_server {
+			index frankenphp-worker.php
+			try_files frankenphp-worker.php
+			resolve_root_symlink
+		}
+	}
+}

@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import type { FC } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { CommentList } from '@/common/components/CommentList';
@@ -9,17 +9,33 @@ import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const AchievementCommentList: FC = () => {
-  const { achievement, can, isSubscribedToComments, numComments, recentVisibleComments } =
-    usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const {
+    achievement,
+    can,
+    eventAchievement,
+    isSubscribedToComments,
+    numComments,
+    recentVisibleComments,
+  } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { t } = useTranslation();
+
+  // For event achievements, comments come from the source achievement.
+  const commentableId = eventAchievement?.sourceAchievement?.id ?? achievement.id;
 
   const reloadComments = () => {
-    router.reload({ only: ['recentVisibleComments'] });
+    router.reload({ only: ['recentVisibleComments', 'numComments'] });
   };
 
   return (
     <div id="comments" className="flex flex-col gap-2">
       <div className="flex w-full items-end justify-between">
         <div className="flex items-center gap-1">
+          <p>
+            {numComments > 20
+              ? t('Recent comments:', { nsSeparator: null })
+              : t('Comments:', { nsSeparator: null })}
+          </p>
+
           <p className="text-2xs text-neutral-500">
             {numComments > 20 ? (
               <Trans
@@ -28,7 +44,7 @@ export const AchievementCommentList: FC = () => {
                 components={{
                   1: (
                     <InertiaLink
-                      href={route('achievement.comment.index', { achievement: achievement.id })}
+                      href={route('achievement.comment.index', { achievement: commentableId })}
                       prefetch="desktop-hover-only"
                     />
                   ),
@@ -40,7 +56,7 @@ export const AchievementCommentList: FC = () => {
 
         <SubscribeToggleButton
           hasExistingSubscription={isSubscribedToComments}
-          subjectId={achievement.id}
+          subjectId={commentableId}
           subjectType="Achievement"
         />
       </div>
@@ -48,7 +64,7 @@ export const AchievementCommentList: FC = () => {
       <CommentList
         comments={recentVisibleComments}
         canComment={!!can.createAchievementComments}
-        commentableId={achievement.id}
+        commentableId={commentableId}
         commentableType="achievement.comment"
         onDeleteSuccess={reloadComments}
         onSubmitSuccess={reloadComments}

@@ -567,4 +567,16 @@ class UserAgentServiceTest extends TestCase
         $this->assertEquals(1, UserAgentService::versionCompare('3.0.1.5865-5ba8d97c-Dirty', '3.0.1.5864'));
         $this->assertEquals(-1, UserAgentService::versionCompare('3.0.1.5865-5ba8d97c-Dirty', '3.0.1.5866'));
     }
+
+    public function testVersionCompareLetterSuffix(): void
+    {
+        $this->assertEquals(-1, UserAgentService::versionCompare('2603', '2603a'));
+        $this->assertEquals(1, UserAgentService::versionCompare('2603a', '2603'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('2603a', '2603b'));
+        $this->assertEquals(1, UserAgentService::versionCompare('2603b', '2603a'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('2603b', '2604'));
+        $this->assertEquals(1, UserAgentService::versionCompare('2604', '2603b'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('2603a', '2604a'));
+        $this->assertEquals(1, UserAgentService::versionCompare('2604b', '2603a'));
+    }
 }
