@@ -32,7 +32,7 @@ class PlayerAchievementSchema extends Schema
      * Relationships that should always be eager loaded.
      * We always need the achievement's game to exclude hubs.
      */
-    protected array $with = ['achievement.game'];
+    protected array $with = ['achievement.game', 'user'];
 
     /**
      * Default pagination parameters when client doesn't provide any.

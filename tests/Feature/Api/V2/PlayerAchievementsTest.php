@@ -710,6 +710,76 @@ class PlayerAchievementsTest extends TestCase
         $this->assertEquals('Sonic the Hedgehog', $included[0]['attributes']['title']);
     }
 
+    public function testItAlwaysIncludesAchievementAndUserResourceIdentifiers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+
+        $player = User::factory()->create();
+        PlayerAchievement::factory()->create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+        ]);
+
+        // Act
+        // ... fetch without ?include= from the user side ...
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievements");
+
+        // Assert
+        // ... resource identifiers should still be present ...
+        $response->assertSuccessful();
+        $relationships = $response->json('data.0.relationships');
+
+        $this->assertArrayHasKey('achievement', $relationships);
+        $this->assertEquals('achievements', $relationships['achievement']['data']['type']);
+        $this->assertEquals((string) $achievement->id, $relationships['achievement']['data']['id']);
+
+        $this->assertArrayHasKey('user', $relationships);
+        $this->assertEquals('users', $relationships['user']['data']['type']);
+        $this->assertEquals($player->ulid, $relationships['user']['data']['id']);
+    }
+
+    public function testItAlwaysIncludesResourceIdentifiersFromAchievementSide(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+
+        $player = User::factory()->create();
+        PlayerAchievement::factory()->create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+        ]);
+
+        // Act
+        // ... fetch without ?include= from the achievement side ...
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/achievements/{$achievement->id}/player-achievements");
+
+        // Assert
+        // ... resource identifiers should still be present ...
+        $response->assertSuccessful();
+        $relationships = $response->json('data.0.relationships');
+
+        $this->assertArrayHasKey('achievement', $relationships);
+        $this->assertEquals('achievements', $relationships['achievement']['data']['type']);
+        $this->assertEquals((string) $achievement->id, $relationships['achievement']['data']['id']);
+
+        $this->assertArrayHasKey('user', $relationships);
+        $this->assertEquals('users', $relationships['user']['data']['type']);
+        $this->assertEquals($player->ulid, $relationships['user']['data']['id']);
+    }
+
     public function testItDoesNotExposeInternalFields(): void
     {
         // Arrange

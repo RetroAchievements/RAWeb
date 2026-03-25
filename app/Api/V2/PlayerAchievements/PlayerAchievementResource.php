@@ -35,9 +35,9 @@ class PlayerAchievementResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
-            'achievement' => $this->relation('achievement')->withoutLinks(),
+            'achievement' => $this->relation('achievement')->withoutLinks()->showDataIfLoaded(),
             'game' => $this->relation('game')->withoutLinks(),
-            'user' => $this->relation('user')->withoutLinks(),
+            'user' => $this->relation('user')->withoutLinks()->showDataIfLoaded(),
         ];
     }
 
