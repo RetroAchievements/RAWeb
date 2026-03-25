@@ -423,10 +423,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    const comboboxEl = screen.getByRole('combobox', { name: /game file/i });
+    const comboboxEl = screen.getByRole('combobox', { name: /game hash/i });
 
     expect(comboboxEl).toBeVisible();
-    expect(comboboxEl).toHaveTextContent(/select a file/i);
+    expect(comboboxEl).toHaveTextContent(/select a hash/i);
   });
 
   it('given a selectable hash has no name, still lets the user select it by md5', async () => {
@@ -447,7 +447,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('combobox', { name: /game file/i }));
+    await userEvent.click(screen.getByRole('combobox', { name: /game hash/i }));
 
     expect(screen.getByRole('option', { name: gameHashes[0].md5 })).toBeVisible();
     expect(screen.getByRole('option', { name: gameHashes[1].md5 })).toBeVisible();
@@ -471,7 +471,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    const comboboxEl = screen.getByRole('combobox', { name: /game file/i });
+    const comboboxEl = screen.getByRole('combobox', { name: /game hash/i });
 
     expect(comboboxEl).toHaveTextContent(/hash a/i);
   });
@@ -495,7 +495,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    const comboboxEl = screen.getByRole('combobox', { name: /game file/i });
+    const comboboxEl = screen.getByRole('combobox', { name: /game hash/i });
 
     expect(comboboxEl).toHaveTextContent(/hash b/i);
   });
@@ -519,9 +519,9 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    const comboboxEl = screen.getByRole('combobox', { name: /game file/i });
+    const comboboxEl = screen.getByRole('combobox', { name: /game hash/i });
 
-    expect(comboboxEl).toHaveTextContent(/select a file/i);
+    expect(comboboxEl).toHaveTextContent(/select a hash/i);
   });
 
   it('given the user selects they had a network problem, shows a link to the Discord and disables the submit button', async () => {
@@ -587,7 +587,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
     // ASSERT
@@ -632,7 +632,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
     await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
@@ -704,7 +704,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
     await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
@@ -795,7 +795,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
     await userEvent.type(screen.getByRole('textbox', { name: /description/i }), "doesn't work"); // !!
