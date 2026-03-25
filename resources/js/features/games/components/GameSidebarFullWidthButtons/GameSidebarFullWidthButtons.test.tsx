@@ -45,7 +45,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /supported game files/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /supported game hashes/i })).not.toBeInTheDocument();
   });
 
   it('given there is at least 1 compatible hash, displays a supported game files link', () => {
@@ -60,7 +60,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /supported game files/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /supported game hashes/i })).toBeVisible();
   });
 
   it('given there is nothing to display, does not display any section', () => {

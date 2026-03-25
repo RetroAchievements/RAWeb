@@ -67,7 +67,7 @@ if ($canSeeOpenTickets) {
                 icon="💾"
                 :href="route('game.hashes.index', ['game' => $game])"
             >
-                Supported Game Files
+                Supported Game Hashes
             </x-game.link-buttons.game-link-button>
         @endcan
     @endif
