@@ -63,7 +63,7 @@ describe('Component: HashesList', () => {
     render(<HashesList hashes={[hash]} />);
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /download patch file/i });
+    const linkEl = screen.getByRole('link', { name: /download compatibility patch/i });
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', hash.patchUrl);
   });
@@ -75,7 +75,9 @@ describe('Component: HashesList', () => {
     render(<HashesList hashes={[hash]} />);
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /download patch file/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /download compatibility patch/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('given the hash has labels with images, renders them', () => {

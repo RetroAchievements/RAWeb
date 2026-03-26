@@ -473,7 +473,7 @@ class BuildGameShowPagePropsAction
 
     private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Reuse the Supported Game Files page logic to ensure consistent counts.
+        // Reuse the Supported Game Hashes page logic to ensure consistent counts.
         return $this->resolveHashesForAchievementSetAction
             ->execute($game, $targetAchievementSet)
             ->count();
