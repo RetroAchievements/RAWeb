@@ -12,7 +12,7 @@ if (request()->user()) {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <h3>Create Account</h3>
     <div class="infobox">
-        <form method=post action="/request/auth/register.php">
+        <form method=post action="/request/auth/register.php" x-data="{ isSending: false }" x-on:submit="isSending = true">
             <?= csrf_field() ?>
             <table>
                 <tbody>
@@ -57,7 +57,7 @@ if (request()->user()) {
                     <tr>
                         <td></td>
                         <td>
-                            <button class="btn">Create User</button>
+                            <button class="btn" :disabled="isSending">Create User</button>
                         </td>
                     </tr>
                     <tr>
