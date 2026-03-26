@@ -41,6 +41,9 @@ export const AchievementHero: FC = () => {
   const unlocksSoftcoreTotal = unlocksTotal - unlocksHardcoreTotal;
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
+  const shouldShowPointsLabels =
+    !canEditPoints && !(isEventGame && areAllAchievementsOnePoint) && achievement.points! > 0;
+
   const formattedUnlockPercentage = formatPercentage(unlockPercentage, {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
@@ -134,7 +137,7 @@ export const AchievementHero: FC = () => {
               <div className="hidden items-center gap-3 md:flex">
                 {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
 
-                {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
+                {shouldShowPointsLabels ? (
                   <PointsLabels
                     points={achievement.points}
                     pointsWeighted={achievement.pointsWeighted}
@@ -167,7 +170,7 @@ export const AchievementHero: FC = () => {
 
           {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
 
-          {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
+          {shouldShowPointsLabels ? (
             <PointsLabels
               points={achievement.points}
               pointsWeighted={achievement.pointsWeighted}

@@ -33,15 +33,17 @@ export const AchievementEventInfo: FC = () => {
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
         <BaseTableBody>
-          <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-            <BaseTableHead scope="row" className="h-auto text-right align-middle text-text">
-              {t('From')}
-            </BaseTableHead>
+          {sourceGame ? (
+            <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
+              <BaseTableHead scope="row" className="h-auto text-right align-middle text-text">
+                {t('From')}
+              </BaseTableHead>
 
-            <BaseTableCell className="h-[42px]">
-              {sourceGame ? <GameAvatar {...sourceGame} size={24} /> : <span>{'–'}</span>}
-            </BaseTableCell>
-          </BaseTableRow>
+              <BaseTableCell className="h-[42px]">
+                <GameAvatar {...sourceGame} size={24} />
+              </BaseTableCell>
+            </BaseTableRow>
+          ) : null}
 
           {hasActiveDates ? (
             <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">

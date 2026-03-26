@@ -80,7 +80,7 @@ describe('Component: AchievementEventInfo', () => {
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
   });
 
-  it('given the event achievement has no source game but has active dates, shows a dash for the From row', () => {
+  it('given the event achievement has no source game but has active dates, does not show the From row', () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -96,8 +96,8 @@ describe('Component: AchievementEventInfo', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/from/i)).toBeVisible();
-    expect(screen.getAllByText('–').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/from/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/active/i)).toBeVisible();
   });
 
   it('given the event achievement has active dates, displays the date range', () => {
