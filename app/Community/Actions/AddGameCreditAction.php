@@ -34,7 +34,7 @@ class AddGameCreditAction
 
         $achievementSet = $coreAchievementSet->achievementSet;
 
-        if ($task === AchievementSetAuthorTask::Artwork) {
+        if (in_array($task, [AchievementSetAuthorTask::Artwork, AchievementSetAuthorTask::Testing], true)) {
             $alreadyExists = AchievementSetAuthor::where('achievement_set_id', $achievementSet->id)
                 ->whereUserId($user->id)
                 ->whereTask($task)

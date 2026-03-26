@@ -18,7 +18,9 @@ console.error = vi.fn();
 describe('Component: CreateTopicForm', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<CreateTopicForm onPreview={vi.fn()} />);
+    const { container } = render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum: createForum() },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -26,7 +28,9 @@ describe('Component: CreateTopicForm', () => {
 
   it('given the user has not entered any text, disables the preview and submit buttons', () => {
     // ARRANGE
-    render(<CreateTopicForm onPreview={vi.fn()} />);
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum: createForum() },
+    });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /preview/i })).toBeDisabled();
@@ -35,7 +39,9 @@ describe('Component: CreateTopicForm', () => {
 
   it('given the user enters text in both fields, enables the preview and submit buttons', async () => {
     // ARRANGE
-    render(<CreateTopicForm onPreview={vi.fn()} />);
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum: createForum() },
+    });
 
     // ACT
     await userEvent.type(
@@ -53,7 +59,9 @@ describe('Component: CreateTopicForm', () => {
     // ARRANGE
     const previewSpy = vi.fn();
 
-    render(<CreateTopicForm onPreview={previewSpy} />);
+    render(<CreateTopicForm onPreview={previewSpy} />, {
+      pageProps: { forum: createForum() },
+    });
 
     // ACT
     await userEvent.type(

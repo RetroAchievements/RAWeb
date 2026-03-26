@@ -617,4 +617,24 @@ describe('Component: AchievementHero', () => {
     // ASSERT
     expect(screen.queryByText(/not promoted/i)).not.toBeInTheDocument();
   });
+
+  it('given the achievement is for an event game, shows "unlocks" instead of "softcore" and "hardcore"', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 500 }),
+      isPromoted: true,
+      unlocksTotal: 200,
+      unlocksHardcore: 200,
+      unlockPercentage: '40',
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement, isEventGame: true },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/200 unlocks/i)).toBeVisible();
+    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/hardcore/i)).not.toBeInTheDocument();
+  });
 });

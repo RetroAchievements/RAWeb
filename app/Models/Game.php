@@ -75,6 +75,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     use Searchable;
     use SoftDeletes;
 
+    public const PLACEHOLDER_BADGE_PATH = '/Images/000001.png';
     public const PLACEHOLDER_IMAGE_PATH = '/Images/000002.png';
 
     // TODO migrate forum_topic_id to forumable morph
@@ -94,6 +95,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'trigger_id',
         'legacy_guide_url',
         'comments_locked_at',
+        'is_media_restricted',
         'image_icon_asset_path',
         'image_title_asset_path',
         'image_ingame_asset_path',
@@ -102,6 +104,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     protected $casts = [
         'comments_locked_at' => 'datetime',
+        'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',
@@ -531,6 +534,26 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return $this->getMedia('banner')
             ->where('custom_properties.is_current', true)
             ->first();
+    }
+
+    public function getImageBoxArtAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageTitleAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageIngameAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    private function resolveImageAssetPath(?string $value): string
+    {
+        return $this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : ($value ?? self::PLACEHOLDER_IMAGE_PATH);
     }
 
     public function getImageBoxArtUrlAttribute(): string

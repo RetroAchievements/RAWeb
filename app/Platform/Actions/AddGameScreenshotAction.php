@@ -8,8 +8,8 @@ use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
-use App\Rules\ValidScreenshotResolutionRule;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use App\Support\MediaLibrary\RejectedHashes;
 use Illuminate\Http\UploadedFile;
@@ -143,7 +143,8 @@ class AddGameScreenshotAction
             return;
         }
 
-        if (ValidScreenshotResolutionRule::isValidResolution($width, $height, $system)) {
+        $service = new ScreenshotResolutionService();
+        if ($service->isValidResolution($width, $height, $system)) {
             return;
         }
 
