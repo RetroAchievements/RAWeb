@@ -109,7 +109,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
               <BaseBreadcrumbItem aria-label={achievement.title}>
                 <BaseBreadcrumbLink asChild>
                   <InertiaLink
-                    href={route('achievement.show', { achievementId: achievement.id })}
+                    href={route('achievement.show', { achievement: achievement.id })}
                     prefetch="desktop-hover-only"
                   >
                     {achievement.title}

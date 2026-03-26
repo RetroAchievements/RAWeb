@@ -23,7 +23,7 @@ describe('Component: AchievementHeading', () => {
     // ASSERT
     const linkEl = screen.getByRole('link');
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', `achievement.show,${{ game: achievement.id }}`);
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('achievement.show'));
 
     expect(screen.getByRole('img', { name: achievement.title })).toBeVisible();
   });

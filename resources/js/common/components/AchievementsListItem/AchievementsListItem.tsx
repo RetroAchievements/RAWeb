@@ -8,6 +8,7 @@ import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { AchievementTypeIndicator } from '../AchievementTypeIndicator';
+import { InertiaLink } from '../InertiaLink';
 import { UserAvatar } from '../UserAvatar';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
@@ -93,13 +94,14 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {/* Title */}
             <div className="-mt-1 mb-0.5 md:mt-0">
               <span className="mr-2">
-                <a
-                  href={route('achievement.show', { achievementId: achievement.id })}
+                <InertiaLink
+                  href={route('achievement.show', { achievement: achievement.id })}
+                  prefetch="desktop-hover-only"
                   className="font-medium"
                 >
                   {title}
                   {game?.title ? ' ' : null}
-                </a>
+                </InertiaLink>
 
                 {game?.title ? (
                   <Trans

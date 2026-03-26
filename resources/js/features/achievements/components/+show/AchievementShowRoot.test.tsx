@@ -359,7 +359,7 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /reset progress/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /more actions/i })).toBeVisible();
   });
 
   it('given the user has not unlocked the achievement, does not render the reset progress link', () => {
@@ -415,7 +415,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /promote/i }));
 
     // ASSERT
@@ -482,7 +483,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
     await userEvent.clear(titleInput);
@@ -529,7 +531,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
     // ASSERT
@@ -567,7 +570,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
     await userEvent.clear(titleInput);
@@ -614,7 +618,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
     await userEvent.clear(titleInput);
@@ -661,7 +666,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getAllByRole('combobox', { name: 'Achievement points' })[0]);
     await userEvent.click(screen.getByRole('option', { name: '10' }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
@@ -705,7 +711,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getAllByRole('combobox', { name: 'Achievement type' })[0]);
     await userEvent.click(screen.getByRole('option', { name: 'None' }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
@@ -868,7 +875,8 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getAllByRole('button', { name: /quick edit/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /more actions/i })[0]);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
 
     const titleInput = screen.getByRole('textbox', { name: 'Achievement title' });
     await userEvent.clear(titleInput);

@@ -46,7 +46,8 @@ describe('Component: UpdatePromotedStatusDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /promote/i }));
 
     // ASSERT
@@ -71,7 +72,8 @@ describe('Component: UpdatePromotedStatusDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /demote/i }));
 
     // ASSERT
@@ -96,7 +98,8 @@ describe('Component: UpdatePromotedStatusDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: /promote/i }));
 
     // ASSERT
@@ -121,7 +124,8 @@ describe('Component: UpdatePromotedStatusDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /quick edit/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /quick edit/i }));
     await userEvent.click(screen.getByRole('button', { name: 'Demote' }));
 
     // ASSERT
