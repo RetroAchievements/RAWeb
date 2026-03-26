@@ -54,12 +54,16 @@ export const AchievementInlineActions: FC = () => {
           </InertiaLink>
 
           {ticketCount ? (
-            <a href={route('achievement.tickets', { achievement: reportSubject.id })}>
-              {t('openTicketCount', {
-                count: ticketCount,
-                val: ticketCount,
-              })}
-            </a>
+            <>
+              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+
+              <a href={route('achievement.tickets', { achievement: reportSubject.id })}>
+                {t('openTicketCount', {
+                  count: ticketCount,
+                  val: ticketCount,
+                })}
+              </a>
+            </>
           ) : null}
         </div>
       ) : null}

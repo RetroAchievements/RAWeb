@@ -22,7 +22,7 @@ export const AchievementMetaDetails: FC = () => {
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
         <BaseTableBody>
-          <BaseTableRow>
+          <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
             <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
               {t('Created by')}
             </BaseTableHead>
@@ -33,7 +33,7 @@ export const AchievementMetaDetails: FC = () => {
           </BaseTableRow>
 
           {achievement.activeMaintainer && !achievement.activeMaintainer.isGone ? (
-            <BaseTableRow>
+            <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
               <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
                 {t('Maintained by')}
               </BaseTableHead>
@@ -44,7 +44,7 @@ export const AchievementMetaDetails: FC = () => {
             </BaseTableRow>
           ) : null}
 
-          <BaseTableRow>
+          <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
             <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
               {t('Created')}
             </BaseTableHead>
@@ -52,7 +52,7 @@ export const AchievementMetaDetails: FC = () => {
             <BaseTableCell>{formatDate(achievement.createdAt!, 'll')}</BaseTableCell>
           </BaseTableRow>
 
-          <BaseTableRow>
+          <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
             <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
               {t('Last modified')}
             </BaseTableHead>

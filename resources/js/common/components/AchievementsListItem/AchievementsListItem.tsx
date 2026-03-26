@@ -37,6 +37,12 @@ interface AchievementsListItemProps {
    * authors via the AchievementSetCredits component.
    */
   shouldShowAuthor?: boolean;
+
+  /**
+   * Weighted points don't dynamically recalculate for unpublished achievements,
+   * so the values are misleading and should be hidden.
+   */
+  shouldShowWeightedPoints?: boolean;
 }
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({
@@ -47,6 +53,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   isLargeList,
   playersTotal,
   shouldShowAuthor = false,
+  shouldShowWeightedPoints = true,
 }) => {
   const { t } = useTranslation();
 
@@ -110,7 +117,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
               <AchievementPoints
                 isEvent={!!eventAchievement}
                 points={achievement.points ?? 0}
-                pointsWeighted={achievement.pointsWeighted}
+                pointsWeighted={shouldShowWeightedPoints ? achievement.pointsWeighted : undefined}
               />
             </div>
 

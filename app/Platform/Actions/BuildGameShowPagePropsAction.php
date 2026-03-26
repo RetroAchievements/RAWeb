@@ -361,7 +361,7 @@ class BuildGameShowPagePropsAction
             bannerPreference: GameBannerPreference::tryFrom(Cookie::get('banner_state') ?? '') ?? GameBannerPreference::Normal,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
-            banner: $game->banner,
+            banner: $game->is_media_restricted ? null : $game->banner,
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
             targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
             targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
@@ -473,7 +473,7 @@ class BuildGameShowPagePropsAction
 
     private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Reuse the Supported Game Files page logic to ensure consistent counts.
+        // Reuse the Supported Game Hashes page logic to ensure consistent counts.
         return $this->resolveHashesForAchievementSetAction
             ->execute($game, $targetAchievementSet)
             ->count();
