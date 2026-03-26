@@ -7,9 +7,7 @@ namespace App\Api\V2\Controllers;
 use LaravelJsonApi\Laravel\Http\Controllers\Actions;
 use LaravelJsonApi\Laravel\Http\Controllers\JsonApiController;
 
-class AchievementController extends JsonApiController
+class PlayerAchievementController extends JsonApiController
 {
     use Actions\FetchMany;
-    use Actions\FetchOne;
-    use Actions\FetchRelated;
 }
