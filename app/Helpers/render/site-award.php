@@ -313,6 +313,7 @@ function RenderAward(
             iconSize: $imageSize,
             iconClass: 'goldimage',
             context: $ownerUsername,
+            hasLink: false,
         );
 
         return;

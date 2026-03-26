@@ -17,6 +17,7 @@ function avatar(
     bool $sanitize = true,
     ?string $altText = null,
     ?string $loading = 'lazy',
+    bool $hasLink = true,
 ): string {
     $escapedName = attributeEscape($altText ?? $label);
     if ($sanitize) {
@@ -49,7 +50,11 @@ function avatar(
         }
     }
 
-    return "<span class='$class' $tooltipTrigger><a class='inline-block' href='$link'>$label</a></span>";
+    $inner = $hasLink
+        ? "<a class='inline-block' href='$link'>$label</a>"
+        : "<span class='inline-block'>$label</span>";
+
+    return "<span class='$class' $tooltipTrigger>$inner</span>";
 }
 
 function tooltipEscape(string $input): string

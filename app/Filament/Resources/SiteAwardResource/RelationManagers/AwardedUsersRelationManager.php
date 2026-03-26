@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\PlaytestAwardResource\RelationManagers;
+namespace App\Filament\Resources\SiteAwardResource\RelationManagers;
 
 use App\Community\Enums\AwardType;
 use App\Models\AchievementSetAuthor;
 use App\Models\PlayerBadge;
-use App\Models\PlaytestAward;
+use App\Models\SiteAward;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use Filament\Actions\Action;
@@ -30,7 +30,7 @@ class AwardedUsersRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
-        return $user->can('manage', PlaytestAward::class);
+        return $user->can('manage', SiteAward::class);
     }
 
     public function table(Table $table): Table
@@ -66,43 +66,46 @@ class AwardedUsersRelationManager extends RelationManager
                     ->action(function (array $data, Action $action) {
                         $userId = (int) $data['user_id'];
 
-                        // The user must have playtesting credit to receive an award.
-                        $hasPlaytestingCredit = AchievementSetAuthor::where('user_id', $userId)
-                            ->where('task', AchievementSetAuthorTask::Testing)
-                            ->exists();
+                        /** @var SiteAward $siteAward */
+                        $siteAward = $this->ownerRecord;
+                        $awardType = $siteAward->award_type;
 
-                        if (!$hasPlaytestingCredit) {
-                            Notification::make()
-                                ->warning()
-                                ->title('No Playtesting Credit')
-                                ->body('This user has no playtesting credit and cannot receive a playtest award.')
-                                ->persistent()
-                                ->send();
+                        // Playtest awards require playtesting credit.
+                        if ($awardType === AwardType::Playtest) {
+                            $hasPlaytestingCredit = AchievementSetAuthor::where('user_id', $userId)
+                                ->where('task', AchievementSetAuthorTask::Testing)
+                                ->exists();
 
-                            $action->halt(); // throw a client-side exception
+                            if (!$hasPlaytestingCredit) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('No Playtesting Credit')
+                                    ->body('This user has no playtesting credit and cannot receive a playtest award.')
+                                    ->persistent()
+                                    ->send();
+
+                                $action->halt(); // throw a client-side exception
+                            }
                         }
-
-                        /** @var PlaytestAward $playtestAward */
-                        $playtestAward = $this->ownerRecord;
 
                         // Check for duplicate before entering the transaction.
                         $existingAward = PlayerBadge::where('user_id', $userId)
-                            ->where('award_type', AwardType::Playtest)
+                            ->where('award_type', $awardType)
                             ->first();
 
-                        if ($existingAward && (int) $existingAward->award_key === $playtestAward->id) {
+                        if ($existingAward && (int) $existingAward->award_key === $siteAward->id) {
                             Notification::make()
                                 ->warning()
                                 ->title('Already Awarded')
-                                ->body('This user already has this playtest award.')
+                                ->body('This user already has this award.')
                                 ->persistent()
                                 ->send();
 
                             $action->halt(); // throw a client-side exception
                         }
 
-                        // A user can only have one playtest award at a time. Replace any existing one.
-                        DB::transaction(function () use ($userId, $playtestAward, $existingAward) {
+                        // A user can only have one award per type at a time. Replace any existing one.
+                        DB::transaction(function () use ($userId, $siteAward, $awardType, $existingAward) {
                             $orderColumn = null;
 
                             if ($existingAward) {
@@ -112,8 +115,8 @@ class AwardedUsersRelationManager extends RelationManager
 
                             PlayerBadge::create([
                                 'user_id' => $userId,
-                                'award_type' => AwardType::Playtest,
-                                'award_key' => $playtestAward->id,
+                                'award_type' => $awardType,
+                                'award_key' => $siteAward->id,
                                 'award_tier' => 0,
                                 'awarded_at' => now(),
                                 'order_column' => $orderColumn ?? ((PlayerBadge::where('user_id', $userId)->max('order_column') ?? 0) + 1),

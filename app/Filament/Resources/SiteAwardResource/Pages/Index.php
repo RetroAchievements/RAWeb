@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\PlaytestAwardResource\Pages;
+namespace App\Filament\Resources\SiteAwardResource\Pages;
 
-use App\Filament\Resources\PlaytestAwardResource;
+use App\Filament\Resources\SiteAwardResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class Index extends ListRecords
 {
-    protected static string $resource = PlaytestAwardResource::class;
+    protected static string $resource = SiteAwardResource::class;
 
     protected function getHeaderActions(): array
     {
