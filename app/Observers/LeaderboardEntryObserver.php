@@ -75,6 +75,7 @@ class LeaderboardEntryObserver
             if ($isNewEntryBetter) {
                 // This is a new top entry - update the leaderboard.
                 $leaderboard->top_entry_id = $leaderboardEntry->id;
+                $leaderboard->timestamps = false;
                 $leaderboard->save();
             }
         } else {
