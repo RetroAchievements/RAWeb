@@ -34,11 +34,23 @@ class PlayerAchievementResource extends BaseJsonApiResource
      */
     public function relationships($request): iterable
     {
-        return [
-            'achievement' => $this->relation('achievement')->withoutLinks()->showDataIfLoaded(),
+        // Only include the "other" relationship identifier to avoid redundancy.
+        // When accessed via a parent, that parent's identity is already known from the URL.
+        $parentResource = self::resolveParentResource($request);
+
+        $relationships = [
             'game' => $this->relation('game')->withoutLinks(),
-            'user' => $this->relation('user')->withoutLinks()->showDataIfLoaded(),
         ];
+
+        if ($parentResource !== 'achievements') {
+            $relationships['achievement'] = $this->relation('achievement')->withoutLinks()->showDataIfLoaded();
+        }
+
+        if ($parentResource !== 'users') {
+            $relationships['user'] = $this->relation('user')->withoutLinks()->showDataIfLoaded();
+        }
+
+        return $relationships;
     }
 
     /**
@@ -48,5 +60,21 @@ class PlayerAchievementResource extends BaseJsonApiResource
     {
         // Player achievements have no dedicated web URL.
         return new Links();
+    }
+
+    /**
+     * Determines the parent resource type from the route name.
+     * Cached per-request so the lookup isn't repeated for every resource in the collection.
+     */
+    private static function resolveParentResource(?Request $request): ?string
+    {
+        $routeName = $request?->route()?->getName() ?? '';
+
+        // The pattern is "v2.{parentResource}.playerAchievements".
+        if (preg_match('/^v2\.(\w+)\.playerAchievements/', $routeName, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }
