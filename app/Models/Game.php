@@ -564,12 +564,29 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->image_title_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Title, $this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->image_ingame_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Ingame, $this->image_ingame_asset_path);
+    }
+
+    /**
+     * Prefer the Media Library URL when the relation is loaded,
+     * falling back to the legacy asset path. Restricted games
+     * always use the legacy path (which returns a placeholder).
+     */
+    private function resolveScreenshotUrl(ScreenshotType $type, string $fallbackAssetPath): string
+    {
+        if (!$this->is_media_restricted && $this->relationLoaded('gameScreenshots')) {
+            $url = $this->getPrimaryScreenshot($type)?->media?->getUrl();
+            if ($url) {
+                return $url;
+            }
+        }
+
+        return media_asset($fallbackAssetPath);
     }
 
     /**
