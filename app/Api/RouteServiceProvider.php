@@ -105,7 +105,10 @@ class RouteServiceProvider extends ServiceProvider
                         ->resources(function ($server) {
                             $server->resource('achievements', AchievementController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('playerAchievements')->readOnly();
+                                });
 
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
@@ -141,8 +144,9 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('playerGames')->readOnly();
+                                    $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
+                                    $relationships->hasMany('playerGames')->readOnly();
                                 });
                         });
                 });
