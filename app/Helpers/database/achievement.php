@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
@@ -247,10 +248,9 @@ function UploadNewAchievement(
     $isEventGame = $gameData['ConsoleID'] == System::Events;
 
     $author = User::whereName($authorUsername)->first();
-    $authorPermissions = (int) $author?->getAttribute('Permissions');
 
     // Prevent <= registered users from uploading or modifying achievements.
-    if ($authorPermissions < Permissions::JuniorDeveloper) {
+    if (!$author->HasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
         return false;
@@ -404,7 +404,7 @@ function UploadNewAchievement(
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
             // TODO use a policy
-            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingPromotedStatus || $achievement->user_id !== $author->id)) {
+            if (!$author->hasRole(Role::DEVELOPER) && ($changingLogic || $changingPromotedStatus || $achievement->user_id !== $author->id)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -415,7 +415,7 @@ function UploadNewAchievement(
         if (!$isPromoted) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
             // TODO use a policy
-            if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->user_id !== $author->id) {
+            if (!$author->hasRole(Role::DEVELOPER) && $achievement->user_id !== $author->id) {
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
                 return false;
