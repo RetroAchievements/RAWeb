@@ -40,16 +40,18 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
     setRevealedCompletionIds((prev) => new Set(prev).add(screenshotId));
   };
 
-  // Scroll to the initially-clicked image when the dialog opens,
-  // and reset any previously revealed spoilers.
+  // Reset any previously revealed spoilers when the dialog opens.
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
     setRevealedCompletionIds(new Set());
+  }, [isOpen]);
 
-    if (initialIndex <= 0) {
+  // Scroll to the initially-clicked image when the dialog opens.
+  useEffect(() => {
+    if (!isOpen || initialIndex <= 0) {
       return;
     }
 
@@ -61,6 +63,8 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
   }, [isOpen, initialIndex, screenshots]);
 
   const aspectRatio = hasAnalogTvOutput ? '4 / 3' : undefined;
+
+  const maxContainerWidth = 896; // matches max-w-4xl
 
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={onOpenChange}>
@@ -128,6 +132,25 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                     // them to briefly clip behind the sticky navbar.
                     const shouldStagger = index > initialIndex;
 
+                    // Given isPixelated is truthy, constrain to integer multiples so
+                    // nearest-neighbor produces uniform pixels. Analog TV systems
+                    // scale off height because scanline count defines the pixel
+                    // grid, while 4:3 aspect ratio handles horizontal stretch.
+                    let integerScaledMaxWidth: number | undefined;
+                    if (isPixelated && screenshot.width > 0 && screenshot.height > 0) {
+                      if (hasAnalogTvOutput) {
+                        const scale = Math.floor(maxContainerWidth / (screenshot.height * (4 / 3)));
+                        if (scale >= 1) {
+                          integerScaledMaxWidth = Math.round(scale * screenshot.height * (4 / 3));
+                        }
+                      } else {
+                        const scale = Math.floor(maxContainerWidth / screenshot.width);
+                        if (scale >= 1) {
+                          integerScaledMaxWidth = scale * screenshot.width;
+                        }
+                      }
+                    }
+
                     return (
                       <motion.div
                         key={screenshot.id}
@@ -138,7 +161,13 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                             imageRefs.current.delete(screenshot.id);
                           }
                         }}
-                        className="relative scroll-mt-20 overflow-hidden rounded"
+                        className={cn(
+                          'relative scroll-mt-20 overflow-hidden rounded',
+                          integerScaledMaxWidth && 'mx-auto w-full',
+                        )}
+                        style={
+                          integerScaledMaxWidth ? { maxWidth: integerScaledMaxWidth } : undefined
+                        }
                         initial={
                           shouldStagger ? { opacity: 0, y: 16 } : { opacity: 0, scale: 0.96 }
                         }
@@ -157,11 +186,12 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                         }
                       >
                         <picture>
-                          <source type="image/avif" srcSet={screenshot.lgAvifUrl} />
-                          <source type="image/webp" srcSet={screenshot.lgWebpUrl} />
+                          {!isPixelated && (
+                            <source type="image/webp" srcSet={screenshot.lgWebpUrl} />
+                          )}
 
                           <img
-                            src={screenshot.lgWebpUrl}
+                            src={isPixelated ? screenshot.originalUrl : screenshot.lgWebpUrl}
                             alt={isCompletion ? t('Completion screenshot') : ''}
                             className={cn(
                               'w-full rounded transition-[filter] duration-300 ease-out',
