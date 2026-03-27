@@ -21,11 +21,8 @@ class GameScreenshotData extends Data
 
         public string $originalUrl,
         public string $smWebpUrl,
-        public string $smAvifUrl,
         public string $mdWebpUrl,
-        public string $mdAvifUrl,
         public string $lgWebpUrl,
-        public string $lgAvifUrl,
     ) {
     }
 
@@ -41,11 +38,8 @@ class GameScreenshotData extends Data
             height: $screenshot->height,
             originalUrl: $fallback,
             smWebpUrl: self::conversionUrl($media, 'sm-webp', $fallback),
-            smAvifUrl: self::conversionUrl($media, 'sm-avif', $fallback),
             mdWebpUrl: self::conversionUrl($media, 'md-webp', $fallback),
-            mdAvifUrl: self::conversionUrl($media, 'md-avif', $fallback),
             lgWebpUrl: self::conversionUrl($media, 'lg-webp', $fallback),
-            lgAvifUrl: self::conversionUrl($media, 'lg-avif', $fallback),
         );
     }
 

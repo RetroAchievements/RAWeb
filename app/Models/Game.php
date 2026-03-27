@@ -380,13 +380,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                         ->fit(Fit::Max, $maxWidth, $maxWidth)
                         ->optimize()
                         ->performOnCollections('screenshots');
-
-                    $this->addMediaConversion("{$size}-avif")
-                        ->format('avif')
-                        ->fit(Fit::Max, $maxWidth, $maxWidth)
-                        ->optimize()
-                        ->performOnCollections('screenshots');
                 }
+
+                $this->addMediaConversion('placeholder')
+                    ->format('webp')
+                    ->width(32)
+                    ->quality(10)
+                    ->fit(Fit::Max, 32, 32)
+                    ->performOnCollections('screenshots');
             });
     }
 

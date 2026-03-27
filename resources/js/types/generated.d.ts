@@ -815,11 +815,8 @@ width: number;
 height: number;
 originalUrl: string;
 smWebpUrl: string;
-smAvifUrl: string;
 mdWebpUrl: string;
-mdAvifUrl: string;
 lgWebpUrl: string;
-lgAvifUrl: string;
 };
 export type GameSet = {
 id: number;

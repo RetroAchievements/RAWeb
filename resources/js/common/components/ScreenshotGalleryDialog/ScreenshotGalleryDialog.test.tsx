@@ -172,6 +172,59 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given isPixelated is true, uses the original image URL instead of WebP', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        originalUrl: 'https://example.com/original.png',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveAttribute('src', 'https://example.com/original.png');
+    });
+  });
+
+  it('given isPixelated is false, uses WebP', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        lgWebpUrl: 'https://example.com/lg.webp',
+        originalUrl: 'https://example.com/original.png',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={false}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveAttribute('src', 'https://example.com/lg.webp');
+    });
+  });
+
   it('given the user clicks the close button, calls onOpenChange with false', async () => {
     // ARRANGE
     const onOpenChange = vi.fn();
