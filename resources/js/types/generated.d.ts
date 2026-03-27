@@ -808,6 +808,16 @@ title: string;
 region: App.Platform.Enums.GameReleaseRegion | null;
 isCanonicalGameTitle: boolean;
 };
+export type GameScreenshot = {
+id: number;
+type: App.Platform.Enums.ScreenshotType;
+width: number;
+height: number;
+originalUrl: string;
+smWebpUrl: string;
+mdWebpUrl: string;
+lgWebpUrl: string;
+};
 export type GameSet = {
 id: number;
 type: App.Platform.Enums.GameSetType;
@@ -861,6 +871,8 @@ numInterestedDevelopers: number | null;
 numLeaderboards: number;
 numMasters: number;
 numOpenTickets: number;
+numScreenshots: number;
+screenshots?: Array<App.Platform.Data.GameScreenshot>;
 recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
 recentVisibleComments: Array<App.Community.Data.Comment>;
 similarGames: Array<App.Platform.Data.Game>;
@@ -1132,11 +1144,11 @@ pointsForNext: number;
 };
 }
 declare namespace App.Platform.Enums {
-export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
-export type AchievementSetAuthorTask = 'artwork' | 'banner';
+export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBannerPreference = 'compact' | 'normal' | 'expanded';

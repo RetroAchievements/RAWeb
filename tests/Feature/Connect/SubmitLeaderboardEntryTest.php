@@ -261,6 +261,9 @@ describe('new submission', function () {
         $leaderboard = $data['leaderboard'];
         $score = 55555;
 
+        $oldUpdated = $leaderboard->updated_at;
+        Carbon::setTestNow(Carbon::now()->addMinutes(3));
+
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
             ->assertStatus(200)
@@ -282,11 +285,15 @@ describe('new submission', function () {
         $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
     });
 
     test('is best (lower is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
+
+        $oldUpdated = $leaderboard->updated_at;
+        Carbon::setTestNow(Carbon::now()->addMinutes(3));
 
         $score = 99;
         $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
@@ -311,11 +318,15 @@ describe('new submission', function () {
         $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
     });
 
     test('is best (higher is better)', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createHigherIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
+
+        $oldUpdated = $leaderboard->updated_at;
+        Carbon::setTestNow(Carbon::now()->addMinutes(3));
 
         $score = 99999;
         $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
@@ -340,6 +351,7 @@ describe('new submission', function () {
         $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
     });
 
     test('is worst (lower is better)', function () {
@@ -754,6 +766,9 @@ describe('repeat submission', function () {
             'updated_at' => $bestTimestamp,
         ]);
 
+        $oldUpdated = $leaderboard->updated_at;
+        Carbon::setTestNow(Carbon::now()->addMinutes(3));
+
         $score = 99;
         $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
@@ -776,6 +791,7 @@ describe('repeat submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
     });
 
     test('delete and submit worse', function () {

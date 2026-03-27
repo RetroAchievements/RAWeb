@@ -8,8 +8,8 @@ use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
-use App\Rules\ValidScreenshotResolutionRule;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use App\Support\MediaLibrary\RejectedHashes;
 use Illuminate\Http\UploadedFile;
@@ -87,17 +87,15 @@ class AddGameScreenshotAction
      */
     private function validateFile(UploadedFile $file): void
     {
-        // A 1920x1080 hard cap bounds the maximum file size and
-        // prevents unreasonably large uploads. Any system whose
-        // 3x multiple exceeds this (eg: PC-98 at 1920x1200) will
-        // be rejected here before the resolution rule runs.
+        // A 4K hard cap bounds the maximum file size and
+        // prevents unreasonably large uploads.
         $validator = Validator::make(
             ['screenshot' => $file],
             ['screenshot' => [
                 'image',
                 'mimes:png,jpg,jpeg,webp',
                 'max:4096',
-                'dimensions:min_width=64,min_height=64,max_width=1920,max_height=1080',
+                'dimensions:min_width=64,min_height=64,max_width=3840,max_height=2160',
                 new DisallowAnimatedImageRule(),
             ]],
         );
@@ -143,7 +141,8 @@ class AddGameScreenshotAction
             return;
         }
 
-        if (ValidScreenshotResolutionRule::isValidResolution($width, $height, $system)) {
+        $service = new ScreenshotResolutionService();
+        if ($service->isValidResolution($width, $height, $system)) {
             return;
         }
 

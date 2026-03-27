@@ -15,8 +15,10 @@ class BackfillGameScreenshotsAction
 {
     public function execute(Game $game): void
     {
-        $this->backfillType($game, $game->image_ingame_asset_path, ScreenshotType::Ingame);
-        $this->backfillType($game, $game->image_title_asset_path, ScreenshotType::Title);
+        // Use getRawOriginal() to bypass the media restriction accessor.
+        // The backfill needs the real stored path even for restricted games.
+        $this->backfillType($game, $game->getRawOriginal('image_ingame_asset_path'), ScreenshotType::Ingame);
+        $this->backfillType($game, $game->getRawOriginal('image_title_asset_path'), ScreenshotType::Title);
     }
 
     private function backfillType(Game $game, ?string $assetPath, ScreenshotType $type): void

@@ -102,6 +102,7 @@ class UserResource extends Resource
                             Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('roles.name')
+                                        ->label('Roles')
                                         ->badge()
                                         ->wrap()
                                         ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
@@ -411,9 +412,12 @@ class UserResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<User> $query */
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+
+        return $query;
     }
 }

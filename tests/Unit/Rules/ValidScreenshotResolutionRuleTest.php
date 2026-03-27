@@ -61,6 +61,103 @@ it('passes for a 3x integer multiple', function () {
     expect($validator->fails())->toBeFalse();
 });
 
+it('passes for a base resolution off by 1px in height', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => 12,
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    // Emulators sometimes output 320x239 instead of 320x240.
+    $file = UploadedFile::fake()->image('screenshot.png', 320, 239);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
+it('passes for a base resolution off by 1px in width', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => 2,
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 319, 240);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
+it('passes for a 2x scaled resolution off by 1px', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => 12,
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    // 2x would be 640x480, but the emulator sometimes outputs 640x479.
+    $file = UploadedFile::fake()->image('screenshot.png', 640, 479);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
+it('passes for a resolution off by 1px on any system', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => 7,
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => true,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 255, 224);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
+it('rejects a resolution off by more than 1px', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => 12,
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 320, 238);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeTrue();
+});
+
 it('rejects a 4x integer multiple', function () {
     // ARRANGE
     $system = System::factory()->make([

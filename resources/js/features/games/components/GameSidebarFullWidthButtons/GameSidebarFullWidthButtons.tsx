@@ -57,7 +57,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               IconComponent={LuFileText}
               count={numCompatibleHashes}
             >
-              {t('Supported Game Files')}
+              {t('Supported Game Hashes')}
             </PlayableSidebarButton>
           ) : null}
 

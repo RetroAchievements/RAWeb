@@ -20,6 +20,7 @@ use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
+use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -866,6 +867,13 @@ describe('Count Props', function () {
             'system_id' => $system->id,
         ]);
 
+        GameScreenshot::factory()->for($game)->title()->create();
+        GameScreenshot::factory()->for($game)->ingame()->create();
+        GameScreenshot::factory()->for($game)->completion()->create();
+        // ... pending and rejected screenshots should not be counted ...
+        GameScreenshot::factory()->for($game)->ingame()->pending()->create();
+        GameScreenshot::factory()->for($game)->ingame()->rejected()->create();
+
         // ACT
         $response = get(route('game.show', ['game' => $game]));
 
@@ -874,6 +882,7 @@ describe('Count Props', function () {
             ->where('numComments', 3)
             ->where('numLeaderboards', 2)
             ->where('numCompatibleHashes', 4)
+            ->where('numScreenshots', 3) // !! not 5
         );
     });
 
@@ -2271,7 +2280,7 @@ describe('Aggregate Credits Props', function () {
         );
     });
 
-    it('includes achievement testing credits', function () {
+    it('includes achievement set testing credits', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
@@ -2285,10 +2294,12 @@ describe('Aggregate Credits Props', function () {
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
-        AchievementAuthor::create([
-            'achievement_id' => $achievement->id,
+        $achievementSetId = $game->gameAchievementSets()->core()->first()->achievement_set_id;
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $achievementSetId,
             'user_id' => $taskAuthor->id,
-            'task' => AchievementAuthorTask::Testing,
+            'task' => AchievementSetAuthorTask::Testing,
         ]);
 
         // ACT
@@ -2831,6 +2842,103 @@ describe('Cookie-Based Filter Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('bannerPreference', 'normal')
+        );
+    });
+});
+
+describe('Media Restriction Props', function () {
+    it('given the game has is_media_restricted set, replaces image URLs with placeholder URLs', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $game->update([
+            'is_media_restricted' => true,
+            'image_ingame_asset_path' => '/Images/012345.png',
+            'image_title_asset_path' => '/Images/012346.png',
+            'image_box_art_asset_path' => '/Images/012347.png',
+        ]);
+
+        $placeholderUrl = media_asset(Game::PLACEHOLDER_IMAGE_PATH);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('game.imageIngameUrl', $placeholderUrl)
+            ->where('game.imageTitleUrl', $placeholderUrl)
+            ->where('game.imageBoxArtUrl', $placeholderUrl)
+        );
+    });
+
+    it('given the game has is_media_restricted set, suppresses the banner', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $game->update(['is_media_restricted' => true]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->missing('banner')
+        );
+    });
+
+    it('given the game has is_media_restricted set, excludes banner credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $bannerAuthor = User::factory()->create();
+
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'is_media_restricted' => true,
+        ]);
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $bannerAuthor->id,
+            'task' => AchievementSetAuthorTask::Banner,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementSetBanner', 0)
+        );
+    });
+
+    it('given the game does not have is_media_restricted set, serves the real image URLs', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $game->update([
+            'image_ingame_asset_path' => '/Images/012345.png',
+            'image_title_asset_path' => '/Images/012346.png',
+            'image_box_art_asset_path' => '/Images/012347.png',
+        ]);
+
+        $placeholderUrl = media_asset(Game::PLACEHOLDER_IMAGE_PATH);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('game.imageIngameUrl', fn ($url) => $url !== $placeholderUrl)
+            ->where('game.imageTitleUrl', fn ($url) => $url !== $placeholderUrl)
+            ->where('game.imageBoxArtUrl', fn ($url) => $url !== $placeholderUrl)
         );
     });
 });
