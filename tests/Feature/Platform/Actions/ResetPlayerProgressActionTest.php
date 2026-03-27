@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerBadge;
 use App\Models\PlayerProgressReset;
 use App\Models\System;
@@ -523,6 +525,45 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(PlayerProgressResetType::Account, $resetForGame->type);
     }
 
+    public function testAccountResetRecalculatesLeaderboardTopEntries(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var User $otherUser */
+        $otherUser = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievement);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+
+        $userEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+        $leaderboard->top_entry_id = $userEntry->id;
+        $leaderboard->save();
+
+        $otherEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $otherUser->id,
+            'score' => 300,
+        ]);
+
+        // ACT
+        (new ResetPlayerProgressAction())->execute($user);
+
+        // ASSERT
+        // ... the leaderboard's top entry should be recalculated to the other user ...
+        $leaderboard->refresh();
+        $this->assertEquals($otherEntry->id, $leaderboard->top_entry_id);
+    }
+
     public function testResetLastAchievementCreatesGameReset(): void
     {
         /** @var User $user */
@@ -594,5 +635,187 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertNotNull($gameReset);
         $this->assertEquals(PlayerProgressResetType::Game, $gameReset->type); // !!
         $this->assertEquals($game->id, $gameReset->type_id);
+    }
+
+    public function testResetGameDeletesLeaderboardEntriesForUntrackedUser(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create(['unranked_at' => now()]);
+        /** @var User $otherUser */
+        $otherUser = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievement);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+
+        // ... the untracked user holds the top entry ...
+        $untrackedEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+        $leaderboard->top_entry_id = $untrackedEntry->id;
+        $leaderboard->save();
+
+        // ... another user also has an entry on the same leaderboard ...
+        $otherEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $otherUser->id,
+            'score' => 300,
+        ]);
+
+        $this->assertEquals(1, LeaderboardEntry::where('user_id', $user->id)->count());
+
+        // ACT
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->id);
+
+        // ASSERT
+        // ... the entry should be deleted ...
+        $this->assertEquals(0, LeaderboardEntry::where('user_id', $user->id)->count());
+        $this->assertEquals(1, LeaderboardEntry::withTrashed()->where('user_id', $user->id)->count());
+
+        // ... the leaderboard's top entry should be recalculated to the other user ...
+        $leaderboard->refresh();
+        $this->assertEquals($otherEntry->id, $leaderboard->top_entry_id);
+    }
+
+    public function testResetGameDoesNotDeleteLeaderboardEntriesForTrackedUser(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create(['unranked_at' => null]);
+        $game = $this->seedGame(withHash: false);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievement);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+
+        // ACT
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->id);
+
+        // ASSERT
+        // ... the entry should still exist since the user is tracked ...
+        $this->assertEquals(1, LeaderboardEntry::where('user_id', $user->id)->count());
+    }
+
+    public function testResetGameOnlyDeletesEntriesForTargetGame(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create(['unranked_at' => now()]);
+        $game = $this->seedGame(withHash: false);
+        $game2 = $this->seedGame(withHash: false);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievement);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        /** @var Leaderboard $leaderboard2 */
+        $leaderboard2 = Leaderboard::factory()->create(['game_id' => $game2->id]);
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard2->id,
+            'user_id' => $user->id,
+            'score' => 300,
+        ]);
+
+        // ACT
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->id);
+
+        // ASSERT
+        // ... only the entry for the reset game should be deleted ...
+        $this->assertEquals(1, LeaderboardEntry::where('user_id', $user->id)->count());
+        $remainingEntry = LeaderboardEntry::where('user_id', $user->id)->first();
+        $this->assertEquals($leaderboard2->id, $remainingEntry->leaderboard_id);
+    }
+
+    public function testResetNonLastAchievementDoesNotDeleteLeaderboardEntriesForUntrackedUser(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create(['unranked_at' => now()]);
+        $game = $this->seedGame(withHash: false);
+        $achievements = Achievement::factory()->promoted()->count(2)->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievements->get(0));
+        $this->addHardcoreUnlock($user, $achievements->get(1));
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+
+        // ACT
+        // ... resetting one of two achievements should not touch leaderboard entries ...
+        (new ResetPlayerProgressAction())->execute($user, $achievements->get(0)->id);
+
+        // ASSERT
+        $this->assertEquals(1, LeaderboardEntry::where('user_id', $user->id)->count());
+    }
+
+    public function testResetLastAchievementDeletesLeaderboardEntriesForUntrackedUser(): void
+    {
+        // ARRANGE
+        /** @var User $user */
+        $user = User::factory()->create(['unranked_at' => now()]);
+        /** @var User $otherUser */
+        $otherUser = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->addHardcoreUnlock($user, $achievement);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+
+        $untrackedEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => 500,
+        ]);
+        $leaderboard->top_entry_id = $untrackedEntry->id;
+        $leaderboard->save();
+
+        $otherEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $otherUser->id,
+            'score' => 300,
+        ]);
+
+        // ACT
+        // ... resetting the only achievement triggers a game-level reset for an untracked user ...
+        (new ResetPlayerProgressAction())->execute($user, $achievement->id);
+
+        // ASSERT
+        $this->assertEquals(0, LeaderboardEntry::where('user_id', $user->id)->count());
+        $this->assertEquals(1, LeaderboardEntry::withTrashed()->where('user_id', $user->id)->count());
+
+        // ... the leaderboard's top entry should be recalculated to the other user ...
+        $leaderboard->refresh();
+        $this->assertEquals($otherEntry->id, $leaderboard->top_entry_id);
     }
 }

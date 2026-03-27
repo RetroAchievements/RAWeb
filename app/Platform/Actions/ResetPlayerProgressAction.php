@@ -5,6 +5,7 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
+use App\Models\Leaderboard;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\PlayerProgressResetType;
@@ -143,6 +144,10 @@ class ResetPlayerProgressAction
                 ->count();
 
             if ($remainingAchievements === 0) {
+                if ($user->unranked_at) {
+                    $this->deleteLeaderboardEntriesForGame($user, $achievement->game_id);
+                }
+
                 PlayerProgressReset::create([
                     'user_id' => $user->id,
                     'type' => PlayerProgressResetType::Game,
@@ -167,6 +172,10 @@ class ResetPlayerProgressAction
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
+
+            if ($user->unranked_at) {
+                $this->deleteLeaderboardEntriesForGame($user, $gameID);
+            }
 
             // Track the game reset.
             PlayerProgressReset::create([
@@ -197,7 +206,7 @@ class ResetPlayerProgressAction
             }
 
             $user->playerAchievements()->delete();
-            $user->leaderboardEntries()->delete();
+            $this->deleteLeaderboardEntriesForGame($user);
 
             $user->points_hardcore = 0;
             $user->points = 0;
@@ -251,5 +260,32 @@ class ResetPlayerProgressAction
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));
 
         $user->saveQuietly();
+    }
+
+    /**
+     * Bulk deletes don't fire model events, so the LeaderboardEntryObserver
+     * won't recalculate top entries. We'll just handle that manually here.
+     */
+    private function deleteLeaderboardEntriesForGame(User $user, ?int $gameId = null): void
+    {
+        $leaderboardQuery = Leaderboard::query()
+            ->whereHas('topEntry', fn ($query) => $query->where('user_id', $user->id));
+
+        if ($gameId !== null) {
+            $leaderboardQuery->where('game_id', $gameId);
+        }
+
+        $affectedLeaderboardIds = $leaderboardQuery->pluck('id');
+
+        $entriesQuery = $user->leaderboardEntries();
+        if ($gameId !== null) {
+            $entriesQuery->whereHas('leaderboard', fn ($query) => $query->where('game_id', $gameId));
+        }
+        $entriesQuery->delete();
+
+        $recalculateAction = new RecalculateLeaderboardTopEntryAction();
+        foreach ($affectedLeaderboardIds as $leaderboardId) {
+            $recalculateAction->execute($leaderboardId);
+        }
     }
 }
