@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Provider as JotaiProvider } from 'jotai';
 import { domAnimation, LazyMotion } from 'motion/react';
-import { lazy, type FC, type ReactNode, Suspense } from 'react';
+import { type FC, lazy, type ReactNode, Suspense } from 'react';
 import { I18nextProvider, type I18nextProviderProps } from 'react-i18next';
 
 import { BaseToaster } from '../+vendor/BaseToaster';
