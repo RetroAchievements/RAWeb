@@ -29,9 +29,9 @@ export const HashesMainRoot: FC = () => {
         game={game}
         gameAchievementSet={targetAchievementSet ?? undefined}
         system={game.system}
-        t_currentPageLabel={t('Supported Game Files')}
+        t_currentPageLabel={t('Supported Game Hashes')}
       />
-      <GameHeading game={gameForHeading}>{t('Supported Game Files')}</GameHeading>
+      <GameHeading game={gameForHeading}>{t('Supported Game Hashes')}</GameHeading>
 
       <div className="flex flex-col gap-5">
         {can.manageGameHashes ? (
@@ -50,7 +50,7 @@ export const HashesMainRoot: FC = () => {
 
         <Embed className="flex flex-col gap-4">
           <p className="font-bold">
-            {t('This page shows you what ROM hashes are compatible with this achievement set.')}
+            {t('This page shows you what game hashes are compatible with this achievement set.')}
           </p>
 
           <p>
@@ -74,6 +74,11 @@ export const HashesMainRoot: FC = () => {
                 ),
               }}
             />
+          </p>
+          <p className="text-2xs text-neutral-400 light:text-neutral-500">
+            {t(
+              'No game files are hosted or distributed on this page. Hashes are identifiers used to verify compatibility.',
+            )}
           </p>
         </Embed>
 
