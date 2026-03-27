@@ -14,10 +14,10 @@ describe('Hook: usePreloadGameScreenshots', () => {
     const { result } = renderHook(() => usePreloadGameScreenshots(screenshots));
 
     // ACT
-    result.current();
+    result.current.preloadGameScreenshots();
 
     // ASSERT
-    expect(result.current).toBeInstanceOf(Function);
+    expect(result.current.preloadGameScreenshots).toBeInstanceOf(Function);
   });
 
   it('given no screenshots, does not throw when called', () => {
@@ -25,7 +25,7 @@ describe('Hook: usePreloadGameScreenshots', () => {
     const { result } = renderHook(() => usePreloadGameScreenshots(undefined));
 
     // ACT & ASSERT
-    expect(() => result.current()).not.toThrow();
+    expect(() => result.current.preloadGameScreenshots()).not.toThrow();
   });
 
   it('given the preload function is called twice, only preloads once', () => {
@@ -42,8 +42,8 @@ describe('Hook: usePreloadGameScreenshots', () => {
     const { result } = renderHook(() => usePreloadGameScreenshots(screenshots));
 
     // ACT
-    result.current();
-    result.current();
+    result.current.preloadGameScreenshots();
+    result.current.preloadGameScreenshots();
 
     // ASSERT
     expect(ImageSpy).toHaveBeenCalledTimes(3); // !! not 6
