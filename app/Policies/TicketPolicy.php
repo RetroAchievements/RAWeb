@@ -23,6 +23,7 @@ class TicketPolicy
             Role::TICKET_MANAGER,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 

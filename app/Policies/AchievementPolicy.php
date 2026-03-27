@@ -39,6 +39,11 @@ class AchievementPolicy
              * writers may update achievement title and description if the respective achievements are open for editing
              */
             Role::WRITER,
+
+            /*
+             * unlockers can view achievement logic as part of their review
+             */
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 
@@ -57,6 +62,7 @@ class AchievementPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 

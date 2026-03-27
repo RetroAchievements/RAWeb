@@ -26,6 +26,9 @@ class GamePolicy
 
             // needs to view leaderboards for games
             Role::EVENT_MANAGER,
+
+            // needs to view achievements for games
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 
