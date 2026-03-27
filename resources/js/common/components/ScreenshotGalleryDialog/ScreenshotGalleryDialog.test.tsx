@@ -172,23 +172,20 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
-  it('given isPixelated is true, uses the original image URL instead of WebP', async () => {
+  it('given a low-res screenshot, uses the original lossless URL', async () => {
     // ARRANGE
     const screenshots = [
       createGameScreenshot({
         id: 1,
         type: 'ingame',
+        width: 256,
         originalUrl: 'https://example.com/original.png',
+        lgWebpUrl: 'https://example.com/lg.webp',
       }),
     ];
 
     render(
-      <ScreenshotGalleryDialog
-        screenshots={screenshots}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-        isPixelated={true}
-      />,
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
     );
 
     // ASSERT
@@ -198,30 +195,74 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
-  it('given isPixelated is false, uses WebP', async () => {
+  it('given a high-res screenshot, uses the optimized WebP URL', async () => {
     // ARRANGE
     const screenshots = [
       createGameScreenshot({
         id: 1,
         type: 'ingame',
-        lgWebpUrl: 'https://example.com/lg.webp',
+        width: 640,
         originalUrl: 'https://example.com/original.png',
+        lgWebpUrl: 'https://example.com/lg.webp',
       }),
     ];
 
     render(
-      <ScreenshotGalleryDialog
-        screenshots={screenshots}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-        isPixelated={false}
-      />,
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
     );
 
     // ASSERT
     await waitFor(() => {
       const image = screen.getByRole('presentation');
       expect(image).toHaveAttribute('src', 'https://example.com/lg.webp');
+    });
+  });
+
+  it('given a pixelated analog TV system, constrains the image container to an integer-scaled width', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+        hasAnalogTvOutput={true}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      const container = image.parentElement!;
+
+      // 224 * 4/3 = 298.67. floor(896 / 298.67) = 3. round(3 * 298.67) = 896.
+      expect(container).toHaveStyle({ maxWidth: '896px' });
+    });
+  });
+
+  it('given a pixelated non-analog system, constrains the image container to an integer-scaled width', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+        hasAnalogTvOutput={false}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      const container = image.parentElement!;
+
+      // floor(896 / 256) = 3. 3 * 256 = 768.
+      expect(container).toHaveStyle({ maxWidth: '768px' });
     });
   });
 
