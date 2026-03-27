@@ -808,6 +808,19 @@ title: string;
 region: App.Platform.Enums.GameReleaseRegion | null;
 isCanonicalGameTitle: boolean;
 };
+export type GameScreenshot = {
+id: number;
+type: App.Platform.Enums.ScreenshotType;
+width: number;
+height: number;
+originalUrl: string;
+smWebpUrl: string;
+smAvifUrl: string;
+mdWebpUrl: string;
+mdAvifUrl: string;
+lgWebpUrl: string;
+lgAvifUrl: string;
+};
 export type GameSet = {
 id: number;
 type: App.Platform.Enums.GameSetType;
@@ -861,6 +874,8 @@ numInterestedDevelopers: number | null;
 numLeaderboards: number;
 numMasters: number;
 numOpenTickets: number;
+numScreenshots: number;
+screenshots?: Array<App.Platform.Data.GameScreenshot>;
 recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
 recentVisibleComments: Array<App.Community.Data.Comment>;
 similarGames: Array<App.Platform.Data.Game>;

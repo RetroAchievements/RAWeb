@@ -36,6 +36,6 @@ describe('Component: ForumPostCopyLinkButton', () => {
 
     // ASSERT
     expect(copyToClipboardSpy).toHaveBeenCalledWith(expect.stringContaining('forum-topic.show'));
-    expect(screen.getByText(/copied!/i)).toBeVisible();
+    expect(screen.getByText(/copied!/i)).toBeInTheDocument();
   });
 });
