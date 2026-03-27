@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -16,13 +18,17 @@ use App\Models\System;
 use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
+use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 
 uses(LazilyRefreshDatabase::class);
+uses(TestsAuditComments::class);
 uses(TestsConnect::class);
 uses(TestsEmulatorUserAgent::class);
 uses(TestsPlayerAchievements::class);
@@ -84,12 +90,42 @@ class UploadAchievementTestHelpers
         return $achievement;
     }
 
+    public static function createEventAchievement(Achievement $sourceAchievement): Achievement
+    {
+        if (!System::where('id', System::Events)->exists()) {
+            System::factory()->create(['id' => System::Events]);
+        }
+        $eventGame = Game::factory()->create(['system_id' => System::Events]);
+        $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id, 'points' => 1]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($eventGame);
+
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement->id,
+            'source_achievement_id' => $sourceAchievement->id,
+        ]);
+
+        return $eventAchievement;
+    }
+
     public static function addClaim(Game $game, User $user): AchievementSetClaim
     {
         return AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
         ]);
+    }
+
+    public static function apiUrlWithChecksum(array $params): string
+    {
+        // insert checksum
+        $achievementId = $params['a'] ?? 0;
+
+        $scaledPoints = $params['z'] * 3;
+        $message = "{$params['u']}SECRET{$achievementId}SEC{$params['m']}{$params['z']}RE2{$scaledPoints}";
+        $params['h'] = md5($message);
+
+        return sprintf('dorequest.php?%s', http_build_query($params));
     }
 }
 
@@ -98,6 +134,7 @@ beforeEach(function () {
 
     $this->seedEmulatorUserAgents();
     $this->createConnectUser();
+    $this->addServerUser();
 
     Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
     Role::create(['name' => Role::DEVELOPER_JUNIOR, 'display' => 2]);
@@ -109,7 +146,7 @@ describe('developer', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -117,12 +154,11 @@ describe('developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -160,7 +196,7 @@ describe('developer', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadAchievementTestHelpers::createGame();
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -168,11 +204,12 @@ describe('developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => 0,
                 'Error' => 'You must have an active claim on this game to perform this action.',
             ]);
 
@@ -190,7 +227,7 @@ describe('developer', function () {
         $triggerVersion = $achievement->trigger_id;
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -200,12 +237,11 @@ describe('developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -241,7 +277,7 @@ describe('developer', function () {
         $triggerVersion = $achievement->trigger_id;
         // NOTE: developer does not need active claim to promote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -250,12 +286,11 @@ describe('developer', function () {
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -288,6 +323,9 @@ describe('developer', function () {
         $this->assertEquals(1, $coreSet->achievements_published);
         $this->assertEquals(0, $coreSet->achievements_unpublished);
         $this->assertEquals(5, $coreSet->points_total);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} promoted this achievement.");
     });
 
     test('can update promoted own', function () {
@@ -297,7 +335,7 @@ describe('developer', function () {
         $triggerVersion = $achievement->trigger_id;
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -307,12 +345,11 @@ describe('developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -357,7 +394,7 @@ describe('developer', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -367,12 +404,11 @@ describe('developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -387,6 +423,9 @@ describe('developer', function () {
         $this->user->refresh();
         $this->assertEquals(0, $this->user->yield_unlocks);
         $this->assertEquals(0, $this->user->yield_points);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} demoted this achievement.");
     });
 
     test('can repromote own', function () {
@@ -406,7 +445,7 @@ describe('developer', function () {
 
         // NOTE: developer does not need active claim to promote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -416,12 +455,11 @@ describe('developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -436,6 +474,9 @@ describe('developer', function () {
         $this->user->refresh();
         $this->assertEquals(1, $this->user->yield_unlocks);
         $this->assertEquals(10, $this->user->yield_points);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} promoted this achievement.");
     });
 
     test('can update unpromoted someone elses', function () {
@@ -446,7 +487,7 @@ describe('developer', function () {
         $triggerVersion = $achievement->trigger_id;
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -456,12 +497,11 @@ describe('developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -492,7 +532,7 @@ describe('developer', function () {
         $triggerVersion = $achievement->trigger_id;
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -502,12 +542,11 @@ describe('developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -547,7 +586,7 @@ describe('developer', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -557,12 +596,11 @@ describe('developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -577,6 +615,9 @@ describe('developer', function () {
         $otherUser->refresh();
         $this->assertEquals(0, $otherUser->yield_unlocks);
         $this->assertEquals(0, $otherUser->yield_points);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} demoted this achievement.");
     });
 
     test('can repromote someone elses', function () {
@@ -597,7 +638,7 @@ describe('developer', function () {
 
         // NOTE: developer does not need active claim to promote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -607,12 +648,11 @@ describe('developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -627,6 +667,9 @@ describe('developer', function () {
         $otherUser->refresh();
         $this->assertEquals(1, $otherUser->yield_unlocks);
         $this->assertEquals(10, $otherUser->yield_points);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} promoted this achievement.");
     });
 
     test('can create new achievement via set id', function () {
@@ -636,7 +679,7 @@ describe('developer', function () {
 
         $achievementSet = GameAchievementSet::where('game_id', $game->id)->first();
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             's' => $achievementSet->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -644,12 +687,49 @@ describe('developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
+            ]);
+
+        $achievement = Achievement::findOrFail(1);
+        $this->assertEquals($game->id, $achievement->game_id);
+        $this->assertEquals('Title1', $achievement->title);
+        $this->assertEquals('Description1', $achievement->description);
+        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
+        $this->assertEquals(5, $achievement->points);
+        $this->assertFalse($achievement->is_promoted);
+        $this->assertNull($achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(0, $game->achievements_published);
+        $this->assertEquals(1, $game->achievements_unpublished);
+        $this->assertEquals(0, $game->points_total); // unpromoted achievements don't contribute to points_total
+    });
+
+    test('can create new achievement via virtual game id', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => VirtualGameIdService::encodeVirtualGameId($game->id, GameHashCompatibility::Untested),
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -677,7 +757,7 @@ describe('junior developer', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -685,12 +765,11 @@ describe('junior developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -715,7 +794,7 @@ describe('junior developer', function () {
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
         $game = UploadAchievementTestHelpers::createGame();
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -723,11 +802,12 @@ describe('junior developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => 0,
                 'Error' => 'You must have an active claim on this game to perform this action.',
             ]);
 
@@ -746,7 +826,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to promote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -755,11 +835,12 @@ describe('junior developer', function () {
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -779,7 +860,7 @@ describe('junior developer', function () {
         $triggerVersion = $achievement->trigger_id;
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -789,12 +870,11 @@ describe('junior developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -831,7 +911,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to edit promoted logic
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -840,11 +920,12 @@ describe('junior developer', function () {
             'm' => '0xH0000=2',
             'f' => 3,
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -873,7 +954,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to edit promoted
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -883,12 +964,11 @@ describe('junior developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -900,6 +980,9 @@ describe('junior developer', function () {
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals($this->user->id, $achievement->user_id);
         $this->assertEquals('002345', $achievement->image_name);
+
+        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
+            "{$this->user->display_name} edited this achievement's points, badge, title, description, type.");
     });
 
     test('cannot demote own', function () {
@@ -919,7 +1002,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to demote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -929,11 +1012,12 @@ describe('junior developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -956,7 +1040,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to promote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -966,11 +1050,12 @@ describe('junior developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -991,7 +1076,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to promote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -1000,11 +1085,12 @@ describe('junior developer', function () {
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1032,7 +1118,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer can only modify their own achievements
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1042,11 +1128,12 @@ describe('junior developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1083,7 +1170,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to edit promoted
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1093,11 +1180,12 @@ describe('junior developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1122,7 +1210,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to demote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1132,11 +1220,12 @@ describe('junior developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1157,7 +1246,7 @@ describe('junior developer', function () {
         // even with a claim, junior developer is not allowed to promote
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1167,11 +1256,12 @@ describe('junior developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1188,7 +1278,7 @@ describe('non-developer', function () {
     test('cannot create new achievement', function () {
         $game = UploadAchievementTestHelpers::createGame();
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -1196,11 +1286,12 @@ describe('non-developer', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => 0,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1215,7 +1306,7 @@ describe('non-developer', function () {
         $game = UploadAchievementTestHelpers::createGame();
         $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -1224,11 +1315,12 @@ describe('non-developer', function () {
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1244,7 +1336,7 @@ describe('non-developer', function () {
         $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
         $triggerVersion = $achievement->trigger_id;
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1254,11 +1346,12 @@ describe('non-developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1274,7 +1367,7 @@ describe('non-developer', function () {
         $achievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
         $triggerVersion = $achievement->trigger_id;
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1284,11 +1377,12 @@ describe('non-developer', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1312,7 +1406,7 @@ describe('non-developer', function () {
         $this->assertEquals(1, $this->user->yield_unlocks);
         $this->assertEquals(5, $this->user->yield_points);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1322,11 +1416,12 @@ describe('non-developer', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
@@ -1346,7 +1441,7 @@ describe('subset', function () {
         $game->save();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -1354,12 +1449,11 @@ describe('subset', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -1386,7 +1480,7 @@ describe('subset', function () {
         $game->title .= ' [Subset - Testing]';
         $game->save();
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -1394,11 +1488,12 @@ describe('subset', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => 0,
                 'Error' => 'You must have an active claim on this game to perform this action.',
             ]);
 
@@ -1418,7 +1513,7 @@ describe('subset', function () {
 
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1428,11 +1523,12 @@ describe('subset', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'progression', // hard-code in case enum changes
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'Cannot set progression or win condition type on achievement in subset, test kit, or event.',
             ]);
 
@@ -1449,7 +1545,7 @@ describe('subset', function () {
 
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1459,11 +1555,12 @@ describe('subset', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'win_condition', // hard-code in case enum changes
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'Cannot set progression or win condition type on achievement in subset, test kit, or event.',
             ]);
 
@@ -1480,7 +1577,7 @@ describe('subset', function () {
 
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1490,12 +1587,11 @@ describe('subset', function () {
             'f' => 5,
             'b' => '002345',
             'x' => 'missable', // hard-code in case enum changes
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -1518,7 +1614,7 @@ describe('behavior', function () {
         $this->assertEquals(1, $this->user->yield_unlocks);
         $this->assertEquals(5, $this->user->yield_points);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1528,12 +1624,11 @@ describe('behavior', function () {
             'f' => 3,
             'b' => '002345',
             'x' => 'progression',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -1551,7 +1646,7 @@ describe('behavior', function () {
         $game->system->save();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -1559,12 +1654,11 @@ describe('behavior', function () {
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -1593,7 +1687,7 @@ describe('behavior', function () {
         $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1602,12 +1696,11 @@ describe('behavior', function () {
             'm' => '0xH0000=2',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '002345',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => 1,
-                'Error' => '',
             ]);
 
         $achievement = Achievement::findOrFail(1);
@@ -1636,7 +1729,7 @@ describe('behavior', function () {
         $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
         // NOTE: developer does not need active claim to promote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title1',
@@ -1645,11 +1738,12 @@ describe('behavior', function () {
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'AchievementID' => $achievement->id,
                 'Error' => 'You cannot promote achievements for a game from an unsupported console (console ID: 1).',
             ]);
 
@@ -1669,7 +1763,7 @@ describe('behavior', function () {
         $achievement->save();
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => 'Title2',
@@ -1679,12 +1773,11 @@ describe('behavior', function () {
             'f' => 3,
             'b' => '002345',
             // 'x' not provided
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -1699,7 +1792,7 @@ describe('behavior', function () {
         $achievement->save();
         // NOTE: developer does not need active claim to update existing
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
             'n' => "\u{201C}Test\u{2019}s Achievement\u{201D}",
@@ -1709,12 +1802,11 @@ describe('behavior', function () {
             'f' => 3,
             'b' => '002345',
             // 'x' not provided
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement->id,
-                'Error' => '',
             ]);
 
         $achievement->refresh();
@@ -1755,7 +1847,7 @@ describe('behavior', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement3->id,
             'g' => $game->id,
             'n' => $achievement3->title,
@@ -1765,12 +1857,11 @@ describe('behavior', function () {
             'f' => Achievement::FLAG_UNPROMOTED,
             'b' => $achievement3->image_name,
             'x' => $achievement3->type,
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->id,
-                'Error' => '',
             ]);
 
         $playerGame->refresh();
@@ -1814,7 +1905,7 @@ describe('behavior', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement3->id,
             'g' => $game->id,
             'n' => $achievement3->title,
@@ -1824,12 +1915,11 @@ describe('behavior', function () {
             'f' => Achievement::FLAG_PROMOTED,
             'b' => $achievement3->image_name,
             'x' => $achievement3->type,
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->id,
-                'Error' => '',
             ]);
 
         $playerGame->refresh();
@@ -1870,7 +1960,7 @@ describe('behavior', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement4->id,
             'g' => $game->id,
             'n' => $achievement4->title,
@@ -1880,12 +1970,11 @@ describe('behavior', function () {
             'f' => Achievement::FLAG_PROMOTED,
             'b' => $achievement4->image_name,
             'x' => AchievementType::Progression,
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement4->id,
-                'Error' => '',
             ]);
 
         $playerGame->refresh();
@@ -1928,7 +2017,7 @@ describe('behavior', function () {
 
         // NOTE: developer does not need active claim to demote
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement4->id,
             'g' => $game->id,
             'n' => $achievement4->title,
@@ -1938,17 +2027,46 @@ describe('behavior', function () {
             'f' => Achievement::FLAG_PROMOTED,
             'b' => $achievement4->image_name,
             'x' => '',
-        ]))
+        ])))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement4->id,
-                'Error' => '',
             ]);
 
         $playerGame->refresh();
         $this->assertEquals($time3, $playerGame->beaten_hardcore_at);
         $this->assertEquals(14 * 60, $playerGame->time_to_beat_hardcore);
+    });
+
+    test('modified title/description/badge reflected in event achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $achievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventAchievement = UploadAchievementTestHelpers::createEventAchievement($achievement);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $achievement->id,
+            'g' => $game->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 3,
+            'b' => '002345',
+            'x' => 'progression',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement->id,
+            ]);
+
+        $eventAchievement->refresh();
+        $this->assertEquals('Title2', $eventAchievement->title);
+        $this->assertEquals('Description2', $eventAchievement->description);
+        $this->assertEquals('002345', $eventAchievement->image_name);
+        $this->assertEquals(1, $eventAchievement->points);
     });
 });
 
@@ -1958,19 +2076,20 @@ describe('validation', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'missing_parameter',
                 'Success' => false,
-                'AchievementID' => 0,
-                'Error' => 'You must provide a game ID or a game achievement set ID.',
+                'Error' => 'One or more required parameters is missing.',
             ]);
 
         $this->assertEquals(0, Achievement::count());
@@ -1981,7 +2100,7 @@ describe('validation', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -1989,12 +2108,13 @@ describe('validation', function () {
             'm' => '0xH0000=1',
             'f' => 4,
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'AchievementID' => 0,
-                'Error' => 'Invalid achievement flag',
+                'Error' => 'Unknown flag: 4',
             ]);
 
         $this->assertEquals(0, Achievement::count());
@@ -2005,7 +2125,7 @@ describe('validation', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -2013,12 +2133,13 @@ describe('validation', function () {
             'm' => '0xH0000=1',
             'f' => 5,
             'b' => '001234',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'AchievementID' => 0,
-                'Error' => 'Invalid points value (15).',
+                'Error' => 'Invalid points value: 15',
             ]);
 
         $this->assertEquals(0, Achievement::count());
@@ -2029,7 +2150,7 @@ describe('validation', function () {
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
-        $this->get($this->apiUrl('uploadachievement', [
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -2038,14 +2159,140 @@ describe('validation', function () {
             'f' => 5,
             'b' => '001234',
             'x' => 'unknown',
-        ]))
-            ->assertStatus(200)
+        ])))
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'AchievementID' => 0,
-                'Error' => 'Invalid achievement type',
+                'Error' => 'Unknown type: unknown',
             ]);
 
         $this->assertEquals(0, Achievement::count());
+    });
+
+    test('unknown achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'a' => 999999,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 10,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '001234',
+        ])))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Success' => false,
+                'Error' => 'Unknown achievement.',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('unknown game', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => 999999,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 10,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '001234',
+        ])))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Success' => false,
+                'Error' => 'Unknown game.',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('cannot update warning achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'a' => Achievement::CLIENT_WARNING_ID,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 10,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '001234',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Cannot modify warning achievement.',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('cannot change associated game', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $otherGame = UploadAchievementTestHelpers::createGame();
+        $achievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        // NOTE: developer does not need active claim to update existing
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $achievement->id,
+            'g' => $otherGame->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 3,
+            'b' => '002345',
+            'x' => 'progression',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement->id,
+            ]);
+
+        $achievement->refresh();
+
+        $this->assertEquals($game->id, $achievement->game_id); // alternate game id ignored
+        $this->assertEquals('Title2', $achievement->title);
+        $this->assertEquals('Description2', $achievement->description);
+        $this->assertEquals('0xH0000=2', $achievement->trigger_definition);
+        $this->assertEquals(10, $achievement->points);
+        $this->assertTrue($achievement->is_promoted);
+        $this->assertEquals(AchievementType::Progression, $achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(1, $game->achievements_published);
+        $this->assertEquals(0, $game->achievements_unpublished);
+        $this->assertEquals(10, $game->points_total);
+
+        $otherGame->refresh();
+        $this->assertEquals(0, $otherGame->achievements_published);
+        $this->assertEquals(0, $otherGame->achievements_unpublished);
+        $this->assertEquals(0, $otherGame->points_total);
     });
 });

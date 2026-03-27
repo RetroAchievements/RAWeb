@@ -331,19 +331,19 @@ describe('Per-Field Authorization', function () {
         // ARRANGE
         seed(RolesTableSeeder::class);
 
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
-            'user_id' => User::factory()->create()->id,
+            'user_id' => $juniorDeveloper->id,
             'title' => 'Old Title',
             'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
-
-        $juniorDeveloper = User::factory()->create();
-        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
@@ -366,18 +366,18 @@ describe('Per-Field Authorization', function () {
         // ARRANGE
         seed(RolesTableSeeder::class);
 
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
-            'user_id' => User::factory()->create()->id,
+            'user_id' => $juniorDeveloper->id,
             'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
-
-        $juniorDeveloper = User::factory()->create();
-        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
