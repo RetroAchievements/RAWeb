@@ -9,6 +9,7 @@ import { LuEye } from 'react-icons/lu';
 import { RxCross2 } from 'react-icons/rx';
 
 import { cn } from '@/common/utils/cn';
+import { getScreenshotGalleryUrl } from '@/common/utils/getScreenshotGalleryUrl';
 
 interface ScreenshotGalleryDialogProps {
   onOpenChange: (open: boolean) => void;
@@ -185,25 +186,18 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                               }
                         }
                       >
-                        <picture>
-                          {!isPixelated && (
-                            <source type="image/webp" srcSet={screenshot.lgWebpUrl} />
+                        <img
+                          src={getScreenshotGalleryUrl(screenshot)}
+                          alt={isCompletion ? t('Completion screenshot') : ''}
+                          className={cn(
+                            'w-full rounded transition-[filter] duration-300 ease-out',
+                            isCompletion && !isRevealed && 'blur-3xl',
                           )}
-
-                          <img
-                            src={isPixelated ? screenshot.originalUrl : screenshot.lgWebpUrl}
-                            alt={isCompletion ? t('Completion screenshot') : ''}
-                            className={cn(
-                              'w-full rounded transition-[filter] duration-300 ease-out',
-                              isCompletion && !isRevealed && 'blur-3xl',
-                            )}
-                            style={{
-                              ...(isPixelated ? { imageRendering: 'pixelated' } : {}),
-                              ...(aspectRatio ? { aspectRatio } : {}),
-                            }}
-                            loading="lazy"
-                          />
-                        </picture>
+                          style={{
+                            ...(isPixelated ? { imageRendering: 'pixelated' } : {}),
+                            ...(aspectRatio ? { aspectRatio } : {}),
+                          }}
+                        />
 
                         {isCompletion && !isRevealed ? (
                           <button
