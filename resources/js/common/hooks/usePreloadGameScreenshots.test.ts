@@ -24,7 +24,7 @@ describe('Hook: usePreloadGameScreenshots', () => {
     // ARRANGE
     const { result } = renderHook(() => usePreloadGameScreenshots(undefined));
 
-    // ACT & ASSERT
+    // ASSERT
     expect(() => result.current.preloadGameScreenshots()).not.toThrow();
   });
 
