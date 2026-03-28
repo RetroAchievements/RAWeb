@@ -85,12 +85,6 @@ new class extends Component implements HasForms {
         $this->achievementIdsCsv = null;
         $this->selectedMode = null;
         
-        $this->validUserIds = [];
-        $this->validUsernames = [];
-        $this->missingUsernames = [];
-        $this->validAchievementIds = [];
-        $this->missingAchievementIds = [];
-
         $this->dispatch('close-modal', id: 'confirm-unlock-modal');
     }
 
