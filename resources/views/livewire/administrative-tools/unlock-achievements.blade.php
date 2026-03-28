@@ -182,10 +182,10 @@ new class extends Component implements HasForms {
                             Warning: Some inputs were not found. Please double check the following entries
                         </p>
                         @if(!empty($this->missingUsernames))
-                            <p class="mt-2"><strong>Missing Users:</strong> {{ implode(', ', $this->missingUsernames) }}</p>
+                            <p class="mt-2"><strong>Invalid Users:</strong> {{ implode(', ', $this->missingUsernames) }}</p>
                         @endif
                         @if(!empty($this->missingAchievementIds))
-                            <p class="mt-2"><strong>Missing Achievements:</strong> {{ implode(', ', $this->missingAchievementIds) }}</p>
+                            <p class="mt-2"><strong>Invalid Achievements:</strong> {{ implode(', ', $this->missingAchievementIds) }}</p>
                         @endif
                     </div>
                 @endif
