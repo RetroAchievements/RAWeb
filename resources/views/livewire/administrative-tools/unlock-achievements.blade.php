@@ -143,9 +143,41 @@ new class extends Component implements HasForms {
     <x-filament::modal id="confirm-unlock-modal" width="2xl">
         <x-slot name="heading">Confirm Unlocks</x-slot>
 
-        @if(!empty($this->missingUsernames) || !empty($this->missingAchievementIds))
+        @php
+            $achievements = !empty($this->validAchievementIds) ? \App\Models\Achievement::with(['game.system'])->whereIn('id', $this->validAchievementIds)->get() : collect();
+            $hasUnpromoted = $achievements->contains(fn($a) => !$a->is_promoted);
+            $groupedAchievements = $achievements->groupBy('game_id');
+            $isInvalidHardcore = $this->selectedMode === 'hardcore' && $hasUnpromoted;
+            $hasNoValidData = empty($this->validUserIds) || empty($this->validAchievementIds);
+            $hasBlockingWarning = $hasNoValidData || $isInvalidHardcore;
+        @endphp
+
+        @if($hasBlockingWarning)
             <div class="mb-6 rounded-xl bg-danger-50 p-4 text-sm text-danger-600 ring-1 ring-inset ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-500 dark:ring-danger-500/20">
-                <p class="font-bold">Notice: Some inputs were not found. Please double check the following entries</p>
+                <p class="font-bold flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-danger-500" />
+                    @if($hasNoValidData)
+                        Warning: No valid users or achievements found.
+                    @else
+                        Warning: Unpromoted Achievements found in achievement list
+                    @endif
+                </p>
+                <p class="mt-2">
+                    @if($hasNoValidData)
+                        Please review your inputs and try again.
+                    @else
+                        You are attempting to unlock hardcore achievements which are currently unpromoted. Unpromoted achievements can still be awarded but only in softcore. Either change the request to softcore or postpone the request until the achievement is promoted.
+                    @endif
+                </p>
+            </div>
+        @endif
+
+        @if(!empty($this->missingUsernames) || !empty($this->missingAchievementIds))
+            <div class="mb-6 rounded-xl bg-warning-50 p-4 text-sm text-warning-600 ring-1 ring-inset ring-warning-600/20 dark:bg-warning-500/10 dark:text-warning-500 dark:ring-warning-500/20">
+                <p class="font-bold flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-m-information-circle" class="h-5 w-5 text-warning-500" />
+                    Notice: Some inputs were not found. Please double check the following entries
+                </p>
                 @if(!empty($this->missingUsernames))
                     <p class="mt-2"><strong>Missing Users:</strong> {{ implode(', ', $this->missingUsernames) }}</p>
                 @endif
@@ -155,31 +187,7 @@ new class extends Component implements HasForms {
             </div>
         @endif
 
-        @if(empty($this->validUserIds) || empty($this->validAchievementIds))
-            <div class="mb-6 rounded-xl bg-warning-50 p-4 text-sm text-warning-600 ring-1 ring-inset ring-warning-600/20 dark:bg-warning-500/10 dark:text-warning-500 dark:ring-warning-500/20">
-                    <p class="font-bold flex items-center gap-2">
-                        <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-warning-500" />
-                        Warning: No valid users or achievements found.
-                    </p>
-                    <p class="mt-2">Please review your inputs and try again.</p>
-                </div>
-        @else
-            @php
-                $achievements = \App\Models\Achievement::with(['game.system'])->whereIn('id', $this->validAchievementIds)->get();
-                $hasUnpromoted = $achievements->contains(fn($a) => !$a->is_promoted);
-                $groupedAchievements = $achievements->groupBy('game_id');
-            @endphp
-
-            @if($this->selectedMode === 'hardcore' && $hasUnpromoted)
-                <div class="mb-6 rounded-xl bg-warning-50 p-4 text-sm text-warning-600 ring-1 ring-inset ring-warning-600/20 dark:bg-warning-500/10 dark:text-warning-500 dark:ring-warning-500/20">
-                    <p class="font-bold flex items-center gap-2">
-                        <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-warning-500" />
-                        Warning: Unpromoted Achievements found in achievement list
-                    </p>
-                    <p class="mt-2">You are attempting to unlock hardcore achievements which are currently unpromoted. Unpromoted achievements can still be awarded but only in softcore. Either change the request to softcore or postpone the request until the achievement is promoted.</p>
-                </div>
-            @endif
-
+        @if(!$hasBlockingWarning)
             <div class="mb-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     You are about to award <span class="font-medium text-gray-950 dark:text-white">{{ count($this->validAchievementIds) }}</span> achievement(s) to <span class="font-medium text-gray-950 dark:text-white">{{ count($this->validUserIds) }}</span> user(s) in <span class="font-medium text-primary-600 dark:text-primary-400 uppercase">{{ $this->selectedMode }}</span> mode.
@@ -196,20 +204,18 @@ new class extends Component implements HasForms {
                     </div>
                 </div>
             </div>
+        @endif
 
+        @if(!empty($this->validAchievementIds))
             <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="max-h-96 overflow-y-auto">
                     <table class="fi-ta-table w-full text-sm text-left">
                         <tbody class="divide-y divide-gray-200 dark:divide-white/5">
-                                @php
-                                    $achievements = \App\Models\Achievement::with(['game.system'])->whereIn('id', $this->validAchievementIds)->get();
-                                    $groupedAchievements = $achievements->groupBy('game_id');
-                                @endphp
                             @foreach($groupedAchievements as $gameId => $group)
                                 @php
                                     $game = $group->first()->game;
                                 @endphp
-                                <tr class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition" onclick="window.open('{{ route('game.show', $game->id) }}', '_blank')">
+                                <tr class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 {{ $game ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition' : '' }}" @if($game) onclick="window.open('{{ route('game.show', $game->id) }}', '_blank')" @endif>
                                     <th colspan="3" class="px-4 py-3 text-left">
                                         <div class="flex items-center gap-3">
                                             @if($game && !empty($game->image_icon_asset_path))
@@ -281,7 +287,7 @@ new class extends Component implements HasForms {
 
         <div class="mt-6 flex justify-end gap-x-4">
             <x-filament::button color="gray" x-on:click="close()">Cancel</x-filament::button>
-            @if(!empty($this->validUserIds) && !empty($this->validAchievementIds) && !($this->selectedMode === 'hardcore' && ($hasUnpromoted ?? false)))
+            @if(!$hasBlockingWarning)
                 <x-filament::button wire:click="dispatchJobs" color="info">Confirm Unlocks</x-filament::button>
             @endif
         </div>
