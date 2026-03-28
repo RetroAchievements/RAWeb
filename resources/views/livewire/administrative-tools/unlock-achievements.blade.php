@@ -149,40 +149,45 @@ new class extends Component implements HasForms {
             $groupedAchievements = $achievements->groupBy('game_id');
             $isInvalidHardcore = $this->selectedMode === 'hardcore' && $hasUnpromoted;
             $hasNoValidData = empty($this->validUserIds) || empty($this->validAchievementIds);
-            $hasBlockingWarning = $hasNoValidData || $isInvalidHardcore;
+            $hasMissingData = !empty($this->missingUsernames) || !empty($this->missingAchievementIds);
+            $hasBlockingWarning = $hasNoValidData || $isInvalidHardcore || $hasMissingData;
         @endphp
 
         @if($hasBlockingWarning)
-            <div class="mb-6 rounded-xl bg-danger-50 p-4 text-sm text-danger-600 ring-1 ring-inset ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-500 dark:ring-danger-500/20">
-                <p class="font-bold flex items-center gap-2">
-                    <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-danger-500" />
-                    @if($hasNoValidData)
-                        Warning: No valid users or achievements found.
-                    @else
-                        Warning: Unpromoted Achievements found in achievement list
-                    @endif
-                </p>
-                <p class="mt-2">
-                    @if($hasNoValidData)
-                        Please review your inputs and try again.
-                    @else
-                        You are attempting to unlock hardcore achievements which are currently unpromoted. Unpromoted achievements can still be awarded but only in softcore. Either change the request to softcore or postpone the request until the achievement is promoted.
-                    @endif
-                </p>
-            </div>
-        @endif
-
-        @if(!empty($this->missingUsernames) || !empty($this->missingAchievementIds))
-            <div class="mb-6 rounded-xl bg-warning-50 p-4 text-sm text-warning-600 ring-1 ring-inset ring-warning-600/20 dark:bg-warning-500/10 dark:text-warning-500 dark:ring-warning-500/20">
-                <p class="font-bold flex items-center gap-2">
-                    <x-filament::icon icon="heroicon-m-information-circle" class="h-5 w-5 text-warning-500" />
-                    Notice: Some inputs were not found. Please double check the following entries
-                </p>
-                @if(!empty($this->missingUsernames))
-                    <p class="mt-2"><strong>Missing Users:</strong> {{ implode(', ', $this->missingUsernames) }}</p>
+            <div class="mb-6 flex flex-col gap-y-4 rounded-xl bg-danger-50 p-4 text-sm text-danger-600 ring-1 ring-inset ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-500 dark:ring-danger-500/20">
+                @if($hasNoValidData)
+                    <div>
+                        <p class="font-bold flex items-center gap-2">
+                            <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-danger-500" />
+                            Warning: No valid users or achievements found.
+                        </p>
+                        <p class="mt-2">Please review your inputs and try again.</p>
+                    </div>
                 @endif
-                @if(!empty($this->missingAchievementIds))
-                    <p class="mt-2"><strong>Missing Achievements:</strong> {{ implode(', ', $this->missingAchievementIds) }}</p>
+
+                @if($isInvalidHardcore)
+                    <div class="{{ $hasNoValidData ? 'pt-4 border-t border-danger-600/20 dark:border-danger-500/20' : '' }}">
+                        <p class="font-bold flex items-center gap-2">
+                            <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-danger-500" />
+                            Warning: Unpromoted Achievements found in achievement list
+                        </p>
+                        <p class="mt-2">You are attempting to unlock hardcore achievements which are currently unpromoted. Unpromoted achievements can still be awarded but only in softcore. Either change the request to softcore or postpone the request until the achievement is promoted.</p>
+                    </div>
+                @endif
+
+                @if($hasMissingData)
+                    <div class="{{ ($hasNoValidData || $isInvalidHardcore) ? 'pt-4 border-t border-danger-600/20 dark:border-danger-500/20' : '' }}">
+                        <p class="font-bold flex items-center gap-2">
+                            <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-5 w-5 text-danger-500" />
+                            Warning: Some inputs were not found. Please double check the following entries
+                        </p>
+                        @if(!empty($this->missingUsernames))
+                            <p class="mt-2"><strong>Missing Users:</strong> {{ implode(', ', $this->missingUsernames) }}</p>
+                        @endif
+                        @if(!empty($this->missingAchievementIds))
+                            <p class="mt-2"><strong>Missing Achievements:</strong> {{ implode(', ', $this->missingAchievementIds) }}</p>
+                        @endif
+                    </div>
                 @endif
             </div>
         @endif
