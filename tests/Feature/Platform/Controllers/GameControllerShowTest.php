@@ -958,6 +958,75 @@ describe('Count Props', function () {
     });
 });
 
+describe('Achievement Comment Indicator Props', function () {
+    it('given an achievement has a visible non-automated comment, includes hasVisibleUserComments as true', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $commentAuthor = User::factory()->create();
+
+        $achievement = Achievement::where('game_id', $game->id)
+            ->where('is_promoted', true)
+            ->firstOrFail();
+
+        Comment::factory()->create([
+            'user_id' => $commentAuthor->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('game.gameAchievementSets.0.achievementSet.achievements.0.hasVisibleUserComments', true)
+        );
+    });
+
+    it('given an achievement has no comments, includes hasVisibleUserComments as false', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('game.gameAchievementSets.0.achievementSet.achievements.0.hasVisibleUserComments', false)
+        );
+    });
+
+    it('given an achievement only has an automated comment, includes hasVisibleUserComments as false', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        $achievement = Achievement::where('game_id', $game->id)
+            ->where('is_promoted', true)
+            ->firstOrFail();
+
+        $systemCommentUser = User::factory()->create([
+            'id' => Comment::SYSTEM_USER_ID,
+        ]);
+
+        Comment::factory()->create([
+            'user_id' => $systemCommentUser->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('game.gameAchievementSets.0.achievementSet.achievements.0.hasVisibleUserComments', false)
+        );
+    });
+});
+
 describe('Player Props', function () {
     it('given the user has progress, includes their PlayerGame record', function () {
         // ARRANGE

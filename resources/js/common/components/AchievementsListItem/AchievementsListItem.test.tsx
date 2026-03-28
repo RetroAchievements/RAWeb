@@ -246,4 +246,47 @@ describe('Component: AchievementsListItem', () => {
       expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
     });
   });
+
+  it('given an achievement has visible user comments, shows the comment indicator', async () => {
+    // ARRANGE
+    const achievement = {
+      ...createAchievement(),
+      hasVisibleUserComments: true,
+    } as App.Platform.Data.Achievement & { hasVisibleUserComments: boolean };
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByLabelText(/this achievement has user comments/i)).toBeVisible();
+    });
+  });
+
+  it('given an achievement does not have visible user comments, does not show the comment indicator', async () => {
+    // ARRANGE
+    const achievement = {
+      ...createAchievement(),
+      hasVisibleUserComments: false,
+    } as App.Platform.Data.Achievement & { hasVisibleUserComments: boolean };
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+      />,
+    );
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(100); // let any animations finish up
+    expect(screen.queryByLabelText(/this achievement has user comments/i)).not.toBeInTheDocument();
+  });
 });

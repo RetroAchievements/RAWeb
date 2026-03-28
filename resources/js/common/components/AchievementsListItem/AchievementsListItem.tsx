@@ -63,6 +63,11 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
 
+  const hasVisibleUserComments = Boolean(
+    (achievement as App.Platform.Data.Achievement & { hasVisibleUserComments?: boolean })
+      .hasVisibleUserComments,
+  );
+
   return (
     <motion.li
       className="game-set-item"
@@ -100,6 +105,29 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
                   {title}
                   {game?.title ? ' ' : null}
                 </a>
+
+                {hasVisibleUserComments ? (
+                  <span
+                    className="ml-1 inline-flex align-text-bottom text-neutral-500"
+                    aria-label="This achievement has user comments"
+                    title="This achievement has user comments"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="size-3.5"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 3.5C3 2.67157 3.67157 2 4.5 2H11.5C12.3284 2 13 2.67157 13 3.5V8.5C13 9.32843 12.3284 10 11.5 10H7.25L4.75 12V10H4.5C3.67157 10 3 9.32843 3 8.5V3.5Z"
+                        stroke="currentColor"
+                        strokeWidth="1.25"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                ) : null}
 
                 {game?.title ? (
                   <Trans

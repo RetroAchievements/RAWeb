@@ -30,6 +30,7 @@ class AchievementData extends Data
         public Lazy|bool $isPromoted,
         public Lazy|GameData $game,
         public Lazy|int|null $groupId,
+        public Lazy|bool $hasVisibleUserComments,
         public Lazy|int $numUnresolvedTickets,
         public Lazy|int $orderColumn,
         public Lazy|int $points,
@@ -68,6 +69,9 @@ class AchievementData extends Data
             isPromoted: Lazy::create(fn () => $achievement->is_promoted),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => $achievement->pivot?->achievement_group_id),
+            hasVisibleUserComments: Lazy::create(
+                fn () => (bool) $achievement->getAttribute('has_visible_user_comments')
+            ),
             numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->unresolved()->count()),
             orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),
@@ -110,6 +114,7 @@ class AchievementData extends Data
             isPromoted: Lazy::create(fn () => $achievement->is_promoted),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => null),
+            hasVisibleUserComments: Lazy::create(fn () => false),
             numUnresolvedTickets: Lazy::create(fn () => 0),
             orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),

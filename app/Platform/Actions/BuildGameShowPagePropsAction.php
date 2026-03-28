@@ -8,10 +8,12 @@ use App\Actions\GetUserDeviceKindAction;
 use App\Community\Data\CommentData;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
+use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameSet;
@@ -107,20 +109,43 @@ class BuildGameShowPagePropsAction
             ? $user->playerGames()->whereGameId($backingGame->id)->first()
             : null;
 
+        $achievementIds = $game->gameAchievementSets
+            ->flatMap(fn ($gas) => $gas->achievementSet->achievements->pluck('id'))
+            ->unique()
+            ->values();
+
+        $achievementIdsWithVisibleUserComments = collect();
+
+        if ($achievementIds->isNotEmpty()) {
+            $achievementIdsWithVisibleUserComments = Comment::query()
+                ->where('commentable_type', CommentableType::Achievement)
+                ->whereIn('commentable_id', $achievementIds)
+                ->notAutomated()
+                ->visibleTo($user)
+                ->distinct()
+                ->pluck('commentable_id')
+                ->flip();
+        }
+
+        $playerAchievements = collect();
+
         // Attach unlock times directly to achievements rather than stitching
         // through eager loading, which is complex for this polymorphic shape.
-        if ($user) {
-            $achievementIds = $game->gameAchievementSets
-                ->flatMap(fn ($gas) => $gas->achievementSet->achievements->pluck('id'))
-                ->unique();
-
+        if ($user && $achievementIds->isNotEmpty()) {
             $playerAchievements = $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->get()
                 ->keyBy('achievement_id');
+        }
 
-            foreach ($game->gameAchievementSets as $gas) {
-                foreach ($gas->achievementSet->achievements as $achievement) {
+        foreach ($game->gameAchievementSets as $gas) {
+            foreach ($gas->achievementSet->achievements as $achievement) {
+                $achievement->setAttribute(
+                    'has_visible_user_comments',
+                    $achievementIdsWithVisibleUserComments->has($achievement->id),
+                );
+
+                if ($user) {
                     $playerAchievement = $playerAchievements->get($achievement->id);
 
                     if ($playerAchievement) {
@@ -263,6 +288,7 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
                 'gameAchievementSets.achievementSet.achievements.groupId',
+                'gameAchievementSets.achievementSet.achievements.hasVisibleUserComments',
                 'gameAchievementSets.achievementSet.achievements.orderColumn',
                 'gameAchievementSets.achievementSet.achievements.points',
                 'gameAchievementSets.achievementSet.achievements.pointsWeighted',
