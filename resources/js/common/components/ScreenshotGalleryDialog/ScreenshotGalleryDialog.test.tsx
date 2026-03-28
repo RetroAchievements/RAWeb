@@ -218,7 +218,7 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
-  it('given a pixelated analog TV system, constrains the image container to an integer-scaled width', async () => {
+  it('given a pixelated system, constrains the image container to an integer-scaled width', async () => {
     // ARRANGE
     const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];
 
@@ -228,23 +228,23 @@ describe('Component: ScreenshotGalleryDialog', () => {
         isOpen={true}
         onOpenChange={vi.fn()}
         isPixelated={true}
-        hasAnalogTvOutput={true}
       />,
     );
 
     // ASSERT
+    // floor(1024 / 256) = 4. 4 * 256 = 1024.
     await waitFor(() => {
       const image = screen.getByRole('presentation');
       const container = image.parentElement!;
-
-      // 224 * 4/3 = 298.67. floor(896 / 298.67) = 3. round(3 * 298.67) = 896.
-      expect(container).toHaveStyle({ maxWidth: '896px' });
+      expect(container).toHaveStyle({ maxWidth: '1024px' });
     });
   });
 
-  it('given a pixelated non-analog system, constrains the image container to an integer-scaled width', async () => {
+  it('given a pixelated screenshot wider than the container, does not apply integer scaling', async () => {
     // ARRANGE
-    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 2048, height: 1536 }),
+    ];
 
     render(
       <ScreenshotGalleryDialog
@@ -252,17 +252,15 @@ describe('Component: ScreenshotGalleryDialog', () => {
         isOpen={true}
         onOpenChange={vi.fn()}
         isPixelated={true}
-        hasAnalogTvOutput={false}
       />,
     );
 
     // ASSERT
+    // floor(1024 / 2048) = 0, which is below 1, so no maxWidth is applied.
     await waitFor(() => {
       const image = screen.getByRole('presentation');
       const container = image.parentElement!;
-
-      // floor(896 / 256) = 3. 3 * 256 = 768.
-      expect(container).toHaveStyle({ maxWidth: '768px' });
+      expect(container.style.maxWidth).toEqual('');
     });
   });
 
