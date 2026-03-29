@@ -4,7 +4,6 @@ import type { FC } from 'react';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -51,7 +50,7 @@ export const GameShowMainRoot: FC = () => {
         hasBeatenGame={hasBeatenGame}
         imageIngameUrl={game.imageIngameUrl!}
         imageTitleUrl={game.imageTitleUrl!}
-        isPixelated={getIsSystemPixelated(game.system!.id)}
+        isPixelated={!game.system!.supportsUpscaledScreenshots}
         numScreenshots={numScreenshots}
         screenshots={screenshots}
       />

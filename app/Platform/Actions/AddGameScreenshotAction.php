@@ -146,18 +146,13 @@ class AddGameScreenshotAction
             return;
         }
 
-        $resolutions = $system->screenshot_resolutions;
-        $formatted = collect($resolutions)
-            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
-            ->join(', ');
-
-        $smpteNote = '';
-        if ($system->has_analog_tv_output) {
-            $smpteNote = ' SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
-        }
-
         throw ValidationException::withMessages([
-            'screenshot' => "This screenshot's dimensions ({$width}x{$height}) don't match the expected resolutions for {$system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}",
+            'screenshot' => $service->buildResolutionMismatchMessage(
+                'This screenshot',
+                $width,
+                $height,
+                $system,
+            ),
         ]);
     }
 

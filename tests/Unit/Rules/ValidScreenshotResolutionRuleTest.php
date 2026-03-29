@@ -285,6 +285,68 @@ it('rejects scaling that only matches on one axis', function () {
     expect($validator->fails())->toBeTrue();
 });
 
+it('rejects upscaled uploads when the system does not support them', function (int $width, int $height) {
+    // ARRANGE
+    $system = System::factory()->make([
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+        'supports_upscaled_screenshots' => false,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', $width, $height);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeTrue();
+})->with([
+    '2x' => [512, 448],
+    '3x' => [768, 672],
+]);
+
+it('still passes a 1x upload when the system does not support upscaled screenshots', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+        'supports_upscaled_screenshots' => false,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
+it('does not mention integer multiples in the error message when the system does not support upscaled screenshots', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'name' => 'SNES/Super Famicom',
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+        'supports_upscaled_screenshots' => false,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 512, 448);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    $errorMessage = $validator->errors()->first('screenshot');
+    expect($errorMessage)->not->toContain('2x/3x integer multiples');
+});
+
 it('includes the system name and expected resolutions in the error message', function () {
     // ARRANGE
     $system = System::factory()->make([
