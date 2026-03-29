@@ -3,7 +3,7 @@
         <x-filament::section>
             <div class="flex flex-col gap-y-4">
                 <x-filament::section.heading>
-                    Unlock Achievements
+                    Manual Unlocks
                 </x-filament::section.heading>
 
                 <livewire:administrative-tools.unlock-achievements />

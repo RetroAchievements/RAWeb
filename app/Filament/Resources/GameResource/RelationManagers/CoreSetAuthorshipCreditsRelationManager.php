@@ -32,6 +32,18 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
     protected static ?string $title = 'Set Credits';
     protected static string|BackedEnum|null $icon = 'fas-users';
 
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($ownerRecord instanceof Game) {
+            return $user->can('viewContributionCredit', $ownerRecord);
+        }
+
+        return false;
+    }
+
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
         $count = $ownerRecord->coreSetAuthorshipCredits->count();

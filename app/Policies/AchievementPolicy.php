@@ -189,6 +189,30 @@ class AchievementPolicy
         return false;
     }
 
+    public function viewModifications(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::MODERATOR,
+            Role::ARTIST,
+            Role::WRITER,
+        ]);
+    }
+
+    public function viewContributionCredit(User $user, Achievement $achievement): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::MODERATOR,
+            Role::ARTIST,
+            Role::WRITER,
+        ]);
+    }
+
     public function assignMaintainer(User $user): bool
     {
         return $user->hasAnyRole([

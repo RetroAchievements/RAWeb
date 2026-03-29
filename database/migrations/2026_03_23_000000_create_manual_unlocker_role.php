@@ -14,7 +14,7 @@ return new class extends Migration {
             return;
         }
 
-        $roleId = DB::table('auth_roles')->insertGetId([
+        DB::table('auth_roles')->insert([
             'name' => Role::MANUAL_UNLOCKER,
             'display' => 3,
             'guard_name' => 'web',

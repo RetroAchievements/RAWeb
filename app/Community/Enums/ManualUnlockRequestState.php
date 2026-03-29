@@ -9,29 +9,19 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 enum ManualUnlockRequestState: string
 {
-    /**
-     * Used for approved requests
-     */
     case Approved = "approved";
 
-    /**
-     * Used for denied requests
-     */
     case Denied = "denied";
 
-    /**
-     * Used for pending requests
-     */
     case Pending = "pending";
 
     /**
      * Used for partially approved requests
      */
-    case Partial = "partial";
+    case PartiallyApproved = "partially-approved";
 
     /**
-     * Used for requests requesting more details
+     * Used for requests needing more details from the requester
      */
-    case Requesting = "requesting";
-
+    case NeedsMoreDetails = "needs-more-details";
 }
