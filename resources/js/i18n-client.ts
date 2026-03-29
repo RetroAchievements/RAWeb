@@ -21,6 +21,8 @@ i18n
       order: ['htmlTag'],
     },
     showSupportNotice: false,
+    // Skip async backend loading in test mode for faster initialization.
+    ...(process.env.NODE_ENV === 'test' ? { initImmediate: false } : {}),
   });
 
 export default i18n;
