@@ -85,6 +85,27 @@ class GameIdTest extends TestCase
             ]);
     }
 
+    public function testNullHash(): void
+    {
+        $this->get($this->apiUrl('gameid', ['m' => null]))
+            ->assertStatus(422)
+            ->assertJson(['Success' => false]);
+    }
+
+    public function testEmptyHash(): void
+    {
+        $this->get($this->apiUrl('gameid', ['m' => '']))
+            ->assertStatus(422)
+            ->assertJson(['Success' => false]);
+    }
+
+    public function testMissingHash(): void
+    {
+        $this->get($this->apiUrl('gameid', []))
+            ->assertStatus(422)
+            ->assertJson(['Success' => false]);
+    }
+
     public function testUserAgent(): void
     {
         $game = $this->seedGame();

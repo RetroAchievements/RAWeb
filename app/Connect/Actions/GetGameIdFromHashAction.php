@@ -23,11 +23,11 @@ class GetGameIdFromHashAction extends BaseApiAction
 
     protected function initialize(Request $request): ?array
     {
-        if (!$request->has(['m'])) {
+        if (!$request->filled('m')) {
             return $this->missingParameters();
         }
 
-        $this->hash = request()->input('m', '');
+        $this->hash = $request->input('m');
 
         // if a client has been explicitly blocked, prevent hash resolution so the client
         // is never able to retrieve the runtime assets.
