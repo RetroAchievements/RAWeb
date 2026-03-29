@@ -54,6 +54,8 @@ function SeparateAwards(array $userAwards): array
             } else {
                 $eventAwards[] = $award;
             }
+        } elseif ($type === AwardType::Playtest->toLegacyInteger()) {
+            $siteAwards[] = $award;
         } elseif (AwardType::isActive($type)) {
             $siteAwards[] = $award;
         }
@@ -294,6 +296,25 @@ function RenderAward(
                 context: $ownerUsername,
             );
         }
+
+        return;
+    }
+
+    if ($awardType === AwardType::Playtest->toLegacyInteger()) {
+        if (!$awardGameImage) {
+            return;
+        }
+
+        $tierLine = $awardGameTitle ? "<span>{$awardGameTitle}</span>" : '';
+
+        echo avatar('playtestAward', $awardData,
+            tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Playtester Award</p>{$tierLine}<p class='italic'>{$awardDate}</p></div>",
+            iconUrl: media_asset($awardGameImage),
+            iconSize: $imageSize,
+            iconClass: 'goldimage',
+            context: $ownerUsername,
+            hasLink: false,
+        );
 
         return;
     }

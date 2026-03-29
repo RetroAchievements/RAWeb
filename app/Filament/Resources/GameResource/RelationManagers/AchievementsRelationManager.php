@@ -63,6 +63,11 @@ class AchievementsRelationManager extends RelationManager
         $user = Auth::user();
 
         if ($ownerRecord instanceof Game) {
+            // Playtest managers can access games but don't interact with achievements.
+            if ($user->hasRole(Role::PLAYTEST_MANAGER) && !$user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::ARTIST])) {
+                return false;
+            }
+
             return $user->can('manage', $ownerRecord);
         }
 
