@@ -89,7 +89,7 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).not.toHaveAttribute('height');
   });
 
-  it('given the system has analog TV output and known resolutions, applies a 4:3 aspect ratio to both images', () => {
+  it('given the system has analog TV output and is not pixelated, applies a 4:3 aspect ratio to both images', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
@@ -98,6 +98,7 @@ describe('Component: PlayableMainMedia', () => {
         expectedWidth={256}
         expectedHeight={224}
         hasAnalogTvOutput={true}
+        isPixelated={false}
       />,
     );
 
@@ -109,13 +110,16 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
   });
 
-  it('given the system has analog TV output but no known resolutions, still applies a 4:3 aspect ratio', () => {
+  it('given the system has analog TV output and is pixelated, does not apply a 4:3 aspect ratio', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
         imageTitleUrl="https://example.com/title.jpg"
         imageIngameUrl="https://example.com/ingame.jpg"
+        expectedWidth={256}
+        expectedHeight={224}
         hasAnalogTvOutput={true}
+        isPixelated={true}
       />,
     );
 
@@ -123,8 +127,10 @@ describe('Component: PlayableMainMedia', () => {
     const titleImage = screen.getByRole('img', { name: /title screenshot/i });
     const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
 
-    expect(titleImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
-    expect(ingameImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
+    expect(titleImage).not.toHaveStyle({ aspectRatio: `${4 / 3}` });
+    expect(ingameImage).not.toHaveStyle({ aspectRatio: `${4 / 3}` });
+    expect(titleImage).toHaveStyle({ imageRendering: 'pixelated' });
+    expect(ingameImage).toHaveStyle({ imageRendering: 'pixelated' });
   });
 
   it('given the system does not have analog TV output, does not apply a 4:3 aspect ratio', () => {

@@ -67,7 +67,11 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
     setOpenAtIndex(targetIndex >= 0 ? targetIndex : 0);
   };
 
-  const imgProps = { className: 'w-full rounded-sm', style: aspectRatioStyle, ...dimensionProps };
+  const imgProps = {
+    className: 'w-full rounded-sm',
+    style: isPixelated ? { imageRendering: 'pixelated' as const } : aspectRatioStyle,
+    ...dimensionProps,
+  };
 
   return (
     <div
