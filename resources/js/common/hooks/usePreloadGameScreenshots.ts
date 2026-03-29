@@ -18,8 +18,9 @@ export function usePreloadGameScreenshots(
     }
     hasPreloaded.current = true;
 
-    // Preload only the first few images.
-    for (const screenshot of screenshots.slice(0, 3)) {
+    // The first two screenshots (title + ingame) are already visible
+    // as thumbnails, so skip them and preload the next two.
+    for (const screenshot of screenshots.slice(2, 4)) {
       const img = new Image();
       img.src = getScreenshotGalleryUrl(screenshot);
     }

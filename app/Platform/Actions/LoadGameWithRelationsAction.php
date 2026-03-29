@@ -41,6 +41,9 @@ class LoadGameWithRelationsAction
                     $query->where('type', AchievementSetType::Core);
                 }
             },
+            'gameScreenshots' => function ($query) {
+                $query->where('is_primary', true)->with('media');
+            },
             'hashes',
             'hubs' => function ($query) {
                 $query->with(['viewRoles']);
