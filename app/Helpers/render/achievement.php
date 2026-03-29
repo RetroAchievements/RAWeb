@@ -152,24 +152,3 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
 
     return trim(str_replace("\n", '', $tooltip));
 }
-
-function generateAchievementMetaDescription(
-    string $achievementDescription,
-    ?string $achievementType,
-    string $gameTitle,
-    string $consoleName,
-    int $points = 0,
-    int $winnerCount = 0,
-): string {
-    $typeLabel = $achievementType ? __("achievement-type.{$achievementType}") : null;
-    $pointsLabel = $points === 1 ? "point" : "points";
-    $localizedWinnerCount = localized_number($winnerCount);
-    $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
-
-    $bracketText = "$points $pointsLabel";
-    if ($typeLabel) {
-        $bracketText .= ", $typeLabel";
-    }
-
-    return "$achievementDescription [$bracketText], won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
-}
