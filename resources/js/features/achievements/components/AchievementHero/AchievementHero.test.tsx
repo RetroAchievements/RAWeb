@@ -618,6 +618,25 @@ describe('Component: AchievementHero', () => {
     expect(screen.queryByText(/not promoted/i)).not.toBeInTheDocument();
   });
 
+  it('given the achievement has zero points, does not display points or RetroPoints', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      points: 0,
+      pointsWeighted: 0,
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/points/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/retropoints/i)).not.toBeInTheDocument();
+  });
+
   it('given the achievement is for an event game, shows "unlocks" instead of "softcore" and "hardcore"', () => {
     // ARRANGE
     const achievement = createAchievement({

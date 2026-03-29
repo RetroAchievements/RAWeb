@@ -1,10 +1,17 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuCode, LuPencil, LuWrench, LuX } from 'react-icons/lu';
+import { LuCheck, LuCode, LuEllipsis, LuPencil, LuWrench, LuX } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import {
+  BaseDropdownMenu,
+  BaseDropdownMenuContent,
+  BaseDropdownMenuItem,
+  BaseDropdownMenuSeparator,
+  BaseDropdownMenuTrigger,
+} from '@/common/components/+vendor/BaseDropdownMenu';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -33,67 +40,37 @@ export const AchievementInlineActions: FC = () => {
   const reportSubject = sourceAchievement ?? achievement;
   const ticketCount = sourceAchievement?.numUnresolvedTickets ?? achievement.numUnresolvedTickets;
 
+  const canResetProgress = hasUnlocked && !isEventGame;
+
   return (
-    <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between">
+    <div className="flex items-center justify-between gap-2 text-xs">
       {!isEventGame || sourceAchievement ? (
-        <div className="flex divide-x divide-neutral-700">
+        <div className="flex items-center gap-3">
           <InertiaLink
             href={route('achievement.report-issue', { achievement: reportSubject.id })}
             prefetch="desktop-hover-only"
           >
-            <span className="pr-3">{t('Report an issue')}</span>
+            {t('Report an issue')}
           </InertiaLink>
 
           {ticketCount ? (
-            <a
-              href={route('achievement.tickets', { achievement: reportSubject.id })}
-              className="px-3"
-            >
-              {t('openTicketCount', {
-                count: ticketCount,
-                val: ticketCount,
-              })}
-            </a>
-          ) : (
-            <p className="px-3 italic text-neutral-600">{t('No open tickets')}</p>
-          )}
+            <>
+              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+
+              <a href={route('achievement.tickets', { achievement: reportSubject.id })}>
+                {t('openTicketCount', {
+                  count: ticketCount,
+                  val: ticketCount,
+                })}
+              </a>
+            </>
+          ) : null}
         </div>
       ) : null}
 
-      <div className="flex items-center gap-3">
-        {can?.develop && !isEditMode ? (
-          <div className="flex items-center gap-2 lg:hidden">
-            <a
-              href={`/manage/achievements/${achievement.id}`}
-              target="_blank"
-              className="flex items-center gap-1"
-            >
-              <LuWrench className="size-3" />
-              {t('Manage')}
-            </a>
-
-            {!isEventGame && can.viewAchievementLogic ? (
-              <a
-                href={`/manage/achievements/${achievement.id}/logic`}
-                target="_blank"
-                className="flex items-center gap-1"
-              >
-                <LuCode className="size-3" />
-                {t('Logic')}
-              </a>
-            ) : null}
-
-            {!isEventGame ? (
-              <BaseButton onClick={() => setIsEditMode(true)} size="xs" className="gap-1">
-                <LuPencil className="size-3" />
-                {t('Quick edit')}
-              </BaseButton>
-            ) : null}
-          </div>
-        ) : null}
-
+      <div className="flex items-center gap-1.5">
         {isEditMode && can?.develop ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <BaseButton onClick={handleCancel} size="xs" className="gap-1">
               <LuX className="size-3" />
               {t('Cancel')}
@@ -103,27 +80,94 @@ export const AchievementInlineActions: FC = () => {
               <LuCheck className="size-3" />
               {t('Save')}
             </BaseButton>
+
+            {can.updateAchievementIsPromoted ? (
+              <BaseButton
+                onClick={() => setIsUpdatePromotedStatusDialogOpen(true)}
+                variant={achievement.isPromoted ? 'destructive' : 'default'}
+                size="xs"
+              >
+                {achievement.isPromoted ? t('Demote') : t('Promote')}
+              </BaseButton>
+            ) : null}
           </div>
         ) : null}
 
-        {isEditMode && can?.updateAchievementIsPromoted ? (
-          <BaseButton
-            onClick={() => setIsUpdatePromotedStatusDialogOpen(true)}
-            variant={achievement.isPromoted ? 'destructive' : 'default'}
-            size="xs"
-          >
-            {achievement.isPromoted ? t('Demote') : t('Promote')}
-          </BaseButton>
-        ) : null}
+        {!isEditMode ? (
+          <>
+            {/* Desktop: show Reset progress as a direct button */}
+            {canResetProgress ? (
+              <BaseButton
+                onClick={() => setIsResetProgressDialogOpen(true)}
+                variant="destructive"
+                size="xs"
+                className="hidden lg:inline-flex"
+              >
+                {t('Reset progress')}
+              </BaseButton>
+            ) : null}
 
-        {hasUnlocked && !isEventGame ? (
-          <BaseButton
-            onClick={() => setIsResetProgressDialogOpen(true)}
-            variant="destructive"
-            size="xs"
-          >
-            {t('Reset progress')}
-          </BaseButton>
+            {/* Mobile: show an overflow menu with dev tools and reset progress */}
+            {can?.develop || canResetProgress ? (
+              <div className="lg:hidden">
+                <BaseDropdownMenu>
+                  <BaseDropdownMenuTrigger asChild>
+                    <BaseButton size="xs" aria-label={t('More actions')}>
+                      <LuEllipsis className="size-4" />
+                    </BaseButton>
+                  </BaseDropdownMenuTrigger>
+
+                  <BaseDropdownMenuContent align="end">
+                    {can?.develop ? (
+                      <>
+                        <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
+                          <a href={`/manage/achievements/${achievement.id}`} target="_blank">
+                            <LuWrench className="size-3.5" />
+                            {t('Manage')}
+                          </a>
+                        </BaseDropdownMenuItem>
+
+                        {!isEventGame && can.viewAchievementLogic ? (
+                          <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
+                            <a
+                              href={`/manage/achievements/${achievement.id}/logic`}
+                              target="_blank"
+                            >
+                              <LuCode className="size-3.5" />
+                              {t('Logic')}
+                            </a>
+                          </BaseDropdownMenuItem>
+                        ) : null}
+
+                        {!isEventGame ? (
+                          <BaseDropdownMenuItem
+                            className="cursor-pointer gap-2 text-link"
+                            onClick={() => setIsEditMode(true)}
+                          >
+                            <LuPencil className="size-3.5" />
+                            {t('Quick edit')}
+                          </BaseDropdownMenuItem>
+                        ) : null}
+                      </>
+                    ) : null}
+
+                    {canResetProgress ? (
+                      <>
+                        {can?.develop ? <BaseDropdownMenuSeparator /> : null}
+
+                        <BaseDropdownMenuItem
+                          className="cursor-pointer gap-2 text-red-400 focus:text-red-300"
+                          onClick={() => setIsResetProgressDialogOpen(true)}
+                        >
+                          {t('Reset progress')}
+                        </BaseDropdownMenuItem>
+                      </>
+                    ) : null}
+                  </BaseDropdownMenuContent>
+                </BaseDropdownMenu>
+              </div>
+            ) : null}
+          </>
         ) : null}
       </div>
     </div>
