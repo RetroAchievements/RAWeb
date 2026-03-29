@@ -30,6 +30,7 @@ export * from './createGameListEntry';
 export * from './createGamePageClaimData';
 export * from './createGameRecentPlayer';
 export * from './createGameRelease';
+export * from './createGameScreenshot';
 export * from './createGameSet';
 export * from './createGameSetRequestData';
 export * from './createGameSuggestionEntry';

@@ -50,8 +50,11 @@ export const GameShowMobileRoot: FC = () => {
     hubs,
     isViewingPublishedAchievements,
     numMasters,
+    numScreenshots,
     playerAchievementChartBuckets,
     playerGame,
+    playerGameProgressionAwards,
+    screenshots,
     seriesHub,
     similarGames,
     targetAchievementSetId,
@@ -64,6 +67,9 @@ export const GameShowMobileRoot: FC = () => {
   const { currentTab, setCurrentTab } = useGameShowTabs();
 
   const currentListView = useAtomValue(currentListViewAtom);
+
+  const hasBeatenGame =
+    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -139,12 +145,15 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
             <PlayableMainMedia
-              imageIngameUrl={game.imageIngameUrl!}
-              imageTitleUrl={game.imageTitleUrl!}
               expectedHeight={game.system?.screenshotResolutions?.[0]?.height}
               expectedWidth={game.system?.screenshotResolutions?.[0]?.width}
               hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
+              hasBeatenGame={hasBeatenGame}
+              imageIngameUrl={game.imageIngameUrl!}
+              imageTitleUrl={game.imageTitleUrl!}
               isPixelated={getIsSystemPixelated(game.system!.id)}
+              numScreenshots={numScreenshots}
+              screenshots={screenshots}
             />
           </div>
 

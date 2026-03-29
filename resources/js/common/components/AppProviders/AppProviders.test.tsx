@@ -24,7 +24,7 @@ describe('Component: AppProviders', () => {
     expect(screen.getByText(/content/i)).toBeVisible();
   });
 
-  it('given react query devtools are enabled, loads the tools', () => {
+  it('given react query devtools are enabled, loads the tools', async () => {
     // ARRANGE
     vi.stubEnv('VITE_REACT_QUERY_DEVTOOLS_ENABLED', 'true');
 
@@ -33,7 +33,7 @@ describe('Component: AppProviders', () => {
     });
 
     // ASSERT
-    expect(screen.getByTestId('query-devtools')).toBeVisible();
+    expect(await screen.findByTestId('query-devtools')).toBeVisible();
   });
 
   it('given react query devtools are not enabled, does not load the tools', () => {

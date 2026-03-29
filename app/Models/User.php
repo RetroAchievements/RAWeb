@@ -8,7 +8,6 @@ use App\Community\Concerns\ActsAsCommunityMember;
 use App\Community\Contracts\CommunityMember;
 use App\Community\Contracts\HasComments;
 use App\Concerns\HasAccount;
-use App\Concerns\HasAvatar;
 use App\Concerns\HasPreferences;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
@@ -81,7 +80,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      * RA Feature Traits
      */
     use HasAccount;
-    use HasAvatar;
     use HasConnectToken;
     use HasPreferences;
     use ActsAsCommunityMember {
@@ -299,11 +297,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     }
 
     // == media
-
-    public function registerMediaCollections(): void
-    {
-        $this->registerAvatarMediaCollection();
-    }
 
     // == actions
 

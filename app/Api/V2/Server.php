@@ -38,6 +38,7 @@ class Server extends BaseServer
             Hubs\HubSchema::class,
             LeaderboardEntries\LeaderboardEntrySchema::class,
             Leaderboards\LeaderboardSchema::class,
+            PlayerAchievements\PlayerAchievementSchema::class,
             PlayerAchievementSets\PlayerAchievementSetSchema::class,
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
