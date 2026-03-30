@@ -70,20 +70,20 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
-        $this->leaderboardId = request()->integer('i', 0);
-        $this->gameId = request()->integer('g', 0);
-        $this->achievementSetId = request()->integer('p', 0);
+        $this->leaderboardId = $request->integer('i', 0);
+        $this->gameId = $request->integer('g', 0);
+        $this->achievementSetId = $request->integer('p', 0);
 
-        $this->title = request()->input('n') ?? '';
-        $this->description = request()->input('d') ?? '';
-        $this->startTrigger = request()->input('s') ?? '';
-        $this->submitTrigger = request()->input('b') ?? '';
-        $this->cancelTrigger = request()->input('c') ?? '';
-        $this->valueDefinition = request()->input('l') ?? '';
-        $this->lowerIsBetter = request()->boolean('w', false);
-        $this->format = request()->input('f') ?? '';
+        $this->title = $request->input('n') ?? '';
+        $this->description = $request->input('d') ?? '';
+        $this->startTrigger = $request->input('s') ?? '';
+        $this->submitTrigger = $request->input('b') ?? '';
+        $this->cancelTrigger = $request->input('c') ?? '';
+        $this->valueDefinition = $request->input('l') ?? '';
+        $this->lowerIsBetter = $request->boolean('w', false);
+        $this->format = $request->input('f') ?? '';
 
-        $checksum = request()->input('h') ?? '';
+        $checksum = $request->input('h') ?? '';
         if (!$this->checksumMatches($checksum, $this->user->display_name)) {
             if ($this->user->username === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->username)) {
                 return $this->accessDenied('Invalid checksum.');
