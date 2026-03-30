@@ -312,7 +312,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->gameNotFound();
         }
 
-        // Check if user has permission to create a leaderboard.
+        // Check if user has permission to create an achievement.
         if (!$this->user->can('create', [Achievement::class, $game])) {
             return $this->mustBeDeveloper();
         }
@@ -338,7 +338,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             'image_name' => $this->badgeName,
             'trigger_definition' => $this->triggerDefinition,
             'points' => $this->points,
-            'is_promoted' => false, // new achievements are already created in an unpromoted state
+            'is_promoted' => false, // new achievements are always created in an unpromoted state
             'type' => $this->type,
         ]);
 
