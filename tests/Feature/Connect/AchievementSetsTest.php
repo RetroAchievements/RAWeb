@@ -253,6 +253,12 @@ class AchievementSetsTestHelpers
             'image_icon_asset_path' => '/Images/000012.png',
             'trigger_definition' => 'Display:\nBonus Test',
         ]);
+        /** @var Game $challengeGame */
+        $challengeGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000015.png',
+            'trigger_definition' => 'Display:\nChallenge Test',
+        ]);
         /** @var Game $specialtyGame */
         $specialtyGame = Game::factory()->create([
             'system_id' => $system->id,
@@ -288,6 +294,8 @@ class AchievementSetsTestHelpers
         $achievement10 = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id, 'image_name' => '54321', 'order_column' => 10]);
         /** @var Achievement $achievement11 */
         $achievement11 = Achievement::factory()->promoted()->create(['game_id' => $exclusiveGame->id, 'image_name' => '43210', 'order_column' => 11]);
+        /** @var Achievement $achievement12 */
+        $achievement12 = Achievement::factory()->promoted()->create(['game_id' => $challengeGame->id, 'image_name' => '43434', 'order_column' => 12]);
 
         /** @var Leaderboard $leaderboard1 */
         $leaderboard1 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 2]);
@@ -296,20 +304,23 @@ class AchievementSetsTestHelpers
         /** @var Leaderboard $leaderboard3 */
         $leaderboard3 = Leaderboard::factory()->create(['game_id' => $bonusGame->id, 'order_column' => -1, 'format' => 'SECS']);
 
-        $buildAchievementSetaction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
-        $buildAchievementSetaction->execute($game);
-        $buildAchievementSetaction->execute($bonusGame);
-        $buildAchievementSetaction->execute($specialtyGame);
-        $buildAchievementSetaction->execute($exclusiveGame);
+        $buildAchievementSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $buildAchievementSetAction->execute($game);
+        $buildAchievementSetAction->execute($bonusGame);
+        $buildAchievementSetAction->execute($challengeGame);
+        $buildAchievementSetAction->execute($specialtyGame);
+        $buildAchievementSetAction->execute($exclusiveGame);
 
         $associateSetAction = new AssociateAchievementSetToGameAction();
         $associateSetAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus Title');
+        $associateSetAction->execute($game, $challengeGame, AchievementSetType::Challenge, 'Challenge Title');
         $associateSetAction->execute($game, $specialtyGame, AchievementSetType::Specialty, 'Specialty Title');
         $associateSetAction->execute($game, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive Title');
 
         return [
             'game' => $game,
             'bonusGame' => $bonusGame,
+            'challengeGame' => $challengeGame,
             'specialtyGame' => $specialtyGame,
             'exclusiveGame' => $exclusiveGame,
             'achievements' => [
@@ -331,6 +342,9 @@ class AchievementSetsTestHelpers
             'exclusiveAchievements' => [
                 $achievement11,
             ],
+            'challengeAchievements' => [
+                $achievement12,
+            ],
             'leaderboards' => [
                 $leaderboard1,
                 $leaderboard2,
@@ -340,6 +354,7 @@ class AchievementSetsTestHelpers
             ],
             'gameHash' => AchievementSetsTestHelpers::createGameHash($game),
             'bonusHash' => AchievementSetsTestHelpers::createGameHash($bonusGame),
+            'challengeHash' => AchievementSetsTestHelpers::createGameHash($challengeGame),
             'specialtyHash' => AchievementSetsTestHelpers::createGameHash($specialtyGame),
             'exclusiveHash' => AchievementSetsTestHelpers::createGameHash($exclusiveGame),
         ];
@@ -704,6 +719,83 @@ describe('Multi-set', function () {
                         'Leaderboards' => [
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['bonusLeaderboards'][0]), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns core, bonus, and challenge data for core hash when opted in to challenge set', function () {
+        $data = AchievementSetsTestHelpers::createMultiSetGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+        $bonusGame = $data['bonusGame'];
+        $bonusAchievementSet = $bonusGame->achievementSets()->first();
+        $challengeGame = $data['challengeGame'];
+        $challengeAchievementSet = $challengeGame->achievementSets()->first();
+
+        $challengeGameAchievementSet = GameAchievementSet::whereGameId($game->id)->whereType(AchievementSetType::Challenge)->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $this->user->id,
+            'game_achievement_set_id' => $challengeGameAchievementSet->id,
+            'opted_in' => true,
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $data['gameHash']->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $challengeAchievementSet->id,
+                        'Title' => 'Challenge Title',
+                        'Type' => 'challenge',
+                        'GameId' => $challengeGame->id,
+                        'ImageIconUrl' => media_asset($challengeGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['challengeAchievements'][0]), // DisplayOrder: 12
+                        ],
+                        'Leaderboards' => [
                         ],
                     ],
                     [

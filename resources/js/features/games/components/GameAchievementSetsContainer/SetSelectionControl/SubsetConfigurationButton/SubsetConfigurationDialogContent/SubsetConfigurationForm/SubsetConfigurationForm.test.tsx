@@ -216,6 +216,30 @@ describe('Component: SubsetConfigurationForm', () => {
     expect(switches[0]).toBeChecked();
   });
 
+  it('given the user is globally opted in, unconfigured challenge sets default to opted out', () => {
+    // ARRANGE
+    const sets = [createGameAchievementSet({ id: 1, title: 'Challenge Set', type: 'challenge' })];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: createAuthenticatedUserPreferences({
+              isGloballyOptedOutOfSubsets: false, // !!
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
+          }),
+        },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    const switches = screen.getAllByRole('switch');
+    expect(switches[0]).not.toBeChecked();
+  });
+
   it('given the user is globally opted out, core sets still default to opted in', () => {
     // ARRANGE
     const sets = [createGameAchievementSet({ id: 1, title: null, type: 'core' })];

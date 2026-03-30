@@ -57,6 +57,7 @@ class ResolveAchievementSetsAction
      */
     private function buildResolutionContext(GameAchievementSet $initialSet, int $defaultGameId): array
     {
+        $nonSpecialtySetTypes = [AchievementSetType::Core, AchievementSetType::Bonus, AchievementSetType::Challenge];
         $links = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)->get();
 
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
@@ -71,12 +72,12 @@ class ResolveAchievementSetsAction
             // Only load _this_ specialty set.
             return [
                 $specialtyLink->game_id,
-                [AchievementSetType::Core, AchievementSetType::Bonus],
+                $nonSpecialtySetTypes,
                 $initialSet->achievement_set_id,
             ];
         }
 
-        $bonusLinks = $links->where('type', AchievementSetType::Bonus);
+        $bonusLinks = $links->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge]);
         if ($bonusLinks->isNotEmpty()) {
             // If the bonus set is linked to multiple games, only load the bonus set itself.
             // We can't determine which parent's core set to use, so we don't include one.
@@ -86,14 +87,14 @@ class ResolveAchievementSetsAction
                 return [$defaultGameId, [AchievementSetType::Core], null];
             }
 
-            // One parent game - load core and bonus sets from the linked game.
+            // One parent game - load core, bonus and challenge sets from the linked game.
             $bonusLink = $bonusLinks->first();
 
-            return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus], null];
+            return [$bonusLink->game_id, $nonSpecialtySetTypes, null];
         }
 
-        // Core set: load core and bonus sets.
-        return [$defaultGameId, [AchievementSetType::Core, AchievementSetType::Bonus], null];
+        // Core set: load core, bonus and challenge sets.
+        return [$defaultGameId, $nonSpecialtySetTypes, null];
     }
 
     /**
@@ -179,13 +180,19 @@ class ResolveAchievementSetsAction
                 return false;
             }
 
-            // Apply global preference for non-core sets.
-            if ($set->type !== AchievementSetType::Core) {
-                return !$user->is_globally_opted_out_of_subsets;
-            }
+            switch ($set->type) {
+                case AchievementSetType::Core:
+                    // Include core sets by default.
+                    return true;
 
-            // Include core sets by default.
-            return true;
+                case AchievementSetType::Challenge:
+                    // Don't include challenge sets by default.
+                    return false;
+
+                default:
+                    // Apply global preference for everything else.
+                    return !$user->is_globally_opted_out_of_subsets;
+            }
         });
     }
 
@@ -202,8 +209,9 @@ class ResolveAchievementSetsAction
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
                 AchievementSetType::Specialty => 2,
-                AchievementSetType::Bonus => 3,
-                default => 4,
+                AchievementSetType::Challenge => 3,
+                AchievementSetType::Bonus => 4,
+                default => 5,
             };
 
             // Sort primarily by type priority, then by order_column.
