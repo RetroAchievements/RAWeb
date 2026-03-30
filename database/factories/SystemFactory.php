@@ -25,6 +25,7 @@ class SystemFactory extends Factory
             'name_full' => "$manufacturer $name",
             'manufacturer' => $manufacturer,
             'active' => true,
+            'supports_upscaled_screenshots' => true,
         ];
     }
 }

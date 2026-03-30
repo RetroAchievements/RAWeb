@@ -80,6 +80,7 @@ class System extends BaseModel implements HasMedia
         'name_short',
         'screenshot_resolutions',
         'has_analog_tv_output',
+        'supports_upscaled_screenshots',
         'manufacturer',
         'order_column',
         'active',
@@ -98,6 +99,7 @@ class System extends BaseModel implements HasMedia
         'active' => 'boolean',
         'screenshot_resolutions' => 'array',
         'has_analog_tv_output' => 'boolean',
+        'supports_upscaled_screenshots' => 'boolean',
     ];
 
     // == constants
