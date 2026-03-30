@@ -39,6 +39,11 @@ class AchievementPolicy
              * writers may update achievement title and description if the respective achievements are open for editing
              */
             Role::WRITER,
+
+            /*
+             * unlockers can view achievement logic as part of their review
+             */
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 
@@ -62,6 +67,7 @@ class AchievementPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 
@@ -181,6 +187,30 @@ class AchievementPolicy
         }
 
         return false;
+    }
+
+    public function viewModifications(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::MODERATOR,
+            Role::ARTIST,
+            Role::WRITER,
+        ]);
+    }
+
+    public function viewContributionCredit(User $user, Achievement $achievement): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::MODERATOR,
+            Role::ARTIST,
+            Role::WRITER,
+        ]);
     }
 
     public function assignMaintainer(User $user): bool
