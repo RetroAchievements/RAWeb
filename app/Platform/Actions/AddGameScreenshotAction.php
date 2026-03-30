@@ -6,18 +6,30 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\GameScreenshot;
+use App\Models\System;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
+use App\Support\Media\CreateDoubledScreenshotAction;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use App\Support\MediaLibrary\RejectedHashes;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class AddGameScreenshotAction
 {
+    /**
+     * The Atari 2600's TIA outputs frames with non-square pixels.
+     * Emulators capture at native resolution, so we'll double the
+     * width server-side to roughly match the CRT display.
+     */
+    private const ATARI_2600_BASE_WIDTH = 160;
+
+    private const DIMENSION_TOLERANCE = 1;
+
     /**
      * @throws ValidationException
      */
@@ -35,6 +47,22 @@ class AddGameScreenshotAction
         $hash = $this->validateHash($file, $game);
         $this->validateCap($game, $type, $isPrimary);
 
+        $originalContents = file_get_contents($file->getRealPath());
+        $mediaFilePath = $file->getRealPath();
+        $doubledTempPath = null;
+        $shouldDoubleWidth = $this->getShouldDoubleWidth($width, $game);
+
+        // For Atari 2600 screenshots at native capture width,
+        // double the width before giving the file to Spatie.
+        if ($shouldDoubleWidth) {
+            $doubledTempPath = (new CreateDoubledScreenshotAction())->execute($originalContents);
+            $mediaFilePath = $doubledTempPath;
+            $imageContents = file_get_contents($doubledTempPath);
+            $width *= 2;
+        } else {
+            $imageContents = $originalContents;
+        }
+
         // Auto-promote to primary if explicitly requested or if no approved screenshots of this type exist yet.
         $shouldBePrimary = $isPrimary || !$game->gameScreenshots()
             ->ofType($type)
@@ -43,10 +71,7 @@ class AddGameScreenshotAction
 
         $legacyPath = null;
         if ($shouldBePrimary) {
-            // Create the legacy /Images/NNNNNN.png file while we still have the local file on disk.
-            $legacyPath = (new CreateLegacyScreenshotPngAction())->execute(
-                file_get_contents($file->getRealPath())
-            );
+            $legacyPath = (new CreateLegacyScreenshotPngAction())->execute($imageContents);
 
             // Demote existing approved screenshots of this type to pending. This
             // prevents the 20-screenshot cap from being hit by normal editor
@@ -58,17 +83,33 @@ class AddGameScreenshotAction
                 ->update(['is_primary' => false, 'status' => GameScreenshotStatus::Pending]);
         }
 
-        // Add the file to the screenshots MediaLibrary collection.
         $customProperties = ['sha1' => $hash];
         if ($legacyPath !== null) {
             $customProperties['legacy_path'] = $legacyPath;
         }
 
-        $media = $game
-            ->addMedia($file->getRealPath())
-            ->preservingOriginal()
-            ->withCustomProperties($customProperties)
-            ->toMediaCollection('screenshots');
+        try {
+            $media = $game
+                ->addMedia($mediaFilePath)
+                ->preservingOriginal()
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection('screenshots');
+        } finally {
+            if ($doubledTempPath !== null) {
+                @unlink($doubledTempPath);
+            }
+        }
+
+        // If we doubled the width, once the media exists in S3, colocate
+        // the original capture alongside it for future recovery if needed.
+        if ($shouldDoubleWidth) {
+            $mediaDirectory = pathinfo($media->getPath(), PATHINFO_DIRNAME) . '/';
+            $preservationPath = $mediaDirectory . 'original-capture.png';
+            Storage::disk('s3')->put($preservationPath, $originalContents);
+
+            $media->setCustomProperty('original_capture_path', $preservationPath);
+            $media->save();
+        }
 
         return GameScreenshot::create([
             'game_id' => $game->id,
@@ -80,6 +121,15 @@ class AddGameScreenshotAction
             'status' => GameScreenshotStatus::Approved,
             'description' => $description,
         ]);
+    }
+
+    private function getShouldDoubleWidth(int $width, Game $game): bool
+    {
+        if ($game->system_id !== System::Atari2600) {
+            return false;
+        }
+
+        return abs($width - self::ATARI_2600_BASE_WIDTH) <= self::DIMENSION_TOLERANCE;
     }
 
     /**

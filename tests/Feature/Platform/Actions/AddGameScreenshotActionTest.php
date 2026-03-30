@@ -338,3 +338,85 @@ it('rejects an SMPTE 601 resolution for a handheld system', function () {
     // ASSERT
     (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
 })->throws(ValidationException::class);
+
+it('doubles the width for an Atari 2600 screenshot at native capture resolution', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 228);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(320);
+    expect($screenshot->height)->toEqual(228);
+
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    expect($media->getCustomProperty('original_capture_path'))->not->toBeNull();
+});
+
+it('preserves the original capture to S3 when doubling an Atari 2600 screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 228);
+
+    // ACT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    $preservationPath = $media->getCustomProperty('original_capture_path');
+
+    Storage::disk('s3')->assertExists($preservationPath);
+});
+
+it('does not double the width for a non-Atari system', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 160, 'height' => 144]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 144);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(160);
+    expect($screenshot->height)->toEqual(144);
+
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    expect($media->getCustomProperty('original_capture_path'))->toBeNull();
+});
+
+it('doubles the width for a PAL Atari 2600 screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [
+            ['width' => 160, 'height' => 228],
+            ['width' => 160, 'height' => 274],
+        ],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 274);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(320);
+    expect($screenshot->height)->toEqual(274);
+});
