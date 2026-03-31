@@ -380,13 +380,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                         ->fit(Fit::Max, $maxWidth, $maxWidth)
                         ->optimize()
                         ->performOnCollections('screenshots');
-
-                    $this->addMediaConversion("{$size}-avif")
-                        ->format('avif')
-                        ->fit(Fit::Max, $maxWidth, $maxWidth)
-                        ->optimize()
-                        ->performOnCollections('screenshots');
                 }
+
+                $this->addMediaConversion('placeholder')
+                    ->format('webp')
+                    ->width(32)
+                    ->quality(10)
+                    ->fit(Fit::Max, 32, 32)
+                    ->performOnCollections('screenshots');
             });
     }
 
@@ -563,12 +564,29 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->image_title_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Title, $this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->image_ingame_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Ingame, $this->image_ingame_asset_path);
+    }
+
+    /**
+     * Prefer the Media Library URL when the relation is loaded,
+     * falling back to the legacy asset path. Restricted games
+     * always use the legacy path (which returns a placeholder).
+     */
+    private function resolveScreenshotUrl(ScreenshotType $type, string $fallbackAssetPath): string
+    {
+        if (!$this->is_media_restricted && $this->relationLoaded('gameScreenshots')) {
+            $url = $this->getPrimaryScreenshot($type)?->media?->getUrl();
+            if ($url) {
+                return $url;
+            }
+        }
+
+        return media_asset($fallbackAssetPath);
     }
 
     /**

@@ -236,9 +236,12 @@ You should be able to access the site now via (http://localhost:64000)
 - If the port forwarding is set up correctly, you should also be able to access the site using the same URL from the host machine.
 
 #### Note about running tests
-Something about the way sail/docker manages the RAWeb instance causes the log files to be owned by sail and any tests that try to write to the log file will fail with a permissions error. To fix permissions for the tests, run the following command:
+Something about the way sail/docker manages the RAWeb instance causes the log files to be owned by sail and any tests that try to write to the log file will fail with a permissions error. 
+A similar thing also happens with temporary image uploads.
+To fix permissions for the tests, run the following command:
 ```
 sudo chmod 666 ~/source/RAWeb/storage/logs/*.log
+sudo chmod -R 775 ~/source/RAWeb/storage/media-library
 ```
 This doesn't seem to impact the running docker instance, but frequently needs to be run when alternating back and forth between using the website and running the tests.
 

@@ -23,8 +23,8 @@ let fakerInstance: Faker | null = null;
  */
 export async function loadFaker(): Promise<Faker> {
   if (!fakerInstance) {
-    // Use a dynamic import to ensure faker is not included in production bundles.
-    const { faker } = await import('@faker-js/faker');
+    // Import only the English locale to reduce module load time.
+    const { faker } = await import('@faker-js/faker/locale/en');
     fakerInstance = faker;
   }
 

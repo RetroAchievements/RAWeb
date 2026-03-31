@@ -61,14 +61,14 @@ it('passes for a 3x integer multiple', function () {
     expect($validator->fails())->toBeFalse();
 });
 
-it('passes for a base resolution off by 1px in height on an upscaling system', function () {
+it('passes for a base resolution off by 1px in height', function () {
     // ARRANGE
     $system = System::factory()->make([
-        'id' => 12, // PlayStation, in UPSCALING_SYSTEM_IDS.
+        'id' => 12,
         'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
         'has_analog_tv_output' => false,
     ]);
-    // Duckstation/PCSX2 sometimes output 320x239 instead of 320x240.
+    // Emulators sometimes output 320x239 instead of 320x240.
     $file = UploadedFile::fake()->image('screenshot.png', 320, 239);
 
     // ACT
@@ -81,10 +81,10 @@ it('passes for a base resolution off by 1px in height on an upscaling system', f
     expect($validator->fails())->toBeFalse();
 });
 
-it('passes for a base resolution off by 1px in width on an upscaling system', function () {
+it('passes for a base resolution off by 1px in width', function () {
     // ARRANGE
     $system = System::factory()->make([
-        'id' => 2, // Nintendo 64, in UPSCALING_SYSTEM_IDS.
+        'id' => 2,
         'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
         'has_analog_tv_output' => false,
     ]);
@@ -100,10 +100,10 @@ it('passes for a base resolution off by 1px in width on an upscaling system', fu
     expect($validator->fails())->toBeFalse();
 });
 
-it('passes for a 2x scaled resolution off by 1px on an upscaling system', function () {
+it('passes for a 2x scaled resolution off by 1px', function () {
     // ARRANGE
     $system = System::factory()->make([
-        'id' => 12, // PlayStation, in UPSCALING_SYSTEM_IDS.
+        'id' => 12,
         'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
         'has_analog_tv_output' => false,
     ]);
@@ -120,10 +120,10 @@ it('passes for a 2x scaled resolution off by 1px on an upscaling system', functi
     expect($validator->fails())->toBeFalse();
 });
 
-it('rejects a resolution off by 1px on a pixel-based system', function () {
+it('passes for a resolution off by 1px on any system', function () {
     // ARRANGE
     $system = System::factory()->make([
-        'id' => 7, // NES, not in UPSCALING_SYSTEM_IDS.
+        'id' => 7,
         'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
         'has_analog_tv_output' => true,
     ]);
@@ -136,13 +136,13 @@ it('rejects a resolution off by 1px on a pixel-based system', function () {
     );
 
     // ASSERT
-    expect($validator->fails())->toBeTrue();
+    expect($validator->fails())->toBeFalse();
 });
 
-it('rejects a resolution off by more than 1px on an upscaling system', function () {
+it('rejects a resolution off by more than 1px', function () {
     // ARRANGE
     $system = System::factory()->make([
-        'id' => 12, // PlayStation, in UPSCALING_SYSTEM_IDS.
+        'id' => 12,
         'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
         'has_analog_tv_output' => false,
     ]);

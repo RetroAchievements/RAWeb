@@ -21,6 +21,7 @@ use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
@@ -36,12 +37,16 @@ class RouteServiceProvider extends ServiceProvider
             $achievement = Achievement::find($value);
 
             if (!$achievement) {
-                throw JsonApiException::error([
-                    'status' => '404',
-                    'code' => 'not_found',
-                    'title' => 'Not Found',
-                    'detail' => "No achievement found with ID {$value}.",
-                ]);
+                if (request()->is('api/*')) {
+                    throw JsonApiException::error([
+                        'status' => '404',
+                        'code' => 'not_found',
+                        'title' => 'Not Found',
+                        'detail' => "No achievement found with ID {$value}.",
+                    ]);
+                }
+
+                throw (new ModelNotFoundException())->setModel(Achievement::class, [$value]);
             }
 
             return $achievement;
@@ -105,7 +110,10 @@ class RouteServiceProvider extends ServiceProvider
                         ->resources(function ($server) {
                             $server->resource('achievements', AchievementController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('playerAchievements')->readOnly();
+                                });
 
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
@@ -141,8 +149,9 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('playerGames')->readOnly();
+                                    $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
+                                    $relationships->hasMany('playerGames')->readOnly();
                                 });
                         });
                 });

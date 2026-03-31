@@ -30,6 +30,7 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      * @param Collection<int, LeaderboardData> $featuredLeaderboards
      * @param Collection<int, LeaderboardData> $allLeaderboards
+     * @param Collection<int, GameScreenshotData> $screenshots
      */
     public function __construct(
         public AggregateAchievementSetCreditsData $aggregateCredits,
@@ -67,6 +68,10 @@ class GameShowPagePropsData extends Data
         public int $numLeaderboards,
         public int $numMasters,
         public int $numOpenTickets,
+        public int $numScreenshots,
+        /** @var Lazy|Collection<int, GameScreenshotData> */
+        #[AutoInertiaDeferred]
+        public Lazy|Collection $screenshots,
         public Collection $recentPlayers,
         public Collection $recentVisibleComments,
         /** @var GameData[] */

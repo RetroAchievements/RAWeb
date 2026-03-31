@@ -11,4 +11,5 @@ class AchievementController extends JsonApiController
 {
     use Actions\FetchMany;
     use Actions\FetchOne;
+    use Actions\FetchRelated;
 }
