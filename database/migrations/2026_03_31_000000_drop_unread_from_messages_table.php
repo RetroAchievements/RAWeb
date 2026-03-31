@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('Unread');
-        });
+        // The column doesn't seem to exist in the SQLite schema.
+        if (Schema::hasColumn('messages', 'Unread')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->dropColumn('Unread');
+            });
+        }
     }
 
     public function down(): void
