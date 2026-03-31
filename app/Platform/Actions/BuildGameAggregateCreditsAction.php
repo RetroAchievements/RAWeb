@@ -31,7 +31,9 @@ class BuildGameAggregateCreditsAction
             $achievementSet = $gameAchievementSet->achievementSet;
 
             $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Artwork, $achievementSetArtworkCredits);
-            $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Banner, $achievementSetBannerCredits);
+            if (!$game->is_media_restricted) {
+                $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Banner, $achievementSetBannerCredits);
+            }
             $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Testing, $achievementSetTestingCredits, allAuthors: true);
         }
 

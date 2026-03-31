@@ -25,6 +25,7 @@ use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
+use App\Platform\Data\GameScreenshotData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
@@ -343,10 +344,20 @@ class BuildGameShowPagePropsAction
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
-
             numOpenTickets: $isPromoted
                 ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
                 : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+
+            numScreenshots: $game->gameScreenshots()->approved()->count(),
+            screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()
+                ->approved()
+                ->with('media')
+                ->orderByType()
+                ->orderBy('order_column')
+                ->get()
+                ->map(GameScreenshotData::fromGameScreenshot(...))
+                ->values()
+            ),
 
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
@@ -361,7 +372,7 @@ class BuildGameShowPagePropsAction
             bannerPreference: GameBannerPreference::tryFrom(Cookie::get('banner_state') ?? '') ?? GameBannerPreference::Normal,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
-            banner: $game->banner,
+            banner: $game->is_media_restricted ? null : $game->banner,
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
             targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
             targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
@@ -473,7 +484,7 @@ class BuildGameShowPagePropsAction
 
     private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Reuse the Supported Game Files page logic to ensure consistent counts.
+        // Reuse the Supported Game Hashes page logic to ensure consistent counts.
         return $this->resolveHashesForAchievementSetAction
             ->execute($game, $targetAchievementSet)
             ->count();

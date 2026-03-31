@@ -46,7 +46,7 @@ export const GameHashSelectField: FC = () => {
             htmlFor="hash-select"
             className="w-36 text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start"
           >
-            {t('Supported Game File')}
+            {t('Supported Game Hash')}
           </BaseFormLabel>
 
           <div className="flex w-full flex-col gap-1">
@@ -56,7 +56,7 @@ export const GameHashSelectField: FC = () => {
                 defaultValue={field.value ? String(field.value) : undefined}
               >
                 <BaseSelectTrigger id="hash-select">
-                  <BaseSelectValue placeholder={t('Select a file')} />
+                  <BaseSelectValue placeholder={t('Select a hash')} />
                 </BaseSelectTrigger>
 
                 <BaseSelectContent>

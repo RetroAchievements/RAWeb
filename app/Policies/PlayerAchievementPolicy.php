@@ -29,7 +29,7 @@ class PlayerAchievementPolicy
 
     public function view(?User $user, PlayerAchievement $playerAchievement): bool
     {
-        return false;
+        return true;
     }
 
     public function create(User $user): bool

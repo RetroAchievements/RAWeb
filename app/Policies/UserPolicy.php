@@ -49,12 +49,17 @@ class UserPolicy
         return true;
     }
 
-    public function viewPlayerGames(?User $user, User $model): bool
+    public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;
     }
 
     public function viewPlayerAchievementSets(?User $user, User $model): bool
+    {
+        return true;
+    }
+
+    public function viewPlayerGames(?User $user, User $model): bool
     {
         return true;
     }

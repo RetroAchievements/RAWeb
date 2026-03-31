@@ -102,6 +102,7 @@ class UserResource extends Resource
                             Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('roles.name')
+                                        ->label('Roles')
                                         ->badge()
                                         ->wrap()
                                         ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))

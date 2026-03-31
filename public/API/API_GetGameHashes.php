@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetGameHashes - returns information about supported game files for a specific game
+ *  API_GetGameHashes - returns information about supported game hashes for a specific game
  *    i : game id
  *
  *  array

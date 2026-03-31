@@ -82,10 +82,10 @@ class AchievementSchema extends Schema
 
             HasOne::make('achievementSet')->type('achievement-sets')->readOnly(),
             HasMany::make('games')->type('games')->readOnly(),
+            HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
 
             // TODO add relationships
             // - activeMaintainer (HasOne AchievementMaintainer)
-            // - playerAchievements (HasMany PlayerAchievement)
 
             // TODO implement relationship endpoints to enable links
             // - /achievements/{id}/achievementSet

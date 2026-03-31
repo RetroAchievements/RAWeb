@@ -420,7 +420,7 @@ class GameScreenshotsRelationManager extends RelationManager
         $system = $this->getOwnerRecord()?->system;
 
         return array_filter([
-            'dimensions:min_width=64,min_height=64,max_width=1920,max_height=1080',
+            'dimensions:min_width=64,min_height=64,max_width=3840,max_height=2160',
             new DisallowAnimatedImageRule(),
             $system ? new ValidScreenshotResolutionRule($system) : null,
         ]);

@@ -30,9 +30,9 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
         {hash.patchUrl ? (
           <a
             href={hash.patchUrl}
-            className={buildTrackingClassNames('Download Patch File', { md5: hash.md5 })}
+            className={buildTrackingClassNames('Download Compatibility Patch', { md5: hash.md5 })}
           >
-            {t('Download Patch File')}
+            {t('Download Compatibility Patch')}
           </a>
         ) : null}
       </div>

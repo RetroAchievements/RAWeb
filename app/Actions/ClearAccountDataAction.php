@@ -82,7 +82,6 @@ class ClearAccountDataAction
             ]
         );
 
-        // TODO use DeleteAvatarAction as soon as media library is in place
         removeAvatar($user->username);
 
         UserDeleted::dispatch($user);

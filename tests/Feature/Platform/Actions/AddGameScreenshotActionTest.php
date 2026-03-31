@@ -150,10 +150,10 @@ it('rejects a file smaller than 64x64', function () {
     (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
 })->throws(ValidationException::class);
 
-it('rejects a file larger than 1920x1080', function () {
+it('rejects a file larger than 3840x2160', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
-    $file = UploadedFile::fake()->image('huge.png', 2560, 1440);
+    $file = UploadedFile::fake()->image('huge.png', 4096, 2304);
 
     // ASSERT
     (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
@@ -312,15 +312,15 @@ it('accepts an SMPTE 601 PAL resolution for a system with analog TV output', fun
     expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
 });
 
-it('rejects a 3x multiple that exceeds the 1920x1080 hard cap', function () {
+it('rejects a 3x multiple that exceeds the 3840x2160 hard cap', function () {
     // ARRANGE
-    // ... 640x400 * 3 = 1920x1200 - this passes resolution validation but exceeds the dimension cap ...
+    // ... 1280x720 * 3 = 3840x2160 fits, but 1400x800 * 3 = 4200x2400 exceeds the cap ...
     $system = System::factory()->create([
-        'screenshot_resolutions' => [['width' => 640, 'height' => 400]],
+        'screenshot_resolutions' => [['width' => 1400, 'height' => 800]],
         'has_analog_tv_output' => false,
     ]);
     $game = Game::factory()->create(['system_id' => $system->id]);
-    $file = UploadedFile::fake()->image('screenshot.png', 1920, 1200);
+    $file = UploadedFile::fake()->image('screenshot.png', 4200, 2400);
 
     // ASSERT
     (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);

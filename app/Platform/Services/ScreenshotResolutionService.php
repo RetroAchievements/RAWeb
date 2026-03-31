@@ -13,8 +13,8 @@ class ScreenshotResolutionService
     private const MAX_SCALE_FACTOR = 3;
 
     /**
-     * Some emulators (eg: PCSX2, DuckStation) seem to produce captures that are
-     * off by 1px. A small +/- tolerance avoids flagging otherwise-correct screenshots.
+     * Emulators can produce captures off by 1px due to rounding
+     * during scaling, overscan cropping, or framebuffer alignment.
      */
     private const DIMENSION_TOLERANCE = 1;
 
@@ -51,9 +51,7 @@ class ScreenshotResolutionService
         $conditions = [];
         $bindings = [];
 
-        $tolerance = in_array($system->id, System::UPSCALING_SYSTEM_IDS)
-            ? self::DIMENSION_TOLERANCE
-            : 0;
+        $tolerance = self::DIMENSION_TOLERANCE;
 
         foreach ($resolutions as $resolution) {
             for ($scale = 1; $scale <= self::MAX_SCALE_FACTOR; $scale++) {
@@ -94,9 +92,7 @@ class ScreenshotResolutionService
             return true;
         }
 
-        $tolerance = in_array($system->id, System::UPSCALING_SYSTEM_IDS)
-            ? self::DIMENSION_TOLERANCE
-            : 0;
+        $tolerance = self::DIMENSION_TOLERANCE;
 
         foreach ($resolutions as $resolution) {
             $baseW = $resolution['width'];

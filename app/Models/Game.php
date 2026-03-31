@@ -95,6 +95,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'trigger_id',
         'legacy_guide_url',
         'comments_locked_at',
+        'is_media_restricted',
         'image_icon_asset_path',
         'image_title_asset_path',
         'image_ingame_asset_path',
@@ -103,6 +104,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     protected $casts = [
         'comments_locked_at' => 'datetime',
+        'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',
@@ -378,13 +380,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                         ->fit(Fit::Max, $maxWidth, $maxWidth)
                         ->optimize()
                         ->performOnCollections('screenshots');
-
-                    $this->addMediaConversion("{$size}-avif")
-                        ->format('avif')
-                        ->fit(Fit::Max, $maxWidth, $maxWidth)
-                        ->optimize()
-                        ->performOnCollections('screenshots');
                 }
+
+                $this->addMediaConversion('placeholder')
+                    ->format('webp')
+                    ->width(32)
+                    ->quality(10)
+                    ->fit(Fit::Max, 32, 32)
+                    ->performOnCollections('screenshots');
             });
     }
 
@@ -534,6 +537,26 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
             ->first();
     }
 
+    public function getImageBoxArtAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageTitleAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    public function getImageIngameAssetPathAttribute(?string $value): string
+    {
+        return $this->resolveImageAssetPath($value);
+    }
+
+    private function resolveImageAssetPath(?string $value): string
+    {
+        return $this->is_media_restricted ? self::PLACEHOLDER_IMAGE_PATH : ($value ?? self::PLACEHOLDER_IMAGE_PATH);
+    }
+
     public function getImageBoxArtUrlAttribute(): string
     {
         return media_asset($this->image_box_art_asset_path);
@@ -541,12 +564,29 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->image_title_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Title, $this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->image_ingame_asset_path);
+        return $this->resolveScreenshotUrl(ScreenshotType::Ingame, $this->image_ingame_asset_path);
+    }
+
+    /**
+     * Prefer the Media Library URL when the relation is loaded,
+     * falling back to the legacy asset path. Restricted games
+     * always use the legacy path (which returns a placeholder).
+     */
+    private function resolveScreenshotUrl(ScreenshotType $type, string $fallbackAssetPath): string
+    {
+        if (!$this->is_media_restricted && $this->relationLoaded('gameScreenshots')) {
+            $url = $this->getPrimaryScreenshot($type)?->media?->getUrl();
+            if ($url) {
+                return $url;
+            }
+        }
+
+        return media_asset($fallbackAssetPath);
     }
 
     /**

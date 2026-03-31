@@ -52,6 +52,11 @@ class AchievementPolicy
         return true;
     }
 
+    public function viewPlayerAchievements(?User $user, Achievement $achievement): bool
+    {
+        return true;
+    }
+
     public function viewLogic(User $user, Achievement $achievement): bool
     {
         return $user->hasAnyRole([

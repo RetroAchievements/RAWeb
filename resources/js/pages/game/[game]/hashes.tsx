@@ -11,8 +11,8 @@ const Hashes: AppPage<App.Platform.Data.GameHashesPageProps> = ({ game, hashes }
   return (
     <>
       <SEO
-        title={t('Supported Game Files - {{gameTitle}}', { gameTitle: game.title })}
-        description={`View the ${hashes.length} supported ROM ${hashes.length === 1 ? 'hash' : 'hashes'} for ${game.title} achievements. Also find details on patch downloads.`}
+        title={t('Supported Game Hashes - {{gameTitle}}', { gameTitle: game.title })}
+        description={`View the ${hashes.length} supported game ${hashes.length === 1 ? 'hash' : 'hashes'} registered for ${game.title} achievements.`}
         ogImage={game.badgeUrl}
       />
 

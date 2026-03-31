@@ -38,6 +38,11 @@ process.stderr.write = function (chunk: any, ...args: any[]) {
   return originalStderrWrite(chunk, ...args);
 } as typeof process.stderr.write;
 
+// Mock heavy components that aren't needed in most tests.
+vi.mock('@/common/components/GlobalSearch', () => ({
+  GlobalSearch: () => null,
+}));
+
 // Mock Inertia globally for all tests.
 vi.mock('@inertiajs/react', async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

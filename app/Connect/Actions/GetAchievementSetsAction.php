@@ -385,7 +385,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         Game $game,
         GameHashCompatibility $gameHashCompatibility,
     ): array {
-        $seeSupportedGameFiles = 'See the Supported Game Files page for this game to find a compatible version.';
+        $seeSupportedGameFiles = 'See the Supported Game Hashes page for this game to find a compatible version.';
 
         $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
             ->core()

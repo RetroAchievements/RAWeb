@@ -708,7 +708,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -729,7 +729,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -753,7 +753,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -774,7 +774,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -798,7 +798,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -819,7 +819,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -923,7 +923,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
@@ -944,7 +944,7 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
-                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                         ),
                     ],
                     'Leaderboards' => [],
