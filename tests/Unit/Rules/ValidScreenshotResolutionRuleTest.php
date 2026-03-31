@@ -61,6 +61,25 @@ it('passes for a 3x integer multiple', function () {
     expect($validator->fails())->toBeFalse();
 });
 
+it('passes for a doubled-width Atari 2600 resolution', function () {
+    // ARRANGE
+    $system = System::factory()->make([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $file = UploadedFile::fake()->image('screenshot.png', 320, 228);
+
+    // ACT
+    $validator = Validator::make(
+        ['screenshot' => $file],
+        ['screenshot' => [new ValidScreenshotResolutionRule($system)]],
+    );
+
+    // ASSERT
+    expect($validator->fails())->toBeFalse();
+});
+
 it('passes for a base resolution off by 1px in height', function () {
     // ARRANGE
     $system = System::factory()->make([
