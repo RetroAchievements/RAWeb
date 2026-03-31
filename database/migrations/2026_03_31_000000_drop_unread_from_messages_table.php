@@ -10,7 +10,6 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->dropIndex('messages_unread_index');
             $table->dropColumn('Unread');
         });
     }
@@ -19,7 +18,6 @@ return new class extends Migration {
     {
         Schema::table('messages', function (Blueprint $table) {
             $table->boolean('Unread')->default(true)->after('created_at');
-            $table->index('Unread', 'messages_unread_index');
         });
     }
 };
