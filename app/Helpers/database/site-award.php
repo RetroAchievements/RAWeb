@@ -96,9 +96,9 @@ function getUsersSiteAwards(?User $user): array
                 AND saw.user_id = :userId3
         UNION
         -- playtest awards
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, pa.label AS Title, NULL, NULL, NULL, pa.image_asset_path AS ImageIcon, NULL AS display_award_tier
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, sa.label AS Title, NULL, NULL, NULL, sa.image_asset_path AS ImageIcon, NULL AS display_award_tier
             FROM user_awards AS saw
-            LEFT JOIN site_awards pa ON pa.id = saw.award_key
+            LEFT JOIN site_awards AS sa ON sa.id = saw.award_key AND sa.award_type = saw.award_type
             WHERE
                 saw.award_type = '" . AwardType::Playtest->value . "'
                 AND saw.user_id = :userId4
