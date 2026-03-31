@@ -21,6 +21,7 @@ use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
@@ -36,12 +37,16 @@ class RouteServiceProvider extends ServiceProvider
             $achievement = Achievement::find($value);
 
             if (!$achievement) {
-                throw JsonApiException::error([
-                    'status' => '404',
-                    'code' => 'not_found',
-                    'title' => 'Not Found',
-                    'detail' => "No achievement found with ID {$value}.",
-                ]);
+                if (request()->is('api/*')) {
+                    throw JsonApiException::error([
+                        'status' => '404',
+                        'code' => 'not_found',
+                        'title' => 'Not Found',
+                        'detail' => "No achievement found with ID {$value}.",
+                    ]);
+                }
+
+                throw (new ModelNotFoundException())->setModel(Achievement::class, [$value]);
             }
 
             return $achievement;
