@@ -144,13 +144,11 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         }
 
         // Check if user has permission to update the achievement.
-        if (!$this->user->can('update', $achievement)) {
-            // Special logic only applies to junior developers.
-            // Anyone else who failed the update check should be bounced immediately.
-            if (!$this->user->hasRole(Role::DEVELOPER_JUNIOR)) {
-                return $this->mustBeDeveloper();
-            }
-
+        // We can't really use the policy here because different roles can edit different fields.
+        if ($this->user->hasRole(Role::DEVELOPER)) {
+            // Developers can modify all aspects of an achievement without a claim.
+            // A claim is still required to create new achievements.
+        } elseif ($this->user->hasRole(Role::DEVELOPER_JUNIOR)) {
             // A junior developer must be the achievement author.
             if ($this->user->id !== $achievement->user_id) {
                 return $this->mustBeDeveloper();
@@ -165,6 +163,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             if ($this->isPromoted && $this->triggerDefinition !== $achievement->trigger_definition) {
                 return $this->mustBeDeveloper();
             }
+        } else {
+            // Technically, writers can change the title and description and artists can change the
+            // badge, but they probably won't use the client to do so. they'll use the management pages.
+            return $this->mustBeDeveloper();
         }
 
         $fields = [];
