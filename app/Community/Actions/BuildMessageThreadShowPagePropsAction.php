@@ -127,7 +127,11 @@ class BuildMessageThreadShowPagePropsAction
     private function getCanReply(MessageThread $messageThread, User $user): bool
     {
         if ($user->isMuted()) {
-            return false;
+            // Muted users can only reply to threads that include RAdmin as an active participant.
+            return MessageThreadParticipant::where('thread_id', $messageThread->id)
+                ->whereNull('deleted_at')
+                ->whereHas('user', fn ($q) => $q->where('username', 'RAdmin'))
+                ->exists();
         }
 
         $participants = MessageThreadParticipant::withTrashed()

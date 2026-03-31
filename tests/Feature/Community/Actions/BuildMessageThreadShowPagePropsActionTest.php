@@ -277,13 +277,13 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
         $this->assertNull($result['redirectToPage']);
     }
 
-    public function testMutedUserCannotReply(): void
+    public function testMutedUserCannotReplyInNonRAdminThread(): void
     {
         // Arrange
         $mutedUser = User::factory()->create([
             'muted_until' => Carbon::parse('2035-01-01'),
         ]);
-        $otherUser = User::factory()->create();
+        $otherUser = User::factory()->create(['username' => 'SomeOtherUser']);
         $thread = MessageThread::factory()->create();
         MessageThreadParticipant::factory()->create([
             'thread_id' => $thread->id,
@@ -304,6 +304,35 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
         // Assert
         $this->assertNotNull($result['props']);
         $this->assertFalse($result['props']->canReply);
+    }
+
+    public function testMutedUserCanReplyInRAdminThread(): void
+    {
+        // Arrange
+        $mutedUser = User::factory()->create([
+            'muted_until' => Carbon::parse('2035-01-01'),
+        ]);
+        $admin = User::factory()->create(['username' => 'RAdmin']);
+        $thread = MessageThread::factory()->create();
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $mutedUser->id,
+        ]);
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $admin->id,
+        ]);
+        Message::factory()->create([
+            'thread_id' => $thread->id,
+            'author_id' => $admin->id,
+        ]);
+
+        // Act
+        $result = $this->action->execute($thread, $mutedUser);
+
+        // Assert
+        $this->assertNotNull($result['props']);
+        $this->assertTrue($result['props']->canReply);
     }
 
     public function testItDoesNotRedirectForSinglePageThreads(): void

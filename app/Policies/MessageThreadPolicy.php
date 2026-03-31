@@ -59,11 +59,6 @@ class MessageThreadPolicy
             return $this->canActAsTeamAccount($user, $teamAccount);
         }
 
-        // Muted users cannot create new message threads.
-        if ($user->isMuted()) {
-            return false;
-        }
-
         // Team accounts bypass fresh account restrictions.
         if ($user->hasRole(Role::TEAM_ACCOUNT)) {
             return true;

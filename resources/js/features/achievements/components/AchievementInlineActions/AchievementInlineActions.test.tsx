@@ -23,7 +23,7 @@ describe('Component: AchievementInlineActions', () => {
     // ARRANGE
     const achievement = createAchievement();
     render(<AchievementInlineActions />, {
-      pageProps: { achievement },
+      pageProps: { achievement, can: { createTicket: true } },
     });
 
     // ASSERT
@@ -33,11 +33,22 @@ describe('Component: AchievementInlineActions', () => {
     expect(reportLink).toHaveAttribute('href', expect.stringContaining('achievement.report-issue'));
   });
 
+  it('given the user cannot create tickets, does not show the report an issue link', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    render(<AchievementInlineActions />, {
+      pageProps: { achievement, can: { createTicket: false } },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report an issue/i })).not.toBeInTheDocument();
+  });
+
   it('given the achievement has unresolved tickets, shows the open ticket count as a link', () => {
     // ARRANGE
     const achievement = createAchievement({ id: 123, numUnresolvedTickets: 3 });
     render(<AchievementInlineActions />, {
-      pageProps: { achievement },
+      pageProps: { achievement, can: { createTicket: true } },
     });
 
     // ASSERT
@@ -51,7 +62,7 @@ describe('Component: AchievementInlineActions', () => {
     // ARRANGE
     const achievement = createAchievement({ numUnresolvedTickets: 0 });
     render(<AchievementInlineActions />, {
-      pageProps: { achievement },
+      pageProps: { achievement, can: { createTicket: true } },
     });
 
     // ASSERT
@@ -288,6 +299,7 @@ describe('Component: AchievementInlineActions', () => {
     render(<AchievementInlineActions />, {
       pageProps: {
         achievement,
+        can: { createTicket: true },
         isEventGame: true,
         eventAchievement: createEventAchievement({
           sourceAchievement: createAchievement({ id: 555, numUnresolvedTickets: 2 }),
