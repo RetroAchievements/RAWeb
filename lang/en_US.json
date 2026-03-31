@@ -1175,6 +1175,8 @@
     "Achievements available since {{date}}": "Achievements available since {{date}}",
     "playerGameProgressHardcoreAchievements_one": "achievement",
     "playerGameProgressHardcoreAchievements_other": "achievements",
+    "playerGameProgressSoftcoreAchievements_one": "softcore achievement",
+    "playerGameProgressSoftcoreAchievements_other": "softcore achievements",
     "playerGameProgressPoints_one": "point",
     "playerGameProgressPoints_other": "points",
     "playerGameProgressHardcore": "Unlocked <1>{{achievementsCount}}</1> $t(playerGameProgressHardcoreAchievements, {\"count\": {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{weightedPoints, number}})</3> $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
