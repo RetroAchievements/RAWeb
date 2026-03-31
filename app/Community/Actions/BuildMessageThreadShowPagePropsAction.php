@@ -126,6 +126,10 @@ class BuildMessageThreadShowPagePropsAction
 
     private function getCanReply(MessageThread $messageThread, User $user): bool
     {
+        if ($user->isMuted()) {
+            return false;
+        }
+
         $participants = MessageThreadParticipant::withTrashed()
             ->where('thread_id', $messageThread->id)
             ->join('users', 'users.id', '=', 'message_thread_participants.user_id');

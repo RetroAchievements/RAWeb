@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -47,6 +48,21 @@ class MessageThreadControllerTest extends TestCase
         ]);
 
         return $thread->fresh();
+    }
+
+    public function testCreateIsUnauthorizedForMutedUsers(): void
+    {
+        // Arrange
+        $mutedUser = User::factory()->create([
+            'muted_until' => Carbon::parse('2035-01-01'),
+        ]);
+
+        // Act
+        $response = $this->actingAs($mutedUser)
+            ->get(route('message-thread.create'));
+
+        // Assert
+        $response->assertForbidden();
     }
 
     public function testIndexReturnsCorrectProps(): void
