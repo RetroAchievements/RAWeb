@@ -674,6 +674,7 @@
     "ticket-manager": "Manajer Tiket",
     "news-manager": "News Manager",
     "event-manager": "Event Manager",
+    "playtest-manager": "Playtest Manager",
     "founder": "Pendiri",
     "architect": "Arsitek",
     "engineer": "Engineer",
@@ -1347,7 +1348,7 @@
     "{{val, number}} players_other": "{{val, number}} pemain",
     "{{val, number}} players ({{playersPercentage}})_other": "{{val, number}} pemain ({{playersPercentage}})",
     "playerGameProgressHardcoreAchievements_other": "pencapaian",
-    "playerGameProgressSoftcoreAchievements_other": "softcore achievements",
+    "playerGameProgressSoftcoreAchievements_other": "pencapaian softcore",
     "playerGameProgressPoints_other": "poin",
     "commentCount_other": "{{val, number}} komentar"
 }
