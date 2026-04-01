@@ -28,8 +28,6 @@ class EventResource extends BaseJsonApiResource
 
             'activeFrom' => $this->resource->active_from,
             'activeThrough' => $this->resource->active_through,
-
-            'givesSiteAward' => $this->resource->gives_site_award,
         ];
     }
 

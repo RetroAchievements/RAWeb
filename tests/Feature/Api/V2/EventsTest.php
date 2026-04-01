@@ -83,7 +83,6 @@ class EventsTest extends JsonApiResourceTestCase
             'legacy_game_id' => $game->id,
             'active_from' => Carbon::parse('2025-01-01'),
             'active_until' => Carbon::parse('2025-12-31'),
-            'gives_site_award' => true,
         ]);
 
         // Act
@@ -101,7 +100,6 @@ class EventsTest extends JsonApiResourceTestCase
         $this->assertArrayHasKey('state', $attributes);
         $this->assertArrayHasKey('activeFrom', $attributes);
         $this->assertArrayHasKey('activeThrough', $attributes);
-        $this->assertEquals(true, $attributes['givesSiteAward']);
     }
 
     public function testItCanIncludeAwardsRelationship(): void

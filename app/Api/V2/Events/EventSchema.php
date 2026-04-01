@@ -6,7 +6,6 @@ namespace App\Api\V2\Events;
 
 use App\Models\Event;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
-use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
@@ -55,8 +54,6 @@ class EventSchema extends Schema
 
             DateTime::make('activeFrom', 'active_from')->sortable()->readOnly(),
             DateTime::make('activeThrough')->readOnly(),
-
-            Boolean::make('givesSiteAward', 'gives_site_award')->readOnly(),
 
             HasMany::make('awards')->type('event-awards')->readOnly(),
 
