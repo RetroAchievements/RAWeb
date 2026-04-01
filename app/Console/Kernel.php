@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Support\Settings\Settings;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
