@@ -328,6 +328,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->invalidParameter("Invalid points value: $this->points");
         }
 
+        if (AchievementType::isProgression($this->type) && !$game->getCanHaveBeatenTypes()) {
+            return $this->invalidParameter('Cannot set progression or win condition type on achievement in subset, test kit, or event.');
+        }
+
         if ($this->type && !AchievementType::isValid($this->type)) {
             return $this->invalidParameter('Unknown type: ' . $this->type);
         }

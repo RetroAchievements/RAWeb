@@ -1504,7 +1504,35 @@ describe('subset', function () {
         $this->assertEquals(0, $game->achievements_unpublished);
     });
 
-    test('cannot set progression', function () {
+    test('cannot set progression on new achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $game->title .= ' [Subset - Testing]';
+        $game->save();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 5,
+            'b' => '002345',
+            'x' => 'progression', // hard-code in case enum changes
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Cannot set progression or win condition type on achievement in subset, test kit, or event.',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('cannot set progression on existing achievement', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadAchievementTestHelpers::createGame();
         $game->title .= ' [Subset - Testing]';
