@@ -56,7 +56,7 @@ class UploadAchievementTestHelpers
 
     public static function createUnpromotedAchievement(Game $game, User $author): Achievement
     {
-        $achievement = Achievement::Factory()->for($game)->create([
+        $achievement = Achievement::factory()->for($game)->create([
             'user_id' => $author->id,
             'trigger_definition' => '0xH0000=1',
         ]);
@@ -73,7 +73,7 @@ class UploadAchievementTestHelpers
 
     public static function createPromotedAchievement(Game $game, User $author): Achievement
     {
-        $achievement = Achievement::Factory()->for($game)->promoted()->create([
+        $achievement = Achievement::factory()->for($game)->promoted()->create([
             'user_id' => $author->id,
             'trigger_definition' => '0xH0000=1',
         ]);
