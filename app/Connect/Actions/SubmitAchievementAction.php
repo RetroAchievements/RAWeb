@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Models\Achievement;
 use App\Models\Game;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
