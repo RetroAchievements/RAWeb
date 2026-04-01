@@ -893,6 +893,7 @@
     "Browse all {{systemCount, number}} systems": "Browse all {{systemCount, number}} systems",
     "search for a gaming system...": "search for a gaming system...",
     "Available Emulators": "Available Emulators",
+    "Available Tools": "Available Tools",
     "({{emulatorsCount, number}} found)": "({{emulatorsCount, number}} found)",
     "supportedSystemsCountLabel_one": "Supports {{val, number}} system",
     "supportedSystemsCountLabel_other": "Supports {{val, number}} systems",

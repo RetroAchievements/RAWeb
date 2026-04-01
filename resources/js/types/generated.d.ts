@@ -449,6 +449,7 @@ export type DownloadsPageProps = {
 allEmulators: Array<App.Platform.Data.Emulator>;
 allPlatforms: Array<App.Platform.Data.Platform>;
 allSystems: Array<App.Platform.Data.System>;
+allTools: Array<App.Platform.Data.Emulator>;
 topSystemIds: Array<number>;
 popularEmulatorsBySystem: number[][];
 userDetectedPlatformId: number | null;
