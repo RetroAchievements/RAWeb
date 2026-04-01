@@ -474,7 +474,6 @@ userCurrentGameMinutesAgo: number | null;
 hasSiteReleaseNotes: boolean;
 hasUnreadSiteReleaseNote: boolean;
 deferredSiteReleaseNotes: Array<App.Data.News>;
-wiiSetCount: number | null;
 };
 export type SearchPageProps = {
 initialQuery: string;
