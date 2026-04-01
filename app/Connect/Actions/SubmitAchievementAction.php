@@ -6,7 +6,6 @@ namespace App\Connect\Actions;
 
 use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
-use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -24,8 +23,6 @@ use Illuminate\Http\Request;
 
 class SubmitAchievementAction extends BaseAuthenticatedApiAction
 {
-    use GeneratesLegacyAuditComment;
-
     protected int $achievementId;
     protected int $gameId;
     protected int $achievementSetId;
@@ -36,7 +33,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
     protected int $points;
     protected bool $isPromoted;
     protected ?string $type;
-    protected string $format;
 
     public function execute(User $user,
         ?int $achievementId, ?int $gameId, ?int $achievementSetId,
@@ -58,7 +54,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         $this->points = $points;
         $this->isPromoted = $isPromoted;
         $this->type = $type;
-        $this->typeProvided = true;
 
         return $this->process();
     }
@@ -177,23 +172,12 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             }
 
             $achievement->points = $this->points;
-            $fields[] = 'points';
         }
 
-        if ($achievement->image_name !== $this->badgeName) {
-            $achievement->image_name = $this->badgeName;
-            $fields[] = 'badge';
-        }
-
-        if ($achievement->title !== $this->title) {
-            $achievement->title = $this->title;
-            $fields[] = 'title';
-        }
-
-        if ($achievement->description !== $this->description) {
-            $achievement->description = $this->description;
-            $fields[] = 'description';
-        }
+        $achievement->image_name = $this->badgeName;
+        $achievement->title = $this->title;
+        $achievement->description = $this->description;
+        $achievement->trigger_definition = $this->triggerDefinition;
 
         $recalculateBeatTimes = false;
         if ($this->type !== 'not-given' && $achievement->type !== $this->type) {
@@ -210,11 +194,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
             $achievement->type = $this->type;
             $fields[] = 'type';
-        }
-
-        if ($achievement->trigger_definition != $this->triggerDefinition) {
-            $achievement->trigger_definition = $this->triggerDefinition;
-            $fields[] = 'logic';
         }
 
         $changingPromotedStatus = $achievement->is_promoted !== $this->isPromoted;
@@ -236,9 +215,11 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             // this relies on the dirty state of the achievement, so must be called before save()
             (new SyncEventAchievementMetadataAction())->execute($achievement);
 
+            $logicChanged = $achievement->isDirty('trigger_definition');
+
             $achievement->save();
 
-            if (in_array('logic', $fields)) {
+            if ($logicChanged) {
                 $achievement->ensureAuthorshipCredit($this->user, AchievementAuthorTask::Logic);
 
                 (new UpsertTriggerVersionAction())->execute(
@@ -250,27 +231,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             }
 
             if ($changingPromotedStatus) {
-                if ($this->isPromoted) {
-                    $this->addLegacyAuditComment(CommentableType::Achievement, $achievement->id,
-                        "{$this->user->display_name} promoted this achievement."
-                    );
-                } else {
-                    $this->addLegacyAuditComment(CommentableType::Achievement, $achievement->id,
-                        "{$this->user->display_name} demoted this achievement."
-                    );
-                }
-
                 expireGameTopAchievers($achievement->game_id);
 
                 // if promoting/demoting a progression achievement, we need to recalculate beat times
                 $recalculateBeatTimes |= AchievementType::isProgression($achievement->type);
-            } else {
-                $editString = implode(', ', $fields);
-                if (!empty($editString)) {
-                    $this->addLegacyAuditComment(CommentableType::Achievement, $achievement->id,
-                        "{$this->user->display_name} edited this achievement's $editString."
-                    );
-                }
             }
 
             static_setlastupdatedgame($achievement->game_id);
@@ -358,10 +322,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         $achievement->ensureAuthorshipCredit($this->user, AchievementAuthorTask::Logic);
 
         static_addnewachievement($achievement->id);
-
-        $this->addLegacyAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} uploaded this achievement."
-        );
 
         return [
             'Success' => true,

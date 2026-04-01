@@ -24,11 +24,9 @@ use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
-use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 
 uses(LazilyRefreshDatabase::class);
-uses(TestsAuditComments::class);
 uses(TestsConnect::class);
 uses(TestsEmulatorUserAgent::class);
 uses(TestsPlayerAchievements::class);
@@ -134,7 +132,6 @@ beforeEach(function () {
 
     $this->seedEmulatorUserAgents();
     $this->createConnectUser();
-    $this->addServerUser();
 
     Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
     Role::create(['name' => Role::DEVELOPER_JUNIOR, 'display' => 2]);
@@ -190,6 +187,11 @@ describe('developer', function () {
         $this->assertEquals(0, $coreSet->achievements_published);
         $this->assertEquals(1, $coreSet->achievements_unpublished);
         $this->assertEquals(0, $coreSet->points_total);
+
+        // creation audit log entry should be made
+        $activity = $achievement->auditLog->where('event', 'created')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
     test('cannot create new achievement without claim', function () {
@@ -324,8 +326,11 @@ describe('developer', function () {
         $this->assertEquals(0, $coreSet->achievements_unpublished);
         $this->assertEquals(5, $coreSet->points_total);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} promoted this achievement.");
+        // user promoted own achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(1, $activity->changes['attributes']['is_promoted']);
     });
 
     test('can update promoted own', function () {
@@ -424,8 +429,11 @@ describe('developer', function () {
         $this->assertEquals(0, $this->user->yield_unlocks);
         $this->assertEquals(0, $this->user->yield_points);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} demoted this achievement.");
+        // user demoted own achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(0, $activity->changes['attributes']['is_promoted']);
     });
 
     test('can repromote own', function () {
@@ -475,8 +483,11 @@ describe('developer', function () {
         $this->assertEquals(1, $this->user->yield_unlocks);
         $this->assertEquals(10, $this->user->yield_points);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} promoted this achievement.");
+        // user promoted own achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(1, $activity->changes['attributes']['is_promoted']);
     });
 
     test('can update unpromoted someone elses', function () {
@@ -616,8 +627,11 @@ describe('developer', function () {
         $this->assertEquals(0, $otherUser->yield_unlocks);
         $this->assertEquals(0, $otherUser->yield_points);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} demoted this achievement.");
+        // user demoted someone else's achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(0, $activity->changes['attributes']['is_promoted']);
     });
 
     test('can repromote someone elses', function () {
@@ -668,8 +682,11 @@ describe('developer', function () {
         $this->assertEquals(1, $otherUser->yield_unlocks);
         $this->assertEquals(10, $otherUser->yield_points);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} promoted this achievement.");
+        // user promoted someone else's achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(1, $activity->changes['attributes']['is_promoted']);
     });
 
     test('can create new achievement via set id', function () {
@@ -981,8 +998,10 @@ describe('junior developer', function () {
         $this->assertEquals($this->user->id, $achievement->user_id);
         $this->assertEquals('002345', $achievement->image_name);
 
-        $this->assertAuditComment(CommentableType::Achievement, $achievement->id,
-            "{$this->user->display_name} edited this achievement's points, badge, title, description, type.");
+        // user edited achievement
+        $activity = $achievement->auditLog->where('event', 'updated')->last();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
     test('cannot demote own', function () {
