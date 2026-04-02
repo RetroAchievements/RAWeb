@@ -16,23 +16,22 @@ export function useSubmitOnMetaEnter({
   isEnabled = true,
 }: UseSubmitOnMetaEnterProps) {
   useEffect(() => {
+    const form = formRef.current;
+    if (!isEnabled || !form) {
+      return;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isEnabled || !formRef.current) {
-        return;
-      }
-
-      // Only submit if the current focus is within the form.
-      const isWithinForm = formRef.current.contains(document.activeElement);
-
-      if (isWithinForm && (event.metaKey || event.ctrlKey) && event.code === 'Enter') {
+      if ((event.metaKey || event.ctrlKey) && event.code === 'Enter') {
         event.preventDefault();
         onSubmit();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    // Keyboard events bubble from focused children up to the form,
+    // so listening on the form itself scopes the shortcut naturally.
+    form.addEventListener('keydown', handleKeyDown);
 
-    // Don't leak memory.
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => form.removeEventListener('keydown', handleKeyDown);
   }, [formRef, onSubmit, isEnabled]);
 }

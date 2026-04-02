@@ -70,7 +70,7 @@ class RouteServiceProvider extends ServiceProvider
             });
 
             Route::middleware(['cacheResponse', 'inertia'])->group(function () {
-                Route::get('achievement2/{achievement}', [AchievementController::class, 'show'])->name('achievement2.show');
+                Route::get('achievement/{achievement}', [AchievementController::class, 'show'])->name('achievement.show');
 
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
                 Route::get('event/{event}/award-earners', [EventAwardEarnersController::class, 'index'])->name('event.award-earners.index');
