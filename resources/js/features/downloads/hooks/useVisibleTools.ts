@@ -2,14 +2,10 @@ import { useAtomValue } from 'jotai';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import {
-  searchQueryAtom,
-  selectedPlatformIdAtom,
-} from '../state/downloads.atoms';
+import { searchQueryAtom, selectedPlatformIdAtom } from '../state/downloads.atoms';
 
 export function useVisibleTools() {
-  const { allTools } =
-    usePageProps<App.Http.Data.DownloadsPageProps>();
+  const { allTools } = usePageProps<App.Http.Data.DownloadsPageProps>();
 
   const selectedPlatformId = useAtomValue(selectedPlatformIdAtom);
   const searchQuery = useAtomValue(searchQueryAtom);

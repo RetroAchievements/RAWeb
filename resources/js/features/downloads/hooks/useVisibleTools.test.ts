@@ -14,9 +14,7 @@ describe('Hook: useVisibleTools', () => {
       id: 1,
       name: 'Alpha Tool',
       hasOfficialSupport: true,
-      platforms: [
-        createPlatform({ id: 1, name: 'Windows' }),
-      ],
+      platforms: [createPlatform({ id: 1, name: 'Windows' })],
       systems: [createSystem({ id: 102, name: 'Standalones' })],
     });
 
@@ -35,9 +33,7 @@ describe('Hook: useVisibleTools', () => {
       id: 3,
       name: 'Gamma Tool',
       hasOfficialSupport: true,
-      platforms: [
-        createPlatform({ id: 2, name: 'Linux' }),
-      ],
+      platforms: [createPlatform({ id: 2, name: 'Linux' })],
       systems: [createSystem({ id: 102, name: 'Standalones' })],
     });
 

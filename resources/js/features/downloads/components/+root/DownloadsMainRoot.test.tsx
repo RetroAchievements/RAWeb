@@ -205,9 +205,7 @@ describe('Component: DownloadsMainRoot', () => {
 
   it('given there are visible tools, shows the Available Tools heading', () => {
     // ARRANGE
-    const mockTools = [
-      createEmulator({ id: 1 }),
-    ];
+    const mockTools = [createEmulator({ id: 1 })];
 
     vi.mocked(useVisibleTools).mockReturnValue({
       visibleTools: mockTools,

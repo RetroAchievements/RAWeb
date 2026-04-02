@@ -134,7 +134,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
               ) : null}
             </div>
           </div>
-        ): null}
+        ) : null}
 
         <div className="flex flex-col gap-1">
           <p className="tracking-wide text-neutral-400 light:text-neutral-700">
