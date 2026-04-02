@@ -48,10 +48,6 @@ class DisallowAnimatedImageRule implements ValidationRule
      */
     private function isAnimatedPng(string $content): bool
     {
-        if (!str_starts_with($content, "\x89PNG\r\n\x1a\n")) {
-            return false;
-        }
-
         $contentLength = strlen($content);
         $offset = 8;
 
