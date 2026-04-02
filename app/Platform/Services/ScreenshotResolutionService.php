@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ScreenshotResolutionService
 {
-    private const MAX_SCALE_FACTOR = 3;
+    private const MAX_SCALE_FACTOR_UPSCALED = 3;
+    private const MAX_SCALE_FACTOR_DEFAULT = 1;
 
     /**
      * The Atari 2600's TIA outputs non-square pixels, so we
@@ -60,9 +61,10 @@ class ScreenshotResolutionService
 
         $tolerance = self::DIMENSION_TOLERANCE;
         $isWidthDoubled = in_array($system->id, self::WIDTH_DOUBLED_SYSTEM_IDS, true);
+        $maxScale = $this->getMaxScaleFactor($system);
 
         foreach ($resolutions as $resolution) {
-            for ($scale = 1; $scale <= self::MAX_SCALE_FACTOR; $scale++) {
+            for ($scale = 1; $scale <= $maxScale; $scale++) {
                 $w = $resolution['width'] * $scale;
                 $h = $resolution['height'] * $scale;
 
@@ -113,11 +115,13 @@ class ScreenshotResolutionService
         $tolerance = self::DIMENSION_TOLERANCE;
         $isWidthDoubled = in_array($system->id, self::WIDTH_DOUBLED_SYSTEM_IDS, true);
 
+        $maxScale = $this->getMaxScaleFactor($system);
+
         foreach ($resolutions as $resolution) {
             $baseW = $resolution['width'];
             $baseH = $resolution['height'];
 
-            for ($scale = 1; $scale <= self::MAX_SCALE_FACTOR; $scale++) {
+            for ($scale = 1; $scale <= $maxScale; $scale++) {
                 $expectedW = $baseW * $scale;
                 $expectedH = $baseH * $scale;
 
@@ -148,5 +152,32 @@ class ScreenshotResolutionService
         }
 
         return false;
+    }
+
+    public function buildResolutionMismatchMessage(
+        string $subject,
+        int $width,
+        int $height,
+        System $system,
+    ): string {
+        $formatted = collect($system->screenshot_resolutions)
+            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
+            ->join(', ');
+
+        $multiplesNote = $system->supports_upscaled_screenshots ? ' (or 2x/3x integer multiples)' : '';
+
+        $smpteNote = '';
+        if ($system->has_analog_tv_output) {
+            $smpteNote = ' SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
+        }
+
+        return "{$subject} ({$width}x{$height}) doesn't match the expected resolutions for {$system->name}: {$formatted}{$multiplesNote}.{$smpteNote}";
+    }
+
+    private function getMaxScaleFactor(System $system): int
+    {
+        return $system->supports_upscaled_screenshots
+            ? self::MAX_SCALE_FACTOR_UPSCALED
+            : self::MAX_SCALE_FACTOR_DEFAULT;
     }
 }

@@ -440,7 +440,11 @@ class GameScreenshotsRelationManager extends RelationManager
 
         $label = count($resolutions) > 1 ? 'Accepted resolutions' : 'Expected resolution';
 
-        $text = "{$label} for {$system->name}: {$formatted} (or 2x/3x integer multiples where dimensions permit)";
+        $multiplesNote = $system->supports_upscaled_screenshots
+            ? ' (or 2x/3x integer multiples)'
+            : '';
+
+        $text = "{$label} for {$system->name}: {$formatted}{$multiplesNote}";
 
         if ($system->has_analog_tv_output) {
             $text .= '. SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
