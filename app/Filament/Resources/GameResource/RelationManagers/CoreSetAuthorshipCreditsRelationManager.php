@@ -8,6 +8,7 @@ use App\Community\Actions\AddGameCreditAction;
 use App\Models\AchievementSetAuthor;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\Role;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use BackedEnum;
@@ -44,10 +45,12 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
         return $schema
             ->components([
                 Forms\Components\Select::make('task')
-                    ->options(
-                        collect(AchievementSetAuthorTask::cases())
-                            ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()])
-                    )
+                    ->options(fn (): array => $this->getAllowedTaskOptions())
+                    ->default(function (): ?string {
+                        $options = $this->getAllowedTaskOptions();
+
+                        return count($options) === 1 ? array_key_first($options) : null;
+                    })
                     ->helperText('NOTE: This is NOT for achievement badge credit. That credit must be granted at the achievement level, not the game level.')
                     ->required(),
 
@@ -155,5 +158,36 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
             ])
             ->emptyStateHeading('No contribution credits')
             ->emptyStateDescription('Add a contribution credit to see them here.');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getAllowedTaskOptions(): array
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Developers and admins can assign any type of credit.
+        if ($user->hasAnyRole([Role::DEVELOPER, Role::ADMINISTRATOR])) {
+            return collect(AchievementSetAuthorTask::cases())
+                ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()])
+                ->all();
+        }
+
+        $allowedTasks = [];
+
+        // Artists can assign artwork and banner credit.
+        if ($user->hasRole(Role::ARTIST)) {
+            $allowedTasks[AchievementSetAuthorTask::Artwork->value] = AchievementSetAuthorTask::Artwork->label();
+            $allowedTasks[AchievementSetAuthorTask::Banner->value] = AchievementSetAuthorTask::Banner->label();
+        }
+
+        // Playtest managers can assign testing credit.
+        if ($user->hasRole(Role::PLAYTEST_MANAGER)) {
+            $allowedTasks[AchievementSetAuthorTask::Testing->value] = AchievementSetAuthorTask::Testing->label();
+        }
+
+        return $allowedTasks;
     }
 }
