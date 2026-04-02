@@ -3,9 +3,11 @@ import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
 import TextareaAutosize from 'react-textarea-autosize';
+import { route } from 'ziggy-js';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementTypeIndicator } from '@/common/components/AchievementTypeIndicator';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -18,7 +20,7 @@ import { editableAchievementClassNames } from './editableAchievementClassNames';
 import { PointsLabels } from './PointsLabels';
 
 export const AchievementHero: FC = () => {
-  const { achievement, areAllAchievementsOnePoint, isEventGame } =
+  const { achievement, areAllAchievementsOnePoint, eventAchievement, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
 
   const { t } = useTranslation();
@@ -40,6 +42,10 @@ export const AchievementHero: FC = () => {
   const unlocksHardcoreTotal = achievement.unlocksHardcore as number;
   const unlocksSoftcoreTotal = unlocksTotal - unlocksHardcoreTotal;
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
+
+  const sourceAchievement = eventAchievement?.sourceAchievement;
+  const isRevealedEventAchievement =
+    isEventGame && !eventAchievement?.isObfuscated && !!sourceAchievement;
 
   const shouldShowPointsLabels =
     !canEditPoints && !(isEventGame && areAllAchievementsOnePoint) && achievement.points! > 0;
@@ -86,7 +92,18 @@ export const AchievementHero: FC = () => {
                 />
               ) : (
                 <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
-                  {achievement.title}
+                  {isRevealedEventAchievement ? (
+                    <InertiaLink
+                      href={route('achievement.show', {
+                        achievement: sourceAchievement.id,
+                      })}
+                      className="text-neutral-100 transition hover:underline light:text-neutral-900"
+                    >
+                      {achievement.title}
+                    </InertiaLink>
+                  ) : (
+                    achievement.title
+                  )}
                 </p>
               )}
 
