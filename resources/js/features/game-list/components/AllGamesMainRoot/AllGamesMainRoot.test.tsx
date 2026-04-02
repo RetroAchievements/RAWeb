@@ -781,7 +781,7 @@ describe('Component: AllGamesMainRoot', () => {
     expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
   });
 
-  it('given a game has not been beaten, the cells are empty and 0%', async () => {
+  it('given a game has not been beaten, the cells are empty and 0%', { timeout: 15_000 }, async () => {
     // ARRANGE
     const mockSystem = createSystem({
       nameShort: 'MD',

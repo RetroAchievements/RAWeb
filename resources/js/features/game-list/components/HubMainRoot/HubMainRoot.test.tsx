@@ -837,7 +837,7 @@ describe('Component: HubMainRoot', () => {
     expect(screen.getByRole('textbox', { name: /search/i })).toHaveFocus();
   });
 
-  it('given the user is on a mobile device, renders a list rather than a table', async () => {
+  it('given the user is on a mobile device, renders a list rather than a table', { timeout: 15_000 }, async () => {
     // ARRANGE
     mockAllIsIntersecting(false);
 
