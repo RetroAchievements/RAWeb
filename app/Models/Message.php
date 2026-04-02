@@ -57,5 +57,13 @@ class Message extends BaseModel
         return $this->belongsTo(User::class, 'sent_by_id')->withTrashed();
     }
 
+    /**
+     * @return BelongsTo<MessageThread, $this>
+     */
+    public function messageThread(): BelongsTo
+    {
+        return $this->belongsTo(MessageThread::class, 'thread_id');
+    }
+
     // == scopes
 }

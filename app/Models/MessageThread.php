@@ -107,4 +107,19 @@ class MessageThread extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * Scope to filter threads where the given user is a participant.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param User $user
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForUser($query, User $user)
+    {
+        return $query->whereHas('participants', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->whereNull('message_thread_participants.deleted_at');
+        });
+    }
 }

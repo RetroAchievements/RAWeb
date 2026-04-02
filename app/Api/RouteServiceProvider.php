@@ -15,8 +15,13 @@ use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
 use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\GameController;
+use App\Api\V2\Controllers\GameInviteController;
 use App\Api\V2\Controllers\HubController;
 use App\Api\V2\Controllers\LeaderboardController;
+use App\Api\V2\Controllers\LookingForGroupInviteController;
+use App\Api\V2\Controllers\LookingForGroupPostController;
+use App\Api\V2\Controllers\MessageController;
+use App\Api\V2\Controllers\MessageThreadController;
 use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
@@ -153,6 +158,30 @@ class RouteServiceProvider extends ServiceProvider
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();
                                 });
+
+                            $server->resource('message-threads', MessageThreadController::class)
+                                ->only('index', 'show', 'store', 'destroy')
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('messages')->readOnly();
+                                });
+
+                            $server->resource('messages', MessageController::class)
+                                ->only('show', 'store')
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasOne('messageThread')->readOnly();
+                                });
+
+                            $server->resource('game-invites', GameInviteController::class)
+                                ->only('index', 'show', 'store', 'update');
+
+                            $server->resource('looking-for-group-posts', LookingForGroupPostController::class)
+                                ->only('index', 'show', 'store', 'update')
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('invites')->readOnly();
+                                });
+
+                            $server->resource('looking-for-group-invites', LookingForGroupInviteController::class)
+                                ->only('index', 'show', 'store', 'update');
                         });
                 });
 

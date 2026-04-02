@@ -23,10 +23,12 @@ class MessageThreadPolicy
 
     public function view(User $user, MessageThread $messageThread): bool
     {
-        // Users can always read messages to themselves.
-        $isDirectParticipant = $messageThread->participants()
+        // Users can always read messages to themselves - check directly from pivot table
+        $isDirectParticipant = MessageThreadParticipant::where('thread_id', $messageThread->id)
             ->where('user_id', $user->id)
+            ->whereNull('deleted_at')
             ->exists();
+
         if ($isDirectParticipant) {
             return true;
         }
@@ -35,8 +37,9 @@ class MessageThreadPolicy
         $accessibleTeamUserIds = $this->getAccessibleTeamIds($user);
 
         // Check if any of those team accounts are participants.
-        return $messageThread->participants()
+        return MessageThreadParticipant::where('thread_id', $messageThread->id)
             ->whereIn('user_id', $accessibleTeamUserIds)
+            ->whereNull('deleted_at')
             ->exists();
     }
 

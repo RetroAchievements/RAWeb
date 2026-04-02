@@ -28,6 +28,7 @@ use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -420,6 +421,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->email_verified_at?->isPast() ?? false;
     }
 
+    public function isVerified(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+
     public function markEmailAsVerified(): bool
     {
         return true;
@@ -444,6 +450,24 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function moderationActions(): HasMany
     {
         return $this->hasMany(UserModerationAction::class, 'user_id');
+    }
+
+    /**
+     * @return BelongsToMany<MessageThread, $this>
+     */
+    public function messageThreads(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MessageThread::class,
+            'message_thread_participants',
+            'user_id',
+            'thread_id',
+            'id',
+            'id'
+        )
+            ->withTimestamps()
+            ->withPivot(['num_unread', 'deleted_at'])
+            ->whereNull('message_thread_participants.deleted_at');
     }
 
     // == scopes
