@@ -12,7 +12,6 @@ import { NewUserCta } from './NewUserCta';
 import { RecentForumPosts } from './RecentForumPosts';
 import { SetsInProgressList } from './SetsInProgressList';
 import { UserCurrentGame } from './UserCurrentGame';
-import { WiiLaunchBanner } from './WiiLaunchBanner';
 
 export const HomeRoot: FC = () => {
   const { auth, userCurrentGame, userCurrentGameMinutesAgo } =
@@ -22,11 +21,7 @@ export const HomeRoot: FC = () => {
     <div className="flex flex-col gap-6">
       {!auth?.user ? <GuestWelcomeCta /> : null}
 
-      {userCurrentGame && userCurrentGameMinutesAgo !== null ? (
-        <UserCurrentGame />
-      ) : (
-        <WiiLaunchBanner />
-      )}
+      {userCurrentGame && userCurrentGameMinutesAgo !== null ? <UserCurrentGame /> : null}
 
       {auth?.user?.isNew ? <NewUserCta /> : null}
 
