@@ -292,6 +292,7 @@ class BuildGameShowPagePropsAction
                 'system.nameShort',
                 'system.hasAnalogTvOutput',
                 'system.screenshotResolutions',
+                'system.supportsUpscaledScreenshots',
                 'system',
                 'timesBeaten',
                 'timesBeatenHardcore',
