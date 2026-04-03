@@ -113,7 +113,11 @@ function buildDefaultValues(
       // Other sets follow the global preference.
       const isCoreSet = set.type === 'core';
       const isChallengeSet = set.type === 'challenge';
-      defaultValues.preferences[String(set.id)] = isCoreSet ? true : isChallengeSet ? false : !isGloballyOptedOut;
+      defaultValues.preferences[String(set.id)] = isCoreSet
+        ? true
+        : isChallengeSet
+          ? false
+          : !isGloballyOptedOut;
     }
   }
 
