@@ -2,6 +2,7 @@
 
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
 $requestType = request()->input('r');
@@ -31,6 +32,16 @@ if (!$userModel || !$userModel->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUN
         'Error' => "You must be a developer to upload badge images.",
     ], Response::HTTP_FORBIDDEN);
 }
+
+// Cap uploads to 5000/day per user.
+$rateLimitKey = 'badge-upload:' . $userModel->id;
+if (RateLimiter::tooManyAttempts($rateLimitKey, 5000)) {
+    return response()->json([
+        'Success' => false,
+        'Error' => 'Too many requests. Please try again later.',
+    ], Response::HTTP_TOO_MANY_REQUESTS);
+}
+RateLimiter::hit($rateLimitKey, 60 * 60 * 24);
 
 // Infer request type from app
 // TODO: remove if not required anymore
