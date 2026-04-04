@@ -23,8 +23,12 @@ class EventResource extends BaseJsonApiResource
     {
         return [
             'title' => $this->resource->title,
+            'sortTitle' => $this->resource->legacyGame->sort_title,
             'badgeUrl' => $this->resource->badge_url,
             'state' => $this->resource->state->value,
+
+            'playersTotal' => $this->resource->legacyGame->players_total,
+            'achievementsPublished' => $this->resource->legacyGame->achievements_published,
 
             'activeFrom' => $this->resource->active_from,
             'activeThrough' => $this->resource->active_through,

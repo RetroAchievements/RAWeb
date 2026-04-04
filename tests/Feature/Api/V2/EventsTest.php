@@ -96,8 +96,11 @@ class EventsTest extends JsonApiResourceTestCase
         $attributes = $response->json('data.attributes');
 
         $this->assertEquals('Achievement of the Week', $attributes['title']);
+        $this->assertArrayHasKey('sortTitle', $attributes);
         $this->assertArrayHasKey('badgeUrl', $attributes);
         $this->assertArrayHasKey('state', $attributes);
+        $this->assertArrayHasKey('playersTotal', $attributes);
+        $this->assertArrayHasKey('achievementsPublished', $attributes);
         $this->assertArrayHasKey('activeFrom', $attributes);
         $this->assertArrayHasKey('activeThrough', $attributes);
     }
@@ -197,6 +200,111 @@ class EventsTest extends JsonApiResourceTestCase
         // Assert
         $response->assertSuccessful();
         $this->assertEquals('concluded', $response->json('data.attributes.state'));
+    }
+
+    public function testItReturnsPlayerAndAchievementCounts(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create([
+            'system_id' => System::Events,
+            'players_total' => 250,
+            'achievements_published' => 15,
+        ]);
+        $event = Event::factory()->create([
+            'legacy_game_id' => $game->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/events/{$event->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $attributes = $response->json('data.attributes');
+
+        $this->assertEquals(250, $attributes['playersTotal']);
+        $this->assertEquals(15, $attributes['achievementsPublished']);
+    }
+
+    public function testItSortsByTitle(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['id' => System::Events]);
+
+        $game1 = Game::factory()->create([
+            'title' => 'Zelda Challenge',
+            'system_id' => System::Events,
+        ]);
+        Event::factory()->create([
+            'legacy_game_id' => $game1->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        $game2 = Game::factory()->create([
+            'title' => 'Achievement of the Week',
+            'system_id' => System::Events,
+        ]);
+        Event::factory()->create([
+            'legacy_game_id' => $game2->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/events?sort=title');
+
+        // Assert
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('attributes.title')->toArray();
+        $this->assertEquals('Achievement of the Week', $titles[0]);
+        $this->assertEquals('Zelda Challenge', $titles[1]);
+    }
+
+    public function testItSortsBySortTitle(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['id' => System::Events]);
+
+        $game1 = Game::factory()->create([
+            'title' => 'The Big Event',
+            'sort_title' => 'big event',
+            'system_id' => System::Events,
+        ]);
+        Event::factory()->create([
+            'legacy_game_id' => $game1->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        $game2 = Game::factory()->create([
+            'title' => 'Achievement of the Week',
+            'sort_title' => 'achievement of the week',
+            'system_id' => System::Events,
+        ]);
+        Event::factory()->create([
+            'legacy_game_id' => $game2->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/events?sort=sortTitle');
+
+        // Assert
+        $response->assertSuccessful();
+        $titles = collect($response->json('data'))->pluck('attributes.title')->toArray();
+        $this->assertEquals('Achievement of the Week', $titles[0]);
+        $this->assertEquals('The Big Event', $titles[1]);
     }
 
     public function testItSortsByActiveFrom(): void
