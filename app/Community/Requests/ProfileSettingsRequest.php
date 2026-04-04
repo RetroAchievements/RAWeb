@@ -25,7 +25,7 @@ class ProfileSettingsRequest extends FormRequest
          */
         $imageRules = [
             'max:2000',
-            'mimes:png,jpeg,gif,svg',
+            'mimes:png,jpeg,gif',
         ];
         $maxDimension = 4500;
 
