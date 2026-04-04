@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Role;
+use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
 $requestType = request()->input('r');
@@ -19,6 +21,15 @@ if (!authenticateFromAppToken($user, $token, $permissions)) {
             'Success' => false,
             'Error' => "Unknown Request: '$requestType'",
         ], Response::HTTP_UNAUTHORIZED);
+}
+
+/** @var User $userModel */
+$userModel = auth('connect-token')->user();
+if (!$userModel || !$userModel->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+    return response()->json([
+        'Success' => false,
+        'Error' => "You must be a developer to upload badge images.",
+    ], Response::HTTP_FORBIDDEN);
 }
 
 // Infer request type from app
