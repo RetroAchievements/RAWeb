@@ -157,6 +157,7 @@ $credentialsOK = match ($requestType) {
     "richpresencepatch",
     "submitgametitle",
     "submitrichpresence",
+    "submitticket",
     "uploadachievement" => $validLogin && ($permissions >= Permissions::Registered),
     /*
      * Anything else is public. Includes login
