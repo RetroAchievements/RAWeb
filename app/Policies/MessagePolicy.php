@@ -50,7 +50,7 @@ class MessagePolicy
 
     public function sendToRecipient(User $user, User $targetUser): bool
     {
-        if ($user->isMuted() && !$targetUser->hasRole(Role::TEAM_ACCOUNT)) {
+        if ($user->isMuted() && $targetUser->username !== 'RAdmin') {
             return false;
         }
 

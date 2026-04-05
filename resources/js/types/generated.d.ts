@@ -475,7 +475,6 @@ userCurrentGameMinutesAgo: number | null;
 hasSiteReleaseNotes: boolean;
 hasUnreadSiteReleaseNote: boolean;
 deferredSiteReleaseNotes: Array<App.Data.News>;
-wiiSetCount: number | null;
 };
 export type SearchPageProps = {
 initialQuery: string;
@@ -1111,6 +1110,7 @@ manufacturer?: string;
 nameFull?: string;
 nameShort?: string;
 screenshotResolutions?: Array<{ width: number; height: number }> | null;
+supportsUpscaledScreenshots?: boolean;
 };
 export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 system: App.Platform.Data.System;

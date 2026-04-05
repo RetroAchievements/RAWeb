@@ -44,7 +44,7 @@ export const AchievementInlineActions: FC = () => {
 
   return (
     <div className="flex items-center justify-between gap-2 text-xs">
-      {!isEventGame || sourceAchievement ? (
+      {(!isEventGame || sourceAchievement) && can?.createTicket ? (
         <div className="flex items-center gap-3">
           <InertiaLink
             href={route('achievement.report-issue', { achievement: reportSubject.id })}

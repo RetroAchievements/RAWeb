@@ -61,7 +61,7 @@ export function useCreateMessageReplyForm() {
       },
       error: ({ response }: AxiosError<{ error: string }>) => {
         if (response?.data.error === 'muted_user') {
-          return t('Muted users can only message team accounts.');
+          return t('Muted users can only message RAdmin.');
         }
 
         if (response?.data.error === 'cannot_message_user') {

@@ -61,7 +61,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'Enter',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).toHaveBeenCalledOnce();
@@ -83,7 +83,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'Enter',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).toHaveBeenCalledOnce();
@@ -105,7 +105,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'Enter',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    outsideElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).not.toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'Enter',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).not.toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'Enter',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).not.toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
       code: 'KeyA',
       bubbles: true,
     });
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(onSubmitSpy).not.toHaveBeenCalled();
@@ -213,7 +213,7 @@ describe('Hook: useSubmitOnMetaEnter', () => {
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
 
     // ACT
-    document.dispatchEvent(event);
+    inputElement.dispatchEvent(event);
 
     // ASSERT
     expect(preventDefaultSpy).toHaveBeenCalledOnce();

@@ -22,6 +22,7 @@ use App\Connect\Actions\LoginAction;
 use App\Connect\Actions\PingAction;
 use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\StartSessionAction;
+use App\Connect\Actions\SubmitAchievementAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitLeaderboardAction;
@@ -36,7 +37,6 @@ use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
-use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Sentry\State\Scope;
@@ -76,6 +76,7 @@ $handler = match ($requestType) {
     'submitlbentry' => new SubmitLeaderboardEntryAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
     'unlocks' => new GetPlayerGameUnlocksAction(),
+    'uploadachievement' => new SubmitAchievementAction(),
     'uploadleaderboard' => new SubmitLeaderboardAction(),
     default => null,
 };
@@ -156,8 +157,7 @@ $credentialsOK = match ($requestType) {
     "awardachievements",
     "richpresencepatch",
     "submitgametitle",
-    "submitrichpresence",
-    "uploadachievement" => $validLogin && ($permissions >= Permissions::Registered),
+    "submitrichpresence" => $validLogin && ($permissions >= Permissions::Registered),
     /*
      * Anything else is public. Includes login
      */
@@ -429,36 +429,6 @@ switch ($requestType) {
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
         }
-        break;
-
-    case "uploadachievement":
-        if ($achievementID === Achievement::CLIENT_WARNING_ID) {
-            $response['Error'] = 'Cannot modify warning achievement';
-            $response['Success'] = false;
-            break;
-        }
-
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-        }
-
-        $errorOut = "";
-        $response['Success'] = UploadNewAchievement(
-            authorUsername: $username,
-            gameID: $gameID,
-            title: request()->input('n'),
-            desc: request()->input('d'),
-            points: (int) request()->input('z', 0),
-            type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
-            mem: request()->input('m'),
-            flag: (int) request()->input('f', Achievement::FLAG_UNPROMOTED),
-            idInOut: $achievementID,
-            badge: request()->input('b'),
-            errorOut: $errorOut,
-            gameAchievementSetID: request()->input('s')
-        );
-        $response['AchievementID'] = $achievementID;
-        $response['Error'] = $errorOut;
         break;
 
     default:
