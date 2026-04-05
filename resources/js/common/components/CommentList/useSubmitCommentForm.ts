@@ -6,6 +6,8 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { loadDraft } from '@/common/utils/loadDraft';
 
 import { useCommentListContext } from './CommentListContext';
 
@@ -35,10 +37,15 @@ export function useSubmitCommentForm({
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
+  const draftKey = `comment-${commentableType}-${commentableId}`;
+  const draft = loadDraft<FormValues>(draftKey);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(addCommentFormSchema),
-    defaultValues: { body: '' },
+    defaultValues: { body: draft.body ?? '' },
   });
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useSubmitCommentMutation();
 
@@ -55,6 +62,7 @@ export function useSubmitCommentForm({
       {
         loading: t('Submitting...'),
         success: () => {
+          clearDraft();
           onSubmitSuccess?.();
           form.reset();
 
