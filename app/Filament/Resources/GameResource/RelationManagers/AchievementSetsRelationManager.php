@@ -243,6 +243,7 @@ class AchievementSetsRelationManager extends RelationManager
                                     ])
                                     ->helperText("
                                         Bonus loads with any hashes supported by Core.
+                                        Challenge also loads with any hashes supported by Core, but must be opted into.
                                         Specialty requires a unique hash, but also loads Core and Bonus.
                                         Exclusive requires a unique hash, but does not load Core or Bonus.
                                         When in doubt, please ask for help.
@@ -307,7 +308,12 @@ class AchievementSetsRelationManager extends RelationManager
                                 AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                             ])
                             ->required()
-                            ->helperText('Bonus loads with any hashes supported by Core. Specialty requires a unique hash, but also loads Core and Bonus. Exclusive requires a unique hash, but does not load Core or Bonus.'),
+                            ->helperText("
+                                Bonus loads with any hashes supported by Core.
+                                Challenge also loads with any hashes supported by Core, but must be opted into.
+                                Specialty requires a unique hash, but also loads Core and Bonus.
+                                Exclusive requires a unique hash, but does not load Core or Bonus.
+                            "),
                     ])
                     ->fillForm(function (AchievementSet $record): array {
                         $currentType = $record->pivot->type;

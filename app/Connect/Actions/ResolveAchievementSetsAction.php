@@ -57,7 +57,9 @@ class ResolveAchievementSetsAction
      */
     private function buildResolutionContext(GameAchievementSet $initialSet, int $defaultGameId): array
     {
-        $nonSpecialtySetTypes = [AchievementSetType::Core, AchievementSetType::Bonus, AchievementSetType::Challenge];
+        $loadWithCoreSubsetTypes = [AchievementSetType::Bonus, AchievementSetType::Challenge];
+        $coreAndLoadedSubsetTypes = array_merge([AchievementSetType::Core], $loadWithCoreSubsetTypes);
+
         $links = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)->get();
 
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
@@ -72,29 +74,29 @@ class ResolveAchievementSetsAction
             // Only load _this_ specialty set.
             return [
                 $specialtyLink->game_id,
-                $nonSpecialtySetTypes,
+                $coreAndLoadedSubsetTypes,
                 $initialSet->achievement_set_id,
             ];
         }
 
-        $bonusLinks = $links->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge]);
-        if ($bonusLinks->isNotEmpty()) {
+        $parentLinks = $links->whereIn('type', $loadWithCoreSubsetTypes);
+        if ($parentLinks->isNotEmpty()) {
             // If the bonus set is linked to multiple games, only load the bonus set itself.
             // We can't determine which parent's core set to use, so we don't include one.
             // This happens for situations like Pokemon Red & Blue, where a single bonus
             // set is linked to both games.
-            if ($bonusLinks->count() > 1) {
+            if ($parentLinks->count() > 1) {
                 return [$defaultGameId, [AchievementSetType::Core], null];
             }
 
             // One parent game - load core, bonus and challenge sets from the linked game.
-            $bonusLink = $bonusLinks->first();
+            $parentLink = $parentLinks->first();
 
-            return [$bonusLink->game_id, $nonSpecialtySetTypes, null];
+            return [$parentLink->game_id, $coreAndLoadedSubsetTypes, null];
         }
 
         // Core set: load core, bonus and challenge sets.
-        return [$defaultGameId, $nonSpecialtySetTypes, null];
+        return [$defaultGameId, $coreAndLoadedSubsetTypes, null];
     }
 
     /**
