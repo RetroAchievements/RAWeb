@@ -9,18 +9,20 @@ use App\Models\GameScreenshot;
 use App\Models\System;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
-use App\Platform\Services\ScreenshotResolutionService;
-use App\Rules\DisallowAnimatedImageRule;
+use App\Platform\Services\GameScreenshotValidationService;
 use App\Support\Media\CreateDoubledScreenshotAction;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
-use App\Support\MediaLibrary\RejectedHashes;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class AddGameScreenshotAction
 {
+    public function __construct(
+        private readonly GameScreenshotValidationService $validationService = new GameScreenshotValidationService(),
+    ) {
+    }
+
     /**
      * The Atari 2600's TIA outputs frames with non-square pixels.
      * Emulators capture at native resolution, so we'll double the
@@ -40,11 +42,11 @@ class AddGameScreenshotAction
         ?string $description = null,
         bool $isPrimary = false,
     ): GameScreenshot {
-        $this->validateFile($file);
+        $this->validationService->validateFile($file, $game);
 
         [$width, $height] = getimagesize($file->getRealPath());
-        $this->validateResolution($width, $height, $game);
-        $hash = $this->validateHash($file, $game);
+        $this->validationService->validateResolution($width, $height, $game);
+        $hash = $this->validationService->validateHash($file, $game);
         $this->validateCap($game, $type, $isPrimary);
 
         $originalContents = file_get_contents($file->getRealPath());
@@ -130,80 +132,6 @@ class AddGameScreenshotAction
         }
 
         return abs($width - self::ATARI_2600_BASE_WIDTH) <= self::DIMENSION_TOLERANCE;
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    private function validateFile(UploadedFile $file): void
-    {
-        // A 4K hard cap bounds the maximum file size and
-        // prevents unreasonably large uploads.
-        $validator = Validator::make(
-            ['screenshot' => $file],
-            ['screenshot' => [
-                'image',
-                'mimes:png,jpg,jpeg,webp',
-                'max:4096',
-                'dimensions:min_width=64,min_height=64,max_width=3840,max_height=2160',
-                new DisallowAnimatedImageRule(),
-            ]],
-        );
-
-        $validator->validate();
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    private function validateHash(UploadedFile $file, Game $game): string
-    {
-        $hash = sha1_file($file->getRealPath());
-
-        if (in_array($hash, RejectedHashes::IMAGE_HASHES_GAMES)) {
-            throw ValidationException::withMessages([
-                'screenshot' => 'This image is a known placeholder and cannot be uploaded.',
-            ]);
-        }
-
-        // Reject duplicates based on SHA1 within this game's screenshots collection.
-        $isDuplicate = $game->media()
-            ->where('collection_name', 'screenshots')
-            ->where('custom_properties->sha1', $hash)
-            ->exists();
-
-        if ($isDuplicate) {
-            throw ValidationException::withMessages([
-                'screenshot' => 'This image has already been uploaded for this game.',
-            ]);
-        }
-
-        return $hash;
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    private function validateResolution(int $width, int $height, Game $game): void
-    {
-        $system = $game->system;
-        if (!$system) {
-            return;
-        }
-
-        $service = new ScreenshotResolutionService();
-        if ($service->isValidResolution($width, $height, $system)) {
-            return;
-        }
-
-        throw ValidationException::withMessages([
-            'screenshot' => $service->buildResolutionMismatchMessage(
-                'This screenshot',
-                $width,
-                $height,
-                $system,
-            ),
-        ]);
     }
 
     /**

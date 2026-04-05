@@ -6,6 +6,13 @@ import { createGame, createZiggyProps } from '@/test/factories';
 
 import { SidebarContributeLinks } from './SidebarContributeLinks';
 
+// Prevent TensorFlow/nsfwjs from loading when the upload dialog renders.
+vi.mock('@/common/hooks/useNsfwScanner', () => ({
+  useNsfwScanner: () => ({ scanImage: vi.fn().mockResolvedValue({ isNsfw: false }) }),
+}));
+vi.mock('@tensorflow/tfjs', () => ({}));
+vi.mock('nsfwjs', () => ({ load: vi.fn() }));
+
 describe('Component: SidebarContributeLinks', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -178,6 +185,43 @@ describe('Component: SidebarContributeLinks', () => {
     expect(screen.getByText(/subscribe/i)).toBeVisible();
 
     expect(screen.queryByText(/management/i)).not.toBeInTheDocument();
+  });
+
+  it('given canShowScreenshotUpload is true, renders the Upload Screenshot button and opens the dialog when clicked', async () => {
+    // ARRANGE
+    render(
+      <SidebarContributeLinks
+        canShowDevelopmentAndSubscribe={false}
+        canShowManagement={false}
+        canShowScreenshotUpload={true} // !!
+      />,
+      {
+        pageProps: {
+          achievementSetClaims: [],
+          auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+          backingGame: createGame(),
+          can: {},
+          game: createGame({ gameAchievementSets: [] }),
+          isOnWantToDevList: false,
+          isSubscribedToAchievementComments: false,
+          isSubscribedToTickets: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Contribute' }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /upload screenshot/i })).toBeVisible();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: /upload screenshot/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /upload screenshot/i })).toBeVisible();
+    });
   });
 
   it('given both props are true, renders all three child sections when expanded', async () => {
