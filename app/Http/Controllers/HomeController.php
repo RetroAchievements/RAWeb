@@ -23,7 +23,6 @@ use App\Http\Actions\BuildUserCurrentGameDataAction;
 use App\Http\Actions\CheckHasUnreadSiteReleaseNoteAction;
 use App\Http\Controller;
 use App\Http\Data\HomePagePropsData;
-use App\Models\Game;
 use App\Models\News;
 use App\Models\StaticData;
 use App\Models\User;
@@ -75,8 +74,6 @@ class HomeController extends Controller
         $userCurrentGameData = $buildUserCurrentGameData->execute($user);
         $hasUnreadSiteReleaseNote = $checkHasUnreadSiteReleaseNote->execute($user);
 
-        $wiiSetCount = Game::where('system_id', 19)->whereHasPublishedAchievements()->count();
-
         $props = new HomePagePropsData(
             staticData: $staticDataData,
             achievementOfTheWeek: $achievementOfTheWeek,
@@ -96,7 +93,6 @@ class HomeController extends Controller
             hasSiteReleaseNotes: News::where('category', NewsCategory::SiteReleaseNotes)->exists(),
             hasUnreadSiteReleaseNote: $hasUnreadSiteReleaseNote,
             deferredSiteReleaseNotes: Inertia::defer(fn () => $buildSiteReleaseNotes->execute()),
-            wiiSetCount: $wiiSetCount,
         );
 
         return Inertia::render('index', $props);

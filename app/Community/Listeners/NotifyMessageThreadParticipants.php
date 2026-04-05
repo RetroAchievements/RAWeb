@@ -12,6 +12,7 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Notifications\Message\PrivateMessageReceivedNotification;
+use App\Support\Alerts\MutedUserMessageAlert;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,12 @@ class NotifyMessageThreadParticipants
 
         $thread = MessageThread::firstWhere('id', $message->thread_id);
         if (!$thread) {
+            return;
+        }
+
+        if ($userFrom->isMuted()) {
+            (new MutedUserMessageAlert($userFrom, $thread))->send();
+
             return;
         }
 

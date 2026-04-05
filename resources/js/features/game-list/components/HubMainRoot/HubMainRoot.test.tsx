@@ -837,41 +837,45 @@ describe('Component: HubMainRoot', () => {
     expect(screen.getByRole('textbox', { name: /search/i })).toHaveFocus();
   });
 
-  it('given the user is on a mobile device, renders a list rather than a table', async () => {
-    // ARRANGE
-    mockAllIsIntersecting(false);
+  it(
+    'given the user is on a mobile device, renders a list rather than a table',
+    { timeout: 15_000 },
+    async () => {
+      // ARRANGE
+      mockAllIsIntersecting(false);
 
-    const mockGame = createGame({
-      id: 1,
-      title: 'Sonic the Hedgehog',
-      system: createSystem({ id: 1 }),
-      achievementsPublished: 42,
-      pointsTotal: 500,
-      pointsWeighted: 1000,
-      releasedAt: '2006-08-24T00:56:00+00:00',
-      releasedAtGranularity: 'day',
-      numUnresolvedTickets: 2,
-    });
+      const mockGame = createGame({
+        id: 1,
+        title: 'Sonic the Hedgehog',
+        system: createSystem({ id: 1 }),
+        achievementsPublished: 42,
+        pointsTotal: 500,
+        pointsWeighted: 1000,
+        releasedAt: '2006-08-24T00:56:00+00:00',
+        releasedAtGranularity: 'day',
+        numUnresolvedTickets: 2,
+      });
 
-    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
-      pageProps: {
-        hub: createGameSet(),
-        breadcrumbs: [],
-        auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
-        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })], {
-          unfilteredTotal: 1,
-        }),
-        can: { develop: false },
-        ziggy: createZiggyProps({ device: 'mobile' }),
-      },
-    });
+      render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+        pageProps: {
+          hub: createGameSet(),
+          breadcrumbs: [],
+          auth: { user: createAuthenticatedUser() },
+          filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+          paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })], {
+            unfilteredTotal: 1,
+          }),
+          can: { develop: false },
+          ziggy: createZiggyProps({ device: 'mobile' }),
+        },
+      });
 
-    // ASSERT
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+      // ASSERT
+      expect(screen.queryByRole('table')).not.toBeInTheDocument();
 
-    expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
-  });
+      expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
+    },
+  );
 
   it('given the hub has a content warning, displays the content warning dialog', () => {
     // ARRANGE

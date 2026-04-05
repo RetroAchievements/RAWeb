@@ -51,17 +51,11 @@ class ValidScreenshotResolutionRule implements ValidationRule
             return;
         }
 
-        $formatted = collect($resolutions)
-            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
-            ->join(', ');
-
-        $smpteNote = '';
-        if ($this->system->has_analog_tv_output) {
-            $smpteNote = ' SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
-        }
-
-        $filename = $value->getClientOriginalName();
-
-        $fail("{$filename} ({$width}x{$height}) doesn't match the expected resolutions for {$this->system->name}: {$formatted} (or 2x/3x integer multiples).{$smpteNote}");
+        $fail($service->buildResolutionMismatchMessage(
+            $value->getClientOriginalName(),
+            $width,
+            $height,
+            $this->system,
+        ));
     }
 }
