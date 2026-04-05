@@ -152,7 +152,7 @@ describe('Component: CreateMessageReplyForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/muted users can only message team accounts/i)).toBeVisible();
+      expect(screen.getByText(/muted users can only message radmin/i)).toBeVisible();
     });
   });
 
