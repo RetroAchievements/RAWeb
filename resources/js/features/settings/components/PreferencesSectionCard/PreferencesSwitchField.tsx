@@ -1,7 +1,6 @@
 import { type FC } from 'react';
 import type { Control } from 'react-hook-form';
 import { LuInfo } from 'react-icons/lu';
-import { cn } from '@/common/utils/cn';
 
 import {
   BaseFormControl,
@@ -11,6 +10,7 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '@/common/components/+vendor/BaseTooltip';
+import { cn } from '@/common/utils/cn';
 import type { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 import type { TranslatedString } from '@/types/i18next';
 

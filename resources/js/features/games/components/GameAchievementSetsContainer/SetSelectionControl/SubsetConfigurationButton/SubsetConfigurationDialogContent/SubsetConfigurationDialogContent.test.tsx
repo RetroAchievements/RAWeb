@@ -1,5 +1,5 @@
 import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
-import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGameAchievementSet } from '@/test/factories';
 

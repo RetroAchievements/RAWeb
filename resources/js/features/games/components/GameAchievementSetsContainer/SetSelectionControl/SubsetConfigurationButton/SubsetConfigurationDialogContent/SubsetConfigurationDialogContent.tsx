@@ -10,7 +10,6 @@ import {
   BaseDialogHeader,
   BaseDialogTitle,
 } from '@/common/components/+vendor/BaseDialog';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { SubsetConfigurationForm } from './SubsetConfigurationForm';
 
@@ -23,7 +22,6 @@ export const SubsetConfigurationDialogContent: FC<SubsetConfigurationDialogConte
   configurableSets,
   onSubmitSuccess,
 }) => {
-  const { auth } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   return (
