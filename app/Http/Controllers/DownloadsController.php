@@ -59,8 +59,8 @@ class DownloadsController extends Controller
                 hasOfficialSupport: true, // required to make visible
                 canDebugTriggers: true, // prevent debug triggers warning
                 sourceUrl: 'https://github.com/RetroAchievements/RAIntegration',
-                downloadUrl: 'http://retroachievements.org/bin/RA_Integration.dll',
-                downloadX64Url: 'http://retroachievements.org/bin/RA_Integration-x64.dll',
+                downloadUrl: 'https://retroachievements.org/bin/RA_Integration.dll',
+                downloadX64Url: 'https://retroachievements.org/bin/RA_Integration-x64.dll',
                 platforms: $platformsData->where('name', 'Windows'),
                 systems: $systemsData->where('id', System::Standalones), // required to make visible; standalone is not searchable
             );

@@ -209,8 +209,8 @@ class DownloadsControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('allTools', 1)
             ->where('allTools.0.name', 'RAIntegration')
-            ->where('allTools.0.downloadUrl', 'http://retroachievements.org/bin/RA_Integration.dll')
-            ->where('allTools.0.downloadX64Url', 'http://retroachievements.org/bin/RA_Integration-x64.dll')
+            ->where('allTools.0.downloadUrl', 'https://retroachievements.org/bin/RA_Integration.dll')
+            ->where('allTools.0.downloadX64Url', 'https://retroachievements.org/bin/RA_Integration-x64.dll')
             ->where('allTools.0.hasOfficialSupport', true)
             ->where('allTools.0.sourceUrl', 'https://github.com/RetroAchievements/RAIntegration')
             ->has('allTools.0.systems')
@@ -236,8 +236,8 @@ class DownloadsControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('allTools', 1)
             ->where('allTools.0.name', 'RAIntegration')
-            ->where('allTools.0.downloadUrl', 'http://retroachievements.org/bin/RA_Integration.dll')
-            ->where('allTools.0.downloadX64Url', 'http://retroachievements.org/bin/RA_Integration-x64.dll')
+            ->where('allTools.0.downloadUrl', 'https://retroachievements.org/bin/RA_Integration.dll')
+            ->where('allTools.0.downloadX64Url', 'https://retroachievements.org/bin/RA_Integration-x64.dll')
             ->where('allTools.0.hasOfficialSupport', true)
             ->where('allTools.0.sourceUrl', 'https://github.com/RetroAchievements/RAIntegration')
             ->has('allTools.0.systems')
