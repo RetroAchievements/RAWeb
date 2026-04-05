@@ -893,6 +893,7 @@
     "Browse all {{systemCount, number}} systems": "Browse all {{systemCount, number}} systems",
     "search for a gaming system...": "search for a gaming system...",
     "Available Emulators": "Available Emulators",
+    "Available Tools": "Available Tools",
     "({{emulatorsCount, number}} found)": "({{emulatorsCount, number}} found)",
     "supportedSystemsCountLabel_one": "Supports {{val, number}} system",
     "supportedSystemsCountLabel_other": "Supports {{val, number}} systems",
@@ -1426,5 +1427,6 @@
     "Primary screenshot has an incorrect resolution": "Primary screenshot has an incorrect resolution",
     "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}}.": "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}}.",
     "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}} (or 2x/3x multiples).": "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}} (or 2x/3x multiples).",
-    "Cancel submission": "Cancel submission"
+    "Cancel submission": "Cancel submission",
+    "No emulators matched your search.": "No emulators matched your search."
 }
