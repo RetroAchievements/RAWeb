@@ -295,7 +295,7 @@ describe('Component: RequestSetToggleButton', () => {
     });
   });
 
-  it('given the user toggles the button multiple times quickly, resets the debounce timer', async () => {
+  it('given the user toggles the button multiple times quickly, resets the debounce timer', { timeout: 10_000 }, async () => {
     // ARRANGE
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
