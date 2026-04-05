@@ -15,6 +15,12 @@ class ScreenshotResolutionService
     private const MAX_SCALE_FACTOR_DEFAULT = 1;
 
     /**
+     * The Atari 2600's TIA outputs non-square pixels, so we
+     * double the width server-side to roughly match a CRT display.
+     */
+    private const WIDTH_DOUBLED_SYSTEM_IDS = [System::Atari2600];
+
+    /**
      * Emulators can produce captures off by 1px due to rounding
      * during scaling, overscan cropping, or framebuffer alignment.
      */
@@ -54,6 +60,7 @@ class ScreenshotResolutionService
         $bindings = [];
 
         $tolerance = self::DIMENSION_TOLERANCE;
+        $isWidthDoubled = in_array($system->id, self::WIDTH_DOUBLED_SYSTEM_IDS, true);
         $maxScale = $this->getMaxScaleFactor($system);
 
         foreach ($resolutions as $resolution) {
@@ -66,6 +73,16 @@ class ScreenshotResolutionService
                 $bindings[] = $w + $tolerance;
                 $bindings[] = $h - $tolerance;
                 $bindings[] = $h + $tolerance;
+
+                // Also accept the doubled-width variant at each scale.
+                if ($isWidthDoubled) {
+                    $dw = $w * 2;
+                    $conditions[] = '(game_screenshots.width BETWEEN ? AND ? AND game_screenshots.height BETWEEN ? AND ?)';
+                    $bindings[] = $dw - $tolerance;
+                    $bindings[] = $dw + $tolerance;
+                    $bindings[] = $h - $tolerance;
+                    $bindings[] = $h + $tolerance;
+                }
             }
         }
 
@@ -96,6 +113,7 @@ class ScreenshotResolutionService
         }
 
         $tolerance = self::DIMENSION_TOLERANCE;
+        $isWidthDoubled = in_array($system->id, self::WIDTH_DOUBLED_SYSTEM_IDS, true);
 
         $maxScale = $this->getMaxScaleFactor($system);
 
@@ -109,6 +127,14 @@ class ScreenshotResolutionService
 
                 if (
                     abs($width - $expectedW) <= $tolerance
+                    && abs($height - $expectedH) <= $tolerance
+                ) {
+                    return true;
+                }
+
+                if (
+                    $isWidthDoubled
+                    && abs($width - $expectedW * 2) <= $tolerance
                     && abs($height - $expectedH) <= $tolerance
                 ) {
                     return true;
