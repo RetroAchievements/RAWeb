@@ -460,9 +460,7 @@ class PingTest extends TestCase
             'g' => $bonusGame->id,
             'm' => 'Playing bonus content',
             'x' => $bonusGameHash->md5,
-        ]))
-            ->assertStatus(200)
-            ->assertExactJson(['Success' => true]);
+        ]));
 
         // Assert
         $response
@@ -511,9 +509,7 @@ class PingTest extends TestCase
             'g' => $challengeGame->id,
             'm' => 'Playing challenge content',
             'x' => $challengeGameHash->md5,
-        ]))
-            ->assertStatus(200)
-            ->assertExactJson(['Success' => true]);
+        ]));
 
         // Assert
         $response

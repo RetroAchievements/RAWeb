@@ -80,8 +80,8 @@ class ResolveAchievementSetGameHashesAction
         // When loading a bonus game hash, redirect to base game, core + bonus loaded.
         // When loading a challenge game hash, redirect to base game, core + bonus + challenge loaded.
         // When loading a specialty game hash, redirect to base game, core + bonus + specialty loaded.
-        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
-        $baseGameId = $bonusLink?->game_id ?? $coreLink?->game_id;
+        $parentLink = $links->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge])->first();
+        $baseGameId = $parentLink?->game_id ?? $coreLink?->game_id;
 
         if (!$baseGameId) {
             return [];
