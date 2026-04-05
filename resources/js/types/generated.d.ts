@@ -449,6 +449,7 @@ export type DownloadsPageProps = {
 allEmulators: Array<App.Platform.Data.Emulator>;
 allPlatforms: Array<App.Platform.Data.Platform>;
 allSystems: Array<App.Platform.Data.System>;
+allTools: Array<App.Platform.Data.Emulator>;
 topSystemIds: Array<number>;
 popularEmulatorsBySystem: number[][];
 userDetectedPlatformId: number | null;
@@ -1109,6 +1110,7 @@ manufacturer?: string;
 nameFull?: string;
 nameShort?: string;
 screenshotResolutions?: Array<{ width: number; height: number }> | null;
+supportsUpscaledScreenshots?: boolean;
 };
 export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 system: App.Platform.Data.System;

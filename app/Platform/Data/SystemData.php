@@ -24,6 +24,7 @@ class SystemData extends Data
         public Lazy|string $nameShort,
         #[LiteralTypeScriptType('Array<{ width: number; height: number }> | null')]
         public Lazy|array|null $screenshotResolutions,
+        public Lazy|bool $supportsUpscaledScreenshots,
     ) {
     }
 
@@ -33,12 +34,13 @@ class SystemData extends Data
             id: $system->id,
             name: $system->name,
             active: Lazy::create(fn () => $system->active),
-            hasAnalogTvOutput: Lazy::create(fn () => (bool) $system->has_analog_tv_output),
+            hasAnalogTvOutput: Lazy::create(fn () => $system->has_analog_tv_output),
             iconUrl: Lazy::create(fn () => $system->icon_url),
             manufacturer: Lazy::create(fn () => $system->manufacturer),
             nameFull: Lazy::create(fn () => $system->name_full),
             nameShort: Lazy::create(fn () => $system->name_short),
             screenshotResolutions: Lazy::create(fn () => $system->screenshot_resolutions),
+            supportsUpscaledScreenshots: Lazy::create(fn () => $system->supports_upscaled_screenshots),
         );
     }
 }
