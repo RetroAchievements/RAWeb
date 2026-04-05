@@ -42,7 +42,7 @@ const AchievementShow: AppPage = () => {
           `${hydratedAchievement.title} - ${hydratedAchievement.game.title}` as TranslatedString
         }
         description={metaDescription}
-        ogImage={hydratedAchievement.game.badgeUrl}
+        ogImage={hydratedAchievement.badgeUnlockedUrl}
         noindex={!achievement.isPromoted}
         nofollow={!achievement.isPromoted}
       />

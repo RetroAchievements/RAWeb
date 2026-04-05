@@ -92,11 +92,14 @@ class MessageThreadController extends Controller
 
         $toUser = null;
         $toUserData = null;
-        if ($request->input('to')) {
+        if ($user->isMuted()) {
+            // Muted users can only contact RAdmin, so lock the recipient field to that account.
+            $toUser = User::whereName('RAdmin')->first();
+        } elseif ($request->input('to')) {
             $toUser = User::whereName($request->input('to'))->first();
-            if ($toUser) {
-                $toUserData = UserData::fromUser($toUser);
-            }
+        }
+        if ($toUser) {
+            $toUserData = UserData::fromUser($toUser);
         }
 
         $this->authorize('create', [MessageThread::class, $teamAccount, $toUser]);
