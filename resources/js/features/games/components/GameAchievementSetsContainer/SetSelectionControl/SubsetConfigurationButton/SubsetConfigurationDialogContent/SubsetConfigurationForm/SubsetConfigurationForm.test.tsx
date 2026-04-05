@@ -98,7 +98,10 @@ describe('Component: SubsetConfigurationForm', () => {
     vi.spyOn(axios, 'put').mockResolvedValueOnce({ data: { success: true } });
     const onSubmitSuccess = vi.fn();
 
-    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set' })];
+    const sets = [
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Challenge Set', type: 'challenge' }),
+    ];
 
     render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={onSubmitSuccess} />, {
       pageProps: {
@@ -146,8 +149,8 @@ describe('Component: SubsetConfigurationForm', () => {
   it('given the user has existing preferences, reflects them in the switches', () => {
     // ARRANGE
     const sets = [
-      createGameAchievementSet({ id: 1, title: 'Bonus Set' }),
-      createGameAchievementSet({ id: 2, title: 'Challenge Set' }),
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Challenge Set', type: 'challenge' }),
     ];
 
     const preferences = {
