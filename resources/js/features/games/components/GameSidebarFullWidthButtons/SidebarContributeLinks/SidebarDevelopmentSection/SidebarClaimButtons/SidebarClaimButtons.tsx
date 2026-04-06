@@ -35,10 +35,7 @@ export const SidebarClaimButtons: FC = () => {
   const hasClaimsRemaining = claimData?.numClaimsRemaining || claimData?.isSoleAuthor;
 
   const canShowCreateClaimButton =
-    hasClaimRole &&
-    hasClaimsRemaining &&
-    !claimData.userClaim &&
-    !isBlockedByMissingForumTopic;
+    hasClaimRole && hasClaimsRemaining && !claimData.userClaim && !isBlockedByMissingForumTopic;
 
   return (
     <>
