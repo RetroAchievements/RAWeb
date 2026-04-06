@@ -88,10 +88,10 @@ class GameIdTest extends TestCase
     public function testEmptyHash(): void
     {
         $this->get($this->apiUrl('gameid', ['m' => '']))
-            ->assertStatus(422)
+            ->assertStatus(200)
             ->assertJson([
-                'Success' => false,
-                'Code' => 'invalid_parameter',
+                'GameID' => 0,
+                'Success' => true,
             ]);
     }
 
