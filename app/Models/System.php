@@ -104,6 +104,7 @@ class System extends BaseModel implements HasMedia
 
     // == constants
 
+    public const Atari2600 = 25;
     public const Arduboy = 71;
     public const WASM4 = 72;
     public const Uzebox = 80;

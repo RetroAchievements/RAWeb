@@ -2,10 +2,15 @@ import { render, screen } from '@/test';
 import { createEmulator, createPlatform, createSystem } from '@/test/factories';
 
 import { useVisibleEmulators } from '../../hooks/useVisibleEmulators';
+import { useVisibleTools } from '../../hooks/useVisibleTools';
 import { DownloadsMainRoot } from './DownloadsMainRoot';
 
 vi.mock('../../hooks/useVisibleEmulators', () => ({
   useVisibleEmulators: vi.fn(),
+}));
+
+vi.mock('../../hooks/useVisibleTools', () => ({
+  useVisibleTools: vi.fn(),
 }));
 
 describe('Component: DownloadsMainRoot', () => {
@@ -13,6 +18,9 @@ describe('Component: DownloadsMainRoot', () => {
     // ARRANGE
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
+    });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
     });
 
     const { container } = render(<DownloadsMainRoot />, {
@@ -33,6 +41,9 @@ describe('Component: DownloadsMainRoot', () => {
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
     });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
+    });
 
     render(<DownloadsMainRoot />, {
       pageProps: {
@@ -51,6 +62,9 @@ describe('Component: DownloadsMainRoot', () => {
     // ARRANGE
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
+    });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
     });
 
     render(<DownloadsMainRoot />, {
@@ -74,6 +88,9 @@ describe('Component: DownloadsMainRoot', () => {
     // ARRANGE
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
+    });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
     });
 
     render(<DownloadsMainRoot />, {
@@ -100,6 +117,9 @@ describe('Component: DownloadsMainRoot', () => {
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: mockEmulators,
     });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
+    });
 
     render(<DownloadsMainRoot />, {
       pageProps: {
@@ -118,6 +138,9 @@ describe('Component: DownloadsMainRoot', () => {
     // ARRANGE
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
+    });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
     });
 
     render(<DownloadsMainRoot />, {
@@ -138,6 +161,9 @@ describe('Component: DownloadsMainRoot', () => {
     vi.mocked(useVisibleEmulators).mockReturnValue({
       visibleEmulators: [],
     });
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
+    });
 
     render(<DownloadsMainRoot />, {
       pageProps: {
@@ -150,5 +176,70 @@ describe('Component: DownloadsMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /available emulators/i })).toBeVisible();
+  });
+
+  it('given there are visible tools, shows the count of found tools', () => {
+    // ARRANGE
+    const mockTools = [
+      createEmulator({ id: 1 }),
+      createEmulator({ id: 2 }),
+      createEmulator({ id: 3 }),
+    ];
+
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: mockTools,
+    });
+
+    render(<DownloadsMainRoot />, {
+      pageProps: {
+        allPlatforms: [createPlatform()],
+        allSystems: [createSystem()],
+        topSystemIds: [],
+        can: { manageEmulators: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/\(3 found\)/i)).toBeVisible();
+  });
+
+  it('given there are visible tools, shows the Available Tools heading', () => {
+    // ARRANGE
+    const mockTools = [createEmulator({ id: 1 })];
+
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: mockTools,
+    });
+
+    render(<DownloadsMainRoot />, {
+      pageProps: {
+        allPlatforms: [createPlatform()],
+        allSystems: [createSystem()],
+        topSystemIds: [],
+        can: { manageEmulators: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /available tools/i })).toBeVisible();
+  });
+
+  it('given there are no visible tools, does not show the Available Tools heading', () => {
+    // ARRANGE
+    vi.mocked(useVisibleTools).mockReturnValue({
+      visibleTools: [],
+    });
+
+    render(<DownloadsMainRoot />, {
+      pageProps: {
+        allPlatforms: [createPlatform()],
+        allSystems: [createSystem()],
+        topSystemIds: [],
+        can: { manageEmulators: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/available tools/i)).not.toBeInTheDocument();
   });
 });
