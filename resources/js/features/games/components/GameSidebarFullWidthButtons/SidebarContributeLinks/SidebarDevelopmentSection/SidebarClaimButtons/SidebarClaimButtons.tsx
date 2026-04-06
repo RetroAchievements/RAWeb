@@ -31,9 +31,6 @@ export const SidebarClaimButtons: FC = () => {
   // Junior developers can only create claims on games with forum topics.
   const isBlockedByMissingForumTopic = isJuniorDev && !backingGame.forumTopicId;
 
-  // Developers need to resolve tickets before making new claims.
-  const isBlockedByUnresolvedTickets = claimData && claimData.numUnresolvedTickets >= 2;
-
   // `claimData?.isSoleAuthor` means devs can reclaim their own sets to fix something.
   const hasClaimsRemaining = claimData?.numClaimsRemaining || claimData?.isSoleAuthor;
 
@@ -41,8 +38,7 @@ export const SidebarClaimButtons: FC = () => {
     hasClaimRole &&
     hasClaimsRemaining &&
     !claimData.userClaim &&
-    !isBlockedByMissingForumTopic &&
-    !isBlockedByUnresolvedTickets;
+    !isBlockedByMissingForumTopic;
 
   return (
     <>
