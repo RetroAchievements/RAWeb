@@ -155,6 +155,31 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertAchievementSet($bonusSet, AchievementSetType::Bonus, $baseGame->id, 8, 1);
     }
 
+    public function testItDoesNotReturnChallengeSetsForCoreHashes(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 6, 1);
+        $challengeGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Challenge]', 8, 1);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
+
+        // Assert
+        $this->assertCount(1, $resolved);
+
+        $coreSet = $resolved->first();
+        $this->assertAchievementSet($coreSet, AchievementSetType::Core, $baseGame->id, 6, 1);
+    }
+
     public function testItDoesNotReturnSpecialtySetsForCoreHashes(): void
     {
         // Arrange
@@ -317,6 +342,34 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertAchievementSet($bonusSet, AchievementSetType::Bonus, $baseGame->id, 8, 1);
     }
 
+    public function testItReturnsCoreSetsForChallengeHashes(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 6, 1);
+        $challengeGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Challenge]', 8, 1);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
+
+        $challengeGameHash = GameHash::factory()->create(['game_id' => $challengeGame->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($challengeGameHash, $user);
+
+        // Assert
+        $this->assertCount(2, $resolved);
+
+        $coreSet = $resolved->first();
+        $this->assertAchievementSet($coreSet, AchievementSetType::Core, $baseGame->id, 6, 1);
+
+        $challengeSet = $resolved->last();
+        $this->assertAchievementSet($challengeSet, AchievementSetType::Challenge, $baseGame->id, 8, 1);
+    }
+
     public function testItExcludesSubsetsIfUserIsGloballyOptedOut(): void
     {
         // Arrange
@@ -377,6 +430,43 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $bonusSet = $resolved->last();
         $this->assertAchievementSet($bonusSet, AchievementSetType::Bonus, $baseGame->id, 8, 1);
+    }
+
+    public function testItIncludesChallengeSubsetIfUserIsLocallyOptedIn(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 6, 1);
+        $challengeGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Challenge]', 8, 1);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => GameAchievementSet::whereGameId($baseGame->id)
+                ->whereType(AchievementSetType::Challenge)
+                ->first()
+                ->id,
+            'opted_in' => true,
+        ]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
+
+        // Assert
+        $this->assertCount(2, $resolved);
+
+        $coreSet = $resolved->first();
+        $this->assertAchievementSet($coreSet, AchievementSetType::Core, $baseGame->id, 6, 1);
+
+        $challengeSet = $resolved->last();
+        $this->assertAchievementSet($challengeSet, AchievementSetType::Challenge, $baseGame->id, 8, 1);
     }
 
     public function testItReturnsExclusiveSetAndNothingElseForExclusiveHash(): void

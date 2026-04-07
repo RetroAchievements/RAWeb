@@ -31,6 +31,14 @@ describe('Component: SubsetTag', () => {
     expect(screen.getByText(/bonus subset/i)).toBeVisible();
   });
 
+  it('given the type is "challenge", displays "Challenge Subset"', () => {
+    // ARRANGE
+    render(<SubsetTag type="challenge" />);
+
+    // ASSERT
+    expect(screen.getByText(/challenge subset/i)).toBeVisible();
+  });
+
   it('given the type is "specialty", displays "Specialty Subset"', () => {
     // ARRANGE
     render(<SubsetTag type="specialty" />);

@@ -54,20 +54,6 @@ export const ClaimActionButton: FC = () => {
     );
   }
 
-  if (claimData.numUnresolvedTickets >= 2) {
-    return (
-      <BaseTooltip>
-        <BaseTooltipTrigger>
-          <DisabledButton />
-        </BaseTooltipTrigger>
-
-        <BaseTooltipContent>
-          {t('You need to resolve your tickets before making any new claims.')}
-        </BaseTooltipContent>
-      </BaseTooltip>
-    );
-  }
-
   if (auth.user.roles.includes('developer-junior') && !backingGame.forumTopicId) {
     return (
       <BaseTooltip>

@@ -69,6 +69,19 @@ class UnlocksTest extends TestCase
         $this->upsertGameCoreSetAction->execute($bonusGame);
         $this->associateAchievementSetToGameAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus');
 
+        /** @var Game $challengeGame */
+        $challengeGame = Game::factory()->create([
+            'system_id' => $game->system_id,
+            'title' => $game->title . ' [Subset - Challenge]',
+        ]);
+        /** @var Achievement $challengeAchievement1 */
+        $challengeAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $challengeGame->id]);
+        /** @var Achievement $challengeAchievement2 */
+        $challengeAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $challengeGame->id]);
+
+        $this->upsertGameCoreSetAction->execute($challengeGame);
+        $this->associateAchievementSetToGameAction->execute($game, $challengeGame, AchievementSetType::Challenge, 'Challenge');
+
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
 
         $unlock1Date = $now->clone()->subMinutes(65);
@@ -82,6 +95,9 @@ class UnlocksTest extends TestCase
         $this->addHardcoreUnlock($this->user, $bonusAchievement1, $bonusUnlock1Date);
         $bonusUnlock2Date = $now->clone()->subMinutes(15);
         $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+
+        $challengeUnlock1Date = $now->clone()->subMinutes(32);
+        $this->addHardcoreUnlock($this->user, $challengeAchievement1, $challengeUnlock1Date);
 
         $this->seedEmulatorUserAgents();
 
@@ -98,6 +114,7 @@ class UnlocksTest extends TestCase
                     $achievement3->id,
                     $bonusAchievement1->id,
                     $bonusAchievement2->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -112,6 +129,7 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -128,6 +146,7 @@ class UnlocksTest extends TestCase
                     $achievement3->id,
                     $bonusAchievement1->id,
                     $bonusAchievement2->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -144,6 +163,7 @@ class UnlocksTest extends TestCase
                     $achievement3->id,
                     $bonusAchievement1->id,
                     $bonusAchievement2->id,
+                    $challengeAchievement1->id,
                     Achievement::CLIENT_WARNING_ID,
                 ],
             ]);
@@ -159,6 +179,7 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -173,6 +194,7 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -197,6 +219,22 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
+                ],
+            ]);
+
+        // hardcore unlocks for the game (with challenge opt-in)
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->id,
+                'HardcoreMode' => true,
+                'UserUnlocks' => [
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -230,6 +268,7 @@ class UnlocksTest extends TestCase
                     $achievement3->id,
                     $bonusAchievement1->id,
                     $bonusAchievement2->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -246,6 +285,7 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
         $this->user->unranked_at = null;
@@ -261,6 +301,7 @@ class UnlocksTest extends TestCase
                 'UserUnlocks' => [
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 
@@ -276,6 +317,7 @@ class UnlocksTest extends TestCase
                     $achievement1->id,
                     $achievement2->id,
                     $bonusAchievement1->id,
+                    $challengeAchievement1->id,
                 ],
             ]);
 

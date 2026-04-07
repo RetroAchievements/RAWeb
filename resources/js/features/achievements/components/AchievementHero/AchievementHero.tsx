@@ -264,7 +264,7 @@ export const AchievementHero: FC = () => {
               </p>
             </div>
 
-            <div className="hidden text-2xs text-neutral-500 light:text-neutral-600 md:block">
+            <div className="text-2xs text-neutral-500 light:text-neutral-600">
               <p className="flex gap-1">
                 {!isEventGame ? (
                   <>
