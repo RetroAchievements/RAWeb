@@ -61,8 +61,8 @@ class ResolveAchievementSetsAction
 
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
         if ($exclusiveLink !== null) {
-            // Exclusive set: only load the exclusive set.
-            return [$exclusiveLink->game_id, [AchievementSetType::Exclusive], null];
+            // Exclusive set: only load this specific exclusive set.
+            return [$exclusiveLink->game_id, [], $initialSet->achievement_set_id];
         }
 
         $specialtyLink = $links->firstWhere('type', AchievementSetType::Specialty);

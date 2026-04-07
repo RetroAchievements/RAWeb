@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 
 class GetLeaderboardEntriesAction extends BaseApiAction
 {
+    public const MAX_COUNT = 500;
+
     protected int $leaderboardId;
     protected int $offset;
     protected int $count;
@@ -22,7 +24,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
         $this->leaderboardId = $leaderboardId;
         $this->nearUser = $nearUser;
         $this->offset = $offset;
-        $this->count = $count;
+        $this->count = min($count, self::MAX_COUNT);
 
         return $this->process();
     }
@@ -35,7 +37,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
 
         $this->leaderboardId = request()->integer('i', 0);
         $this->offset = request()->integer('o', 0);
-        $this->count = request()->integer('c', 10);
+        $this->count = min(request()->integer('c', 10), self::MAX_COUNT);
 
         $username = request()->input('u');
         if ($username) {

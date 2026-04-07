@@ -6,7 +6,9 @@ namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Emulator;
 use App\Models\Platform;
+use App\Models\Role;
 use App\Models\System;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -186,6 +188,95 @@ class DownloadsControllerTest extends TestCase
             ->has('popularEmulatorsBySystem')
             ->where('popularEmulatorsBySystem.0', [])
             ->where("popularEmulatorsBySystem.{$system->id}", [])
+        );
+    }
+
+    public function testIndexIncludesToolsForDevelopers(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => System::Standalones, 'active' => true]);
+        $platform = Platform::factory()->create(['name' => 'Windows']);
+
+        $role = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+
+        // Act
+        $response = $this->actingAs($developer)->get(route('download.index'));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allTools', 1)
+            ->where('allTools.0.name', 'RAIntegration')
+            ->where('allTools.0.downloadUrl', 'https://retroachievements.org/bin/RA_Integration.dll')
+            ->where('allTools.0.downloadX64Url', 'https://retroachievements.org/bin/RA_Integration-x64.dll')
+            ->where('allTools.0.hasOfficialSupport', true)
+            ->where('allTools.0.sourceUrl', 'https://github.com/RetroAchievements/RAIntegration')
+            ->has('allTools.0.systems')
+            ->has('allTools.0.platforms')
+        );
+    }
+
+    public function testIndexIncludesToolsForJuniorDevelopers(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => System::Standalones, 'active' => true]);
+        $platform = Platform::factory()->create(['name' => 'Windows']);
+
+        $role = Role::create(['name' => Role::DEVELOPER_JUNIOR, 'display' => 1]);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER_JUNIOR);
+
+        // Act
+        $response = $this->actingAs($developer)->get(route('download.index'));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allTools', 1)
+            ->where('allTools.0.name', 'RAIntegration')
+            ->where('allTools.0.downloadUrl', 'https://retroachievements.org/bin/RA_Integration.dll')
+            ->where('allTools.0.downloadX64Url', 'https://retroachievements.org/bin/RA_Integration-x64.dll')
+            ->where('allTools.0.hasOfficialSupport', true)
+            ->where('allTools.0.sourceUrl', 'https://github.com/RetroAchievements/RAIntegration')
+            ->has('allTools.0.systems')
+            ->has('allTools.0.platforms')
+        );
+    }
+
+    public function testIndexExcludesToolsForNonDevelopers(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => System::Standalones, 'active' => true]);
+        $platform = Platform::factory()->create(['name' => 'Windows']);
+
+        $role = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $player = User::factory()->create();
+
+        // Act
+        $response = $this->actingAs($player)->get(route('download.index'));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allTools', 0)
+        );
+    }
+
+    public function testIndexExcludesToolsWhenNotLoggedIn(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => System::Standalones, 'active' => true]);
+        $platform = Platform::factory()->create(['name' => 'Windows']);
+
+        // Act
+        $response = $this->get(route('download.index'));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allTools', 0)
         );
     }
 }
