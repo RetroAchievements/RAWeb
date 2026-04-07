@@ -31,6 +31,26 @@ class DisallowAnimatedImageRuleTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
+    public function testItPassesForStaticPngContainingActlBytesInImageData(): void
+    {
+        // Arrange
+        $file = new UploadedFile(
+            base_path('tests/Fixtures/static-false-positive.png'),
+            'static-false-positive.png',
+            'image/png',
+            null,
+            true
+        );
+
+        // Act
+        $validator = Validator::make(['image' => $file], [
+            'image' => [new DisallowAnimatedImageRule()],
+        ]);
+
+        // Assert
+        $this->assertFalse($validator->fails());
+    }
+
     public function testItPassesForStaticWebp(): void
     {
         // Arrange
