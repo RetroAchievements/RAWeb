@@ -26,10 +26,6 @@ class Message extends BaseModel
         'created_at',
     ];
 
-    protected $casts = [
-        'Unread' => 'boolean',
-    ];
-
     protected static function newFactory(): MessageFactory
     {
         return MessageFactory::new();

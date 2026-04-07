@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { isEditModeAtom } from '@/features/achievements/state/achievements.atoms';
 import { render, screen } from '@/test';
-import { createAchievement, createGame } from '@/test/factories';
+import { createAchievement, createEventAchievement, createGame } from '@/test/factories';
 
 import { AchievementHero } from './AchievementHero';
 
@@ -635,6 +635,72 @@ describe('Component: AchievementHero', () => {
     // ASSERT
     expect(screen.queryByText(/points/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/retropoints/i)).not.toBeInTheDocument();
+  });
+
+  it('given a revealed event achievement, links the title to the source achievement', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Event Version',
+      game: createGame({ playersTotal: 500 }),
+      unlocksTotal: 100,
+      unlocksHardcore: 100,
+    });
+
+    const sourceAchievement = createAchievement({ id: 12345 });
+    const eventAchievement = createEventAchievement({
+      sourceAchievement,
+      isObfuscated: false,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement, eventAchievement, isEventGame: true },
+    });
+
+    // ASSERT
+    const titleLink = screen.getByRole('link', { name: 'Event Version' });
+    expect(titleLink).toBeVisible();
+    expect(titleLink).toHaveAttribute('href', expect.stringContaining('achievement.show'));
+  });
+
+  it('given an obfuscated event achievement, does not link the title', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Hidden Event',
+      game: createGame({ playersTotal: 500 }),
+      unlocksTotal: 100,
+      unlocksHardcore: 100,
+    });
+
+    const eventAchievement = createEventAchievement({
+      sourceAchievement: createAchievement(),
+      isObfuscated: true,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement, eventAchievement, isEventGame: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Hidden Event' })).not.toBeInTheDocument();
+    expect(screen.getByText('Hidden Event')).toBeVisible();
+  });
+
+  it('given a non-event achievement, does not link the title', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Regular Achievement',
+      game: createGame({ playersTotal: 500 }),
+      unlocksTotal: 100,
+      unlocksHardcore: 100,
+    });
+
+    render(<AchievementHero />, {
+      pageProps: { achievement, isEventGame: false },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Regular Achievement' })).not.toBeInTheDocument();
+    expect(screen.getByText('Regular Achievement')).toBeVisible();
   });
 
   it('given the achievement is for an event game, shows "unlocks" instead of "softcore" and "hardcore"', () => {
