@@ -186,7 +186,7 @@ requestedUsername: string | null;
 };
 }
 declare namespace App.Community.Enums {
-export type AwardType = 'mastery' | 'achievement_unlocks_yield' | 'achievement_points_yield' | 'patreon_supporter' | 'certified_legend' | 'game_beaten' | 'event';
+export type AwardType = 'mastery' | 'achievement_unlocks_yield' | 'achievement_points_yield' | 'patreon_supporter' | 'certified_legend' | 'game_beaten' | 'event' | 'playtest';
 export type ClaimSetType = 'new_set' | 'revision';
 export type ClaimSpecial = 'none' | 'own_revision' | 'free_rollout' | 'scheduled_release';
 export type ClaimStatus = 'active' | 'complete' | 'dropped' | 'in_review';
@@ -449,6 +449,7 @@ export type DownloadsPageProps = {
 allEmulators: Array<App.Platform.Data.Emulator>;
 allPlatforms: Array<App.Platform.Data.Platform>;
 allSystems: Array<App.Platform.Data.System>;
+allTools: Array<App.Platform.Data.Emulator>;
 topSystemIds: Array<number>;
 popularEmulatorsBySystem: number[][];
 userDetectedPlatformId: number | null;
@@ -474,7 +475,6 @@ userCurrentGameMinutesAgo: number | null;
 hasSiteReleaseNotes: boolean;
 hasUnreadSiteReleaseNote: boolean;
 deferredSiteReleaseNotes: Array<App.Data.News>;
-wiiSetCount: number | null;
 };
 export type SearchPageProps = {
 initialQuery: string;
@@ -483,7 +483,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'news-manager' | 'event-manager' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -815,11 +815,8 @@ width: number;
 height: number;
 originalUrl: string;
 smWebpUrl: string;
-smAvifUrl: string;
 mdWebpUrl: string;
-mdAvifUrl: string;
 lgWebpUrl: string;
-lgAvifUrl: string;
 };
 export type GameSet = {
 id: number;
@@ -1113,6 +1110,7 @@ manufacturer?: string;
 nameFull?: string;
 nameShort?: string;
 screenshotResolutions?: Array<{ width: number; height: number }> | null;
+supportsUpscaledScreenshots?: boolean;
 };
 export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 system: App.Platform.Data.System;

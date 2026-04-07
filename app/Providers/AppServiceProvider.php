@@ -9,7 +9,6 @@ use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
-use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\GenerateTypeScript;
@@ -83,9 +82,6 @@ class AppServiceProvider extends ServiceProvider
                 LogUsersOnlineCount::class,
                 ProcessFallbackBanner::class,
                 SquashMigrations::class,
-
-                // User Accounts
-                CleanupAvatars::class,
 
                 // Settings
                 SystemAlert::class,

@@ -172,6 +172,98 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given a low-res screenshot, uses the original lossless URL', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        width: 256,
+        originalUrl: 'https://example.com/original.png',
+        lgWebpUrl: 'https://example.com/lg.webp',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveAttribute('src', 'https://example.com/original.png');
+    });
+  });
+
+  it('given a high-res screenshot, uses the optimized WebP URL', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        width: 640,
+        originalUrl: 'https://example.com/original.png',
+        lgWebpUrl: 'https://example.com/lg.webp',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveAttribute('src', 'https://example.com/lg.webp');
+    });
+  });
+
+  it('given a pixelated system, constrains the image container to an integer-scaled width', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    // floor(1024 / 256) = 4. 4 * 256 = 1024.
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      const container = image.parentElement!;
+      expect(container).toHaveStyle({ maxWidth: '1024px' });
+    });
+  });
+
+  it('given a pixelated screenshot wider than the container, does not apply integer scaling', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 2048, height: 1536 }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    // floor(1024 / 2048) = 0, which is below 1, so no maxWidth is applied.
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      const container = image.parentElement!;
+      expect(container.style.maxWidth).toEqual('');
+    });
+  });
+
   it('given the user clicks the close button, calls onOpenChange with false', async () => {
     // ARRANGE
     const onOpenChange = vi.fn();

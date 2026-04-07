@@ -56,6 +56,24 @@ describe('Component: AchievementMetaDetails', () => {
     expect(screen.getByText('suspect15')).toBeVisible();
   });
 
+  it('given the active maintainer is gone, does not show the Maintained by row', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      developer: createUser(),
+      activeMaintainer: createUser({ displayName: 'BannedUser', isGone: true }),
+      createdAt: '2023-06-15T12:00:00.000000Z',
+      modifiedAt: '2024-01-20T08:30:00.000000Z',
+    });
+
+    render(<AchievementMetaDetails />, {
+      pageProps: { achievement },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/maintained by/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('BannedUser')).not.toBeInTheDocument();
+  });
+
   it('given the achievement has no active maintainer, does not show the Maintained by row', () => {
     // ARRANGE
     const achievement = createAchievement({

@@ -29,7 +29,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   title,
   unlockedAt,
   unlockedHardcoreAt,
-  asClientSideRoute = false,
+  asClientSideRoute = true,
   displayLockedStatus = 'unlocked',
   hasTooltip = true,
   shouldLink = true,
@@ -53,7 +53,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
 
   const badgeUrl = derivedDisplayLockedStatus === 'locked' ? badgeLockedUrl : badgeUnlockedUrl;
 
-  const usedHref = href ?? route('achievement.show', { achievementId: id });
+  const usedHref = href ?? route('achievement.show', { achievement: id });
 
   const LinkComponent = asClientSideRoute ? InertiaLink : 'a';
 

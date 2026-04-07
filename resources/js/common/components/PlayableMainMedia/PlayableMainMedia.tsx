@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCamera } from 'react-icons/lu';
 
+import { usePreloadGameScreenshots } from '@/common/hooks/usePreloadGameScreenshots';
 import { cn } from '@/common/utils/cn';
 
 import { ScreenshotGalleryDialog } from '../ScreenshotGalleryDialog';
@@ -38,6 +39,8 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   // null = closed, number = open at that screenshot index.
   const [openAtIndex, setOpenAtIndex] = useState<number | null>(null);
 
+  const { preloadGameScreenshots } = usePreloadGameScreenshots(screenshots);
+
   // If both images are the "No Screenshot Found" default, display nothing.
   if (imageTitleUrl.includes('000002') && imageIngameUrl.includes('000002')) {
     return null;
@@ -64,7 +67,11 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
     setOpenAtIndex(targetIndex >= 0 ? targetIndex : 0);
   };
 
-  const imgProps = { className: 'w-full rounded-sm', style: aspectRatioStyle, ...dimensionProps };
+  const imgProps = {
+    className: 'w-full rounded-sm',
+    style: isPixelated ? { imageRendering: 'pixelated' as const } : aspectRatioStyle,
+    ...dimensionProps,
+  };
 
   return (
     <div
@@ -81,6 +88,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             type="button"
             disabled={!canOpenGallery}
             className="cursor-pointer"
+            onMouseEnter={preloadGameScreenshots}
             onClick={() => handleOpenGallery('title')}
           >
             <div className="flex items-center justify-center overflow-hidden">
@@ -92,6 +100,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             type="button"
             disabled={!canOpenGallery}
             className="relative cursor-pointer"
+            onMouseEnter={preloadGameScreenshots}
             onClick={() => handleOpenGallery('ingame')}
           >
             <div className="flex items-center justify-center overflow-hidden">

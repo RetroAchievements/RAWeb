@@ -3,9 +3,11 @@ import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
 import TextareaAutosize from 'react-textarea-autosize';
+import { route } from 'ziggy-js';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementTypeIndicator } from '@/common/components/AchievementTypeIndicator';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -18,7 +20,7 @@ import { editableAchievementClassNames } from './editableAchievementClassNames';
 import { PointsLabels } from './PointsLabels';
 
 export const AchievementHero: FC = () => {
-  const { achievement, areAllAchievementsOnePoint, isEventGame } =
+  const { achievement, areAllAchievementsOnePoint, eventAchievement, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
 
   const { t } = useTranslation();
@@ -40,6 +42,13 @@ export const AchievementHero: FC = () => {
   const unlocksHardcoreTotal = achievement.unlocksHardcore as number;
   const unlocksSoftcoreTotal = unlocksTotal - unlocksHardcoreTotal;
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
+
+  const sourceAchievement = eventAchievement?.sourceAchievement;
+  const isRevealedEventAchievement =
+    isEventGame && !eventAchievement?.isObfuscated && !!sourceAchievement;
+
+  const shouldShowPointsLabels =
+    !canEditPoints && !(isEventGame && areAllAchievementsOnePoint) && achievement.points! > 0;
 
   const formattedUnlockPercentage = formatPercentage(unlockPercentage, {
     maximumFractionDigits: 2,
@@ -83,7 +92,18 @@ export const AchievementHero: FC = () => {
                 />
               ) : (
                 <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
-                  {achievement.title}
+                  {isRevealedEventAchievement ? (
+                    <InertiaLink
+                      href={route('achievement.show', {
+                        achievement: sourceAchievement.id,
+                      })}
+                      className="text-neutral-100 transition hover:underline light:text-neutral-900"
+                    >
+                      {achievement.title}
+                    </InertiaLink>
+                  ) : (
+                    achievement.title
+                  )}
                 </p>
               )}
 
@@ -131,19 +151,22 @@ export const AchievementHero: FC = () => {
                 <p className="text-sm leading-normal text-text">{achievement.description}</p>
               )}
 
-              <div className="hidden gap-3 md:flex">
+              <div className="hidden items-center gap-3 md:flex">
                 {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
 
-                {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
+                {shouldShowPointsLabels ? (
                   <PointsLabels
                     points={achievement.points}
                     pointsWeighted={achievement.pointsWeighted}
-                    showRetroPoints={!isEventGame}
+                    showRetroPoints={!isEventGame && achievement.isPromoted}
                   />
                 ) : null}
 
                 {!isEditMode && !achievement.isPromoted ? (
-                  <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+                  <>
+                    <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                    <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
+                  </>
                 ) : null}
               </div>
             </div>
@@ -151,7 +174,7 @@ export const AchievementHero: FC = () => {
         </div>
 
         {/* Mobile type + points row. Kept outside the disabled container so selects remain interactive during edit mode. */}
-        <div className="flex items-center justify-between gap-3 md:hidden">
+        <div className="flex items-center gap-3 md:hidden">
           {canEditType ? (
             <AchievementTypeSelect form={form} isSubset={isSubset} />
           ) : achievement.type ? (
@@ -160,25 +183,24 @@ export const AchievementHero: FC = () => {
               type={achievement.type}
               wrapperClassName="!bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800"
             />
-          ) : (
-            <div className="h-[30px]" />
-          )}
+          ) : null}
 
-          <div className="flex gap-3">
-            {!isEditMode && !achievement.isPromoted ? (
+          {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
+
+          {shouldShowPointsLabels ? (
+            <PointsLabels
+              points={achievement.points}
+              pointsWeighted={achievement.pointsWeighted}
+              showRetroPoints={!isEventGame && achievement.isPromoted}
+            />
+          ) : null}
+
+          {!isEditMode && !achievement.isPromoted ? (
+            <>
+              <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
               <p className="text-xs text-neutral-500">{t('Not promoted')}</p>
-            ) : null}
-
-            {canEditPoints ? <AchievementPointsSelect form={form} /> : null}
-
-            {!canEditPoints && !(isEventGame && areAllAchievementsOnePoint) ? (
-              <PointsLabels
-                points={achievement.points}
-                pointsWeighted={achievement.pointsWeighted}
-                showRetroPoints={!isEventGame}
-              />
-            ) : null}
-          </div>
+            </>
+          ) : null}
         </div>
 
         <div
@@ -203,12 +225,7 @@ export const AchievementHero: FC = () => {
 
               <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
 
-              <p className="md:hidden">
-                {formatDate(achievement.unlockedHardcoreAt ?? achievement.unlockedAt!, 'll')}
-              </p>
-              <p className="hidden md:block">
-                {formatDate(achievement.unlockedHardcoreAt ?? achievement.unlockedAt!, 'LLL')}
-              </p>
+              <p>{formatDate(achievement.unlockedHardcoreAt ?? achievement.unlockedAt!, 'll')}</p>
             </div>
           ) : null}
         </div>
@@ -222,7 +239,7 @@ export const AchievementHero: FC = () => {
           >
             <div className="flex items-center gap-3">
               <BaseProgress
-                className="h-1.5"
+                className="h-1"
                 max={playersTotal > 0 ? playersTotal : undefined}
                 segments={[
                   {
@@ -247,12 +264,12 @@ export const AchievementHero: FC = () => {
               </p>
             </div>
 
-            <div className="hidden text-xs md:block">
+            <div className="text-2xs text-neutral-500 light:text-neutral-600">
               <p className="flex gap-1">
                 {!isEventGame ? (
                   <>
                     <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
-                    <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                    <span>{'·'}</span>
                   </>
                 ) : null}
 
@@ -265,7 +282,7 @@ export const AchievementHero: FC = () => {
                       })
                     : t('{{val, number}} hardcore', { val: unlocksHardcoreTotal })}
                 </span>
-                <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+                <span>{'·'}</span>
                 <span>{t('playerCount', { val: playersTotal, count: playersTotal })}</span>
               </p>
             </div>

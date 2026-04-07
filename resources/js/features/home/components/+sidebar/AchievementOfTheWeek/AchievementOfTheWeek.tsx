@@ -52,13 +52,14 @@ export const AchievementOfTheWeek: FC = () => {
               />
 
               <div className="flex flex-col gap-0.5 self-start">
-                <a
+                <InertiaLink
                   href={route('achievement.show', {
-                    achievementId: currentEventAchievement.achievement.id,
+                    achievement: currentEventAchievement.achievement.id,
                   })}
+                  prefetch="desktop-hover-only"
                 >
                   {currentEventAchievement.achievement.title}
-                </a>
+                </InertiaLink>
 
                 <p>{currentEventAchievement.achievement.description}</p>
               </div>

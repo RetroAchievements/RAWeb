@@ -9,6 +9,7 @@ use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\ReportAchievementIssuePagePropsData;
@@ -23,6 +24,7 @@ class ReportAchievementIssueController extends Controller
     public function index(Request $request, Achievement $achievement): InertiaResponse
     {
         $this->authorize('view', $achievement);
+        $this->authorize('create', Ticket::class);
 
         /** @var User $user */
         $user = Auth::user();

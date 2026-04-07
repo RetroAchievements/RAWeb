@@ -17,9 +17,7 @@ describe('Component: OAuthBackgroundGlow', () => {
 
     // ASSERT
     const glowDiv = screen.getByTestId('glow');
-    expect(glowDiv).toHaveStyle({
-      background: expect.stringContaining('rgba(59, 130, 246'),
-    });
+    expect(glowDiv).toHaveAttribute('style', expect.stringContaining('rgba(59, 130, 246'));
   });
 
   it('given the variant is success, uses the green color', () => {
@@ -28,9 +26,7 @@ describe('Component: OAuthBackgroundGlow', () => {
 
     // ASSERT
     const glowDiv = screen.getByTestId('glow');
-    expect(glowDiv).toHaveStyle({
-      background: expect.stringContaining('rgba(34, 197, 94'),
-    });
+    expect(glowDiv).toHaveAttribute('style', expect.stringContaining('rgba(34, 197, 94'));
   });
 
   it('given the variant is error, uses the red color', () => {
@@ -39,9 +35,7 @@ describe('Component: OAuthBackgroundGlow', () => {
 
     // ASSERT
     const glowDiv = screen.getByTestId('glow');
-    expect(glowDiv).toHaveStyle({
-      background: expect.stringContaining('rgba(239, 68, 68'),
-    });
+    expect(glowDiv).toHaveAttribute('style', expect.stringContaining('rgba(239, 68, 68'));
   });
 
   it('given the variant is default, uses the blue color', () => {
@@ -50,8 +44,6 @@ describe('Component: OAuthBackgroundGlow', () => {
 
     // ASSERT
     const glowDiv = screen.getByTestId('glow');
-    expect(glowDiv).toHaveStyle({
-      background: expect.stringContaining('rgba(59, 130, 246'),
-    });
+    expect(glowDiv).toHaveAttribute('style', expect.stringContaining('rgba(59, 130, 246'));
   });
 });

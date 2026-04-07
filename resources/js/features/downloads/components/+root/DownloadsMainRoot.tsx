@@ -6,8 +6,10 @@ import { ManageButton } from '@/common/components/ManageButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useVisibleEmulators } from '../../hooks/useVisibleEmulators';
+import { useVisibleTools } from '../../hooks/useVisibleTools';
 import { AllSystemsDialog } from '../AllSystemsDialog';
 import { AvailableEmulatorsList } from '../AvailableEmulatorsList';
+import { DownloadableClientCard } from '../DownloadableClientCard';
 import { PlatformSelector } from '../PlatformSelector';
 import { SearchEmulators } from '../SearchEmulators';
 import { SortEmulators } from '../SortEmulators';
@@ -19,6 +21,7 @@ export const DownloadsMainRoot: FC = () => {
   const { t } = useTranslation();
 
   const { visibleEmulators } = useVisibleEmulators();
+  const { visibleTools } = useVisibleTools();
 
   return (
     <div className="flex flex-col">
@@ -53,6 +56,26 @@ export const DownloadsMainRoot: FC = () => {
 
           <AvailableEmulatorsList />
         </div>
+
+        {visibleTools.length ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex w-full items-center justify-between gap-3">
+              <h3 className="mb-0 border-b-0">{t('Available Tools')}</h3>
+              <p>
+                {t('({{emulatorsCount, number}} found)', { emulatorsCount: visibleTools.length })}
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {visibleTools.map((visibleTool) => (
+                <DownloadableClientCard
+                  key={`visible-tool-${visibleTool.id}`}
+                  emulator={visibleTool}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

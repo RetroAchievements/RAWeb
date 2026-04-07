@@ -49,7 +49,6 @@ class HomePagePropsData extends Data
         public bool $hasSiteReleaseNotes = false,
         public bool $hasUnreadSiteReleaseNote = false,
         public Collection|DeferProp $deferredSiteReleaseNotes = new Collection(),
-        public ?int $wiiSetCount = null,
     ) {
     }
 }

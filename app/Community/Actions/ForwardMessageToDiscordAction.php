@@ -65,6 +65,12 @@ class ForwardMessageToDiscordAction
             }
         }
 
+        // Muted users can only message RAdmin, and their messages are routed
+        // through MutedUserMessageAlert instead of the normal inbox forwarding.
+        if ($userFrom->isMuted()) {
+            return;
+        }
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
 
         // Check if this is a reply from a team account to an existing Discord thread.

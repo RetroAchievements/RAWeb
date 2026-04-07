@@ -8,10 +8,7 @@ export const createGameScreenshot = createFactory<App.Platform.Data.GameScreensh
     height: 224,
     originalUrl: faker.internet.url(),
     smWebpUrl: faker.internet.url(),
-    smAvifUrl: faker.internet.url(),
     mdWebpUrl: faker.internet.url(),
-    mdAvifUrl: faker.internet.url(),
     lgWebpUrl: faker.internet.url(),
-    lgAvifUrl: faker.internet.url(),
   };
 });
