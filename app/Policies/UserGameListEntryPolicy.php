@@ -65,6 +65,8 @@ class UserGameListEntryPolicy
         return match ($type) {
             UserGameListType::Play => true,
             UserGameListType::Develop => $user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR]),
+
+            // Set requests have their own controller with domain-specific validation.
             UserGameListType::AchievementSetRequest => false,
         };
     }
