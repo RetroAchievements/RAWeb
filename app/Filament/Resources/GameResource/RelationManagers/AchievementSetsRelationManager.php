@@ -43,6 +43,7 @@ class AchievementSetsRelationManager extends RelationManager
      */
     private const WILL_BE_TO_FINAL_TYPE_MAP = [
         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->value,
+        AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->value,
         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->value,
     ];
 
@@ -91,15 +92,12 @@ class AchievementSetsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn ($state): ?string => AchievementSetType::tryFrom($state)?->label())
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-
-                        if ($state === AchievementSetType::WillBeBonus->value) {
-                            return 'Will be Bonus when multiset is enabled';
-                        } elseif ($state === AchievementSetType::WillBeSpecialty->value) {
-                            return 'Will be Specialty when multiset is enabled';
-                        }
-
-                        return null;
+                        return match ($column->getState()) {
+                            AchievementSetType::WillBeBonus->value => 'Will be Bonus when multiset is enabled',
+                            AchievementSetType::WillBeChallenge->value => 'Will be Challenge when multiset is enabled',
+                            AchievementSetType::WillBeSpecialty->value => 'Will be Specialty when multiset is enabled',
+                            default => null,
+                        };
                     }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
@@ -143,6 +141,8 @@ class AchievementSetsRelationManager extends RelationManager
                         && $game->gameAchievementSets()->whereIn('type', [
                             AchievementSetType::Bonus->value,
                             AchievementSetType::WillBeBonus->value,
+                            AchievementSetType::Challenge->value,
+                            AchievementSetType::WillBeChallenge->value,
                             AchievementSetType::Specialty->value,
                             AchievementSetType::WillBeSpecialty->value,
                         ])->exists())
@@ -237,11 +237,13 @@ class AchievementSetsRelationManager extends RelationManager
                                 Forms\Components\Select::make('type')
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
+                                        AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->label(),
                                         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
                                         AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                                     ])
                                     ->helperText("
                                         Bonus loads with any hashes supported by Core.
+                                        Challenge also loads with any hashes supported by Core, but must be opted into.
                                         Specialty requires a unique hash, but also loads Core and Bonus.
                                         Exclusive requires a unique hash, but does not load Core or Bonus.
                                         When in doubt, please ask for help.
@@ -301,16 +303,23 @@ class AchievementSetsRelationManager extends RelationManager
                             ->label('Set Type')
                             ->options([
                                 AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
+                                AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->label(),
                                 AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
                                 AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                             ])
                             ->required()
-                            ->helperText('Bonus loads with any hashes supported by Core. Specialty requires a unique hash, but also loads Core and Bonus. Exclusive requires a unique hash, but does not load Core or Bonus.'),
+                            ->helperText("
+                                Bonus loads with any hashes supported by Core.
+                                Challenge also loads with any hashes supported by Core, but must be opted into.
+                                Specialty requires a unique hash, but also loads Core and Bonus.
+                                Exclusive requires a unique hash, but does not load Core or Bonus.
+                            "),
                     ])
                     ->fillForm(function (AchievementSet $record): array {
                         $currentType = $record->pivot->type;
                         $typeMapping = [
                             AchievementSetType::Bonus->value => AchievementSetType::WillBeBonus->value,
+                            AchievementSetType::Challenge->value => AchievementSetType::WillBeChallenge->value,
                             AchievementSetType::Specialty->value => AchievementSetType::WillBeSpecialty->value,
                             AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->value,
                         ];
@@ -419,6 +428,7 @@ class AchievementSetsRelationManager extends RelationManager
         return $game->gameAchievementSets()
             ->whereIn('type', [
                 AchievementSetType::WillBeBonus->value,
+                AchievementSetType::WillBeChallenge->value,
                 AchievementSetType::WillBeSpecialty->value,
             ])
             ->exists();

@@ -173,6 +173,7 @@ class ComputeSortTitleAction
             if ($endOfFirstTilde !== false) {
                 $tagContent = substr($title, 1, $endOfFirstTilde - 1);
                 $afterTildes = trim(substr($title, $endOfFirstTilde + 1));
+                $afterTildes = $this->removeArticles($afterTildes);
 
                 // Prefix with "zzzz{" to force tagged games to sort after non-tagged games.
                 // This also handles edge cases for games like "Zzyzzyxx". The "{" character

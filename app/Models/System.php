@@ -91,6 +91,9 @@ class System extends BaseModel implements HasMedia
         'name',
         'name_full',
         'name_short',
+        'screenshot_resolutions',
+        'has_analog_tv_output',
+        'supports_upscaled_screenshots',
         'manufacturer',
         'active',
     ];
@@ -145,6 +148,9 @@ class System extends BaseModel implements HasMedia
                 'name',
                 'name_full',
                 'name_short',
+                'screenshot_resolutions',
+                'has_analog_tv_output',
+                'supports_upscaled_screenshots',
                 'manufacturer',
                 'active',
             ])

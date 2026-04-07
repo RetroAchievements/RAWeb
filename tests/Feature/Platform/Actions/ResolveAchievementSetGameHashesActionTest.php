@@ -73,22 +73,26 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
         $this->assertTrue($result->contains('id', $hash2->id));
     }
 
-    public function testCoreSetReturnsBaseAndSubsetGameHashes(): void
+    public function testCoreSetReturnsBaseChallengeAndSubsetGameHashes(): void
     {
         // Arrange
         $baseGame = $this->createGameWithAchievements('Dragon Quest III', 5);
         $bonusGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Bonus]', 3);
+        $challengeGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Challenge]', 2);
         $specialtyGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Specialty]', 2);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
         $this->upsertGameCoreSetAction->execute($specialtyGame);
 
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
 
         $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
         $bonusHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+        $challengeHash = GameHash::factory()->create(['game_id' => $challengeGame->id]);
         $specialtyHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
         $achievementSet = $baseGame->gameAchievementSets()->core()->first()->achievementSet;
@@ -97,28 +101,33 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
         $result = (new ResolveAchievementSetGameHashesAction())->execute($achievementSet);
 
         // Assert
-        $this->assertCount(3, $result);
+        $this->assertCount(4, $result);
         $this->assertTrue($result->contains('id', $baseHash->id));
         $this->assertTrue($result->contains('id', $bonusHash->id));
+        $this->assertTrue($result->contains('id', $challengeHash->id));
         $this->assertTrue($result->contains('id', $specialtyHash->id));
     }
 
-    public function testBonusSetReturnsBaseAndSubsetGameHashes(): void
+    public function testBonusSetReturnsBaseChallengeAndSubsetGameHashes(): void
     {
         // Arrange
         $baseGame = $this->createGameWithAchievements('Dragon Quest III', 5);
         $bonusGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Bonus]', 3);
+        $challengeGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Challenge]', 2);
         $specialtyGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Specialty]', 2);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
         $this->upsertGameCoreSetAction->execute($specialtyGame);
 
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
 
         $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
         $bonusHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+        $challengeHash = GameHash::factory()->create(['game_id' => $challengeGame->id]);
         $specialtyHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
         $achievementSet = $bonusGame->gameAchievementSets()->core()->first()->achievementSet;
@@ -127,9 +136,10 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
         $result = (new ResolveAchievementSetGameHashesAction())->execute($achievementSet);
 
         // Assert
-        $this->assertCount(3, $result);
+        $this->assertCount(4, $result);
         $this->assertTrue($result->contains('id', $baseHash->id));
         $this->assertTrue($result->contains('id', $bonusHash->id));
+        $this->assertTrue($result->contains('id', $challengeHash->id));
         $this->assertTrue($result->contains('id', $specialtyHash->id));
     }
 
@@ -138,17 +148,21 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
         // Arrange
         $baseGame = $this->createGameWithAchievements('Dragon Quest III', 5);
         $bonusGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Bonus]', 3);
+        $challengeGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Challenge]', 2);
         $specialtyGame = $this->createGameWithAchievements('Dragon Quest III [Subset - Specialty]', 2);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($challengeGame);
         $this->upsertGameCoreSetAction->execute($specialtyGame);
 
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
 
         $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
         $bonusHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+        $challengeHash = GameHash::factory()->create(['game_id' => $challengeGame->id]);
         $specialtyHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
         $achievementSet = $specialtyGame->gameAchievementSets()->core()->first()->achievementSet;
@@ -161,6 +175,7 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
         $this->assertTrue($result->contains('id', $specialtyHash->id));
         $this->assertFalse($result->contains('id', $baseHash->id));
         $this->assertFalse($result->contains('id', $bonusHash->id));
+        $this->assertFalse($result->contains('id', $challengeHash->id));
     }
 
     public function testExclusiveSetReturnsOnlyExclusiveGameHashes(): void

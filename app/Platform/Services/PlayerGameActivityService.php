@@ -73,7 +73,7 @@ class PlayerGameActivityService
         $isSubset = false;
         $parentGameAchievementSets = GameAchievementSet::query()
             ->where('achievement_set_id', $gameAchievementSets->first()->achievement_set_id)
-            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Specialty])
+            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge, AchievementSetType::Specialty])
             ->get();
         foreach ($parentGameAchievementSets as $parentGameAchievementSet) {
             $isSubset = true;
