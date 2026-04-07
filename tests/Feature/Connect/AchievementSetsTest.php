@@ -2449,4 +2449,106 @@ describe('Unsupported Hash', function () {
                 ],
             ]);
     });
+
+    test('given a game with two exclusive subsets, only returns the exclusive set matching the loaded hash', function () {
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $baseGame */
+        $baseGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'trigger_definition' => 'Display:\nBase Game',
+        ]);
+
+        /** @var Game $exclusiveGameA */
+        $exclusiveGameA = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000012.png',
+            'trigger_definition' => 'Display:\nExclusive A',
+        ]);
+
+        /** @var Game $exclusiveGameB */
+        $exclusiveGameB = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000013.png',
+            'trigger_definition' => 'Display:\nExclusive B',
+        ]);
+
+        $achievementA = Achievement::factory()->promoted()->create([
+            'game_id' => $exclusiveGameA->id,
+            'image_name' => '11111',
+            'order_column' => 1,
+        ]);
+        $achievementB = Achievement::factory()->promoted()->create([
+            'game_id' => $exclusiveGameB->id,
+            'image_name' => '22222',
+            'order_column' => 1,
+        ]);
+
+        $buildSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $buildSetAction->execute($baseGame);
+        $buildSetAction->execute($exclusiveGameA);
+        $buildSetAction->execute($exclusiveGameB);
+
+        $associateSetAction = new AssociateAchievementSetToGameAction();
+        $associateSetAction->execute($baseGame, $exclusiveGameA, AchievementSetType::Exclusive, 'Sub-5');
+        $associateSetAction->execute($baseGame, $exclusiveGameB, AchievementSetType::Exclusive, 'Sub-20');
+
+        $hashA = AchievementSetsTestHelpers::createGameHash($exclusiveGameA);
+        $hashB = AchievementSetsTestHelpers::createGameHash($exclusiveGameB);
+
+        $exclusiveSetA = $exclusiveGameA->achievementSets()->first();
+        $exclusiveSetB = $exclusiveGameB->achievementSets()->first();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $hashA->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $baseGame->id,
+                'Title' => $baseGame->title,
+                'ImageIconUrl' => media_asset($baseGame->image_icon_asset_path),
+                'ConsoleId' => $baseGame->system_id,
+                'RichPresenceGameId' => $exclusiveGameA->id,
+                'RichPresencePatch' => $exclusiveGameA->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $exclusiveSetA->id,
+                        'Title' => 'Sub-5',
+                        'Type' => 'exclusive',
+                        'GameId' => $exclusiveGameA->id,
+                        'ImageIconUrl' => media_asset($exclusiveGameA->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($achievementA),
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $hashB->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $baseGame->id,
+                'Title' => $baseGame->title,
+                'ImageIconUrl' => media_asset($baseGame->image_icon_asset_path),
+                'ConsoleId' => $baseGame->system_id,
+                'RichPresenceGameId' => $exclusiveGameB->id,
+                'RichPresencePatch' => $exclusiveGameB->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $exclusiveSetB->id,
+                        'Title' => 'Sub-20',
+                        'Type' => 'exclusive',
+                        'GameId' => $exclusiveGameB->id,
+                        'ImageIconUrl' => media_asset($exclusiveGameB->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($achievementB),
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
 });
