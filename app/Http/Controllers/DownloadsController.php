@@ -11,6 +11,7 @@ use App\Http\Data\DownloadsPagePropsData;
 use App\Models\DownloadsPopularityMetric;
 use App\Models\Emulator;
 use App\Models\Platform;
+use App\Models\Role;
 use App\Models\System;
 use App\Platform\Data\EmulatorData;
 use App\Platform\Data\PlatformData;
@@ -52,10 +53,25 @@ class DownloadsController extends Controller
             return SystemData::fromSystem($system)->include('nameShort', 'iconUrl');
         });
 
+        $toolsData = new Collection();
+        if ($request->user()?->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            $raIntegrationData = new EmulatorData(0, 'RAIntegration',
+                hasOfficialSupport: true, // required to make visible
+                canDebugTriggers: true, // prevent debug triggers warning
+                sourceUrl: 'https://github.com/RetroAchievements/RAIntegration',
+                downloadUrl: 'https://retroachievements.org/bin/RA_Integration.dll',
+                downloadX64Url: 'https://retroachievements.org/bin/RA_Integration-x64.dll',
+                platforms: $platformsData->where('name', 'Windows'),
+                systems: $systemsData->where('id', System::Standalones), // required to make visible; standalone is not searchable
+            );
+            $toolsData->push($raIntegrationData);
+        }
+
         $props = new DownloadsPagePropsData(
             $emulatorsData,
             $platformsData,
             $systemsData,
+            $toolsData,
             topSystemIds: $this->getTopSystemIds(),
             popularEmulatorsBySystem: $this->getPopularEmulatorsBySystem($allSystems),
             userDetectedPlatformId: $this->detectUserPlatformId($allPlatforms),
