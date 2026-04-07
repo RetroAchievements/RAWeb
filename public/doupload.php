@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Role;
+use App\Models\Achievement;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,16 +26,16 @@ if (!authenticateFromAppToken($user, $token, $permissions)) {
 
 /** @var User $userModel */
 $userModel = auth('connect-token')->user();
-if (!$userModel || !$userModel->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+if (!$userModel || !$userModel->can('create', Achievement::class)) {
     return response()->json([
         'Success' => false,
         'Error' => "You must be a developer to upload badge images.",
     ], Response::HTTP_FORBIDDEN);
 }
 
-// Cap uploads to 5000/day per user.
+// Cap uploads to 1500/day per user.
 $rateLimitKey = 'badge-upload:' . $userModel->id;
-if (RateLimiter::tooManyAttempts($rateLimitKey, 5000)) {
+if (RateLimiter::tooManyAttempts($rateLimitKey, 1500)) {
     return response()->json([
         'Success' => false,
         'Error' => 'Too many requests. Please try again later.',
