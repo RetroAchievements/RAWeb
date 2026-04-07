@@ -449,6 +449,7 @@ export type DownloadsPageProps = {
 allEmulators: Array<App.Platform.Data.Emulator>;
 allPlatforms: Array<App.Platform.Data.Platform>;
 allSystems: Array<App.Platform.Data.System>;
+allTools: Array<App.Platform.Data.Emulator>;
 topSystemIds: Array<number>;
 popularEmulatorsBySystem: number[][];
 userDetectedPlatformId: number | null;
@@ -1149,7 +1150,7 @@ export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' |
 export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
-export type AchievementSetType = 'core' | 'bonus' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty';
+export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_challenge' | 'will_be_specialty';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';

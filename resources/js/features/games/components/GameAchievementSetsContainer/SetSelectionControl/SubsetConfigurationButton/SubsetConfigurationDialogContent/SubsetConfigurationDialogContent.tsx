@@ -2,7 +2,6 @@
 
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 
 import { BaseAlert } from '@/common/components/+vendor/BaseAlert';
 import {
@@ -11,7 +10,6 @@ import {
   BaseDialogHeader,
   BaseDialogTitle,
 } from '@/common/components/+vendor/BaseDialog';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { SubsetConfigurationForm } from './SubsetConfigurationForm';
 
@@ -24,12 +22,7 @@ export const SubsetConfigurationDialogContent: FC<SubsetConfigurationDialogConte
   configurableSets,
   onSubmitSuccess,
 }) => {
-  const { auth } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
-
-  const isGloballyOptedOut = !!auth?.user.preferences.isGloballyOptedOutOfSubsets;
-
-  const settingsUrl = `${route('settings.show')}#=:~:text=${t('Automatically opt in to all game sets')}`;
 
   return (
     <BaseDialogContent>
@@ -49,23 +42,7 @@ export const SubsetConfigurationDialogContent: FC<SubsetConfigurationDialogConte
         </BaseDialogDescription>
       </BaseDialogHeader>
 
-      <p>
-        {isGloballyOptedOut ? (
-          <Trans
-            i18nKey="You have <1>globally opted out of all subsets</1>. Use the toggles below to opt in to specific sets for this game."
-            components={{
-              1: <a href={settingsUrl} target="_blank" />,
-            }}
-          />
-        ) : (
-          <Trans
-            i18nKey="You have <1>globally opted in to all subsets</1>. Use the toggles below to opt out of specific sets for this game."
-            components={{
-              1: <a href={settingsUrl} target="_blank" />,
-            }}
-          />
-        )}
-      </p>
+      <p>{t('Select which sets will be active when you play the game.')}</p>
 
       <SubsetConfigurationForm
         configurableSets={configurableSets}

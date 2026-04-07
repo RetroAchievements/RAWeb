@@ -21,7 +21,10 @@ class PruneDuplicateSubsetNotes extends Command
         $count = 0;
 
         $bonusAchievementSets = GameAchievementSet::query()
-            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::WillBeBonus])
+            ->whereIn('type', [
+                AchievementSetType::Bonus, AchievementSetType::WillBeBonus,
+                AchievementSetType::Challenge, AchievementSetType::WillBeChallenge,
+            ])
             ->get()
             ->mapWithKeys(fn ($i) => [$i->achievement_set_id => $i->game_id]);
         $bonusGameIds = GameAchievementSet::query()

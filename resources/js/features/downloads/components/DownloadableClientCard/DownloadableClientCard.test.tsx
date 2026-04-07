@@ -126,6 +126,22 @@ describe('Component: DownloadableClientCard', () => {
     expect(screen.queryByTestId('downloadable-client')).not.toBeInTheDocument();
   });
 
+  it('given an emulator with empty systems, does not render the systems section', () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [],
+      platforms: [createPlatform()],
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/systems/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Available on')).toBeVisible();
+  });
+
   it('renders platforms correctly when executionEnvironment is missing', () => {
     // ARRANGE
     const platforms = [
