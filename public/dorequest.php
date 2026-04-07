@@ -157,7 +157,6 @@ $credentialsOK = match ($requestType) {
     "awardachievements",
     "richpresencepatch",
     "submitgametitle",
-    "submitticket",
     "submitrichpresence" => $validLogin && ($permissions >= Permissions::Registered),
     /*
      * Anything else is public. Includes login
@@ -418,18 +417,6 @@ switch ($requestType) {
     case "richpresencepatch":
         $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);
         $response['RichPresencePatch'] = $richPresenceData;
-        break;
-
-    case "submitticket":
-        $idCSV = request()->input('i');
-        $problemType = request()->input('p');
-        $comment = request()->input('n');
-        $md5 = request()->input('m');
-        $response['Response'] = submitNewTicketsJSON($username, $idCSV, $problemType, $comment, $md5);
-        $response['Success'] = $response['Response']['Success']; // Passthru
-        if (isset($response['Response']['Error'])) {
-            $response['Error'] = $response['Response']['Error'];
-        }
         break;
 
     default:

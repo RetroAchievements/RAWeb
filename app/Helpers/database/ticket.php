@@ -9,7 +9,6 @@ use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -21,74 +20,6 @@ use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
-function submitNewTicketsJSON(
-    string $userSubmitter,
-    string $idsCSV,
-    int $reportType,
-    string $noteIn,
-    string $RAHash,
-): array {
-    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $RAHash);
-
-    $returnMsg = [];
-
-    /** @var User $user */
-    $user = User::whereName($userSubmitter)->first();
-
-    if (!$user->exists() || !$user->can('create', Ticket::class)) {
-        $returnMsg['Success'] = false;
-
-        return $returnMsg;
-    }
-
-    $note = $noteIn;
-
-    $gameHash = GameHash::where('md5', '=', $RAHash)->first();
-    if (!$gameHash) {
-        $note .= "\nRetroAchievements Hash: $RAHash";
-    }
-
-    $achievementIDs = explode(',', $idsCSV);
-
-    $errorsEncountered = false;
-
-    $idsFound = 0;
-    $idsAdded = 0;
-
-    foreach ($achievementIDs as $achID) {
-        $achievementID = (int) $achID;
-        if ($achievementID == 0) {
-            continue;
-        }
-
-        $idsFound++;
-
-        $ticketID = getExistingTicketID($user, $achievementID);
-        if ($ticketID !== 0) {
-            $returnMsg['Error'] = "You already have a ticket for achievement $achID";
-            $errorsEncountered = true;
-            continue;
-        }
-
-        $ticketID = _createTicket($user, $achievementID, $reportType, null, $note);
-        if ($ticketID === 0) {
-            $errorsEncountered = true;
-        } else {
-            if ($gameHash) {
-                Ticket::where('id', $ticketID)->update(['game_hash_id' => $gameHash->id]);
-            }
-
-            $idsAdded++;
-        }
-    }
-
-    $returnMsg['Detected'] = $idsFound;
-    $returnMsg['Added'] = $idsAdded;
-    $returnMsg['Success'] = ($errorsEncountered == false);
-
-    return $returnMsg;
-}
 
 function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
 {
@@ -170,17 +101,6 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
     }
 
     return $newTicket->id;
-}
-
-function getExistingTicketID(User $user, int $achievementID): int
-{
-    $ticket = Ticket::where('reporter_id', $user->id)
-        ->where('ticketable_id', $achievementID)
-        ->where('ticketable_type', 'achievement')
-        ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
-        ->first();
-
-    return $ticket ? $ticket->id : 0;
 }
 
 function getTicket(int $ticketID): ?array
