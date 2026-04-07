@@ -49,24 +49,26 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
       name={fieldName as keyof PreferencesSectionFormValues}
       render={({ field }) => (
         <BaseFormItem className="flex w-full items-center justify-between gap-1">
-          <BaseFormLabel>{t_label}</BaseFormLabel>
+          <div className="flex items-center gap-1">
+            <BaseFormLabel>{t_label}</BaseFormLabel>
 
-          {t_infoText !== null ? (
-            <BaseTooltip>
-              <BaseTooltipTrigger>
-                <LuInfo
-                  className={cn(
-                    'hidden size-4 text-neutral-500 transition hover:text-neutral-300 sm:inline',
-                    'light:text-neutral-700',
-                  )}
-                />
-              </BaseTooltipTrigger>
+            {t_infoText ? (
+              <BaseTooltip>
+                <BaseTooltipTrigger>
+                  <LuInfo
+                    className={cn(
+                      'hidden size-4 text-neutral-500 transition hover:text-neutral-300 sm:inline',
+                      'light:text-neutral-700',
+                    )}
+                  />
+                </BaseTooltipTrigger>
 
-              <BaseTooltipContent className="max-w-72 font-normal leading-normal">
-                <span className="text-xs font-normal">{t_infoText}</span>
-              </BaseTooltipContent>
-            </BaseTooltip>
-          ) : null}
+                <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+                  <span className="text-xs font-normal">{t_infoText}</span>
+                </BaseTooltipContent>
+              </BaseTooltip>
+            ) : null}
+          </div>
 
           <BaseFormControl>
             <BaseSwitch
