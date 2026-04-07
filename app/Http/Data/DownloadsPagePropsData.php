@@ -20,11 +20,13 @@ class DownloadsPagePropsData extends Data
      * @param Collection<int, EmulatorData> $allEmulators
      * @param Collection<int, PlatformData> $allPlatforms
      * @param Collection<int, SystemData> $allSystems
+     * @param Collection<int, EmulatorData> $allTools
      */
     public function __construct(
         public Collection $allEmulators,
         public Collection $allPlatforms,
         public Collection $allSystems,
+        public Collection $allTools,
         /** @var int[] $topSystemIds */
         public array $topSystemIds,
         #[LiteralTypeScriptType('number[][]')]

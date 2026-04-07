@@ -220,9 +220,9 @@ class GenerateAnnualRecapAction
             }
         }
 
-        // also get any bonus subsets for games that the user played as they might have been played through multiset
+        // also get any bonus/challenge subsets for games that the user played as they might have been played through multiset
         $bonusAchievementSetIds = GameAchievementSet::whereIn('game_id', $gameIds)
-            ->whereIn('type', [AchievementSetType::Bonus])
+            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge])
             ->pluck('achievement_set_id')
             ->toArray();
 

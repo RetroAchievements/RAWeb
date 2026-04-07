@@ -27,6 +27,8 @@ class ComputeSortTitleActionTest extends TestCase
     {
         return [
             '~Hack~ Dragoon X Omega' => ['~Hack~ Dragoon X Omega', 'zzzz{hack dragoon x omega'],
+            '~Hack~ The 1st Annual Vanilla Level Design Contest' => ['~Hack~ The 1st Annual Vanilla Level Design Contest', 'zzzz{hack 00001st annual vanilla level design contest'],
+            '~Hack~ A-Mazing Tater' => ['~Hack~ A-Mazing Tater', 'zzzz{hack a-mazing tater'],
             '~Hack~ Pokemon - X and Y' => ['~Hack~ Pokemon - X and Y', 'zzzz{hack pokemon - x and y'],
             '~Hack~ V I T A L I T Y' => ['~Hack~ V I T A L I T Y', 'zzzz{hack v i t a l i t y'],
             '~Homebrew~ Classic Kong' => ['~Homebrew~ Classic Kong', 'zzzz{homebrew classic kong'],

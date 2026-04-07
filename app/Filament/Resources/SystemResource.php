@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\SystemResource\Pages;
 use App\Models\System;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -26,6 +27,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class SystemResource extends Resource
@@ -113,11 +115,41 @@ class SystemResource extends Resource
                             ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
+
+                Schemas\Components\Section::make('Screenshots')
+                    ->columns(['xl' => 2, '2xl' => 2])
+                    ->schema([
+                        Infolists\Components\IconEntry::make('has_analog_tv_output')
+                            ->label('Has analog TV output')
+                            ->boolean(),
+
+                        Infolists\Components\IconEntry::make('supports_upscaled_screenshots')
+                            ->label('Supports upscaled screenshots')
+                            ->boolean(),
+
+                        Infolists\Components\TextEntry::make('screenshot_resolutions')
+                            ->label('Screenshot resolutions')
+                            ->getStateUsing(function (System $record) {
+                                $resolutions = $record->screenshot_resolutions;
+
+                                if (empty($resolutions)) {
+                                    return 'Any resolution accepted';
+                                }
+
+                                return collect($resolutions)
+                                    ->map(fn ($res) => "{$res['width']}x{$res['height']}")
+                                    ->join(', ');
+                            })
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
     public static function form(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->columns(1)
             ->components([
@@ -128,28 +160,74 @@ class SystemResource extends Resource
                             Forms\Components\TextInput::make('name')
                                 ->helperText('Used in menus and page titles. May include manufacturer for recognizability.')
                                 ->required()
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->disabled(!$user->can('updateField', [$schema->model, 'name'])),
 
                             Forms\Components\TextInput::make('name_short')
                                 ->label('Short name')
                                 ->helperText('Used in condensed lists and to determine icon image name.')
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->disabled(!$user->can('updateField', [$schema->model, 'name_short'])),
 
                             Forms\Components\TextInput::make('manufacturer')
                                 ->helperText('Manufacturer company name.')
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->disabled(!$user->can('updateField', [$schema->model, 'manufacturer'])),
 
                             Forms\Components\TextInput::make('name_full')
                                 ->label('Full name')
                                 ->helperText('Manufacturer + name. Name might not include manufacturer.')
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->disabled(!$user->can('updateField', [$schema->model, 'name_full'])),
                         ]),
                     Schemas\Components\Section::make()
                         ->grow(false)
                         ->schema([
-                            Forms\Components\Toggle::make('active'),
+                            Forms\Components\Toggle::make('active')
+                                ->disabled(!$user->can('updateField', [$schema->model, 'active'])),
                         ]),
                 ])->from('md'),
+
+                Schemas\Components\Section::make('Screenshots')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Toggle::make('has_analog_tv_output')
+                            ->label('Has analog TV output')
+                            ->helperText('When enabled, SMPTE 601 analog capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are accepted in addition to native resolutions. Enable for systems that output to analog TVs/CRTs.')
+                            ->disabled(!$user->can('updateField', [$schema->model, 'has_analog_tv_output'])),
+
+                        Forms\Components\Toggle::make('supports_upscaled_screenshots')
+                            ->label('Supports upscaled screenshots')
+                            ->helperText('When enabled, 2x and 3x integer multiples of native resolutions are accepted. Enable for 3D-capable systems where emulator upscaling is common. Disable for 2D systems that should only accept native resolution.')
+                            ->disabled(!$user->can('updateField', [$schema->model, 'supports_upscaled_screenshots'])),
+
+                        Forms\Components\Placeholder::make('screenshot_resolutions_help')
+                            ->label('Screenshot resolutions')
+                            ->content('Native screen resolutions accepted for screenshot uploads. Leave empty to accept any resolution.')
+                            ->columnSpanFull(),
+
+                        Forms\Components\Repeater::make('screenshot_resolutions')
+                            ->hiddenLabel()
+                            ->addActionLabel('Add resolution')
+                            ->schema([
+                                Forms\Components\TextInput::make('width')
+                                    ->numeric()
+                                    ->integer()
+                                    ->minValue(1)
+                                    ->required(),
+                                Forms\Components\TextInput::make('height')
+                                    ->numeric()
+                                    ->integer()
+                                    ->minValue(1)
+                                    ->required(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull()
+                            ->reorderable(false)
+                            ->grid(2)
+                            ->defaultItems(0)
+                            ->disabled(!$user->can('updateField', [$schema->model, 'screenshot_resolutions'])),
+                    ]),
             ]);
     }
 
@@ -183,6 +261,34 @@ class SystemResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('name')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\IconColumn::make('has_analog_tv_output')
+                    ->label('Analog TV')
+                    ->boolean()
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\IconColumn::make('supports_upscaled_screenshots')
+                    ->label('Upscaled')
+                    ->boolean()
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('screenshot_resolutions')
+                    ->label('Resolutions')
+                    ->getStateUsing(function (System $record) {
+                        $resolutions = $record->screenshot_resolutions;
+
+                        if (empty($resolutions)) {
+                            return 'Any';
+                        }
+
+                        return collect($resolutions)
+                            ->map(fn ($res) => "{$res['width']}x{$res['height']}")
+                            ->join(', ');
+                    })
+                    ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('active')

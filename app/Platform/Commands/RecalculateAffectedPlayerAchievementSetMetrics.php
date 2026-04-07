@@ -16,7 +16,7 @@ class RecalculateAffectedPlayerAchievementSetMetrics extends Command
     protected $signature = 'ra:platform:recalculate-affected-player-achievement-set-metrics';
     protected $description = 'Recalculates PlayerAchievementSet metrics for users affected by the multiset time_taken bug';
 
-    private const AFFECTED_TYPES = [AchievementSetType::Bonus->value, AchievementSetType::Specialty->value];
+    private const AFFECTED_TYPES = [AchievementSetType::Bonus->value, AchievementSetType::Challenge->value, AchievementSetType::Specialty->value];
     private const START_DATE = '2025-05-01';
 
     public function handle(): void
