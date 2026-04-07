@@ -101,6 +101,7 @@ return [
              * @example "FooBarAlert" -> "foo_bar"
              * @example "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
              */
+            'muted_user_message' => env('DISCORD_WEBHOOK_ALERT_MUTED_USER_MESSAGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
         ],
     ],
