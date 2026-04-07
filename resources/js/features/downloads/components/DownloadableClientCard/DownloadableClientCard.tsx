@@ -92,47 +92,49 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
       </BaseCardHeader>
 
       <BaseCardContent className="flex flex-grow flex-col gap-8">
-        <div className="flex flex-col gap-1">
-          <p className="tracking-wide text-neutral-400 light:text-neutral-700">
-            {t('supportedSystemsCountLabel', { count: systems.length, val: systems.length })}
-          </p>
+        {systems.length ? (
+          <div className="flex flex-col gap-1">
+            <p className="tracking-wide text-neutral-400 light:text-neutral-700">
+              {t('supportedSystemsCountLabel', { count: systems.length, val: systems.length })}
+            </p>
 
-          <div className="flex flex-wrap items-center gap-1">
-            {cardSystems.map((system) => (
-              <BaseTooltip key={`${emulator.id}-${system.id}`}>
-                <BaseTooltipTrigger>
-                  <SystemChip {...system} />
-                </BaseTooltipTrigger>
+            <div className="flex flex-wrap items-center gap-1">
+              {cardSystems.map((system) => (
+                <BaseTooltip key={`${emulator.id}-${system.id}`}>
+                  <BaseTooltipTrigger>
+                    <SystemChip {...system} />
+                  </BaseTooltipTrigger>
 
-                <BaseTooltipContent>{system.name}</BaseTooltipContent>
-              </BaseTooltip>
-            ))}
+                  <BaseTooltipContent>{system.name}</BaseTooltipContent>
+                </BaseTooltip>
+              ))}
 
-            {tooltipSystems.length ? (
-              <BaseTooltip>
-                <BaseTooltipTrigger>
-                  <p className="text-neutral-400 underline decoration-dotted light:text-neutral-700">
-                    {t('+{{val, number}} more', { val: tooltipSystems.length })}
-                  </p>
-                </BaseTooltipTrigger>
+              {tooltipSystems.length ? (
+                <BaseTooltip>
+                  <BaseTooltipTrigger>
+                    <p className="text-neutral-400 underline decoration-dotted light:text-neutral-700">
+                      {t('+{{val, number}} more', { val: tooltipSystems.length })}
+                    </p>
+                  </BaseTooltipTrigger>
 
-                <BaseTooltipContent>
-                  <span className="flex max-w-[300px] flex-wrap gap-x-1 gap-y-1.5 py-2 lg:max-w-[500px]">
-                    {tooltipSystems.map((system) => (
-                      <SystemChip
-                        key={`${emulator.id}-${system.id}`}
-                        {...system}
-                        className="bg-neutral-800"
-                      >
-                        {system.name}
-                      </SystemChip>
-                    ))}
-                  </span>
-                </BaseTooltipContent>
-              </BaseTooltip>
-            ) : null}
+                  <BaseTooltipContent>
+                    <span className="flex max-w-[300px] flex-wrap gap-x-1 gap-y-1.5 py-2 lg:max-w-[500px]">
+                      {tooltipSystems.map((system) => (
+                        <SystemChip
+                          key={`${emulator.id}-${system.id}`}
+                          {...system}
+                          className="bg-neutral-800"
+                        >
+                          {system.name}
+                        </SystemChip>
+                      ))}
+                    </span>
+                  </BaseTooltipContent>
+                </BaseTooltip>
+              ) : null}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div className="flex flex-col gap-1">
           <p className="tracking-wide text-neutral-400 light:text-neutral-700">

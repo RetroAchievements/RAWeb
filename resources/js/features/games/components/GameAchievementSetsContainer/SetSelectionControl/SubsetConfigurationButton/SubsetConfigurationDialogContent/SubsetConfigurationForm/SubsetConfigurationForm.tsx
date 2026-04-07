@@ -25,7 +25,9 @@ export const SubsetConfigurationForm: FC<SubsetConfigurationFormProps> = ({
     onSubmitSuccess,
   });
 
-  const noSetupSets = configurableSets.filter((set) => set.type === 'core' || set.type === 'bonus');
+  const noSetupSets = configurableSets.filter(
+    (set) => set.type === 'core' || set.type === 'bonus' || set.type === 'challenge',
+  );
   const patchRequiredSets = configurableSets.filter((set) => set.type === 'specialty');
   const hasBothTypes = noSetupSets.length > 0 && patchRequiredSets.length > 0;
 

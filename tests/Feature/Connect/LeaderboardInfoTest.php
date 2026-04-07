@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
@@ -27,6 +28,33 @@ class LeaderboardInfoTest extends TestCase
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+    }
+
+    public function testCountIsClampedToUpperBound(): void
+    {
+        $game = $this->seedGame();
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+
+        $totalEntries = GetLeaderboardEntriesAction::MAX_COUNT + 2;
+        $users = User::factory()->count($totalEntries)->create();
+        $now = Carbon::now();
+        LeaderboardEntry::insert(
+            $users->map(fn ($user, $index) => [
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $user->id,
+                'score' => ($index + 1) * 10,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->toArray()
+        );
+
+        $action = new GetLeaderboardEntriesAction();
+        $result = $action->execute($leaderboard->id, count: GetLeaderboardEntriesAction::MAX_COUNT + 1);
+
+        $this->assertCount(
+            GetLeaderboardEntriesAction::MAX_COUNT,
+            $result['LeaderboardData']['Entries']
+        );
     }
 
     public function testLeaderboardInfo(): void

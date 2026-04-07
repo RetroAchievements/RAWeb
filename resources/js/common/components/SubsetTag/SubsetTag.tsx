@@ -16,6 +16,8 @@ export const SubsetTag: FC<SubsetTagProps> = ({ className, type }) => {
   let label = t('Subset');
   if (type === 'bonus') {
     label = t('Bonus Subset');
+  } else if (type === 'challenge') {
+    label = t('Challenge Subset');
   } else if (type === 'specialty') {
     label = t('Specialty Subset');
   } else if (type === 'exclusive') {
