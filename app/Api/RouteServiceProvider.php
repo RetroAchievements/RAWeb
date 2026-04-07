@@ -14,6 +14,7 @@ use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
 use App\Api\V2\Controllers\AchievementSetController;
+use App\Api\V2\Controllers\EventController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\HubController;
 use App\Api\V2\Controllers\LeaderboardController;
@@ -117,6 +118,10 @@ class RouteServiceProvider extends ServiceProvider
 
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
+                                ->readOnly();
+
+                            $server->resource('events', EventController::class)
+                                ->only('index', 'show')
                                 ->readOnly();
 
                             $server->resource('games', GameController::class)
