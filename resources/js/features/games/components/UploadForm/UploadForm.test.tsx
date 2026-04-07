@@ -5,16 +5,6 @@ import { route } from 'ziggy-js';
 import { fireEvent, render, screen, waitFor } from '@/test';
 
 import { UploadForm } from './UploadForm';
-
-// Mock the NSFW scanner so it doesn't try to load TensorFlow.
-const mockScanImage = vi.fn().mockResolvedValue({ isNsfw: false });
-vi.mock('@/common/hooks/useNsfwScanner', () => ({
-  useNsfwScanner: () => ({ scanImage: mockScanImage }),
-}));
-
-vi.mock('@tensorflow/tfjs', () => ({}));
-vi.mock('nsfwjs', () => ({ load: vi.fn() }));
-
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 
@@ -45,7 +35,6 @@ describe('Component: UploadForm', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    mockScanImage.mockReset().mockResolvedValue({ isNsfw: false });
   });
 
   it('renders without crashing', () => {
@@ -183,9 +172,17 @@ describe('Component: UploadForm', () => {
     expect(onSuccess).toHaveBeenCalledWith(screenshotResponse);
   });
 
-  it('given the submission fails, shows an error toast', async () => {
+  it('given the submission fails with a validation error, surfaces the backend message', async () => {
     // ARRANGE
-    vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('Network error'));
+    vi.spyOn(axios, 'post').mockRejectedValueOnce({
+      response: {
+        status: 422,
+        data: {
+          message: 'The screenshot must be a file of type: png.',
+          errors: { screenshot: ['The screenshot must be a file of type: png.'] },
+        },
+      },
+    });
 
     render(
       <UploadForm
@@ -206,7 +203,7 @@ describe('Component: UploadForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+      expect(screen.getByText(/must be a file of type: png/i)).toBeVisible();
     });
   });
 
@@ -289,36 +286,6 @@ describe('Component: UploadForm', () => {
     });
   });
 
-  it('given the NSFW scanner flags the image, shows a validation error and does not submit', async () => {
-    // ARRANGE
-    mockScanImage.mockResolvedValueOnce({ isNsfw: true });
-    const postSpy = vi.spyOn(axios, 'post');
-
-    render(
-      <UploadForm
-        gameId={1}
-        screenshotResolutions={[{ width: 320, height: 240 }]}
-        selectedType="ingame"
-      />,
-    );
-
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    await userEvent.upload(fileInput, createMockImageFile());
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /submit screenshot/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/could not be processed/i)).toBeVisible();
-    });
-
-    expect(postSpy).not.toHaveBeenCalled();
-  });
-
   it('given the user drops an image file on the drop zone, sets the file as the form value', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
@@ -389,54 +356,6 @@ describe('Component: UploadForm', () => {
     });
   });
 
-  it('given getImageDimensions fails during submission, shows an error toast', async () => {
-    // ARRANGE
-    let callCount = 0;
-    vi.stubGlobal(
-      'Image',
-      class MockImage {
-        naturalWidth = 320;
-        naturalHeight = 240;
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
-
-        set src(_value: string) {
-          callCount++;
-
-          // The first Image is from processFile (preview). Let it succeed.
-          // The second Image is from getImageDimensions (submit). Let it fail.
-          if (callCount <= 1) {
-            queueMicrotask(() => this.onload?.());
-          } else {
-            queueMicrotask(() => this.onerror?.(new Error('load failed')));
-          }
-        }
-      },
-    );
-
-    render(
-      <UploadForm
-        gameId={1}
-        screenshotResolutions={[{ width: 320, height: 240 }]}
-        selectedType="ingame"
-      />,
-    );
-
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    await userEvent.upload(fileInput, createMockImageFile());
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /submit screenshot/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeVisible();
-    });
-  });
-
   it('given the user had a file selected and then clears it, removes the preview', async () => {
     // ARRANGE
     render(
@@ -460,6 +379,101 @@ describe('Component: UploadForm', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    });
+  });
+
+  it('given upscaled screenshots are not supported and the user selects a JPEG via the file input, rejects it with a toast', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+        supportsUpscaledScreenshots={false}
+      />,
+    );
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const jpegFile = new File(['test'], 'screenshot.jpg', { type: 'image/jpeg' });
+
+    // ACT
+    fireEvent.change(fileInput, { target: { files: [jpegFile] } });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(/only accepts PNG/i)).toBeVisible();
+    });
+  });
+
+  it('given upscaled screenshots are not supported and the user drops a JPEG, rejects it with a toast', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+        supportsUpscaledScreenshots={false}
+      />,
+    );
+
+    const dropZone = screen.getByRole('button', { name: /drop your screenshot/i });
+    const jpegFile = new File(['test'], 'screenshot.jpg', { type: 'image/jpeg' });
+
+    // ACT
+    fireEvent.drop(dropZone, { dataTransfer: { files: [jpegFile], types: ['Files'] } });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(/only accepts PNG/i)).toBeVisible();
+    });
+  });
+
+  it('given upscaled screenshots are supported and the user drops an AVIF, rejects it with a toast', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+        supportsUpscaledScreenshots={true}
+      />,
+    );
+
+    const dropZone = screen.getByRole('button', { name: /drop your screenshot/i });
+    const avifFile = new File(['test'], 'screenshot.avif', { type: 'image/avif' });
+
+    // ACT
+    fireEvent.drop(dropZone, { dataTransfer: { files: [avifFile], types: ['Files'] } });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(/only PNG, JPEG, and WebP/i)).toBeVisible();
+    });
+  });
+
+  it('given upscaled screenshots are supported and the user drops a JPEG, accepts it', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+        supportsUpscaledScreenshots={true}
+      />,
+    );
+
+    const dropZone = screen.getByRole('button', { name: /drop your screenshot/i });
+    const jpegFile = new File(['test'], 'screenshot.jpg', { type: 'image/jpeg' });
+
+    // ACT
+    fireEvent.drop(dropZone, { dataTransfer: { files: [jpegFile], types: ['Files'] } });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
     });
   });
 

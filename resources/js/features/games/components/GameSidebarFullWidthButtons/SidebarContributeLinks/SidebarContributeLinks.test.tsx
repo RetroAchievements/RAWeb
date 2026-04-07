@@ -6,13 +6,6 @@ import { createGame, createZiggyProps } from '@/test/factories';
 
 import { SidebarContributeLinks } from './SidebarContributeLinks';
 
-// Prevent TensorFlow/nsfwjs from loading when the upload dialog renders.
-vi.mock('@/common/hooks/useNsfwScanner', () => ({
-  useNsfwScanner: () => ({ scanImage: vi.fn().mockResolvedValue({ isNsfw: false }) }),
-}));
-vi.mock('@tensorflow/tfjs', () => ({}));
-vi.mock('nsfwjs', () => ({ load: vi.fn() }));
-
 describe('Component: SidebarContributeLinks', () => {
   it('renders without crashing', () => {
     // ARRANGE

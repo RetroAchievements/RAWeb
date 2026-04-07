@@ -7,14 +7,6 @@ import { createGame, createGameScreenshot, createSystem } from '@/test/factories
 
 import { GameScreenshotUploadDialog } from './GameScreenshotUploadDialog';
 
-// Mock the NSFW scanner so it doesn't try to load TensorFlow.
-vi.mock('@/common/hooks/useNsfwScanner', () => ({
-  useNsfwScanner: () => ({ scanImage: vi.fn().mockResolvedValue({ isNsfw: false }) }),
-}));
-
-vi.mock('@tensorflow/tfjs', () => ({}));
-vi.mock('nsfwjs', () => ({ load: vi.fn() }));
-
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 

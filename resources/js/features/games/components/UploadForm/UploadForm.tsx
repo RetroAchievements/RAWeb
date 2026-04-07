@@ -11,12 +11,16 @@ import {
   BaseFormItem,
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
+import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 import { isValidScreenshotResolution } from '@/common/utils/isValidScreenshotResolution';
 
 import { ScreenshotDropZone } from './ScreenshotDropZone';
 import { useGameScreenshotUploadForm } from './useGameScreenshotUploadForm';
+
+const ALLOWED_MIME_TYPES_PNG_ONLY = ['image/png'];
+const ALLOWED_MIME_TYPES_ALL = ['image/png', 'image/jpeg', 'image/webp'];
 
 interface UploadFormProps {
   gameId: number;
@@ -88,15 +92,38 @@ export const UploadForm: FC<UploadFormProps> = ({
     img.src = url;
   };
 
+  const allowedMimeTypes = supportsUpscaledScreenshots
+    ? ALLOWED_MIME_TYPES_ALL
+    : ALLOWED_MIME_TYPES_PNG_ONLY;
+
+  const isAllowedMimeType = (file: File): boolean => {
+    return allowedMimeTypes.includes(file.type);
+  };
+
+  const mimeTypeErrorMessage = supportsUpscaledScreenshots
+    ? t('Only PNG, JPEG, and WebP screenshots are accepted.')
+    : t('This system only accepts PNG screenshots.');
+
   const handleDrop = (e: React.DragEvent) => {
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      form.setValue('imageData', file);
-      processFile(file);
+
+    if (!isAllowedMimeType(file)) {
+      toastMessage.error(mimeTypeErrorMessage);
+
+      return;
     }
+
+    form.setValue('imageData', file);
+    processFile(file);
   };
 
   const handleFileChange = (file: File | undefined) => {
+    if (file && !isAllowedMimeType(file)) {
+      toastMessage.error(mimeTypeErrorMessage);
+
+      return;
+    }
+
     form.setValue('imageData', file as File);
     processFile(file);
   };
@@ -120,16 +147,12 @@ export const UploadForm: FC<UploadFormProps> = ({
       : '';
 
   const handleFormSubmit = async (values: Parameters<typeof onSubmit>[0]) => {
-    const result = await onSubmit(values);
-
-    if (!form.formState.errors.imageData && result) {
+    await onSubmit(values, (screenshot) => {
       setPreviewDimensions(null);
-
       URL.revokeObjectURL(previewUrl!);
-
       setPreviewUrl(null);
-      onSuccess?.(result);
-    }
+      onSuccess?.(screenshot);
+    });
   };
 
   const hasPreview = !!imageData && !!previewUrl;

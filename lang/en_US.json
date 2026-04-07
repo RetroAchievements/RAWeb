@@ -1416,7 +1416,6 @@
     "Expected Resolutions: {{resolutions}} (or 2x/3x multiples)": "Expected Resolutions: {{resolutions}} (or 2x/3x multiples)",
     "Valid resolution": "Valid resolution",
     "Invalid resolution": "Invalid resolution",
-    "This image could not be processed. Please try a different screenshot.": "This image could not be processed. Please try a different screenshot.",
     "Pending": "Pending",
     "In-game": "In-game",
     "Completion": "Completion",
@@ -1428,5 +1427,7 @@
     "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}}.": "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}}.",
     "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}} (or 2x/3x multiples).": "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}} (or 2x/3x multiples).",
     "Cancel submission": "Cancel submission",
-    "No emulators matched your search.": "No emulators matched your search."
+    "No emulators matched your search.": "No emulators matched your search.",
+    "This system only accepts PNG screenshots.": "This system only accepts PNG screenshots.",
+    "Only PNG, JPEG, and WebP screenshots are accepted.": "Only PNG, JPEG, and WebP screenshots are accepted."
 }
