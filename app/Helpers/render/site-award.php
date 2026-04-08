@@ -64,7 +64,7 @@ function SeparateAwards(array $userAwards): array
     return [$gameAwards, $eventAwards, $siteAwards, $eventData, $eventAwardData];
 }
 
-function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
+function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername, int $maxGameAwards = 800): void
 {
     [$gameAwards, $eventAwards, $siteAwards, $eventData, $eventAwardData] = SeparateAwards($userAwards);
 
@@ -83,32 +83,32 @@ function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
     if (!empty($gameAwards)) {
         $firstGameAward = $firstVisibleIndex($gameAwards);
         if ($firstGameAward >= 0) {
-            $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
+            $groups[] = [$firstGameAward, $gameAwards, "Game Awards", $maxGameAwards];
         }
     }
 
     if (!empty($eventAwards)) {
         $firstEventAward = $firstVisibleIndex($eventAwards);
         if ($firstEventAward >= 0) {
-            $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
+            $groups[] = [$firstEventAward, $eventAwards, "Event Awards", null];
         }
     }
 
     if (!empty($siteAwards)) {
         $firstSiteAward = $firstVisibleIndex($siteAwards);
         if ($firstSiteAward >= 0) {
-            $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+            $groups[] = [$firstSiteAward, $siteAwards, "Site Awards", null];
         }
     }
 
     if (empty($groups)) {
-        $groups[] = [0, $gameAwards, "Game Awards"];
+        $groups[] = [0, $gameAwards, "Game Awards", $maxGameAwards];
     }
 
     usort($groups, fn ($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
-        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername, $eventData, $eventAwardData);
+        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername, $eventData, $eventAwardData, $group[3]);
     }
 }
 
@@ -122,6 +122,7 @@ function RenderAwardGroup(
     string $awardsOwnerUsername,
     Collection $eventData,
     SupportCollection $eventAwardData,
+    ?int $maxToRender = null,
 ): void {
     $numItems = count($awards);
     $numHidden = 0;
@@ -131,7 +132,6 @@ function RenderAwardGroup(
         }
     }
     if ($numItems === $numHidden) {
-        // No items to show
         return;
     }
 
@@ -179,12 +179,18 @@ function RenderAwardGroup(
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='component w-full place-content-center bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,52px))] xl:rounded xl:py-2'>";
     $imageSize = 48;
+    $rendered = 0;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
+            if ($maxToRender !== null && $rendered >= $maxToRender) {
+                break;
+            }
             RenderAward($award, $imageSize, $awardsOwnerUsername, $eventData, $eventAwardData);
+            $rendered++;
         }
     }
     echo "</div>";
+
     echo "</div>";
 }
 
