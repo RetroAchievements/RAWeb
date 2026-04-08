@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\ResponseCache;
 
+use App\Http\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\ResponseCache\CacheProfiles\BaseCacheProfile;
@@ -26,9 +27,9 @@ class AnonymousCacheProfile extends BaseCacheProfile
             return false;
         }
 
-        // The anonymous home page can be personalized by the active player
-        // search cookie, so it must not reuse a shared guest cache entry.
-        if ($request->getPathInfo() === '/' && $request->hasCookie('active_players_search')) {
+        // If any unencrypted app cookie is present, the response may vary based
+        // on client-side preferences or per-visitor UI state.
+        if ($this->requestHasUnencryptedAppCookie($request)) {
             return false;
         }
 
@@ -38,6 +39,13 @@ class AnonymousCacheProfile extends BaseCacheProfile
         }
 
         return true;
+    }
+
+    private function requestHasUnencryptedAppCookie(Request $request): bool
+    {
+        $requestCookieNames = array_keys($request->cookies->all());
+
+        return array_intersect($requestCookieNames, EncryptCookies::UNENCRYPTED_COOKIE_NAMES) !== [];
     }
 
     public function shouldCacheResponse(Response $response): bool
