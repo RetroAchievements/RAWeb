@@ -61,6 +61,17 @@ describe('shouldCacheRequest', function () {
         // ASSERT
         expect($result)->toBeFalse();
     });
+
+    it('rejects personalized home page requests that use the active players search cookie', function () {
+        // ARRANGE
+        $request = Request::create('/', 'GET', [], ['active_players_search' => 'zelda']);
+
+        // ACT
+        $result = $this->profile->shouldCacheRequest($request);
+
+        // ASSERT
+        expect($result)->toBeFalse();
+    });
 });
 
 describe('shouldCacheResponse', function () {

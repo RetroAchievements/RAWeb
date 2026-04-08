@@ -26,6 +26,12 @@ class AnonymousCacheProfile extends BaseCacheProfile
             return false;
         }
 
+        // The anonymous home page can be personalized by the active player
+        // search cookie, so it must not reuse a shared guest cache entry.
+        if ($request->getPathInfo() === '/' && $request->hasCookie('active_players_search')) {
+            return false;
+        }
+
         // Inertia partial reloads are user-specific and must not be cached.
         if ($request->headers->has('X-Inertia-Partial-Component')) {
             return false;
