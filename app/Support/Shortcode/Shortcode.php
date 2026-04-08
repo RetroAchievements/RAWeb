@@ -417,6 +417,27 @@ final class Shortcode
         return $input;
     }
 
+    /**
+     * Escape user content so it renders as plain text inside Laravel's
+     * Markdown mail templates. Sanitizes both raw HTML and Markdown
+     * syntax that the mail renderer would otherwise interpret.
+     */
+    public static function sanitizeForMailMarkdown(string $input): string
+    {
+        $input = htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+        $input = preg_replace('/!\[([^\]]*)\]\(([^)]*)\)/', '$1 ($2)', $input);
+        $input = preg_replace('/\[([^\]]*)\]\(([^)]*)\)/', '$1 ($2)', $input);
+        $input = preg_replace('/^(\s*)(#{1,6})\s/m', '$1\\\\$2 ', $input);
+        $input = preg_replace('/^(\s*)([*\-+])\s/m', '$1\\\\$2 ', $input);
+        $input = preg_replace('/^(\s*\d+)\.\s/m', '$1\\. ', $input);
+        $input = preg_replace('/([*_]{1,2})(\S)/', '\\\\$1$2', $input);
+        $input = preg_replace('/(`+)/', '\\\\$1', $input);
+        $input = preg_replace('/^(\s*)([-*_])\s*\2\s*\2\s*$/m', '$1\\\\$2$2$2', $input);
+
+        return $input;
+    }
+
     public static function convertToMarkdown(
         string $input,
         int $maxLength = 10000,

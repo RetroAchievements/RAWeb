@@ -13,13 +13,13 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Shortcode\Shortcode;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     public function testProtocolPrefix(): void
     {
@@ -889,5 +889,74 @@ final class ShortcodeTest extends TestCase
         $result = Shortcode::convertToMarkdown('[b]text[/i]'); // these opening and closing tags are mismatched
 
         $this->assertSame('text', $result); // both tags are stripped since they don't match
+    }
+
+    public function testSanitizeForMailMarkdownEscapesHtml(): void
+    {
+        $this->assertSame(
+            '&lt;script&gt;alert(1)&lt;/script&gt;',
+            Shortcode::sanitizeForMailMarkdown('<script>alert(1)</script>')
+        );
+
+        $this->assertSame(
+            '&lt;a href=&quot;https://evil.com&quot;&gt;Click here&lt;/a&gt;',
+            Shortcode::sanitizeForMailMarkdown('<a href="https://evil.com">Click here</a>')
+        );
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdLinks(): void
+    {
+        $this->assertSame(
+            'this place (https://rob-a-bank.com)',
+            Shortcode::sanitizeForMailMarkdown('[this place](https://rob-a-bank.com)')
+        );
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdImages(): void
+    {
+        $this->assertSame(
+            'alt text (https://evil.com/image.png)',
+            Shortcode::sanitizeForMailMarkdown('![alt text](https://evil.com/image.png)')
+        );
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdHeadings(): void
+    {
+        $this->assertSame('\\# Heading', Shortcode::sanitizeForMailMarkdown('# Heading'));
+        $this->assertSame('\\## Subheading', Shortcode::sanitizeForMailMarkdown('## Subheading'));
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdUnorderedLists(): void
+    {
+        $this->assertSame('\\* item', Shortcode::sanitizeForMailMarkdown('* item'));
+        $this->assertSame('\\- item', Shortcode::sanitizeForMailMarkdown('- item'));
+        $this->assertSame('\\+ item', Shortcode::sanitizeForMailMarkdown('+ item'));
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdOrderedLists(): void
+    {
+        $this->assertSame('1\\. first', Shortcode::sanitizeForMailMarkdown('1. first'));
+        $this->assertSame('99\\. ninety-nine', Shortcode::sanitizeForMailMarkdown('99. ninety-nine'));
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdBoldAndItalic(): void
+    {
+        $result = Shortcode::sanitizeForMailMarkdown('*italic* and **bold**');
+
+        $this->assertStringNotContainsString('<em>', $result);
+        $this->assertStringContainsString('\\*', $result);
+    }
+
+    public function testSanitizeForMailMarkdownNeutralizesMdInlineCode(): void
+    {
+        $this->assertStringContainsString('\\`', Shortcode::sanitizeForMailMarkdown('`code`'));
+    }
+
+    public function testSanitizeForMailMarkdownPreservesPlainText(): void
+    {
+        $this->assertSame(
+            'Just a normal comment about the game.',
+            Shortcode::sanitizeForMailMarkdown('Just a normal comment about the game.')
+        );
     }
 }

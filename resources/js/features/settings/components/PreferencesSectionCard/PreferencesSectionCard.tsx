@@ -57,7 +57,10 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         />
 
         <PreferencesSwitchField
-          t_label={t('Automatically opt in to all game sets')}
+          t_label={t('Automatically opt in to game sets')}
+          t_infoText={t(
+            'Does not apply to Challenge sets. Core sets are always opted in by default.',
+          )}
           fieldName={StringifiedUserPreference.Game_OptOutOfAllSubsets}
           control={form.control}
           isSwitchInverted={true}

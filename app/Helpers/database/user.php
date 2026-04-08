@@ -348,22 +348,6 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     return $results;
 }
 
-function GetUserFields(string $username, array $fields): ?array
-{
-    sanitize_sql_inputs($username);
-
-    $fieldsCSV = implode(",", $fields);
-    $query = "SELECT $fieldsCSV FROM users AS ua
-              WHERE ua.username = '$username'";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return null;
-    }
-
-    return mysqli_fetch_assoc($dbResult);
-}
-
 /**
  * Gets completed and mastered counts for all users who have played the passed in games.
  */

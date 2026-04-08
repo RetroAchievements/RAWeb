@@ -48,7 +48,30 @@ class DisallowAnimatedImageRule implements ValidationRule
      */
     private function isAnimatedPng(string $content): bool
     {
-        return str_contains($content, 'acTL');
+        $contentLength = strlen($content);
+        $offset = 8;
+
+        while ($offset + 12 <= $contentLength) {
+            $chunkLength = unpack('N', substr($content, $offset, 4))[1];
+            $chunkType = substr($content, $offset + 4, 4);
+            $chunkEnd = $offset + 12 + $chunkLength;
+
+            if ($chunkEnd > $contentLength) {
+                return false;
+            }
+
+            if ($chunkType === 'acTL') {
+                return true;
+            }
+
+            if ($chunkType === 'IEND') {
+                return false;
+            }
+
+            $offset = $chunkEnd;
+        }
+
+        return false;
     }
 
     /**

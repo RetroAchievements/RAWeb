@@ -101,6 +101,7 @@ return [
              * @example "FooBarAlert" -> "foo_bar"
              * @example "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
              */
+            'claim_with_unresolved_tickets' => env('DISCORD_WEBHOOK_ALERT_CLAIM_WITH_UNRESOLVED_TICKETS'),
             'muted_user_message' => env('DISCORD_WEBHOOK_ALERT_MUTED_USER_MESSAGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
         ],
