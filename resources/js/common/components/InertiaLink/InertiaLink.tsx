@@ -82,7 +82,7 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
       prefetch={false}
       onMouseEnter={() => {
         if (!isMobile && prefetch !== 'never') {
-          hoverTimeoutRef.current = window.setTimeout(handlePrefetch, 75);
+          hoverTimeoutRef.current = window.setTimeout(handlePrefetch, 150);
         }
       }}
       onMouseLeave={() => {
