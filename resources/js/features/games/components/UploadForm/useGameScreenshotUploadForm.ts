@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { LaravelValidationError } from '@/common/models';
 import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 import { isValidScreenshotResolution } from '@/common/utils/isValidScreenshotResolution';
 
@@ -87,6 +87,14 @@ export function useGameScreenshotUploadForm({
     formData.append('file', formValues.imageData);
     formData.append('type', formValues.type);
 
+    const errorMessages: Record<string, string> = {
+      duplicate_hash: t('This image has already been uploaded for this game.'),
+      invalid_resolution: t(
+        "This screenshot's resolution doesn't match what's expected for this system.",
+      ),
+      pending_cap_reached: t('You have reached the maximum number of pending submissions.'),
+    };
+
     toastMessage.promise(mutation.mutateAsync({ gameId, formData }), {
       loading: t('Submitting...'),
       success: (response) => {
@@ -95,8 +103,10 @@ export function useGameScreenshotUploadForm({
 
         return t('Screenshot submitted successfully!');
       },
-      error: ({ response }: LaravelValidationError) => {
-        return response.data.message;
+      error: (error: AxiosError<{ error?: string }>) => {
+        const errorCode = error.response?.data?.error;
+
+        return (errorCode && errorMessages[errorCode]) || t('Something went wrong.');
       },
     });
   };

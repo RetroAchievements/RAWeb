@@ -172,15 +172,12 @@ describe('Component: UploadForm', () => {
     expect(onSuccess).toHaveBeenCalledWith(screenshotResponse);
   });
 
-  it('given the submission fails with a validation error, surfaces the backend message', async () => {
+  it('given the submission fails with a known error code, shows the translated error message', async () => {
     // ARRANGE
     vi.spyOn(axios, 'post').mockRejectedValueOnce({
       response: {
         status: 422,
-        data: {
-          message: 'The screenshot must be a file of type: png.',
-          errors: { screenshot: ['The screenshot must be a file of type: png.'] },
-        },
+        data: { error: 'duplicate_hash' },
       },
     });
 
@@ -203,7 +200,39 @@ describe('Component: UploadForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/must be a file of type: png/i)).toBeVisible();
+      expect(screen.getByText(/already been uploaded/i)).toBeVisible();
+    });
+  });
+
+  it('given the submission fails with an unknown error code, shows a generic error message', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockRejectedValueOnce({
+      response: {
+        status: 500,
+        data: { message: 'Internal Server Error' },
+      },
+    });
+
+    render(
+      <UploadForm
+        gameId={7}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await userEvent.upload(fileInput, createMockImageFile());
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /submit screenshot/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeVisible();
     });
   });
 
