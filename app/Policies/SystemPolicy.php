@@ -16,8 +16,8 @@ class SystemPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
             Role::RELEASE_MANAGER,
+            Role::GAME_EDITOR,
         ]);
     }
 
@@ -34,7 +34,6 @@ class SystemPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
             Role::RELEASE_MANAGER,
         ]);
     }
@@ -42,8 +41,8 @@ class SystemPolicy
     public function update(User $user, System $system): bool
     {
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
             Role::RELEASE_MANAGER,
+            Role::GAME_EDITOR,
         ]);
     }
 
@@ -54,7 +53,6 @@ class SystemPolicy
         }
 
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
             Role::RELEASE_MANAGER,
         ]);
     }
@@ -62,7 +60,6 @@ class SystemPolicy
     public function restore(User $user, System $system): bool
     {
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
             Role::RELEASE_MANAGER,
         ]);
     }
@@ -70,5 +67,31 @@ class SystemPolicy
     public function forceDelete(User $user, System $system): bool
     {
         return false;
+    }
+
+    public function updateField(User $user, System $system, string $fieldName): bool
+    {
+        $roleFieldPermissions = [
+            Role::GAME_EDITOR => [
+                'has_analog_tv_output',
+                'screenshot_resolutions',
+                'supports_upscaled_screenshots',
+            ],
+        ];
+
+        // These roles can edit everything.
+        if ($user->hasAnyRole([Role::ROOT, Role::RELEASE_MANAGER])) {
+            return true;
+        }
+
+        $userRoles = $user->getRoleNames();
+
+        $allowedFieldsForUser = collect($roleFieldPermissions)
+            ->filter(fn ($fields, $role) => $userRoles->contains($role))
+            ->collapse()
+            ->unique()
+            ->all();
+
+        return in_array($fieldName, $allowedFieldsForUser, true);
     }
 }

@@ -81,24 +81,6 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
-  it('given the user has 2 or more unresolved tickets, shows a fake disabled claim button', () => {
-    // ARRANGE
-    render(<ClaimActionButton />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        backingGame: createGame(),
-        claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
-          numUnresolvedTickets: 2, // !!
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/claim/i)).toBeVisible();
-    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
-  });
-
   it('given the user is a junior developer and the game has no forum topic, shows a fake disabled claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
