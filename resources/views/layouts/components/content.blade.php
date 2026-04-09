@@ -1,7 +1,7 @@
 <x-header fluid>
     {{ $header ?? '' }}
 </x-header>
-@if(trim($breadcrumb ?? null))
+@if(trim((string) ($breadcrumb ?? '')))
     <x-container>
         <x-breadcrumb>
             {{ $breadcrumb }}
