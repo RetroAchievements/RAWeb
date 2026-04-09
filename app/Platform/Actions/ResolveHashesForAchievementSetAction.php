@@ -40,12 +40,12 @@ class ResolveHashesForAchievementSetAction
             $targetSet = $coreSet;
         }
 
-        // For core: core hashes + bonus hashes + specialty hashes.
+        // For core: core hashes + bonus hashes + challenge hashes + specialty hashes.
         if ($targetSet->type === AchievementSetType::Core) {
             $allHashes = $this->getHashesForRootGameSet($game, $targetSet);
 
             $bonusAndSpecialtySets = GameAchievementSet::where('game_id', $game->id)
-                ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Specialty])
+                ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge, AchievementSetType::Specialty])
                 ->with('achievementSet')
                 ->get();
 
@@ -63,8 +63,8 @@ class ResolveHashesForAchievementSetAction
             return $this->sortHashes($allHashes);
         }
 
-        // For bonus: core hashes + bonus hashes.
-        if ($targetSet->type === AchievementSetType::Bonus) {
+        // For bonus/challenge: core hashes + bonus hashes.
+        if ($targetSet->type === AchievementSetType::Bonus || $targetSet->type === AchievementSetType::Challenge) {
             $mainGameHashes = $this->getHashesForRootGameSet($game, $targetSet);
             $backingGameHashes = $this->getBackingGameHashesForSet($targetSet);
 

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
 {
+    public const MAX_COUNT = 500;
+
     protected int $achievementId;
     protected int $offset;
     protected int $count;
@@ -20,7 +22,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
         $this->achievementId = $achievementId;
         $this->friendsOnly = $friendsOnly;
         $this->offset = $offset;
-        $this->count = $count;
+        $this->count = min($count, self::MAX_COUNT);
 
         return $this->process();
     }
@@ -34,7 +36,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
         $this->achievementId = request()->integer('a', 0);
         $this->friendsOnly = request()->boolean('f', false);
         $this->offset = request()->integer('o', 0);
-        $this->count = request()->integer('c', 10);
+        $this->count = min(request()->integer('c', 10), self::MAX_COUNT);
 
         return null;
     }

@@ -5,6 +5,7 @@ export const createDownloadsPageProps = createFactory<App.Http.Data.DownloadsPag
     allEmulators: [],
     allPlatforms: [],
     allSystems: [],
+    allTools: [],
     can: {},
     popularEmulatorsBySystem: [],
     topSystemIds: [],

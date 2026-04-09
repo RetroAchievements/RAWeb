@@ -13,7 +13,9 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\Ticket;
 use App\Models\User;
+use App\Support\Alerts\ClaimWithUnresolvedTicketsAlert;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -84,6 +86,8 @@ class CreateGameClaimAction
             }
         }
 
+        $this->maybeSendClaimWithUnresolvedTicketsAlert($currentUser, $game);
+
         $webhookUrl = config('services.discord.webhook.claims');
         if (!empty($webhookUrl)) {
             $payload = [
@@ -98,5 +102,23 @@ class CreateGameClaimAction
         }
 
         return $newClaim;
+    }
+
+    private function maybeSendClaimWithUnresolvedTicketsAlert(User $currentUser, Game $game): void
+    {
+        if (!ClaimWithUnresolvedTicketsAlert::webhookUrl()) {
+            return;
+        }
+
+        $ticketCount = Ticket::forDeveloper($currentUser)->awaitingDeveloper()->count();
+        if ($ticketCount < 2) { // two or more suggests the developer may be ignoring tickets
+            return;
+        }
+
+        (new ClaimWithUnresolvedTicketsAlert(
+            user: $currentUser,
+            game: $game,
+            ticketCount: $ticketCount,
+        ))->send();
     }
 }

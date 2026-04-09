@@ -460,9 +460,7 @@ class PingTest extends TestCase
             'g' => $bonusGame->id,
             'm' => 'Playing bonus content',
             'x' => $bonusGameHash->md5,
-        ]))
-            ->assertStatus(200)
-            ->assertExactJson(['Success' => true]);
+        ]));
 
         // Assert
         $response
@@ -480,6 +478,55 @@ class PingTest extends TestCase
 
         $this->assertEquals($baseGame->id, $this->user->fresh()->rich_presence_game_id);
         $this->assertEquals('Playing bonus content', $this->user->fresh()->rich_presence);
+    }
+
+    public function testPingWithChallengeSetResolvesToCoreGame(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::now());
+
+        $system = System::factory()->create();
+        $baseGame = $this->seedGame(system: $system);
+        $challengeGame = $this->seedGame(system: $system);
+
+        Achievement::factory()->promoted()->count(2)->create(['game_id' => $baseGame->id]);
+        Achievement::factory()->promoted()->count(2)->create(['game_id' => $challengeGame->id]);
+
+        $upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
+
+        $upsertGameCoreSetAction->execute($baseGame);
+        $upsertGameCoreSetAction->execute($challengeGame);
+        $associateAchievementSetToGameAction->execute($baseGame, $challengeGame, AchievementSetType::Challenge, 'Challenge');
+
+        $challengeGameHash = GameHash::factory()->create(['game_id' => $challengeGame->id]);
+
+        $this->user->rich_presence_game_id = $challengeGame->id;
+        $this->user->save();
+
+        // Act
+        $response = $this->post('dorequest.php', $this->apiParams('ping', [
+            'g' => $challengeGame->id,
+            'm' => 'Playing challenge content',
+            'x' => $challengeGameHash->md5,
+        ]));
+
+        // Assert
+        $response
+            ->assertStatus(200)
+            ->assertExactJson(['Success' => true]);
+
+        $playerSession = PlayerSession::latest()->first();
+
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($this->user->id, $playerSession->user_id);
+        $this->assertEquals($baseGame->id, $playerSession->game_id);
+        $this->assertEquals($challengeGameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals('Playing challenge content', $playerSession->rich_presence);
+        $this->assertEquals(1, $playerSession->duration);
+
+        $this->assertEquals($baseGame->id, $this->user->fresh()->rich_presence_game_id);
+        $this->assertEquals('Playing challenge content', $this->user->fresh()->rich_presence);
     }
 
     public function testPingWithSpecialtySetMaintainsSubsetGame(): void

@@ -301,7 +301,7 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
 
-  it('given the user has 2 or more unresolved tickets, does not show create claim button', () => {
+  it('given the user has 2 or more unresolved tickets, still shows create claim button', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
@@ -319,7 +319,7 @@ describe('Component: SidebarClaimButtons', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
 
   it('given the user has fewer than 2 unresolved tickets, shows create claim button', () => {
