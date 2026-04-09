@@ -60,7 +60,6 @@ $totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200);
 $userIncompleteGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200, isExcludingCompleted: true);
-$userCompletedGamesListFull = getUsersCompletedGamesAndMax($userPage);
 $userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
@@ -71,11 +70,6 @@ $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
 );
 $userJoinedIncompleteGames = $playerProgressionService->filterAndJoinGames(
     $userIncompleteGamesList,
-    $userAwards,
-    $userPageID,
-);
-$userJoinedGamesAndAwardsFull = $playerProgressionService->filterAndJoinGames(
-    $userCompletedGamesListFull,
     $userAwards,
     $userPageID,
 );
@@ -121,7 +115,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         :totalHardcoreAchievements="$totalHardcoreAchievements"
         :totalSoftcoreAchievements="$totalSoftcoreAchievements"
         :user="$userPageModel"
-        :userJoinedGamesAndAwards="$userJoinedGamesAndAwardsFull"
+        :userAwards="$userAwards"
         :userMassData="$userMassData"
         :userClaims="$userClaimData?->toArray()"
     />

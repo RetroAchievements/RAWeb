@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
@@ -23,7 +26,7 @@ class UserProfileMeta extends Component
     public function __construct(
         private User $user,
         private string $averageCompletionPercentage = '0.00',
-        private array $userJoinedGamesAndAwards = [],
+        private array $userAwards = [],
         private array $userMassData = [],
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
@@ -245,7 +248,7 @@ class UserProfileMeta extends Component
         ];
 
         // Started games beaten
-        $startedGamesBeatenPercentage = $this->calculateStartedGamesBeaten($this->userJoinedGamesAndAwards);
+        $startedGamesBeatenPercentage = $this->calculateStartedGamesBeaten($this->userAwards);
         $startedGamesBeatenPercentageStat = [
             'label' => 'Started games beaten',
             'value' => $startedGamesBeatenPercentage . '%',
@@ -464,22 +467,32 @@ class UserProfileMeta extends Component
         return compact('pointsLast30Days', 'pointsLast7Days');
     }
 
-    private function calculateStartedGamesBeaten(array $userJoinedGamesAndAwards): string
+    private function calculateStartedGamesBeaten(array $userAwards): string
     {
         $totalGames = 0;
-        $beatenGames = 0;
+        $beatenGameIds = [];
 
-        foreach ($userJoinedGamesAndAwards as $game) {
-            if (mb_strpos($game['Title'], '[Subset') !== false || mb_strpos($game['Title'], '~Test Kit~')) {
-                continue;
-            }
-
-            $totalGames++;
-
-            if (isset($game['HighestAwardKind'])) {
-                $beatenGames++;
+        foreach ($userAwards as $userAward) {
+            if ($userAward['AwardType'] === AwardType::GameBeaten->toLegacyInteger()
+                || $userAward['AwardType'] === AwardType::Mastery->toLegacyInteger()) {
+                $beatenGameIds[] = $userAward['AwardData'];
             }
         }
+
+        $beatenGames = Game::query()
+            ->whereIn('id', $beatenGameIds)
+            ->where('title', 'NOT LIKE', '[Subset%')
+            ->where('title', 'NOT LIKE', '~Test Kit~')
+            ->count();
+
+        $totalGames = PlayerGame::query()
+            ->where('user_id', $this->userMassData['ID'])
+            ->where('achievements_unlocked', '>', '0')
+            ->whereHas('game', function ($query) {
+                $query->where('title', 'NOT LIKE', '%[Subset%')
+                      ->where('title', 'NOT LIKE', '%~Test Kit~%');
+            })
+            ->count();
 
         $averageFinishedGames = 0;
         if ($totalGames > 0) {
