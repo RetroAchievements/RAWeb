@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\UserGameListType;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -30,9 +31,9 @@ class UserGameListEntryPolicy
         return $user->is($targetUser) || $user->isFriendsWith($targetUser);
     }
 
-    public function create(User $user): bool
+    public function create(User $user, UserGameListType $type): bool
     {
-        return false;
+        return $this->canAccessType($user, $type);
     }
 
     public function update(User $user, UserGameListEntry $userGameListEntry): bool
@@ -42,7 +43,11 @@ class UserGameListEntryPolicy
 
     public function delete(User $user, UserGameListEntry $userGameListEntry): bool
     {
-        return false;
+        if ($user->id !== $userGameListEntry->user_id) {
+            return false;
+        }
+
+        return $this->canAccessType($user, $userGameListEntry->type);
     }
 
     public function restore(User $user, UserGameListEntry $userGameListEntry): bool
@@ -53,5 +58,16 @@ class UserGameListEntryPolicy
     public function forceDelete(User $user, UserGameListEntry $userGameListEntry): bool
     {
         return false;
+    }
+
+    private function canAccessType(User $user, UserGameListType $type): bool
+    {
+        return match ($type) {
+            UserGameListType::Play => true,
+            UserGameListType::Develop => $user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR]),
+
+            // Set requests have their own controller with domain-specific validation.
+            UserGameListType::AchievementSetRequest => false,
+        };
     }
 }
