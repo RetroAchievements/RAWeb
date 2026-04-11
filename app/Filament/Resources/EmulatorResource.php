@@ -153,6 +153,10 @@ class EmulatorResource extends Resource
                             ->boolean(),
 
                         Infolists\Components\IconEntry::make('softcore_only')
+                            ->hintIcon(
+                                'heroicon-m-question-mark-circle',
+                                tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to softcore.'
+                            )
                             ->boolean()
                             ->default(false),
                     ])->grow(false),
@@ -235,7 +239,7 @@ class EmulatorResource extends Resource
                             Forms\Components\Toggle::make('softcore_only')
                                 ->hintIcon(
                                     'heroicon-m-question-mark-circle',
-                                    tooltip: 'Stops asking players to update their emulator. Softcore unlocks still work.'
+                                    tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to softcore.'
                                 ),
                         ]),
                 ])->from('md'),

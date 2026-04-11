@@ -291,7 +291,7 @@ class TicketApiControllerTest extends TestCase
         ]);
 
         EmulatorCoreRestriction::create([
-            'core_name' => 'doublecherrygb',
+            'core_name' => 'doublecherrygb_libretro',
             'support_level' => ClientSupportLevel::Warned,
             'notes' => 'known issues',
         ]);
@@ -308,7 +308,7 @@ class TicketApiControllerTest extends TestCase
             'user_id' => $user->id,
             'game_id' => $game->id,
             'game_hash_id' => $gameHash->id,
-            'user_agent' => 'RetroArch/1.19.1 (Windows) doublecherrygb/5d2ac21',
+            'user_agent' => 'RetroArch/1.19.1 (Windows) doublecherrygb_libretro/5d2ac21',
         ]);
 
         $response = $this->postJson(route('api.ticket.store'), [
@@ -319,7 +319,7 @@ class TicketApiControllerTest extends TestCase
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.19.1',
-            'core' => 'doublecherrygb',
+            'core' => 'doublecherrygb_libretro',
             'gameHashId' => $gameHash->id,
         ]);
 
