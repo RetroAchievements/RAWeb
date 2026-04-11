@@ -95,10 +95,10 @@ class UserSchema extends Schema
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
+            HasMany::make('awards', 'playerBadges')->type('user-awards')->cannotEagerLoad()->readOnly(),
 
             // TODO add relationships and relationship endpoints
             // - lastGame (BelongsTo Game)
-            // - awards (HasMany PlayerBadge)
             // - following (BelongsToMany User) - users this user follows
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)

@@ -154,6 +154,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
+                                    $relationships->hasMany('awards')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();

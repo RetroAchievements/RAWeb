@@ -158,9 +158,47 @@ class PlayerBadge extends BaseModel
 
     // == instance functions
 
-    private function isGameRelated(): bool
+    public function isGameRelated(): bool
     {
-        return in_array($this->award_type, [AwardType::Mastery, AwardType::GameBeaten]);
+        return in_array($this->award_type, [AwardType::Mastery, AwardType::GameBeaten], true);
+    }
+
+    public function isVisibleOnUserProfile(): bool
+    {
+        return $this->order_column !== -1;
+    }
+
+    public function isSiteEventAward(): bool
+    {
+        return
+            $this->award_type === AwardType::Event
+            && (bool) $this->eventIfApplicable?->gives_site_award;
+    }
+
+    public function isCountedAsEventAward(): bool
+    {
+        if ($this->award_type === AwardType::Event) {
+            return !$this->isSiteEventAward();
+        }
+
+        return
+            $this->isGameRelated()
+            && $this->gameIfApplicable?->system_id === System::Events;
+    }
+
+    public function isCountedAsSiteAward(): bool
+    {
+        if ($this->award_type === AwardType::Event) {
+            return $this->isSiteEventAward();
+        }
+
+        return in_array($this->award_type, [
+            AwardType::AchievementUnlocksYield,
+            AwardType::AchievementPointsYield,
+            AwardType::PatreonSupporter,
+            AwardType::CertifiedLegend,
+            AwardType::Playtest,
+        ], true);
     }
 
     // == accessors
@@ -190,6 +228,22 @@ class PlayerBadge extends BaseModel
     }
 
     /**
+     * @return BelongsTo<Event, $this>
+     */
+    public function eventIfApplicable(): BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'award_key', 'id');
+    }
+
+    /**
+     * @return BelongsTo<SiteAward, $this>
+     */
+    public function siteAwardIfApplicable(): BelongsTo
+    {
+        return $this->belongsTo(SiteAward::class, 'award_key', 'id');
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -198,6 +252,68 @@ class PlayerBadge extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeAwardedFrom(Builder $query, string $date): Builder
+    {
+        return $query->where('awarded_at', '>=', $date);
+    }
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeAwardedTo(Builder $query, string $date): Builder
+    {
+        return $query->where('awarded_at', '<=', $date);
+    }
+
+    /**
+     * Select the canonical award rows used by public API/profile rendering.
+     * This collapses superseded softcore game awards and prior developer tiers.
+     *
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeCanonicalForApiUser(Builder $query, int $userId): Builder
+    {
+        $collapsedTypes = [
+            AwardType::AchievementUnlocksYield->value,
+            AwardType::AchievementPointsYield->value,
+            AwardType::PatreonSupporter->value,
+            AwardType::CertifiedLegend->value,
+        ];
+        $gameTypes = AwardType::gameValues();
+
+        $partitionKeyExpression = sprintf(
+            'CASE WHEN award_type IN (%s) THEN 0 ELSE award_key END',
+            implode(', ', array_fill(0, count($collapsedTypes), '?'))
+        );
+        $priorityExpression = sprintf(
+            'CASE WHEN award_type IN (%s) THEN award_tier ELSE award_key END',
+            implode(', ', array_fill(0, count($gameTypes), '?'))
+        );
+
+        $rankedAwards = static::query()
+            ->select('id')
+            ->selectRaw(
+                "ROW_NUMBER() OVER (
+                    PARTITION BY award_type, {$partitionKeyExpression}
+                    ORDER BY {$priorityExpression} DESC, awarded_at DESC, id DESC
+                ) as row_num",
+                array_merge($collapsedTypes, $gameTypes),
+            )
+            ->where('user_id', $userId);
+
+        return $query->whereIn($this->qualifyColumn('id'), function ($subquery) use ($rankedAwards) {
+            $subquery->fromSub($rankedAwards->toBase(), 'ranked_awards')
+                ->select('id')
+                ->where('row_num', 1);
+        });
+    }
 
     /**
      * @param Builder<PlayerBadge> $query
@@ -222,5 +338,38 @@ class PlayerBadge extends BaseModel
         $query->where('award_key', $gameId);
 
         return $query;
+    }
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeForEventId(Builder $query, int $eventId): Builder
+    {
+        return $query
+            ->where('award_type', AwardType::Event)
+            ->where('award_key', $eventId);
+    }
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeOrderedForProfile(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('order_column')
+            ->orderBy('awarded_at')
+            ->orderBy('award_type')
+            ->orderBy('award_tier');
+    }
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeVisibleOnUserProfile(Builder $query): Builder
+    {
+        return $query->where('order_column', '!=', -1);
     }
 }
