@@ -151,6 +151,10 @@ class EmulatorResource extends Resource
                                 tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
                             )
                             ->boolean(),
+
+                        Infolists\Components\IconEntry::make('softcore_only')
+                            ->boolean()
+                            ->default(false),
                     ])->grow(false),
                 ])->from('md'),
             ]);
@@ -227,6 +231,12 @@ class EmulatorResource extends Resource
                                     'heroicon-m-question-mark-circle',
                                     tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
                                 ),
+
+                            Forms\Components\Toggle::make('softcore_only')
+                                ->hintIcon(
+                                    'heroicon-m-question-mark-circle',
+                                    tooltip: 'Stops asking players to update their emulator. Softcore unlocks still work.'
+                                ),
                         ]),
                 ])->from('md'),
             ]);
@@ -274,6 +284,14 @@ class EmulatorResource extends Resource
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),
+
+                Tables\Columns\IconColumn::make('softcore_only')
+                    ->alignCenter()
+                    ->boolean()
+                    ->default(false)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->tooltip(fn ($record): ?string => $record->softcore_only ? 'Hardcore disabled for this emulator.' : null),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

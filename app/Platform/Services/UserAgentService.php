@@ -312,23 +312,26 @@ class UserAgentService
     }
 
     /**
-     * Returns the support level and any matching core restriction for the user agent.
-     * Use this when you need both values to avoid a redundant DB query.
+     * Returns the support level, any matching core restriction, and whether the
+     * emulator is flagged as softcore-only. Use this when you need multiple values
+     * to avoid redundant DB queries.
      *
-     * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction}
+     * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction, 2: bool}
      */
     public function getSupportLevelAndCoreRestriction(string|array|null $userAgent): array
     {
         if (empty($userAgent) || $userAgent === '[not provided]') {
-            return [ClientSupportLevel::Unknown, null];
+            return [ClientSupportLevel::Unknown, null, false];
         }
 
         $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
 
-        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
+        $emulatorUserAgent = $this->getEmulatorUserAgent($data);
         if (!$emulatorUserAgent) {
-            return [ClientSupportLevel::Unknown, null];
+            return [ClientSupportLevel::Unknown, null, false];
         }
+
+        $isSoftcoreOnly = $emulatorUserAgent->emulator->softcore_only;
 
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
@@ -338,10 +341,18 @@ class UserAgentService
              * special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
              */
             if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
-                return [ClientSupportLevel::Outdated, null];
+                return [ClientSupportLevel::Outdated, null, $isSoftcoreOnly];
             }
 
-            return [ClientSupportLevel::Blocked, null];
+            return [ClientSupportLevel::Blocked, null, $isSoftcoreOnly];
+        }
+
+        // softcore_only wins over a stale minimum_hardcore_version.
+        // Ordering matters: minimum_allowed_version still blocks ancient
+        // clients above, and core restrictions below are intentionally
+        // bypassed because softcore_only is a blanket emulator-wide flag.
+        if ($isSoftcoreOnly) {
+            return [ClientSupportLevel::Unsupported, null, true];
         }
 
         if ($emulatorUserAgent->minimum_hardcore_version) {
@@ -351,7 +362,7 @@ class UserAgentService
              * @see https://github.com/PCSX2/pcsx2/pull/13271
              */
             if (str_starts_with($userAgent, 'PCSX2 v2.4')) {
-                return [ClientSupportLevel::Full, null];
+                return [ClientSupportLevel::Full, null, false];
             }
 
             // TODO allow Filament to support this special case
@@ -362,28 +373,28 @@ class UserAgentService
              */
             if ($data['client'] === 'Dolphin' && preg_match('/^\d+-\d+$/', $data['clientVersion'])) {
                 if (UserAgentService::versionCompare($data['clientVersion'], '2603-78') < 0) {
-                    return [ClientSupportLevel::Outdated, null];
+                    return [ClientSupportLevel::Outdated, null, false];
                 }
 
-                return [ClientSupportLevel::Full, null];
+                return [ClientSupportLevel::Full, null, false];
             }
 
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
-                return [ClientSupportLevel::Outdated, null];
+                return [ClientSupportLevel::Outdated, null, false];
             }
         } elseif (!$emulatorUserAgent->minimum_allowed_version && !$emulatorUserAgent->emulator->active) {
-            return [ClientSupportLevel::Unsupported, null];
+            return [ClientSupportLevel::Unsupported, null, false];
         }
 
         // Core-specific restrictions can override the emulator-level result.
         $coreIdentifier = $this->extractCoreIdentifier($data);
         if (!$coreIdentifier) {
-            return [ClientSupportLevel::Full, null];
+            return [ClientSupportLevel::Full, null, false];
         }
 
         $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
         if (!$coreRestriction) {
-            return [ClientSupportLevel::Full, null];
+            return [ClientSupportLevel::Full, null, false];
         }
 
         // If the core meets the minimum version threshold, ignore the restriction entirely.
@@ -393,10 +404,21 @@ class UserAgentService
             && $coreVersion !== null
             && UserAgentService::versionCompare($coreVersion, $coreRestriction->minimum_version) >= 0
         ) {
-            return [ClientSupportLevel::Full, null];
+            return [ClientSupportLevel::Full, null, false];
         }
 
-        return [$coreRestriction->support_level, $coreRestriction];
+        return [$coreRestriction->support_level, $coreRestriction, false];
+    }
+
+    public function getEmulatorUserAgent(string|array|null $userAgent): ?EmulatorUserAgent
+    {
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return null;
+        }
+
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
+
+        return EmulatorUserAgent::with('emulator')->firstWhere('client', $data['client']);
     }
 
     /**

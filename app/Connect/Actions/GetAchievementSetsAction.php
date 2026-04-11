@@ -29,6 +29,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
     protected ?bool $isPromoted;
     protected ClientSupportLevel $clientSupportLevel;
     protected ?EmulatorCoreRestriction $coreRestriction = null;
+    protected bool $isSoftcoreOnlyEmulator = false;
 
     public function execute(User $user, int $gameId = 0, ?string $gameHash = null, ?bool $isPromoted = true): array
     {
@@ -54,7 +55,8 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $this->isPromoted = Achievement::isPromotedFromLegacyFlags($flag);
 
         $userAgentService = new UserAgentService();
-        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction(request()->header('User-Agent'));
+        [$this->clientSupportLevel, $this->coreRestriction, $this->isSoftcoreOnlyEmulator]
+            = $userAgentService->getSupportLevelAndCoreRestriction(request()->header('User-Agent'));
 
         // Core-specific blocks show warnings but still allow game loading.
         // Only emulator-level blocks should fully reject the request.
@@ -491,7 +493,9 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                    ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
+                    ClientSupportLevel::Unsupported => $this->isSoftcoreOnlyEmulator
+                        ? 'Warning: Softcore Only'
+                        : 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
                 };
                 $description = match ($this->clientSupportLevel) {

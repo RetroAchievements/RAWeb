@@ -78,16 +78,16 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
     $newTicket->state = TicketState::Open; // normalize to a proper enum value
 
-    // Quarantine a ticket when it's filed from a core with a restriction.
+    // Quarantine a ticket when it's filed from a restricted core or a softcore-only emulator.
     $latestSession = PlayerSession::where('user_id', $user->id)
         ->where('game_id', $achievement->game_id)
         ->latest()
         ->first();
     if ($latestSession?->user_agent) {
-        $userAgentService = new UserAgentService();
-        $coreRestriction = $userAgentService->getCoreRestrictionForUserAgent($latestSession->user_agent);
+        [, $coreRestriction, $isSoftcoreOnly] = (new UserAgentService())
+            ->getSupportLevelAndCoreRestriction($latestSession->user_agent);
 
-        if ($coreRestriction) {
+        if ($coreRestriction || $isSoftcoreOnly) {
             $newTicket->state = TicketState::Quarantined;
         }
     }
