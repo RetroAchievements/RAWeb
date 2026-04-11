@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Channels\DiscordWebhookChannel;
+use App\Notifications\Contracts\SendsDiscordWebhook;
+use App\Notifications\Messages\DiscordWebhookMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\Webhook\WebhookChannel;
-use NotificationChannels\Webhook\WebhookMessage;
 
-class UserRegistrationNotification extends Notification implements ShouldQueue
+class UserRegistrationNotification extends Notification implements SendsDiscordWebhook, ShouldQueue
 {
     use Queueable;
 
@@ -21,15 +22,10 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
 
     public function via(): array
     {
-        return [WebhookChannel::class];
+        return [DiscordWebhookChannel::class];
     }
 
-    public function toWebhook(): WebhookMessage
-    {
-        return $this->toDiscordWebhook();
-    }
-
-    private function toDiscordWebhook(): WebhookMessage
+    public function toDiscordWebhook(?object $notifiable = null): DiscordWebhookMessage
     {
         $user = $this->user;
 
@@ -93,19 +89,13 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
 
         $message = \implode(' | ', $messageElements);
 
-        return WebhookMessage::create()
-            ->data(
-                [
-                    'avatar_url' => $avatar,
-                    'username' => $username,
-                    'content' => $message,
-                    'wait' => true,
-                    'embeds' => $embeds,
-                    // 'file' => $file,
-                    // 'attachments' => $attachments,
-                ]
-            )
-            ->header('Content-Type', 'application/json');
+        return new DiscordWebhookMessage([
+            'avatar_url' => $avatar,
+            'username' => $username,
+            'content' => $message,
+            'wait' => true,
+            'embeds' => $embeds,
+        ]);
     }
 
     public function toArray(): array

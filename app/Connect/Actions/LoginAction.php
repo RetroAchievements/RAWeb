@@ -47,9 +47,9 @@ class LoginAction extends BaseApiAction
             return $this->authenticateFromPassword();
         } elseif (!empty($this->token)) {
             return $this->authenticateFromToken();
-        } else {
-            return $this->invalidCredentials();
         }
+
+        return $this->invalidCredentials();
     }
 
     private function authenticateFromPassword(): array

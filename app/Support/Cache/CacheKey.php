@@ -6,7 +6,7 @@ namespace App\Support\Cache;
 
 class CacheKey
 {
-    public const SystemMenuList = 'ui:menu:systems';
+    public const SystemMenuList = 'ui:menu:systems:v2';
 
     public static function buildGameCardDataCacheKey(int $gameId): string
     {
