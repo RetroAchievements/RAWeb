@@ -11,14 +11,14 @@
         <div class="">
             {{ $title }}
         </div>
-        @if(trim($slot))
+        @if(trim((string) $slot))
             <div>
                 {{ $slot }}
             </div>
         @endif
     </div>
     <div class="actions-container">
-        @if(trim($actions ?? null))
+        @if(trim((string) ($actions ?? '')))
             <div class="actions {{ $actionsClass }}">
                 <div class="flex gap-1 justify-end items-center">
                     {{ $actions }}
