@@ -192,6 +192,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         GameScreenshotStatus::Approved => 'success',
                         GameScreenshotStatus::Pending => 'warning',
                         GameScreenshotStatus::Rejected => 'danger',
+                        GameScreenshotStatus::Replaced => 'gray',
                     })
                     ->formatStateUsing(fn (GameScreenshotStatus $state): string => match ($state) {
                         GameScreenshotStatus::Approved => 'Published',
