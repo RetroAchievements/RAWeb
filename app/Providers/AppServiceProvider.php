@@ -107,11 +107,16 @@ class AppServiceProvider extends ServiceProvider
             'avatar' => $user->avatarUrl,
         ]);
 
-        // Allow the main app server to fetch logs from this worker via bearer token.
+        // Allow the main app server to fetch logs from remote hosts (worker, api, etc.) via bearer token.
         LogViewer::auth(function ($request) {
-            $token = config('log-viewer.hosts.worker.auth.token');
-            if ($token && $request->bearerToken() === $token) {
-                return true;
+            $bearerToken = $request->bearerToken();
+            if ($bearerToken) {
+                foreach (config('log-viewer.hosts', []) as $host) {
+                    $hostToken = $host['auth']['token'] ?? null;
+                    if ($hostToken && hash_equals($hostToken, $bearerToken)) {
+                        return true;
+                    }
+                }
             }
 
             return $request->user()?->can('viewLogViewer') ?? false;

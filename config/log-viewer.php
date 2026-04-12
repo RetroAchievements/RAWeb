@@ -108,6 +108,14 @@ return [
                 'token' => env('LOG_VIEWER_WORKER_TOKEN'),
             ],
         ],
+
+        'api' => [
+            'name' => 'API',
+            'host' => env('LOG_VIEWER_API_HOST'),
+            'auth' => [
+                'token' => env('LOG_VIEWER_API_TOKEN'),
+            ],
+        ],
     ],
 
     /*

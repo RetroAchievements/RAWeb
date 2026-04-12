@@ -73,7 +73,7 @@
         "torann/geoip": "^3.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.13.5",
+        "barryvdh/laravel-debugbar": "^4.2.5",
         "barryvdh/laravel-ide-helper": "^3.1",
         "brianium/paratest": "^7.2",
         "driftingly/rector-laravel": "^2.0",
