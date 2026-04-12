@@ -27,6 +27,7 @@ export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createGameListEntryStats';
 export * from './createGamePageClaimData';
 export * from './createGameRecentPlayer';
 export * from './createGameRelease';
