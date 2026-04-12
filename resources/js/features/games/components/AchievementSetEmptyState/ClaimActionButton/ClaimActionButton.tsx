@@ -11,6 +11,7 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
+import { getCanCreateClaim } from '@/features/games/utils/getCanCreateClaim';
 
 export const ClaimActionButton: FC = () => {
   const { auth, backingGame, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -42,7 +43,7 @@ export const ClaimActionButton: FC = () => {
     return null;
   }
 
-  if (!claimData?.numClaimsRemaining && !claimData?.isSoleAuthor) {
+  if (!getCanCreateClaim(claimData)) {
     return (
       <BaseTooltip>
         <BaseTooltipTrigger>
@@ -68,7 +69,7 @@ export const ClaimActionButton: FC = () => {
     );
   }
 
-  if (claimData.wouldBeCollaboration) {
+  if (claimData?.wouldBeCollaboration) {
     return (
       <ClaimConfirmationDialog
         data-testid="claim-button"
