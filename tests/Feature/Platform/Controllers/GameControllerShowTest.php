@@ -43,6 +43,7 @@ use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\EventHubIdCacheService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
@@ -591,6 +592,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', false)
             ->where('can.createGameComments', false)
             ->where('can.createGameForumTopic', false)
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', false)
             ->where('can.manageGameHashes', false)
             ->where('can.manageGames', false)
@@ -616,6 +618,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', false)
             ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', false)
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', false)
             ->where('can.manageGameHashes', false)
             ->where('can.manageGames', false)
@@ -646,6 +649,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', true)
             ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', false) // jr devs cannot create forum topics
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', true)
             ->where('can.manageGameHashes', false) // jr devs cannot manage hashes
             ->where('can.manageGames', true)
@@ -675,6 +679,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', true)
             ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', true) // full devs can create official forum topics
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', true)
             ->where('can.manageGameHashes', true)
             ->where('can.manageGames', true)
@@ -804,6 +809,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', false) // they're not a developer
             ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', false) // the game already has a forum topic
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', true)
             ->where('can.manageGameHashes', false) // they're not a developer
             ->where('can.manageGames', false) // they're not a developer
@@ -833,6 +839,7 @@ describe('Permissions Props', function () {
             ->where('can.createAchievementSetClaims', false)
             ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', false)
+            ->where('can.createGameScreenshot', false)
             ->where('can.manageAchievementSetClaims', false)
             ->where('can.manageGameHashes', false)
             ->where('can.manageGames', false)
@@ -2960,5 +2967,192 @@ describe('Edge Cases Tests', function () {
 
         // ASSERT
         $response->assertOk();
+    });
+});
+
+describe('Screenshot Upload Props', function () {
+    it('given a guest user, does not include screenshot upload props', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given an eligible user with the feature enabled, includes screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', true)
+            ->has('screenshotUploadStatuses')
+            ->has('screenshotUploadPendingCount')
+            ->has('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given the feature is disabled, does not include screenshot upload props even for eligible users', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', false);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given an eligible user, screenshotUploadStatuses groups primary approved screenshots by type', function () {
+        // ARRANGE
+        Storage::fake('s3');
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ... primary approved screenshots should be counted ...
+        GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]); // 1
+        GameScreenshot::factory()->for($game)->ingame()->primary()->create(['width' => 256, 'height' => 224]);
+        GameScreenshot::factory()->for($game)->ingame()->primary()->create(['width' => 256, 'height' => 224]); // 2
+
+        // ... non-primary and non-approved screenshots should be excluded ...
+        GameScreenshot::factory()->for($game)->ingame()->create(['width' => 256, 'height' => 224]);
+        GameScreenshot::factory()->for($game)->ingame()->primary()->pending()->create(['width' => 256, 'height' => 224]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('screenshotUploadStatuses.title.count', 1)
+            ->where('screenshotUploadStatuses.title.hasResolutionIssues', false)
+            ->where('screenshotUploadStatuses.ingame.count', 2)
+            ->where('screenshotUploadStatuses.ingame.hasResolutionIssues', false)
+            ->missing('screenshotUploadStatuses.completion')
+        );
+    });
+
+    it('given screenshots with wrong resolutions for the system, screenshotUploadStatuses reports resolution issues', function () {
+        // ARRANGE
+        Storage::fake('s3');
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create([
+            'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        ]);
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('screenshotUploadStatuses.title.count', 1)
+            ->where('screenshotUploadStatuses.title.hasResolutionIssues', true)
+        );
+    });
+
+    it('given an eligible user, screenshotUploadPendingCount reflects their total pending screenshots across all games', function () {
+        // ARRANGE
+        Storage::fake('s3');
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $otherGame = createGameWithAchievements($system, 'Other Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ... the user's pending screenshots on any game should be counted ...
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($otherGame)->pending()->create(['captured_by_user_id' => $user->id]);
+
+        // ... approved screenshots and other users' pending screenshots should not be counted ...
+        GameScreenshot::factory()->for($game)->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => User::factory()->create()->id]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('screenshotUploadPendingCount', 3)
+        );
+    });
+
+    it('given an eligible user, screenshotUploadUserSubmissions returns only their pending screenshots for this game', function () {
+        // ARRANGE
+        Storage::fake('s3');
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $otherGame = createGameWithAchievements($system, 'Other Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ... the user's pending screenshots on this game should be returned ...
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => $user->id]);
+
+        // ... pending screenshots on another game, approved screenshots, and other users' screenshots should be excluded ...
+        GameScreenshot::factory()->for($otherGame)->pending()->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($game)->create(['captured_by_user_id' => $user->id]);
+        GameScreenshot::factory()->for($game)->pending()->create(['captured_by_user_id' => User::factory()->create()->id]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('screenshotUploadUserSubmissions', 2)
+        );
     });
 });

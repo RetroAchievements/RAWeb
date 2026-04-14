@@ -1,5 +1,4 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { HydrationBoundary } from '@tanstack/react-query';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -7,10 +6,7 @@ import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useGameListState } from '../../hooks/useGameListState';
-import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
-import { useTableSync } from '../../hooks/useTableSync';
-import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
+import { useGameListTableRoot } from '../../hooks/useGameListTableRoot';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { useColumnDefinitions } from './useColumnDefinitions';
@@ -26,43 +22,18 @@ export const RequestedGamesMainRoot: FC = () => {
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
     useRequestedGamesDefaultColumnState({ targetUser });
 
-  const {
-    columnFilters,
-    columnVisibility,
-    pagination,
-    setColumnFilters,
-    setColumnVisibility,
-    setPagination,
-    setSorting,
-    sorting,
-  } = useGameListState(paginatedGameListEntries, {
-    defaultColumnSort,
-    defaultColumnFilters,
-    defaultColumnVisibility,
-  });
-
   const columnDefinitions = useColumnDefinitions(targetUser);
+  const apiRouteName = targetUser ? 'api.set-request.user' : 'api.set-request.index';
+  const apiRouteParams = targetUser ? { user: targetUser.displayName } : {};
 
-  const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
-    columnFilters,
-    pagination,
-    sorting,
-    paginatedData: paginatedGameListEntries,
-    apiRouteName: targetUser ? 'api.set-request.user' : 'api.set-request.index',
-    apiRouteParams: targetUser ? { user: targetUser.displayName } : {},
-  });
-
-  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
-
-  useTableSync({
-    columnFilters,
-    columnVisibility,
+  const { hydrationState, gameListTableProps } = useGameListTableRoot({
+    paginatedGameListEntries,
     defaultColumnFilters,
     defaultColumnSort,
-    pagination,
-    sorting,
+    defaultColumnVisibility,
     defaultPageSize: 50,
-    isUserPersistenceEnabled: isCurrentlyPersistingView,
+    apiRouteName,
+    apiRouteParams,
   });
 
   return (
@@ -88,26 +59,11 @@ export const RequestedGamesMainRoot: FC = () => {
         </div>
       ) : null}
 
-      <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
+      <HydrationBoundary state={hydrationState}>
         <GamesDataTableContainer
-          // Table state
-          columnFilters={columnFilters}
-          columnVisibility={columnVisibility}
-          pagination={pagination}
-          sorting={sorting}
-          // State setters
-          setColumnFilters={setColumnFilters}
-          setColumnVisibility={setColumnVisibility}
-          setPagination={setPagination}
-          setSorting={setSorting}
-          // Table configuration
+          {...gameListTableProps}
           defaultChipOfInterest="numRequests"
-          defaultColumnFilters={defaultColumnFilters}
-          defaultColumnSort={defaultColumnSort}
           columnDefinitions={columnDefinitions}
-          // API configuration
-          apiRouteName={targetUser ? 'api.set-request.user' : 'api.set-request.index'}
-          apiRouteParams={targetUser ? { user: targetUser.displayName } : {}}
           randomGameApiRouteName="api.set-request.random"
         />
       </HydrationBoundary>

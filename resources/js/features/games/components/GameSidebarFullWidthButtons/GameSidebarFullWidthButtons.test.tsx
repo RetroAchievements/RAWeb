@@ -1,6 +1,6 @@
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { createGame, createZiggyProps } from '@/test/factories';
 
 import { GameSidebarFullWidthButtons } from './GameSidebarFullWidthButtons';
 
@@ -94,6 +94,39 @@ describe('Component: GameSidebarFullWidthButtons', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: 'Contribute' })).toBeVisible();
+  });
+
+  it('given the user can upload screenshots on desktop, shows the Contribute button', () => {
+    // ARRANGE
+    const game = createGame({ forumTopicId: undefined });
+    render(<GameSidebarFullWidthButtons game={game} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: [] }) },
+        backingGame: createGame(),
+        can: { createGameScreenshot: true },
+        game,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Contribute' })).toBeVisible();
+  });
+
+  it('given the user can upload screenshots but is on mobile, does not show the Contribute button for screenshots', () => {
+    // ARRANGE
+    render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        can: { createGameScreenshot: true },
+        numCompatibleHashes: 0,
+        ziggy: createZiggyProps({ device: 'mobile' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: 'Contribute' })).not.toBeInTheDocument();
   });
 
   it('given the user is not a developer, does not show the Subscribe section', () => {

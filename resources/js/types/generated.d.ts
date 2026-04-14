@@ -397,6 +397,7 @@ createAchievementSetClaims?: boolean;
 createForumTopicComments?: boolean;
 createGameComments?: boolean;
 createGameForumTopic?: boolean;
+createGameScreenshot?: boolean;
 createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createTicket?: boolean;
@@ -889,6 +890,9 @@ targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadPendingCount?: number;
+screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
 export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
 paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -1092,6 +1096,10 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+};
+export type ScreenshotUploadTypeStatus = {
+count: number;
+hasResolutionIssues: boolean;
 };
 export type SeriesHub = {
 hub: App.Platform.Data.GameSet;

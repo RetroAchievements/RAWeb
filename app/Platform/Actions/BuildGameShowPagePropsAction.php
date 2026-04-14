@@ -14,6 +14,7 @@ use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
@@ -32,12 +33,15 @@ use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Data\ScreenshotUploadTypeStatusData;
 use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameBannerPreference;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\GameLeaderboardService;
+use App\Platform\Services\ScreenshotResolutionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
@@ -240,6 +244,7 @@ class BuildGameShowPagePropsAction
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',
+                'createGameScreenshot',
                 'manageAchievementSetClaims',
                 'manageGameHashes',
                 'manageGames',
@@ -403,11 +408,41 @@ class BuildGameShowPagePropsAction
                 ->all(),
 
             userGameAchievementSetPreferences: $this->buildUserAchievementSetPreferences($game, $user),
+
+            screenshotUploadStatuses: Lazy::create(fn () => $this->buildScreenshotUploadStatuses($game)),
+
+            screenshotUploadPendingCount: Lazy::create(fn () => $user
+                ? GameScreenshot::where('captured_by_user_id', $user->id)
+                    ->where('status', GameScreenshotStatus::Pending)
+                    ->count()
+                : 0
+            ),
+
+            screenshotUploadUserSubmissions: Lazy::create(fn () => $user
+                ? $game->gameScreenshots()
+                    ->where('captured_by_user_id', $user->id)
+                    ->where('status', GameScreenshotStatus::Pending)
+                    ->with('media')
+                    ->orderByDesc('created_at')
+                    ->get()
+                    ->map(fn (GameScreenshot $screenshot) => GameScreenshotData::fromGameScreenshot($screenshot))
+                    ->values()
+                : collect()
+            ),
         );
 
         // Only include featured leaderboards for non-mobile devices.
         if (!$isMobile) {
             $propsData = $propsData->include('featuredLeaderboards');
+        }
+
+        // Only include screenshot upload data when the user can create screenshots.
+        if ($user && $user->can('create', [GameScreenshot::class, $game])) {
+            $propsData = $propsData->include(
+                'screenshotUploadStatuses',
+                'screenshotUploadPendingCount',
+                'screenshotUploadUserSubmissions',
+            );
         }
 
         return $propsData;
@@ -574,5 +609,42 @@ class BuildGameShowPagePropsAction
             ->count();
 
         return [$playersTotal, $playersHardcore];
+    }
+
+    /**
+     * This is used to tell the screenshot upload dialog "here's what
+     * the game already has and where the gaps/problems are".
+     *
+     * @return array<string, ScreenshotUploadTypeStatusData>
+     */
+    private function buildScreenshotUploadStatuses(Game $game): array
+    {
+        $screenshots = $game->gameScreenshots()
+            ->approved()
+            ->where('is_primary', true)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->get(['type', 'width', 'height']);
+
+        $system = $game->system;
+        $resolutionService = new ScreenshotResolutionService();
+        $hasDefinedResolutions = !empty($system->screenshot_resolutions);
+
+        $statuses = [];
+        foreach ($screenshots->groupBy('type') as $type => $typeScreenshots) {
+            $hasResolutionIssues = false;
+            if ($hasDefinedResolutions) {
+                $hasResolutionIssues = $typeScreenshots->contains(
+                    fn (GameScreenshot $ss) => !$resolutionService->isValidResolution($ss->width, $ss->height, $system)
+                );
+            }
+
+            $statuses[$type] = new ScreenshotUploadTypeStatusData(
+                count: $typeScreenshots->count(),
+                hasResolutionIssues: $hasResolutionIssues,
+            );
+        }
+
+        return $statuses;
     }
 }

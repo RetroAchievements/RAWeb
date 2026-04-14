@@ -148,6 +148,27 @@ describe('Basic Rendering', function () {
         );
     });
 
+    it('normalizes nullable achievement metrics to zero in props', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [$game, $achievement] = createGameWithAchievementAndSet($system, achievementOverrides: [
+            'unlocks_hardcore' => null,
+            'unlocks_total' => null,
+        ]);
+
+        $game->forceFill(['players_total' => null])->save();
+
+        // ACT
+        $response = get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('achievement.unlocksHardcore', 0)
+            ->where('achievement.unlocksTotal', 0)
+            ->where('achievement.game.playersTotal', 0)
+        );
+    });
+
     it('given a tab query param, sets the initialTab prop', function () {
         // ARRANGE
         $system = System::factory()->create();
