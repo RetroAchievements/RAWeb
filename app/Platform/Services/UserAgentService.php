@@ -312,7 +312,7 @@ class UserAgentService
     }
 
     /**
-     * Returns the support level and any matching core restriction.
+     * Returns the support level and any matching core restriction for the user agent.
      * Use this when you need both values to avoid a redundant DB query.
      *
      * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction}
