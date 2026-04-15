@@ -83,12 +83,10 @@ class PatchDataTest extends TestCase
         ];
     }
 
-    private function getClientWarningAchievementPatchData(
-        ClientSupportLevel $clientSupportLevel,
-        ?string $titleOverride = null,
-    ): array {
+    private function getClientWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
+    {
         return $this->getWarningAchievementPatchData(
-            title: $titleOverride ?? match ($clientSupportLevel) {
+            title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
                 ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',

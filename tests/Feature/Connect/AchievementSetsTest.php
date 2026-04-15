@@ -101,12 +101,10 @@ class AchievementSetsTestHelpers
         ];
     }
 
-    public static function getClientWarningAchievementPatchData(
-        ClientSupportLevel $clientSupportLevel,
-        ?string $titleOverride = null,
-    ): array {
+    public static function getClientWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
+    {
         return AchievementSetsTestHelpers::getWarningAchievementPatchData(
-            title: $titleOverride ?? match ($clientSupportLevel) {
+            title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
                 ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
