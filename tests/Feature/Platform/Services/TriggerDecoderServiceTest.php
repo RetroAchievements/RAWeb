@@ -575,6 +575,22 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionHitTarget($condition, '0');
     }
 
+    public function testMergeCodeNotesInRangeWithUnorderedNotes(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH21a8c4=1");
+        $service->mergeCodeNotes($groups, [
+            0x21D1B8 => "[20 bytes] Later note",
+            0x21A8C0 => "[848 bytes] Board player 1 arcade",
+        ]);
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionSourceTooltip(
+            $condition,
+            "[0x21a8c0 + 4]\n[848 bytes] Board player 1 arcade"
+        );
+    }
+
     public function testMergeCodeNotesWithRedirect(): void
     {
         $service = new TriggerDecoderService();
