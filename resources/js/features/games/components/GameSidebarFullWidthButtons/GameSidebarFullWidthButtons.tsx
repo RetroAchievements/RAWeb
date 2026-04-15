@@ -16,7 +16,7 @@ interface GameSidebarFullWidthButtonsProps {
 }
 
 export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> = ({ game }) => {
-  const { auth, backingGame, can, numCompatibleHashes, targetAchievementSetId } =
+  const { auth, backingGame, can, numCompatibleHashes, targetAchievementSetId, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -33,11 +33,15 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   const canShowDevelopmentAndSubscribe =
     userRoles.includes('developer') || userRoles.includes('developer-junior');
 
+  // Screenshot upload is desktop-only. Drag-and-drop doesn't work well on mobile.
+  const canShowScreenshotUpload = !!can.createGameScreenshot && ziggy.device === 'desktop';
+
   if (
     !canShowEssentialResources &&
     !canShowExtras &&
     !canShowManagement &&
-    !canShowDevelopmentAndSubscribe
+    !canShowDevelopmentAndSubscribe &&
+    !canShowScreenshotUpload
   ) {
     return null;
   }
@@ -67,10 +71,11 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
 
       {canShowExtras ? <SidebarExtrasSection game={game} /> : null}
 
-      {canShowDevelopmentAndSubscribe || canShowManagement ? (
+      {canShowDevelopmentAndSubscribe || canShowManagement || canShowScreenshotUpload ? (
         <SidebarContributeLinks
           canShowDevelopmentAndSubscribe={canShowDevelopmentAndSubscribe}
           canShowManagement={canShowManagement}
+          canShowScreenshotUpload={canShowScreenshotUpload}
         />
       ) : null}
     </div>

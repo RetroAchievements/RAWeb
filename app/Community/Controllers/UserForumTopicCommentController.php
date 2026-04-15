@@ -10,23 +10,24 @@ use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-// TODO refactor: build page props using an action (see HomeController)
-
 class UserForumTopicCommentController extends Controller
 {
+    private const POSTS_PER_PAGE = 25;
+
     public function index(Request $request, User $user): InertiaResponse
     {
         $this->authorize('view', $user);
 
-        $offset = $request->input('page', 1) - 1;
-        $count = 25;
+        $page = (int) $request->input('page', 1);
 
         /** @var User $me */
         $me = $request->user();
@@ -35,10 +36,11 @@ class UserForumTopicCommentController extends Controller
             $permissions = (int) $me->getAttribute('Permissions');
         }
 
+        $postsQuery = $this->getUserPostsQuery($user, $permissions);
+
         $posts = $this->getUserPosts(
-            $user,
-            page: (int) $request->input('page', 1),
-            permissions: $permissions,
+            clone $postsQuery,
+            page: $page,
         );
 
         $shortcodeIds = [];
@@ -57,9 +59,9 @@ class UserForumTopicCommentController extends Controller
 
         $paginator = new LengthAwarePaginator(
             items: $transformedPosts,
-            total: $user->forumPosts()->authorized()->viewable($me)->count(),
-            perPage: $count,
-            currentPage: $offset + 1,
+            total: $postsQuery->count(),
+            perPage: self::POSTS_PER_PAGE,
+            currentPage: $page,
             options: [
                 'path' => $request->url(),
                 'query' => $request->query(),
@@ -76,40 +78,39 @@ class UserForumTopicCommentController extends Controller
         return Inertia::render('user/[user]/posts', $props);
     }
 
-    private function getUserPosts(User $user, int $page = 1, int $permissions = Permissions::Unregistered): array
+    private function getUserPosts(Builder $query, int $page = 1): array
     {
-        $count = 25;
-        $offset = ($page - 1) * $count;
+        return $query
+            ->select([
+                'ft.id as ForumTopicID',
+                'ft.title as ForumTopicTitle',
+                'f.id as ForumID',
+                'f.title as ForumTitle',
+                'forum_topic_comments.id as CommentID',
+                'forum_topic_comments.created_at as PostedAt',
+                'forum_topic_comments.author_id',
+                'ua.username as Author',
+                'ua.display_name as AuthorDisplayName',
+                'forum_topic_comments.body as ShortMsg',
+            ])
+            ->selectRaw('0 as IsTruncated')
+            ->orderByDesc('forum_topic_comments.created_at')
+            ->forPage($page, self::POSTS_PER_PAGE)
+            ->get()
+            ->map(fn (object $post) => (array) $post)
+            ->all();
+    }
 
-        $query = "
-            SELECT 
-                ft.id AS ForumTopicID, 
-                ft.title AS ForumTopicTitle,
-                f.id AS ForumID, 
-                f.title AS ForumTitle,
-                lftc.id AS CommentID, 
-                lftc.created_at AS PostedAt, 
-                lftc.author_id,
-                ua.username AS Author,
-                ua.display_name AS AuthorDisplayName,
-                lftc.body AS ShortMsg,
-                0 AS IsTruncated
-            FROM forum_topic_comments AS lftc
-            INNER JOIN forum_topics AS ft ON ft.id = lftc.forum_topic_id
-            INNER JOIN forums AS f ON f.id = ft.forum_id
-            LEFT JOIN users AS ua ON ua.id = lftc.author_id
-            WHERE lftc.author_id = :author_id 
-              AND lftc.is_authorized = 1
-              AND ft.required_permissions <= :permissions 
-              AND ft.deleted_at IS NULL
-            ORDER BY lftc.created_at DESC
-            LIMIT :offset, :count";
-
-        return legacyDbFetchAll($query, [
-            'author_id' => $user->id,
-            'offset' => $offset,
-            'count' => $count,
-            'permissions' => $permissions,
-        ])->toArray();
+    private function getUserPostsQuery(User $user, int $permissions = Permissions::Unregistered): Builder
+    {
+        return ForumTopicComment::query()
+            ->authorized()
+            ->where('forum_topic_comments.author_id', $user->id)
+            ->toBase()
+            ->join('forum_topics as ft', 'ft.id', '=', 'forum_topic_comments.forum_topic_id')
+            ->join('forums as f', 'f.id', '=', 'ft.forum_id')
+            ->leftJoin('users as ua', 'ua.id', '=', 'forum_topic_comments.author_id')
+            ->where('ft.required_permissions', '<=', $permissions)
+            ->whereNull('ft.deleted_at');
     }
 }

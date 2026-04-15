@@ -1,6 +1,6 @@
 <x-container :fluid="$fluid ?? false">
-    <main class="{{ $class ?? 'mb-5' }} {{ trim($sidebar ?? false) ? 'with-sidebar' : '' }}" data-scroll-target>
-        @if(trim($sidebar ?? false))
+    <main class="{{ $class ?? 'mb-5' }} {{ trim((string) ($sidebar ?? '')) ? 'with-sidebar' : '' }}" data-scroll-target>
+        @if(trim((string) ($sidebar ?? '')))
             @if($withoutWrappers)
                 {{ $slot }}
                 {{ $sidebar }}

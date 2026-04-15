@@ -9,6 +9,7 @@ use App\Models\System;
 use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\Api\AchievementApiController;
 use App\Platform\Controllers\Api\GameApiController;
+use App\Platform\Controllers\Api\GameScreenshotApiController;
 use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
@@ -157,6 +158,14 @@ class RouteServiceProvider extends ServiceProvider
                         ->name('api.user.event-award-tier-preference.update');
 
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
+
+                    Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.store');
+
+                    Route::delete('game/{game}/screenshots/{gameScreenshot}', [GameScreenshotApiController::class, 'destroy'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.destroy');
                 });
 
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
