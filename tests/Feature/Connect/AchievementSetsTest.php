@@ -108,6 +108,7 @@ class AchievementSetsTestHelpers
         return AchievementSetsTestHelpers::getWarningAchievementPatchData(
             title: $titleOverride ?? match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -1888,7 +1889,7 @@ describe('User Agent', function () {
             ]);
     });
 
-    test('softcore-only user agent receives unsupported warning instead of please update', function () {
+    test('softcore-only user agent receives softcore-only warning instead of please update', function () {
         $data = AchievementSetsTestHelpers::createSimpleGame();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
@@ -1923,8 +1924,7 @@ describe('User Agent', function () {
                         'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                         'Achievements' => [
                             AchievementSetsTestHelpers::getClientWarningAchievementPatchData(
-                                ClientSupportLevel::Unsupported,
-                                'Warning: Softcore Only',
+                                ClientSupportLevel::SoftcoreOnly,
                             ),
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2

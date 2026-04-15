@@ -25,6 +25,9 @@ enum ClientSupportLevel: int
     // but hardcore unlocks and leaderboard submissions are still allowed.
     case Warned = 5;
 
+    // client is recognized, but it's known that hardcore is unsupported for it.
+    case SoftcoreOnly = 6;
+
     /**
      * Full and Warned levels both permit hardcore unlocks and leaderboard submissions.
      * All other levels restrict these capabilities in some way.

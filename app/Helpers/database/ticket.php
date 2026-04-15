@@ -5,6 +5,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Community\Services\SubscriptionService;
+use App\Enums\ClientSupportLevel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -84,10 +85,10 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         ->latest()
         ->first();
     if ($latestSession?->user_agent) {
-        [, $coreRestriction, $isSoftcoreOnly] = (new UserAgentService())
+        [$clientSupportLevel, $coreRestriction] = (new UserAgentService())
             ->getSupportLevelAndCoreRestriction($latestSession->user_agent);
 
-        if ($coreRestriction || $isSoftcoreOnly) {
+        if ($coreRestriction || $clientSupportLevel === ClientSupportLevel::SoftcoreOnly) {
             $newTicket->state = TicketState::Quarantined;
         }
     }

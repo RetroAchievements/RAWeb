@@ -405,7 +405,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertEquals($expected, $userAgentService->getSupportLevel($userAgent));
     }
 
-    public function testSoftcoreOnlyFlagReturnsUnsupported(): void
+    public function testSoftcoreOnlyFlagReturnsSoftcoreOnly(): void
     {
         $userAgentService = new UserAgentService();
 
@@ -419,11 +419,11 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
             'client' => 'gopher64',
         ]);
 
-        $this->assertEquals(ClientSupportLevel::Unsupported,
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
-        $this->assertEquals(ClientSupportLevel::Unsupported,
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('gopher64/0.0.1'));
-        $this->assertEquals(ClientSupportLevel::Unsupported,
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('gopher64/99.99.99'));
 
         // a lingering minimum_hardcore_version on a softcore-only row is
@@ -432,7 +432,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
             'minimum_hardcore_version' => '5.0',
         ]);
 
-        $this->assertEquals(ClientSupportLevel::Unsupported,
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
 
         // minimum_allowed_version still takes precedence for blocking ancient versions
@@ -443,7 +443,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals(ClientSupportLevel::Blocked,
             $userAgentService->getSupportLevel('gopher64/1.0.0'));
-        $this->assertEquals(ClientSupportLevel::Unsupported,
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
     }
 
@@ -468,7 +468,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         ]);
 
         $this->assertEquals(
-            ClientSupportLevel::Unsupported,
+            ClientSupportLevel::SoftcoreOnly,
             $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75')
         );
         $this->assertNull(

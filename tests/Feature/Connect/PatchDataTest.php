@@ -90,6 +90,7 @@ class PatchDataTest extends TestCase
         return $this->getWarningAchievementPatchData(
             title: $titleOverride ?? match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -704,8 +705,7 @@ class PatchDataTest extends TestCase
                     'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(
-                            ClientSupportLevel::Unsupported,
-                            'Warning: Softcore Only',
+                            ClientSupportLevel::SoftcoreOnly,
                         ),
                         $this->getAchievementPatchData($achievement1),
                     ],
