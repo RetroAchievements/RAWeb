@@ -8,6 +8,7 @@ use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\Role;
@@ -89,6 +90,18 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
         if ($coreRestriction) {
             $newTicket->state = TicketState::Quarantined;
+        }
+
+        // Quarantine a ticket when it's filed from an emulator that lacks developer toolkit support.
+        if ($newTicket->state !== TicketState::Quarantined) {
+            $decoded = $userAgentService->decode($latestSession->user_agent);
+            $client = $decoded['client'] ?? null;
+            if ($client) {
+                $emulatorUserAgent = EmulatorUserAgent::with('emulator')->firstWhere('client', $client);
+                if ($emulatorUserAgent?->emulator && !$emulatorUserAgent->emulator->can_debug_triggers) {
+                    $newTicket->state = TicketState::Quarantined;
+                }
+            }
         }
     }
 
