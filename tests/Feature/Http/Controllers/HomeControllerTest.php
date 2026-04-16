@@ -29,6 +29,61 @@ class HomeControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+private function createDominatingClaims(
+        Game $game,
+        ClaimStatus $status,
+        int $count,
+        Carbon $createdAnchor,
+        ?Carbon $finishedAnchor = null,
+    ): void {
+        User::factory()->count($count)->create()->each(function (User $user, int $index) use (
+            $game,
+            $status,
+            $createdAnchor,
+            $finishedAnchor
+        ) {
+            $attributes = [
+                'user_id' => $user->id,
+                'game_id' => $game->id,
+                'claim_type' => $index === 0 ? ClaimType::Primary : ClaimType::Collaboration,
+                'status' => $status,
+                'created_at' => $createdAnchor->copy()->subMinutes($index),
+            ];
+
+            if ($status === ClaimStatus::Complete && $finishedAnchor) {
+                $attributes['finished_at'] = $finishedAnchor->copy()->subMinutes($index);
+            }
+
+            AchievementSetClaim::factory()->create($attributes);
+        });
+    }
+
+    /**
+     * @param Game[] $games
+     */
+    private function createTrailingClaims(
+        array $games,
+        ClaimStatus $status,
+        Carbon $createdAnchor,
+        ?Carbon $finishedAnchor = null,
+    ): void {
+        foreach ($games as $index => $game) {
+            $attributes = [
+                'user_id' => User::factory()->create()->id,
+                'game_id' => $game->id,
+                'claim_type' => ClaimType::Primary,
+                'status' => $status,
+                'created_at' => $createdAnchor->copy()->subMinutes($index),
+            ];
+
+            if ($status === ClaimStatus::Complete && $finishedAnchor) {
+                $attributes['finished_at'] = $finishedAnchor->copy()->subMinutes($index);
+            }
+
+            AchievementSetClaim::factory()->create($attributes);
+        }
+    }
+
     public function testItRendersWithEmptyDatabase(): void
     {
         // Act
@@ -430,6 +485,48 @@ class HomeControllerTest extends TestCase
         );
     }
 
+    public function testItBackfillsCompletedClaimsWithUniqueGamesWhenOneGameDominates(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+        $crowdedGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'achievements_published' => 6,
+        ]);
+        $otherGames = Game::factory()->count(5)->create([
+            'system_id' => $system->id,
+            'achievements_published' => 6,
+        ]);
+
+        $this->createDominatingClaims(
+            game: $crowdedGame,
+            status: ClaimStatus::Complete,
+            count: 20,
+            createdAnchor: now()->subDay(),
+            finishedAnchor: now(),
+        );
+        $this->createTrailingClaims(
+            games: $otherGames->all(),
+            status: ClaimStatus::Complete,
+            createdAnchor: now()->subDays(2),
+            finishedAnchor: now()->subMinutes(30),
+        );
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $expectedGameIds = [$crowdedGame->id, ...$otherGames->pluck('id')->all()];
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('completedClaims', 6)
+            ->where(
+                'completedClaims',
+                fn ($claims) => collect($claims)->pluck('game.id')->all() === $expectedGameIds
+            )
+        );
+    }
+
     public function testItReturnsEmptyCurrentlyOnlineDataWhenNoRecordsExist(): void
     {
         // Act
@@ -710,6 +807,44 @@ class HomeControllerTest extends TestCase
             ->where('newClaims.0.users.0.avatarUrl', $userOne->avatar_url)
             ->where('newClaims.0.users.1.displayName', $userTwo->display_name)
             ->where('newClaims.0.users.1.avatarUrl', $userTwo->avatar_url)
+        );
+    }
+
+    public function testItBackfillsNewClaimsWithUniqueGamesWhenOneGameDominates(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+        $crowdedGame = Game::factory()->create([
+            'system_id' => $system->id,
+        ]);
+        $otherGames = Game::factory()->count(4)->create([
+            'system_id' => $system->id,
+        ]);
+
+        $this->createDominatingClaims(
+            game: $crowdedGame,
+            status: ClaimStatus::Active,
+            count: 20,
+            createdAnchor: now(),
+        );
+        $this->createTrailingClaims(
+            games: $otherGames->all(),
+            status: ClaimStatus::Active,
+            createdAnchor: now()->subMinutes(30),
+        );
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $expectedGameIds = [$crowdedGame->id, ...$otherGames->pluck('id')->all()];
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('newClaims', 5)
+            ->where(
+                'newClaims',
+                fn ($claims) => collect($claims)->pluck('game.id')->all() === $expectedGameIds
+            )
         );
     }
 
