@@ -85,7 +85,9 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         ->latest()
         ->first();
     if ($latestSession?->user_agent) {
-        [$clientSupportLevel, $coreRestriction] = (new UserAgentService())
+        $userAgentService = new UserAgentService();
+
+        [$clientSupportLevel, $coreRestriction] = $userAgentService
             ->getSupportLevelAndCoreRestriction($latestSession->user_agent);
 
         if ($coreRestriction || $clientSupportLevel === ClientSupportLevel::SoftcoreOnly) {
