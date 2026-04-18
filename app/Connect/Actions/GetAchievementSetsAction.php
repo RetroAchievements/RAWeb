@@ -491,6 +491,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                    ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                     ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
                 };
