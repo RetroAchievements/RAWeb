@@ -8,6 +8,6 @@ trait FakesUsername
 {
     protected function fakeUsername(): string
     {
-        return mb_substr(str_replace('.', '', fake()->unique()->userName), 0, 20);
+        return mb_substr(str_replace('.', '', fake()->unique()->userName()), 0, 20);
     }
 }
