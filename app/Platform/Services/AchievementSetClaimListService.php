@@ -446,14 +446,14 @@ class AchievementSetClaimListService
                         'isExpired' => false,
                         'value' => '',
                     ];
-                } else {
-                    $now = Carbon::now();
-
-                    return [
-                        'isExpired' => ($claim->finished_at < $now),
-                        'value' => $claim->finished_at->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]),
-                    ];
                 }
+
+                $now = Carbon::now();
+
+                return [
+                    'isExpired' => ($claim->finished_at < $now),
+                    'value' => $claim->finished_at->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]),
+                ];
             },
         ];
     }

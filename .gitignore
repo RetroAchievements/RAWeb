@@ -71,6 +71,20 @@ Homestead.yaml
 !.vscode/settings.json
 nbproject
 
+# Laravel Boost
+/.agents
+/.amp
+/.codex
+/.gemini
+/.github/skills
+/.junie
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+/boost.json
+/.mcp.json
+/opencode.json
+
 # Docker and local dev
 /.vagrant
 /docker/nginx/logs
@@ -90,7 +104,6 @@ nbproject
 
 # Misc
 .buildpath
-.mcp.json
 .rnd
 /resources/views/pages-legacy/interceptor/
 lang/php_*.json

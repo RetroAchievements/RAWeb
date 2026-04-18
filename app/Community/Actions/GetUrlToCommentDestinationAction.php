@@ -92,19 +92,11 @@ class GetUrlToCommentDestinationAction
         $page = $this->calculateCommentPage($comment, $commentable);
         $hashAnchor = "#comment_{$comment->id}";
 
-        $routeName = match ($comment->commentable_type) {
-            CommentableType::Game => 'game.comment.index',
-            CommentableType::Achievement => 'achievement.comment.index',
-            CommentableType::User => 'user.comment.index',
-            CommentableType::Leaderboard => 'leaderboard.comment.index',
-            default => abort(404),
-        };
-
-        $routeParam = match ($comment->commentable_type) {
-            CommentableType::Game => ['game' => $commentable, 'page' => $page],
-            CommentableType::Achievement => ['achievement' => $commentable, 'page' => $page],
-            CommentableType::User => ['user' => $commentable, 'page' => $page],
-            CommentableType::Leaderboard => ['leaderboard' => $commentable, 'page' => $page],
+        [$routeName, $routeParam] = match ($comment->commentable_type) {
+            CommentableType::Game => ['game.comment.index', ['game' => $commentable, 'page' => $page]],
+            CommentableType::Achievement => ['achievement.comment.index', ['achievement' => $commentable, 'page' => $page]],
+            CommentableType::User => ['user.comment.index', ['user' => $commentable, 'page' => $page]],
+            CommentableType::Leaderboard => ['leaderboard.comment.index', ['leaderboard' => $commentable, 'page' => $page]],
             default => abort(404),
         };
 

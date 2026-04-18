@@ -1,14 +1,10 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { HydrationBoundary } from '@tanstack/react-query';
 import type { FC } from 'react';
 
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useGameListState } from '../../hooks/useGameListState';
-import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
-import { useTableSync } from '../../hooks/useTableSync';
-import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
+import { useGameListTableRoot } from '../../hooks/useGameListTableRoot';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { HubBreadcrumbs } from './HubBreadcrumbs';
@@ -24,44 +20,17 @@ export const HubMainRoot: FC = () => {
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
     useHubGamesDefaultColumnState();
 
-  const {
-    columnFilters,
-    columnVisibility,
-    pagination,
-    setColumnFilters,
-    setColumnVisibility,
-    setPagination,
-    setSorting,
-    sorting,
-  } = useGameListState(paginatedGameListEntries, {
-    defaultColumnSort,
-    defaultColumnFilters,
-    defaultColumnVisibility,
-  });
-
   const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
-
   const apiRouteParams = { gameSet: hub.id };
-  const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
-    apiRouteParams,
-    columnFilters,
-    pagination,
-    sorting,
-    apiRouteName: 'api.hub.game.index',
-    paginatedData: paginatedGameListEntries,
-  });
 
-  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
-
-  useTableSync({
-    columnFilters,
-    columnVisibility,
+  const { hydrationState, gameListTableProps } = useGameListTableRoot({
+    paginatedGameListEntries,
     defaultColumnFilters,
     defaultColumnSort,
-    pagination,
-    sorting,
+    defaultColumnVisibility,
     defaultPageSize: defaultDesktopPageSize,
-    isUserPersistenceEnabled: isCurrentlyPersistingView,
+    apiRouteName: 'api.hub.game.index',
+    apiRouteParams,
   });
 
   return (
@@ -74,27 +43,12 @@ export const HubMainRoot: FC = () => {
         <HubHeading />
       </DataTablePaginationScrollTarget>
 
-      <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
+      <HydrationBoundary state={hydrationState}>
         <div className="flex flex-col gap-5">
           {paginatedGameListEntries.unfilteredTotal ? (
             <GamesDataTableContainer
-              // Table state
-              columnFilters={columnFilters}
-              columnVisibility={columnVisibility}
-              pagination={pagination}
-              sorting={sorting}
-              // State setters
-              setColumnFilters={setColumnFilters}
-              setColumnVisibility={setColumnVisibility}
-              setPagination={setPagination}
-              setSorting={setSorting}
-              // Table configuration
-              defaultColumnFilters={defaultColumnFilters}
-              defaultColumnSort={defaultColumnSort}
+              {...gameListTableProps}
               columnDefinitions={columnDefinitions}
-              // API configuration
-              apiRouteName="api.hub.game.index"
-              apiRouteParams={apiRouteParams}
               randomGameApiRouteName="api.hub.game.random"
             />
           ) : null}

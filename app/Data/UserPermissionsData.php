@@ -27,6 +27,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
+        public Lazy|bool $createGameScreenshot,
         public Lazy|bool $createMessageThreads,
         public Lazy|bool $createModerationReports,
         public Lazy|bool $createTicket,
@@ -92,6 +93,10 @@ class UserPermissionsData extends Data
             ),
             createGameForumTopic: Lazy::create(fn () => $user && $game
                 ? $user->can('createForumTopic', $game)
+                : false
+            ),
+            createGameScreenshot: Lazy::create(fn () => $user && $game
+                ? $user->can('create', [\App\Models\GameScreenshot::class, $game])
                 : false
             ),
             createMessageThreads: Lazy::create(fn () => $user ? $user->can('create', \App\Models\MessageThread::class) : false),

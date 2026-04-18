@@ -239,9 +239,9 @@ class UserAgentService
                             return -1;
                         } elseif ($versionOneNumber > $versionTwoNumber) {
                             return 1;
-                        } else {
-                            return 0;
                         }
+
+                        return 0;
                     }
 
                     // 1.0.1 > 1.0-dirty

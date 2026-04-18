@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\ResponseCache;
 
+use App\Http\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\ResponseCache\CacheProfiles\BaseCacheProfile;
@@ -26,12 +27,25 @@ class AnonymousCacheProfile extends BaseCacheProfile
             return false;
         }
 
+        // If any unencrypted app cookie is present, the response may vary based
+        // on client-side preferences or per-visitor UI state.
+        if ($this->requestHasUnencryptedAppCookie($request)) {
+            return false;
+        }
+
         // Inertia partial reloads are user-specific and must not be cached.
         if ($request->headers->has('X-Inertia-Partial-Component')) {
             return false;
         }
 
         return true;
+    }
+
+    private function requestHasUnencryptedAppCookie(Request $request): bool
+    {
+        $requestCookieNames = array_keys($request->cookies->all());
+
+        return array_intersect($requestCookieNames, EncryptCookies::UNENCRYPTED_COOKIE_NAMES) !== [];
     }
 
     public function shouldCacheResponse(Response $response): bool

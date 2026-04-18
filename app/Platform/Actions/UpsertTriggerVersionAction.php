@@ -46,7 +46,7 @@ class UpsertTriggerVersionAction
                     'conditions' => $conditions,
                     'user_id' => $user?->id,
                 ]);
-                $triggerable->update(['trigger_id' => $currentTrigger->id]);
+                $this->assignTriggerIdQuietly($triggerable, $currentTrigger->id);
 
                 return $currentTrigger;
             }
@@ -57,7 +57,7 @@ class UpsertTriggerVersionAction
                 'version' => null,
                 'user_id' => $user?->id,
             ]));
-            $triggerable->update(['trigger_id' => $trigger->id]);
+            $this->assignTriggerIdQuietly($triggerable, $trigger->id);
 
             return $trigger;
         }
@@ -80,7 +80,7 @@ class UpsertTriggerVersionAction
                     'version' => 1,
                     'user_id' => $user?->id,
                 ]);
-                $triggerable->update(['trigger_id' => $currentTrigger->id]);
+                $this->assignTriggerIdQuietly($triggerable, $currentTrigger->id);
             }
 
             return $currentTrigger;
@@ -95,8 +95,20 @@ class UpsertTriggerVersionAction
             'parent_id' => $currentTrigger?->id,
             'user_id' => $user?->id,
         ]));
-        $triggerable->update(['trigger_id' => $trigger->id]);
+        $this->assignTriggerIdQuietly($triggerable, $trigger->id);
 
         return $trigger;
+    }
+
+    /**
+     * Persist the triggerable's trigger_id without firing model events.
+     * This action typically runs inside the triggerable's own `updated` event
+     * (via AchievementPromoted). A regular save() re-fires the event
+     * with is_promoted still dirty, double-logging it in the audit log.
+     */
+    private function assignTriggerIdQuietly(Model $triggerable, int $triggerId): void
+    {
+        $triggerable->trigger_id = $triggerId;
+        $triggerable->saveQuietly();
     }
 }

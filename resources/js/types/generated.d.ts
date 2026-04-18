@@ -397,6 +397,7 @@ createAchievementSetClaims?: boolean;
 createForumTopicComments?: boolean;
 createGameComments?: boolean;
 createGameForumTopic?: boolean;
+createGameScreenshot?: boolean;
 createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createTicket?: boolean;
@@ -767,6 +768,12 @@ export type GameListEntry = {
 game: App.Platform.Data.Game;
 playerGame: App.Platform.Data.PlayerGame | null;
 isInBacklog: boolean | null;
+gameListStats: App.Platform.Data.GameListEntryStats | null;
+};
+export type GameListEntryStats = {
+coreSetMedianTimeToCompleteHardcore: number;
+coreSetPlayersHardcore: number;
+coreSetTimesCompletedHardcore: number;
 };
 export type GameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -889,6 +896,9 @@ targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadPendingCount?: number;
+screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
 export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
 paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -907,6 +917,7 @@ suggestionContext: App.Platform.Data.GameSuggestionContext | null;
 game: App.Platform.Data.Game;
 playerGame: App.Platform.Data.PlayerGame | null;
 isInBacklog: boolean | null;
+gameListStats: App.Platform.Data.GameListEntryStats | null;
 };
 export type GameTopAchiever = {
 userDisplayName: string;
@@ -1093,6 +1104,10 @@ ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
 };
+export type ScreenshotUploadTypeStatus = {
+count: number;
+hasResolutionIssues: boolean;
+};
 export type SeriesHub = {
 hub: App.Platform.Data.GameSet;
 totalGameCount: number;
@@ -1150,12 +1165,12 @@ export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' |
 export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
-export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_challenge' | 'will_be_specialty';
+export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
-export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'medianTimeToBeatHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
+export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
 export type GamePageListSort = 'normal' | 'displayOrder' | '-displayOrder' | 'wonBy' | '-wonBy' | 'points' | '-points' | 'title' | '-title' | 'type' | '-type' | 'rank' | '-rank';
 export type GamePageListView = 'achievements' | 'leaderboards';
 export type GameReleaseRegion = 'as' | 'au' | 'br' | 'ch' | 'eu' | 'jp' | 'kr' | 'nz' | 'na' | 'worldwide' | 'other';

@@ -95,6 +95,14 @@ class GameShowPagePropsData extends Data
         /** @var Collection<int, UserGameAchievementSetPreferenceData> */
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.UserGameAchievementSetPreference>')]
         public Collection $userGameAchievementSetPreferences,
+
+        /** @var array<string, ScreenshotUploadTypeStatusData> */
+        public Lazy|array $screenshotUploadStatuses = [],
+
+        public Lazy|int $screenshotUploadPendingCount = 0,
+
+        /** @var Lazy|Collection<int, GameScreenshotData> */
+        public Lazy|Collection|null $screenshotUploadUserSubmissions = null,
     ) {
     }
 }
