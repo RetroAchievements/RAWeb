@@ -8,6 +8,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Data\AchievementSetClaimGroupData;
 use App\Models\AchievementSetClaim;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use LogicException;
@@ -21,18 +22,17 @@ class BuildHomePageClaimsDataAction
      */
     public function execute(ClaimStatus $status, int $count): Collection
     {
-        $claims = $this->fetchClaims($status);
+        $claims = $this->fetchClaims($status, $count);
 
-        return $this->transformClaimsForDisplay($claims, $count);
+        return $this->transformClaimsForDisplay($claims);
     }
 
     /**
-     * @return EloquentCollection<int, AchievementSetClaim>
+     * @return Builder<AchievementSetClaim>
      */
-    private function fetchClaims(ClaimStatus $status): EloquentCollection
+    private function buildBaseQuery(ClaimStatus $status): Builder
     {
         $query = AchievementSetClaim::query()
-            ->with(['game.system', 'user'])
             ->whereIn('claim_type', [ClaimType::Primary, ClaimType::Collaboration])
             ->where('status', $status);
 
@@ -42,10 +42,44 @@ class BuildHomePageClaimsDataAction
             $query->whereHas('game', fn ($q) => $q->whereHasPublishedAchievements());
         }
 
-        $orderByField = $status === ClaimStatus::Complete ? 'finished_at' : 'created_at';
+        return $query;
+    }
 
-        return $query->orderByDesc($orderByField)
-            ->limit(20)
+    /**
+     * @return EloquentCollection<int, AchievementSetClaim>
+     */
+    private function fetchClaims(ClaimStatus $status, int $count): EloquentCollection
+    {
+        $orderByField = $status === ClaimStatus::Complete ? 'finished_at' : 'created_at';
+        $claimIds = [];
+        $seenGameIds = [];
+
+        foreach ($this->buildBaseQuery($status)
+            ->select(['id', 'game_id'])
+            ->orderByDesc($orderByField)
+            ->orderByDesc('id')
+            ->limit(50)
+            ->cursor() as $claim) {
+            $isNewGame = !isset($seenGameIds[$claim->game_id]);
+
+            // Stop after we've collected every row belonging to the first N unique games.
+            if ($isNewGame && count($seenGameIds) >= $count) {
+                break;
+            }
+
+            $claimIds[] = $claim->id;
+            $seenGameIds[$claim->game_id] = true;
+        }
+
+        if ($claimIds === []) {
+            return new EloquentCollection();
+        }
+
+        return AchievementSetClaim::query()
+            ->with(['game.system', 'user'])
+            ->whereIn('id', $claimIds)
+            ->orderByDesc($orderByField)
+            ->orderByDesc('id')
             ->get();
     }
 
@@ -56,7 +90,7 @@ class BuildHomePageClaimsDataAction
      * @param EloquentCollection<int, AchievementSetClaim> $claims
      * @return Collection<int, AchievementSetClaimGroupData>
      */
-    private function transformClaimsForDisplay(EloquentCollection $claims, int $count): Collection
+    private function transformClaimsForDisplay(EloquentCollection $claims): Collection
     {
         return $claims
             ->groupBy('game.id')
@@ -75,7 +109,6 @@ class BuildHomePageClaimsDataAction
                     'users' => $uniqueUserClaims->pluck('user')->all(),
                 ];
             })
-            ->take($count)
             ->map(fn ($group) => AchievementSetClaimGroupData::fromAchievementSetClaim(
                     $group['claim'],
                     $group['users']

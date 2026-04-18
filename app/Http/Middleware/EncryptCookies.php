@@ -8,12 +8,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;
 
 class EncryptCookies extends Middleware
 {
-    /**
-     * The names of the cookies that should not be encrypted.
-     *
-     * @var array<int, string>
-     */
-    protected $except = [
+    public const UNENCRYPTED_COOKIE_NAMES = [
         'scheme', // dark/light mode
         'theme', // color scheme
         'logo',
@@ -33,6 +28,12 @@ class EncryptCookies extends Middleware
         'prefers_seeing_saved_hidden_rows_when_reordering',
         'progression_status_widths_preference',
         'prefers_expanded_rich_presence',
-        'retroachievements_authenticated',
     ];
+
+    /**
+     * The names of the cookies that should not be encrypted.
+     *
+     * @var array<int, string>
+     */
+    protected $except = self::UNENCRYPTED_COOKIE_NAMES;
 }

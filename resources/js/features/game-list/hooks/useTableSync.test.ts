@@ -11,6 +11,13 @@ import { useTableSync } from './useTableSync';
 
 const defaultColumnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
 
+function setWindowLocation(search: string) {
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: { search, pathname: '/games' },
+  });
+}
+
 describe('Hook: useTableSync', () => {
   let cookieSpy: ReturnType<typeof vi.spyOn>;
   let pushStateSpy: ReturnType<typeof vi.spyOn>;
@@ -21,10 +28,7 @@ describe('Hook: useTableSync', () => {
     originalLocation = window.location;
 
     // Mock the location search params.
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: { search: '', pathname: '/games' },
-    });
+    setWindowLocation('');
 
     // Mock document.cookie for persistence tests.
     cookieSpy = vi.spyOn(document, 'cookie', 'set');
@@ -113,6 +117,8 @@ describe('Hook: useTableSync', () => {
 
   it('given the user goes from page 2 to page 1, updates URL params correctly', () => {
     // ARRANGE
+    setWindowLocation('?page[number]=2');
+
     const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 1, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
@@ -162,8 +168,65 @@ describe('Hook: useTableSync', () => {
     );
   });
 
+  it('given the serialized URL does not change, does not push a new history entry', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    setWindowLocation('');
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
+    });
+
+    // ACT
+    rerender({
+      columnFilters: [...columnFilters],
+      pagination: { ...pagination },
+      sorting: [...sorting],
+      defaultColumnFilters,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the current URL params already match the serialized state, does not push a new history entry', () => {
+    // ARRANGE
+    setWindowLocation('?page%5Bnumber%5D=2&page%5Bsize%5D=50&filter%5Bsystem%5D=1&sort=-system');
+
+    const columnFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    const pagination: PaginationState = { pageIndex: 1, pageSize: 50 };
+    const sorting: SortingState = [{ id: 'system', desc: true }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultColumnFilters,
+        defaultPageSize: 25,
+      },
+    });
+
+    // ACT
+    rerender({
+      columnFilters: [{ ...columnFilters[0] }],
+      pagination: { ...pagination },
+      sorting: [...sorting],
+      defaultColumnFilters,
+      defaultPageSize: 25,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).not.toHaveBeenCalled();
+  });
+
   it('given the user sorts by title ascending, updates URL params correctly by removing the sort order', () => {
     // ARRANGE
+    setWindowLocation('?sort=-system');
+
     const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting = [{ id: 'system', desc: true }];
@@ -183,6 +246,30 @@ describe('Hook: useTableSync', () => {
 
     // ASSERT
     // Don't send a param on the default sort order.
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
+  });
+
+  it('given the user clears sorting, removes the sort query param', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'system', desc: true }];
+
+    setWindowLocation('?sort=-system');
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
+    });
+
+    // ACT
+    rerender({
+      columnFilters,
+      pagination,
+      sorting: [],
+      defaultColumnFilters,
+    });
+
+    // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', encodeURI('/games'));
   });
 
@@ -249,6 +336,8 @@ describe('Hook: useTableSync', () => {
 
   it('given the user clears their filters, removes them from query params', () => {
     // ARRANGE
+    setWindowLocation('?filter[system]=1%2C5');
+
     const columnFilters: ColumnFiltersState = [
       { id: 'achievementsPublished', value: ['has'] },
       { id: 'system', value: ['1', '5'] },
@@ -301,6 +390,8 @@ describe('Hook: useTableSync', () => {
 
   it('given the user sets the achievements published filter to "has", removes it from the query params', () => {
     // ARRANGE
+    setWindowLocation('?filter[achievementsPublished]=none');
+
     const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['none'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
@@ -324,6 +415,8 @@ describe('Hook: useTableSync', () => {
 
   it('given a non-array filter value is set to empty, removes it from query params', () => {
     // ARRANGE
+    setWindowLocation('?filter[title]=mario');
+
     const columnFilters: ColumnFiltersState = [
       { id: 'achievementsPublished', value: ['has'] },
       { id: 'title', value: 'mario' }, // !!
@@ -686,6 +779,8 @@ describe('Hook: useTableSync', () => {
 
   it('given the sorting array is empty, does not include a sort param in the URL', () => {
     // ARRANGE
+    setWindowLocation('?sort=title');
+
     const columnFilters: ColumnFiltersState = [];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
@@ -708,6 +803,8 @@ describe('Hook: useTableSync', () => {
 
   it('given the active sort matches the default sort, removes sort from URL params', () => {
     // ARRANGE
+    setWindowLocation('?sort=title');
+
     const columnFilters: ColumnFiltersState = [];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
@@ -742,10 +839,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     // ... mock a URL with an inactive filter param ...
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: { search: '?filter[oldParam]=value', pathname: '/games' },
-    });
+    setWindowLocation('?filter[oldParam]=value');
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting },

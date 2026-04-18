@@ -62,6 +62,17 @@ class AchievementSetClaimPolicy
             return true;
         }
 
+        // If another user has a primary claim, collaboration claims don't count against the cap.
+        $activePrimaryClaimByOtherUser = $game->achievementSetClaims()
+            ->active()
+            ->primaryClaim()
+            ->where('user_id', '!=', $user->id)
+            ->exists();
+
+        if ($activePrimaryClaimByOtherUser) {
+            return true;
+        }
+
         // Determine max claims based on role.
         $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 

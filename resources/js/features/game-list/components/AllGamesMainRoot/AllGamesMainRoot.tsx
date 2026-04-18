@@ -1,14 +1,10 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { HydrationBoundary } from '@tanstack/react-query';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useGameListState } from '../../hooks/useGameListState';
-import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
-import { useTableSync } from '../../hooks/useTableSync';
-import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
+import { useGameListTableRoot } from '../../hooks/useGameListTableRoot';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { useAllGamesDefaultColumnState } from './useAllGamesDefaultColumnState';
@@ -23,43 +19,15 @@ export const AllGamesMainRoot: FC = () => {
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
     useAllGamesDefaultColumnState();
 
-  const {
-    columnFilters,
-    columnVisibility,
-    pagination,
-    setColumnFilters,
-    setColumnVisibility,
-    setPagination,
-    setSorting,
-    sorting,
-  } = useGameListState(paginatedGameListEntries, {
-    defaultColumnSort,
-    defaultColumnFilters,
-    defaultColumnVisibility,
-  });
-
   const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
 
-  const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
-    columnFilters,
-    pagination,
-    sorting,
-    apiRouteName: 'api.game.index',
-    apiRouteParams: {},
-    paginatedData: paginatedGameListEntries,
-  });
-
-  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
-
-  useTableSync({
-    columnFilters,
-    columnVisibility,
+  const { hydrationState, gameListTableProps } = useGameListTableRoot({
+    paginatedGameListEntries,
     defaultColumnFilters,
     defaultColumnSort,
-    pagination,
-    sorting,
+    defaultColumnVisibility,
     defaultPageSize: defaultDesktopPageSize,
-    isUserPersistenceEnabled: isCurrentlyPersistingView,
+    apiRouteName: 'api.game.index',
   });
 
   return (
@@ -70,23 +38,8 @@ export const AllGamesMainRoot: FC = () => {
         </div>
       </DataTablePaginationScrollTarget>
 
-      <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
-        <GamesDataTableContainer
-          // Table state
-          columnFilters={columnFilters}
-          columnVisibility={columnVisibility}
-          pagination={pagination}
-          sorting={sorting}
-          // State setters
-          setColumnFilters={setColumnFilters}
-          setColumnVisibility={setColumnVisibility}
-          setPagination={setPagination}
-          setSorting={setSorting}
-          // Table configuration
-          defaultColumnFilters={defaultColumnFilters}
-          defaultColumnSort={defaultColumnSort}
-          columnDefinitions={columnDefinitions}
-        />
+      <HydrationBoundary state={hydrationState}>
+        <GamesDataTableContainer {...gameListTableProps} columnDefinitions={columnDefinitions} />
       </HydrationBoundary>
     </div>
   );

@@ -5,12 +5,15 @@ import { LuFlagTriangleRight } from 'react-icons/lu';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
+import { useCanShowCreateClaimButton } from '@/features/games/hooks/useCanShowCreateClaimButton';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
 export const SidebarClaimButtons: FC = () => {
-  const { achievementSetClaims, auth, backingGame, claimData, game, targetAchievementSetId } =
+  const { achievementSetClaims, backingGame, claimData, game, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
+
+  const canShowCreateClaimButton = useCanShowCreateClaimButton();
 
   const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === 'in_review');
   if (areAnyClaimsInReview) {
@@ -22,20 +25,6 @@ export const SidebarClaimButtons: FC = () => {
     targetAchievementSetId,
   );
   const wouldBeRevisionClaim = allPageAchievements.length > 0;
-
-  const hasClaimRole =
-    auth?.user.roles.includes('developer-junior') || auth?.user.roles.includes('developer');
-
-  const isJuniorDev = auth?.user.roles.includes('developer-junior');
-
-  // Junior developers can only create claims on games with forum topics.
-  const isBlockedByMissingForumTopic = isJuniorDev && !backingGame.forumTopicId;
-
-  // `claimData?.isSoleAuthor` means devs can reclaim their own sets to fix something.
-  const hasClaimsRemaining = claimData?.numClaimsRemaining || claimData?.isSoleAuthor;
-
-  const canShowCreateClaimButton =
-    hasClaimRole && hasClaimsRemaining && !claimData.userClaim && !isBlockedByMissingForumTopic;
 
   return (
     <>
