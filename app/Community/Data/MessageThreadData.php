@@ -36,15 +36,13 @@ class MessageThreadData extends Data
             lastMessage: Lazy::create(fn () => MessageData::fromMessage($messageThread->lastMessage)),
             isUnread: $messageThread->is_unread,
 
-            /** @phpstan-ignore-next-line -- all() is valid */
             messages: Lazy::create(fn () => $messageThread->messages->map(
                 fn ($message) => MessageData::fromMessage($message)
-            ))->all(),
+            )->all()),
 
-            /** @phpstan-ignore-next-line -- all() is valid */
             participants: Lazy::create(fn () => $messageThread->participants->map(
                 fn ($participant) => UserData::fromUser($participant)->include('deletedAt')
-            ))->all(),
+            )->all()),
         );
     }
 
@@ -55,7 +53,7 @@ class MessageThreadData extends Data
     public static function fromCollection(Collection $messageThreads): array
     {
         return array_map(
-            fn ($messageThread) => self::fromMessageThread($messageThread)->include('lastMessage'),
+            fn ($messageThread) => self::fromMessageThread($messageThread)->include('lastMessage', 'messages', 'participants'),
             $messageThreads->all()
         );
     }

@@ -20,8 +20,8 @@ class GameHashFactory extends Factory
         return [
             'system_id' => 1,
             'compatibility' => GameHashCompatibility::Compatible,
-            'hash' => fake()->md5,
-            'md5' => fake()->md5,
+            'hash' => fake()->md5(),
+            'md5' => fake()->md5(),
         ];
     }
 }
