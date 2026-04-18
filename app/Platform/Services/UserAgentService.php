@@ -421,17 +421,6 @@ class UserAgentService
         return $coreRestriction;
     }
 
-    public function getEmulatorUserAgent(string|array|null $userAgent): ?EmulatorUserAgent
-    {
-        if (empty($userAgent) || $userAgent === '[not provided]') {
-            return null;
-        }
-
-        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
-
-        return EmulatorUserAgent::with('emulator')->firstWhere('client', $data['client']);
-    }
-
     /**
      * Extracts the full core identifier (eg: "dolphin_libretro") from decoded
      * user agent data. This preserves the suffix so restrictions can distinguish
