@@ -90,5 +90,5 @@ return [
     /*
      * This class is responsible for serializing responses.
      */
-    'serializer' => Spatie\ResponseCache\Serializers\DefaultSerializer::class,
+    'serializer' => Spatie\ResponseCache\Serializers\JsonSerializer::class,
 ];

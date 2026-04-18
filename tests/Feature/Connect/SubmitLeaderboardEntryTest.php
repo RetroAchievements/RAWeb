@@ -79,9 +79,9 @@ class SubmitLeaderboardEntryTestHelpers
 
             if ($lowerIsBetter) {
                 return $b['DateSubmitted'] - $a['DateSubmitted'];
-            } else {
-                return $a['DateSubmitted'] - $b['DateSubmitted'];
             }
+
+            return $a['DateSubmitted'] - $b['DateSubmitted'];
         });
 
         if ($lowerIsBetter) {
@@ -109,9 +109,9 @@ class SubmitLeaderboardEntryTestHelpers
 
             if ($lowerIsBetter) {
                 return $b['DateSubmitted'] - $a['DateSubmitted'];
-            } else {
-                return $a['DateSubmitted'] - $b['DateSubmitted'];
             }
+
+            return $a['DateSubmitted'] - $b['DateSubmitted'];
         });
 
         if ($lowerIsBetter) {
@@ -136,7 +136,7 @@ class SubmitLeaderboardEntryTestHelpers
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => GameHashCompatibility::Compatible,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);

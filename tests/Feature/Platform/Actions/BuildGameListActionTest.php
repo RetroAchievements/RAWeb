@@ -9,7 +9,9 @@ use App\Community\Actions\CreateGameClaimAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameRelease;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
@@ -979,6 +981,145 @@ class BuildGameListActionTest extends TestCase
         // Assert
         $this->assertEquals(3, $result->total);
         $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
+    }
+
+    public function testItCanSortByMasteryRatio(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+
+        // ... 50% mastery (50 completions / 100 players), should sort first when descending ...
+        $game1 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game A',
+            'players_hardcore' => 100,
+        ]);
+        $this->addCoreAchievementSetToGame($game1, [
+            'times_completed_hardcore' => 50,
+            'players_hardcore' => 100,
+        ]);
+
+        // ... below threshold (< 5 completions), should sort to end ...
+        $game2 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game C',
+            'players_hardcore' => 50,
+        ]);
+        $this->addCoreAchievementSetToGame($game2, [
+            'times_completed_hardcore' => 3,
+            'players_hardcore' => 50,
+        ]);
+
+        // ... 5% mastery (10 completions / 200 players), should sort second when descending ...
+        $game3 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game B',
+            'players_hardcore' => 200,
+        ]);
+        $this->addCoreAchievementSetToGame($game3, [
+            'times_completed_hardcore' => 10,
+            'players_hardcore' => 200,
+        ]);
+
+        $this->addGameIdsToUserPlayList($user, gameIds: [$game1->id, $game2->id, $game3->id]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'masteryRatio', 'direction' => 'desc'],
+        );
+
+        // Assert
+        $this->assertEquals($game1->id, $result->items[0]->game->id);
+        $this->assertEquals($game3->id, $result->items[1]->game->id);
+        $this->assertEquals($game2->id, $result->items[2]->game->id);
+    }
+
+    public function testItCanSortByMedianTimeToMasterHardcore(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+
+        $game1 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game A',
+        ]);
+        $this->addCoreAchievementSetToGame($game1, [
+            'times_completed_hardcore' => 10,
+            'median_time_to_complete_hardcore' => 3600,
+        ]);
+
+        $game2 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game B',
+        ]);
+        $this->addCoreAchievementSetToGame($game2, [
+            'times_completed_hardcore' => 20,
+            'median_time_to_complete_hardcore' => 7200,
+        ]);
+
+        $game3 = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Game C',
+        ]);
+        $this->addCoreAchievementSetToGame($game3, [
+            'times_completed_hardcore' => 3, // !! too few
+            'median_time_to_complete_hardcore' => 1800,
+        ]);
+
+        $this->addGameIdsToUserPlayList($user, gameIds: [$game1->id, $game2->id, $game3->id]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'medianTimeToMasterHardcore', 'direction' => 'asc'],
+        );
+
+        // Assert
+        $this->assertEquals($game1->id, $result->items[0]->game->id);
+        $this->assertEquals($game2->id, $result->items[1]->game->id);
+        $this->assertEquals($game3->id, $result->items[2]->game->id);
+    }
+
+    public function testItIncludesCoreSetMasteryDataInResults(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $this->addCoreAchievementSetToGame($game, [
+            'times_completed_hardcore' => 15,
+            'players_hardcore' => 200,
+            'median_time_to_complete_hardcore' => 5400,
+        ]);
+
+        $this->addGameIdsToUserPlayList($user, gameIds: [$game->id]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user);
+
+        // Assert
+        $entry = $result->items[0];
+        $this->assertNotNull($entry->gameListStats);
+        $this->assertEquals(15, $entry->gameListStats->coreSetTimesCompletedHardcore);
+        $this->assertEquals(200, $entry->gameListStats->coreSetPlayersHardcore);
+        $this->assertEquals(5400, $entry->gameListStats->coreSetMedianTimeToCompleteHardcore);
+    }
+
+    private function addCoreAchievementSetToGame(Game $game, array $attributes = []): void
+    {
+        $achievementSet = AchievementSet::factory()->create($attributes);
+
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => 'core',
+        ]);
     }
 
     private function seedGamesForLists(): void
