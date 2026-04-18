@@ -689,7 +689,7 @@ class PatchDataTest extends TestCase
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => GameHashCompatibility::Incompatible,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);

@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\ServiceProvider;
 
 return [
 
@@ -198,76 +197,6 @@ return [
         'driver' => 'file',
         // 'store' => 'redis',
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Autoloaded Service Providers
-    |--------------------------------------------------------------------------
-    |
-    | The service providers listed here will be automatically loaded on the
-    | request to your application. Feel free to add your own services to
-    | this array to grant expanded functionality to your applications.
-    |
-    */
-
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
-        Jenssegers\Agent\AgentServiceProvider::class,
-        Laravel\Passport\PassportServiceProvider::class,
-        EragLaravelDisposableEmail\LaravelDisposableEmailServiceProvider::class,
-
-        /*
-        * Application Service Providers...
-        */
-
-        /*
-         * Api & Connect
-         * Come first to make sure subdomain routes are registered first
-         */
-        App\Connect\RouteServiceProvider::class,
-        App\Api\RouteServiceProvider::class,
-
-        /*
-         * Platform Service Providers
-         */
-        App\Platform\AppServiceProvider::class,
-        App\Platform\AuthServiceProvider::class,
-        App\Platform\EventServiceProvider::class,
-        App\Platform\RouteServiceProvider::class,
-
-        /*
-         * Community Service Providers
-         */
-        App\Community\AppServiceProvider::class,
-        App\Community\AuthServiceProvider::class,
-        App\Community\EventServiceProvider::class,
-        App\Community\RouteServiceProvider::class,
-
-        /*
-         * Support Service Providers
-         */
-        App\Support\Filesystem\FilesystemServiceProvider::class,
-        App\Support\Settings\SettingsServiceProvider::class,
-
-        /*
-         * Site Providers
-         */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\FortifyServiceProvider::class,
-        App\Providers\HorizonServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\FolioServiceProvider::class,
-
-        /*
-         * Admin
-         */
-        App\Filament\FilamentServiceProvider::class,
-    ])->toArray(),
 
     /*
     |--------------------------------------------------------------------------
