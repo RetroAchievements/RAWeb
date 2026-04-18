@@ -8,17 +8,12 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Data\AchievementSetClaimGroupData;
 use App\Models\AchievementSetClaim;
-use App\Support\Cache\CacheKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class BuildHomePageClaimsDataAction
 {
-    private const CACHE_FRESH_SECONDS = 10;
-    private const CACHE_STALE_SECONDS = 30;
-
     /**
      * Get the most recent achievement claims for the home page, grouped by game.
      *
@@ -26,15 +21,9 @@ class BuildHomePageClaimsDataAction
      */
     public function execute(ClaimStatus $status, int $count): Collection
     {
-        return Cache::flexible(
-            CacheKey::buildHomePageClaimsCacheKey($status->value, $count),
-            [self::CACHE_FRESH_SECONDS, self::CACHE_STALE_SECONDS],
-            function () use ($status, $count) {
-                $claims = $this->fetchClaims($status, $count);
+        $claims = $this->fetchClaims($status, $count);
 
-                return $this->transformClaimsForDisplay($claims);
-            }
-        );
+        return $this->transformClaimsForDisplay($claims);
     }
 
     /**
