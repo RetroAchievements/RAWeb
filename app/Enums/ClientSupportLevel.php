@@ -25,7 +25,7 @@ enum ClientSupportLevel: int
     // but hardcore unlocks and leaderboard submissions are still allowed.
     case Warned = 5;
 
-    // client is recognized, but it's known that hardcore is unsupported for it.
+    // client is recognized, but doesn't meet our hardcore requirements.
     case SoftcoreOnly = 6;
 
     /**
