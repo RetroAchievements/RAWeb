@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EncryptCookies;
 use App\Http\ResponseCache\AnonymousCacheProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -61,6 +62,17 @@ describe('shouldCacheRequest', function () {
         // ASSERT
         expect($result)->toBeFalse();
     });
+
+    it('rejects requests when any unencrypted app cookie is present', function (string $cookieName) {
+        // ARRANGE
+        $request = Request::create('/game/1', 'GET', [], [$cookieName => 'value']);
+
+        // ACT
+        $result = $this->profile->shouldCacheRequest($request);
+
+        // ASSERT
+        expect($result)->toBeFalse();
+    })->with(EncryptCookies::UNENCRYPTED_COOKIE_NAMES);
 });
 
 describe('shouldCacheResponse', function () {
