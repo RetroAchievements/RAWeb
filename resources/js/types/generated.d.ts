@@ -434,7 +434,7 @@ viewDeveloperInterest?: boolean;
 };
 }
 declare namespace App.Enums {
-export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
+export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
@@ -897,6 +897,7 @@ targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
 screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
@@ -1103,6 +1104,10 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+};
+export type ScreenshotUploadConsistency = {
+existingResolutions: Array<{ width: number; height: number }>;
+canonicalResolution?: string;
 };
 export type ScreenshotUploadTypeStatus = {
 count: number;
