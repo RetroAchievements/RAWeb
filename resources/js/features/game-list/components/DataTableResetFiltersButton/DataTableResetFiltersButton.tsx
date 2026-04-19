@@ -1,4 +1,4 @@
-import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { ColumnFiltersState, ColumnSort, Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { RxCross2 } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
@@ -11,6 +11,7 @@ interface DataTableResetFiltersButtonProps<TData> {
   table: Table<TData>;
 
   defaultColumnFilters?: ColumnFiltersState;
+  defaultColumnSort?: ColumnSort;
   /** The controller route name where client-side calls for this datatable are made. */
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -20,6 +21,7 @@ export function DataTableResetFiltersButton<TData>({
   table,
   tableApiRouteParams,
   defaultColumnFilters = [],
+  defaultColumnSort = { id: 'title', desc: false },
   tableApiRouteName = 'api.game.index',
 }: DataTableResetFiltersButtonProps<TData>) {
   const { t } = useTranslation();
@@ -27,19 +29,21 @@ export function DataTableResetFiltersButton<TData>({
   const { prefetchResetFilters } = useDataTablePrefetchResetFilters(
     table,
     defaultColumnFilters,
+    defaultColumnSort,
     tableApiRouteName,
     tableApiRouteParams,
   );
 
-  const resetFiltersToDefault = () => {
+  const resetViewToDefault = () => {
     table.setColumnFilters(defaultColumnFilters);
+    table.setSorting([defaultColumnSort]);
   };
 
   return (
     <BaseButton
       variant="ghost"
       size="sm"
-      onClick={resetFiltersToDefault}
+      onClick={resetViewToDefault}
       onMouseEnter={() => prefetchResetFilters()}
       className="px-2 text-link lg:px-3"
       data-testid="reset-all-filters"
