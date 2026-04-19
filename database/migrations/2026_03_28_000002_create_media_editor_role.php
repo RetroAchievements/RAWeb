@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
+        // In test environments the seeder creates all roles from config.
+        if (app()->environment('testing') || !DB::table('auth_roles')->exists()) {
+            return;
+        }
+
         $now = now();
 
         DB::table('auth_roles')->insert([
