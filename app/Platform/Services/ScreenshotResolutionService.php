@@ -103,41 +103,56 @@ class ScreenshotResolutionService
     }
 
     /**
-     * Check if specific dimensions match any valid resolution for a system.
+     * Return the canonical accepted resolution for a screenshot, accounting for
+     * the same tolerance/scaling rules used during resolution validation.
+     *
+     * @return array{width: int, height: int}|null
      */
-    public function isValidResolution(int $width, int $height, System $system): bool
+    public function getNormalizedResolution(int $width, int $height, System $system): ?array
     {
         $resolutions = $system->screenshot_resolutions;
         if (empty($resolutions)) {
-            return true;
+            return ['width' => $width, 'height' => $height];
         }
 
         $tolerance = self::DIMENSION_TOLERANCE;
         $isWidthDoubled = in_array($system->id, self::WIDTH_DOUBLED_SYSTEM_IDS, true);
-
         $maxScale = $this->getMaxScaleFactor($system);
+        $closestMatch = null;
+        $closestDistance = PHP_INT_MAX;
 
         foreach ($resolutions as $resolution) {
             $baseW = $resolution['width'];
             $baseH = $resolution['height'];
 
             for ($scale = 1; $scale <= $maxScale; $scale++) {
-                $expectedW = $baseW * $scale;
-                $expectedH = $baseH * $scale;
+                $expectedResolutions = [[
+                    'width' => $baseW * $scale,
+                    'height' => $baseH * $scale,
+                ]];
 
-                if (
-                    abs($width - $expectedW) <= $tolerance
-                    && abs($height - $expectedH) <= $tolerance
-                ) {
-                    return true;
+                if ($isWidthDoubled) {
+                    $expectedResolutions[] = [
+                        'width' => $baseW * $scale * 2,
+                        'height' => $baseH * $scale,
+                    ];
                 }
 
-                if (
-                    $isWidthDoubled
-                    && abs($width - $expectedW * 2) <= $tolerance
-                    && abs($height - $expectedH) <= $tolerance
-                ) {
-                    return true;
+                foreach ($expectedResolutions as $expectedResolution) {
+                    $widthDistance = abs($width - $expectedResolution['width']);
+                    $heightDistance = abs($height - $expectedResolution['height']);
+
+                    if ($widthDistance > $tolerance || $heightDistance > $tolerance) {
+                        continue;
+                    }
+
+                    $distance = $widthDistance + $heightDistance;
+                    if ($distance >= $closestDistance) {
+                        continue;
+                    }
+
+                    $closestDistance = $distance;
+                    $closestMatch = $expectedResolution;
                 }
             }
         }
@@ -146,12 +161,12 @@ class ScreenshotResolutionService
         if ($system->has_analog_tv_output) {
             foreach (self::SMPTE_601_RESOLUTIONS as $smpte) {
                 if ($width === $smpte['width'] && $height === $smpte['height']) {
-                    return true;
+                    return $smpte;
                 }
             }
         }
 
-        return false;
+        return $closestMatch;
     }
 
     public function buildResolutionMismatchMessage(

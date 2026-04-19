@@ -3142,6 +3142,35 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given approved primary screenshots only differ by tolerated rounding, screenshotUploadConsistency normalizes them to one canonical resolution', function () {
+        // ARRANGE
+        Storage::fake('s3');
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create([
+            'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        ]);
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
+        GameScreenshot::factory()->for($game)->ingame()->primary()->create(['width' => 257, 'height' => 225]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('screenshotUploadConsistency.canonicalResolution', '256x224')
+            ->has('screenshotUploadConsistency.existingResolutions', 1)
+            ->where('screenshotUploadConsistency.existingResolutions.0.width', 256)
+            ->where('screenshotUploadConsistency.existingResolutions.0.height', 224)
+        );
+    });
+
     it('given approved primary screenshots have mixed resolutions, screenshotUploadConsistency omits a canonical resolution', function () {
         // ARRANGE
         Storage::fake('s3');

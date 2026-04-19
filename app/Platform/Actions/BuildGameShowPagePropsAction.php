@@ -633,14 +633,11 @@ class BuildGameShowPagePropsAction
             ->whereNotNull('width')
             ->whereNotNull('height')
             ->get(['width', 'height'])
-            ->filter(fn (GameScreenshot $screenshot) => $system
-                ? $resolutionService->isValidResolution($screenshot->width, $screenshot->height, $system)
-                : true
+            ->map(fn (GameScreenshot $screenshot) => $system
+                ? $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system)
+                : ['width' => $screenshot->width, 'height' => $screenshot->height]
             )
-            ->map(fn (GameScreenshot $screenshot) => [
-                'width' => $screenshot->width,
-                'height' => $screenshot->height,
-            ])
+            ->filter()
             ->unique(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
             ->sortBy(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
             ->values()
@@ -684,7 +681,7 @@ class BuildGameShowPagePropsAction
             $hasResolutionIssues = false;
             if ($hasDefinedResolutions) {
                 $hasResolutionIssues = $typeScreenshots->contains(
-                    fn (GameScreenshot $ss) => !$resolutionService->isValidResolution($ss->width, $ss->height, $system)
+                    fn (GameScreenshot $ss) => $resolutionService->getNormalizedResolution($ss->width, $ss->height, $system) === null
                 );
             }
 
