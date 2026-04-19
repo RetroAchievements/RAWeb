@@ -63,6 +63,8 @@ class Role extends SpatieRole
 
     public const PLAYTEST_MANAGER = 'playtest-manager';
 
+    public const MEDIA_EDITOR = 'media-editor';
+
     public const CHEAT_INVESTIGATOR = 'cheat-investigator';
 
     // vanity roles assigned by root
@@ -116,6 +118,7 @@ class Role extends SpatieRole
             Role::NEWS_MANAGER => 'info',
             Role::EVENT_MANAGER => 'info',
             Role::PLAYTEST_MANAGER => 'info',
+            Role::MEDIA_EDITOR => 'info',
             Role::CHEAT_INVESTIGATOR => 'info',
 
             // vanity roles assigned by root

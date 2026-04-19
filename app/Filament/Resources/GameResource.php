@@ -15,7 +15,6 @@ use App\Filament\Resources\GameResource\RelationManagers\ReleasesRelationManager
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
-use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
@@ -88,7 +87,7 @@ class GameResource extends Resource
         /** @var User $user */
         $user = Auth::user();
 
-        $showFullDetails = !self::userHasOnlyCreditManagementRoles($user);
+        $showFullDetails = $user->can('viewDetails', Game::class);
 
         return $schema
             ->components([
@@ -652,23 +651,6 @@ class GameResource extends Resource
             'hashes' => Pages\Hashes::route('/{record}/hashes'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
-    }
-
-    /**
-     * Users with only credit management roles (Artist, Playtest Manager) don't
-     * need to see game metadata, metrics, or rich presence on the detail page.
-     */
-    private static function userHasOnlyCreditManagementRoles(User $user): bool
-    {
-        $creditOnlyRoles = [Role::ARTIST, Role::PLAYTEST_MANAGER];
-        $fullAccessRoles = [
-            Role::ROOT, Role::ADMINISTRATOR, Role::MODERATOR,
-            Role::DEVELOPER, Role::DEVELOPER_JUNIOR,
-            Role::GAME_HASH_MANAGER, Role::GAME_EDITOR,
-            Role::EVENT_MANAGER, Role::RELEASE_MANAGER,
-        ];
-
-        return $user->hasAnyRole($creditOnlyRoles) && !$user->hasAnyRole($fullAccessRoles);
     }
 
     /**

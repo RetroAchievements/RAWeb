@@ -23,6 +23,7 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR,
 
             Role::ARTIST,
+            Role::MEDIA_EDITOR,
 
             Role::EVENT_MANAGER,
             Role::PLAYTEST_MANAGER,
@@ -61,6 +62,7 @@ class GamePolicy
             Role::GAME_EDITOR,
             Role::DEVELOPER,
             Role::ARTIST,
+            Role::MEDIA_EDITOR,
         ]);
 
         if ($canAlwaysUpdate) {
@@ -133,6 +135,10 @@ class GamePolicy
                 'screenshots',
             ],
 
+            Role::MEDIA_EDITOR => [
+                'screenshots',
+            ],
+
             Role::ARTIST => [
                 'banner',
                 'image_icon_asset_path',
@@ -186,6 +192,30 @@ class GamePolicy
     public function viewModifications(User $user): bool
     {
         return $this->manage($user);
+    }
+
+    public function viewDetails(User $user, ?Game $game = null): bool
+    {
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::EVENT_MANAGER,
+            Role::RELEASE_MANAGER,
+        ]);
+    }
+
+    public function viewContributionCredit(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::ARTIST,
+            Role::PLAYTEST_MANAGER,
+        ]);
     }
 
     public function manageContributionCredit(User $user, Game $game): bool
