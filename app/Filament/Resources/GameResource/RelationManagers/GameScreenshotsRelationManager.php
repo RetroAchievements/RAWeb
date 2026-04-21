@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
-use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\ValidScreenshotResolutionRule;
 use BackedEnum;
@@ -64,8 +63,6 @@ class GameScreenshotsRelationManager extends RelationManager
     {
         /** @var Game $game */
         $game = $this->getOwnerRecord();
-        $system = $game->system;
-        $resolutionService = new ScreenshotResolutionService();
 
         return $table
             ->headerActions([
@@ -145,7 +142,7 @@ class GameScreenshotsRelationManager extends RelationManager
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 /** @var Builder<GameScreenshot> $query */
-                $query->with('media')
+                $query->with(['media', 'game.system'])
                     ->orderByType()
                     ->orderBy('order_column');
             })
@@ -202,20 +199,10 @@ class GameScreenshotsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('resolution')
                     ->label('Resolution')
-                    ->getStateUsing(function (GameScreenshot $record) use ($system, $resolutionService): ?string {
-                        if (!$record->width || !$record->height) {
-                            return null;
-                        }
-
-                        // Stash validity so the color/icon closures
-                        // don't need to recompute it per row.
-                        $record->setAttribute('has_wrong_resolution',
-                            !empty($system?->screenshot_resolutions)
-                            && !$resolutionService->isValidResolution($record->width, $record->height, $system)
-                        );
-
-                        return "{$record->width}x{$record->height}";
-                    })
+                    ->state(fn (GameScreenshot $record): ?string => ($record->width && $record->height)
+                        ? "{$record->width}x{$record->height}"
+                        : null
+                    )
                     ->color(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'danger' : null)
                     ->icon(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'heroicon-o-exclamation-triangle' : null),
             ])
