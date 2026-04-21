@@ -26,12 +26,29 @@ class GamePolicy
 
             Role::EVENT_MANAGER,
             Role::PLAYTEST_MANAGER,
+
+            Role::MANUAL_UNLOCKER,
         ]);
     }
 
     public function viewAny(?User $user): bool
     {
         return true;
+    }
+
+    public function viewDetails(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+
+            Role::ARTIST,
+
+            Role::EVENT_MANAGER,
+        ]);
     }
 
     public function view(?User $user, Game $game): bool
@@ -186,6 +203,21 @@ class GamePolicy
     public function viewModifications(User $user): bool
     {
         return $this->manage($user);
+    }
+
+    public function viewContributionCredit(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+
+            Role::ARTIST,
+            Role::EVENT_MANAGER,
+            Role::PLAYTEST_MANAGER,
+        ]);
     }
 
     public function manageContributionCredit(User $user, Game $game): bool

@@ -211,7 +211,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         // don't need to recompute it per row.
                         $record->setAttribute('has_wrong_resolution',
                             !empty($system?->screenshot_resolutions)
-                            && !$resolutionService->isValidResolution($record->width, $record->height, $system)
+                            && $resolutionService->getNormalizedResolution($record->width, $record->height, $system) === null
                         );
 
                         return "{$record->width}x{$record->height}";

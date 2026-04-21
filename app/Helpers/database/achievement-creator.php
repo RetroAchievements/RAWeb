@@ -25,9 +25,10 @@ function getUserAchievementsPerConsole(User $user): array
                 'AchievementCount' => $achievements->count(),
             ];
         })
-        ->sortBy(function ($item) {
-            return [-$item['AchievementCount'], $item['ConsoleName']];
-        }, SORT_REGULAR, true)
+        ->sortBy([
+            ['AchievementCount', 'desc'],
+            ['ConsoleName'],
+        ])
         ->values()
         ->toArray();
 }

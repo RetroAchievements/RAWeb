@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\PlayerAchievement;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -56,5 +57,14 @@ class PlayerAchievementPolicy
     public function forceDelete(User $user, PlayerAchievement $playerAchievement): bool
     {
         return false;
+    }
+
+    public function manuallyAward(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MANUAL_UNLOCKER,
+            Role::MODERATOR,
+        ]);
     }
 }

@@ -19,6 +19,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             'id' => $system->id,
             'manufacturer' => $system->manufacturer,
             'name' => $system->name,
+            'name_short' => $system->name_short,
         ]);
 
     $menuSystemsList = [
@@ -71,7 +72,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
                     @foreach ($manufacturerSystems as $system)
                         <x-dropdown-item :href="route('system.game.index', ['system' => $system['id']])">
-                            <img src="{!! getSystemIconUrl($system['id']) !!}" loading="lazy" width="16" height="16" alt='{{ $system['name'] }}'>
+                            <img src="{{ getSystemIconUrl($system['name_short']) }}" loading="lazy" width="16" height="16" alt='{{ $system['name'] }}'>
                             <span>{{ $system['name'] }}</span>
                         </x-dropdown-item>
                     @endforeach

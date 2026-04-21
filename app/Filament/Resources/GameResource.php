@@ -606,7 +606,8 @@ class GameResource extends Resource
 
                     Actions\Action::make('audit-log')
                         ->url(fn ($record) => GameResource::getUrl('audit-log', ['record' => $record]))
-                        ->icon('fas-clock-rotate-left'),
+                        ->icon('fas-clock-rotate-left')
+                        ->visible(fn ($record): bool => Auth::user()->can('viewModifications', $record)),
                 ]),
             ])
             ->toolbarActions([
@@ -630,6 +631,15 @@ class GameResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $record = method_exists($page, 'getRecord') ? $page->getRecord() : null;
+
+        if ($record && !$user->can('viewDetails', $record)) {
+            return [];
+        }
+
         return $page->generateNavigationItems([
             Pages\Details::class,
             Pages\Media::class,

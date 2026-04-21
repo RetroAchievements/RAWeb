@@ -69,12 +69,12 @@ class ApproveGameScreenshotAction
                 $primaryHasInvalidResolution =
                     $system
                     && !empty($system->screenshot_resolutions)
-                    && !$resolutionService->isValidResolution($existingPrimary->width, $existingPrimary->height, $system);
+                    && $resolutionService->getNormalizedResolution($existingPrimary->width, $existingPrimary->height, $system) === null;
 
                 $newHasValidResolution =
                     $system
                     && !empty($system->screenshot_resolutions)
-                    && $resolutionService->isValidResolution($screenshot->width, $screenshot->height, $system);
+                    && $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system) !== null;
 
                 if ($primaryHasInvalidResolution && $newHasValidResolution) {
                     // Replaced images won't get sent to the front-end.
