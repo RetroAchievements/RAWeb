@@ -2,19 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Filament\Resources\GameResource\Pages\Media as MediaPage;
-use App\Filament\Resources\GameResource\RelationManagers\GameScreenshotsRelationManager;
 use App\Models\Game;
 use App\Models\GameScreenshot;
-use App\Models\Role;
 use App\Models\System;
-use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Livewire\Livewire;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 uses(RefreshDatabase::class);
