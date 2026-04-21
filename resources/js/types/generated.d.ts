@@ -897,6 +897,7 @@ targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
 screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
@@ -1103,6 +1104,10 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+};
+export type ScreenshotUploadConsistency = {
+existingResolutions: Array<{ width: number; height: number }>;
+canonicalResolution?: string;
 };
 export type ScreenshotUploadTypeStatus = {
 count: number;

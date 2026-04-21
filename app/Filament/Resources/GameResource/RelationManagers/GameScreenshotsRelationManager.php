@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\ValidScreenshotResolutionRule;
 use BackedEnum;
@@ -63,6 +64,8 @@ class GameScreenshotsRelationManager extends RelationManager
     {
         /** @var Game $game */
         $game = $this->getOwnerRecord();
+        $system = $game->system;
+        $resolutionService = new ScreenshotResolutionService();
 
         return $table
             ->headerActions([
@@ -199,10 +202,20 @@ class GameScreenshotsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('resolution')
                     ->label('Resolution')
-                    ->getStateUsing(fn (GameScreenshot $record): ?string => ($record->width && $record->height)
-                        ? "{$record->width}x{$record->height}"
-                        : null
-                    )
+                    ->getStateUsing(function (GameScreenshot $record) use ($system, $resolutionService): ?string {
+                        if (!$record->width || !$record->height) {
+                            return null;
+                        }
+
+                        // Stash validity so the color/icon closures
+                        // don't need to recompute it per row.
+                        $record->setAttribute('has_wrong_resolution',
+                            !empty($system?->screenshot_resolutions)
+                            && $resolutionService->getNormalizedResolution($record->width, $record->height, $system) === null
+                        );
+
+                        return "{$record->width}x{$record->height}";
+                    })
                     ->color(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'danger' : null)
                     ->icon(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'heroicon-o-exclamation-triangle' : null),
             ])

@@ -47,7 +47,7 @@ class GameScreenshotValidationService
         }
 
         $service = new ScreenshotResolutionService();
-        if ($service->isValidResolution($width, $height, $system)) {
+        if ($service->getNormalizedResolution($width, $height, $system) !== null) {
             return;
         }
 

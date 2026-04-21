@@ -34,6 +34,7 @@ class ResumePlayerSessionAction
         $isBackdated = ($timestamp && $timestamp->diffInMinutes(Carbon::now(), true) > $sessionKeepAliveTimeInMinutes);
 
         $timestamp ??= Carbon::now();
+        $activeSessionCutoff = $timestamp->clone()->subMinutes($sessionKeepAliveTimeInMinutes);
 
         /** @var ?PlayerSession $playerSession */
         $playerSession = null;
@@ -60,6 +61,7 @@ class ResumePlayerSessionAction
             // look for an active session
             $playerSession = $user->playerSessions()
                 ->where('game_id', $game->id)
+                ->where('rich_presence_updated_at', '>=', $activeSessionCutoff)
                 ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
                     if ($gameHash && !$isMultiDiscGameHash) {
                         $query->where('game_hash_id', $gameHash->id)
