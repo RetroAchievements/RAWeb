@@ -145,6 +145,10 @@ class GameScreenshotsRelationManager extends RelationManager
                 $query->with(['media', 'game.system'])
                     ->orderByType()
                     ->orderBy('order_column');
+
+                if (!$this->shouldShowRejectedScreenshots()) {
+                    $query->where('status', '!=', GameScreenshotStatus::Rejected->value);
+                }
             })
             ->reorderRecordsTriggerAction(
                 fn (Action $action, bool $isReordering) => $action
@@ -213,11 +217,8 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->toArray()),
 
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        GameScreenshotStatus::Approved->value => 'Published',
-                        GameScreenshotStatus::Pending->value => 'Pending',
-                        GameScreenshotStatus::Rejected->value => 'Rejected',
-                    ]),
+                    ->placeholder('Published + Pending')
+                    ->options(fn (): array => $this->getStatusFilterOptions()),
 
             ])
             ->emptyStateHeading('No screenshots yet')
@@ -369,6 +370,34 @@ class GameScreenshotsRelationManager extends RelationManager
         $this->logReorderingActivity();
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function getStatusFilterOptions(): array
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $selectedType = data_get($this->getTableFilterState('type'), 'value');
+
+        $counts = $game->gameScreenshots()
+            ->when($selectedType, fn (Builder $query) => $query->where('type', $selectedType))
+            ->whereIn('status', [
+                GameScreenshotStatus::Approved->value,
+                GameScreenshotStatus::Pending->value,
+                GameScreenshotStatus::Rejected->value,
+            ])
+            ->select('status', DB::raw('COUNT(*) as aggregate'))
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return [
+            GameScreenshotStatus::Approved->value => 'Published (' . ($counts[GameScreenshotStatus::Approved->value] ?? 0) . ')',
+            GameScreenshotStatus::Pending->value => 'Pending (' . ($counts[GameScreenshotStatus::Pending->value] ?? 0) . ')',
+            GameScreenshotStatus::Rejected->value => 'Rejected (' . ($counts[GameScreenshotStatus::Rejected->value] ?? 0) . ')',
+        ];
+    }
+
     private function logScreenshotActivity(Game $game): ActivityLogger
     {
         return activity()
@@ -439,5 +468,12 @@ class GameScreenshotsRelationManager extends RelationManager
         }
 
         return $text;
+    }
+
+    private function shouldShowRejectedScreenshots(): bool
+    {
+        $selectedStatus = data_get($this->getTableFilterState('status'), 'value');
+
+        return $selectedStatus === GameScreenshotStatus::Rejected->value;
     }
 }
