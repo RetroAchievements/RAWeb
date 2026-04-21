@@ -681,7 +681,7 @@ class BuildGameShowPagePropsAction
             $hasResolutionIssues = false;
             if ($hasDefinedResolutions) {
                 $hasResolutionIssues = $typeScreenshots->contains(
-                    fn (GameScreenshot $ss) => $resolutionService->getNormalizedResolution($ss->width, $ss->height, $system) === null
+                    fn (GameScreenshot $ss) => !$resolutionService->isValidResolution($ss->width, $ss->height, $system)
                 );
             }
 

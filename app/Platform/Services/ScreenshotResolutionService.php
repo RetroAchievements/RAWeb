@@ -189,6 +189,11 @@ class ScreenshotResolutionService
         return "{$subject} ({$width}x{$height}) doesn't match the expected resolutions for {$system->name}: {$formatted}{$multiplesNote}.{$smpteNote}";
     }
 
+    public function isValidResolution(int $width, int $height, System $system): bool
+    {
+        return $this->getNormalizedResolution($width, $height, $system) !== null;
+    }
+
     private function getMaxScaleFactor(System $system): int
     {
         return $system->supports_upscaled_screenshots
