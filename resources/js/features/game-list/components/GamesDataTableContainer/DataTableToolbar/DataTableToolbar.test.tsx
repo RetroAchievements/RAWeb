@@ -1,8 +1,9 @@
-import type { ColumnDef, Table } from '@tanstack/react-table';
+import type { ColumnDef, ColumnFiltersState, Table } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import type { FC } from 'react';
+import { useState } from 'react';
 import type { RouteName } from 'ziggy-js';
 
 import i18n from '@/i18n-client';
@@ -47,23 +48,34 @@ const mockData: Model[] = [
 interface DataTableToolbarHarnessProps {
   columns?: ColumnDef<Model>[];
   data?: Model[];
+  defaultColumnFilters?: ColumnFiltersState;
   tableApiRouteName?: RouteName;
   unfilteredTotal?: number;
+  initialSorting?: { id: string; desc: boolean }[];
 }
 
 const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   columns = mockColumns,
   data = mockData,
+  defaultColumnFilters = [],
+  initialSorting = [{ id: 'title', desc: false }],
   tableApiRouteName,
   unfilteredTotal,
 }) => {
+  const [columnFilters, setColumnFilters] = useState(defaultColumnFilters);
+  const [sorting, setSorting] = useState(initialSorting);
+
   // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     data,
     columns,
     state: {
+      columnFilters,
       pagination: { pageIndex: 0, pageSize: 25 },
+      sorting,
     },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     rowCount: data.length ?? 0,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -71,6 +83,8 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   return (
     <DataTableToolbar
       table={table as Table<unknown>}
+      defaultColumnFilters={defaultColumnFilters}
+      defaultColumnSort={{ id: 'title', desc: false }}
       tableApiRouteName={tableApiRouteName}
       unfilteredTotal={unfilteredTotal ?? data.length}
     />
@@ -278,9 +292,22 @@ describe('Component: DataTableToolbar', () => {
       {
         'page[number]': 1,
         'page[size]': 25,
-        sort: null,
+        sort: 'title',
       },
     ]);
+  });
+
+  it('given the user changed the sort order, shows a Reset button', () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness initialSorting={[{ id: 'system', desc: false }]} />, {
+      pageProps: {
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /reset/i })).toBeVisible();
   });
 
   it('given the table has no achievements published column, does not show the "Has achievements" filter', () => {
