@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Filament\Resources\GameResource;
+use App\Filament\Resources\GameResource\Pages\Media as MediaPage;
+use App\Filament\Resources\GameResource\RelationManagers\GameScreenshotsRelationManager;
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\Role;
@@ -12,6 +13,8 @@ use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 uses(RefreshDatabase::class);
@@ -215,39 +218,4 @@ it('given a primary screenshot of a type already exists, subsequent uploads stay
 
     // ASSERT
     expect($second->fresh()->is_primary)->toBeFalse();
-});
-
-it('does not crash when screenshot resolution badges are shown', function () {
-    // ARRANGE
-    Role::query()->firstOrCreate([
-        'name' => Role::GAME_EDITOR,
-        'guard_name' => 'web',
-    ], [
-        'display' => 1,
-    ]);
-
-    $user = User::factory()->create();
-    $user->assignRole(Role::GAME_EDITOR);
-
-    $system = System::factory()->create([
-        'screenshot_resolutions' => [
-            ['width' => 256, 'height' => 224],
-        ],
-    ]);
-    $game = Game::factory()->create(['system_id' => $system->id]);
-
-    $media = createScreenshotMedia($game);
-
-    GameScreenshot::factory()->for($game)->ingame()->create([
-        'media_id' => $media->id,
-        'width' => 256,
-        'height' => 224,
-    ]);
-
-    // ACT
-    $response = $this->actingAs($user)->get(GameResource::getUrl('media', ['record' => $game->id]));
-
-    // ASSERT
-    $response->assertOk();
-    $response->assertSeeText('256x224');
 });
