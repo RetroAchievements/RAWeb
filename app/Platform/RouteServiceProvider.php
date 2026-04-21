@@ -9,11 +9,13 @@ use App\Models\System;
 use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\Api\AchievementApiController;
 use App\Platform\Controllers\Api\GameApiController;
+use App\Platform\Controllers\Api\GameScreenshotApiController;
 use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
+use App\Platform\Controllers\Demo\GameScreenshotModerationDemoController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -136,6 +138,15 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
+                Route::prefix('demo')->name('demo.')->group(function () {
+                    Route::get('game-screenshot-moderation', [GameScreenshotModerationDemoController::class, 'index'])
+                        ->name('game-screenshot-moderation.index');
+                    Route::post('game-screenshot-moderation/{gameScreenshot}/approve', [GameScreenshotModerationDemoController::class, 'approve'])
+                        ->name('game-screenshot-moderation.approve');
+                    Route::post('game-screenshot-moderation/{gameScreenshot}/reject', [GameScreenshotModerationDemoController::class, 'reject'])
+                        ->name('game-screenshot-moderation.reject');
+                });
+
                 Route::group([
                     'prefix' => 'internal-api',
                 ], function () {
@@ -157,6 +168,14 @@ class RouteServiceProvider extends ServiceProvider
                         ->name('api.user.event-award-tier-preference.update');
 
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
+
+                    Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.store');
+
+                    Route::delete('game/{game}/screenshots/{gameScreenshot}', [GameScreenshotApiController::class, 'destroy'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.destroy');
                 });
 
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');

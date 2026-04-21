@@ -24,7 +24,6 @@ use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use App\Platform\Services\UserLastActivityService;
-use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -34,7 +33,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
@@ -107,11 +105,16 @@ class AppServiceProvider extends ServiceProvider
             'avatar' => $user->avatarUrl,
         ]);
 
-        // Allow the main app server to fetch logs from this worker via bearer token.
+        // Allow the main app server to fetch logs from remote hosts (worker, api, etc.) via bearer token.
         LogViewer::auth(function ($request) {
-            $token = config('log-viewer.hosts.worker.auth.token');
-            if ($token && $request->bearerToken() === $token) {
-                return true;
+            $bearerToken = $request->bearerToken();
+            if ($bearerToken) {
+                foreach (config('log-viewer.hosts', []) as $host) {
+                    $hostToken = $host['auth']['token'] ?? null;
+                    if ($hostToken && hash_equals($hostToken, $bearerToken)) {
+                        return true;
+                    }
+                }
             }
 
             return $request->user()?->can('viewLogViewer') ?? false;
@@ -137,18 +140,10 @@ class AppServiceProvider extends ServiceProvider
          * We'll set it to "not_disposable_email", which is much more intuitive.
          */
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
-            $rule = new DisposableEmailRule();
-
-            $error = null;
-            $failCallback = function (string $message) use (&$error): PotentiallyTranslatedString {
-                $error = $message;
-
-                return new PotentiallyTranslatedString($message, app('translator'));
-            };
-
-            $rule->validate($attribute, $value, $failCallback);
-
-            return empty($error);
+            return Validator::make(
+                [$attribute => $value],
+                [$attribute => 'indisposable'],
+            )->passes();
         }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components

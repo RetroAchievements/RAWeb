@@ -3,6 +3,7 @@
 namespace App\Community\Controllers\Api;
 
 use App\Actions\GetUserDeviceKindAction;
+use App\Community\Enums\UserGameListType;
 use App\Community\Requests\UserGameListEntryRequest;
 use App\Community\Requests\UserGameListRequest;
 use App\Http\Controller;
@@ -36,10 +37,13 @@ class UserGameListApiController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $type = UserGameListType::from($request->input('userGameListType'));
+        $this->authorize('create', [UserGameListEntry::class, $type]);
+
         $userGameListEntry = UserGameListEntry::firstOrCreate([
             'user_id' => $user->id,
             'game_id' => $gameId,
-            'type' => $request->input('userGameListType'),
+            'type' => $type,
         ]);
 
         return response()->json(['success' => true, 'data' => $userGameListEntry]);
@@ -57,7 +61,7 @@ class UserGameListApiController extends Controller
     {
         $user = $request->user();
 
-        $type = $request->input('userGameListType');
+        $type = UserGameListType::from($request->input('userGameListType'));
 
         $userGameListEntry = UserGameListEntry::where('user_id', $user->id)
             ->where('game_id', $gameId)
@@ -65,6 +69,7 @@ class UserGameListApiController extends Controller
             ->first();
 
         if ($userGameListEntry) {
+            $this->authorize('delete', $userGameListEntry);
             $userGameListEntry->delete();
         }
 

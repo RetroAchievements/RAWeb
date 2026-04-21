@@ -22,7 +22,7 @@ class CommentFactory extends Factory
         $isEdited = $this->faker->boolean((1 / 12) * 100); // A one-in-twelve chance of being truthy.
 
         return [
-            'body' => $this->faker->paragraph,
+            'body' => $this->faker->paragraph(),
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'updated_at' => $isEdited ? $this->faker->dateTimeBetween('now', '+1 year') : null,
             'user_id' => $user->id,

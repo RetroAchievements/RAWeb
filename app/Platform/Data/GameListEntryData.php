@@ -14,6 +14,7 @@ class GameListEntryData extends Data
         public GameData $game,
         public ?PlayerGameData $playerGame,
         public ?bool $isInBacklog,
+        public ?GameListEntryStatsData $gameListStats = null,
     ) {
     }
 }
