@@ -40,7 +40,7 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/this will create a new collaboration claim/i)).toBeVisible();
+    expect(screen.getByText(/this will create a collaboration claim/i)).toBeVisible();
     expect(screen.getByText('Backing Game')).toBeVisible();
   });
 
@@ -56,7 +56,26 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/this will create a new primary claim/i)).toBeVisible();
+    expect(screen.getByText(/this will create a primary claim/i)).toBeVisible();
+    expect(screen.getByText('Backing Game')).toBeVisible();
+  });
+
+  it('given the action is create and the claim would be a revision, shows revision claim text', () => {
+    // ARRANGE
+    const achievementSet = createAchievementSet({ achievements: [createAchievement()] });
+    const gameAchievementSet = createGameAchievementSet({ achievementSet });
+
+    render(<ClaimDialogDescriptions action="create" />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ gameAchievementSets: [gameAchievementSet] }),
+        backingGame: createGame({ title: 'Backing Game' }),
+        claimData: createGamePageClaimData(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/this will create a revision claim/i)).toBeVisible();
     expect(screen.getByText('Backing Game')).toBeVisible();
   });
 
@@ -86,7 +105,9 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/has been posted and approved/i)).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'An approved revision plan is required for this claim.',
+    );
   });
 
   it('given the action is create and the user is the sole author of all achievements, does not show the revision plan warning', () => {
@@ -130,10 +151,12 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/please only create this claim if the subset/i)).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Subset approval is required for this claim.',
+    );
   });
 
-  it('given the action is create and there are unresolved tickets, shows the unresolved tickets warning', () => {
+  it('given the action is create and there are 2 or more unresolved tickets, shows the unresolved tickets warning', () => {
     // ARRANGE
     render(<ClaimDialogDescriptions action="create" />, {
       pageProps: {
@@ -145,7 +168,40 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/please ensure any open tickets have been addressed/i)).toBeVisible();
+    expect(screen.getByText(/open tickets awaiting your response\./i)).toBeVisible();
+  });
+
+  it('given the action is create and there are fewer than 2 unresolved tickets, does not show the unresolved tickets warning', () => {
+    // ARRANGE
+    render(<ClaimDialogDescriptions action="create" />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ gameAchievementSets: [] }),
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({ numUnresolvedTickets: 1 }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/open tickets awaiting your response/i)).not.toBeInTheDocument();
+  });
+
+  it('given the action is create and the claim would be a collaboration, does not show the unresolved tickets warning', () => {
+    // ARRANGE
+    render(<ClaimDialogDescriptions action="create" />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ gameAchievementSets: [] }),
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          numUnresolvedTickets: 5,
+          wouldBeCollaboration: true,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/open tickets awaiting your response/i)).not.toBeInTheDocument();
   });
 
   it('given the action is create and the game has no forum topic, shows the forum topic notice', () => {
@@ -161,7 +217,7 @@ describe('Component: ClaimDialogDescriptions', () => {
 
     // ASSERT
     expect(
-      screen.getByText(/an official forum topic for the game will also be created/i),
+      screen.getByText(/an official forum topic will be created for this game/i),
     ).toBeVisible();
   });
 
@@ -193,7 +249,7 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/this will extend the claim for another three months/i)).toBeVisible();
+    expect(screen.getByText(/this will extend your claim for another three months/i)).toBeVisible();
     expect(screen.getByText(/post a progress report/i)).toBeVisible();
   });
 
@@ -211,7 +267,9 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/this will inform all set requestors/i)).toBeVisible();
+    expect(
+      screen.getByText(/this will mark your claim complete and notify set requestors/i),
+    ).toBeVisible();
     expect(
       screen.getByText(/please ensure you have approval to complete this claim/i),
     ).toBeVisible();
@@ -231,7 +289,9 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/this will inform all set requestors/i)).toBeVisible();
+    expect(
+      screen.getByText(/this will mark your claim complete and notify set requestors/i),
+    ).toBeVisible();
     expect(
       screen.queryByText(/please ensure you have approval to complete this claim/i),
     ).not.toBeInTheDocument();
