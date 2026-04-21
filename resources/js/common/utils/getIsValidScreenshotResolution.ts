@@ -1,3 +1,5 @@
+import { getIsSameScreenshotResolution } from './getIsSameScreenshotResolution';
+
 const SMPTE_601_RESOLUTIONS = [
   { width: 704, height: 480 },
   { width: 720, height: 480 },
@@ -6,7 +8,7 @@ const SMPTE_601_RESOLUTIONS = [
   { width: 720, height: 576 },
 ];
 
-export function isValidScreenshotResolution(
+export function getIsValidScreenshotResolution(
   width: number,
   height: number,
   allValidResolutions: Array<{ width: number; height: number }>,
@@ -18,7 +20,6 @@ export function isValidScreenshotResolution(
     return true;
   }
 
-  const tolerancePx = 1;
   const maxScale = supportsUpscaledScreenshots ? 3 : 1;
 
   for (const resolution of allValidResolutions) {
@@ -26,10 +27,7 @@ export function isValidScreenshotResolution(
       const expectedW = resolution.width * scale;
       const expectedH = resolution.height * scale;
 
-      if (
-        Math.abs(width - expectedW) <= tolerancePx &&
-        Math.abs(height - expectedH) <= tolerancePx
-      ) {
+      if (getIsSameScreenshotResolution(width, height, expectedW, expectedH)) {
         return true;
       }
     }

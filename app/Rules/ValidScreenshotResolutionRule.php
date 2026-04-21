@@ -47,7 +47,7 @@ class ValidScreenshotResolutionRule implements ValidationRule
         [$width, $height] = $imageInfo;
 
         $service = new ScreenshotResolutionService();
-        if ($service->isValidResolution($width, $height, $this->system)) {
+        if ($service->getNormalizedResolution($width, $height, $this->system) !== null) {
             return;
         }
 

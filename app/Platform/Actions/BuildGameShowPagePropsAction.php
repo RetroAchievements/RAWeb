@@ -33,6 +33,7 @@ use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Data\ScreenshotUploadConsistencyData;
 use App\Platform\Data\ScreenshotUploadTypeStatusData;
 use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementSetType;
@@ -45,6 +46,7 @@ use App\Platform\Services\ScreenshotResolutionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
+use Spatie\LaravelData\Optional;
 
 class BuildGameShowPagePropsAction
 {
@@ -408,8 +410,8 @@ class BuildGameShowPagePropsAction
                 ->all(),
 
             userGameAchievementSetPreferences: $this->buildUserAchievementSetPreferences($game, $user),
-
             screenshotUploadStatuses: Lazy::create(fn () => $this->buildScreenshotUploadStatuses($game)),
+            screenshotUploadConsistency: Lazy::create(fn () => $this->buildScreenshotUploadConsistency($game)),
 
             screenshotUploadPendingCount: Lazy::create(fn () => $user
                 ? GameScreenshot::where('captured_by_user_id', $user->id)
@@ -440,6 +442,7 @@ class BuildGameShowPagePropsAction
         if ($user && $user->can('create', [GameScreenshot::class, $game])) {
             $propsData = $propsData->include(
                 'screenshotUploadStatuses',
+                'screenshotUploadConsistency',
                 'screenshotUploadPendingCount',
                 'screenshotUploadUserSubmissions',
             );
@@ -612,6 +615,49 @@ class BuildGameShowPagePropsAction
     }
 
     /**
+     * Builds the upload consistency baseline from the game's valid approved
+     * primary screenshots. Returns null when there is no valid baseline, and
+     * omits canonicalResolution when multiple valid sizes already exist.
+     *
+     * This is used to tell a user if what they're uploading has an inconsistent
+     * resolution from other primary screenshots associated with the game.
+     */
+    private function buildScreenshotUploadConsistency(Game $game): ?ScreenshotUploadConsistencyData
+    {
+        $system = $game->system;
+        $resolutionService = new ScreenshotResolutionService();
+
+        $existingResolutions = $game->gameScreenshots()
+            ->approved()
+            ->where('is_primary', true)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->get(['width', 'height'])
+            ->map(fn (GameScreenshot $screenshot) => $system
+                ? $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system)
+                : ['width' => $screenshot->width, 'height' => $screenshot->height]
+            )
+            ->filter()
+            ->unique(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
+            ->sortBy(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
+            ->values()
+            ->all();
+
+        if ($existingResolutions === []) {
+            return null;
+        }
+
+        $canonicalResolution = count($existingResolutions) === 1
+            ? "{$existingResolutions[0]['width']}x{$existingResolutions[0]['height']}"
+            : new Optional();
+
+        return new ScreenshotUploadConsistencyData(
+            existingResolutions: $existingResolutions,
+            canonicalResolution: $canonicalResolution,
+        );
+    }
+
+    /**
      * This is used to tell the screenshot upload dialog "here's what
      * the game already has and where the gaps/problems are".
      *
@@ -635,7 +681,7 @@ class BuildGameShowPagePropsAction
             $hasResolutionIssues = false;
             if ($hasDefinedResolutions) {
                 $hasResolutionIssues = $typeScreenshots->contains(
-                    fn (GameScreenshot $ss) => !$resolutionService->isValidResolution($ss->width, $ss->height, $system)
+                    fn (GameScreenshot $ss) => $resolutionService->getNormalizedResolution($ss->width, $ss->height, $system) === null
                 );
             }
 
