@@ -1,39 +1,3 @@
-<?php
-
-use App\Models\Game;
-use App\Models\User;
-use App\Platform\Services\GameUserAchievementsGridService;
-use Livewire\Attributes\Locked;
-use Livewire\Component;
-
-new class extends Component {
-    public ?int $achievementCount = null;
-
-    #[Locked]
-    public ?int $gameId = null;
-
-    #[Locked]
-    public ?string $targetUsername = null;
-
-    public array $gameAchievementsWithProgress = [];
-
-    public bool $isLoading = true;
-
-    public function loadContent(): void
-    {
-        $game = Game::find($this->gameId);
-        $user = User::whereName($this->targetUsername)->first();
-
-        $service = new GameUserAchievementsGridService();
-        $this->gameAchievementsWithProgress = $service->getGameAchievementsWithUserProgress(
-            $game,
-            $user,
-        );
-    }
-};
-
-?>
-
 <div
     x-data="userAchievementsGrid"
     x-intersect="isVisible = true"

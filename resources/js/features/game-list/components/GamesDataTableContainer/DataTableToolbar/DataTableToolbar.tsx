@@ -1,4 +1,4 @@
-import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { ColumnFiltersState, ColumnSort, Table } from '@tanstack/react-table';
 import { lazy, Suspense } from 'react';
 import type { RouteName } from 'ziggy-js';
 
@@ -14,6 +14,7 @@ interface DataTableToolbarProps<TData> {
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  defaultColumnSort?: ColumnSort;
   isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
@@ -25,6 +26,7 @@ export function DataTableToolbar<TData>({
   tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
+  defaultColumnSort = { id: 'title', desc: false },
   isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
@@ -52,6 +54,7 @@ export function DataTableToolbar<TData>({
       table={table}
       unfilteredTotal={unfilteredTotal}
       defaultColumnFilters={defaultColumnFilters}
+      defaultColumnSort={defaultColumnSort}
       isTableQueryLoading={isTableQueryLoading}
       randomGameApiRouteName={randomGameApiRouteName}
       tableApiRouteName={tableApiRouteName}

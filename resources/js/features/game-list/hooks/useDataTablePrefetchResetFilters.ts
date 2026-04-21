@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { ColumnFiltersState, ColumnSort, SortingState, Table } from '@tanstack/react-table';
 import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
@@ -16,20 +16,23 @@ import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortPara
 export function useDataTablePrefetchResetFilters<TData>(
   table: Table<TData>,
   defaultColumnFilters: ColumnFiltersState,
+  defaultColumnSort: ColumnSort,
   tableApiRouteName: RouteName,
   tableApiRouteParams?: Record<string, unknown>,
 ) {
   const queryClient = useQueryClient();
 
-  const { pagination, sorting } = table.getState();
+  const { pagination } = table.getState();
+  const resetPagination = { ...pagination, pageIndex: 0 };
+  const resetSorting: SortingState = [defaultColumnSort];
 
   const prefetchResetFilters = () => {
     queryClient.prefetchQuery({
       queryKey: [
         'data',
         tableApiRouteName,
-        pagination,
-        sorting,
+        resetPagination,
+        resetSorting,
         defaultColumnFilters,
         tableApiRouteParams,
       ],
@@ -38,8 +41,8 @@ export function useDataTablePrefetchResetFilters<TData>(
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
             ...tableApiRouteParams,
-            sort: buildGameListQuerySortParam(sorting),
-            ...buildGameListQueryPaginationParams(pagination),
+            sort: buildGameListQuerySortParam(resetSorting),
+            ...buildGameListQueryPaginationParams(resetPagination),
             ...buildGameListQueryFilterParams(defaultColumnFilters),
           }),
         );

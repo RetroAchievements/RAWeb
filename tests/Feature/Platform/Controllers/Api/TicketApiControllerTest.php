@@ -6,11 +6,15 @@ namespace Tests\Feature\Platform\Controllers\Api;
 
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Enums\ClientSupportLevel;
 use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\EmulatorCoreRestriction;
+use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -269,6 +273,111 @@ class TicketApiControllerTest extends TestCase
             'body' => "Test description\n\n" .
                 "Emulator: RAP64\n" .
                 "Emulator Version: 1.9.0",
+        ]);
+    }
+
+    public function testStoreQuarantinesTicketsFromRestrictedCores(): void
+    {
+        $system = System::factory()->create(['name' => 'Game Boy', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'Batman', 'system_id' => $system->id]);
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $developer = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        $emulator = Emulator::factory()->create(['name' => 'RetroArch']);
+
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'RetroArch',
+        ]);
+
+        EmulatorCoreRestriction::create([
+            'core_name' => 'doublecherrygb_libretro',
+            'support_level' => ClientSupportLevel::Warned,
+            'notes' => 'known issues',
+        ]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'created_at' => Carbon::now()->subWeeks(2),
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'game_hash_id' => $gameHash->id,
+            'user_agent' => 'RetroArch/1.19.1 (Windows) doublecherrygb_libretro/5d2ac21',
+        ]);
+
+        $response = $this->postJson(route('api.ticket.store'), [
+            'ticketableModel' => 'achievement',
+            'ticketableId' => $achievement->id,
+            'mode' => 'hardcore',
+            'issue' => TicketType::TriggeredAtWrongTime->value,
+            'description' => 'Test description',
+            'emulator' => 'RetroArch',
+            'emulatorVersion' => '1.19.1',
+            'core' => 'doublecherrygb_libretro',
+            'gameHashId' => $gameHash->id,
+        ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('tickets', [
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $user->id,
+            'state' => TicketState::Quarantined,
+        ]);
+    }
+
+    public function testStoreQuarantinesTicketsFromSoftcoreOnlyEmulators(): void
+    {
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $developer = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        $emulator = Emulator::factory()->create(['name' => 'gopher64', 'softcore_only' => true]);
+
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'gopher64',
+        ]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'created_at' => Carbon::now()->subWeeks(2),
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'game_hash_id' => $gameHash->id,
+            'user_agent' => 'gopher64/1.15.0 (Windows)',
+        ]);
+
+        $response = $this->postJson(route('api.ticket.store'), [
+            'ticketableModel' => 'achievement',
+            'ticketableId' => $achievement->id,
+            'mode' => 'softcore',
+            'issue' => TicketType::TriggeredAtWrongTime->value,
+            'description' => 'Test description',
+            'emulator' => 'gopher64',
+            'emulatorVersion' => '1.15.0',
+            'gameHashId' => $gameHash->id,
+        ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('tickets', [
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $user->id,
+            'state' => TicketState::Quarantined,
         ]);
     }
 }

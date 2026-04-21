@@ -67,9 +67,9 @@ usort($filteredAndJoinedGamesList, function ($a, $b) {
         return 1;
     } elseif (!$dateB) {
         return -1;
-    } else {
-        return $dateB <=> $dateA;
     }
+
+    return $dateB <=> $dateA;
 });
 
 // Apply pagination.
