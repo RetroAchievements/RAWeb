@@ -24,7 +24,6 @@ use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use App\Platform\Services\UserLastActivityService;
-use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -34,7 +33,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
@@ -142,18 +140,10 @@ class AppServiceProvider extends ServiceProvider
          * We'll set it to "not_disposable_email", which is much more intuitive.
          */
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
-            $rule = new DisposableEmailRule();
-
-            $error = null;
-            $failCallback = function (string $message) use (&$error): PotentiallyTranslatedString {
-                $error = $message;
-
-                return new PotentiallyTranslatedString($message, app('translator'));
-            };
-
-            $rule->validate($attribute, $value, $failCallback);
-
-            return empty($error);
+            return Validator::make(
+                [$attribute => $value],
+                [$attribute => 'indisposable'],
+            )->passes();
         }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components

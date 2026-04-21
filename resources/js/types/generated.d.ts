@@ -436,7 +436,7 @@ viewDeveloperInterest?: boolean;
 };
 }
 declare namespace App.Enums {
-export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
+export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
@@ -769,6 +769,12 @@ export type GameListEntry = {
 game: App.Platform.Data.Game;
 playerGame: App.Platform.Data.PlayerGame | null;
 isInBacklog: boolean | null;
+gameListStats: App.Platform.Data.GameListEntryStats | null;
+};
+export type GameListEntryStats = {
+coreSetMedianTimeToCompleteHardcore: number;
+coreSetPlayersHardcore: number;
+coreSetTimesCompletedHardcore: number;
 };
 export type GameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -892,6 +898,7 @@ targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
 screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
@@ -912,6 +919,7 @@ suggestionContext: App.Platform.Data.GameSuggestionContext | null;
 game: App.Platform.Data.Game;
 playerGame: App.Platform.Data.PlayerGame | null;
 isInBacklog: boolean | null;
+gameListStats: App.Platform.Data.GameListEntryStats | null;
 };
 export type GameTopAchiever = {
 userDisplayName: string;
@@ -1098,6 +1106,10 @@ ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
 };
+export type ScreenshotUploadConsistency = {
+existingResolutions: Array<{ width: number; height: number }>;
+canonicalResolution?: string;
+};
 export type ScreenshotUploadTypeStatus = {
 count: number;
 hasResolutionIssues: boolean;
@@ -1156,19 +1168,20 @@ pointsForNext: number;
 declare namespace App.Platform.Enums {
 export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
-export type UnlockMode = 0 | 1;
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
-export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_challenge' | 'will_be_specialty';
+export type UnlockMode = 0 | 1;
+export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
-export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'medianTimeToBeatHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
+export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
 export type GamePageListSort = 'normal' | 'displayOrder' | '-displayOrder' | 'wonBy' | '-wonBy' | 'points' | '-points' | 'title' | '-title' | 'type' | '-type' | 'rank' | '-rank';
 export type GamePageListView = 'achievements' | 'leaderboards';
 export type GameReleaseRegion = 'as' | 'au' | 'br' | 'ch' | 'eu' | 'jp' | 'kr' | 'nz' | 'na' | 'worldwide' | 'other';
-export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected';
+export type GameScreenshotRejectionReason = 'wrong_game' | 'poor_quality' | 'duplicate' | 'incorrect_type' | 'inappropriate_content' | 'other';
+export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected' | 'replaced';
 export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';

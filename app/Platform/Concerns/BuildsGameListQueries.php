@@ -8,6 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
+use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -15,6 +16,7 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
@@ -58,6 +60,10 @@ trait BuildsGameListQueries
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
                     ->whereColumn('leaderboards.game_id', 'games.id')
                     ->where(DB::raw('leaderboards.order_column'), '>=', 0),
+
+                'core_set_times_completed_hardcore' => $this->coreSetColumnSelect('times_completed_hardcore'),
+                'core_set_players_hardcore' => $this->coreSetColumnSelect('players_hardcore'),
+                'core_set_median_time_to_complete_hardcore' => $this->coreSetColumnSelect('median_time_to_complete_hardcore'),
             ]);
 
         // Only attempt to fetch the "Requests" column counts if we're on
@@ -360,6 +366,56 @@ trait BuildsGameListQueries
                         ->orderByDesc('can_be_beaten')
                         ->orderBy('beat_ratio', $sortDirection)
                         ->orderByDesc('players_total');
+                    break;
+
+                /*
+                 * percentage of hardcore players for the game that have mastered the core set
+                 */
+                case GameListSortField::MasteryRatio->value:
+                    $timesCompletedSub = $this->coreSetColumnSubquery('times_completed_hardcore');
+                    $setPlayersSub = $this->coreSetColumnSubquery('players_hardcore');
+
+                    $query
+                        ->selectRaw(
+                            "CASE
+                                WHEN COALESCE({$timesCompletedSub}, 0) >= 5 THEN 1
+                                ELSE 0
+                            END AS has_mastery_data"
+                        )
+                        ->selectRaw(
+                            "CASE
+                                WHEN COALESCE({$setPlayersSub}, 0) > 0
+                                    THEN COALESCE({$timesCompletedSub}, 0) * 1.0 / COALESCE({$setPlayersSub}, 0)
+                                ELSE 0
+                            END AS mastery_ratio"
+                        )
+                        ->orderByDesc('has_mastery_data')
+                        ->orderBy('mastery_ratio', $sortDirection)
+                        ->orderByDesc('players_total');
+                    break;
+
+                /*
+                 * median time to master the game's core set in hardcore with a minimum threshold of 5 masteries
+                 */
+                case GameListSortField::MedianTimeToMasterHardcore->value:
+                    $timesCompletedSub = $this->coreSetColumnSubquery('times_completed_hardcore');
+                    $medianTimeSub = $this->coreSetColumnSubquery('median_time_to_complete_hardcore');
+
+                    $query
+                        ->selectRaw(
+                            "CASE
+                                WHEN COALESCE({$timesCompletedSub}, 0) < 5 THEN 0
+                                ELSE 1
+                            END AS has_time_to_master"
+                        )
+                        ->selectRaw(
+                            "CASE
+                                WHEN COALESCE({$timesCompletedSub}, 0) < 5 THEN 0
+                                ELSE COALESCE({$medianTimeSub}, 0)
+                            END AS restricted_time_to_master"
+                        )
+                        ->orderByDesc('has_time_to_master')
+                        ->orderBy('restricted_time_to_master', $sortDirection);
                     break;
 
                 /*
@@ -828,5 +884,39 @@ trait BuildsGameListQueries
                 ->whereColumn('player_games.game_id', 'games.id')
                 ->where('player_games.user_id', $user->id);
         };
+    }
+
+    /**
+     * Build an inline subquery to fetch a column from the game's core achievement set.
+     * Used in sort expressions where MariaDB can't reference addSelect aliases.
+     */
+    private function coreSetColumnSubquery(string $column): string
+    {
+        $coreType = AchievementSetType::Core->value;
+
+        return trim(<<<SQL
+            (
+                SELECT achievement_sets.{$column}
+                FROM achievement_sets
+                JOIN game_achievement_sets
+                    ON achievement_sets.id = game_achievement_sets.achievement_set_id
+                WHERE game_achievement_sets.game_id = games.id
+                    AND game_achievement_sets.type = '{$coreType}'
+                LIMIT 1
+            )
+            SQL);
+    }
+
+    /**
+     * @return Builder<AchievementSet>
+     */
+    private function coreSetColumnSelect(string $column): Builder
+    {
+        return AchievementSet::query()
+            ->select($column)
+            ->join('game_achievement_sets', 'achievement_sets.id', '=', 'game_achievement_sets.achievement_set_id')
+            ->whereColumn('game_achievement_sets.game_id', 'games.id')
+            ->where('game_achievement_sets.type', AchievementSetType::Core->value)
+            ->limit(1);
     }
 }

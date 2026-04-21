@@ -106,6 +106,7 @@ class AchievementSetsTestHelpers
         return AchievementSetsTestHelpers::getWarningAchievementPatchData(
             title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -366,7 +367,7 @@ class AchievementSetsTestHelpers
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => $compatibility,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);
@@ -1876,6 +1877,53 @@ describe('User Agent', function () {
                         'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                         'Achievements' => [
                             AchievementSetsTestHelpers::getClientWarningAchievementPatchData(ClientSupportLevel::Unsupported),
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('softcore-only user agent receives softcore-only warning instead of please update', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulator = Emulator::create([
+            'name' => 'Softcore Client',
+            'active' => true,
+            'softcore_only' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'SoftcoreClient',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'SoftcoreClient/1.1.16'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getClientWarningAchievementPatchData(
+                                ClientSupportLevel::SoftcoreOnly,
+                            ),
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3

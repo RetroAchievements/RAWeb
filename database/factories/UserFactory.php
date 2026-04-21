@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'ulid' => (string) Str::ulid(),
             'username' => $this->fakeUsername(),
             'display_name' => null,
-            'email' => fake()->unique()->safeEmail,
+            'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'Permissions' => Permissions::Registered,
             'password' => Hash::make('password'),

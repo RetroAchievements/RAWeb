@@ -15,6 +15,7 @@ use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
+use App\Platform\Controllers\Demo\GameScreenshotModerationDemoController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -137,6 +138,15 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
+                Route::prefix('demo')->name('demo.')->group(function () {
+                    Route::get('game-screenshot-moderation', [GameScreenshotModerationDemoController::class, 'index'])
+                        ->name('game-screenshot-moderation.index');
+                    Route::post('game-screenshot-moderation/{gameScreenshot}/approve', [GameScreenshotModerationDemoController::class, 'approve'])
+                        ->name('game-screenshot-moderation.approve');
+                    Route::post('game-screenshot-moderation/{gameScreenshot}/reject', [GameScreenshotModerationDemoController::class, 'reject'])
+                        ->name('game-screenshot-moderation.reject');
+                });
+
                 Route::group([
                     'prefix' => 'internal-api',
                 ], function () {

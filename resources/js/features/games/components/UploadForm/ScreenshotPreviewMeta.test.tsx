@@ -38,4 +38,36 @@ describe('Component: ScreenshotPreviewMeta', () => {
     expect(screen.queryByText('Valid resolution')).not.toBeInTheDocument();
     expect(screen.getByText(/invalid resolution/i)).toBeVisible();
   });
+
+  it('given the resolution is valid but inconsistent with canonical screenshots, shows an advisory warning message', () => {
+    // ARRANGE
+    render(
+      <ScreenshotPreviewMeta
+        width={320}
+        height={240}
+        isResolutionValid={true}
+        hasConsistencyWarning={true}
+        canonicalResolution="256x224"
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/valid resolution/i)).toBeVisible();
+    expect(screen.getByText(/doesn't match existing screenshots \(256x224\)/i)).toBeVisible();
+  });
+
+  it('given the resolution is valid but inconsistent with mixed screenshots, shows a generic advisory message', () => {
+    // ARRANGE
+    render(
+      <ScreenshotPreviewMeta
+        width={320}
+        height={240}
+        isResolutionValid={true}
+        hasConsistencyWarning={true}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/doesn't match existing screenshots/i)).toBeVisible();
+  });
 });

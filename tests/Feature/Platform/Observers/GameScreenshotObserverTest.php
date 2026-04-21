@@ -211,6 +211,7 @@ it('does not auto-publish a non-approved screenshot when its type is changed to 
 })->with([
     'rejected' => GameScreenshotStatus::Rejected,
     'pending' => GameScreenshotStatus::Pending,
+    'replaced' => GameScreenshotStatus::Replaced,
 ]);
 
 it('promotes the next approved screenshot for the old type when the primary changes type', function () {

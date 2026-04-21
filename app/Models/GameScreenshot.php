@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -34,6 +35,8 @@ class GameScreenshot extends BaseModel
         'captured_by_user_id',
         'reviewed_by_user_id',
         'reviewed_at',
+        'rejection_reason',
+        'rejection_notes',
     ];
 
     protected $casts = [
@@ -43,6 +46,7 @@ class GameScreenshot extends BaseModel
         'width' => 'integer',
         'height' => 'integer',
         'reviewed_at' => 'datetime',
+        'rejection_reason' => GameScreenshotRejectionReason::class,
     ];
 
     /** @var array<string, mixed> */

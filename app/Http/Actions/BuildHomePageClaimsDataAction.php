@@ -11,6 +11,7 @@ use App\Models\AchievementSetClaim;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use LogicException;
 
 class BuildHomePageClaimsDataAction
 {
@@ -97,8 +98,14 @@ class BuildHomePageClaimsDataAction
                 $uniqueUserClaims = $gameClaims->groupBy('user.id')
                     ->map->first();
 
+                $claim = $uniqueUserClaims->sortBy('created_at')->first();
+
+                if (!$claim instanceof AchievementSetClaim) {
+                    throw new LogicException('Expected each game claim group to contain at least one claim.');
+                }
+
                 return [
-                    'claim' => $uniqueUserClaims->sortBy('created_at')->first(),
+                    'claim' => $claim,
                     'users' => $uniqueUserClaims->pluck('user')->all(),
                 ];
             })

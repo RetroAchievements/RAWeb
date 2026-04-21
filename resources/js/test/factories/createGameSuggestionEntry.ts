@@ -10,6 +10,7 @@ export const createGameSuggestionEntry = createFactory<App.Platform.Data.GameSug
       game: createGame(),
       playerGame: createPlayerGame(),
       isInBacklog: faker.datatype.boolean(),
+      gameListStats: null,
       suggestionContext: {
         relatedAuthor: createUser(),
         relatedGame: createGame(),

@@ -95,6 +95,10 @@ parameters:
             identifier: method.notFound
             message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::#'
             path: tests/*
+        -
+            identifier: method.notFound
+            message: '#Call to an undefined method Pest\\PendingCalls\\TestCall::#'
+            path: tests/*
 
         # Larastan doesn't detect this BelongsToMany relationship when analyzing the trait
         # in the context of Filament page classes. The method exists on Achievement model.

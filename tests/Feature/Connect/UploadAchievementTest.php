@@ -45,7 +45,7 @@ class UploadAchievementTestHelpers
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => GameHashCompatibility::Compatible,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);

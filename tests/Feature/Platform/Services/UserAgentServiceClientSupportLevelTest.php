@@ -404,4 +404,75 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals($expected, $userAgentService->getSupportLevel($userAgent));
     }
+
+    public function testSoftcoreOnlyFlagReturnsSoftcoreOnly(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $emulator = Emulator::create([
+            'name' => 'Gopher64',
+            'active' => true,
+            'softcore_only' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'gopher64',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('gopher64/1.1.16'));
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('gopher64/0.0.1'));
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('gopher64/99.99.99'));
+
+        // a lingering minimum_hardcore_version on a softcore-only row is
+        // dead data -- the softcore_only short circuit will always win
+        EmulatorUserAgent::where('client', 'gopher64')->update([
+            'minimum_hardcore_version' => '5.0',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('gopher64/1.1.16'));
+
+        // minimum_allowed_version still takes precedence for blocking ancient versions
+        EmulatorUserAgent::where('client', 'gopher64')->update([
+            'minimum_hardcore_version' => null,
+            'minimum_allowed_version' => '1.1.16',
+        ]);
+
+        $this->assertEquals(ClientSupportLevel::Blocked,
+            $userAgentService->getSupportLevel('gopher64/1.0.0'));
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('gopher64/1.1.16'));
+    }
+
+    public function testSoftcoreOnlyFlagBypassesCoreRestrictions(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $emulator = Emulator::create([
+            'name' => 'RetroArch',
+            'active' => true,
+            'softcore_only' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'RetroArch',
+            'minimum_hardcore_version' => '1.10',
+        ]);
+        EmulatorCoreRestriction::create([
+            'core_name' => 'dolphin_libretro',
+            'support_level' => ClientSupportLevel::Blocked,
+            'notes' => 'accuracy issues',
+        ]);
+
+        $this->assertEquals(
+            ClientSupportLevel::SoftcoreOnly,
+            $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75')
+        );
+        $this->assertNull(
+            $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75')
+        );
+    }
 }
