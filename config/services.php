@@ -66,6 +66,10 @@ return [
                 'url' => env('DISCORD_WEBHOOK_WRITING_TEAM'),
                 'is_forum' => true,
             ],
+            'UnlockTeam' => [
+                'url' => env('DISCORD_WEBHOOK_UNLOCKTEAM'),
+                'is_forum' => true,
+            ],
             'QualityQuest' => [
                 'url' => env('DISCORD_WEBHOOK_QUALITYQUEST'),
             ],
@@ -81,7 +85,6 @@ return [
                     env('DISCORD_ROLE_ADMIN'),
                     env('DISCORD_ROLE_MODERATOR'),
                 ],
-                'manual_unlock_url' => env('DISCORD_WEBHOOK_MOD_MANUAL_UNLOCK'),
                 'verify_url' => env('DISCORD_WEBHOOK_MOD_VERIFY'),
                 'reports_url' => env('DISCORD_WEBHOOK_MOD_REPORTS'),
             ],

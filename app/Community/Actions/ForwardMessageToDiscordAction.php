@@ -29,7 +29,6 @@ class ForwardMessageToDiscordAction
     /** Embed colors */
     private const COLOR_DEFAULT = 0x0066CC;
     private const COLOR_VERIFICATION = 0x00CC66;
-    private const COLOR_MANUAL_UNLOCK = 0xCC0066;
 
     /** Discord forum tag IDs */
     private const DISCORD_TAG_MOD_REPORTS_OPEN = '1442949578629578882';
@@ -80,7 +79,6 @@ class ForwardMessageToDiscordAction
             !empty($inboxConfig['url'] ?? null)
             || !empty($inboxConfig['reports_url'] ?? null)
             || !empty($inboxConfig['verify_url'] ?? null)
-            || !empty($inboxConfig['manual_unlock_url'] ?? null)
         );
 
         if ($inboxConfig === null || !$hasAnyWebhookUrl) {
@@ -220,13 +218,6 @@ class ForwardMessageToDiscordAction
         if (isset($inboxConfig['verify_url']) && $this->isVerificationMessage($messageTitle)) {
             $webhookUrl = $inboxConfig['verify_url'];
             $color = self::COLOR_VERIFICATION;
-            $isForum = false;
-        }
-
-        // Detect manual unlock messages and route them to a special channel.
-        if (isset($inboxConfig['manual_unlock_url']) && mb_strpos($messageTitle, 'manual') !== false) {
-            $webhookUrl = $inboxConfig['manual_unlock_url'];
-            $color = self::COLOR_MANUAL_UNLOCK;
             $isForum = false;
         }
 
@@ -554,7 +545,7 @@ class ForwardMessageToDiscordAction
         if ($isReportThread && !empty($senderInboxConfig['reports_url'])) {
             $webhookUrl = $senderInboxConfig['reports_url'];
         } else {
-            foreach (['url', 'reports_url', 'verify_url', 'manual_unlock_url'] as $key) {
+            foreach (['url', 'reports_url', 'verify_url'] as $key) {
                 if (!empty($senderInboxConfig[$key])) {
                     $webhookUrl = $senderInboxConfig[$key];
                     break;

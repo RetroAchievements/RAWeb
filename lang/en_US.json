@@ -702,6 +702,7 @@
     "moderator": "Moderator",
     "forum-manager": "Forum Manager",
     "ticket-manager": "Ticket Manager",
+    "manual-unlocker": "Manual Unlocker",
     "news-manager": "News Manager",
     "event-manager": "Event Manager",
     "playtest-manager": "Playtest Manager",
@@ -1439,5 +1440,7 @@
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Only PNG, JPEG, and WebP screenshots are accepted.",
     "This image has already been uploaded for this game.": "This image has already been uploaded for this game.",
     "This screenshot's resolution doesn't match what's expected for this system.": "This screenshot's resolution doesn't match what's expected for this system.",
-    "You have reached the maximum number of pending submissions.": "You have reached the maximum number of pending submissions."
+    "You have reached the maximum number of pending submissions.": "You have reached the maximum number of pending submissions.",
+    "Unlock Team": "Unlock Team",
+    "<1>Send a message to UnlockTeam</1> for manual unlock requests to achievements you should have unlocked.": "<1>Send a message to UnlockTeam</1> for manual unlock requests to achievements you should have unlocked."
 }

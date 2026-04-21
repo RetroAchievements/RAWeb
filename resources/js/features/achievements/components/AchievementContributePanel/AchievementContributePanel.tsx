@@ -19,7 +19,7 @@ export const AchievementContributePanel: FC = () => {
   const [isEditMode, setIsEditMode] = useAtom(isEditModeAtom);
   const { handleCancel } = useAchievementQuickEditActions();
 
-  if (!can?.develop) {
+  if (!can?.manageAchievements && !can?.quickEditAchievement && !can?.viewAchievementLogic) {
     return null;
   }
 
@@ -36,24 +36,28 @@ export const AchievementContributePanel: FC = () => {
           </PlayableSidebarButton>
         ) : (
           <>
-            {isEditMode ? (
-              <PlayableSidebarButton onClick={handleCancel} IconComponent={LuX}>
-                {t('Cancel Editing')}
-              </PlayableSidebarButton>
-            ) : (
-              <PlayableSidebarButton onClick={() => setIsEditMode(true)} IconComponent={LuPencil}>
-                {t('Quick Edit')}
-              </PlayableSidebarButton>
-            )}
+            {can?.quickEditAchievement ? (
+              isEditMode ? (
+                <PlayableSidebarButton onClick={handleCancel} IconComponent={LuX}>
+                  {t('Cancel Editing')}
+                </PlayableSidebarButton>
+              ) : (
+                <PlayableSidebarButton onClick={() => setIsEditMode(true)} IconComponent={LuPencil}>
+                  {t('Quick Edit')}
+                </PlayableSidebarButton>
+              )
+            ) : null}
 
             <div className="grid grid-cols-2 gap-1">
-              <PlayableSidebarButton
-                href={`/manage/achievements/${achievement.id}`}
-                target="_blank"
-                IconComponent={LuWrench}
-              >
-                {t('Manage')}
-              </PlayableSidebarButton>
+              {can.manageAchievements ? (
+                <PlayableSidebarButton
+                  href={`/manage/achievements/${achievement.id}`}
+                  target="_blank"
+                  IconComponent={LuWrench}
+                >
+                  {t('Manage')}
+                </PlayableSidebarButton>
+              ) : null}
 
               {can.viewAchievementLogic ? (
                 <PlayableSidebarButton

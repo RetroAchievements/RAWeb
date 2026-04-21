@@ -406,6 +406,7 @@ createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
 develop?: boolean;
 lockForumTopic?: boolean;
+manageAchievements?: boolean;
 manageAchievementSetClaims?: boolean;
 manageEmulators?: boolean;
 manageEvents?: boolean;
@@ -415,6 +416,7 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+quickEditAchievement?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
 updateAchievementDescription?: boolean;
@@ -484,7 +486,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {

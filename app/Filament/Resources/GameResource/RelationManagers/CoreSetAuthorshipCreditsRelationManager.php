@@ -38,7 +38,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
-        return $user->can('viewContributionCredit', $ownerRecord);
+        if ($ownerRecord instanceof Game) {
+            return $user->can('viewContributionCredit', $ownerRecord);
+        }
+
+        return false;
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string

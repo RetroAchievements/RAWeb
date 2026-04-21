@@ -55,7 +55,7 @@ export const SessionDrivenIssueListItems: FC = () => {
         <ReportIssueOptionItem
           t_buttonText={t('Request Manual Unlock')}
           href={route('message-thread.create', {
-            to: 'RAdmin',
+            to: 'UnlockTeam',
             ...buildStructuredMessage(achievement, 'manual-unlock'),
           })}
           anchorClassName={buildTrackingClassNames('Click Request Manual Unlock')}

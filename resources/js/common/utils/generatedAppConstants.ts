@@ -79,6 +79,7 @@ export const UserRole = {
     MODERATOR: 'moderator',
     FORUM_MANAGER: 'forum-manager',
     TICKET_MANAGER: 'ticket-manager',
+    MANUAL_UNLOCKER: 'manual-unlocker',
     NEWS_MANAGER: 'news-manager',
     EVENT_MANAGER: 'event-manager',
     PLAYTEST_MANAGER: 'playtest-manager',
