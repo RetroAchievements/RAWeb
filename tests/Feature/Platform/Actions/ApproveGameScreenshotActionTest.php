@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserDelayedSubscription;
 use App\Platform\Actions\ApproveGameScreenshotAction;
 use App\Platform\Actions\SubmitPendingGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
@@ -99,7 +101,13 @@ it('approves a pending screenshot, moves its media, and records review metadata'
     Storage::disk('s3')->assertExists($fresh->media->getPathRelativeToRoot());
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
     expect($fileManipulator->createdDerivedFilesFor[0]->id)->toEqual($fresh->media->id);
-    expect(App\Models\UserDelayedSubscription::count())->toEqual(0);
+
+    $delayedSubscription = UserDelayedSubscription::sole(); // only one
+    expect($delayedSubscription->user_id)->toEqual($submitter->id);
+    expect($delayedSubscription->subject_type)->toEqual(SubscriptionSubjectType::GameScreenshotDecision);
+    expect($delayedSubscription->subject_id)->toEqual($fresh->id);
+    expect($delayedSubscription->first_update_id)->toEqual($fresh->id);
+
     expect(App\Models\PlayerBadge::count())->toEqual(0);
 });
 
