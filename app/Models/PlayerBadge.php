@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\AwardType;
+use App\Platform\Enums\UnlockMode;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class PlayerBadge extends BaseModel
 {
@@ -338,6 +340,104 @@ class PlayerBadge extends BaseModel
         $query->where('award_key', $gameId);
 
         return $query;
+    }
+
+    /**
+     * Keep only the highest progression award per user/game while leaving non-game awards untouched.
+     *
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeHighestGameAwardPerGame(Builder $query): Builder
+    {
+        $gameTypes = AwardType::gameValues();
+        $outerTable = $this->getTable();
+        $higherPriorityExpression = $this->gameAwardPriorityExpression('higher_awards');
+        $currentPriorityExpression = $this->gameAwardPriorityExpression($outerTable);
+        $priorityBindings = $this->gameAwardPriorityBindings();
+        $comparisonBindings = [...$priorityBindings, ...$priorityBindings];
+
+        return $query->where(function (Builder $query) use ($gameTypes, $outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
+            $query
+                ->whereNotIn($this->qualifyColumn('award_type'), $gameTypes)
+                ->orWhereNotExists(function ($subquery) use ($gameTypes, $outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
+                    $subquery
+                        ->selectRaw('1')
+                        ->from("{$this->getTable()} as higher_awards")
+                        ->whereColumn('higher_awards.user_id', "{$outerTable}.user_id")
+                        ->whereColumn('higher_awards.award_key', "{$outerTable}.award_key")
+                        ->whereIn('higher_awards.award_type', $gameTypes)
+                        ->where(function ($query) use ($outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
+                            $this->applyHigherGameAwardComparison(
+                                $query,
+                                $outerTable,
+                                $higherPriorityExpression,
+                                $currentPriorityExpression,
+                                $comparisonBindings,
+                            );
+                        });
+                });
+        });
+    }
+
+    private function gameAwardPriorityExpression(string $tableAlias): string
+    {
+        return <<<SQL
+            CASE
+                WHEN {$tableAlias}.award_type = ? AND {$tableAlias}.award_tier = ? THEN 4
+                WHEN {$tableAlias}.award_type = ? AND {$tableAlias}.award_tier = ? THEN 3
+                WHEN {$tableAlias}.award_type = ? AND {$tableAlias}.award_tier = ? THEN 2
+                WHEN {$tableAlias}.award_type = ? AND {$tableAlias}.award_tier = ? THEN 1
+                ELSE 0
+            END
+        SQL;
+    }
+
+    /**
+     * @return list<int|string>
+     */
+    private function gameAwardPriorityBindings(): array
+    {
+        return [
+            AwardType::Mastery->value, UnlockMode::Hardcore, // mastery
+            AwardType::Mastery->value, UnlockMode::Softcore, // completion
+            AwardType::GameBeaten->value, UnlockMode::Hardcore, // beaten hardcore
+            AwardType::GameBeaten->value, UnlockMode::Softcore, // beaten softcore
+        ];
+    }
+
+    /**
+     * @param Builder<PlayerBadge>|QueryBuilder $query
+     * @param list<int|string> $comparisonBindings
+     */
+    private function applyHigherGameAwardComparison(
+        Builder|QueryBuilder $query,
+        string $outerTable,
+        string $higherPriorityExpression,
+        string $currentPriorityExpression,
+        array $comparisonBindings,
+    ): void {
+        $query
+            ->whereRaw(
+                "{$higherPriorityExpression} > {$currentPriorityExpression}",
+                $comparisonBindings,
+            )
+            ->orWhere(function ($query) use ($outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
+                $query
+                    ->whereRaw(
+                        "{$higherPriorityExpression} = {$currentPriorityExpression}",
+                        $comparisonBindings,
+                    )
+                    ->where(function ($query) use ($outerTable) {
+                        $query
+                            ->whereColumn('higher_awards.awarded_at', '>', "{$outerTable}.awarded_at")
+                            ->orWhere(function ($query) use ($outerTable) {
+                                $query
+                                    ->whereColumn('higher_awards.awarded_at', "{$outerTable}.awarded_at")
+                                    ->whereColumn('higher_awards.id', '>', "{$outerTable}.id");
+                            });
+                    });
+            });
     }
 
     /**

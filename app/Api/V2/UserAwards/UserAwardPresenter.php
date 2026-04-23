@@ -65,6 +65,7 @@ class UserAwardPresenter
             AwardType::Event => [
                 'eventId' => $this->award->award_key,
                 'tierIndex' => $this->award->award_tier,
+                'displayTierIndex' => $this->award->display_award_tier ?? $this->award->award_tier,
                 'grantsSiteAward' => $this->award->isSiteEventAward(),
             ],
             AwardType::Playtest => [

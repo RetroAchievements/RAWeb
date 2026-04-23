@@ -24,14 +24,19 @@ class UserController extends JsonApiController
         Page $data,
         ResourceQuery $request,
     ): RelatedResponse {
-        $allAwards = PlayerBadge::query()
+        $allAwardsQuery = PlayerBadge::query()
             ->canonicalForApiUser($user->id)
             ->orderedForProfile()
             ->with([
                 'eventIfApplicable',
                 'gameIfApplicable.system',
-            ])
-            ->get();
+            ]);
+
+        if ($request->filter()?->value('gameAwards') === 'highest') {
+            $allAwardsQuery->highestGameAwardPerGame();
+        }
+
+        $allAwards = $allAwardsQuery->get();
 
         $awardKindCounts = $allAwards
             ->map(fn (PlayerBadge $award) => UserAwardKind::fromAward($award)->value)

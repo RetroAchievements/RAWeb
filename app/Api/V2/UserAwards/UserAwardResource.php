@@ -43,13 +43,13 @@ class UserAwardResource extends BaseJsonApiResource
         $relationships = [];
         $presenter = UserAwardPresenter::for($this->resource);
 
-        if ($presenter->hasGameRelationship()) {
+        if ($presenter->hasGameRelationship() && $this->wasIncluded($request, 'game')) {
             $relationships['game'] = $this->relation('game', 'gameIfApplicable')
                 ->withoutLinks()
                 ->showDataIfLoaded();
         }
 
-        if ($presenter->hasEventRelationship()) {
+        if ($presenter->hasEventRelationship() && $this->wasIncluded($request, 'event')) {
             $relationships['event'] = $this->relation('event', 'eventIfApplicable')
                 ->withoutLinks()
                 ->showDataIfLoaded();
@@ -67,5 +67,16 @@ class UserAwardResource extends BaseJsonApiResource
     {
         // User awards are only exposed via the parent user relationship endpoint.
         return new Links();
+    }
+
+    private function wasIncluded(?Request $request, string $relationship): bool
+    {
+        if (!$request) {
+            return false;
+        }
+
+        return collect(explode(',', (string) $request->query('include')))
+            ->map(fn (string $include) => trim($include))
+            ->contains(fn (string $include) => $include === $relationship || str_starts_with($include, "{$relationship}."));
     }
 }
