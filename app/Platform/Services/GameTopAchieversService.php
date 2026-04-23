@@ -72,9 +72,9 @@ class GameTopAchieversService
     {
         if ($this->masteryAchievements > 0) {
             return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
-        } else {
-            return $this->baseQuery()->where('achievements_unlocked_hardcore', '>', '0');
         }
+
+        return $this->baseQuery()->where('achievements_unlocked_hardcore', '>', '0');
     }
 
     public function numMasteries(): int
@@ -151,9 +151,9 @@ class GameTopAchieversService
     {
         if ($this->masteryPoints === 0) {
             return $playerGame->achievements_unlocked_hardcore;
-        } else {
-            return $playerGame->points_hardcore;
         }
+
+        return $playerGame->points_hardcore;
     }
 
     public function getRank(PlayerGame $playerGame): int

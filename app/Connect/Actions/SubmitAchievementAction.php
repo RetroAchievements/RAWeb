@@ -148,11 +148,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
                 return $this->mustBeDeveloper();
             }
 
-            // A junior developer must have a claim on the game.
-            if (!$this->user->hasActiveClaimOnGameId($achievement->game_id)) {
-                return $this->mustHaveClaim();
-            }
-
             // A junior developer is not allowed to modify logic of promoted achievements.
             if ($this->isPromoted && $this->triggerDefinition !== $achievement->trigger_definition) {
                 return $this->mustBeDeveloper();

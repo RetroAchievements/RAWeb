@@ -22,6 +22,18 @@ class AuthorshipCreditsRelationManager extends RelationManager
     protected static string $relationship = 'authorshipCredits';
     protected static ?string $title = 'Credits';
 
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($ownerRecord instanceof Achievement) {
+            return $user->can('viewContributionCredit', $ownerRecord);
+        }
+
+        return false;
+    }
+
     public function form(Schemas\Schema $schema): Schemas\Schema
     {
         return $schema

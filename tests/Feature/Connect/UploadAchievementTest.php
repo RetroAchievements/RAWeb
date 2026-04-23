@@ -45,7 +45,7 @@ class UploadAchievementTestHelpers
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => GameHashCompatibility::Compatible,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);
@@ -874,7 +874,7 @@ describe('junior developer', function () {
         $game = UploadAchievementTestHelpers::createGame();
         $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
         $triggerVersion = $achievement->trigger_id;
-        UploadAchievementTestHelpers::addClaim($game, $this->user);
+        // NOTE: junior developer does not need active claim to update their own existing unpromoted achievements
 
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,

@@ -62,10 +62,10 @@ class GameUserAchievementsGridService
                 if ($a['Unlocked']) {
                     // Both are unlocked, sort by DateAwarded.
                     return strtotime($b['DateAwarded']) <=> strtotime($a['DateAwarded']);
-                } else {
-                    // Both are locked, sort by DisplayOrder.
-                    return $a['DisplayOrder'] <=> $b['DisplayOrder'];
                 }
+
+                // Both are locked, sort by DisplayOrder.
+                return $a['DisplayOrder'] <=> $b['DisplayOrder'];
             }
 
             return $a['Unlocked'] ? -1 : 1;

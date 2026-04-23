@@ -510,7 +510,8 @@ class AchievementResource extends Resource
 
                     Actions\Action::make('audit-log')
                         ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
-                        ->icon('fas-clock-rotate-left'),
+                        ->icon('fas-clock-rotate-left')
+                        ->visible(fn ($record): bool => Auth::user()->can('viewModifications', $record)),
                 ]),
             ])
             ->toolbarActions([
@@ -530,11 +531,21 @@ class AchievementResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        return $page->generateNavigationItems([
+        /** @var User $user */
+        $user = Auth::user();
+
+        $record = method_exists($page, 'getRecord') ? $page->getRecord() : null;
+
+        $items = [
             Pages\Details::class,
             Pages\Logic::class,
-            Pages\AuditLog::class,
-        ]);
+        ];
+
+        if ($record && $user->can('viewModifications', $record)) {
+            $items[] = Pages\AuditLog::class;
+        }
+
+        return $page->generateNavigationItems($items);
     }
 
     public static function getPages(): array
