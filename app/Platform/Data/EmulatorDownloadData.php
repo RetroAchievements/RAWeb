@@ -12,9 +12,9 @@ class EmulatorDownloadData extends Data
 {
     public function __construct(
         public int $id,
-        public int $platformId,
         public ?string $label,
         public string $url,
+        public int $platformId = 0,
     ) {
     }
 }
