@@ -211,6 +211,88 @@ class UserAwardsTest extends TestCase
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
 
+    public function testHighestGameAwardsOnlyComparesVisibleAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Hidden Mastery Game',
+        ]);
+
+        $visibleAward = PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-06-15 12:00:00',
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => -1,
+            'awarded_at' => '2024-06-16 12:00:00',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $visibleAward->id, $response->json('data.0.id'));
+        $this->assertEquals('beaten-hardcore', $response->json('data.0.attributes.kind'));
+    }
+
+    public function testHighestGameAwardsOnlyComparesAwardsInsideTheFilteredDateRange(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Date Range Game',
+        ]);
+
+        $inRangeAward = PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-06-15 12:00:00',
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 1,
+            'awarded_at' => '2024-12-15 12:00:00',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwards]=highest");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $inRangeAward->id, $response->json('data.0.id'));
+        $this->assertEquals('beaten-hardcore', $response->json('data.0.attributes.kind'));
+    }
+
     public function testItCanIncludeAssociatedGame(): void
     {
         // Arrange

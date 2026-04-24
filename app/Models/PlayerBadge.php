@@ -11,7 +11,6 @@ use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class PlayerBadge extends BaseModel
 {
@@ -351,31 +350,27 @@ class PlayerBadge extends BaseModel
     public function scopeHighestGameAwardPerGame(Builder $query): Builder
     {
         $gameTypes = AwardType::gameValues();
-        $outerTable = $this->getTable();
-        $higherPriorityExpression = $this->gameAwardPriorityExpression('higher_awards');
-        $currentPriorityExpression = $this->gameAwardPriorityExpression($outerTable);
-        $priorityBindings = $this->gameAwardPriorityBindings();
-        $comparisonBindings = [...$priorityBindings, ...$priorityBindings];
+        $rankedGameAwards = (clone $query)
+            ->reorder()
+            ->select($this->qualifyColumn('id'))
+            ->selectRaw(
+                "ROW_NUMBER() OVER (
+                    PARTITION BY {$this->qualifyColumn('user_id')}, {$this->qualifyColumn('award_key')}
+                    ORDER BY {$this->gameAwardPriorityExpression($this->getTable())} DESC,
+                        {$this->qualifyColumn('awarded_at')} DESC,
+                        {$this->qualifyColumn('id')} DESC
+                ) as row_num",
+                $this->gameAwardPriorityBindings(),
+            )
+            ->whereIn($this->qualifyColumn('award_type'), $gameTypes);
 
-        return $query->where(function (Builder $query) use ($gameTypes, $outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
+        return $query->where(function (Builder $query) use ($gameTypes, $rankedGameAwards) {
             $query
                 ->whereNotIn($this->qualifyColumn('award_type'), $gameTypes)
-                ->orWhereNotExists(function ($subquery) use ($gameTypes, $outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
-                    $subquery
-                        ->selectRaw('1')
-                        ->from("{$this->getTable()} as higher_awards")
-                        ->whereColumn('higher_awards.user_id', "{$outerTable}.user_id")
-                        ->whereColumn('higher_awards.award_key', "{$outerTable}.award_key")
-                        ->whereIn('higher_awards.award_type', $gameTypes)
-                        ->where(function ($query) use ($outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
-                            $this->applyHigherGameAwardComparison(
-                                $query,
-                                $outerTable,
-                                $higherPriorityExpression,
-                                $currentPriorityExpression,
-                                $comparisonBindings,
-                            );
-                        });
+                ->orWhereIn($this->qualifyColumn('id'), function ($subquery) use ($rankedGameAwards) {
+                    $subquery->fromSub($rankedGameAwards->toBase(), 'ranked_game_awards')
+                        ->select('id')
+                        ->where('row_num', 1);
                 });
         });
     }
@@ -404,40 +399,6 @@ class PlayerBadge extends BaseModel
             AwardType::GameBeaten->value, UnlockMode::Hardcore, // beaten hardcore
             AwardType::GameBeaten->value, UnlockMode::Softcore, // beaten softcore
         ];
-    }
-
-    /**
-     * @param Builder<PlayerBadge>|QueryBuilder $query
-     * @param list<int|string> $comparisonBindings
-     */
-    private function applyHigherGameAwardComparison(
-        Builder|QueryBuilder $query,
-        string $outerTable,
-        string $higherPriorityExpression,
-        string $currentPriorityExpression,
-        array $comparisonBindings,
-    ): void {
-        $query
-            ->whereRaw(
-                "{$higherPriorityExpression} > {$currentPriorityExpression}",
-                $comparisonBindings,
-            )
-            ->orWhere(function ($query) use ($outerTable, $higherPriorityExpression, $currentPriorityExpression, $comparisonBindings) {
-                $query
-                    ->whereRaw(
-                        "{$higherPriorityExpression} = {$currentPriorityExpression}",
-                        $comparisonBindings,
-                    )
-                    ->where(function ($query) use ($outerTable) {
-                        $query
-                            ->whereColumn('higher_awards.awarded_at', '>', "{$outerTable}.awarded_at")
-                            ->orWhere(function ($query) use ($outerTable) {
-                                $query
-                                    ->whereColumn('higher_awards.awarded_at', "{$outerTable}.awarded_at")
-                                    ->whereColumn('higher_awards.id', '>', "{$outerTable}.id");
-                            });
-                    });
-            });
     }
 
     /**
