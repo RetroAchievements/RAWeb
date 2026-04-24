@@ -46,6 +46,23 @@ class TicketPolicy
         return true;
     }
 
+    // Gives additional roles ability to view achievement logic on tickets and management page
+    public function viewLogic(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::MANUAL_UNLOCKER,
+        ]);
+    }
+
+    // Gives additional roles ability to view player history on tickets, does not include compare unlocks view
+    public function viewHistory(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::CHEAT_INVESTIGATOR,
+            Role::MANUAL_UNLOCKER,
+        ]);
+    }
+
     public function create(User $user): bool
     {
         return

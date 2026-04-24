@@ -1,7 +1,5 @@
 <?php
 
 return [
-/**
- * 'example' => env('FEATURE_EXAMPLE', false),
- */
+    'game_screenshot_uploads' => env('FEATURE_GAME_SCREENSHOT_UPLOADS', false),
 ];

@@ -228,7 +228,10 @@ class AchievementController extends Controller
         $can = UserPermissionsData::fromUser($user, triggerable: $achievement)
             ->include(
                 'createAchievementComments',
+                'createTicket',
                 'develop',
+                'manageAchievements',
+                'quickEditAchievement',
                 'updateAchievementDescription',
                 'updateAchievementIsPromoted',
                 'updateAchievementPoints',

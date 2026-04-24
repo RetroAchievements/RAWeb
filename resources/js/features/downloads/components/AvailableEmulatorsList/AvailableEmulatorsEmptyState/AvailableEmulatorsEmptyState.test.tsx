@@ -1,4 +1,5 @@
 import {
+  searchQueryAtom,
   selectedPlatformIdAtom,
   selectedSystemIdAtom,
 } from '@/features/downloads/state/downloads.atoms';
@@ -146,5 +147,26 @@ describe('Component: AvailableEmulatorsEmptyState', () => {
 
     // ASSERT
     expect(screen.getByText(/there aren't any emulators available for windows yet/i)).toBeVisible();
+  });
+
+  it('given a search query is active, shows the search-specific empty state message', () => {
+    // ARRANGE
+    const platformId = 1;
+
+    render(<AvailableEmulatorsEmptyState />, {
+      pageProps: {
+        allPlatforms: [{ id: platformId, name: 'Windows' }],
+        allSystems: [],
+      },
+      jotaiAtoms: [
+        [searchQueryAtom, 'asdfasdfasdfasdf'],
+        [selectedPlatformIdAtom, platformId],
+        [selectedSystemIdAtom, null],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByText(/no emulators matched your search/i)).toBeVisible();
   });
 });

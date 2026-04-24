@@ -29,6 +29,23 @@ describe('Component: SidebarClaimButtons', () => {
     expect(container).toBeTruthy();
   });
 
+  it('given the user does not have a claim role, does not show the create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: [] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({ numClaimsRemaining: 1, userClaim: null }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+  });
+
   it('given there are claims in review, does not render anything', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
@@ -135,6 +152,27 @@ describe('Component: SidebarClaimButtons', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
+  });
+
+  it('given the user has no claims remaining but can collaborate, shows the collaboration claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 0,
+          userClaim: null,
+          wouldBeCollaboration: true,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /create new collaboration claim/i })).toBeVisible();
   });
 
   it('given the user has a completable claim, shows the complete claim button', () => {
@@ -301,7 +339,7 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
 
-  it('given the user has 2 or more unresolved tickets, does not show create claim button', () => {
+  it('given the user has 2 or more unresolved tickets, still shows create claim button', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
@@ -319,7 +357,7 @@ describe('Component: SidebarClaimButtons', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
 
   it('given the user has fewer than 2 unresolved tickets, shows create claim button', () => {

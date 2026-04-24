@@ -77,8 +77,8 @@ class TicketViewService
     {
         $this->clients = [];
 
-        $canManageTicket = $actingUser->can('manage', Ticket::class);
-        if (!$canManageTicket || !$ticket->reporter) {
+        $canViewHistory = $actingUser->canany(['manage', 'viewHistory'], Ticket::class);
+        if (!$canViewHistory || !$ticket->reporter) {
             return [];
         }
 

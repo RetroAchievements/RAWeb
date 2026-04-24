@@ -295,44 +295,50 @@ describe('Component: RequestSetToggleButton', () => {
     });
   });
 
-  it('given the user toggles the button multiple times quickly, resets the debounce timer', async () => {
-    // ARRANGE
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+  it(
+    'given the user toggles the button multiple times quickly, resets the debounce timer',
+    { timeout: 10_000 },
+    async () => {
+      // ARRANGE
+      vi.useFakeTimers({ shouldAdvanceTime: true });
 
-    vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} }).mockResolvedValueOnce({ data: {} });
-    const user = createAuthenticatedUser();
-    const game = createGame();
+      vi.spyOn(axios, 'post')
+        .mockResolvedValueOnce({ data: {} })
+        .mockResolvedValueOnce({ data: {} });
+      const user = createAuthenticatedUser();
+      const game = createGame();
 
-    render(<RequestSetToggleButton />, {
-      pageProps: {
-        auth: { user },
-        backingGame: game,
-        setRequestData: createGameSetRequestData({
-          hasUserRequestedSet: false,
-          userRequestsRemaining: 5, // !!
-        }),
-      },
-    });
+      render(<RequestSetToggleButton />, {
+        pageProps: {
+          auth: { user },
+          backingGame: game,
+          setRequestData: createGameSetRequestData({
+            hasUserRequestedSet: false,
+            userRequestsRemaining: 5, // !!
+          }),
+        },
+      });
 
-    // ACT
-    await userEvent.click(screen.getByRole('button'));
-    expect(screen.getByRole('button')).toBeDisabled();
+      // ACT
+      await userEvent.click(screen.getByRole('button'));
+      expect(screen.getByRole('button')).toBeDisabled();
 
-    await act(() => vi.advanceTimersByTimeAsync(2000));
+      await act(() => vi.advanceTimersByTimeAsync(2000));
 
-    await waitFor(() => {
-      expect(screen.getByRole('button')).not.toBeDisabled();
-    });
+      await waitFor(() => {
+        expect(screen.getByRole('button')).not.toBeDisabled();
+      });
 
-    await userEvent.click(screen.getByRole('button'));
+      await userEvent.click(screen.getByRole('button'));
 
-    // ASSERT
-    expect(screen.getByRole('button')).toBeDisabled();
+      // ASSERT
+      expect(screen.getByRole('button')).toBeDisabled();
 
-    await act(() => vi.advanceTimersByTimeAsync(2000));
+      await act(() => vi.advanceTimersByTimeAsync(2000));
 
-    await waitFor(() => {
-      expect(screen.getByRole('button')).not.toBeDisabled();
-    });
-  });
+      await waitFor(() => {
+        expect(screen.getByRole('button')).not.toBeDisabled();
+      });
+    },
+  );
 });

@@ -77,8 +77,8 @@ class AchievementData extends Data
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at ?? $achievement->player_unlocked_hardcore_at ?? null),
             unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
             unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
-            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
-            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore ?? 0),
+            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total ?? 0),
 
             activeMaintainer: Lazy::create(fn () => $achievement->activeMaintainer?->user
                 ? UserData::fromUser($achievement->activeMaintainer->user)
@@ -119,8 +119,8 @@ class AchievementData extends Data
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at),
             unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
             unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
-            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
-            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore ?? 0),
+            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total ?? 0),
         );
     }
 }

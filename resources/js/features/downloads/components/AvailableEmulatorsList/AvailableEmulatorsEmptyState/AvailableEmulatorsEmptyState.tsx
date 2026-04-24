@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/common/components/EmptyState';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import {
+  searchQueryAtom,
   selectedPlatformIdAtom,
   selectedSystemIdAtom,
 } from '@/features/downloads/state/downloads.atoms';
@@ -14,11 +15,22 @@ export const AvailableEmulatorsEmptyState: FC = () => {
 
   const { t } = useTranslation();
 
+  const searchQuery = useAtomValue(searchQueryAtom);
   const selectedPlatformId = useAtomValue(selectedPlatformIdAtom);
   const selectedSystemId = useAtomValue(selectedSystemIdAtom);
 
   const selectedPlatform = allPlatforms.find((p) => p.id === selectedPlatformId);
   const selectedSystem = allSystems.find((s) => s.id === selectedSystemId);
+
+  const isSearchActive = (searchQuery?.trim() || '').length >= 3;
+
+  if (isSearchActive) {
+    return (
+      <div className="rounded-lg bg-embed">
+        <EmptyState>{t('No emulators matched your search.')}</EmptyState>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg bg-embed">

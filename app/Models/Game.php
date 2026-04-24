@@ -367,6 +367,11 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                     ->performOnCollections('banner');
             });
 
+        // Pending player screenshot uploads go here. No conversions
+        // are generated until a reviewer actually approves the screenshot.
+        $this->addMediaCollection('screenshots-pending')
+            ->useDisk('s3');
+
         $this->addMediaCollection('screenshots')
             ->useDisk('s3')
             ->registerMediaConversions(function () {

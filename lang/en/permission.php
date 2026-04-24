@@ -29,9 +29,11 @@ return [
 
         Role::FORUM_MANAGER => __('Forum Manager'),
         Role::TICKET_MANAGER => __('Ticket Manager'),
+        Role::MANUAL_UNLOCKER => __('Manual Unlocker'),
         Role::NEWS_MANAGER => __('News Manager'),
         Role::EVENT_MANAGER => __('Event Manager'),
         Role::PLAYTEST_MANAGER => __('Playtest Manager'),
+        Role::MEDIA_EDITOR => __('Media Editor'),
         Role::CHEAT_INVESTIGATOR => __('Cheat Investigator'),
 
         // vanity roles assigned by root

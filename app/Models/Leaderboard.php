@@ -338,8 +338,8 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
 
         if ($this->rank_asc) {
             return $score < $existingScore;
-        } else {
-            return $score > $existingScore;
         }
+
+        return $score > $existingScore;
     }
 }

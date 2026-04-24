@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Achievement;
+use App\Models\User;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
 $requestType = request()->input('r');
@@ -20,6 +23,25 @@ if (!authenticateFromAppToken($user, $token, $permissions)) {
             'Error' => "Unknown Request: '$requestType'",
         ], Response::HTTP_UNAUTHORIZED);
 }
+
+/** @var User $userModel */
+$userModel = auth('connect-token')->user();
+if (!$userModel || !$userModel->can('create', Achievement::class)) {
+    return response()->json([
+        'Success' => false,
+        'Error' => "You must be a developer to upload badge images.",
+    ], Response::HTTP_FORBIDDEN);
+}
+
+// Cap uploads to 1500/day per user.
+$rateLimitKey = 'badge-upload:' . $userModel->id;
+if (RateLimiter::tooManyAttempts($rateLimitKey, 1500)) {
+    return response()->json([
+        'Success' => false,
+        'Error' => 'Too many requests. Please try again later.',
+    ], Response::HTTP_TOO_MANY_REQUESTS);
+}
+RateLimiter::hit($rateLimitKey, 60 * 60 * 24);
 
 // Infer request type from app
 // TODO: remove if not required anymore

@@ -18,6 +18,7 @@ use App\Rules\UploadedImageAspectRatioRule;
 use App\Support\MediaLibrary\Actions\ExtractBannerEdgeColorsAction;
 use BackedEnum;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Navigation\NavigationItem;
 use Filament\Resources\Pages\EditRecord;
@@ -137,6 +138,29 @@ class Media extends EditRecord
     public function getBreadcrumb(): string
     {
         return 'Media';
+    }
+
+    /**
+     * @return array<Action>
+     */
+    protected function getFormActions(): array
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var Game $game */
+        $game = $this->getRecord();
+
+        $hasFormFields =
+            $user->can('updateField', [$game, 'image_icon_asset_path'])
+            || $user->can('updateField', [$game, 'image_box_art_asset_path'])
+            || $user->can('updateField', [$game, 'banner']);
+
+        if (!$hasFormFields) {
+            return [];
+        }
+
+        return parent::getFormActions();
     }
 
     protected function getHeaderActions(): array

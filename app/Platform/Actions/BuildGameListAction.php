@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Platform\Concerns\BuildsGameListQueries;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameListEntryData;
+use App\Platform\Data\GameListEntryStatsData;
 use App\Platform\Data\GameSuggestionData;
 use App\Platform\Data\GameSuggestionEntryData;
 use App\Platform\Data\PlayerGameData;
@@ -259,6 +260,7 @@ class BuildGameListAction
                 'isInBacklog' => $listType === GameListType::UserPlay
                     ? true
                     : $backlogGames->has($game->id),
+                'gameListStats' => GameListEntryStatsData::fromGame($game),
             ];
 
             // Game suggestions have contextual data attached about why

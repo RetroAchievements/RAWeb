@@ -392,6 +392,7 @@ class TriggerDecoderService
                 $q->whereIn('address', $memoryReferences);
                 $q->orWhere('body', 'like', '%bytes%');
             })
+            ->orderBy('address')
             ->get()
             ->mapWithKeys(function ($row, $key) {
                 return [$row['address'] => $row['body']];
@@ -403,6 +404,8 @@ class TriggerDecoderService
 
     public function mergeCodeNotes(array &$groups, array $codeNotes): void
     {
+        ksort($codeNotes);
+
         foreach ($groups as &$group) {
             $groupNotes = [];
             $indirectNote = '';

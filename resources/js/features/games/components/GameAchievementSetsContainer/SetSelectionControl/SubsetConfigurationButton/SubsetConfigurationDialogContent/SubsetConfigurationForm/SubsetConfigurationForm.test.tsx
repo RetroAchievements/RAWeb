@@ -98,7 +98,10 @@ describe('Component: SubsetConfigurationForm', () => {
     vi.spyOn(axios, 'put').mockResolvedValueOnce({ data: { success: true } });
     const onSubmitSuccess = vi.fn();
 
-    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set' })];
+    const sets = [
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Challenge Set', type: 'challenge' }),
+    ];
 
     render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={onSubmitSuccess} />, {
       pageProps: {
@@ -146,8 +149,8 @@ describe('Component: SubsetConfigurationForm', () => {
   it('given the user has existing preferences, reflects them in the switches', () => {
     // ARRANGE
     const sets = [
-      createGameAchievementSet({ id: 1, title: 'Bonus Set' }),
-      createGameAchievementSet({ id: 2, title: 'Challenge Set' }),
+      createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' }),
+      createGameAchievementSet({ id: 2, title: 'Challenge Set', type: 'challenge' }),
     ];
 
     const preferences = {
@@ -214,6 +217,30 @@ describe('Component: SubsetConfigurationForm', () => {
     // ASSERT
     const switches = screen.getAllByRole('switch');
     expect(switches[0]).toBeChecked();
+  });
+
+  it('given the user is globally opted in, unconfigured challenge sets default to opted out', () => {
+    // ARRANGE
+    const sets = [createGameAchievementSet({ id: 1, title: 'Challenge Set', type: 'challenge' })];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: createAuthenticatedUserPreferences({
+              isGloballyOptedOutOfSubsets: false, // !!
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
+          }),
+        },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    const switches = screen.getAllByRole('switch');
+    expect(switches[0]).not.toBeChecked();
   });
 
   it('given the user is globally opted out, core sets still default to opted in', () => {

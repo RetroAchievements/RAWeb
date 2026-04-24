@@ -14,4 +14,7 @@ enum GameScreenshotStatus: string
 
     /** This screenshot was either approved or pending, but ultimately rejected for public viewing. */
     case Rejected = 'rejected';
+
+    /** This screenshot was previously the primary, but was replaced when a newer submission was approved. */
+    case Replaced = 'replaced';
 }

@@ -59,7 +59,8 @@ export function useSubsetConfigurationForm({
 
       // Core sets always default to opted in.
       const isCoreSet = set.type === 'core';
-      const defaultValue = isCoreSet ? true : !isGloballyOptedOut;
+      const isChallengeSet = set.type === 'challenge';
+      const defaultValue = isCoreSet ? true : isChallengeSet ? false : !isGloballyOptedOut;
 
       const hasChanged = existingPreference
         ? existingPreference.optedIn !== formValue
@@ -108,9 +109,15 @@ function buildDefaultValues(
     } else {
       // The user doesn't have a local preference.
       // Core sets are always opted in by default (which matches our back-end behavior).
-      // Non-core sets follow the global preference.
+      // Challenge sets are always opted out by default.
+      // Other sets follow the global preference.
       const isCoreSet = set.type === 'core';
-      defaultValues.preferences[String(set.id)] = isCoreSet ? true : !isGloballyOptedOut;
+      const isChallengeSet = set.type === 'challenge';
+      defaultValues.preferences[String(set.id)] = isCoreSet
+        ? true
+        : isChallengeSet
+          ? false
+          : !isGloballyOptedOut;
     }
   }
 

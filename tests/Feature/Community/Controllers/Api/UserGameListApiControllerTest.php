@@ -7,9 +7,11 @@ namespace Tests\Feature\Community\Controllers\Api;
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Enums\UserGameListType;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -92,6 +94,109 @@ class UserGameListApiControllerTest extends TestCase
         ]);
     }
 
+    public function testStoreReturns403ForDevelopTypeWithoutDeveloperRole(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        // Act
+        $response = $this->postJson(route('api.user-game-list.store', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::Develop,
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing(UserGameListEntry::getFullTableName(), [
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::Develop->value,
+        ]);
+    }
+
+    public function testStoreAllowsDevelopTypeForJuniorDeveloper(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER_JUNIOR);
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        // Act
+        $response = $this->postJson(route('api.user-game-list.store', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::Develop,
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::Develop->value,
+        ]);
+    }
+
+    public function testStoreAllowsDevelopTypeForDeveloper(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        // Act
+        $response = $this->postJson(route('api.user-game-list.store', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::Develop,
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::Develop->value,
+        ]);
+    }
+
+    public function testStoreReturns403ForAchievementSetRequestType(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        // Act
+        $response = $this->postJson(route('api.user-game-list.store', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::AchievementSetRequest,
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
+    }
+
     public function testDestroyRemovesGameFromUserBacklog(): void
     {
         // Arrange
@@ -119,6 +224,68 @@ class UserGameListApiControllerTest extends TestCase
             'user_id' => $user->id,
             'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
+        ]);
+    }
+
+    public function testDestroyReturns403ForDevelopTypeWithoutDeveloperRole(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        UserGameListEntry::create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::Develop,
+        ]);
+
+        // Act
+        $response = $this->deleteJson(route('api.user-game-list.destroy', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::Develop,
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::Develop->value,
+        ]);
+    }
+
+    public function testDestroyReturns403ForAchievementSetRequestType(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        UserGameListEntry::create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::AchievementSetRequest,
+        ]);
+
+        // Act
+        $response = $this->deleteJson(route('api.user-game-list.destroy', ['game' => $game->id]), [
+            'userGameListType' => UserGameListType::AchievementSetRequest,
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::AchievementSetRequest->value,
         ]);
     }
 }

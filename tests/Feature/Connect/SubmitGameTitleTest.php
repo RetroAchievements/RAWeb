@@ -35,7 +35,7 @@ class SubmitGameTitleTest extends TestCase
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
 
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $title = ucwords(fake()->words(2, true));
 
         /* regular user */
@@ -132,7 +132,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals($title, $newGame->releases()->first()->title);
 
         /* game exists on another console */
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $this->get($this->apiUrl('submitgametitle', [
             'm' => $md5,
             'i' => $title,
@@ -160,7 +160,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertAuditComment(CommentableType::GameHash, $newGame2->id, "$md5 linked by {$this->user->display_name}. Description: \"Game (U).nes\"");
 
         /* invalid title */
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $this->get($this->apiUrl('submitgametitle', [
             'm' => $md5,
             'i' => 'A',
@@ -199,7 +199,7 @@ class SubmitGameTitleTest extends TestCase
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
 
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $title = ucwords(fake()->words(2, true));
 
         /* regular user */
@@ -258,7 +258,7 @@ class SubmitGameTitleTest extends TestCase
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
 
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $title = ucwords(fake()->words(2, true));
 
         /* new game */
@@ -326,7 +326,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertAuditComment(CommentableType::GameHash, $newGame->id, "$md5 linked by {$this->user->display_name}.");
 
         /* new md5 for existing game */
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $this->get($this->apiUrl('submitgametitle', [
             'm' => $md5,
             'g' => $newGame->id,
@@ -372,7 +372,7 @@ class SubmitGameTitleTest extends TestCase
         $this->user->assignRole(Role::DEVELOPER);
         $this->user->save();
 
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $subsetTitle = 'Mega Man 2 [Subset - Bonus]';
 
         $this->get($this->apiUrl('submitgametitle', [
@@ -422,7 +422,7 @@ class SubmitGameTitleTest extends TestCase
         $this->user->assignRole(Role::DEVELOPER);
         $this->user->save();
 
-        $md5 = fake()->md5;
+        $md5 = fake()->md5();
         $subsetTitle = 'Nonexistent Game [Subset - Bonus]';
 
         $this->get($this->apiUrl('submitgametitle', [

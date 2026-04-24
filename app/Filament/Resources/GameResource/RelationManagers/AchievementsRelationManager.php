@@ -68,7 +68,7 @@ class AchievementsRelationManager extends RelationManager
                 return false;
             }
 
-            return $user->can('manage', $ownerRecord);
+            return $user->can('viewDetails', $ownerRecord);
         }
 
         return false;

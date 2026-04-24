@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\PlayerAchievement;
 use App\Models\System;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): array
 {
@@ -110,58 +112,55 @@ function getAwardedList(
     ?string $dateFrom = null,
     ?string $dateTo = null,
 ): array {
-    $retVal = [];
+    $rows = PlayerAchievement::query()
+        ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+        ->join('games', 'games.id', '=', 'achievements.game_id')
+        ->where('player_achievements.user_id', $user->id)
+        ->where('achievements.is_promoted', 1)
+        ->when(
+            $excludeEvents,
+            fn (Builder $q) => $q->where('games.system_id', '!=', System::Events),
+        )
+        ->when(
+            isset($dateFrom, $dateTo),
+            fn (Builder $q) => $q->whereBetween(
+                'player_achievements.unlocked_effective_at',
+                [$dateFrom, $dateTo],
+            ),
+        )
+        ->selectRaw('DATE(player_achievements.unlocked_effective_at) AS Date')
+        ->selectRaw(
+            'SUM(CASE WHEN player_achievements.unlocked_hardcore_at IS NOT NULL '
+            . 'THEN achievements.points ELSE 0 END) AS HardcorePoints'
+        )
+        ->selectRaw('SUM(achievements.points) AS SoftcorePoints')
+        ->groupBy('Date')
+        ->orderBy('Date')
+        ->when(
+            isset($offset, $limit),
+            fn (Builder $q) => $q->offset($offset)->limit($limit),
+        )
+        ->get();
 
     $cumulHardcoreScore = 0;
     $cumulSoftcoreScore = 0;
-    // if (isset($dateFrom)) {
-    //     // Calculate the points value up until this point
-    //     $cumulScore = getPointsAtTime( $user, $dateFrom );    // TBD!
-    // }
 
-    $limitCondition = "";
-    if (isset($offset) && isset($limit)) {
-        $limitCondition = "LIMIT $offset, $limit";
-    }
+    return $rows
+        ->map(function ($row) use (&$cumulHardcoreScore, &$cumulSoftcoreScore) {
+            $hardcorePoints = (int) $row->HardcorePoints;
+            $allPoints = (int) $row->SoftcorePoints;
 
-    $dateCondition = "";
-    if (isset($dateFrom) && isset($dateTo)) {
-        $dateFromFormatted = $dateFrom; // 2013-07-01
-        $dateToFormatted = $dateTo;
-        $dateCondition .= "AND pa.unlocked_effective_at BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
-    }
+            $cumulHardcoreScore += $hardcorePoints;
+            $cumulSoftcoreScore += $allPoints - $hardcorePoints;
 
-    $query = "SELECT DATE(pa.unlocked_effective_at) AS Date,
-                SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.points, 0)) AS HardcorePoints,
-                SUM(ach.points) AS SoftcorePoints
-                FROM player_achievements pa
-                INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-                INNER JOIN games AS gd ON gd.id = ach.game_id
-                WHERE pa.user_id = {$user->id}
-                AND ach.is_promoted = 1
-                " . ($excludeEvents ? "AND gd.system_id != " . System::Events : "") . "
-                $dateCondition
-                GROUP BY Date
-                ORDER BY Date ASC
-                $limitCondition";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $daysCount = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $cumulHardcoreScore += $db_entry['HardcorePoints'];
-            $cumulSoftcoreScore += (int) $db_entry['SoftcorePoints'] - (int) $db_entry['HardcorePoints'];
-
-            $retVal[$daysCount] = $db_entry;
-            $retVal[$daysCount]['CumulHardcoreScore'] = $cumulHardcoreScore;
-            $retVal[$daysCount]['CumulSoftcoreScore'] = $cumulSoftcoreScore;
-
-            $daysCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $retVal;
+            return [
+                'Date' => $row->Date,
+                'HardcorePoints' => $row->HardcorePoints,
+                'SoftcorePoints' => $row->SoftcorePoints,
+                'CumulHardcoreScore' => $cumulHardcoreScore,
+                'CumulSoftcoreScore' => $cumulSoftcoreScore,
+            ];
+        })
+        ->values()
+        ->all();
 }

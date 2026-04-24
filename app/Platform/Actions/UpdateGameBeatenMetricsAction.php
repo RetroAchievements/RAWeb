@@ -14,21 +14,28 @@ class UpdateGameBeatenMetricsAction
 {
     public function execute(Game $game): void
     {
-        // Get median time to beat (softcore only - has time_to_beat but not time_to_beat_hardcore).
-        $query = PlayerGame::where('player_games.game_id', $game->id)
-            ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->whereNotNull('player_games.beaten_at')
-            ->whereNull('player_games.beaten_hardcore_at');
-        [$game->times_beaten, $game->median_time_to_beat] = $this->getMedian($query, 'player_games.time_to_beat');
+        if (!$game->achievements_published) {
+            $game->times_beaten = 0;
+            $game->median_time_to_beat = null;
+            $game->times_beaten_hardcore = 0;
+            $game->median_time_to_beat_hardcore = null;
+        } else {
+            // Get median time to beat (softcore only - has time_to_beat but not time_to_beat_hardcore).
+            $query = PlayerGame::where('player_games.game_id', $game->id)
+                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
+                ->whereNull('unranked_users.id')
+                ->whereNotNull('player_games.beaten_at')
+                ->whereNull('player_games.beaten_hardcore_at');
+            [$game->times_beaten, $game->median_time_to_beat] = $this->getMedian($query, 'player_games.time_to_beat');
 
-        // Get median time to beat (hardcore).
-        $query = PlayerGame::where('player_games.game_id', $game->id)
-            ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->whereNotNull('player_games.beaten_hardcore_at');
-        [$game->times_beaten_hardcore, $game->median_time_to_beat_hardcore] =
-             $this->getMedian($query, 'player_games.time_to_beat_hardcore');
+            // Get median time to beat (hardcore).
+            $query = PlayerGame::where('player_games.game_id', $game->id)
+                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
+                ->whereNull('unranked_users.id')
+                ->whereNotNull('player_games.beaten_hardcore_at');
+            [$game->times_beaten_hardcore, $game->median_time_to_beat_hardcore] =
+                $this->getMedian($query, 'player_games.time_to_beat_hardcore');
+        }
 
         $game->saveQuietly();
 
@@ -40,25 +47,32 @@ class UpdateGameBeatenMetricsAction
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
-            // NOTE: This only finds masters of the current set.
-            // It ignores users who may have previously mastered it before a revision.
+            if (!$achievementSet->achievements_published) {
+                $achievementSet->times_completed = 0;
+                $achievementSet->median_time_to_complete = null;
+                $achievementSet->times_completed_hardcore = 0;
+                $achievementSet->median_time_to_complete_hardcore = null;
+            } else {
+                // NOTE: This only finds masters of the current set.
+                // It ignores users who may have previously mastered it before a revision.
 
-            // Get median time to complete (softcore only - completed but NOT completed hardcore).
-            $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
-                ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-                ->whereNull('unranked_users.id')
-                ->where('player_achievement_sets.achievements_unlocked', '=', $achievementSet->achievements_published)
-                ->where('player_achievement_sets.achievements_unlocked_hardcore', '!=', $achievementSet->achievements_published);
-            [$achievementSet->times_completed, $achievementSet->median_time_to_complete] =
-                $this->getMedian($query, 'player_achievement_sets.time_taken');
+                // Get median time to complete (softcore only - completed but NOT completed hardcore).
+                $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
+                    ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
+                    ->whereNull('unranked_users.id')
+                    ->where('player_achievement_sets.achievements_unlocked', '=', $achievementSet->achievements_published)
+                    ->where('player_achievement_sets.achievements_unlocked_hardcore', '!=', $achievementSet->achievements_published);
+                [$achievementSet->times_completed, $achievementSet->median_time_to_complete] =
+                    $this->getMedian($query, 'player_achievement_sets.time_taken');
 
-            // Get median time to complete (hardcore).
-            $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
-                ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-                ->whereNull('unranked_users.id')
-                ->where('player_achievement_sets.achievements_unlocked_hardcore', '=', $achievementSet->achievements_published);
-            [$achievementSet->times_completed_hardcore, $achievementSet->median_time_to_complete_hardcore] =
-                $this->getMedian($query, 'player_achievement_sets.time_taken_hardcore');
+                // Get median time to complete (hardcore).
+                $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
+                    ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
+                    ->whereNull('unranked_users.id')
+                    ->where('player_achievement_sets.achievements_unlocked_hardcore', '=', $achievementSet->achievements_published);
+                [$achievementSet->times_completed_hardcore, $achievementSet->median_time_to_complete_hardcore] =
+                    $this->getMedian($query, 'player_achievement_sets.time_taken_hardcore');
+            }
 
             $achievementSet->save();
         }
