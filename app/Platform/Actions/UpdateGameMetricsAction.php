@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\Game;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\GameMetricsUpdated;
+use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use Illuminate\Support\Facades\Log;
 
@@ -57,5 +58,10 @@ class UpdateGameMetricsAction
         // sync to achievement set
         app()->make(UpsertGameCoreAchievementSetFromLegacyFlagsAction::class)
             ->execute($game);
+
+        if ($achievementSetVersionChanged) {
+            dispatch(new UpdateGameBeatenMetricsJob($game->id))
+                ->onQueue('game-beaten-metrics');
+        }
     }
 }
