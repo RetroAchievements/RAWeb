@@ -17,7 +17,7 @@ class AchievementSetData extends Data
         public Lazy|Carbon|null $achievementsFirstPublishedAt,
         public int $achievementsPublished = 0,
         public int $achievementsUnpublished = 0,
-        public string $imageAssetPathUrl,
+        public string $imageAssetPathUrl = '',
         public Lazy|int $medianTimeToComplete = 0,
         public Lazy|int $medianTimeToCompleteHardcore = 0,
         public int $playersHardcore = 0,
@@ -26,8 +26,8 @@ class AchievementSetData extends Data
         public int $pointsWeighted = 0,
         public Lazy|int $timesCompleted = 0,
         public Lazy|int $timesCompletedHardcore = 0,
-        public ?Carbon $createdAt,
-        public ?Carbon $updatedAt,
+        public ?Carbon $createdAt = null,
+        public ?Carbon $updatedAt = null,
         /** @var AchievementData[] */
         public array $achievements = [],
         /** @var AchievementSetGroupData[] */
