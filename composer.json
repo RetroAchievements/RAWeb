@@ -68,7 +68,8 @@
         "symfony/filesystem": "^6.3",
         "thunderer/shortcode": "^0.7",
         "tightenco/ziggy": "^2.2",
-        "torann/geoip": "^3.0"
+        "torann/geoip": "^3.0",
+        "propaganistas/laravel-disposable-email": "^2.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.2.5",
@@ -87,7 +88,6 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.1",
         "predis/predis": "^2.0",
-        "propaganistas/laravel-disposable-email": "^2.4",
         "rector/rector": "^2.0",
         "spatie/laravel-ignition": "^2.9",
         "worksome/envy": "^1.1"

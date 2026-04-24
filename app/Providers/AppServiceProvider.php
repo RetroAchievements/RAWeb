@@ -38,7 +38,6 @@ use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 use Opcodes\LogViewer\Facades\LogViewer;
-use Propaganistas\LaravelDisposableEmail\Facades\DisposableDomains;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -141,7 +140,7 @@ class AppServiceProvider extends ServiceProvider
          * We'll set it to "not_disposable_email", which is much more intuitive.
          */
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
-            return DisposableDomains::isNotDisposable($value);
+            return app('disposable_email.domains')->isNotDisposable($value);
         }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components
