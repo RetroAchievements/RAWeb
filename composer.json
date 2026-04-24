@@ -42,6 +42,7 @@
         "nesbot/carbon": "^3.9",
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^3.0",
+        "propaganistas/laravel-disposable-email": "^2.4",
         "sentry/sentry-laravel": "^4.13",
         "snipe/banbuilder": "dev-master",
         "socialiteproviders/discord": "^4.1",
@@ -52,7 +53,7 @@
         "spatie/enum": "^3.13",
         "spatie/laravel-activitylog": "^4.5",
         "spatie/laravel-csp": "^3.0",
-        "spatie/laravel-data": "^4.18",
+        "spatie/laravel-data": "^4.22",
         "spatie/laravel-medialibrary": "^11.8",
         "spatie/laravel-missing-page-redirector": "^2.9",
         "spatie/laravel-permission": "^6.0",
@@ -68,8 +69,7 @@
         "symfony/filesystem": "^6.3",
         "thunderer/shortcode": "^0.7",
         "tightenco/ziggy": "^2.2",
-        "torann/geoip": "^3.0",
-        "propaganistas/laravel-disposable-email": "^2.4"
+        "torann/geoip": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.2.5",
