@@ -47,17 +47,13 @@ render(function (View $view, TicketListService $ticketListService) {
         <h1 class="mt-[10px] w-full">Ticket Manager - {{ localized_number($openTicketCount) }} Open Tickets</h1>
     </div>
 
-    <x-meta-panel
-        :availableSelectFilters="$availableSelectFilters"
-        :filterOptions="$filterOptions"
-    />
-
-    <x-ticket.ticket-list
-        :tickets="$tickets"
-        :totalTickets="$totalTickets"
-        :numFilteredTickets="$numFilteredTickets"
-        :currentPage="$currentPage"
-        :totalPages="$totalPages"
-        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
+    <x-ticket.list-page
+        :$tickets
+        :$availableSelectFilters
+        :$filterOptions
+        :$totalTickets
+        :$numFilteredTickets
+        :$currentPage
+        :$totalPages
     />
 </x-app-layout>

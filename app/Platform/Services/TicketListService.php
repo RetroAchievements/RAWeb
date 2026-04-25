@@ -21,6 +21,11 @@ class TicketListService
     public int $pageNumber = 0;
     public int $totalPages = 0;
 
+    public static function shouldShowResolverColumn(array $filterOptions): bool
+    {
+        return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved'], true);
+    }
+
     public function getFilterOptions(Request $request): array
     {
         if ($this->perPage !== 0) {
@@ -31,7 +36,7 @@ class TicketListService
         }
 
         $validatedData = $request->validate([
-            'filter.status' => 'sometimes|string|in:all,unresolved,resolved',
+            'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
             'filter.type' => 'sometimes|integer|min:0|max:2',
             'filter.achievement' => 'sometimes|string|in:all,core,unofficial',
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
@@ -68,9 +73,10 @@ class TicketListService
                 'kind' => 'status',
                 'label' => 'Ticket Status',
                 'options' => [
-                    'all' => 'All tickets',
-                    'unresolved' => 'Open tickets',
-                    'resolved' => 'Resolved tickets',
+                    'all' => 'All',
+                    'unresolved' => 'Open',
+                    'resolved' => 'Resolved',
+                    'quarantined' => 'Quarantined',
                 ],
             ];
         }
@@ -197,6 +203,10 @@ class TicketListService
 
             case 'resolved':
                 $tickets->resolved();
+                break;
+
+            case 'quarantined':
+                $tickets->quarantined();
                 break;
         }
 

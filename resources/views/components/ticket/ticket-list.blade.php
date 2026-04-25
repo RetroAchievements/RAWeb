@@ -78,7 +78,7 @@ $gameCache = [];
                             <td class="smalldate">{{ getNiceDate($ticket->created_at->unix()) }}</td>
                             @if ($showResolver)
                                 <td>
-                                    @if (!$ticket->state->isOpen())
+                                    @if (in_array($ticket->state, [TicketState::Resolved, TicketState::Closed], true))
                                         {!! userAvatar($ticket->resolver ?? 'Deleted User') !!}
                                     @endif
                                 </td>

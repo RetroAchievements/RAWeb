@@ -63,6 +63,16 @@ use Illuminate\Support\Carbon;
 $user = Auth::user();
 $permissions = $user->getAttribute('Permissions');
 $commentData = [];
+$ticketListStatusFilter = match ($ticket->state) {
+    TicketState::Resolved, TicketState::Closed => 'resolved',
+    TicketState::Quarantined => 'quarantined',
+    default => 'unresolved',
+};
+$ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
+    'resolved' => 'Resolved Tickets',
+    'quarantined' => 'Quarantined Tickets',
+    default => 'Open Tickets',
+};
 
 @endphp
 
@@ -73,9 +83,9 @@ $commentData = [];
     pageType="retroachievements:ticket"
 >
     <div class="navpath">
-        <a href="{{ route('tickets.index') }}">Open Tickets</a>
+        <a href="{{ route('tickets.index', ['filter' => ['status' => $ticketListStatusFilter]]) }}">{{ $ticketListBreadcrumbLabel }}</a>
         &raquo;
-        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game, 'filter' => ['status' => $ticketListStatusFilter]]) }}">{{ $ticket->achievement->game->title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->id }}</span>
     </div>
