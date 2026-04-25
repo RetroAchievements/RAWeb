@@ -111,6 +111,28 @@ it('approves a pending screenshot, moves its media, and records review metadata'
     expect(App\Models\PlayerBadge::count())->toEqual(0);
 });
 
+it('does not notify the submitter when they approve their own screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+
+    GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'order_column' => 1,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Ingame);
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $submitter);
+
+    // ASSERT
+    expect($pending->fresh()->status)->toEqual(GameScreenshotStatus::Approved);
+    expect(UserDelayedSubscription::count())->toEqual(0);
+});
+
 it('replaces the existing approved title screenshot when a new one is approved', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);

@@ -120,7 +120,10 @@ class ApproveGameScreenshotAction
         $screenshot->reviewed_at = now();
         $screenshot->save();
 
-        if ($screenshot->captured_by_user_id) {
+        if (
+            $screenshot->captured_by_user_id
+            && $screenshot->captured_by_user_id !== $reviewer->id
+        ) {
             UserDelayedSubscription::updateOrCreate(
                 [
                     'user_id' => $screenshot->captured_by_user_id,
