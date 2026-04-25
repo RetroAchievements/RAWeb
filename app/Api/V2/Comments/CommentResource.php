@@ -22,6 +22,8 @@ class CommentResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
+            'authorDisplayName' => $this->resource->getAttribute('author_display_name') ?? $this->resource->user->display_name,
+            'authorId' => $this->resource->getAttribute('author_ulid') ?? $this->resource->user->ulid,
             'body' => $this->resource->body,
             'submittedAt' => $this->resource->created_at,
         ];

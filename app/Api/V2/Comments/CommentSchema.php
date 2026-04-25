@@ -52,6 +52,8 @@ class CommentSchema extends Schema
             ID::make(),
 
             Str::make('body')->readOnly(),
+            Str::make('authorDisplayName')->readOnly(),
+            Str::make('authorId')->readOnly(),
             DateTime::make('submittedAt', 'created_at')->sortable()->readOnly(),
 
             BelongsTo::make('author', 'user')->type('users')->readOnly(),
@@ -83,6 +85,9 @@ class CommentSchema extends Schema
      */
     public function relatableQuery(?Request $request, Relation $query): Relation
     {
-        return $query->whereHas('user');
+        return $query
+            ->whereHas('user')
+            ->withAggregate('user as author_display_name', 'display_name')
+            ->withAggregate('user as author_ulid', 'ulid');
     }
 }

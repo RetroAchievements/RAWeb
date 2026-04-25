@@ -38,7 +38,7 @@ class CommentsTest extends TestCase
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         $game = $this->createGame();
-        $author = User::factory()->create();
+        $author = User::factory()->create(['display_name' => 'CommentAuthor']);
 
         $comment1 = Comment::factory()->create([
             'commentable_id' => $game->id,
@@ -75,6 +75,8 @@ class CommentsTest extends TestCase
         ], collect($response->json('data'))->pluck('id')->all());
 
         $this->assertEquals('This game is excellent.', $response->json('data.0.attributes.body'));
+        $this->assertEquals('CommentAuthor', $response->json('data.0.attributes.authorDisplayName'));
+        $this->assertEquals($author->ulid, $response->json('data.0.attributes.authorId'));
         $this->assertArrayHasKey('submittedAt', $response->json('data.0.attributes'));
         $this->assertArrayNotHasKey('links', $response->json('data.0'));
     }
