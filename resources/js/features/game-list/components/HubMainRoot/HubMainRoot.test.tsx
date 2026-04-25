@@ -7,6 +7,7 @@ import { render, screen, waitFor } from '@/test';
 import {
   createGame,
   createGameListEntry,
+  createGameListEntryStats,
   createGameSet,
   createPaginatedData,
   createSystem,
@@ -267,6 +268,44 @@ describe('Component: HubMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('columnheader', { name: /points/i })).not.toBeInTheDocument();
+  });
+
+  it('allows users to enable mastery columns', async () => {
+    // ARRANGE
+    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+      pageProps: {
+        hub: createGameSet(),
+        breadcrumbs: [],
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData(
+          [
+            createGameListEntry({
+              gameListStats: createGameListEntryStats({
+                coreSetMedianTimeToCompleteHardcore: 5400,
+                coreSetPlayersHardcore: 200,
+                coreSetTimesCompletedHardcore: 15,
+              }),
+            }),
+          ],
+          { unfilteredTotal: 1 },
+        ),
+        can: { develop: false },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /mastery %/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /time to master/i }));
+    await userEvent.keyboard('{escape}');
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: /mastery %/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /time to master/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: '7.5%' })).toBeVisible();
+    expect(screen.getByRole('cell', { name: '1h 30m' })).toBeVisible();
   });
 
   it('given the user cannot develop achievements, they cannot enable an Open Tickets column', async () => {

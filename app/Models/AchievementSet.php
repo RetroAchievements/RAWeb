@@ -114,6 +114,10 @@ class AchievementSet extends BaseModel
 
     public function getImageAssetPathUrlAttribute(): string
     {
+        if (!$this->image_asset_path) {
+            return '';
+        }
+
         return media_asset($this->image_asset_path);
     }
 
