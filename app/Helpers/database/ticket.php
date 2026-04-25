@@ -5,6 +5,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Community\Services\SubscriptionService;
+use App\Enums\ClientSupportLevel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -78,17 +79,27 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
     $newTicket->state = TicketState::Open; // normalize to a proper enum value
 
-    // Quarantine a ticket when it's filed from a core with a restriction.
+    // Quarantine a ticket when it's filed from a restricted core or a softcore-only emulator.
     $latestSession = PlayerSession::where('user_id', $user->id)
         ->where('game_id', $achievement->game_id)
         ->latest()
         ->first();
     if ($latestSession?->user_agent) {
         $userAgentService = new UserAgentService();
-        $coreRestriction = $userAgentService->getCoreRestrictionForUserAgent($latestSession->user_agent);
 
-        if ($coreRestriction) {
+        [$clientSupportLevel, $coreRestriction] = $userAgentService
+            ->getSupportLevelAndCoreRestriction($latestSession->user_agent);
+
+        if ($coreRestriction || $clientSupportLevel === ClientSupportLevel::SoftcoreOnly) {
             $newTicket->state = TicketState::Quarantined;
+        }
+
+        // Quarantine a ticket when it's filed from an emulator that lacks developer toolkit support.
+        if ($newTicket->state !== TicketState::Quarantined) {
+            $emulator = $userAgentService->getEmulatorUserAgent($latestSession->user_agent)?->emulator;
+            if ($emulator && !$emulator->can_debug_triggers) {
+                $newTicket->state = TicketState::Quarantined;
+            }
         }
     }
 

@@ -88,6 +88,7 @@ class PatchDataTest extends TestCase
         return $this->getWarningAchievementPatchData(
             title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -645,6 +646,70 @@ class PatchDataTest extends TestCase
             ->assertStatus(200)
             ->assertJsonPath('PatchData.Achievements.0.Title', 'Warning: Unsupported Core')
             ->assertJsonPath('PatchData.Achievements.0.Description', 'RetroAchievements has known compatibility issues with this core. Consider using core X instead.');
+    }
+
+    public function testSoftcoreOnlyUserAgent(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
+            'trigger_definition' => 'Display:\nTest',
+        ]);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->promoted()->progression()->create([
+            'game_id' => $game->id,
+            'image_name' => '12345',
+            'order_column' => 1,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $emulator = Emulator::create([
+            'name' => 'Softcore Client',
+            'active' => true,
+            'softcore_only' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'SoftcoreClient',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'SoftcoreClient/1.1.16'])
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
+                    'Achievements' => [
+                        $this->getClientWarningAchievementPatchData(
+                            ClientSupportLevel::SoftcoreOnly,
+                        ),
+                        $this->getAchievementPatchData($achievement1),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
     }
 
     public function testUnsupportedHash(): void

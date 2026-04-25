@@ -50,6 +50,7 @@ class Emulator extends BaseModel implements HasMedia
         'description',
         'active',
         'can_debug_triggers',
+        'softcore_only',
         'documentation_url',
         'download_url',
         'download_x64_url',
@@ -60,6 +61,7 @@ class Emulator extends BaseModel implements HasMedia
     protected $casts = [
         'active' => 'boolean',
         'can_debug_triggers' => 'boolean',
+        'softcore_only' => 'boolean',
     ];
 
     public const NonEmulator = 22;
@@ -119,6 +121,7 @@ class Emulator extends BaseModel implements HasMedia
                 'original_name',
                 'description',
                 'active',
+                'softcore_only',
                 'documentation_url',
                 'download_url',
                 'source_url',

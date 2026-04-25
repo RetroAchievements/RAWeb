@@ -325,23 +325,24 @@ class UserAgentService
 
         $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
 
-        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
+        $emulatorUserAgent = $this->getEmulatorUserAgent($data);
         if (!$emulatorUserAgent) {
             return [ClientSupportLevel::Unknown, null];
         }
 
+        $isSoftcoreOnly = $emulatorUserAgent->emulator->softcore_only;
+
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
-
-            // TODO allow Filament to support this special case
-            /**
-             * special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
-             */
-            if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
-                return [ClientSupportLevel::Outdated, null];
-            }
-
             return [ClientSupportLevel::Blocked, null];
+        }
+
+        // softcore_only wins over a stale minimum_hardcore_version.
+        // Ordering matters: minimum_allowed_version still blocks ancient
+        // clients above, and core restrictions below are intentionally
+        // bypassed because softcore_only is a blanket emulator-wide flag.
+        if ($isSoftcoreOnly) {
+            return [ClientSupportLevel::SoftcoreOnly, null];
         }
 
         if ($emulatorUserAgent->minimum_hardcore_version) {
@@ -397,6 +398,17 @@ class UserAgentService
         }
 
         return [$coreRestriction->support_level, $coreRestriction];
+    }
+
+    public function getEmulatorUserAgent(string|array|null $userAgent): ?EmulatorUserAgent
+    {
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return null;
+        }
+
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
+
+        return EmulatorUserAgent::with('emulator')->firstWhere('client', $data['client']);
     }
 
     /**

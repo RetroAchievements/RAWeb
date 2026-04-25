@@ -1,15 +1,12 @@
-import type { ColumnFiltersState, Table } from '@tanstack/react-table';
-import { useAtom } from 'jotai';
+import type { ColumnFiltersState, ColumnSort, Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
-import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
-import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { isCurrentlyPersistingViewAtom } from '../../../state/game-list.atoms';
 import { doesColumnExist } from '../../../utils/doesColumnExist';
 import { getAreNonDefaultFiltersSet } from '../../../utils/getAreNonDefaultFiltersSet';
+import { getIsDefaultSorting } from '../../../utils/getIsDefaultSorting';
 import { DataTableColumnsToggle } from '../../DataTableColumnsToggle';
 import { DataTableResetFiltersButton } from '../../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../../DataTableSearchInput';
@@ -27,6 +24,7 @@ interface DataTableDesktopToolbarProps<TData> {
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  defaultColumnSort?: ColumnSort;
   isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
@@ -38,6 +36,7 @@ export function DataTableDesktopToolbar<TData>({
   tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
+  defaultColumnSort = { id: 'title', desc: false },
   isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
@@ -48,14 +47,11 @@ export function DataTableDesktopToolbar<TData>({
 
   const { t } = useTranslation();
 
-  const [isCurrentlyPersistingView, setIsCurrentlyPersistingView] = useAtom(
-    isCurrentlyPersistingViewAtom,
-  );
-
   const allColumns = table.getAllColumns();
-
-  const currentFilters = table.getState().columnFilters;
+  const { columnFilters: currentFilters, sorting: currentSorting } = table.getState();
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
+  const isSortedByDefault = getIsDefaultSorting(currentSorting, defaultColumnSort);
+  const shouldShowResetButton = isFiltered || !isSortedByDefault;
 
   return (
     <div className="flex w-full flex-col justify-between gap-2">
@@ -99,24 +95,16 @@ export function DataTableDesktopToolbar<TData>({
             <DataTableProgressFilter table={table} />
           ) : null}
 
-          {isFiltered ? (
+          {shouldShowResetButton ? (
             <DataTableResetFiltersButton
               table={table}
               defaultColumnFilters={defaultColumnFilters}
+              defaultColumnSort={defaultColumnSort}
               tableApiRouteName={tableApiRouteName}
               tableApiRouteParams={tableApiRouteParams}
             />
           ) : null}
         </div>
-
-        <BaseLabel className="flex items-center gap-2 whitespace-nowrap text-menu-link">
-          <BaseCheckbox
-            checked={isCurrentlyPersistingView}
-            onCheckedChange={(checked: boolean) => setIsCurrentlyPersistingView(checked)}
-          />
-
-          {t('Remember my view')}
-        </BaseLabel>
       </div>
 
       <div className="flex w-full flex-col justify-between gap-2 sm:flex-row">

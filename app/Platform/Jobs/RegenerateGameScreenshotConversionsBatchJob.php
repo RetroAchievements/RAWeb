@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Jobs;
 
-use App\Models\Game;
-use App\Platform\Actions\BackfillGameScreenshotsAction;
+use App\Platform\Actions\RegenerateGameScreenshotConversionsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,9 +12,10 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
-class BackfillGameScreenshotsBatchJob implements ShouldQueue
+class RegenerateGameScreenshotConversionsBatchJob implements ShouldQueue
 {
     use Batchable;
     use Dispatchable;
@@ -24,10 +24,10 @@ class BackfillGameScreenshotsBatchJob implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @param array<int> $gameIds
+     * @param array<int> $mediaIds
      */
     public function __construct(
-        private readonly array $gameIds,
+        private readonly array $mediaIds,
     ) {
     }
 
@@ -37,20 +37,23 @@ class BackfillGameScreenshotsBatchJob implements ShouldQueue
     public function tags(): array
     {
         return [
-            'backfill-game-screenshots:' . count($this->gameIds),
+            'regenerate-game-screenshot-conversions:' . count($this->mediaIds),
         ];
     }
 
     public function handle(): void
     {
-        $action = new BackfillGameScreenshotsAction();
-        $games = Game::with('system')->whereIn('id', $this->gameIds)->get();
+        $action = new RegenerateGameScreenshotConversionsAction();
 
-        foreach ($games as $game) {
+        $mediaItems = Media::with('model')
+            ->whereIn('id', $this->mediaIds)
+            ->get();
+
+        foreach ($mediaItems as $media) {
             try {
-                $action->execute($game);
+                $action->execute($media);
             } catch (Throwable $e) {
-                Log::error("BackfillGameScreenshotsBatchJob: failed for game {$game->id}", [
+                Log::error("RegenerateGameScreenshotConversionsBatchJob: failed for media {$media->id}", [
                     'exception' => $e,
                 ]);
             }

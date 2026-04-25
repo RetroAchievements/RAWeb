@@ -46,6 +46,8 @@ class GameScreenshotFactory extends Factory
             'captured_by_user_id' => null,
             'reviewed_by_user_id' => null,
             'reviewed_at' => null,
+            'rejection_reason' => null,
+            'rejection_notes' => null,
         ];
     }
 
