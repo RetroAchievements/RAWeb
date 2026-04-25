@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\Permissions;
 use App\Filament\Extensions\Resources\Resource;
+use App\Filament\Resources\UserResource\MuteForm;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\Role;
 use App\Models\User;
@@ -16,6 +17,7 @@ use Filament\Forms;
 use Filament\Infolists;
 use Filament\Pages\Page;
 use Filament\Schemas;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Filters;
@@ -24,7 +26,6 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -80,115 +81,103 @@ class UserResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
-        /** @var User $user */
-        $user = Auth::user();
-
         return $schema
             ->columns(1)
             ->components([
-                Schemas\Components\Flex::make([
-                    Schemas\Components\Section::make()
-                        ->columns(['xl' => 2, '2xl' => 3])
-                        ->schema([
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\ImageEntry::make('avatar_url')
-                                        ->label('Avatar')
-                                        ->size(config('media.icon.lg.width')),
+                Schemas\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\ImageEntry::make('avatar_url')
+                            ->label('Avatar')
+                            ->imageSize(config('media.icon.lg.width')),
 
-                                    Infolists\Components\TextEntry::make('motto'),
-                                ]),
+                        Infolists\Components\TextEntry::make('motto'),
 
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\TextEntry::make('roles.name')
-                                        ->label('Roles')
-                                        ->badge()
-                                        ->wrap()
-                                        ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
-                                        ->color(fn (string $state): string => Role::toFilamentColor($state))
-                                        ->hidden(fn ($record) => $record->roles->isEmpty()),
+                        Infolists\Components\TextEntry::make('roles.name')
+                            ->label('Roles')
+                            ->badge()
+                            ->wrap()
+                            ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
+                            ->color(fn (string $state): string => Role::toFilamentColor($state))
+                            ->hidden(fn ($record) => $record->roles->isEmpty()),
 
-                                    Infolists\Components\TextEntry::make('Permissions')
-                                        ->label('Permissions (legacy)')
-                                        ->badge()
-                                        ->wrap()
-                                        ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
-                                        ->color(fn (int $state): string => match ($state) {
-                                            Permissions::Spam => 'danger',
-                                            Permissions::Banned => 'danger',
-                                            Permissions::JuniorDeveloper => 'success',
-                                            Permissions::Developer => 'success',
-                                            Permissions::Moderator => 'warning',
-                                            default => 'gray',
-                                        }),
-                                ]),
+                        Infolists\Components\TextEntry::make('Permissions')
+                            ->label('Permissions (legacy)')
+                            ->badge()
+                            ->wrap()
+                            ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
+                            ->color(fn (int $state): string => match ($state) {
+                                Permissions::Spam => 'danger',
+                                Permissions::Banned => 'danger',
+                                Permissions::JuniorDeveloper => 'success',
+                                Permissions::Developer => 'success',
+                                Permissions::Moderator => 'warning',
+                                default => 'gray',
+                            }),
 
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\TextEntry::make('username')
-                                        ->label('Original Username')
-                                        ->hidden(fn (User $record) => $record->display_name === $record->username),
+                        Infolists\Components\TextEntry::make('username')
+                            ->label('Original Username')
+                            ->hidden(fn (User $record) => $record->display_name === $record->username),
 
-                                    Infolists\Components\TextEntry::make('canonical_url')
-                                        ->label('Canonical URL')
-                                        ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
-                                        ->openUrlInNewTab(),
-                                ]),
-                        ]),
+                        Infolists\Components\TextEntry::make('canonical_url')
+                            ->label('Canonical URL')
+                            ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
+                            ->openUrlInNewTab(),
+                    ]),
 
-                    Schemas\Components\Section::make()
-                        ->grow(false)
-                        ->schema([
-                            Infolists\Components\TextEntry::make('id')
-                                ->label('ID'),
+                Schemas\Components\Section::make('Account State')
+                    ->icon('heroicon-s-shield-check')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('id')
+                            ->label('ID'),
 
-                            Infolists\Components\TextEntry::make('created_at')
-                                ->label('Joined')
-                                ->dateTime(),
+                        Infolists\Components\TextEntry::make('created_at')
+                            ->label('Joined')
+                            ->dateTime(),
 
-                            Infolists\Components\TextEntry::make('last_activity_at')
-                                ->label('Last login at')
-                                ->dateTime(),
+                        Infolists\Components\TextEntry::make('last_activity_at')
+                            ->label('Last login at')
+                            ->dateTime(),
 
-                            Infolists\Components\TextEntry::make('deleted_requested_at')
-                                ->label('Deleted requested at')
-                                ->dateTime()
-                                ->hidden(fn ($state) => !$state)
-                                ->color('warning'),
+                        Infolists\Components\TextEntry::make('deleted_requested_at')
+                            ->label('Deleted requested at')
+                            ->dateTime()
+                            ->hidden(fn ($state) => !$state)
+                            ->color('warning'),
 
-                            Infolists\Components\TextEntry::make('deleted_at')
-                                ->label('Deleted at')
-                                ->dateTime()
-                                ->hidden(fn ($state) => !$state)
-                                ->color('danger'),
+                        Infolists\Components\TextEntry::make('deleted_at')
+                            ->label('Deleted at')
+                            ->dateTime()
+                            ->hidden(fn ($state) => !$state)
+                            ->color('danger'),
 
-                            Infolists\Components\IconEntry::make('unranked_at')
-                                ->label('Ranked')
-                                ->boolean()
-                                ->getStateUsing(fn ($record) => $record->unranked_at !== null)
-                                ->trueColor('danger')
-                                ->trueIcon('heroicon-o-x-circle')
-                                ->falseColor('success')
-                                ->falseIcon('heroicon-o-check-circle'),
+                        Infolists\Components\IconEntry::make('unranked_at')
+                            ->label('Ranked')
+                            ->boolean()
+                            ->getStateUsing(fn ($record) => $record->unranked_at !== null)
+                            ->trueColor('danger')
+                            ->trueIcon('heroicon-o-x-circle')
+                            ->falseColor('success')
+                            ->falseIcon('heroicon-o-check-circle'),
 
-                            Infolists\Components\IconEntry::make('ManuallyVerified')
-                                ->label('Forum verified')
-                                ->boolean(),
+                        Infolists\Components\IconEntry::make('ManuallyVerified')
+                            ->label('Forum verified')
+                            ->boolean(),
 
-                            Infolists\Components\TextEntry::make('muted_until')
-                                ->hidden(function ($state) {
-                                    if (!$state) {
-                                        return true;
-                                    }
+                        Infolists\Components\TextEntry::make('muted_until')
+                            ->hidden(function ($state) {
+                                if (!$state) {
+                                    return true;
+                                }
 
-                                    return $state->isPast();
-                                })
-                                ->helperText('Community interactions not allowed.')
-                                ->color('warning')
-                                ->dateTime(),
-                        ]),
-                ])->from('md'),
+                                return $state->isPast();
+                            })
+                            ->helperText('Community interactions not allowed.')
+                            ->color('warning')
+                            ->dateTime(),
+                    ]),
             ]);
     }
 
@@ -197,46 +186,84 @@ class UserResource extends Resource
         return $schema
             ->columns(1)
             ->components([
-                Schemas\Components\Flex::make([
-                    Schemas\Components\Section::make()
-                        ->columns(['xl' => 2, '2xl' => 2])
-                        ->schema([
-                            Forms\Components\TextInput::make('motto')
-                                ->maxLength(50),
-                        ]),
+                Schemas\Components\Section::make('Profile')
+                    ->icon('heroicon-m-user')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('motto')
+                            ->maxLength(50),
+                    ]),
 
-                    Schemas\Components\Section::make()
-                        ->grow(false)
-                        ->schema([
-                            Forms\Components\DatePicker::make('muted_until')
-                                ->suffix('at midnight')
-                                ->default(now())
-                                ->suffix('at midnight')
-                                ->native(false)
-                                ->maxDate('2038-01-18')
-                                ->displayFormat('Y-m-d')
-                                ->date()
-                                ->afterStateHydrated(function (Forms\Components\DatePicker $component, ?string $state) use ($schema) {
-                                    if (!$state) {
-                                        /** @var User $user */
-                                        $user = $schema->model;
+                Schemas\Components\Section::make('Community Moderation')
+                    ->icon('heroicon-s-shield-exclamation')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\Placeholder::make('current_mute')
+                            ->label('Current mute')
+                            ->content(fn (?User $record): string => MuteForm::currentStatusFor($record))
+                            ->visible(fn (?User $record): bool => MuteForm::isActivelyMuted($record)),
 
-                                        $utcMutedUntil = $user->muted_until?->setTimezone('UTC');
-                                        $formattedDate = $utcMutedUntil?->format('Y-m-d');
-                                        $component->state($formattedDate);
-                                    }
-                                }),
+                        Forms\Components\Select::make('mute_action')
+                            ->label('Mute')
+                            ->options(fn (?User $record): array => MuteForm::optionsFor($record))
+                            ->native(false)
+                            ->default(fn (?User $record): string => MuteForm::defaultActionFor($record))
+                            ->afterStateHydrated(function (Forms\Components\Select $component, ?string $state) use ($schema) {
+                                if ($state) {
+                                    return;
+                                }
 
-                            Forms\Components\Toggle::make('ManuallyVerified')
-                                ->label('Forum verified'),
+                                /** @var User|null $user */
+                                $user = $schema->model instanceof User ? $schema->model : null;
 
-                            Forms\Components\Toggle::make('is_unranked')
-                                ->label('Untracked')
-                                ->afterStateHydrated(function (Forms\Components\Toggle $component, $record) {
-                                    $component->state($record?->unranked_at !== null);
-                                }),
-                        ]),
-                ])->from('md'),
+                                $component->state(MuteForm::defaultActionFor($user));
+                            })
+                            ->live()
+                            ->required(),
+
+                        Forms\Components\DatePicker::make('custom_muted_until')
+                            ->label('Custom end date')
+                            ->native(false)
+                            ->minDate(now('UTC')->addDay()->toDateString())
+                            ->maxDate(MuteForm::PERMANENT_MUTE_DATE)
+                            ->displayFormat('Y-m-d')
+                            ->date()
+                            ->afterStateHydrated(function (Forms\Components\DatePicker $component, ?string $state) use ($schema) {
+                                if ($state) {
+                                    return;
+                                }
+
+                                /** @var User|null $user */
+                                $user = $schema->model instanceof User ? $schema->model : null;
+
+                                $component->state(MuteForm::defaultCustomDateFor($user));
+                            })
+                            ->visible(fn (Get $get): bool => $get('mute_action') === MuteForm::ACTION_CUSTOM)
+                            ->required(fn (Get $get): bool => $get('mute_action') === MuteForm::ACTION_CUSTOM)
+                            ->live(),
+
+                        Forms\Components\Placeholder::make('mute_preview')
+                            ->label('Preview')
+                            ->content(fn (Get $get, ?User $record): string => MuteForm::previewFor(
+                                $record,
+                                $get('mute_action'),
+                                $get('custom_muted_until')
+                            )),
+                    ]),
+
+                Schemas\Components\Section::make('Account Flags')
+                    ->icon('heroicon-s-adjustments-horizontal')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\Toggle::make('ManuallyVerified')
+                            ->label('Forum verified'),
+
+                        Forms\Components\Toggle::make('is_unranked')
+                            ->label('Untracked')
+                            ->afterStateHydrated(function (Forms\Components\Toggle $component, $record) {
+                                $component->state($record?->unranked_at !== null);
+                            }),
+                    ]),
             ]);
     }
 
