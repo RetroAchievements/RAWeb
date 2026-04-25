@@ -19,7 +19,7 @@ class GameReleaseData extends Data
         public ?ReleasedAtGranularity $releasedAtGranularity,
         public string $title,
         public ?GameReleaseRegion $region,
-        public bool $isCanonicalGameTitle,
+        public bool $isCanonicalGameTitle = false,
     ) {
     }
 }

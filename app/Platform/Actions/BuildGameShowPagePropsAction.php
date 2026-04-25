@@ -387,6 +387,8 @@ class BuildGameShowPagePropsAction
 
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
+                    $gas->order_column ??= 0;
+
                     $gas->achievementSet->setRelation('achievements', collect());
 
                     $gas->achievementSet->median_time_to_complete ??= 0;
