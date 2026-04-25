@@ -1,16 +1,21 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-interface UnresolvedTicketsWarningProps {
-  ticketCount: number;
-}
-
-export const UnresolvedTicketsWarning: FC<UnresolvedTicketsWarningProps> = ({ ticketCount }) => {
-  const { t } = useTranslation();
-
+export const UnresolvedTicketsWarning: FC = () => {
   return (
     <span>
-      {t('You have {{ticketCount}} open tickets awaiting your response.', { ticketCount })}
+      <Trans
+        i18nKey="Claims should not be made while you have an <1>unaddressed ticket</1>."
+        components={{
+          1: (
+            // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is fine in Trans components
+            <a
+              href="https://docs.retroachievements.org/guidelines/developers/claims-system.html#claims-system-guidelines"
+              target="_blank"
+            />
+          ),
+        }}
+      />
     </span>
   );
 };

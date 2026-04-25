@@ -30,7 +30,6 @@ export const ClaimDialogDescriptions: FC<ClaimDialogDescriptionsProps> = ({ acti
     hasRevisionPlanNotice,
     hasSubsetApprovalNotice,
     requiresTicketAcknowledgment,
-    unresolvedTicketCount,
   } = useClaimDialogState(action);
 
   const createClaimDescriptionKeys = {
@@ -52,9 +51,7 @@ export const ClaimDialogDescriptions: FC<ClaimDialogDescriptionsProps> = ({ acti
       }
 
       if (requiresTicketAcknowledgment) {
-        notices.push(
-          <UnresolvedTicketsWarning key="unresolved-tickets" ticketCount={unresolvedTicketCount} />,
-        );
+        notices.push(<UnresolvedTicketsWarning key="unresolved-tickets" />);
       }
 
       if (hasForumTopicNotice) {

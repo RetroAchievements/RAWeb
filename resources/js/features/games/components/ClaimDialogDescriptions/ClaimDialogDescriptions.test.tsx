@@ -156,7 +156,7 @@ describe('Component: ClaimDialogDescriptions', () => {
     );
   });
 
-  it('given the action is create and there are 2 or more unresolved tickets, shows the unresolved tickets warning', () => {
+  it('given the action is create and there are unresolved tickets, shows the unresolved tickets warning', () => {
     // ARRANGE
     render(<ClaimDialogDescriptions action="create" />, {
       pageProps: {
@@ -168,22 +168,26 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/open tickets awaiting your response\./i)).toBeVisible();
+    expect(screen.getByText(/claims should not be made/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'unaddressed ticket' })).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/guidelines/developers/claims-system.html#claims-system-guidelines',
+    );
   });
 
-  it('given the action is create and there are fewer than 2 unresolved tickets, does not show the unresolved tickets warning', () => {
+  it('given the action is create and there are no unresolved tickets, does not show the unresolved tickets warning', () => {
     // ARRANGE
     render(<ClaimDialogDescriptions action="create" />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         game: createGame({ gameAchievementSets: [] }),
         backingGame: createGame(),
-        claimData: createGamePageClaimData({ numUnresolvedTickets: 1 }),
+        claimData: createGamePageClaimData({ numUnresolvedTickets: 0 }),
       },
     });
 
     // ASSERT
-    expect(screen.queryByText(/open tickets awaiting your response/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/claims should not be made/i)).not.toBeInTheDocument();
   });
 
   it('given the action is create and the claim would be a collaboration, does not show the unresolved tickets warning', () => {
@@ -201,7 +205,7 @@ describe('Component: ClaimDialogDescriptions', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText(/open tickets awaiting your response/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/claims should not be made/i)).not.toBeInTheDocument();
   });
 
   it('given the action is create and the game has no forum topic, shows the forum topic notice', () => {

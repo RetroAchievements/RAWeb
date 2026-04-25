@@ -136,13 +136,13 @@ describe('Component: ClaimConfirmationDialog', () => {
     expect(screen.getByRole('button', { name: 'Create collaboration claim' })).toBeVisible();
   });
 
-  it('given the action is create and the user has 2 or more unresolved tickets, requires acknowledgment before confirming', async () => {
+  it('given the action is create and the user has an unresolved ticket, requires acknowledgment before confirming', async () => {
     // ARRANGE
     render(<ClaimConfirmationDialog action="create" trigger={<button>Trigger</button>} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         backingGame: createGame(),
-        claimData: createGamePageClaimData({ numUnresolvedTickets: 2 }),
+        claimData: createGamePageClaimData({ numUnresolvedTickets: 1 }),
         game: createGame({ gameAchievementSets: [] }),
       },
     });

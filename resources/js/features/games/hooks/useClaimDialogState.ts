@@ -59,7 +59,7 @@ export function useClaimDialogState(action: ClaimActionType): ClaimDialogState {
   const hasSubsetApprovalNotice = createClaimDialogVariant === 'newSet' && wouldBeSubsetClaim;
   const hasForumTopicNotice = !pageGame.forumTopicId;
   const requiresTicketAcknowledgment =
-    unresolvedTicketCount >= 2 && createClaimDialogVariant !== 'collaboration';
+    unresolvedTicketCount > 0 && createClaimDialogVariant !== 'collaboration';
 
   return {
     createClaimDialogVariant,

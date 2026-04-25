@@ -74,6 +74,22 @@ describe('Hook: useClaimDialogState', () => {
     expect(result.current.requiresTicketAcknowledgment).toEqual(false);
   });
 
+  it('given the action is create with one unresolved ticket, requires ticket acknowledgment', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useClaimDialogState('create'), {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        backingGame: createGame({ forumTopicId: 123 }),
+        claimData: createGamePageClaimData({ numUnresolvedTickets: 1 }),
+        game: createGame({ forumTopicId: 123, gameAchievementSets: [] }),
+      },
+    });
+
+    // ASSERT
+    expect(result.current.requiresTicketAcknowledgment).toEqual(true);
+    expect(result.current.hasDialogNotice).toEqual(true);
+  });
+
   it('given the action is complete and the claim is less than a day old, returns the quick completion warning state', () => {
     // ARRANGE
     const { result } = renderHook(() => useClaimDialogState('complete'), {

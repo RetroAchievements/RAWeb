@@ -1451,7 +1451,7 @@
     "This will create a revision claim for <1>{{gameTitle}}</1>.": "This will create a revision claim for <1>{{gameTitle}}</1>.",
     "This will create a collaboration claim for <1>{{gameTitle}}</1>.": "This will create a collaboration claim for <1>{{gameTitle}}</1>.",
     "An official forum topic will be created for this game.": "An official forum topic will be created for this game.",
-    "You have {{ticketCount}} open tickets awaiting your response.": "You have {{ticketCount}} open tickets awaiting your response.",
+    "Claims should not be made while you have an <1>unaddressed ticket</1>.": "Claims should not be made while you have an <1>unaddressed ticket</1>.",
     "An approved <1>revision plan</1> is required for this claim.": "An approved <1>revision plan</1> is required for this claim.",
     "<1>Subset approval</1> is required for this claim.": "<1>Subset approval</1> is required for this claim.",
     "I understand and want to continue.": "I understand and want to continue.",
