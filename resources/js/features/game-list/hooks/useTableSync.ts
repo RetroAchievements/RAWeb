@@ -21,7 +21,6 @@ interface UseAutoUpdatingQueryParamsProps {
 
   defaultColumnSort?: ColumnSort;
   defaultPageSize?: number;
-  isUserPersistenceEnabled?: boolean;
 }
 
 /**
@@ -36,26 +35,21 @@ export function useTableSync({
   defaultColumnSort = { id: 'title', desc: false },
   defaultColumnFilters = [],
   defaultPageSize = 25,
-  isUserPersistenceEnabled = false,
 }: UseAutoUpdatingQueryParamsProps) {
   const { persistenceCookieName } = usePageProps<{ persistenceCookieName: string }>();
 
-  const [cookie, setCookie, deleteCookie] = useCookie(persistenceCookieName);
+  const [, setCookie] = useCookie(persistenceCookieName);
 
   useUpdateEffect(() => {
-    if (isUserPersistenceEnabled) {
-      const tableState = buildPersistedGameListViewState({
-        columnFilters,
-        columnVisibility,
-        pagination,
-        sorting,
-      });
+    const tableState = buildPersistedGameListViewState({
+      columnFilters,
+      columnVisibility,
+      pagination,
+      sorting,
+    });
 
-      setCookie(JSON.stringify(tableState), { expires: 180 });
-    } else if (cookie) {
-      deleteCookie();
-    }
-  }, [isUserPersistenceEnabled, columnFilters, columnVisibility, pagination, sorting]);
+    setCookie(JSON.stringify(tableState), { expires: 180 });
+  }, [columnFilters, columnVisibility, pagination, sorting]);
 
   useUpdateEffect(() => {
     const searchParams = serializeGameListViewState({
