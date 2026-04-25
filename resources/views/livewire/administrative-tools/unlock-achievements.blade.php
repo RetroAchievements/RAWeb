@@ -57,12 +57,11 @@ new class extends Component implements HasForms {
         } else {
             $usernames = array_filter(array_unique(array_map('trim', preg_split('/[\s,]+/', (string) $this->usernamesCsv))));
             $users = User::query()
-            ->withTrashed()
-            ->where(function ($query) use ($usernames) {
-                $query->whereIn('username', $usernames)
-                    ->orWhereIn('display_name', $usernames);
-            })
-            ->get();
+                ->where(function ($query) use ($usernames) {
+                    $query->whereIn('username', $usernames)
+                        ->orWhereIn('display_name', $usernames);
+                })
+                ->get();
 
             $foundUsernamesLower = $users->pluck('username')
                 ->merge($users->pluck('display_name'))
