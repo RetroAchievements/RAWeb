@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
+use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
@@ -52,8 +53,11 @@ class CommentSchema extends Schema
             ID::make(),
 
             Str::make('body')->readOnly(),
+            Str::make('authorAvatarUrl')->readOnly(),
             Str::make('authorDisplayName')->readOnly(),
             Str::make('authorId')->readOnly(),
+            Boolean::make('isAutomated')->readOnly(),
+            Str::make('permalink')->readOnly(),
             DateTime::make('submittedAt', 'created_at')->sortable()->readOnly(),
 
             BelongsTo::make('author', 'user')->type('users')->readOnly(),
@@ -88,6 +92,7 @@ class CommentSchema extends Schema
         return $query
             ->whereHas('user')
             ->withAggregate('user as author_display_name', 'display_name')
+            ->withAggregate('user as author_username', 'username')
             ->withAggregate('user as author_ulid', 'ulid');
     }
 }

@@ -38,7 +38,10 @@ class CommentsTest extends TestCase
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         $game = $this->createGame();
-        $author = User::factory()->create(['display_name' => 'CommentAuthor']);
+        $author = User::factory()->create([
+            'display_name' => 'CommentAuthor',
+            'username' => 'CommentAuthor',
+        ]);
 
         $comment1 = Comment::factory()->create([
             'commentable_id' => $game->id,
@@ -75,8 +78,11 @@ class CommentsTest extends TestCase
         ], collect($response->json('data'))->pluck('id')->all());
 
         $this->assertEquals('This game is excellent.', $response->json('data.0.attributes.body'));
+        $this->assertEquals($author->avatarUrl, $response->json('data.0.attributes.authorAvatarUrl'));
         $this->assertEquals('CommentAuthor', $response->json('data.0.attributes.authorDisplayName'));
         $this->assertEquals($author->ulid, $response->json('data.0.attributes.authorId'));
+        $this->assertFalse($response->json('data.0.attributes.isAutomated'));
+        $this->assertEquals(route('comment.show', ['comment' => $comment1->id]), $response->json('data.0.attributes.permalink'));
         $this->assertArrayHasKey('submittedAt', $response->json('data.0.attributes'));
         $this->assertArrayNotHasKey('links', $response->json('data.0'));
     }

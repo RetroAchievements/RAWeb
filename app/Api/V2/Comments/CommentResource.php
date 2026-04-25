@@ -6,6 +6,7 @@ namespace App\Api\V2\Comments;
 
 use App\Api\V2\BaseJsonApiResource;
 use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Core\Document\Links;
 
@@ -22,9 +23,12 @@ class CommentResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
+            'authorAvatarUrl' => $this->authorAvatarUrl(),
             'authorDisplayName' => $this->resource->getAttribute('author_display_name') ?? $this->resource->user->display_name,
             'authorId' => $this->resource->getAttribute('author_ulid') ?? $this->resource->user->ulid,
             'body' => $this->resource->body,
+            'isAutomated' => $this->resource->is_automated,
+            'permalink' => $this->resource->url,
             'submittedAt' => $this->resource->created_at,
         ];
     }
@@ -47,5 +51,16 @@ class CommentResource extends BaseJsonApiResource
     public function links($request): Links
     {
         return new Links();
+    }
+
+    private function authorAvatarUrl(): string
+    {
+        $authorUsername = $this->resource->getAttribute('author_username');
+
+        if ($authorUsername) {
+            return (new User(['username' => $authorUsername]))->avatar_url;
+        }
+
+        return $this->resource->user->avatar_url;
     }
 }
