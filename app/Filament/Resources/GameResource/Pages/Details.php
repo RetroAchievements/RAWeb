@@ -7,9 +7,11 @@ namespace App\Filament\Resources\GameResource\Pages;
 use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Auth;
 
 class Details extends ViewRecord
 {
@@ -30,9 +32,14 @@ class Details extends ViewRecord
 
     protected function getHeaderActions(): array
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return [
             ViewOnSiteAction::make('view-on-site'),
-            Actions\EditAction::make(),
+
+            Actions\EditAction::make()
+                ->hidden(!$user->can('viewDetails', Game::class)),
         ];
     }
 }

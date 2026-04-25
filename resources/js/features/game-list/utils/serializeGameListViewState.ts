@@ -6,6 +6,7 @@ import type {
 } from '@tanstack/react-table';
 
 import { buildGameListQuerySortParam } from './buildGameListQuerySortParam';
+import { getIsDefaultSorting } from './getIsDefaultSorting';
 
 interface SerializeGameListViewStateOptions {
   columnFilters: ColumnFiltersState;
@@ -68,7 +69,7 @@ function updateSorting(
     return;
   }
 
-  if (activeSort.id === defaultColumnSort.id && activeSort.desc === defaultColumnSort.desc) {
+  if (getIsDefaultSorting(sorting, defaultColumnSort)) {
     searchParams.delete('sort');
   } else {
     searchParams.set('sort', buildGameListQuerySortParam(sorting)!);

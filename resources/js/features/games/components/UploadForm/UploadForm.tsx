@@ -13,8 +13,9 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { getIsSameScreenshotResolution } from '@/common/utils/getIsSameScreenshotResolution';
+import { getIsValidScreenshotResolution } from '@/common/utils/getIsValidScreenshotResolution';
 import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
-import { isValidScreenshotResolution } from '@/common/utils/isValidScreenshotResolution';
 
 import { ScreenshotDropZone } from './ScreenshotDropZone';
 import { useGameScreenshotUploadForm } from './useGameScreenshotUploadForm';
@@ -28,17 +29,19 @@ interface UploadFormProps {
   selectedType: 'title' | 'ingame' | 'completion';
 
   hasAnalogTvOutput?: boolean;
+  screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
   supportsUpscaledScreenshots?: boolean;
   onSuccess?: (screenshot: App.Platform.Data.GameScreenshot) => void;
 }
 
 export const UploadForm: FC<UploadFormProps> = ({
   gameId,
-  screenshotResolutions,
-  selectedType,
   hasAnalogTvOutput,
-  supportsUpscaledScreenshots,
   onSuccess,
+  screenshotResolutions,
+  screenshotUploadConsistency,
+  selectedType,
+  supportsUpscaledScreenshots,
 }) => {
   const { auth } = usePageProps();
   const { t } = useTranslation();
@@ -130,12 +133,26 @@ export const UploadForm: FC<UploadFormProps> = ({
 
   const isResolutionValid = !!(
     previewDimensions &&
-    isValidScreenshotResolution(
+    getIsValidScreenshotResolution(
       previewDimensions.width,
       previewDimensions.height,
       screenshotResolutions,
       hasAnalogTvOutput,
       supportsUpscaledScreenshots,
+    )
+  );
+
+  const hasConsistencyWarning = !!(
+    previewDimensions &&
+    isResolutionValid &&
+    screenshotUploadConsistency &&
+    !screenshotUploadConsistency.existingResolutions.some((resolution) =>
+      getIsSameScreenshotResolution(
+        previewDimensions.width,
+        previewDimensions.height,
+        resolution.width,
+        resolution.height,
+      ),
     )
   );
 
@@ -170,15 +187,17 @@ export const UploadForm: FC<UploadFormProps> = ({
             <BaseFormItem>
               <BaseFormControl>
                 <ScreenshotDropZone
+                  canonicalResolution={screenshotUploadConsistency?.canonicalResolution}
                   fileInputRef={fileInputRef}
                   formattedResolutions={formattedResolutions}
+                  hasConsistencyWarning={hasConsistencyWarning}
                   hasPreview={hasPreview}
                   isResolutionValid={isResolutionValid}
+                  onDrop={handleDrop}
+                  onFileChange={handleFileChange}
                   previewDimensions={previewDimensions}
                   previewUrl={previewUrl}
                   supportsUpscaledScreenshots={supportsUpscaledScreenshots}
-                  onDrop={handleDrop}
-                  onFileChange={handleFileChange}
                 />
               </BaseFormControl>
 

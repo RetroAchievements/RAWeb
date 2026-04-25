@@ -25,6 +25,8 @@ $adminAssignable = [
     Role::FORUM_MANAGER,
     Role::GAME_EDITOR,
     Role::GAME_HASH_MANAGER,
+    Role::MEDIA_EDITOR,
+    Role::MANUAL_UNLOCKER,
     Role::MODERATOR,
     Role::NEWS_MANAGER,
     Role::PLAY_TESTER,
@@ -43,6 +45,8 @@ $modAssignable = [
     Role::DEVELOPER,
     Role::EVENT_MANAGER,
     Role::GAME_EDITOR,
+    Role::MEDIA_EDITOR,
+    Role::MANUAL_UNLOCKER,
     Role::PLAY_TESTER,
     Role::QUALITY_ASSURANCE,
     Role::WRITER,
@@ -155,6 +159,12 @@ return [
         'legacy_role' => Permissions::Registered,
     ],
     [
+        'name' => Role::MANUAL_UNLOCKER,
+        'display' => 3,
+        'staff' => true,
+        'legacy_role' => Permissions::Registered,
+    ],
+    [
         'name' => Role::NEWS_MANAGER,
         'display' => 3,
         'staff' => true,
@@ -170,6 +180,11 @@ return [
         'name' => Role::PLAYTEST_MANAGER,
         'display' => 3,
         'staff' => true,
+        'legacy_role' => Permissions::Registered,
+    ],
+    [
+        'name' => Role::MEDIA_EDITOR,
+        'display' => 5,
         'legacy_role' => Permissions::Registered,
     ],
     [

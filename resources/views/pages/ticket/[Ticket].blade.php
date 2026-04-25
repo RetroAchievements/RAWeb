@@ -163,7 +163,7 @@ $commentData = [];
     </div>
 
     @if ($ticket->reporter)
-      @can('manage', Ticket::class)
+      @canany(['manage', 'viewHistory'], Ticket::class)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -216,7 +216,7 @@ $commentData = [];
                     @else
                         <div class="flex w-full justify-between border-embed-highlight items-center">
                             {{ $ticket->reporter->display_name }} did not earn this achievement
-                            @if ($permissions >= Permissions::Moderator)
+                            @can('manuallyAward', App\Models\PlayerAchievement::class)
                                 <script>
                                     function AwardManually(hardcore) {
                                         showStatusMessage('Awarding...');
@@ -237,13 +237,13 @@ $commentData = [];
                                     <button class="btn" onclick="AwardManually(1)">Award Hardcore</button>
                                     @endif
                                 </div>
-                            @endif
+                            @endcan
                         </div>
                     @endif
                 </div>
             </div>
         </div>
-      @endcan
+      @endcanany
     @endif
 
     <div class="mt-2">
@@ -308,10 +308,17 @@ $commentData = [];
             {!! csrf_field() !!}
             <input type="hidden" name="ticket" value="{{ $ticket->id }}">
             @if ($permissions >= Permissions::Developer)
-                @if ($ticket->state->isOpen())
+                @if ($ticket->state->isOpen() || $ticket->state === TicketState::Quarantined)
                     <select name="action" id="ticketAction" required>
                         <option value="" disabled selected hidden>Choose an action...</option>
-                        <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
+                        @if ($ticket->state === TicketState::Quarantined)
+                            <option value="{{ TicketAction::Reopen }}">Approve this ticket</option>
+                        @endif
+
+                        @if ($ticket->state !== TicketState::Quarantined)
+                            <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
+                        @endif
+
                         @if ($ticket->state === TicketState::Open)
                             @php
                                 $lastComment = null;
@@ -324,10 +331,14 @@ $commentData = [];
                             @if ($lastComment != null && ($lastComment['User'] === $user->username || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
-                        @else
+                        @elseif ($ticket->state === TicketState::Request)
                             <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticket->achievement->developer->display_name }}</option>
                         @endif
-                        <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
+
+                        @if ($ticket->state !== TicketState::Quarantined)
+                            <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
+                        @endif
+
                         <option value="{{ TicketAction::Network }}">Close - Network problems</option>
                         <option value="{{ TicketAction::NotEnoughInfo }}">Close - Not enough information</option>
                         <option value="{{ TicketAction::WrongRom }}">Close - Wrong ROM</option>
@@ -339,7 +350,7 @@ $commentData = [];
                         <option value="{{ TicketAction::ClosedOther }}">Close - Another reason (add comments above)</option>
                     </select>
                     <button class='btn' type="submit">Perform action</button>
-                    
+
                     <script>
                         document.getElementById('ticketActionForm').addEventListener('submit', function(e) {
                             const actionSelect = document.getElementById('ticketAction');
@@ -356,17 +367,17 @@ $commentData = [];
                     </script>
                 @else
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
-                    <button class='btn'>{{ $ticket->state === TicketState::Quarantined ? 'Approve this ticket' : 'Reopen this ticket' }}</button>
+                    <button class='btn'>Reopen this ticket</button>
                 @endif
             @elseif ($user->id === $ticket->reporter->id)
-                @if ($ticket->state->isOpen())
+                @if ($ticket->state->isOpen() || $ticket->state === TicketState::Quarantined)
                     <input type="hidden" name="action" value="{{ TicketAction::ClosedMistaken }}">
                     <button class='btn'>Close as mistaken report</button>
                 @endif
             @endif
         </form>
 
-        @can('manage', Ticket::class)
+        @canany(['manage', 'viewLogic',], Ticket::class)
             <div class="mt-4 w-full relative flex gap-x-3">
                 <button id="achievementLogicButton" class="btn"
                         onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>
@@ -391,6 +402,6 @@ $commentData = [];
                     <x-trigger.viewer :groups="$groups" />
                 </div>
             </div>
-        @endcan
+        @endcanany
     </div>
 </x-app-layout>

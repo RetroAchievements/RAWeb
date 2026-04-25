@@ -2,7 +2,6 @@
 
 use App\Enums\Permissions;
 use App\Models\PlayerAchievement;
-use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -13,42 +12,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 
 $action = request()->input('action');
 $message = null;
-
-if ($action === 'manual-unlock') {
-    $awardAchievementID = requestInputSanitized('a');
-    $awardAchievementUser = requestInputSanitized('u');
-    $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
-
-    if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-        $usersToAward = preg_split('/\W+/', $awardAchievementUser);
-        foreach ($usersToAward as $nextUser) {
-            $player = User::whereName($nextUser)->first();
-            if (!$player) {
-                continue;
-            }
-            $ids = separateList($awardAchievementID);
-            foreach ($ids as $nextID) {
-                // Validate that the ID is numeric before processing.
-                if (!is_numeric($nextID)) {
-                    continue;
-                }
-
-                dispatch(
-                    new UnlockPlayerAchievementJob(
-                        $player->id,
-                        $nextID,
-                        (bool) $awardAchHardcore,
-                        unlockedByUserId: request()->user()->id
-                    )
-                );
-            }
-        }
-
-        return back()->with('success', __('legacy.success.ok'));
-    }
-
-    return back()->withErrors(__('legacy.error.error'));
-}
 
 if ($action === 'copy-unlocks') {
     $fromAchievementIds = separateList(requestInputSanitized('s'));

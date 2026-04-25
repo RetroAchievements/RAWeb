@@ -23,6 +23,7 @@ class GameScreenshotData extends Data
         public string $smWebpUrl,
         public string $mdWebpUrl,
         public string $lgWebpUrl,
+        public string $thumbnailUrl,
     ) {
     }
 
@@ -40,6 +41,7 @@ class GameScreenshotData extends Data
             smWebpUrl: self::conversionUrl($media, 'sm-webp', $fallback),
             mdWebpUrl: self::conversionUrl($media, 'md-webp', $fallback),
             lgWebpUrl: self::conversionUrl($media, 'lg-webp', $fallback),
+            thumbnailUrl: self::conversionUrl($media, 'thumbnail', $fallback),
         );
     }
 

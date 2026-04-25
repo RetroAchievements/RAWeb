@@ -387,6 +387,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                         ->performOnCollections('screenshots');
                 }
 
+                // Height-constrained thumbnails for the game page preview area.
+                // The large max width is intentionally unconstrained so only
+                // height is the binding dimension, preserving the original aspect ratio.
+                $this->addMediaConversion('thumbnail')
+                    ->format('png')
+                    ->fit(Fit::Max, 10000, 240)
+                    ->performOnCollections('screenshots');
+
                 $this->addMediaConversion('placeholder')
                     ->format('webp')
                     ->width(32)
@@ -585,9 +593,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     private function resolveScreenshotUrl(ScreenshotType $type, string $fallbackAssetPath): string
     {
         if (!$this->is_media_restricted && $this->relationLoaded('gameScreenshots')) {
-            $url = $this->getPrimaryScreenshot($type)?->media?->getUrl();
-            if ($url) {
-                return $url;
+            $media = $this->getPrimaryScreenshot($type)?->media;
+            if ($media) {
+                // Prefer the height-constrained thumbnail when available.
+                if ($media->hasGeneratedConversion('thumbnail')) {
+                    return $media->getUrl('thumbnail');
+                }
+
+                return $media->getUrl();
             }
         }
 

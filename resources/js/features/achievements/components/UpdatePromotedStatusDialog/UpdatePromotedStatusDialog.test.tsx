@@ -40,7 +40,12 @@ describe('Component: UpdatePromotedStatusDialog', () => {
       {
         pageProps: {
           achievement,
-          can: { develop: true, updateAchievementIsPromoted: true, viewAchievementLogic: false },
+          can: {
+            develop: true,
+            quickEditAchievement: true,
+            updateAchievementIsPromoted: true,
+            viewAchievementLogic: false,
+          },
         },
       },
     );
@@ -66,7 +71,12 @@ describe('Component: UpdatePromotedStatusDialog', () => {
       {
         pageProps: {
           achievement,
-          can: { develop: true, updateAchievementIsPromoted: true, viewAchievementLogic: false },
+          can: {
+            develop: true,
+            quickEditAchievement: true,
+            updateAchievementIsPromoted: true,
+            viewAchievementLogic: false,
+          },
         },
       },
     );
@@ -92,7 +102,12 @@ describe('Component: UpdatePromotedStatusDialog', () => {
       {
         pageProps: {
           achievement,
-          can: { develop: true, updateAchievementIsPromoted: true, viewAchievementLogic: false },
+          can: {
+            develop: true,
+            quickEditAchievement: true,
+            updateAchievementIsPromoted: true,
+            viewAchievementLogic: false,
+          },
         },
       },
     );
@@ -118,7 +133,12 @@ describe('Component: UpdatePromotedStatusDialog', () => {
       {
         pageProps: {
           achievement,
-          can: { develop: true, updateAchievementIsPromoted: true, viewAchievementLogic: false },
+          can: {
+            develop: true,
+            quickEditAchievement: true,
+            updateAchievementIsPromoted: true,
+            viewAchievementLogic: false,
+          },
         },
       },
     );

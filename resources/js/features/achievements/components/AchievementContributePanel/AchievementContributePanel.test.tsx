@@ -17,7 +17,12 @@ describe('Component: AchievementContributePanel', () => {
     const { container } = render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 
@@ -56,12 +61,42 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /quick edit/i })).toBeVisible();
+  });
+
+  it('given the user can develop but cannot update title or description (e.g. Artist), does not display Quick Edit but displays Manage', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementContributePanel />, {
+      pageProps: {
+        achievement,
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: false,
+          viewAchievementLogic: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /quick edit/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
   });
 
   it('given the user can develop, displays the Manage link', () => {
@@ -76,7 +111,12 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 
@@ -98,7 +138,12 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: true },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: true,
+        },
       },
     });
 
@@ -119,12 +164,42 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /logic/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user cannot manage achievements but can view logic, does not display the Manage link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000 }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementContributePanel />, {
+      pageProps: {
+        achievement,
+        can: {
+          develop: true,
+          manageAchievements: false,
+          quickEditAchievement: false,
+          viewAchievementLogic: true,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /logic/i })).toBeVisible();
   });
 
   it('given the user clicks Quick Edit, shows the Cancel Editing button', async () => {
@@ -138,7 +213,12 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 
@@ -157,7 +237,12 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: true },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: true,
+        },
         isEventGame: true,
       },
     });
@@ -180,7 +265,12 @@ describe('Component: AchievementContributePanel', () => {
     render(<AchievementContributePanel />, {
       pageProps: {
         achievement,
-        can: { develop: true, viewAchievementLogic: false },
+        can: {
+          develop: true,
+          manageAchievements: true,
+          quickEditAchievement: true,
+          viewAchievementLogic: false,
+        },
       },
     });
 

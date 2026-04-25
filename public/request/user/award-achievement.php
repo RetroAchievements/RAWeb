@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
@@ -12,7 +11,7 @@ if ($user === null) {
     abort(401);
 }
 
-if ($user->getAttribute('Permissions') < Permissions::Moderator) {
+if (!$user->can('manuallyAward', App\Models\PlayerAchievement::class)) {
     abort(403);
 }
 
@@ -26,11 +25,6 @@ $player = User::whereName($input['user'])->first();
 
 $achievementId = $input['achievement'];
 $awardHardcore = (bool) $input['hardcore'];
-
-$awardResponse = unlockAchievement($player, $achievementId, $awardHardcore);
-if (array_key_exists('Error', $awardResponse)) {
-   return response()->json(['error' => $awardResponse['Error']]);
-}
 
 $action = app()->make(UnlockPlayerAchievementAction::class);
 

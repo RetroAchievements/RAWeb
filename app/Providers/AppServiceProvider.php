@@ -140,10 +140,7 @@ class AppServiceProvider extends ServiceProvider
          * We'll set it to "not_disposable_email", which is much more intuitive.
          */
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
-            return Validator::make(
-                [$attribute => $value],
-                [$attribute => 'indisposable'],
-            )->passes();
+            return app('disposable_email.domains')->isNotDisposable($value);
         }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components

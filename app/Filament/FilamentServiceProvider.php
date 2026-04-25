@@ -58,6 +58,7 @@ class FilamentServiceProvider extends \Filament\PanelProvider
                 'Platform',
                 'Releases',
                 'Players',
+                'Queues',
                 'Settings',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
