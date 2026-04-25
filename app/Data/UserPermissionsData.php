@@ -36,6 +36,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $deleteForumTopic,
         public Lazy|bool $develop,
         public Lazy|bool $lockForumTopic,
+        public Lazy|bool $manageAchievements,
         public Lazy|bool $manageAchievementSetClaims,
         public Lazy|bool $manageEmulators,
         public Lazy|bool $manageEvents,
@@ -45,6 +46,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $quickEditAchievement,
         public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
         public Lazy|bool $updateAchievementDescription,
@@ -110,6 +112,7 @@ class UserPermissionsData extends Data
             deleteForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('delete', $forumTopic) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             lockForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('lock', $forumTopic) : false),
+            manageAchievements: Lazy::create(fn () => $user ? $user->can('manage', Achievement::class) : false),
             manageAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('manage', AchievementSetClaim::class) : false),
             manageEmulators: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Emulator::class) : false),
             manageForumTopicComments: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\ForumTopicComment::class) : false),
@@ -142,6 +145,10 @@ class UserPermissionsData extends Data
             ),
             updateAchievementType: Lazy::create(fn () => $user && $triggerable instanceof Achievement
                 ? $user->can('updateField', [$triggerable, 'type'])
+                : false
+            ),
+            quickEditAchievement: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('quickEdit', $triggerable)
                 : false
             ),
             updateAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('updateAny', AchievementSetClaim::class) : false),

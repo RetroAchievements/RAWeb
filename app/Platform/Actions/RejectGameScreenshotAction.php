@@ -8,21 +8,29 @@ use App\Models\GameScreenshot;
 use App\Models\User;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
+use App\Support\Alerts\InappropriateGameScreenshotAlert;
 
 class RejectGameScreenshotAction
 {
     public function execute(
         GameScreenshot $screenshot,
-        User $reviewer,
+        ?User $reviewer,
         GameScreenshotRejectionReason $reason,
         ?string $notes = null,
     ): void {
         $screenshot->update([
             'status' => GameScreenshotStatus::Rejected,
-            'reviewed_by_user_id' => $reviewer->id,
+            'reviewed_by_user_id' => $reviewer?->id,
             'reviewed_at' => now(),
             'rejection_reason' => $reason,
             'rejection_notes' => $notes,
         ]);
+
+        if ($reason === GameScreenshotRejectionReason::InappropriateContent && $reviewer) {
+            (new InappropriateGameScreenshotAlert(
+                screenshot: $screenshot->fresh(['game', 'capturedBy', 'media']),
+                reviewer: $reviewer,
+            ))->send();
+        }
     }
 }

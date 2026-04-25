@@ -1,10 +1,8 @@
 import { dehydrate } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
 import type { RouteName } from 'ziggy-js';
 
 import type { DefaultColumnState } from '@/features/game-list/models';
 
-import { isCurrentlyPersistingViewAtom } from '../state/game-list.atoms';
 import { useGameListState } from './useGameListState';
 import { usePreloadedTableDataQueryClient } from './usePreloadedTableDataQueryClient';
 import { useTableSync } from './useTableSync';
@@ -49,8 +47,6 @@ export function useGameListTableRoot({
     paginatedData: paginatedGameListEntries,
   });
 
-  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
-
   useTableSync({
     columnFilters,
     columnVisibility,
@@ -59,7 +55,6 @@ export function useGameListTableRoot({
     pagination,
     sorting,
     defaultPageSize,
-    isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
 
   return {

@@ -24,13 +24,9 @@ class UserUsernameResource extends Resource
     protected static ?string $model = UserUsername::class;
 
     protected static ?int $navigationSort = 30;
-
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-s-wrench';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Tools';
-
-    protected static ?string $navigationLabel = 'Username Change Requests';
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-s-identification';
+    protected static string|UnitEnum|null $navigationGroup = 'Queues';
+    protected static ?string $navigationLabel = 'Username Changes';
     protected static ?string $modelLabel = 'Username Change Request';
 
     public static function getNavigationBadge(): ?string

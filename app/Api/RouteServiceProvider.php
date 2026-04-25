@@ -188,7 +188,8 @@ class RouteServiceProvider extends ServiceProvider
                 /**
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
-                Route::any('/{path?}', [CatchAllController::class, 'handle'])->where('path', '(.*)');
+                Route::any('/{path?}', [CatchAllController::class, 'handle'])
+                    ->where('path', '^(?!log-viewer(?:/|$)).*');
 
             });
     }

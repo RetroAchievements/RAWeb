@@ -206,6 +206,22 @@ const Contact: AppPage = () => {
 
             <div className="rounded bg-embed p-4">
               <div>
+                <h2 className="text-h4">{t('Unlock Team')}</h2>
+                <p>
+                  <Trans
+                    i18nKey="<1>Send a message to UnlockTeam</1> for manual unlock requests to achievements you should have unlocked."
+                    components={{
+                      1: (
+                        <InertiaLink href={route('message-thread.create', { to: 'UnlockTeam' })} />
+                      ),
+                    }}
+                  />
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded bg-embed p-4">
+              <div>
                 <h2 className="text-h4">{t('RAEvents')}</h2>
                 <p className="mb-4">
                   <Trans

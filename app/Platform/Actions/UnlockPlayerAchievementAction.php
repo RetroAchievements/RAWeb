@@ -102,8 +102,8 @@ class UnlockPlayerAchievementAction
             $playerSession->save();
         }
 
-        // commit the unlock
-        if ($achievement->is_promoted) {
+        // commit the unlock only if the achievement is promoted or it was a manual unlock
+        if ($achievement->is_promoted || $unlockedBy) {
             $unlock->save();
 
             // Check if this achievement is currently maintained by someone other than the author.

@@ -26,11 +26,11 @@ $hub = GameSet::find($hubId);
         <div class="mb-2"></div>
 
         <x-card.info-row label="Games">
-            {{ localized_number($hub->games->count()) }}
+            {{ localized_number($hub->games()->count()) }}
         </x-card.info-row>
 
         <x-card.info-row label="Links">
-            {{ localized_number($hub->children->count()) }}
+            {{ localized_number($hub->children()->count()) }}
         </x-card.info-row>
     </div>
 </x-card.container>
