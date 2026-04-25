@@ -146,8 +146,11 @@ class GameScreenshotsRelationManager extends RelationManager
                     ->orderByType()
                     ->orderBy('order_column');
 
-                if (!$this->shouldShowRejectedScreenshots()) {
-                    $query->where('status', '!=', GameScreenshotStatus::Rejected->value);
+                if (!$this->shouldShowArchivedScreenshots()) {
+                    $query->whereNotIn('status', [
+                        GameScreenshotStatus::Rejected->value,
+                        GameScreenshotStatus::Replaced->value,
+                    ]);
                 }
             })
             ->reorderRecordsTriggerAction(
@@ -386,6 +389,7 @@ class GameScreenshotsRelationManager extends RelationManager
                 GameScreenshotStatus::Approved->value,
                 GameScreenshotStatus::Pending->value,
                 GameScreenshotStatus::Rejected->value,
+                GameScreenshotStatus::Replaced->value,
             ])
             ->select('status', DB::raw('COUNT(*) as aggregate'))
             ->groupBy('status')
@@ -395,6 +399,7 @@ class GameScreenshotsRelationManager extends RelationManager
             GameScreenshotStatus::Approved->value => 'Published (' . ($counts[GameScreenshotStatus::Approved->value] ?? 0) . ')',
             GameScreenshotStatus::Pending->value => 'Pending (' . ($counts[GameScreenshotStatus::Pending->value] ?? 0) . ')',
             GameScreenshotStatus::Rejected->value => 'Rejected (' . ($counts[GameScreenshotStatus::Rejected->value] ?? 0) . ')',
+            GameScreenshotStatus::Replaced->value => 'Replaced (' . ($counts[GameScreenshotStatus::Replaced->value] ?? 0) . ')',
         ];
     }
 
@@ -470,10 +475,13 @@ class GameScreenshotsRelationManager extends RelationManager
         return $text;
     }
 
-    private function shouldShowRejectedScreenshots(): bool
+    private function shouldShowArchivedScreenshots(): bool
     {
         $selectedStatus = data_get($this->getTableFilterState('status'), 'value');
 
-        return $selectedStatus === GameScreenshotStatus::Rejected->value;
+        return in_array($selectedStatus, [
+            GameScreenshotStatus::Rejected->value,
+            GameScreenshotStatus::Replaced->value,
+        ], true);
     }
 }
