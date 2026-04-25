@@ -15,7 +15,7 @@ class PlatformData extends Data
         public int $id,
         public string $name,
         public ?PlatformExecutionEnvironment $executionEnvironment,
-        public int $orderColumn,
+        public int $orderColumn = 0,
     ) {
     }
 }

@@ -826,6 +826,7 @@ originalUrl: string;
 smWebpUrl: string;
 mdWebpUrl: string;
 lgWebpUrl: string;
+thumbnailUrl: string;
 };
 export type GameSet = {
 id: number;

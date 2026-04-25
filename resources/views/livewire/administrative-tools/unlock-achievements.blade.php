@@ -56,12 +56,22 @@ new class extends Component implements HasForms {
             $this->validUsernames = $usernames;
         } else {
             $usernames = array_filter(array_unique(array_map('trim', preg_split('/[\s,]+/', (string) $this->usernamesCsv))));
-            $users = User::whereIn('username', $usernames)->get();
-            $foundUsernamesLower = $users->pluck('username')->map(fn ($u) => strtolower((string) $u))->toArray();
+            $users = User::query()
+                ->where(function ($query) use ($usernames) {
+                    $query->whereIn('username', $usernames)
+                        ->orWhereIn('display_name', $usernames);
+                })
+                ->get();
+
+            $foundUsernamesLower = $users->pluck('username')
+                ->merge($users->pluck('display_name'))
+                ->filter()
+                ->map(fn ($u) => strtolower((string) $u))
+                ->toArray();
 
             $this->missingUsernames = array_values(array_filter($usernames, fn ($u) => !in_array(strtolower((string) $u), $foundUsernamesLower)));
             $this->validUserIds = $users->pluck('id')->toArray();
-            $this->validUsernames = $users->pluck('username')->toArray();
+            $this->validUsernames = $users->pluck('display_name')->toArray();
         }
 
         if (!empty($this->achievementIdsSelect)) {

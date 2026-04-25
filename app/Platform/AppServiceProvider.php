@@ -25,7 +25,6 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
-use App\Platform\Commands\BackfillGameScreenshots;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
@@ -39,6 +38,7 @@ use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\RecalculateMultisetGameMetricsForResets;
+use App\Platform\Commands\RegenerateGameScreenshotConversions;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncUnrankedUsersTable;
@@ -80,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
                 RecalculateAchievementWeightedPoints::class,
 
                 // Games
-                BackfillGameScreenshots::class,
+                RegenerateGameScreenshotConversions::class,
                 ConvertGameToEvent::class,
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
