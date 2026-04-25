@@ -13,10 +13,13 @@ use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\GameScreenshot;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
+use App\Platform\Enums\GameScreenshotRejectionReason;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
@@ -58,18 +61,40 @@ class SendDailyDigestAction
             }
             $ids[$type][] = $delayedSubscription->subject_id;
         }
-        // and preload the titles for the associated records
+        // and preload the titles/details for the associated records
         $titles = [];
+
+        $screenshotDecisionData = [];
+        $screenshotGamesByScreenshotId = [];
         foreach ($ids as $type => $typeIds) {
-            $titles[$type] = match ($type) {
-                SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
-                SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
-                SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
-                SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
-                SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
-                SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
-                default => [],
-            };
+            if ($type === SubscriptionSubjectType::GameScreenshotDecision->value) {
+                $screenshots = GameScreenshot::whereIn('id', $typeIds)->with('game.system')->get();
+
+                foreach ($screenshots as $screenshot) {
+                    $titles[$type][$screenshot->id] = "{$screenshot->game->title} ({$screenshot->game->system->name})";
+                    $screenshotGamesByScreenshotId[$screenshot->id] = $screenshot->game;
+
+                    $data = [];
+                    if ($screenshot->status instanceof GameScreenshotStatus) {
+                        $data['status'] = $screenshot->status->value;
+                    }
+                    if ($screenshot->rejection_reason instanceof GameScreenshotRejectionReason) {
+                        $data['rejectionReason'] = $screenshot->rejection_reason->label();
+                    }
+
+                    $screenshotDecisionData[$screenshot->id] = $data;
+                }
+            } else {
+                $titles[$type] = match ($type) {
+                    SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
+                    SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
+                    SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
+                    SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
+                    SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
+                    SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
+                    default => [],
+                };
+            }
         }
 
         // build the data to pass to the mail script
@@ -77,17 +102,26 @@ class SendDailyDigestAction
         $notificationItems = [];
         foreach ($delayedSubscriptions as $delayedSubscription) {
             // if all the new posts have been deleted or aren't visible, ignore it
-            $handler = $this->getHandler($delayedSubscription->subject_type);
+            $handler = $this->getHandler($delayedSubscription->subject_type, $screenshotGamesByScreenshotId);
             $count = $handler->getUpdatesSince($delayedSubscription);
             if ($count > 0) {
-                $notificationItems[] = [
+                $notificationItem = [
                     'type' => $delayedSubscription->subject_type->value,
                     'title' => $titles[$delayedSubscription->subject_type->value][$delayedSubscription->subject_id] ?? '(untitled)',
                     'link' => $handler->getLink($delayedSubscription->subject_id, $delayedSubscription->first_update_id),
                     'count' => $count,
                 ];
 
-                if ($count === 1) {
+                if ($delayedSubscription->subject_type === SubscriptionSubjectType::GameScreenshotDecision) {
+                    $notificationItem = [
+                        ...$notificationItem,
+                        ...($screenshotDecisionData[$delayedSubscription->subject_id] ?? []),
+                    ];
+                }
+
+                $notificationItems[] = $notificationItem;
+
+                if ($count === 1 && $delayedSubscription->subject_type !== SubscriptionSubjectType::GameScreenshotDecision) {
                     $singleItems[] = [$delayedSubscription, count($notificationItems) - 1];
                 }
             }
@@ -143,14 +177,26 @@ class SendDailyDigestAction
             }
         }
 
+        $notificationItems = $this->aggregateScreenshotDecisionItems($notificationItems);
+
         // send the mail
         Mail::to($user->email)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
     }
 
-    private function getHandler(SubscriptionSubjectType $subjectType): BaseDelayedSubscriptionHandler
+    /**
+     * @param array<int, Game> $screenshotGamesByScreenshotId
+     */
+    private function getHandler(SubscriptionSubjectType $subjectType, array $screenshotGamesByScreenshotId = []): BaseDelayedSubscriptionHandler
     {
+        if ($subjectType === SubscriptionSubjectType::GameScreenshotDecision) {
+            $handler = new GameScreenshotDecisionDelayedSubscriptionHandler();
+            $handler->setPreloadedGames($screenshotGamesByScreenshotId);
+
+            return $handler;
+        }
+
         return match ($subjectType) {
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
             SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(CommentableType::Game),
@@ -210,6 +256,106 @@ class SendDailyDigestAction
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $notificationItems
+     * @return array<int, array<string, mixed>>
+     */
+    private function aggregateScreenshotDecisionItems(array $notificationItems): array
+    {
+        $groupedScreenshotItems = [];
+        foreach ($notificationItems as $item) {
+            if (($item['type'] ?? null) !== SubscriptionSubjectType::GameScreenshotDecision->value) {
+                continue;
+            }
+
+            $gameKey = ($item['link'] ?? '') . '|' . ($item['title'] ?? '');
+            $groupedScreenshotItems[$gameKey][] = $item;
+        }
+
+        $needsAggregation = collect($groupedScreenshotItems)->contains(fn (array $items) => count($items) > 1);
+        if (!$needsAggregation) {
+            return $notificationItems;
+        }
+
+        $aggregatedItems = [];
+        $processedGameKeys = [];
+
+        foreach ($notificationItems as $item) {
+            if (($item['type'] ?? null) === SubscriptionSubjectType::GameScreenshotDecision->value) {
+                $gameKey = ($item['link'] ?? '') . '|' . ($item['title'] ?? '');
+                if (in_array($gameKey, $processedGameKeys, true)) {
+                    continue;
+                }
+
+                $gameItems = $groupedScreenshotItems[$gameKey] ?? [$item];
+                $aggregatedItems[] = count($gameItems) === 1
+                    ? $gameItems[0]
+                    : $this->summarizeScreenshotDecisionGameItems($gameItems);
+                $processedGameKeys[] = $gameKey;
+
+                continue;
+            }
+
+            $aggregatedItems[] = $item;
+        }
+
+        return $aggregatedItems;
+    }
+
+    /**
+     * @param array<string, int> $rejectionReasons
+     */
+    private function summarizeScreenshotRejectionReasons(array $rejectionReasons): ?string
+    {
+        if (empty($rejectionReasons)) {
+            return null;
+        }
+
+        $parts = [];
+        foreach ($rejectionReasons as $reason => $count) {
+            $parts[] = $count === 1 ? $reason : "{$reason} x{$count}";
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $gameItems
+     * @return array<string, mixed>
+     */
+    private function summarizeScreenshotDecisionGameItems(array $gameItems): array
+    {
+        $approvedCount = 0;
+        $rejectedCount = 0;
+        $reviewedCount = 0;
+        $rejectionReasons = [];
+
+        foreach ($gameItems as $item) {
+            match ($item['status'] ?? null) {
+                GameScreenshotStatus::Approved->value => $approvedCount++,
+                GameScreenshotStatus::Rejected->value => $rejectedCount++,
+                default => $reviewedCount++,
+            };
+
+            if (($item['status'] ?? null) === GameScreenshotStatus::Rejected->value && ($item['rejectionReason'] ?? null)) {
+                $reason = $item['rejectionReason'];
+                $rejectionReasons[$reason] = ($rejectionReasons[$reason] ?? 0) + 1;
+            }
+        }
+
+        return [
+            'type' => SubscriptionSubjectType::GameScreenshotDecision->value,
+            'title' => $gameItems[0]['title'] ?? null,
+            'link' => $gameItems[0]['link'] ?? null,
+            'count' => count($gameItems),
+            'gameCount' => 1,
+            'approvedCount' => $approvedCount,
+            'rejectedCount' => $rejectedCount,
+            'reviewedCount' => $reviewedCount,
+            'rejectionReasonSummary' => $this->summarizeScreenshotRejectionReasons($rejectionReasons),
+        ];
     }
 }
 
@@ -293,5 +439,34 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
         }
 
         return '';
+    }
+}
+
+class GameScreenshotDecisionDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
+{
+    /** @var array<int, Game> */
+    private array $gamesByScreenshotId = [];
+
+    /**
+     * @param array<int, Game> $gamesByScreenshotId
+     */
+    public function setPreloadedGames(array $gamesByScreenshotId): void
+    {
+        $this->gamesByScreenshotId = $gamesByScreenshotId;
+    }
+
+    public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int
+    {
+        return 1; // each subscription represents exactly one decision
+    }
+
+    public function getLink(int $subjectId, int $firstUpdateId): string
+    {
+        $game = $this->gamesByScreenshotId[$subjectId] ?? null;
+        if (!$game) {
+            return '';
+        }
+
+        return route('game.show', ['game' => $game]);
     }
 }

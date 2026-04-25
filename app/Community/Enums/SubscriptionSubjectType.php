@@ -17,6 +17,7 @@ enum SubscriptionSubjectType: string
     case GameTickets = "GameTickets";
     case GameAchievements = "GameAchievements";
     case AchievementTicket = "AchievementTicket";
+    case GameScreenshotDecision = "GameScreenshotDecision";
 
     public static function fromCommentableType(CommentableType $commentableType): ?SubscriptionSubjectType
     {
