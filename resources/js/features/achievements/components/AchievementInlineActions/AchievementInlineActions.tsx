@@ -69,7 +69,7 @@ export const AchievementInlineActions: FC = () => {
       ) : null}
 
       <div className="flex items-center gap-1.5">
-        {isEditMode && can?.develop ? (
+        {isEditMode && can?.quickEditAchievement ? (
           <div className="flex items-center gap-1.5">
             <BaseButton onClick={handleCancel} size="xs" className="gap-1">
               <LuX className="size-3" />
@@ -108,7 +108,10 @@ export const AchievementInlineActions: FC = () => {
             ) : null}
 
             {/* Mobile: show an overflow menu with dev tools and reset progress */}
-            {can?.develop || canResetProgress ? (
+            {can?.manageAchievements ||
+            can?.quickEditAchievement ||
+            can?.viewAchievementLogic ||
+            canResetProgress ? (
               <div className="lg:hidden">
                 <BaseDropdownMenu>
                   <BaseDropdownMenuTrigger asChild>
@@ -118,42 +121,44 @@ export const AchievementInlineActions: FC = () => {
                   </BaseDropdownMenuTrigger>
 
                   <BaseDropdownMenuContent align="end">
-                    {can?.develop ? (
-                      <>
-                        <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
-                          <a href={`/manage/achievements/${achievement.id}`} target="_blank">
-                            <LuWrench className="size-3.5" />
-                            {t('Manage')}
-                          </a>
-                        </BaseDropdownMenuItem>
+                    {/* Manage button: visible if can.develop */}
+                    {can?.manageAchievements ? (
+                      <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
+                        <a href={`/manage/achievements/${achievement.id}`} target="_blank">
+                          <LuWrench className="size-3.5" />
+                          {t('Manage')}
+                        </a>
+                      </BaseDropdownMenuItem>
+                    ) : null}
 
-                        {!isEventGame && can.viewAchievementLogic ? (
-                          <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
-                            <a
-                              href={`/manage/achievements/${achievement.id}/logic`}
-                              target="_blank"
-                            >
-                              <LuCode className="size-3.5" />
-                              {t('Logic')}
-                            </a>
-                          </BaseDropdownMenuItem>
-                        ) : null}
+                    {/* Logic button: visible if not an event game and can.viewAchievementLogic */}
+                    {!isEventGame && can?.viewAchievementLogic ? (
+                      <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
+                        <a href={`/manage/achievements/${achievement.id}/logic`} target="_blank">
+                          <LuCode className="size-3.5" />
+                          {t('Logic')}
+                        </a>
+                      </BaseDropdownMenuItem>
+                    ) : null}
 
-                        {!isEventGame ? (
-                          <BaseDropdownMenuItem
-                            className="cursor-pointer gap-2 text-link"
-                            onClick={() => setIsEditMode(true)}
-                          >
-                            <LuPencil className="size-3.5" />
-                            {t('Quick edit')}
-                          </BaseDropdownMenuItem>
-                        ) : null}
-                      </>
+                    {/* Quick Edit button: visible if can.quickEditAchievement and not an event game */}
+                    {can?.quickEditAchievement && !isEventGame ? (
+                      <BaseDropdownMenuItem
+                        className="cursor-pointer gap-2 text-link"
+                        onClick={() => setIsEditMode(true)}
+                      >
+                        <LuPencil className="size-3.5" />
+                        {t('Quick edit')}
+                      </BaseDropdownMenuItem>
                     ) : null}
 
                     {canResetProgress ? (
                       <>
-                        {can?.develop ? <BaseDropdownMenuSeparator /> : null}
+                        {can?.manageAchievements ||
+                        can?.quickEditAchievement ||
+                        can?.viewAchievementLogic ? (
+                          <BaseDropdownMenuSeparator />
+                        ) : null}
 
                         <BaseDropdownMenuItem
                           className="cursor-pointer gap-2 text-red-400 focus:text-red-300"

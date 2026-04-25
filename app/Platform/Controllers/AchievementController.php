@@ -230,6 +230,8 @@ class AchievementController extends Controller
                 'createAchievementComments',
                 'createTicket',
                 'develop',
+                'manageAchievements',
+                'quickEditAchievement',
                 'updateAchievementDescription',
                 'updateAchievementIsPromoted',
                 'updateAchievementPoints',

@@ -38,6 +38,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
 }) => {
   const {
     game,
+    screenshotUploadConsistency,
     screenshotUploadStatuses,
     screenshotUploadPendingCount,
     screenshotUploadUserSubmissions,
@@ -129,6 +130,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
           {/* Upload drop zone */}
           <UploadForm
             gameId={game.id}
+            screenshotUploadConsistency={screenshotUploadConsistency}
             screenshotResolutions={game.system?.screenshotResolutions ?? []}
             selectedType={selectedType}
             hasAnalogTvOutput={game.system?.hasAnalogTvOutput}

@@ -57,11 +57,15 @@ class Role extends SpatieRole
 
     public const TICKET_MANAGER = 'ticket-manager';
 
+    public const MANUAL_UNLOCKER = 'manual-unlocker';
+
     public const NEWS_MANAGER = 'news-manager';
 
     public const EVENT_MANAGER = 'event-manager';
 
     public const PLAYTEST_MANAGER = 'playtest-manager';
+
+    public const MEDIA_EDITOR = 'media-editor';
 
     public const CHEAT_INVESTIGATOR = 'cheat-investigator';
 
@@ -113,9 +117,11 @@ class Role extends SpatieRole
             Role::MODERATOR => 'warning',
             Role::FORUM_MANAGER => 'info',
             Role::TICKET_MANAGER => 'info',
+            Role::MANUAL_UNLOCKER => 'info',
             Role::NEWS_MANAGER => 'info',
             Role::EVENT_MANAGER => 'info',
             Role::PLAYTEST_MANAGER => 'info',
+            Role::MEDIA_EDITOR => 'info',
             Role::CHEAT_INVESTIGATOR => 'info',
 
             // vanity roles assigned by root

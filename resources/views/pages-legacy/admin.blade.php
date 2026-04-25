@@ -111,47 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php if ($permissions >= Permissions::Moderator) : ?>
     <section class="mb-4">
-        <h4>Unlock Achievement</h4>
-        <form method="post" action="request/admin.php">
-            @csrf()
-            <input type="hidden" name="action" value="manual-unlock">
-            <table class="mb-1">
-                <colgroup>
-                    <col>
-                    <col class="w-full">
-                </colgroup>
-                <tbody>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="award_achievement_user">User to unlock achievement</label>
-                    </td>
-                    <td>
-                        <input id="award_achievement_user" name="u">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="award_achievement_id">Achievement IDs</label>
-                    </td>
-                    <td>
-                        <input id="award_achievement_id" name="a">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="award_achievement_hardcore">Include hardcore?</label>
-                    </td>
-                    <td>
-                        <input id="award_achievement_hardcore" type="checkbox" name="h" value="1">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <button class="btn">Submit</button>
-        </form>
-    </section>
-
-    <section class="mb-4">
         <h4>Copy Unlocks</h4>
         <form method="post" action="request/admin.php" id="copy-unlocks-form">
             @csrf()

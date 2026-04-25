@@ -164,7 +164,7 @@ describe('Component: ScreenshotDropZone', () => {
     );
 
     // ASSERT
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     expect(fileInput.accept).toEqual('.png,.jpeg,.jpg,.webp');
   });
 
@@ -181,7 +181,7 @@ describe('Component: ScreenshotDropZone', () => {
     );
 
     // ASSERT
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     expect(fileInput.accept).toEqual('.png');
   });
 
@@ -221,7 +221,7 @@ describe('Component: ScreenshotDropZone', () => {
     );
 
     const file = new File(['test'], 'screenshot.png', { type: 'image/png' });
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
 
     // ACT
     await userEvent.upload(fileInput, file);

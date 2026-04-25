@@ -702,9 +702,11 @@
     "moderator": "Moderator",
     "forum-manager": "Forum Manager",
     "ticket-manager": "Ticket Manager",
+    "manual-unlocker": "Manual Unlocker",
     "news-manager": "News Manager",
     "event-manager": "Event Manager",
     "playtest-manager": "Playtest Manager",
+    "media-editor": "Media Editor",
     "founder": "Founder",
     "architect": "Architect",
     "engineer": "Engineer",
@@ -1417,8 +1419,11 @@
     "Back to game": "Back to game",
     "Expected Resolutions: {{resolutions}}": "Expected Resolutions: {{resolutions}}",
     "Expected Resolutions: {{resolutions}} (or 2x/3x multiples)": "Expected Resolutions: {{resolutions}} (or 2x/3x multiples)",
+    "Upload screenshot file": "Upload screenshot file",
     "Valid resolution": "Valid resolution",
     "Invalid resolution": "Invalid resolution",
+    "Doesn't match existing screenshots": "Doesn't match existing screenshots",
+    "Doesn't match existing screenshots ({{resolution}})": "Doesn't match existing screenshots ({{resolution}})",
     "Pending": "Pending",
     "In-game": "In-game",
     "Completion": "Completion",
@@ -1435,5 +1440,7 @@
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Only PNG, JPEG, and WebP screenshots are accepted.",
     "This image has already been uploaded for this game.": "This image has already been uploaded for this game.",
     "This screenshot's resolution doesn't match what's expected for this system.": "This screenshot's resolution doesn't match what's expected for this system.",
-    "You have reached the maximum number of pending submissions.": "You have reached the maximum number of pending submissions."
+    "You have reached the maximum number of pending submissions.": "You have reached the maximum number of pending submissions.",
+    "Unlock Team": "Unlock Team",
+    "<1>Send a message to UnlockTeam</1> for manual unlock requests to achievements you should have unlocked.": "<1>Send a message to UnlockTeam</1> for manual unlock requests to achievements you should have unlocked."
 }

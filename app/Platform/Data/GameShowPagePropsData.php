@@ -99,6 +99,7 @@ class GameShowPagePropsData extends Data
         /** @var array<string, ScreenshotUploadTypeStatusData> */
         public Lazy|array $screenshotUploadStatuses = [],
 
+        public Lazy|ScreenshotUploadConsistencyData|null $screenshotUploadConsistency = null,
         public Lazy|int $screenshotUploadPendingCount = 0,
 
         /** @var Lazy|Collection<int, GameScreenshotData> */

@@ -34,5 +34,6 @@ return [
         'RAdmin' => [Role::ADMINISTRATOR, Role::MODERATOR],
         'RAEvents' => [Role::EVENT_MANAGER],
         'WritingTeam' => [Role::WRITER],
+        'UnlockTeam' => [Role::MANUAL_UNLOCKER],
     ],
 ];
