@@ -215,7 +215,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return HasMany<GameAchievementSet, $this>
+     * @return HasMany<AchievementSetVersion, $this>
      */
     public function versions(): HasMany
     {

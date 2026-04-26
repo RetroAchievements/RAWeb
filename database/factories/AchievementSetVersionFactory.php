@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\AchievementSet;
 use App\Models\AchievementSetVersion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

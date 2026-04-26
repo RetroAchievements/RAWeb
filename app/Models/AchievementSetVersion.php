@@ -70,7 +70,7 @@ class AchievementSetVersion extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, $this>
+     * @return BelongsTo<AchievementSet, $this>
      */
     public function achievementSet(): BelongsTo
     {
