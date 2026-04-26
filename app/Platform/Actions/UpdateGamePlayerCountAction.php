@@ -5,43 +5,49 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\PlayerGame;
+use App\Platform\Enums\AchievementSetType;
 
 // Recalculates the number of players for a game.
 class UpdateGamePlayerCountAction
 {
     public function execute(Game $game): void
     {
-        $parentGame = $game->parentGame();
-        if ($parentGame) {
-            // NOTE: This assumes everyone who plays a child set also plays the parent set.
-            //       These counts should technically be the union of users from both sets.
-            if ($parentGame->players_total > 0) {
-                $game->players_total = $parentGame->players_total;
-                $game->players_hardcore = $parentGame->players_hardcore;
-            } else {
-                $parentGame = null;
+        $gameIds = [$game->id];
+
+        $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
+        if ($coreGameAchievementSet) {
+            $bonusSubsetAchievementSet = GameAchievementSet::query()
+                ->where('achievement_set_id', $coreGameAchievementSet->achievement_set_id)
+                ->where('type', AchievementSetType::Bonus)
+                ->first();
+            if ($bonusSubsetAchievementSet) {
+                // if this is a bonus subset, also include the players of the parent game
+                $gameIds[] = $bonusSubsetAchievementSet->game_id;
             }
         }
 
-        if (!$parentGame) {
-            $game->players_total = $game->playerGames()
-                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-                ->whereNull('unranked_users.id')
-                ->where('achievements_unlocked', '>', 0)
-                ->count();
+        $playersQuery = PlayerGame::whereIn('game_id', $gameIds)
+            ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.id');
 
-            $game->players_hardcore = $game->playerGames()
-                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-                ->whereNull('unranked_users.id')
-                ->where('achievements_unlocked_hardcore', '>', 0)
-                ->count();
+        if (count($gameIds) > 1) {
+            $playersQuery->distinct('player_games.user_id');
         }
+
+        $game->players_total = $playersQuery->clone()
+            ->where('achievements_unlocked', '>', 0)
+            ->count();
+
+        $game->players_hardcore = $playersQuery->clone()
+            ->where('achievements_unlocked_hardcore', '>', 0)
+            ->count();
 
         if ($game->isDirty()) {
             $game->saveQuietly();
 
             // copy the new player counts to the achievement set
-            $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
             if ($coreGameAchievementSet) {
                 $coreSet = $coreGameAchievementSet->achievementSet;
                 $coreSet->players_hardcore = $game->players_hardcore;
