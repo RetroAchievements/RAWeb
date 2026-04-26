@@ -101,12 +101,14 @@ class RecalculateAchievementWeightedPoints extends Command
 
         $gamesUpdated = DB::update(<<<SQL
             UPDATE games g
-            SET g.points_weighted = (
-                SELECT COALESCE(SUM(a.points_weighted), 0)
+            LEFT JOIN (
+                SELECT a.game_id, COALESCE(SUM(a.points_weighted), 0) AS total_points_weighted
                 FROM achievements a
-                WHERE a.game_id = g.id AND a.is_promoted = 1
-            )
-            WHERE EXISTS (SELECT 1 FROM achievements a WHERE a.game_id = g.id AND a.is_promoted = 1)
+                WHERE a.is_promoted = 1 AND a.deleted_at IS NULL
+                GROUP BY a.game_id
+            ) calc ON calc.game_id = g.id
+            SET g.points_weighted = COALESCE(calc.total_points_weighted, 0)
+            WHERE NOT (g.points_weighted <=> COALESCE(calc.total_points_weighted, 0))
         SQL);
 
         $this->info("Updated {$gamesUpdated} games in " . round(microtime(true) - $start, 2) . "s");
@@ -117,14 +119,15 @@ class RecalculateAchievementWeightedPoints extends Command
 
         $setsUpdated = DB::update(<<<SQL
             UPDATE achievement_sets ach_set
-            JOIN (
-                SELECT asa.achievement_set_id, COALESCE(SUM(a.points_weighted), 0) as total_points_weighted
+            LEFT JOIN (
+                SELECT asa.achievement_set_id, COALESCE(SUM(a.points_weighted), 0) AS total_points_weighted
                 FROM achievement_set_achievements asa
                 INNER JOIN achievements a ON a.id = asa.achievement_id
                 WHERE a.is_promoted = 1 AND a.deleted_at IS NULL
                 GROUP BY asa.achievement_set_id
             ) calc ON calc.achievement_set_id = ach_set.id
-            SET ach_set.points_weighted = calc.total_points_weighted
+            SET ach_set.points_weighted = COALESCE(calc.total_points_weighted, 0)
+            WHERE NOT (ach_set.points_weighted <=> COALESCE(calc.total_points_weighted, 0))
         SQL);
 
         $this->info("Updated {$setsUpdated} achievement sets in " . round(microtime(true) - $start, 2) . "s");
