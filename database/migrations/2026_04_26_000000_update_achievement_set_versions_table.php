@@ -10,6 +10,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('achievement_set_versions', function (Blueprint $table) {
+            $table->dropIndex(['players_total']);
+            $table->dropIndex(['players_hardcore']);
+
             $table->unsignedBigInteger('parent_id')->nullable()->after('version');
 
             $table->unsignedInteger('version')->nullable(false)->default(1)->change();
@@ -40,6 +43,9 @@ return new class extends Migration {
             $table->unsignedInteger('achievements_unpublished')->nullable()->change();
             $table->unsignedInteger('points_total')->nullable()->change();
             $table->unsignedInteger('points_weighted')->nullable()->change();
+
+            $table->index(['players_total']);
+            $table->index(['players_hardcore']);
         });
     }
 };
