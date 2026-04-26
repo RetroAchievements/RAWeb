@@ -18,6 +18,7 @@ use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use App\Support\Database\Eloquent\BaseModel;
@@ -177,6 +178,10 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         // When restoring an achievement, restore its tickets.
         static::restoring(function (Achievement $achievement) {
             $achievement->tickets()->restore();
+        });
+
+        static::restored(function (Achievement $achievement) {
+            AchievementRestored::dispatch($achievement);
         });
 
         // When an achievement is deleted, dispatch an event so game metrics can be recalculated.

@@ -121,7 +121,7 @@ class RecalculateAchievementWeightedPoints extends Command
                 SELECT asa.achievement_set_id, COALESCE(SUM(a.points_weighted), 0) as total_points_weighted
                 FROM achievement_set_achievements asa
                 INNER JOIN achievements a ON a.id = asa.achievement_id
-                WHERE a.is_promoted = 1
+                WHERE a.is_promoted = 1 AND a.deleted_at IS NULL
                 GROUP BY asa.achievement_set_id
             ) calc ON calc.achievement_set_id = ach_set.id
             SET ach_set.points_weighted = calc.total_points_weighted

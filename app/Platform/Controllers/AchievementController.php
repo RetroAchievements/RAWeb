@@ -267,6 +267,7 @@ class AchievementController extends Controller
             ->join('achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
             ->where('achievement_set_achievements.achievement_set_id', $achievementSet->id)
             ->where('achievements.is_promoted', true)
+            ->whereNull('achievements.deleted_at')
             ->orderBy('achievement_set_achievements.order_column')
             ->orderBy('achievement_set_achievements.created_at')
             ->select('achievement_set_achievements.achievement_id', 'achievements.points');
