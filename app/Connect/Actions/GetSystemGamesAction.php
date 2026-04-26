@@ -45,7 +45,7 @@ class GetSystemGamesAction extends BaseApiAction
         // allow it to fall out of the cache if it hasn't been used in 60 minutes
         $games = Cache::flexible(CacheKey::buildSystemGamesListCacheKey($this->systemId),
             [15 * 60, 60 * 60],
-            $this->buildSystemGamesList());
+            fn () => $this->buildSystemGamesList());
 
         return [
             'Success' => true,
