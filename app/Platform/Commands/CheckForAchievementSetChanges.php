@@ -1,0 +1,65 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Commands;
+
+use App\Models\AchievementSet;
+use App\Models\AchievementSetVersion;
+use App\Models\GameAchievementSet;
+use App\Platform\Actions\CheckForAchievementSetChangesAction;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Console\Command;
+
+class CheckForAchievementSetChanges extends Command
+{
+    protected $signature = 'ra:platform:game:check-for-changes
+                            {gameId? : Process a single game by ID}';
+    protected $description = 'Detects and versions achievement set changes';
+
+    public function __construct(
+        private readonly CheckForAchievementSetChangesAction $checkForChangesAction,
+    ) {
+        parent::__construct();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handle(): void
+    {
+        $singleGameId = $this->argument('gameId');
+        if ($singleGameId) {
+            $gameAchievementSet = GameAchievementSet::query()
+                ->where('game_id', (int) $singleGameId)
+                ->core()
+                ->first();
+            if ($gameAchievementSet) {
+                $this->checkForChangesAction->execute($gameAchievementSet->achievementSet);
+                $this->info('Done');
+            } else {
+                $this->error("Unknown game");
+            }
+        } else {
+            if (!AchievementSetVersion::exists()) {
+                $achievementSets = AchievementSet::where('achievements_published', '>', 0)->get();
+            } else {
+                $achievementSets = AchievementSet::where('updated_at', '>', Carbon::now()->subHours(25))->get();
+            }
+
+            $this->info("Processing {$achievementSets->count()} achievement sets...");
+
+            $bar = $this->output->createProgressBar($achievementSets->count());
+            $bar->start();
+
+            foreach ($achievementSets as $achievementSet) {
+                $this->checkForChangesAction->execute($achievementSet);
+                $bar->advance();
+            }
+
+            $bar->finish();
+            $this->newLine();
+        }
+    }
+}
