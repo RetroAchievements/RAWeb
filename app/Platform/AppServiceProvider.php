@@ -154,6 +154,7 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
                 $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
+                $schedule->command(CheckForAchievementSetChanges::class)->daily();
             }
         });
 
