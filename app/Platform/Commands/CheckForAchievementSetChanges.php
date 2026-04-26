@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\AchievementSet;
-use App\Models\AchievementSetVersion;
 use App\Models\GameAchievementSet;
 use App\Platform\Actions\CheckForAchievementSetChangesAction;
 use Carbon\Carbon;
@@ -15,8 +14,9 @@ use Illuminate\Console\Command;
 class CheckForAchievementSetChanges extends Command
 {
     protected $signature = 'ra:platform:game:check-for-changes
-                            {gameId? : Process a single game by ID}';
-    protected $description = 'Detects and versions achievement set changes';
+                            {gameId? : Process a single game by ID}
+                            {--full : Check all games}';
+    protected $description = 'Detects any versions achievement set changes';
 
     public function __construct(
         private readonly CheckForAchievementSetChangesAction $checkForChangesAction,
@@ -42,7 +42,7 @@ class CheckForAchievementSetChanges extends Command
                 $this->error("Unknown game");
             }
         } else {
-            if (!AchievementSetVersion::exists()) {
+            if ($this->option('full')) {
                 $achievementSets = AchievementSet::where('achievements_published', '>', 0)->get();
             } else {
                 $achievementSets = AchievementSet::where('updated_at', '>', Carbon::now()->subHours(25))->get();
