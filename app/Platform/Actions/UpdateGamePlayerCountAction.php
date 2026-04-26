@@ -18,11 +18,12 @@ class UpdateGamePlayerCountAction
 
         $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
         if ($coreGameAchievementSet) {
-            $bonusSubsetAchievementSet = GameAchievementSet::query()
+            $bonusSubsetAchievementSets = GameAchievementSet::query()
                 ->where('achievement_set_id', $coreGameAchievementSet->achievement_set_id)
                 ->where('type', AchievementSetType::Bonus)
-                ->first();
-            if ($bonusSubsetAchievementSet) {
+                ->select('game_id')
+                ->get();
+            foreach ($bonusSubsetAchievementSets as $bonusSubsetAchievementSet) {
                 // if this is a bonus subset, also include the players of the parent game
                 $gameIds[] = $bonusSubsetAchievementSet->game_id;
             }
