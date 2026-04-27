@@ -19,7 +19,7 @@ class AchievementSetVersionFactory extends Factory
     {
         $achievementSet = AchievementSet::factory()->create();
         $playersTotal = rand(0, $achievementSet->players_total);
-        $playersHardcore = min(rand(0, $achievementSet->playersHardcore), $playersTotal);
+        $playersHardcore = min(rand(0, $achievementSet->players_hardcore), $playersTotal);
 
         return [
             'version' => 1,

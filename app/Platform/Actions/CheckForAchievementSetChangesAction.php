@@ -10,7 +10,7 @@ class CheckForAchievementSetChangesAction
 {
     public function execute(AchievementSet $achievementSet): void
     {
-        $latestVersion = $achievementSet->versions()->latest()->first();
+        $latestVersion = $achievementSet->versions()->orderByDesc('version')->first();
 
         if ($latestVersion) {
             // update the volatile metrics so they're accurate at the point where a new version is created

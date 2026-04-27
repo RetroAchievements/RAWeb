@@ -43,7 +43,10 @@ class CheckForAchievementSetChanges extends Command
             }
         } else {
             if ($this->option('full')) {
-                $achievementSets = AchievementSet::where('achievements_published', '>', 0)->get();
+                $achievementSets = AchievementSet::query()
+                    ->where('achievements_published', '>', 0)
+                    ->orWhereHas('versions')
+                    ->get();
             } else {
                 $achievementSets = AchievementSet::where('updated_at', '>', Carbon::now()->subHours(25))->get();
             }
