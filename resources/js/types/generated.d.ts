@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.UserAwards {
+export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-hardcore' | 'beaten-softcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
+}
 declare namespace App.Community.Data {
 export type AchievementChecklistGroup = {
 header: string;
@@ -186,7 +189,7 @@ requestedUsername: string | null;
 };
 }
 declare namespace App.Community.Enums {
-export type AwardType = 'mastery' | 'achievement_unlocks_yield' | 'achievement_points_yield' | 'patreon_supporter' | 'certified_legend' | 'game_beaten' | 'event' | 'playtest';
+export type AwardType = 'mastery' | 'achievement_unlocks_yield' | 'achievement_points_yield' | 'patreon_supporter' | 'certified_legend' | 'game_beaten' | 'event' | 'playtest' | 'media_contribution';
 export type ClaimSetType = 'new_set' | 'revision';
 export type ClaimSpecial = 'none' | 'own_revision' | 'free_rollout' | 'scheduled_release';
 export type ClaimStatus = 'active' | 'complete' | 'dropped' | 'in_review';
@@ -640,9 +643,9 @@ systems?: Array<App.Platform.Data.System> | null;
 };
 export type EmulatorDownload = {
 id: number;
-platformId: number;
 label: string | null;
 url: string;
+platformId: number;
 };
 export type EventAchievement = {
 achievement?: App.Platform.Data.Achievement;
@@ -700,10 +703,10 @@ export type GameAchievementSet = {
 id: number;
 type: App.Platform.Enums.AchievementSetType;
 title: string | null;
-orderColumn: number;
 createdAt: string | null;
 updatedAt: string | null;
 achievementSet: App.Platform.Data.AchievementSet;
+orderColumn: number;
 };
 export type GameClaimant = {
 user: App.Data.User;

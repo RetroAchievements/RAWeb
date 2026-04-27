@@ -349,6 +349,19 @@ function RenderAward(
         $imagepath = asset('/assets/images/badge/patreon.png');
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
+    } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+        $threshold = PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData);
+        echo avatar("mediaContributionAward", $awardData,
+            tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p><span>Awarded for contributing {$threshold} or more approved screenshots to game galleries.</span><p class='italic'>{$awardDate}</p></div>",
+            iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
+            iconSize: $imageSize,
+            iconClass: 'goldimage',
+            context: $ownerUsername,
+            altText: 'Media Contribution',
+            hasLink: false,
+        );
+
+        return;
     } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
@@ -440,6 +453,8 @@ function RenderAwardOrderTable(
             $awardTitle = "Achievement Points Earned by Others";
         } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
             $awardTitle = "Patreon Supporter";
+        } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+            $awardTitle = "Media Contribution";
         } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
             $awardTitle = "Certified Legend";
         }
