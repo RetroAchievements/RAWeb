@@ -43,6 +43,7 @@ use App\Models\PlayerGame;
 use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Platform\Enums\PlayerProgressResetType;
+use Illuminate\Support\Facades\DB;
 
 $gameId = (int) request()->query('i');
 $preferHardcore = (int) request()->query('h');
@@ -124,7 +125,7 @@ $resets = PlayerProgressReset::query()
     ->pluck('created_at', 'user_id')
     ->map(fn ($createdAt): int => $createdAt->getTimestamp());
 
-$timestampExpression = Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite'
+$timestampExpression = DB::connection()->getDriverName() === 'sqlite'
     ? "strftime('%%s', %s)"
     : 'UNIX_TIMESTAMP(%s)';
 
