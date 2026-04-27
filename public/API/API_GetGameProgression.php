@@ -129,19 +129,23 @@ $timestampExpression = DB::connection()->getDriverName() === 'sqlite'
     ? "strftime('%%s', %s)"
     : 'UNIX_TIMESTAMP(%s)';
 
+$selectTimestamp = fn (string $column, string $alias): string => sprintf($timestampExpression, $column) . " as {$alias}";
+
 // ===== build unlock lists grouped by user (in reverse order so we can use array_pop) =====
 $unlocks = [];
 $achievementsFirstPublishedAtTimestamp = $achievementsFirstPublishedAt?->getTimestamp();
-$allUnlocks = PlayerAchievement::query()
+$achievementUnlocks = PlayerAchievement::query()
     ->forceIndex('player_achievements_achievement_id_user_id_unlocked_hardcore_at')
     ->whereIn('user_id', $recentPlayerIds)
     ->whereIn('achievement_id', $achievementIds)
     ->whereNull('unlocker_id')
     ->select(['user_id', 'achievement_id'])
-    ->selectRaw(sprintf($timestampExpression, 'unlocked_at') . ' as unlocked_at_timestamp')
-    ->selectRaw(sprintf($timestampExpression, 'unlocked_hardcore_at') . ' as unlocked_hardcore_at_timestamp');
+    ->selectRaw($selectTimestamp('unlocked_at', 'unlocked_at_timestamp'))
+    ->selectRaw($selectTimestamp('unlocked_hardcore_at', 'unlocked_hardcore_at_timestamp'))
+    ->toBase()
+    ->get();
 $latestUnlockAt = null;
-foreach ($allUnlocks->toBase()->get() as $unlock) {
+foreach ($achievementUnlocks as $unlock) {
     $unlockedAt = $unlock->unlocked_at_timestamp ? (int) $unlock->unlocked_at_timestamp : null;
     $unlockedHardcoreAt = $unlock->unlocked_hardcore_at_timestamp ? (int) $unlock->unlocked_hardcore_at_timestamp : null;
     $unlockedEffectiveAt = $unlockedHardcoreAt ?? $unlockedAt;
@@ -180,16 +184,18 @@ unset($userUnlocks);
 
 // ===== process all sessions for users in above list =====
 $totalSessionTime = [];
-$allSessions = PlayerSession::query()
+$sessions = PlayerSession::query()
     ->where('game_id', $game->id)
     ->whereIn('user_id', array_keys($unlocks))
     ->when($achievementsFirstPublishedAt, fn ($q) => $q->where('rich_presence_updated_at', '>', $achievementsFirstPublishedAt))
     ->when($latestUnlockAt, fn ($q) => $q->where('created_at', '<=', date('Y-m-d H:i:s', $latestUnlockAt)))
     ->select(['user_id', 'duration'])
-    ->selectRaw(sprintf($timestampExpression, 'created_at') . ' as created_at_timestamp')
-    ->selectRaw(sprintf($timestampExpression, 'rich_presence_updated_at') . ' as rich_presence_updated_at_timestamp')
-    ->orderBy('created_at');
-foreach ($allSessions->toBase()->get() as $session) {
+    ->selectRaw($selectTimestamp('created_at', 'created_at_timestamp'))
+    ->selectRaw($selectTimestamp('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
+    ->orderBy('created_at')
+    ->toBase()
+    ->get();
+foreach ($sessions as $session) {
     $userUnlocks = $unlocks[$session->user_id];
     if (empty($userUnlocks)) {
         // already processed all achievements for this user
