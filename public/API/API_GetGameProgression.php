@@ -43,7 +43,6 @@ use App\Models\PlayerGame;
 use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Platform\Enums\PlayerProgressResetType;
-use Illuminate\Support\Facades\DB;
 
 $gameId = (int) request()->query('i');
 $preferHardcore = (int) request()->query('h');
@@ -125,12 +124,6 @@ $resets = PlayerProgressReset::query()
     ->pluck('created_at', 'user_id')
     ->map(fn ($createdAt): int => $createdAt->getTimestamp());
 
-$timestampExpression = DB::connection()->getDriverName() === 'sqlite'
-    ? "strftime('%%s', %s)"
-    : 'UNIX_TIMESTAMP(%s)';
-
-$selectTimestamp = fn (string $column, string $alias): string => sprintf($timestampExpression, $column) . " as {$alias}";
-
 // ===== build unlock lists grouped by user (in reverse order so we can use array_pop) =====
 $unlocks = [];
 $achievementsFirstPublishedAtTimestamp = $achievementsFirstPublishedAt?->getTimestamp();
@@ -140,8 +133,8 @@ $achievementUnlocks = PlayerAchievement::query()
     ->whereIn('achievement_id', $achievementIds)
     ->whereNull('unlocker_id')
     ->select(['user_id', 'achievement_id'])
-    ->selectRaw($selectTimestamp('unlocked_at', 'unlocked_at_timestamp'))
-    ->selectRaw($selectTimestamp('unlocked_hardcore_at', 'unlocked_hardcore_at_timestamp'))
+    ->selectRaw(unixTimestampStatement('unlocked_at', 'unlocked_at_timestamp'))
+    ->selectRaw(unixTimestampStatement('unlocked_hardcore_at', 'unlocked_hardcore_at_timestamp'))
     ->toBase()
     ->get();
 $latestUnlockAt = null;
@@ -190,8 +183,8 @@ $sessions = PlayerSession::query()
     ->when($achievementsFirstPublishedAt, fn ($q) => $q->where('rich_presence_updated_at', '>', $achievementsFirstPublishedAt))
     ->when($latestUnlockAt, fn ($q) => $q->where('created_at', '<=', date('Y-m-d H:i:s', $latestUnlockAt)))
     ->select(['user_id', 'duration'])
-    ->selectRaw($selectTimestamp('created_at', 'created_at_timestamp'))
-    ->selectRaw($selectTimestamp('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
+    ->selectRaw(unixTimestampStatement('created_at', 'created_at_timestamp'))
+    ->selectRaw(unixTimestampStatement('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
     ->orderBy('created_at')
     ->toBase()
     ->get();
