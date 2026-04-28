@@ -32,38 +32,44 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
         // Update player_games.points_weighted.
         DB::update(<<<SQL
             UPDATE player_games pg
-            JOIN (
+            LEFT JOIN (
                 SELECT pa.user_id, a.game_id, SUM(a.points_weighted) as weighted_points
                 FROM player_achievements pa
                 INNER JOIN achievements a ON a.id = pa.achievement_id
                 WHERE pa.unlocked_hardcore_at IS NOT NULL
+                  AND a.deleted_at IS NULL
                   AND pa.user_id BETWEEN ? AND ?
                 GROUP BY pa.user_id, a.game_id
             ) calc ON calc.user_id = pg.user_id AND calc.game_id = pg.game_id
-            SET pg.points_weighted = calc.weighted_points
-        SQL, [$this->startId, $this->endId]);
+            SET pg.points_weighted = COALESCE(calc.weighted_points, 0)
+            WHERE pg.user_id BETWEEN ? AND ?
+              AND NOT (pg.points_weighted <=> COALESCE(calc.weighted_points, 0))
+        SQL, [$this->startId, $this->endId, $this->startId, $this->endId]);
 
         // Update player_achievement_sets.points_weighted.
         DB::update(<<<SQL
             UPDATE player_achievement_sets pas
             JOIN game_achievement_sets gas ON gas.achievement_set_id = pas.achievement_set_id
-             AND gas.type=?
-            JOIN (
+            LEFT JOIN (
                 SELECT pa.user_id, a.game_id, SUM(a.points_weighted) as weighted_points
                 FROM player_achievements pa
                 INNER JOIN achievements a ON a.id = pa.achievement_id
                 WHERE pa.unlocked_hardcore_at IS NOT NULL
+                  AND a.deleted_at IS NULL
                   AND pa.user_id BETWEEN ? AND ?
                 GROUP BY pa.user_id, a.game_id
             ) calc ON calc.user_id = pas.user_id AND calc.game_id = gas.game_id
-            SET pas.points_weighted = calc.weighted_points
-        SQL, [AchievementSetType::Core->value, $this->startId, $this->endId]);
+            SET pas.points_weighted = COALESCE(calc.weighted_points, 0)
+            WHERE gas.type = ?
+              AND pas.user_id BETWEEN ? AND ?
+              AND NOT (pas.points_weighted <=> COALESCE(calc.weighted_points, 0))
+        SQL, [$this->startId, $this->endId, AchievementSetType::Core->value, $this->startId, $this->endId]);
 
         // TODO: use sum(pas.points_weighted)
         // Update users.points_weighted.
         DB::update(<<<SQL
             UPDATE users u
-            JOIN (
+            LEFT JOIN (
                 SELECT pg.user_id, SUM(pg.points_weighted) as total_weighted
                 FROM player_games pg
                 INNER JOIN games g ON g.id = pg.game_id
@@ -72,7 +78,9 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
                   AND pg.user_id BETWEEN ? AND ?
                 GROUP BY pg.user_id
             ) calc ON calc.user_id = u.id
-            SET u.points_weighted = calc.total_weighted
-        SQL, [System::Events, System::Hubs, $this->startId, $this->endId]);
+            SET u.points_weighted = COALESCE(calc.total_weighted, 0)
+            WHERE u.id BETWEEN ? AND ?
+              AND NOT (u.points_weighted <=> COALESCE(calc.total_weighted, 0))
+        SQL, [System::Events, System::Hubs, $this->startId, $this->endId, $this->startId, $this->endId]);
     }
 }
