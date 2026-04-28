@@ -1,5 +1,6 @@
+import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import react from '@vitejs/plugin-react';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
@@ -30,6 +31,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   const base = assetUrl
     ? new URL(`/${env.VITE_BUILD_PATH}`, assetUrl).href
     : `/${env.VITE_BUILD_PATH}`;
+  const shouldUploadSourceMaps = Boolean(env.SENTRY_AUTH_TOKEN);
 
   return {
     base: isSsrBuild ? `/${env.VITE_BUILD_PATH}` : base,
@@ -39,7 +41,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
-      sourcemap: true,
+      sourcemap: shouldUploadSourceMaps,
     },
 
     // https://vitejs.dev/config/#plugins
@@ -55,30 +57,29 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         refresh: ['resources/views/**'],
       }),
 
-      react({
-        babel: {
-          plugins: [
-            [
-              'babel-plugin-react-compiler',
-              {
-                // @tanstack/react-table uses a mutable API that's incompatible with
-                // React Compiler's memoization. The useReactTable hook returns a stable
-                // object, so the compiler caches stale results from table/column/row
-                // method calls, breaking column visibility toggling and filter labels.
-                sources: (filename: string) => {
-                  return !filename.includes('features/game-list');
-                },
-              },
-            ],
-          ],
-        },
+      react(),
+
+      // @tanstack/react-table uses a mutable API that's incompatible with
+      // React Compiler's memoization. The useReactTable hook returns a stable
+      // object, so the compiler caches stale results from table/column/row
+      // method calls, breaking column visibility toggling and filter labels.
+      // @ts-expect-error -- @rolldown/plugin-babel has a type bug where PluginOptions
+      // inherits required fields from @types/babel__core that should be optional.
+      babel({
+        include: [/resources\/js\/.*\.[jt]sx?$/],
+        exclude: [/features\/game-list/],
+        presets: [reactCompilerPreset()],
       }),
 
-      sentryVitePlugin({
-        org: 'retroachievementsorg',
-        project: 'raweb',
-        authToken: env.SENTRY_AUTH_TOKEN,
-      }),
+      ...(shouldUploadSourceMaps
+        ? [
+            sentryVitePlugin({
+              org: 'retroachievementsorg',
+              project: 'raweb',
+              authToken: env.SENTRY_AUTH_TOKEN,
+            }),
+          ]
+        : []),
     ],
 
     ssr: {

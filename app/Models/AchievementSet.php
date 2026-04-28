@@ -214,6 +214,14 @@ class AchievementSet extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return HasMany<AchievementSetVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(AchievementSetVersion::class);
+    }
+
     // == scopes
 
     // == helpers

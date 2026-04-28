@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserDelayedSubscription;
 use App\Platform\Actions\RejectGameScreenshotAction;
 use App\Platform\Actions\SubmitPendingGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotRejectionReason;
@@ -53,7 +55,36 @@ it('rejects a pending screenshot and records the rejection details', function ()
     expect($fresh->reviewed_at)->not->toBeNull();
     expect($fresh->rejection_reason)->toEqual(GameScreenshotRejectionReason::PoorQuality);
     expect($fresh->rejection_notes)->toEqual('Image is too blurry.');
-    expect(App\Models\UserDelayedSubscription::count())->toEqual(0);
+
+    $delayedSubscription = UserDelayedSubscription::sole(); // only one
+    expect($delayedSubscription->user_id)->toEqual($submitter->id);
+    expect($delayedSubscription->subject_type)->toEqual(SubscriptionSubjectType::GameScreenshotDecision);
+    expect($delayedSubscription->subject_id)->toEqual($fresh->id);
+    expect($delayedSubscription->first_update_id)->toEqual($fresh->id);
+});
+
+it('does not notify the submitter when they reject their own screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+
+    $pending = (new SubmitPendingGameScreenshotAction())->execute(
+        $game,
+        UploadedFile::fake()->image('pending.png', 256, 224),
+        ScreenshotType::Ingame,
+        $submitter,
+    );
+
+    // ACT
+    (new RejectGameScreenshotAction())->execute(
+        $pending,
+        $submitter,
+        GameScreenshotRejectionReason::PoorQuality,
+    );
+
+    // ASSERT
+    expect($pending->fresh()->status)->toEqual(GameScreenshotStatus::Rejected);
+    expect(UserDelayedSubscription::count())->toEqual(0);
 });
 
 it('queues an alert when a screenshot is rejected for inappropriate content', function () {
@@ -87,6 +118,12 @@ it('queues an alert when a screenshot is rejected for inappropriate content', fu
             && $job->alert->screenshot->game->is($game)
             && $job->alert->screenshot->capturedBy->is($submitter);
     });
+
+    $delayedSubscription = UserDelayedSubscription::sole(); // only one
+    expect($delayedSubscription->user_id)->toEqual($submitter->id);
+    expect($delayedSubscription->subject_type)->toEqual(SubscriptionSubjectType::GameScreenshotDecision);
+    expect($delayedSubscription->subject_id)->toEqual($pending->id);
+    expect($delayedSubscription->first_update_id)->toEqual($pending->id);
 });
 
 it('does not queue an alert for ordinary rejection reasons', function () {
@@ -143,4 +180,10 @@ it('allows system-driven rejections without a reviewer', function () {
     expect($fresh->reviewed_by_user_id)->toBeNull();
     expect($fresh->rejection_reason)->toEqual(GameScreenshotRejectionReason::Other);
     expect($fresh->rejection_notes)->toEqual('User was muted');
+
+    $delayedSubscription = UserDelayedSubscription::sole(); // only one
+    expect($delayedSubscription->user_id)->toEqual($submitter->id);
+    expect($delayedSubscription->subject_type)->toEqual(SubscriptionSubjectType::GameScreenshotDecision);
+    expect($delayedSubscription->subject_id)->toEqual($fresh->id);
+    expect($delayedSubscription->first_update_id)->toEqual($fresh->id);
 });
