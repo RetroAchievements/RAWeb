@@ -120,9 +120,17 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   const canShowTooltipPoints =
     (variant === 'minimal' && achievementsPublished !== pointsTotal) || variant !== 'minimal';
 
+  const hasAchievementTooltipContent =
+    canShowDetailedProgress &&
+    (achievementsUnlockedHardcore > 0 || achievementsUnlockedSoftcore > 0);
+  const hasPointTooltipContent =
+    canShowDetailedProgress && canShowTooltipPoints && (pointsHardcore > 0 || points > 0);
+  const hasTooltipContent =
+    hasAchievementTooltipContent || hasPointTooltipContent || !!highestAward;
+
   const Wrapper = shouldLink ? 'a' : 'div';
 
-  const isTooltipDisabled = achievementsUnlocked === 0 || !isTooltipEnabled;
+  const isTooltipDisabled = !hasTooltipContent || !isTooltipEnabled;
 
   return (
     <BaseTooltip open={isTooltipDisabled ? false : isTooltipOpen} onOpenChange={setIsTooltipOpen}>

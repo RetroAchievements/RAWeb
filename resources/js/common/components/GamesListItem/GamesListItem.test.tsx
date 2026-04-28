@@ -39,14 +39,33 @@ describe('Component: GamesListItem', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game', achievementsPublished: 8 });
     const playerGame = createPlayerGame({
-      achievementsUnlocked: 1,
+      achievementsUnlocked: 3,
       achievementsUnlockedHardcore: 2,
+      achievementsUnlockedSoftcore: 1,
     });
 
     render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
-    expect(screen.getByText('2 of 8')).toBeVisible();
+    expect(screen.getByText('3 of 8')).toBeVisible();
+  });
+
+  it('given the player has completed the game in softcore, displays total softcore progress', () => {
+    // ARRANGE
+    const game = createGame({ title: 'Test Game', achievementsPublished: 8 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 0,
+      achievementsUnlockedSoftcore: 8,
+      completedAt: '2024-01-06 14:32:11',
+      completedHardcoreAt: null,
+      highestAward: null,
+    });
+
+    render(<GamesListItem game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    expect(screen.getByText('8 of 8')).toBeVisible();
   });
 
   it('given no player game information, does not display award information', () => {

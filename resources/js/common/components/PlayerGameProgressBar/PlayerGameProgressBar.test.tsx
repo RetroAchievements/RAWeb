@@ -246,6 +246,28 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
 
+  it('given the user has unlocked all the achievements but no award metadata is available, does not show an empty tooltip', async () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: game.achievementsPublished,
+      achievementsUnlockedHardcore: 0,
+      achievementsUnlockedSoftcore: game.achievementsPublished,
+      points: 400,
+      pointsHardcore: 0,
+      highestAward: null,
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('progressbar'));
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   it('passes along the given variant to the badge label', () => {
     // ARRANGE
     const system = createSystem({ id: 1 });

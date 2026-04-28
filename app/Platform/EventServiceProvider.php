@@ -11,6 +11,7 @@ use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameMetricsUpdated;
@@ -58,6 +59,9 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementDeleted::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
+        AchievementRestored::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementMoved::class => [
