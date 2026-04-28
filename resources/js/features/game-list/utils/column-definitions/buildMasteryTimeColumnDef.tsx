@@ -46,16 +46,17 @@ export function buildMasteryTimeColumnDef<TEntry extends App.Platform.Data.GameL
 
       const coreSetTimesCompletedHardcore =
         row.original.gameListStats?.coreSetTimesCompletedHardcore ?? 0;
+      const coreSetPlayersHardcore = row.original.gameListStats?.coreSetPlayersHardcore ?? 0;
+
+      if (coreSetPlayersHardcore === 0 || coreSetTimesCompletedHardcore < 5) {
+        return <p className="text-muted">{'-'}</p>;
+      }
 
       return (
         <p>
-          {coreSetTimesCompletedHardcore < 5 ? (
-            <span className="text-muted">{'-'}</span>
-          ) : (
-            formatDuration(row.original.gameListStats!.coreSetMedianTimeToCompleteHardcore, {
-              shouldTruncateSeconds: true,
-            })
-          )}
+          {formatDuration(row.original.gameListStats!.coreSetMedianTimeToCompleteHardcore, {
+            shouldTruncateSeconds: true,
+          })}
         </p>
       );
     },
