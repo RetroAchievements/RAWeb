@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\GameScreenshot;
 use App\Models\User;
+use App\Models\UserDelayedSubscription;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Support\Alerts\InappropriateGameScreenshotAlert;
@@ -25,6 +27,22 @@ class RejectGameScreenshotAction
             'rejection_reason' => $reason,
             'rejection_notes' => $notes,
         ]);
+
+        if (
+            $screenshot->captured_by_user_id
+            && $screenshot->captured_by_user_id !== $reviewer?->id
+        ) {
+            UserDelayedSubscription::updateOrCreate(
+                [
+                    'user_id' => $screenshot->captured_by_user_id,
+                    'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+                    'subject_id' => $screenshot->id,
+                ],
+                [
+                    'first_update_id' => $screenshot->id,
+                ],
+            );
+        }
 
         if ($reason === GameScreenshotRejectionReason::InappropriateContent && $reviewer) {
             (new InappropriateGameScreenshotAlert(

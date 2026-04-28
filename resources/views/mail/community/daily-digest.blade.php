@@ -4,9 +4,12 @@
 >
 Hello {{ $user->display_name }},
 
-The following conversations that you have participated in were updated recently:
+You have new updates on RetroAchievements:
 
 @foreach ($notificationItems as $notificationItem)
+@if ($notificationItem['type'] === 'GameScreenshotDecision')
+@include('mail.community.partials.daily-digest-screenshot-decision', ['notificationItem' => $notificationItem])
+@else
 @php
     switch ($notificationItem['type']) {
         case 'ForumTopic':
@@ -36,6 +39,7 @@ The following conversations that you have participated in were updated recently:
 </x-mail::panel>
 @else
 {{ $notificationItem['count'] }} new {{ Str::plural($postType, $notificationItem['count']) }} {{ $clause }}.
+@endif
 @endif
 
 @endforeach

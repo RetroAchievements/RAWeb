@@ -44,6 +44,7 @@ class Server extends BaseServer
             PlayerAchievementSets\PlayerAchievementSetSchema::class,
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
+            UserAwards\UserAwardSchema::class,
             Users\UserSchema::class,
         ];
     }

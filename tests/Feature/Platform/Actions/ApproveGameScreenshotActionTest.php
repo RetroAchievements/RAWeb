@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserDelayedSubscription;
 use App\Platform\Actions\ApproveGameScreenshotAction;
 use App\Platform\Actions\SubmitPendingGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
@@ -99,8 +101,36 @@ it('approves a pending screenshot, moves its media, and records review metadata'
     Storage::disk('s3')->assertExists($fresh->media->getPathRelativeToRoot());
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
     expect($fileManipulator->createdDerivedFilesFor[0]->id)->toEqual($fresh->media->id);
-    expect(App\Models\UserDelayedSubscription::count())->toEqual(0);
+
+    $delayedSubscription = UserDelayedSubscription::sole(); // only one
+    expect($delayedSubscription->user_id)->toEqual($submitter->id);
+    expect($delayedSubscription->subject_type)->toEqual(SubscriptionSubjectType::GameScreenshotDecision);
+    expect($delayedSubscription->subject_id)->toEqual($fresh->id);
+    expect($delayedSubscription->first_update_id)->toEqual($fresh->id);
+
     expect(App\Models\PlayerBadge::count())->toEqual(0);
+});
+
+it('does not notify the submitter when they approve their own screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+
+    GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'order_column' => 1,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Ingame);
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $submitter);
+
+    // ASSERT
+    expect($pending->fresh()->status)->toEqual(GameScreenshotStatus::Approved);
+    expect(UserDelayedSubscription::count())->toEqual(0);
 });
 
 it('replaces the existing approved title screenshot when a new one is approved', function () {
