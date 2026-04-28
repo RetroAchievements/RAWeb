@@ -198,7 +198,7 @@ class TicketListService
 
         switch ($filterOptions['status']) {
             case 'unresolved':
-                $tickets->unresolved();
+                $tickets->open();
                 break;
 
             case 'resolved':

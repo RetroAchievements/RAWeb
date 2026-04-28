@@ -15,7 +15,7 @@ render(function (View $view, TicketListService $ticketListService) {
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions);
 
-    $openTicketCount = Ticket::unresolved()->count();
+    $openTicketCount = Ticket::open()->count();
 
     return $view->with([
         'tickets' => $tickets,
