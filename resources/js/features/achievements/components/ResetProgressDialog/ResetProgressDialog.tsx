@@ -4,7 +4,6 @@ import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import {
   BaseDialog,
   BaseDialogClose,
@@ -14,8 +13,8 @@ import {
   BaseDialogHeader,
   BaseDialogTitle,
 } from '@/common/components/+vendor/BaseDialog';
-import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { DialogCheckboxConfirmation } from '@/common/components/DialogCheckboxConfirmation';
 import { useResetAchievementProgressMutation } from '@/common/hooks/mutations/useResetAchievementProgressMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { isResetProgressDialogOpenAtom } from '@/features/achievements/state/achievements.atoms';
@@ -66,14 +65,9 @@ export const ResetProgressDialog: FC = () => {
           </BaseDialogDescription>
         </BaseDialogHeader>
 
-        <BaseLabel className="flex cursor-pointer items-center gap-1.5">
-          <BaseCheckbox
-            checked={isChecked}
-            onCheckedChange={(checked) => setIsChecked(!!checked)}
-          />
-
+        <DialogCheckboxConfirmation checked={isChecked} onCheckedChange={setIsChecked}>
           {t('I understand. I want to reset my progress.')}
-        </BaseLabel>
+        </DialogCheckboxConfirmation>
 
         <BaseDialogFooter className="mt-4">
           <BaseDialogClose asChild>
