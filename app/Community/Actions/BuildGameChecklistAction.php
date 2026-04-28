@@ -170,6 +170,7 @@ class BuildGameChecklistAction
                         GameData::fromGame($game)->include(
                             'achievementsPublished',
                             'badgeUrl',
+                            'pointsTotal',
                             'system.iconUrl',
                             'system.nameShort',
                         ),
