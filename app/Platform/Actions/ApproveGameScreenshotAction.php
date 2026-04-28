@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\GameScreenshot;
 use App\Models\User;
+use App\Models\UserDelayedSubscription;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotResolutionService;
@@ -117,6 +119,22 @@ class ApproveGameScreenshotAction
         $screenshot->reviewed_by_user_id = $reviewer->id;
         $screenshot->reviewed_at = now();
         $screenshot->save();
+
+        if (
+            $screenshot->captured_by_user_id
+            && $screenshot->captured_by_user_id !== $reviewer->id
+        ) {
+            UserDelayedSubscription::updateOrCreate(
+                [
+                    'user_id' => $screenshot->captured_by_user_id,
+                    'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+                    'subject_id' => $screenshot->id,
+                ],
+                [
+                    'first_update_id' => $screenshot->id,
+                ],
+            );
+        }
     }
 
     private function ensureLegacyPng(GameScreenshot $screenshot): void

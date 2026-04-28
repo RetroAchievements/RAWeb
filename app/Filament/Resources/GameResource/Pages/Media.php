@@ -23,15 +23,35 @@ use Filament\Forms;
 use Filament\Navigation\NavigationItem;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
+use League\Flysystem\UnableToCheckFileExistence;
+use Throwable;
 
 class Media extends EditRecord
 {
     use HasFieldLevelAuthorization;
+
+    /**
+     * @var array<string, array{clearFlag: string, placeholderPath: string, uploadType: ImageUploadType}>
+     */
+    private const LEGACY_IMAGE_FIELDS = [
+        'image_icon_asset_path' => [
+            'clearFlag' => 'clear_badge',
+            'placeholderPath' => Game::PLACEHOLDER_BADGE_PATH,
+            'uploadType' => ImageUploadType::GameBadge,
+        ],
+        'image_box_art_asset_path' => [
+            'clearFlag' => 'clear_box_art',
+            'placeholderPath' => Game::PLACEHOLDER_IMAGE_PATH,
+            'uploadType' => ImageUploadType::GameBoxArt,
+        ],
+    ];
 
     protected static string $resource = GameResource::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-s-photo';
@@ -178,6 +198,9 @@ class Media extends EditRecord
         $game = $this->getRecord();
         $isMediaRestricted = $game->is_media_restricted;
 
+        $badgeImageField = self::LEGACY_IMAGE_FIELDS['image_icon_asset_path'];
+        $boxArtImageField = self::LEGACY_IMAGE_FIELDS['image_box_art_asset_path'];
+
         return $schema
             ->components([
                 Schemas\Components\Section::make('Media Restriction Active')
@@ -196,17 +219,18 @@ class Media extends EditRecord
                             ->icon('heroicon-s-star')
                             ->columnSpan(1)
                             ->schema([
-                                Forms\Components\FileUpload::make('image_icon_asset_path')
-                                    ->label('Badge')
-                                    ->disk('livewire-tmp')
-                                    ->image()
-                                    ->rules([
-                                        'dimensions:width=96,height=96',
-                                    ])
-                                    ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                                    ->maxSize(1024)
-                                    ->maxFiles(1)
-                                    ->previewable(true),
+                                Forms\Components\Hidden::make($badgeImageField['clearFlag'])
+                                    ->default(false),
+
+                                $this->makeLegacyGameImageUpload(
+                                    field: 'image_icon_asset_path',
+                                    label: 'Badge',
+                                    clearFlag: $badgeImageField['clearFlag'],
+                                    currentPath: $game->image_icon_asset_path,
+                                    placeholderPath: $badgeImageField['placeholderPath'],
+                                )->rules([
+                                    'dimensions:width=96,height=96',
+                                ]),
                             ])
                             ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
 
@@ -214,16 +238,21 @@ class Media extends EditRecord
                             ->icon('heroicon-s-rectangle-stack')
                             ->columnSpan(1)
                             ->schema([
-                                Forms\Components\FileUpload::make('image_box_art_asset_path')
-                                    ->label('Box Art')
-                                    ->disk('livewire-tmp')
-                                    ->image()
-                                    ->acceptedFileTypes(['image/png', 'image/jpeg'])
-                                    ->maxSize(1024)
-                                    ->maxFiles(1)
-                                    ->previewable(true),
+                                Forms\Components\Hidden::make($boxArtImageField['clearFlag'])
+                                    ->default(false),
+
+                                $this->makeLegacyGameImageUpload(
+                                    field: 'image_box_art_asset_path',
+                                    label: 'Box Art',
+                                    clearFlag: $boxArtImageField['clearFlag'],
+                                    currentPath: $game->image_box_art_asset_path,
+                                    placeholderPath: $boxArtImageField['placeholderPath'],
+                                ),
                             ])
-                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path']) || $isMediaRestricted),
+                            ->hidden(
+                                !$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])
+                                || $isMediaRestricted
+                            ),
                     ]),
 
                 Schemas\Components\Section::make('Banner Image')
@@ -256,14 +285,31 @@ class Media extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $this->authorizeFields($this->record, $data);
+        /** @var Game $game */
+        $game = $this->record;
+
+        $authorizationData = $data;
+        $this->markLegacyImageClearsForAuthorization($authorizationData, $game);
+
+        $this->authorizeFields($game, $authorizationData);
 
         $action = new ApplyUploadedImageToDataAction();
-        $action->execute($data, 'image_icon_asset_path', ImageUploadType::GameBadge);
-        $action->execute($data, 'image_box_art_asset_path', ImageUploadType::GameBoxArt);
+        foreach (self::LEGACY_IMAGE_FIELDS as $field => $config) {
+            $this->applyLegacyImageFieldUpdate(
+                data: $data,
+                field: $field,
+                clearFlag: $config['clearFlag'],
+                uploadType: $config['uploadType'],
+                placeholderPath: $config['placeholderPath'],
+                action: $action,
+            );
+        }
 
         // Banner is handled by MediaLibrary, not a database column.
         unset($data['banner']);
+        foreach (self::LEGACY_IMAGE_FIELDS as $config) {
+            unset($data[$config['clearFlag']]);
+        }
 
         return $data;
     }
@@ -295,5 +341,194 @@ class Media extends EditRecord
                 // Silently fail if color extraction fails - this isn't critical.
             }
         }
+    }
+
+    private function resolveLegacyImageUpload(
+        Forms\Components\BaseFileUpload $component,
+        string $file,
+        string $placeholderPath,
+    ): ?array {
+        if ($file === $placeholderPath) {
+            return null;
+        }
+
+        if ($this->isLegacyGameImagePath($file)) {
+            return [
+                'name' => basename($file),
+                'size' => 0,
+                'type' => null,
+                'url' => media_asset($file),
+            ];
+        }
+
+        $disk = $component->getDisk();
+
+        // If the temp file has expired or is otherwise gone, treat it as missing.
+        try {
+            if (!$disk->exists($file)) {
+                return null;
+            }
+        } catch (UnableToCheckFileExistence $exception) {
+            return null;
+        }
+
+        $url = null;
+
+        if ($component->getVisibility() === 'private') {
+            // Some local envs can throw here when they do not provide signed temporary URLs,
+            // so fall back to the normal disk URL instead of failing to render the upload state.
+            try {
+                $url = $disk->temporaryUrl(
+                    $file,
+                    now()->addMinutes(30)->endOfHour(),
+                );
+            } catch (Throwable $exception) {
+                // this driver does not support creating temporary URLs
+            }
+        }
+
+        $url ??= $disk->url($file);
+
+        return [
+            'name' => basename($file),
+            'size' => $disk->size($file),
+            'type' => $disk->mimeType($file),
+            'url' => $url,
+        ];
+    }
+
+    private function makeLegacyGameImageUpload(
+        string $field,
+        string $label,
+        string $clearFlag,
+        ?string $currentPath,
+        string $placeholderPath,
+    ): Forms\Components\FileUpload {
+        return Forms\Components\FileUpload::make($field)
+            ->label($label)
+            ->disk('livewire-tmp')
+            ->afterStateHydrated(function (
+                Forms\Components\BaseFileUpload $component,
+                string|array|null $rawState,
+            ) use ($placeholderPath): void {
+                $this->hydrateGameImageUploadState(
+                    $component,
+                    $rawState,
+                    $placeholderPath,
+                );
+            })
+            ->getUploadedFileUsing(
+                fn (
+                    Forms\Components\BaseFileUpload $component,
+                    string $file,
+                ): ?array => $this->resolveLegacyImageUpload(
+                    $component,
+                    $file,
+                    $placeholderPath,
+                ),
+            )
+            ->live()
+            ->afterStateUpdated(function (
+                Set $set,
+                string|array|null $state,
+                string|array|null $old,
+            ) use ($clearFlag, $currentPath, $placeholderPath): void {
+                $set($clearFlag, $this->shouldClearLegacyImage(
+                    state: $state,
+                    old: $old,
+                    currentPath: $currentPath,
+                    placeholderPath: $placeholderPath,
+                ));
+            })
+            ->image()
+            ->acceptedFileTypes(['image/png', 'image/jpeg'])
+            ->maxSize(1024)
+            ->maxFiles(1)
+            ->previewable(true);
+    }
+
+    private function shouldClearLegacyImage(
+        string|array|null $state,
+        string|array|null $old,
+        ?string $currentPath,
+        string $placeholderPath,
+    ): bool {
+        return
+            blank($state)
+            && (
+                $this->isLegacyGameImagePath($old)
+                || ($old === null && filled($currentPath) && $currentPath !== $placeholderPath)
+            );
+    }
+
+    private function hydrateGameImageUploadState(
+        Forms\Components\BaseFileUpload $component,
+        string|array|null $rawState,
+        string $placeholderPath,
+    ): void {
+        $disk = $component->getDisk();
+
+        $component->rawState(
+            array_filter(
+                Arr::wrap($rawState),
+                function (string $file) use ($disk, $placeholderPath): bool {
+                    if (blank($file) || $file === $placeholderPath) {
+                        return false;
+                    }
+
+                    if ($this->isLegacyGameImagePath($file)) {
+                        return true;
+                    }
+
+                    try {
+                        return $disk->exists($file);
+                    } catch (UnableToCheckFileExistence $exception) {
+                        return false;
+                    }
+                },
+            ),
+        );
+    }
+
+    private function applyLegacyImageFieldUpdate(
+        array &$data,
+        string $field,
+        string $clearFlag,
+        ImageUploadType $uploadType,
+        string $placeholderPath,
+        ApplyUploadedImageToDataAction $action,
+    ): void {
+        $shouldClear = (bool) ($data[$clearFlag] ?? false);
+        $path = $data[$field] ?? null;
+
+        if ($this->isLegacyGameImagePath($path)) {
+            unset($data[$field]);
+        } else {
+            $action->execute($data, $field, $uploadType);
+        }
+
+        if ($shouldClear && empty($data[$field])) {
+            $data[$field] = $placeholderPath;
+        }
+    }
+
+    private function markLegacyImageClearsForAuthorization(array &$data, Game $game): void
+    {
+        foreach (self::LEGACY_IMAGE_FIELDS as $field => $config) {
+            $currentPath = $game->getAttributeValue($field);
+
+            if (
+                (bool) ($data[$config['clearFlag']] ?? false)
+                && filled($currentPath)
+                && $currentPath !== $config['placeholderPath']
+            ) {
+                $data[$field] = $config['placeholderPath'];
+            }
+        }
+    }
+
+    private function isLegacyGameImagePath(mixed $path): bool
+    {
+        return is_string($path) && str_starts_with($path, '/Images/');
     }
 }

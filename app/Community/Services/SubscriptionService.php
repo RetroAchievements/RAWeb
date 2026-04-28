@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class SubscriptionService
 {
@@ -265,6 +266,9 @@ class SubscriptionService
             SubscriptionSubjectType::GameWall => new GameWallSubscriptionHandler(),
             SubscriptionSubjectType::Leaderboard => new LeaderboardWallSubscriptionHandler(),
             SubscriptionSubjectType::UserWall => new UserWallSubscriptionHandler(),
+
+            // screenshot decisions don't use real-time subscriptions
+            SubscriptionSubjectType::GameScreenshotDecision => throw new InvalidArgumentException("No subscription handler for GameScreenshotDecision"),
         };
     }
 }
