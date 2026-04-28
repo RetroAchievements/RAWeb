@@ -353,8 +353,8 @@ class BuildGameShowPagePropsAction
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
             numOpenTickets: $isPromoted
-                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
-                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+                ? Ticket::forGame($backingGame)->open()->officialCore()->count()
+                : Ticket::forGame($backingGame)->open()->unofficial()->count(),
 
             numScreenshots: $game->gameScreenshots()->approved()->count(),
             screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()

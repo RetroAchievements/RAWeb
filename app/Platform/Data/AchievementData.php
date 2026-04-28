@@ -68,7 +68,7 @@ class AchievementData extends Data
             isPromoted: Lazy::create(fn () => $achievement->is_promoted),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => $achievement->pivot?->achievement_group_id),
-            numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->unresolved()->count()),
+            numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->open()->count()),
             orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),
             pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),

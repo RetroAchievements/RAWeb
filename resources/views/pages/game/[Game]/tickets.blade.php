@@ -38,7 +38,7 @@ render(function (View $view, Game $game, TicketListService $ticketListService) {
 
 <x-app-layout pageTitle="Tickets - {{ $game->title }}">
     <x-game.breadcrumbs
-        :game="$game"
+        :$game
         currentPageLabel="Tickets"
     />
 
@@ -47,15 +47,11 @@ render(function (View $view, Game $game, TicketListService $ticketListService) {
         <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 
-    <x-meta-panel
-        :availableSelectFilters="$availableSelectFilters"
-        :filterOptions="$filterOptions"
-    />
-
-    <x-ticket.ticket-list
-        :tickets="$tickets"
-        :totalTickets="$totalTickets"
-        :numFilteredTickets="$numFilteredTickets"
-        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
+    <x-ticket.list-page
+        :$tickets
+        :$availableSelectFilters
+        :$filterOptions
+        :$totalTickets
+        :$numFilteredTickets
     />
 </x-app-layout>
