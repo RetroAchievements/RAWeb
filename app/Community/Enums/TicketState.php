@@ -37,6 +37,14 @@ enum TicketState: string
         };
     }
 
+    public function isResolved(): bool
+    {
+        return match ($this) {
+            self::Resolved, self::Closed => true,
+            default => false,
+        };
+    }
+
     /**
      * Returns the legacy integer value for V1 API backwards compatibility.
      * These values were used when TicketState was an integer-backed enum
