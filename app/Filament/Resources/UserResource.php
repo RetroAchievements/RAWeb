@@ -198,11 +198,6 @@ class UserResource extends Resource
                     ->icon('heroicon-s-shield-exclamation')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\Placeholder::make('current_mute')
-                            ->label('Current mute')
-                            ->content(fn (?User $record): string => MuteForm::currentStatusFor($record))
-                            ->visible(fn (?User $record): bool => MuteForm::isActivelyMuted($record)),
-
                         Forms\Components\Select::make('mute_action')
                             ->label('Mute')
                             ->options(fn (?User $record): array => MuteForm::optionsFor($record))
@@ -220,6 +215,11 @@ class UserResource extends Resource
                             })
                             ->live()
                             ->required(),
+
+                        Forms\Components\Placeholder::make('current_mute')
+                            ->label('Current mute')
+                            ->content(fn (?User $record): string => MuteForm::currentStatusFor($record))
+                            ->visible(fn (?User $record): bool => MuteForm::isActivelyMuted($record)),
 
                         Forms\Components\DatePicker::make('custom_muted_until')
                             ->label('Custom end date')

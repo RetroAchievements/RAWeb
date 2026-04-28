@@ -49,4 +49,15 @@ class Edit extends EditRecord
 
         return $data;
     }
+
+    protected function afterSave(): void
+    {
+        /** @var User $record */
+        $record = $this->record;
+
+        // Snap the mute selection back to its default after save so a subsequent
+        // save of an unrelated field doesn't re-apply the duration and extend the mute.
+        $this->data['mute_action'] = MuteForm::defaultActionFor($record);
+        $this->data['custom_muted_until'] = MuteForm::defaultCustomDateFor($record);
+    }
 }
