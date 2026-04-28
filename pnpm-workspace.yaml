@@ -3,6 +3,8 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@inertiajs/*'
   - '@vitest/*'
+  - '@rolldown/plugin-babel'
+  - '@vitejs/plugin-react'
   - react
   - react-dom
   - vite
