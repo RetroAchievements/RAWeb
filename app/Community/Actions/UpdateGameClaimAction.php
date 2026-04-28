@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Notifications\Achievement\SetAchievementsPublishedNotification;
 use App\Notifications\Achievement\SetRevisionNotification;
+use App\Platform\Actions\CheckForAchievementSetChangesAction;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
@@ -134,6 +135,12 @@ class UpdateGameClaimAction
                     $setRequest->user->notify(new SetAchievementsPublishedNotification($game));
                 }
             }
+        }
+
+        // create a new AchievementSetVersion
+        $achievementSet = $game->gameAchievementSets()->core()->first()?->achievementSet;
+        if ($achievementSet) {
+            (new CheckForAchievementSetChangesAction())->execute($achievementSet);
         }
 
         $webhookUrl = config('services.discord.webhook.claims');
