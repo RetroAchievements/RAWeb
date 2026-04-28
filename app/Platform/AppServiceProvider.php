@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
@@ -80,10 +81,11 @@ class AppServiceProvider extends ServiceProvider
                 RecalculateAchievementWeightedPoints::class,
 
                 // Games
-                RegenerateGameScreenshotConversions::class,
+                CheckForAchievementSetChanges::class,
                 ConvertGameToEvent::class,
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
+                RegenerateGameScreenshotConversions::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
                 UpdateGameMetrics::class,
@@ -152,6 +154,7 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
                 $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
+                $schedule->command(CheckForAchievementSetChanges::class)->daily();
             }
         });
 
