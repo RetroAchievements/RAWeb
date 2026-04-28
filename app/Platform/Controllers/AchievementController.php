@@ -15,6 +15,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
 use App\Models\System;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
@@ -247,6 +248,10 @@ class AchievementController extends Controller
                 fn () => $user ? (new AchievementCommentPolicy())->create($user, $commentSubject) : false
             );
         }
+
+        // This powers the "Report an issue" hub link. Ticket creation itself
+        // still uses TicketPolicy::createFor() and requires a played game.
+        $can->createTicket = Lazy::create(fn () => $user ? $user->can('create', Ticket::class) : false);
 
         return $can;
     }
