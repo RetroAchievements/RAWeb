@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\Rank;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -36,6 +37,16 @@ class GameScreenshotPolicy
 
     public function create(User $user, Game $game): bool
     {
+        // non-devs shouldn't contribute screenshots for games being worked on by a dev
+        if ($this->hasActiveOrInReviewClaim($game)) {
+            return false;
+        }
+
+        // "subset games" shouldn't have dedicated screenshot galleries
+        if ($this->isSubsetGame($game)) {
+            return false;
+        }
+
         if (!$user->hasRole(Role::ROOT) && !config('feature.game_screenshot_uploads')) {
             return false;
         }
@@ -105,5 +116,21 @@ class GameScreenshotPolicy
             ->where('user_id', $user->id)
             ->where('is_promoted', true)
             ->exists();
+    }
+
+    private function hasActiveOrInReviewClaim(Game $game): bool
+    {
+        if ($game->relationLoaded('achievementSetClaims')) {
+            return $game->achievementSetClaims->contains(
+                fn ($claim) => in_array($claim->status, [ClaimStatus::Active, ClaimStatus::InReview], true)
+            );
+        }
+
+        return $game->achievementSetClaims()->activeOrInReview()->exists();
+    }
+
+    private function isSubsetGame(Game $game): bool
+    {
+        return str_contains($game->title, '[Subset') || $game->is_subset_game;
     }
 }
