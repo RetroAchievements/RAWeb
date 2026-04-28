@@ -554,7 +554,7 @@ describe('Hook: useTableSync', () => {
     );
   });
 
-  it('given user persistence is enabled, saves table state to the cookie', () => {
+  it('saves table state to the cookie', () => {
     // ARRANGE
     const cookieName = 'test_cookie_name';
     const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
@@ -570,7 +570,6 @@ describe('Hook: useTableSync', () => {
         columnVisibility,
         pagination,
         sorting,
-        isUserPersistenceEnabled: true,
       },
       pageProps: {
         persistenceCookieName: cookieName,
@@ -584,7 +583,6 @@ describe('Hook: useTableSync', () => {
       columnVisibility,
       pagination,
       sorting,
-      isUserPersistenceEnabled: true,
     });
 
     // ASSERT
@@ -600,7 +598,7 @@ describe('Hook: useTableSync', () => {
     });
   });
 
-  it('given user persistence is enabled and table state changes, saves new state to the cookie', () => {
+  it('given table state changes, saves the new state to the cookie', () => {
     // ARRANGE
     const cookieName = 'test_cookie_name';
     const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
@@ -618,7 +616,6 @@ describe('Hook: useTableSync', () => {
         columnVisibility: initialVisibility,
         pagination,
         sorting,
-        isUserPersistenceEnabled: true,
       },
       pageProps: {
         persistenceCookieName: cookieName,
@@ -631,7 +628,6 @@ describe('Hook: useTableSync', () => {
       columnVisibility: updatedVisibility,
       pagination,
       sorting,
-      isUserPersistenceEnabled: true,
     });
 
     // ASSERT
@@ -642,44 +638,7 @@ describe('Hook: useTableSync', () => {
     expect(parsedCookie.columnVisibility).toEqual(updatedVisibility);
   });
 
-  it('given persistence is enabled but then disabled, cleans up the cookie', () => {
-    // ARRANGE
-    const cookieName = 'test_cookie_name';
-    const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
-
-    const columnFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
-    const columnVisibility: VisibilityState = { system: false };
-    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
-    const sorting: SortingState = [{ id: 'title', desc: false }];
-
-    const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: {
-        columnFilters,
-        columnVisibility,
-        pagination,
-        sorting,
-        isUserPersistenceEnabled: true,
-      },
-      pageProps: {
-        persistenceCookieName: cookieName,
-      },
-    });
-
-    // ACT
-    rerender({
-      columnFilters,
-      columnVisibility,
-      pagination,
-      sorting,
-      isUserPersistenceEnabled: false,
-    });
-
-    // ASSERT
-    const lastCall = setCookieSpy.mock.calls[setCookieSpy.mock.calls.length - 1][0];
-    expect(lastCall).toContain(`${cookieName}=;`);
-  });
-
-  it('given user persistence is enabled and there is a title filter, excludes the title filter from cookie persistence', () => {
+  it('given there is a title filter, excludes the title filter from cookie persistence', () => {
     // ARRANGE
     const cookieName = 'test_cookie_name';
     const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
@@ -698,7 +657,6 @@ describe('Hook: useTableSync', () => {
         columnVisibility,
         pagination,
         sorting,
-        isUserPersistenceEnabled: true,
       },
       pageProps: {
         persistenceCookieName: cookieName,
@@ -712,7 +670,6 @@ describe('Hook: useTableSync', () => {
       columnVisibility,
       pagination,
       sorting,
-      isUserPersistenceEnabled: true,
     });
 
     // ASSERT

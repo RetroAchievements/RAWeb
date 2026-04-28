@@ -1,13 +1,9 @@
 import type { ColumnFiltersState, ColumnSort, Table } from '@tanstack/react-table';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
-import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
-import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { isCurrentlyPersistingViewAtom } from '../../../state/game-list.atoms';
 import { doesColumnExist } from '../../../utils/doesColumnExist';
 import { getAreNonDefaultFiltersSet } from '../../../utils/getAreNonDefaultFiltersSet';
 import { getIsDefaultSorting } from '../../../utils/getIsDefaultSorting';
@@ -50,10 +46,6 @@ export function DataTableDesktopToolbar<TData>({
   }>();
 
   const { t } = useTranslation();
-
-  const [isCurrentlyPersistingView, setIsCurrentlyPersistingView] = useAtom(
-    isCurrentlyPersistingViewAtom,
-  );
 
   const allColumns = table.getAllColumns();
   const { columnFilters: currentFilters, sorting: currentSorting } = table.getState();
@@ -113,15 +105,6 @@ export function DataTableDesktopToolbar<TData>({
             />
           ) : null}
         </div>
-
-        <BaseLabel className="flex items-center gap-2 whitespace-nowrap text-menu-link">
-          <BaseCheckbox
-            checked={isCurrentlyPersistingView}
-            onCheckedChange={(checked: boolean) => setIsCurrentlyPersistingView(checked)}
-          />
-
-          {t('Remember my view')}
-        </BaseLabel>
       </div>
 
       <div className="flex w-full flex-col justify-between gap-2 sm:flex-row">
