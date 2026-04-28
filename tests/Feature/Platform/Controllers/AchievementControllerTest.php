@@ -244,6 +244,21 @@ describe('Permissions Props', function () {
         );
     });
 
+    it('given an eligible user has not played the game, allows opening the report issue hub', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [, $achievement] = createGameWithAchievementAndSet($system);
+        $user = User::factory()->create(['created_at' => now()->subDays(2)]);
+
+        // ACT
+        $response = actingAs($user)->get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createTicket', true)
+        );
+    });
+
     it('given the user is a developer, allows editing and viewing logic', function () {
         // ARRANGE
         seed(RolesTableSeeder::class);
