@@ -12,9 +12,11 @@ import {
   BaseDialogTitle,
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
+import { DialogCheckboxConfirmation } from '@/common/components/DialogCheckboxConfirmation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { ClaimDialogDescriptions } from '@/features/games/components/ClaimDialogDescriptions';
 import { type ClaimActionType, useClaimActions } from '@/features/games/hooks/useClaimActions';
+import { useClaimDialogState } from '@/features/games/hooks/useClaimDialogState';
 
 interface ClaimConfirmationDialogProps {
   action: ClaimActionType;
@@ -26,12 +28,23 @@ export const ClaimConfirmationDialog: FC<ClaimConfirmationDialogProps> = ({ acti
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
 
   const { executeCreateClaim, executeDropClaim, executeExtendClaim, executeCompleteClaim } =
     useClaimActions();
+  const { createClaimDialogVariant, hasDialogNotice, requiresTicketAcknowledgment } =
+    useClaimDialogState(action);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+
+    if (!open) {
+      setIsAcknowledged(false);
+    }
+  };
 
   const handleConfirmClick = async () => {
-    setIsOpen(false);
+    handleOpenChange(false);
 
     switch (action) {
       case 'create':
@@ -54,43 +67,103 @@ export const ClaimConfirmationDialog: FC<ClaimConfirmationDialogProps> = ({ acti
     }
   };
 
+  const getDialogTitle = () => {
+    if (action === 'create' && hasDialogNotice) {
+      switch (createClaimDialogVariant) {
+        case 'newSet':
+          return t('Create primary claim?');
+
+        case 'revision':
+          return t('Create revision claim?');
+
+        case 'collaboration':
+          return t('Create collaboration claim?');
+      }
+    }
+
+    if (action === 'extend') {
+      return t('Extend claim?');
+    }
+
+    if (action === 'complete' && hasDialogNotice) {
+      return t('Complete claim?');
+    }
+
+    return t('Are you sure?');
+  };
+
   const getConfirmButtonText = () => {
     switch (action) {
       case 'create':
-        return t('Yes, create the claim');
+        switch (createClaimDialogVariant) {
+          case 'newSet':
+            return t('Create primary claim');
+
+          case 'revision':
+            return t('Create revision claim');
+
+          case 'collaboration':
+            return t('Create collaboration claim');
+        }
 
       case 'drop':
-        return t('Yes, drop the claim');
+        return t('Drop claim');
 
       case 'extend':
-        return t('Yes, extend the claim');
+        return t('Extend claim');
 
       case 'complete':
-        return t('Yes, complete the claim');
+        return t('Complete claim');
 
       default:
         return '';
     }
   };
 
+  const getConfirmButtonVariant = () => {
+    if (action === 'drop') {
+      return 'destructive' as const;
+    }
+
+    return 'default' as const;
+  };
+
   return (
-    <BaseDialog open={isOpen} onOpenChange={setIsOpen}>
+    <BaseDialog open={isOpen} onOpenChange={handleOpenChange}>
       <BaseDialogTrigger asChild>{trigger}</BaseDialogTrigger>
 
       <BaseDialogContent>
         <BaseDialogHeader>
-          <BaseDialogTitle>{t('Are you sure?')}</BaseDialogTitle>
-          <BaseDialogDescription>
-            <ClaimDialogDescriptions action={action} />
+          <BaseDialogTitle>{getDialogTitle()}</BaseDialogTitle>
+          <BaseDialogDescription asChild>
+            <div className="text-left text-neutral-300 light:text-neutral-700">
+              <ClaimDialogDescriptions action={action} />
+            </div>
           </BaseDialogDescription>
         </BaseDialogHeader>
 
-        <BaseDialogFooter>
+        {requiresTicketAcknowledgment ? (
+          <DialogCheckboxConfirmation checked={isAcknowledged} onCheckedChange={setIsAcknowledged}>
+            {t('I understand and want to continue.')}
+          </DialogCheckboxConfirmation>
+        ) : null}
+
+        <BaseDialogFooter className="mt-2">
           <BaseDialogClose asChild>
-            <BaseButton variant="link">{t('Nevermind')}</BaseButton>
+            <BaseButton variant="link" size="sm">
+              {t('Cancel')}
+            </BaseButton>
           </BaseDialogClose>
 
-          <BaseButton onClick={handleConfirmClick}>{getConfirmButtonText()}</BaseButton>
+          <BaseButton
+            className="min-w-40"
+            onClick={handleConfirmClick}
+            disabled={requiresTicketAcknowledgment && !isAcknowledged}
+            variant={getConfirmButtonVariant()}
+            size="sm"
+          >
+            {getConfirmButtonText()}
+          </BaseButton>
         </BaseDialogFooter>
       </BaseDialogContent>
     </BaseDialog>

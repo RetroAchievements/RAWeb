@@ -18,6 +18,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs2");
     }
 
+    public static function buildSystemGamesListCacheKey(int $systemId): string
+    {
+        return self::buildNormalizedCacheKey("system", $systemId, "games-list");
+    }
+
     public static function buildHomePageClaimsCacheKey(string $claimStatus, int $count): string
     {
         return self::buildNormalizedCacheKey("home-page", "claims", $claimStatus, [$count]);

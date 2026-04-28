@@ -318,10 +318,17 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
             {!! csrf_field() !!}
             <input type="hidden" name="ticket" value="{{ $ticket->id }}">
             @if ($permissions >= Permissions::Developer)
-                @if ($ticket->state->isOpen())
+                @if ($ticket->state->isOpen() || $ticket->state === TicketState::Quarantined)
                     <select name="action" id="ticketAction" required>
                         <option value="" disabled selected hidden>Choose an action...</option>
-                        <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
+                        @if ($ticket->state === TicketState::Quarantined)
+                            <option value="{{ TicketAction::Reopen }}">Approve this ticket</option>
+                        @endif
+
+                        @if ($ticket->state !== TicketState::Quarantined)
+                            <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
+                        @endif
+
                         @if ($ticket->state === TicketState::Open)
                             @php
                                 $lastComment = null;
@@ -334,10 +341,14 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                             @if ($lastComment != null && ($lastComment['User'] === $user->username || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
-                        @else
+                        @elseif ($ticket->state === TicketState::Request)
                             <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticket->achievement->developer->display_name }}</option>
                         @endif
-                        <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
+
+                        @if ($ticket->state !== TicketState::Quarantined)
+                            <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
+                        @endif
+
                         <option value="{{ TicketAction::Network }}">Close - Network problems</option>
                         <option value="{{ TicketAction::NotEnoughInfo }}">Close - Not enough information</option>
                         <option value="{{ TicketAction::WrongRom }}">Close - Wrong ROM</option>
@@ -349,7 +360,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                         <option value="{{ TicketAction::ClosedOther }}">Close - Another reason (add comments above)</option>
                     </select>
                     <button class='btn' type="submit">Perform action</button>
-                    
+
                     <script>
                         document.getElementById('ticketActionForm').addEventListener('submit', function(e) {
                             const actionSelect = document.getElementById('ticketAction');
@@ -366,10 +377,10 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                     </script>
                 @else
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
-                    <button class='btn'>{{ $ticket->state === TicketState::Quarantined ? 'Approve this ticket' : 'Reopen this ticket' }}</button>
+                    <button class='btn'>Reopen this ticket</button>
                 @endif
             @elseif ($user->id === $ticket->reporter->id)
-                @if ($ticket->state->isOpen())
+                @if ($ticket->state->isOpen() || $ticket->state === TicketState::Quarantined)
                     <input type="hidden" name="action" value="{{ TicketAction::ClosedMistaken }}">
                     <button class='btn'>Close as mistaken report</button>
                 @endif

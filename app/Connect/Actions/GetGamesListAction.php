@@ -10,6 +10,16 @@ use App\Models\System;
 use Illuminate\Http\Request;
 use stdClass;
 
+/**
+ * @deprecated
+ *
+ * This action provides support for the legacy API function used to get a list of
+ * games for a system.
+ * New clients should use ?r=systemgames instead (available since rcheevos 12.4) which
+ * includes achievement counts, badge infomation, and hashes as part of the response.
+ *
+ * This endpoint must be maintained until the minimum DLL version exceeds 1.4.2.
+ */
 class GetGamesListAction extends BaseApiAction
 {
     protected int $consoleId;
