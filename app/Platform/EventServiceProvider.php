@@ -43,6 +43,7 @@ use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\RevalidateMediaContributionBadgeEligibility;
 use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
 use App\Platform\Observers\GameScreenshotObserver;
@@ -56,6 +57,7 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         AchievementCreated::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            RevalidateMediaContributionBadgeEligibility::class,
         ],
         AchievementDeleted::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
@@ -63,11 +65,13 @@ class EventServiceProvider extends ServiceProvider
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            RevalidateMediaContributionBadgeEligibility::class,
         ],
         AchievementPromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            RevalidateMediaContributionBadgeEligibility::class,
             EnsureTriggerVersionedOnPromotion::class,
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event

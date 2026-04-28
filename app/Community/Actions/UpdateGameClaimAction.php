@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Notifications\Achievement\SetAchievementsPublishedNotification;
 use App\Notifications\Achievement\SetRevisionNotification;
+use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
@@ -95,6 +96,10 @@ class UpdateGameClaimAction
 
         if ($claim->isDirty()) {
             $claim->save();
+
+            if ($claim->wasChanged('status')) {
+                (new RevalidateMediaContributionBadgeEligibilityAction())->execute($claim->user);
+            }
 
             addArticleComment("Server", CommentableType::SetClaim, $claim->game_id, $auditMessage);
         }

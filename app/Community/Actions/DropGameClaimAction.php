@@ -9,6 +9,7 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
+use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -25,6 +26,7 @@ class DropGameClaimAction
         $claim->save();
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
+        (new RevalidateMediaContributionBadgeEligibilityAction())->execute($claim->user);
 
         // If the primary claim was dropped and there's a collaboration claim, promote it to primary.
         $firstCollabClaim = ($claim->claim_type === ClaimType::Primary) ?

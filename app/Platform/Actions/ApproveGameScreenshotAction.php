@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\AwardType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\GameScreenshot;
-use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
-use App\Platform\Events\SiteBadgeAwarded;
 use App\Platform\Services\ScreenshotResolutionService;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use Illuminate\Support\Facades\Storage;
@@ -123,8 +120,6 @@ class ApproveGameScreenshotAction
         $screenshot->reviewed_at = now();
         $screenshot->save();
 
-        $this->awardMediaContributionBadgeIfEligible($screenshot);
-
         if (
             $screenshot->captured_by_user_id
             && $screenshot->captured_by_user_id !== $reviewer->id
@@ -140,51 +135,6 @@ class ApproveGameScreenshotAction
                 ],
             );
         }
-    }
-
-    private function awardMediaContributionBadgeIfEligible(GameScreenshot $screenshot): void
-    {
-        if (!$screenshot->captured_by_user_id) {
-            return;
-        }
-
-        $submitter = User::find($screenshot->captured_by_user_id);
-        if (!$submitter) {
-            return;
-        }
-
-        $approvedCount = GameScreenshot::query()
-            ->where('captured_by_user_id', $submitter->id)
-            ->approved()
-            ->count();
-
-        $tier = PlayerBadge::getNewBadgeTier(AwardType::MediaContribution, 0, $approvedCount);
-        if ($tier === null) {
-            return;
-        }
-
-        $existingBadge = PlayerBadge::query()
-            ->where('user_id', $submitter->id)
-            ->where('award_type', AwardType::MediaContribution)
-            ->orderByDesc('award_key')
-            ->first();
-
-        if ($existingBadge && $existingBadge->award_key >= $tier) {
-            return;
-        }
-
-        $displayOrder = $existingBadge
-            ? $existingBadge->order_column
-            : PlayerBadge::getNextDisplayOrder($submitter);
-
-        $badge = AddSiteAward(
-            user: $submitter,
-            awardType: AwardType::MediaContribution,
-            data: $tier,
-            displayOrder: $displayOrder,
-        );
-
-        SiteBadgeAwarded::dispatch($badge);
     }
 
     private function ensureLegacyPng(GameScreenshot $screenshot): void
