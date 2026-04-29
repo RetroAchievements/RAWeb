@@ -168,9 +168,7 @@ describe('Component: AchievementShowRoot', () => {
       .filter((tab) => tab.className.includes('relative z-10'));
 
     expect(desktopTabs.find((tab) => tab.textContent === 'Comments')).toHaveClass('text-link');
-    expect(desktopTabs.find((tab) => tab.textContent === 'Changelog')).not.toHaveClass(
-      'text-link',
-    );
+    expect(desktopTabs.find((tab) => tab.textContent === 'Changelog')).not.toHaveClass('text-link');
   });
 
   it('allows switching to the unlocks tab', async () => {
