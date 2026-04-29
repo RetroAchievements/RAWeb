@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import type { ScreenshotGalleryOptions } from '@/common/models';
 import { getScreenshotGalleryUrl } from '@/common/utils/getScreenshotGalleryUrl';
 
 /**
@@ -9,6 +10,7 @@ import { getScreenshotGalleryUrl } from '@/common/utils/getScreenshotGalleryUrl'
  */
 export function usePreloadGameScreenshots(
   screenshots: App.Platform.Data.GameScreenshot[] | undefined,
+  { isPixelated = false }: ScreenshotGalleryOptions = {},
 ) {
   const hasPreloaded = useRef(false);
 
@@ -22,7 +24,7 @@ export function usePreloadGameScreenshots(
     // as thumbnails, so skip them and preload the next two.
     for (const screenshot of screenshots.slice(2, 4)) {
       const img = new Image();
-      img.src = getScreenshotGalleryUrl(screenshot);
+      img.src = getScreenshotGalleryUrl(screenshot, { isPixelated });
     }
   };
 

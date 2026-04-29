@@ -36,6 +36,49 @@ describe('Hook: usePreloadGameScreenshots', () => {
     vi.unstubAllGlobals();
   });
 
+  it('given pixelated screenshots are provided, preloads original lossless URLs', () => {
+    // ARRANGE
+    const preloadedImages: Array<{ src?: string }> = [];
+    const ImageSpy = vi.fn(() => {
+      const image = {};
+      preloadedImages.push(image);
+
+      return image;
+    });
+    vi.stubGlobal('Image', ImageSpy);
+
+    const screenshots = [
+      createGameScreenshot({ id: 1, width: 560 }),
+      createGameScreenshot({ id: 2, width: 560 }),
+      createGameScreenshot({
+        id: 3,
+        width: 560,
+        originalUrl: 'https://example.com/third.png',
+        lgWebpUrl: 'https://example.com/third.webp',
+      }),
+      createGameScreenshot({
+        id: 4,
+        width: 560,
+        originalUrl: 'https://example.com/fourth.png',
+        lgWebpUrl: 'https://example.com/fourth.webp',
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      usePreloadGameScreenshots(screenshots, { isPixelated: true }),
+    );
+
+    // ACT
+    result.current.preloadGameScreenshots();
+
+    // ASSERT
+    expect(ImageSpy).toHaveBeenCalledTimes(2);
+    expect(preloadedImages[0].src).toEqual('https://example.com/third.png');
+    expect(preloadedImages[1].src).toEqual('https://example.com/fourth.png');
+
+    vi.unstubAllGlobals();
+  });
+
   it('given the preload function is called twice, only preloads once', () => {
     // ARRANGE
     const ImageSpy = vi.fn();
