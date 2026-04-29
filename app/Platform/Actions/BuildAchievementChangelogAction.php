@@ -364,10 +364,6 @@ class BuildAchievementChangelogAction
      */
     private function transformActivityToEntries(Activity $activity): array
     {
-        $user = $activity->causer instanceof User
-            ? $this->buildUserData($activity->causer)
-            : null;
-
         // Lifecycle events map directly to a single changelog entry.
         $lifecycleType = match ($activity->event) {
             'created' => AchievementChangelogEntryType::Created,
@@ -380,7 +376,7 @@ class BuildAchievementChangelogAction
             return [new AchievementChangelogEntryData(
                 type: $lifecycleType,
                 createdAt: Carbon::parse($activity->created_at),
-                user: $user,
+                user: $this->buildActivityCauserData($activity),
             )];
         }
 
@@ -417,7 +413,7 @@ class BuildAchievementChangelogAction
             $entries[] = new AchievementChangelogEntryData(
                 type: $entryType,
                 createdAt: Carbon::parse($activity->created_at),
-                user: $user,
+                user: $this->buildActivityCauserData($activity),
                 fieldChanges: $fieldChanges,
             );
         }
@@ -547,7 +543,7 @@ class BuildAchievementChangelogAction
         }
 
         if (preg_match('/^(.+?) edited this achievement\'s (.+)\.$/', $body, $matches)) {
-            $user = $this->resolveUserByDisplayName($matches[1]);
+            $displayName = $matches[1];
             $fields = explode(', ', $matches[2]);
 
             $entries = [];
@@ -558,7 +554,7 @@ class BuildAchievementChangelogAction
                 $entries[] = new AchievementChangelogEntryData(
                     type: $entryType,
                     createdAt: $createdAt,
-                    user: $user,
+                    user: $this->resolveUserByDisplayName($displayName),
                 );
             }
 
@@ -664,8 +660,15 @@ class BuildAchievementChangelogAction
         return $user ? $this->buildUserData($user) : null;
     }
 
+    private function buildActivityCauserData(Activity $activity): ?UserData
+    {
+        return $activity->causer instanceof User
+            ? $this->buildUserData($activity->causer)
+            : null;
+    }
+
     private function buildUserData(User $user): UserData
     {
-        return UserData::fromUser($user)->include('deletedAt', 'isBanned');
+        return UserData::fromUser($user)->include('deletedAt', 'isBanned', 'isGone');
     }
 }
