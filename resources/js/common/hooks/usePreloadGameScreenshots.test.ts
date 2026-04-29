@@ -39,11 +39,8 @@ describe('Hook: usePreloadGameScreenshots', () => {
   it('given pixelated screenshots are provided, preloads original lossless URLs', () => {
     // ARRANGE
     const preloadedImages: Array<{ src?: string }> = [];
-    const ImageSpy = vi.fn(() => {
-      const image = {};
-      preloadedImages.push(image);
-
-      return image;
+    const ImageSpy = vi.fn(function (this: Record<string, unknown>) {
+      preloadedImages.push(this);
     });
     vi.stubGlobal('Image', ImageSpy);
 
