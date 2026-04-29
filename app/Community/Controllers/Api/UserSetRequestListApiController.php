@@ -47,7 +47,7 @@ class UserSetRequestListApiController extends Controller
         $this->authorize('viewAny', Game::class);
 
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
-        $filters = $this->buildFilters($request);
+        $filters = $this->buildFilters($request, $targetUser);
 
         if ($targetUser) {
             $filters['user'] = [$targetUser->display_name];
@@ -87,12 +87,12 @@ class UserSetRequestListApiController extends Controller
         return response()->json($paginatedData);
     }
 
-    private function buildFilters(GameListRequest $request): array
+    private function buildFilters(GameListRequest $request, ?User $targetUser = null): array
     {
         $filters = $request->getFilters(defaultAchievementsPublishedFilter: 'none');
 
         if (!isset($filters['system'])) {
-            $filters['system'] = ['supported'];
+            $filters['system'] = $targetUser ? ['all'] : ['supported'];
         }
 
         return $filters;
