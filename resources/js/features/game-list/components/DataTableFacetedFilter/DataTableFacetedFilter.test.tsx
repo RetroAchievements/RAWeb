@@ -269,11 +269,7 @@ describe('Component: DataTableFacetedFilter', () => {
     } as unknown as Column<any, any>;
 
     const optionsWithDefault = [
-      {
-        t_label: 'All' as TranslatedString,
-        value: 'all',
-        clearsFilterOnSelect: true,
-      },
+      { t_label: 'All' as TranslatedString, value: 'all', clearsFilterOnSelect: true },
       ...mockOptions,
     ];
 
