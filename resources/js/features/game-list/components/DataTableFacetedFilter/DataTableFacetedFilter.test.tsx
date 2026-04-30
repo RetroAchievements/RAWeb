@@ -260,7 +260,7 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(setFilterValueSpy).toHaveBeenCalledWith(undefined);
   });
 
-  it('given a default option is selected in single select mode, clears the filter', async () => {
+  it('given a default option with clearsFilterOnSelect in single select mode, clears the filter', async () => {
     // ARRANGE
     const setFilterValueSpy = vi.fn();
     const customColumn = {
@@ -269,7 +269,11 @@ describe('Component: DataTableFacetedFilter', () => {
     } as unknown as Column<any, any>;
 
     const optionsWithDefault = [
-      { t_label: 'All' as TranslatedString, value: 'all', isDefaultOption: true },
+      {
+        t_label: 'All' as TranslatedString,
+        value: 'all',
+        clearsFilterOnSelect: true,
+      },
       ...mockOptions,
     ];
 
@@ -353,7 +357,7 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(screen.getByText(/description 4/i)).toBeVisible();
   });
 
-  it('given grouped options with a default option, shows default as selected when no values are selected', async () => {
+  it('given grouped options with a default option and selectedWhenEmpty, shows default as selected when no values are selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -367,7 +371,7 @@ describe('Component: DataTableFacetedFilter', () => {
           {
             t_label: 'Default Option' as TranslatedString,
             value: 'default',
-            isDefaultOption: true,
+            selectedWhenEmpty: true,
           },
           { t_label: 'Option 2' as TranslatedString, value: 'opt2' },
         ],
@@ -401,7 +405,7 @@ describe('Component: DataTableFacetedFilter', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('given a default option and the filter value matches its value, shows the default as selected', async () => {
+  it('given a default option with selectedWhenEmpty and the filter value matches its value, shows the default as selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -409,7 +413,7 @@ describe('Component: DataTableFacetedFilter', () => {
     } as unknown as Column<any, any>;
 
     const optionsWithDefault = [
-      { t_label: 'All' as TranslatedString, value: 'all', isDefaultOption: true }, // !!
+      { t_label: 'All' as TranslatedString, value: 'all', selectedWhenEmpty: true }, // !!
       ...mockOptions,
     ];
 
@@ -436,7 +440,7 @@ describe('Component: DataTableFacetedFilter', () => {
     );
   });
 
-  it('given grouped options with a default option and the filter value matches its value, shows the default as selected', async () => {
+  it('given grouped options with a default option with selectedWhenEmpty and the filter value matches its value, shows the default as selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -450,7 +454,7 @@ describe('Component: DataTableFacetedFilter', () => {
           {
             t_label: 'Default Option' as TranslatedString,
             value: 'default',
-            isDefaultOption: true, // !!
+            selectedWhenEmpty: true, // !!
           },
           { t_label: 'Option 2' as TranslatedString, value: 'opt2' },
         ],

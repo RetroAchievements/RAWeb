@@ -46,8 +46,7 @@ export function DataTableSystemFilter<TData>({
         defaultOptions.push({
           t_label: t('All systems'),
           value: 'all',
-          isDefaultOption: true,
-          keepsExplicitFilterValue: true,
+          selectedWhenEmpty: true,
         });
         defaultOptions.push({
           t_label: t('Only supported systems'),
@@ -58,8 +57,7 @@ export function DataTableSystemFilter<TData>({
         defaultOptions.push({
           t_label: defaultOptionLabel,
           value: 'supported',
-          isDefaultOption: true,
-          keepsExplicitFilterValue: true,
+          selectedWhenEmpty: true,
         });
         defaultOptions.push({
           t_label: t('All systems'),
