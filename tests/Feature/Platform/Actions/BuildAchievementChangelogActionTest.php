@@ -344,6 +344,39 @@ describe('Activitylog Entries', function () {
         expect(entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
     });
 
+    it('serializes deleted user metadata on every entry from the same multi-field activity', function () {
+        // Arrange
+        $user = User::factory()->create();
+        $user->delete();
+
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+            attributes: ['title' => 'New Title', 'description' => 'New Desc'],
+            old: ['title' => 'Old Title', 'description' => 'Old Desc'],
+        );
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        $serializedEntries = collect($result)
+            ->filter(fn (AchievementChangelogEntryData $entry) => in_array($entry->type, [
+                AchievementChangelogEntryType::TitleUpdated,
+                AchievementChangelogEntryType::DescriptionUpdated,
+            ], true))
+            ->map(fn (AchievementChangelogEntryData $entry) => $entry->toArray())
+            ->values();
+
+        // Assert
+        expect($serializedEntries)->toHaveCount(2);
+
+        $serializedEntries->each(function (array $entry) {
+            expect($entry['user']['deletedAt'])->not->toBeNull();
+            expect($entry['user']['isGone'])->toBeTrue();
+        });
+    });
+
     it('skips activities with empty properties', function () {
         // Arrange
         $user = User::factory()->create();
@@ -482,6 +515,38 @@ describe('Legacy Comment Entries', function () {
         // Assert
         expect(entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
         expect(entriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(1);
+    });
+
+    it('serializes deleted user metadata on every entry from the same multi-field legacy comment', function () {
+        // Arrange
+        createSystemUser();
+        $user = User::factory()->create(['display_name' => 'Scott']);
+        $user->delete();
+
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        createLegacyComment($achievement, "Scott edited this achievement's points, logic, description.", '2023-06-15 12:00:00');
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        $serializedEntries = collect($result)
+            ->filter(fn (AchievementChangelogEntryData $entry) => in_array($entry->type, [
+                AchievementChangelogEntryType::PointsChanged,
+                AchievementChangelogEntryType::LogicUpdated,
+                AchievementChangelogEntryType::DescriptionUpdated,
+            ], true))
+            ->map(fn (AchievementChangelogEntryData $entry) => $entry->toArray())
+            ->values();
+
+        // Assert
+        expect($serializedEntries)->toHaveCount(3);
+
+        $serializedEntries->each(function (array $entry) {
+            expect($entry['user']['deletedAt'])->not->toBeNull();
+            expect($entry['user']['isGone'])->toBeTrue();
+        });
     });
 
     it('parses "set this achievement\'s type to Progression" as TypeSet with fieldChanges', function () {
