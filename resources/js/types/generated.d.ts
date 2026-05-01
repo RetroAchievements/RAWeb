@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.UserAwards {
+export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-hardcore' | 'beaten-softcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'patreon-supporter' | 'playtest';
+}
 declare namespace App.Community.Data {
 export type AchievementChecklistGroup = {
 header: string;
@@ -486,7 +489,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -640,9 +643,9 @@ systems?: Array<App.Platform.Data.System> | null;
 };
 export type EmulatorDownload = {
 id: number;
-platformId: number;
 label: string | null;
 url: string;
+platformId: number;
 };
 export type EventAchievement = {
 achievement?: App.Platform.Data.Achievement;
@@ -700,10 +703,10 @@ export type GameAchievementSet = {
 id: number;
 type: App.Platform.Enums.AchievementSetType;
 title: string | null;
-orderColumn: number;
 createdAt: string | null;
 updatedAt: string | null;
 achievementSet: App.Platform.Data.AchievementSet;
+orderColumn: number;
 };
 export type GameClaimant = {
 user: App.Data.User;
