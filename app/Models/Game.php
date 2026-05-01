@@ -1112,7 +1112,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
      */
     public function unresolvedTickets(): HasManyThrough
     {
-        return $this->tickets()->unresolved();
+        return $this->tickets()->open();
     }
 
     /**

@@ -117,7 +117,7 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
-    public function scopeUnresolved(Builder $query): Builder
+    public function scopeOpen(Builder $query): Builder
     {
         return $query->whereIn('state', [TicketState::Open, TicketState::Request]);
     }

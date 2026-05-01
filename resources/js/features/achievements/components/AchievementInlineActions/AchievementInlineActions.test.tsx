@@ -21,7 +21,7 @@ describe('Component: AchievementInlineActions', () => {
 
   it('displays a link to report an issue', () => {
     // ARRANGE
-    const achievement = createAchievement();
+    const achievement = createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined });
     render(<AchievementInlineActions />, {
       pageProps: { achievement, can: { createTicket: true } },
     });

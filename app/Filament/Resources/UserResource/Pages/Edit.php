@@ -6,6 +6,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\MuteForm;
 use App\Models\User;
 use Carbon\Carbon;
 use Filament\Resources\Pages\EditRecord;
@@ -33,9 +34,30 @@ class Edit extends EditRecord
             $data['unranked_at'] = $isNowUnranked ? Carbon::now() : null;
         }
 
-        // Remove the Filament form's virtual field before saving.
-        unset($data['is_unranked']);
+        $data['muted_until'] = MuteForm::resolveMutedUntil(
+            $record,
+            $data['mute_action'] ?? null,
+            $data['custom_muted_until'] ?? null,
+        );
+
+        // Remove the Filament form's virtual fields before saving.
+        unset(
+            $data['custom_muted_until'],
+            $data['is_unranked'],
+            $data['mute_action']
+        );
 
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        /** @var User $record */
+        $record = $this->record;
+
+        // Snap the mute selection back to its default after save so a subsequent
+        // save of an unrelated field doesn't re-apply the duration and extend the mute.
+        $this->data['mute_action'] = MuteForm::defaultActionFor($record);
+        $this->data['custom_muted_until'] = MuteForm::defaultCustomDateFor($record);
     }
 }
