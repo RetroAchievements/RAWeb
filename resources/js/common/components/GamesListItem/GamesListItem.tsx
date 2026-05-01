@@ -33,7 +33,7 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
 
         <p>
           {t('{{earned, number}} of {{total, number}}', {
-            earned: playerGame?.achievementsUnlockedHardcore ?? 0,
+            earned: playerGame?.achievementsUnlocked ?? 0,
             total: game.achievementsPublished,
           })}
         </p>
