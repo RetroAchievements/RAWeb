@@ -9,12 +9,18 @@ use Illuminate\Http\Request;
 
 abstract class BaseApiAction
 {
+    protected ?string $userAgent = null;
+    protected ?string $ipAddress = null;
+
     abstract protected function initialize(Request $request): ?array;
 
     abstract protected function process(): array;
 
     public function handleRequest(Request $request): JsonResponse
     {
+        $this->userAgent = $request->header('User-Agent');
+        $this->ipAddress = $request->ip();
+
         $result = $this->initialize($request);
 
         if (!$result) {

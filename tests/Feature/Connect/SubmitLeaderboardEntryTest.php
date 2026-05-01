@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Enums\GameHashCompatibility;
+use App\Models\ConnectWarning;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -23,15 +24,15 @@ uses(TestsEmulatorUserAgent::class);
 
 class SubmitLeaderboardEntryTestHelpers
 {
-    public static function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0): string
+    public static function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0, bool $includeZeroOffset = false): string
     {
         $data = $leaderboard->id . $user->username . $score;
-        if ($offset > 0) {
+        if ($offset > 0 || $includeZeroOffset) {
             $data .= $offset;
         }
 
         return md5($data);
-     }
+    }
 
     public static function buildLBData(Leaderboard $leaderboard): array
     {
@@ -246,6 +247,15 @@ class SubmitLeaderboardEntryTestHelpers
 
         return $data;
     }
+
+    public static function getWarning(Leaderboard $leaderboard): ConnectWarning
+    {
+        return ConnectWarning::query()
+            ->where('method', 'submitlbentry')
+            ->where('related_type', 'leaderboard')
+            ->where('related_id', $leaderboard->id)
+            ->first();
+    }
 }
 
 beforeEach(function () {
@@ -265,7 +275,12 @@ describe('new submission', function () {
         Carbon::setTestNow(Carbon::now()->addMinutes(3));
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -286,6 +301,7 @@ describe('new submission', function () {
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
         $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is best (lower is better)', function () {
@@ -300,7 +316,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -319,6 +340,7 @@ describe('new submission', function () {
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
         $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is best (higher is better)', function () {
@@ -333,7 +355,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -352,6 +379,7 @@ describe('new submission', function () {
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
         $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is worst (lower is better)', function () {
@@ -363,7 +391,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -381,6 +414,7 @@ describe('new submission', function () {
         $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
         $leaderboard->refresh();
         $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is worst (higher is better)', function () {
@@ -392,7 +426,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -410,6 +449,7 @@ describe('new submission', function () {
         $entry = LeaderboardEntry::where('user_id', $this->user->id)->where('leaderboard_id', $leaderboard->id)->first();
         $leaderboard->refresh();
         $this->assertNotEquals($entry->id, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is tied (lower is better)', function () {
@@ -422,7 +462,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -439,6 +484,7 @@ describe('new submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is tied (higher is better)', function () {
@@ -451,7 +497,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -468,6 +519,7 @@ describe('new submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('with unranked', function () {
@@ -486,7 +538,12 @@ describe('new submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -500,6 +557,8 @@ describe('new submission', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('as unranked', function () {
@@ -513,7 +572,12 @@ describe('new submission', function () {
         // user should not be in the entries list
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -527,6 +591,8 @@ describe('new submission', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('without game hash', function () {
@@ -535,7 +601,11 @@ describe('new submission', function () {
         $score = 55555;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -551,13 +621,22 @@ describe('new submission', function () {
                     ],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('unknown leaderboard', function () {
         $score = 55555;
+        $leaderboard = new Leaderboard();
+        $leaderboard->id = 8888;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => 8888, 's' => $score]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id, // not actually in database
+                's' => $score,
+                'm' => fake()->md5,
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(404)
             ->assertExactJson([
                 'Code' => 'not_found',
@@ -565,6 +644,8 @@ describe('new submission', function () {
                 'Success' => false,
                 'Error' => 'Unknown leaderboard.',
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('inactive system', function () {
@@ -579,7 +660,12 @@ describe('new submission', function () {
         $score = 55555;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Code' => 'unsupported_system',
@@ -587,6 +673,8 @@ describe('new submission', function () {
                 'Success' => false,
                 'Error' => 'Cannot submit leaderboard entries for unsupported console.',
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 });
 
@@ -612,7 +700,12 @@ describe('repeat submission', function () {
 
         $score = 44444;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -629,6 +722,7 @@ describe('repeat submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is worse (higher is better)', function () {
@@ -652,7 +746,12 @@ describe('repeat submission', function () {
 
         $score = 22222;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -669,6 +768,7 @@ describe('repeat submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is better (lower is better)', function () {
@@ -692,7 +792,12 @@ describe('repeat submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -709,6 +814,7 @@ describe('repeat submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is better (higher is better)', function () {
@@ -732,7 +838,12 @@ describe('repeat submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -749,6 +860,7 @@ describe('repeat submission', function () {
 
         $leaderboard->refresh();
         $this->assertEquals($topEntryId, $leaderboard->top_entry_id);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('is best (lower is better)', function () {
@@ -774,7 +886,12 @@ describe('repeat submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -792,6 +909,7 @@ describe('repeat submission', function () {
         $leaderboard->refresh();
         $this->assertEquals($entry->id, $leaderboard->top_entry_id);
         $this->assertEquals($oldUpdated, $leaderboard->updated_at); // setting top_entry_id should not update updated_at
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('delete and submit worse', function () {
@@ -815,7 +933,12 @@ describe('repeat submission', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -833,6 +956,7 @@ describe('repeat submission', function () {
         $entry->refresh();
         $this->assertNull($entry->deleted_at); // soft-deleted entry should be reused
         $this->assertEquals($score, $entry->score);
+        $this->assertEquals(0, ConnectWarning::count());
     });
 });
 
@@ -846,7 +970,12 @@ describe('unsigned', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -860,6 +989,8 @@ describe('unsigned', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('submit better', function () {
@@ -882,7 +1013,12 @@ describe('unsigned', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -896,6 +1032,8 @@ describe('unsigned', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('submit worse', function () {
@@ -918,7 +1056,12 @@ describe('unsigned', function () {
         SubmitLeaderboardEntryTestHelpers::updateRanksUnsigned($data['entries'], lowerIsBetter: false);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score),
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -932,6 +1075,8 @@ describe('unsigned', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 });
 
@@ -970,6 +1115,8 @@ describe('backdated', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('negative offset is ignored', function () {
@@ -1006,6 +1153,8 @@ describe('backdated', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 });
 
@@ -1017,7 +1166,14 @@ describe('validation', function () {
         $score = 22222;
         // don't need to update entries as the submission won't actually go through
 
-        $this->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
+        $this->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -1031,6 +1187,13 @@ describe('validation', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('unknown_client', $warning->smells);
     });
 
     test('unknown user agent', function () {
@@ -1040,8 +1203,15 @@ describe('validation', function () {
         $score = 22222;
         // don't need to update entries as the submission won't actually go through
 
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -1055,6 +1225,13 @@ describe('validation', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('unknown_client', $warning->smells);
     });
 
     test('outdated user agent', function () {
@@ -1064,8 +1241,15 @@ describe('validation', function () {
         $score = 22222;
         // don't need to update entries as the submission won't actually go through
 
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -1079,6 +1263,8 @@ describe('validation', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('unsupported user agent', function () {
@@ -1088,8 +1274,15 @@ describe('validation', function () {
         $score = 22222;
         // don't need to update entries as the submission won't actually go through
 
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -1103,6 +1296,8 @@ describe('validation', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('unsupported user agent improved score', function () {
@@ -1125,8 +1320,15 @@ describe('validation', function () {
 
         $score = 22222;
 
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -1140,6 +1342,8 @@ describe('validation', function () {
                     'TopEntries' => $data['entries'],
                 ],
             ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 
     test('blocked user agent', function () {
@@ -1149,8 +1353,15 @@ describe('validation', function () {
         $score = 22222;
         // don't need to update entries as the submission won't actually go through
 
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->get($this->apiUrl('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $data['gameHash']]))
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Code' => 'unsupported_client',
@@ -1158,5 +1369,202 @@ describe('validation', function () {
                 'Success' => false,
                 'Error' => 'This client is not supported.',
             ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('blocked_client', $warning->smells);
+    });
+
+    test('no validation hash', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals('', $warning->validation_hash);
+        $this->assertEquals('no_validation', $warning->smells);
+    });
+
+    test('invalid validation hash', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => 'abcdef0123456789',
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals('abcdef0123456789', $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
+    });
+
+    test('backdated validation hash does not include offset', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // note: expected new entry does not contain offset - invalid hash will discard offset
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'o' => 5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(5, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
+    });
+
+    test('backdated validation hash outside allowed range', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        $offset = 30 * 24 * 60 * 60; // 30 days
+        // note: expected new entry does not contain offset - offset will be clamped, which will cause the hash to be invalid
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score, $offset);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'o' => $offset,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals($offset, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
+    });
+
+    test('validation hash includes zero offset', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score, 0, true);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
     });
 });
