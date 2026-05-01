@@ -164,7 +164,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                         }
                       >
                         <img
-                          src={getScreenshotGalleryUrl(screenshot)}
+                          src={getScreenshotGalleryUrl(screenshot, { isPixelated })}
                           alt={isCompletion ? t('Completion screenshot') : ''}
                           className={cn(
                             'w-full rounded transition-[filter] duration-300 ease-out',

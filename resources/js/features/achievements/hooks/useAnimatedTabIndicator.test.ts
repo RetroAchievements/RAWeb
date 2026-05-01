@@ -29,6 +29,22 @@ describe('Hook: useAnimatedTabIndicator', () => {
     expect(result.current.activeIndex).toEqual(2);
   });
 
+  it('given the initial index changes, syncs the active index', () => {
+    // ARRANGE
+    const { rerender, result } = renderHook(
+      ({ initialIndex }) => useAnimatedTabIndicator(initialIndex),
+      {
+        initialProps: { initialIndex: 2 },
+      },
+    );
+
+    // ACT
+    rerender({ initialIndex: 0 });
+
+    // ASSERT
+    expect(result.current.activeIndex).toEqual(0);
+  });
+
   it('given a negative initial index, sets the active index to 0', () => {
     // ARRANGE
     const { result } = renderHook(() => useAnimatedTabIndicator(-3));
