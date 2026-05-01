@@ -64,7 +64,7 @@ describe('Util: buildMasteryRatioColumnDef', () => {
     );
   });
 
-  it('given a game has fewer than 5 masteries, renders a dash', () => {
+  it('given a game has fewer than 5 masteries, still renders the formatted mastery percentage', () => {
     // ARRANGE
     const gameListEntry = createGameListEntry({
       game: createGame(),
@@ -81,7 +81,7 @@ describe('Util: buildMasteryRatioColumnDef', () => {
     render(<CellComponent row={{ original: gameListEntry }} />);
 
     // ASSERT
-    expect(screen.getByText('-')).toBeVisible();
+    expect(screen.getByText('3.0%')).toBeVisible();
   });
 
   it('given game list stats are missing, renders a dash', () => {
@@ -89,6 +89,26 @@ describe('Util: buildMasteryRatioColumnDef', () => {
     const gameListEntry = createGameListEntry({
       game: createGame(),
       gameListStats: null,
+    });
+
+    const columnDef = buildMasteryRatioColumnDef({ t_label: 'Mastery %' as TranslatedString });
+    const CellComponent = columnDef.cell as any;
+
+    // ACT
+    render(<CellComponent row={{ original: gameListEntry }} />);
+
+    // ASSERT
+    expect(screen.getByText('-')).toBeVisible();
+  });
+
+  it('given a game has no hardcore players, renders a dash', () => {
+    // ARRANGE
+    const gameListEntry = createGameListEntry({
+      game: createGame(),
+      gameListStats: createGameListEntryStats({
+        coreSetTimesCompletedHardcore: 0,
+        coreSetPlayersHardcore: 0,
+      }),
     });
 
     const columnDef = buildMasteryRatioColumnDef({ t_label: 'Mastery %' as TranslatedString });
