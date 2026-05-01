@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Enums\GameHashCompatibility;
 use App\Models\ConnectWarning;
+use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -1376,6 +1377,125 @@ describe('validation', function () {
         $this->assertEquals($score, $warning->extra);
         $this->assertEquals($validationHash, $warning->validation_hash);
         $this->assertEquals('blocked_client', $warning->smells);
+    });
+
+    test('user agent for incorrect system', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $otherSystem = System::factory()->create();
+        Emulator::first()->systems()->attach($otherSystem->id);
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('wrong_client', $warning->smells);
+    });
+
+    test('user agent for incorrect system on multi-system client', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        // with five or more supported systems, assume the client can support all systems sooner or later
+        for ($i = 0; $i < 5; $i++) {
+            $otherSystem = System::factory()->create();
+            Emulator::first()->systems()->attach($otherSystem->id);
+        }
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('unknown user agent and no validation hash', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        // don't need to update entries as the submission won't actually go through
+
+        $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->get($this->apiUrl('submitlbentry', [
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => 0, // not actually submitted
+                    'RankInfo' => [
+                        'NumEntries' => 5,
+                        'Rank' => 1, // always 1 when not actually submitted
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($score, $warning->extra);
+        $this->assertEquals('', $warning->validation_hash);
+        $this->assertEquals('unknown_client,no_validation', $warning->smells);
     });
 
     test('no validation hash', function () {

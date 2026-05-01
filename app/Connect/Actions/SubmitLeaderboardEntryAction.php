@@ -12,7 +12,6 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
-use App\Platform\Services\UserAgentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -24,7 +23,6 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
     protected int $score;
     protected ?GameHash $gameHash = null;
     protected Carbon $when;
-    protected ClientSupportLevel $clientSupportLevel;
 
     public function execute(User $user, Leaderboard $leaderboard, int $score, ?GameHash $gameHash = null, ?Carbon $when = null): array
     {
@@ -44,23 +42,16 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
-        $leaderboard = Leaderboard::where('id', $request->integer('i', 0))->first();
+        $leaderboard = Leaderboard::query()
+            ->where('id', $request->integer('i', 0))
+            ->with('game')
+            ->first();
         if (!$leaderboard) {
             return $this->resourceNotFound('leaderboard');
         }
         $this->leaderboard = $leaderboard;
 
-        $userAgentService = new UserAgentService();
-        $this->clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);
-        switch ($this->clientSupportLevel) {
-            case ClientSupportLevel::Blocked:
-                $this->addSmell($request, 'blocked_client');
-                break;
-
-            case ClientSupportLevel::Unknown:
-                $this->addSmell($request, 'unknown_client');
-                break;
-        }
+        $this->validateClient($request, $leaderboard->game);
 
         $this->score = $request->integer('s', 0);
 
