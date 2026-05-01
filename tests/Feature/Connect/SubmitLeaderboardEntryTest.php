@@ -1170,11 +1170,11 @@ describe('validation', function () {
         $validationHash = SubmitLeaderboardEntryTestHelpers::buildValidationHash($leaderboard, $this->user, $score);
 
         $this->get($this->apiUrl('submitlbentry', [
-                'i' => $leaderboard->id,
-                's' => $score,
-                'm' => $data['gameHash'],
-                'v' => $validationHash,
-            ]))
+            'i' => $leaderboard->id,
+            's' => $score,
+            'm' => $data['gameHash'],
+            'v' => $validationHash,
+        ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,

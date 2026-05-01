@@ -6,7 +6,6 @@ namespace App\Connect\Support;
 
 use App\Enums\ClientSupportLevel;
 use App\Models\ConnectWarning;
-use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Http\JsonResponse;
@@ -31,7 +30,7 @@ trait GeneratesConnectWarnings
     protected function validateClient(Request $request, Game $game): void
     {
         $userAgentService = new UserAgentService();
-        $this->clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);       
+        $this->clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);
 
         switch ($this->clientSupportLevel) {
             case ClientSupportLevel::Blocked:
