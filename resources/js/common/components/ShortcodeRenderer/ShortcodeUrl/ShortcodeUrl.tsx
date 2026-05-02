@@ -2,6 +2,8 @@ import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { normalizeUrl } from '@/common/utils/normalizeUrl';
+
 interface ShortcodeUrlProps {
   children: ReactNode;
   href: string;
@@ -32,24 +34,3 @@ export const ShortcodeUrl: FC<ShortcodeUrlProps> = ({ children, href }) => {
     </a>
   );
 };
-
-function normalizeUrl(href: string): string {
-  if (!href) {
-    return '';
-  }
-
-  try {
-    const url = new URL(href.startsWith('http') ? href : `https://${href}`);
-
-    // Force HTTPS for internal links.
-    if (url.hostname.endsWith('retroachievements.org') && url.protocol === 'http:') {
-      url.protocol = 'https:';
-    }
-
-    return url.toString();
-  } catch (error) {
-    console.debug('Failed to normalize URL:', href, error);
-
-    return '';
-  }
-}
