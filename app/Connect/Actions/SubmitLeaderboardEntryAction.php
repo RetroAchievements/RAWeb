@@ -83,7 +83,7 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
             $this->connectWarning->hardcore = 1; // leaderboard submissions are only allowed in hardcore
             $this->connectWarning->offset = $request->has('o') ? (int) $request->input('o') : null;
             $this->connectWarning->extra = $this->score;
-            $this->connectWarning->validation_hash = $validationHash;
+            $this->connectWarning->validation_hash = $request->input('v', ''); // capture unnormalized parameter
         }
 
         $this->when = Carbon::now()->subSeconds($offset);

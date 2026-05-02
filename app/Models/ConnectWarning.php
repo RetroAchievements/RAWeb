@@ -22,6 +22,7 @@ class ConnectWarning extends BaseModel
         'extra',
         'validation_hash',
         'smells',
+        'user_agent',
     ];
 
     public const UPDATED_AT = null;

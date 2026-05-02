@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->integer('extra')->nullable();
             $table->string('validation_hash', 32);
             $table->string('smells');
+            $table->string('user_agent');
             $table->timestamp('created_at')->useCurrent();
 
             $table->index('created_at');
