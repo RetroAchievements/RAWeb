@@ -25,22 +25,6 @@ use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
-function createApprovedScreenshotForRevalidateActionTest(
-    Game $game,
-    User $submitter,
-    User $reviewer,
-): GameScreenshot {
-    return GameScreenshot::factory()
-        ->for($game)
-        ->ingame()
-        ->create([
-            'captured_by_user_id' => $submitter->id,
-            'reviewed_by_user_id' => $reviewer->id,
-            'reviewed_at' => now(),
-            'status' => GameScreenshotStatus::Approved,
-        ]);
-}
-
 function createApprovedScreenshotsForRevalidateActionTest(
     int $count,
     Game $game,
@@ -48,7 +32,15 @@ function createApprovedScreenshotsForRevalidateActionTest(
     User $reviewer,
 ): void {
     for ($i = 0; $i < $count; $i++) {
-        createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+        GameScreenshot::factory()
+            ->for($game)
+            ->ingame()
+            ->create([
+                'captured_by_user_id' => $submitter->id,
+                'reviewed_by_user_id' => $reviewer->id,
+                'reviewed_at' => now(),
+                'status' => GameScreenshotStatus::Approved,
+            ]);
     }
 }
 
@@ -118,7 +110,7 @@ it('excludes screenshots for games with active claims and counts those with drop
     ]);
 
     // ... the active claim game contributes a screenshot that should be ignored ...
-    createApprovedScreenshotForRevalidateActionTest($activeClaimGame, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(1, $activeClaimGame, $submitter, $reviewer);
 
     // ... the dropped claim game contributes screenshots that should still count ...
     createApprovedScreenshotsForRevalidateActionTest(10, $droppedClaimGame, $submitter, $reviewer);
