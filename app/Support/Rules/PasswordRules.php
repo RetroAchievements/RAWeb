@@ -11,7 +11,10 @@ class PasswordRules
     public static function get(bool $requireConfirmation = false): array
     {
         $rules = [
+            'bail',
             'required',
+            'string',
+            'max:128',
             'different:username',
             'different:email',
             'not_regex:/retroachievements\.org/i',
