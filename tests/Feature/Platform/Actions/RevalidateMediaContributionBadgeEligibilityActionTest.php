@@ -41,14 +41,24 @@ function createApprovedScreenshotForRevalidateActionTest(
         ]);
 }
 
+function createApprovedScreenshotsForRevalidateActionTest(
+    int $count,
+    Game $game,
+    User $submitter,
+    User $reviewer,
+): void {
+    for ($i = 0; $i < $count; $i++) {
+        createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    }
+}
+
 it('awards a tier 0 badge when eligible screenshots cross the first threshold', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     Event::fake([SiteBadgeAwarded::class]);
 
@@ -72,8 +82,7 @@ it('excludes self-approved screenshots from the eligible count', function () {
     $game = Game::factory()->create(['system_id' => System::factory()]);
     $submitter = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $submitter);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $submitter);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $submitter);
 
     Event::fake([SiteBadgeAwarded::class]);
 
@@ -111,9 +120,8 @@ it('excludes screenshots for games with active claims and counts those with drop
     // ... the active claim game contributes a screenshot that should be ignored ...
     createApprovedScreenshotForRevalidateActionTest($activeClaimGame, $submitter, $reviewer);
 
-    // ... the dropped claim game contributes two screenshots that should still count ...
-    createApprovedScreenshotForRevalidateActionTest($droppedClaimGame, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($droppedClaimGame, $submitter, $reviewer);
+    // ... the dropped claim game contributes screenshots that should still count ...
+    createApprovedScreenshotsForRevalidateActionTest(10, $droppedClaimGame, $submitter, $reviewer);
 
     // ACT
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
@@ -152,8 +160,7 @@ it('reuses an existing badge at the expected tier without dispatching an event',
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     $existing = PlayerBadge::factory()->create([
         'user_id' => $submitter->id,
@@ -185,8 +192,7 @@ it('downgrades by deleting higher tiers and returning the matching lower tier', 
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     PlayerBadge::factory()->create([
         'user_id' => $submitter->id,
@@ -222,9 +228,7 @@ it('preserves the order_column from the previous highest tier when upgrading', f
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    for ($i = 0; $i < 10; $i++) {
-        createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    }
+    createApprovedScreenshotsForRevalidateActionTest(30, $game, $submitter, $reviewer);
 
     PlayerBadge::factory()->create([
         'user_id' => $submitter->id,
@@ -255,9 +259,7 @@ it('awards upgraded tiers at the time they are earned', function () {
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    for ($i = 0; $i < 10; $i++) {
-        createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    }
+    createApprovedScreenshotsForRevalidateActionTest(30, $game, $submitter, $reviewer);
 
     $originalAwardedAt = Carbon::parse('2025-01-15 12:00:00');
     $upgradedAt = Carbon::parse('2025-02-15 12:00:00');
@@ -291,8 +293,7 @@ it('revalidates the badge when a game claim is created', function () {
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
     expect($badge?->award_key)->toEqual(0);
@@ -319,8 +320,7 @@ it('revalidates the badge when a game claim is dropped', function () {
         'user_id' => $submitter->id,
     ]);
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
     expect($badge)->toBeNull();
@@ -348,8 +348,7 @@ it('revalidates the badge when a game claim status is updated to dropped', funct
         'user_id' => $submitter->id,
     ]);
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
     expect($badge)->toBeNull();
@@ -373,11 +372,10 @@ it('revalidates the badge when the submitter authors an achievement for the game
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($game, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
 
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
-    expect($badge?->award_key)->toEqual(0); // they have a badge from 2 screenshots
+    expect($badge?->award_key)->toEqual(0); // they have a badge from their screenshots
 
     // ACT
     Achievement::factory()->for($game)->create(['user_id' => $submitter->id]);
@@ -399,8 +397,7 @@ it('revalidates the original game when an achievement moves away from submitted 
 
     $achievement = Achievement::factory()->for($originalGame)->create(['user_id' => $submitter->id]);
 
-    createApprovedScreenshotForRevalidateActionTest($originalGame, $submitter, $reviewer);
-    createApprovedScreenshotForRevalidateActionTest($originalGame, $submitter, $reviewer);
+    createApprovedScreenshotsForRevalidateActionTest(10, $originalGame, $submitter, $reviewer);
 
     $achievement->game_id = $newGame->id;
     $achievement->saveQuietly();

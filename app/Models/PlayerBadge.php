@@ -80,12 +80,12 @@ class PlayerBadge extends BaseModel
     ];
 
     private const MEDIA_CONTRIBUTION_BOUNDARIES = [
-        2,
         10,
+        30,
         100,
-        500,
+        300,
         1000,
-        5000,
+        3000,
     ];
 
     private static function getThresholds(AwardType $awardType): ?array
