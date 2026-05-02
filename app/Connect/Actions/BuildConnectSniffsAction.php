@@ -123,9 +123,12 @@ class BuildConnectSniffsAction
             if (array_key_exists($lowerUsername, $userInfos)) {
                 $sniff['userinfo'] = $userInfos[$lowerUsername];
                 $sniff['link'] = route('user.show', $sniff['userinfo']['display_name']);
+            } elseif (empty($lowerUsername)) {
+                $sniff['smells'][] = 'no_user';
+                $sniff['link'] = '';
             } else {
+                $sniff['smells'][] = 'unknown_user';
                 $sniff['link'] = route('user.show', $sniff['user']);
-                $sniff['smells'][] = empty($lowerUsername) ? 'no_user' : 'unknown_user';
             }
 
             if (array_key_exists('leaderboardId', $sniff) && array_key_exists($sniff['leaderboardId'], $leaderboards)) {

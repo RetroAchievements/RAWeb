@@ -141,7 +141,7 @@ describe('returns entries', function () {
         $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
         $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
         $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($user1->unranked_at, $sniffs[0]['userinfo']['unranked_at']);
+        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
     });
 
     test('deleted user data', function () {
@@ -201,21 +201,20 @@ describe('smells', function () {
 
         // bad_validation provided to createLeaderboardWarning
         $this->assertEquals(['bad_validation', 'unknown_user'], $sniffs[0]['smells']);
+        $this->assertEquals(route('user.show', 'Player1'), $sniffs[0]['link']);
     });
 
-    test('same bad_validation hash used for multiple leaderboards', function () {
+    test('no user', function () {
         $leaderboard1 = Leaderboard::factory()->create();
-        $leaderboard2 = Leaderboard::factory()->create();
-        $user1 = User::factory()->create();
-        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard1, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
-        Carbon::setTestNow(Carbon::now()->addSeconds(1));
-        $entry2 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard2, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
+        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning('', $leaderboard1, 1234, smells: 'bad_validation');
 
         $clients = [];
         $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
-        $this->assertEquals(2, count($sniffs));
-        $this->assertEquals(['bad_validation', 'repeated_validation'], $sniffs[0]['smells']);
-        $this->assertEquals(['bad_validation'], $sniffs[1]['smells']);
+        $this->assertEquals(1, count($sniffs));
+
+        // bad_validation provided to createLeaderboardWarning
+        $this->assertEquals(['bad_validation', 'no_user'], $sniffs[0]['smells']);
+        $this->assertEquals('', $sniffs[0]['link']);
     });
 
     test('null user agent', function () {
@@ -268,5 +267,20 @@ describe('smells', function () {
         $this->assertEquals(['blocked_client', 'curl'], $sniffs[0]['smells']);
         // blocked_client comes from the entry, so it's not added to clients
         $this->assertEquals(['curl'], $clients);
+    });
+
+    test('same bad_validation hash used for multiple leaderboards', function () {
+        $leaderboard1 = Leaderboard::factory()->create();
+        $leaderboard2 = Leaderboard::factory()->create();
+        $user1 = User::factory()->create();
+        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard1, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
+        Carbon::setTestNow(Carbon::now()->addSeconds(1));
+        $entry2 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard2, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
+        $this->assertEquals(2, count($sniffs));
+        $this->assertEquals(['bad_validation', 'repeated_validation'], $sniffs[0]['smells']);
+        $this->assertEquals(['bad_validation'], $sniffs[1]['smells']);
     });
 });

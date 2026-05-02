@@ -99,6 +99,7 @@ $colors = [
     ],
 ];
 
+// any unrecognized clients will be shown in green
 foreach ($clients as $client) {
     if (!array_key_exists($client, $colors)) {
         $colors[$client] = [
@@ -130,8 +131,11 @@ foreach ($clients as $client) {
             <div style="margin-bottom:10px">
                 <table>
                 <tr><td>Method</td><td>
-                <?php RenderFilterButton('awardachievement', 'method-awardachievement', $method_counts['awardachievement'] ?? 0); ?>
-                <?php RenderFilterButton('submitlbentry', 'method-submitlbentry', $method_counts['submitlbentry'] ?? 0); ?>
+                <?php
+                    foreach ($method_counts as $method => $count) {
+                        RenderFilterButton($method, 'method-' . key_to_class($method), $count);
+                    }
+                ?>
                 </td></tr>
                 <tr><td>Client</td><td>
                 <?php
