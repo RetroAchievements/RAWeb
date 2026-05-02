@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->tinyInteger('hardcore');
             $table->integer('offset')->nullable();
             $table->integer('extra')->nullable();
-            $table->string('validation_hash', 32);
+            $table->string('validation_hash', 40);
             $table->string('smells');
             $table->string('user_agent');
             $table->timestamp('created_at')->useCurrent();

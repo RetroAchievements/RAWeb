@@ -272,7 +272,7 @@ foreach ($clients as $client) {
                     unset($sniff['link']);
                     unset($sniff['userinfo']);
                     ?>
-                    <pre><?= json_encode($sniff, JSON_PRETTY_PRINT) ?></pre>
+                    <pre><?= e(json_encode($sniff, JSON_PRETTY_PRINT)) ?></pre>
                 </details>
             <?php endforeach ?>
         </div>
