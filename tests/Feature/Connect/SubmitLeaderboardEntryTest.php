@@ -1189,7 +1189,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1227,7 +1227,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1371,7 +1371,7 @@ describe('validation', function () {
                 'Error' => 'This client is not supported.',
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1413,7 +1413,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1490,7 +1490,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1526,7 +1526,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1563,7 +1563,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(0, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1604,7 +1604,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals(5, $warning->offset);
         $this->assertEquals($score, $warning->extra);
@@ -1646,7 +1646,7 @@ describe('validation', function () {
                 ],
             ]);
 
-        $warning = SubmitLeaderboardentryTestHelpers::getWarning($leaderboard);
+        $warning = SubmitLeaderboardEntryTestHelpers::getWarning($leaderboard);
         $this->assertEquals($this->user->username, $warning->username);
         $this->assertEquals($offset, $warning->offset);
         $this->assertEquals($score, $warning->extra);
