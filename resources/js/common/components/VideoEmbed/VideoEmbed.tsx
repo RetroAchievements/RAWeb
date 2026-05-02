@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { normalizeUrl } from '@/common/utils/normalizeUrl';
+
 import { processVideoUrl } from '../../utils/shortcodes/processVideoUrl';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
