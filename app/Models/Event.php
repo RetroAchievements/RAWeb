@@ -106,6 +106,24 @@ class Event extends BaseModel implements HasPermalink
         return true;
     }
 
+    // == scopes
+
+    /**
+     * @param Builder<Event> $query
+     * @return Builder<Event>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
+    {
+        if ($user?->can('manage', self::class)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) {
+            $query->whereNull('events.active_from')
+                ->orWhere('events.active_from', '<=', now());
+        });
+    }
+
     // == accessors
 
     public function getStateAttribute(): EventState
