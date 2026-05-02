@@ -327,7 +327,7 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$tickets = Ticket::officialCore()->unresolved();
+$tickets = Ticket::officialCore()->open();
 $ticketData['OpenTickets'] = $tickets->count();
 $ticketData['URL'] = route('tickets.index');
 $ticketData['RecentTickets'] = $getTicketsInfo($tickets, $offset, $count);

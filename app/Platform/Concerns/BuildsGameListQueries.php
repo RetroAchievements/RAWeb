@@ -378,18 +378,11 @@ trait BuildsGameListQueries
                     $query
                         ->selectRaw(
                             "CASE
-                                WHEN COALESCE({$timesCompletedSub}, 0) >= 5 THEN 1
-                                ELSE 0
-                            END AS has_mastery_data"
-                        )
-                        ->selectRaw(
-                            "CASE
                                 WHEN COALESCE({$setPlayersSub}, 0) > 0
                                     THEN COALESCE({$timesCompletedSub}, 0) * 1.0 / COALESCE({$setPlayersSub}, 0)
                                 ELSE 0
                             END AS mastery_ratio"
                         )
-                        ->orderByDesc('has_mastery_data')
                         ->orderBy('mastery_ratio', $sortDirection)
                         ->orderByDesc('players_total');
                     break;

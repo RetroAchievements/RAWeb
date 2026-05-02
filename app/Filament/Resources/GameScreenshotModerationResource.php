@@ -46,7 +46,7 @@ class GameScreenshotModerationResource extends Resource
             return null;
         }
 
-        return (string) GameScreenshot::reviewableBy($user)
+        return (string) self::applyReviewFeedScope(GameScreenshot::reviewableBy($user))
             ->where('status', GameScreenshotStatus::Pending)
             ->count();
     }
@@ -69,7 +69,7 @@ class GameScreenshotModerationResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) use ($user) {
                 /** @var Builder<GameScreenshot> $query */
-                $query
+                self::applyReviewFeedScope($query)
                     ->reviewableBy($user)
                     ->whereHas('game')
                     ->with(['game.system', 'capturedBy', 'media']);
@@ -333,6 +333,26 @@ class GameScreenshotModerationResource extends Resource
         return [
             'index' => Pages\Index::route('/'),
         ];
+    }
+
+    /**
+     * Scope the list to user submissions that belong in the review feed.
+     *
+     * Pending submissions do not have a reviewer yet. Historical rows should represent
+     * decisions made by a human reviewer, not automated cleanup or legacy imports.
+     *
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    private static function applyReviewFeedScope(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('captured_by_user_id')
+            ->where(function (Builder $query): void {
+                $query
+                    ->where('status', GameScreenshotStatus::Pending)
+                    ->orWhereNotNull('reviewed_by_user_id');
+            });
     }
 
     private static function buildApproveModalDescription(GameScreenshot $record): HtmlString

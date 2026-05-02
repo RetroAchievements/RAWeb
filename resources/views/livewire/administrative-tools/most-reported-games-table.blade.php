@@ -71,18 +71,18 @@ new class extends Component implements HasForms, HasTable, HasActions {
 
     private function buildMostTicketedSetsQuery(): Builder
     {
-        $oldestTicketSubquery = Ticket::unresolved()
+        $oldestTicketSubquery = Ticket::open()
             ->officialCore()
             ->select('ticketable_id', DB::raw('MIN(created_at) as OldestTicketDate'))
             ->groupBy('ticketable_id');
 
-        $newestTicketSubquery = Ticket::unresolved()
+        $newestTicketSubquery = Ticket::open()
             ->officialCore()
             ->select('ticketable_id', DB::raw('MAX(created_at) as NewestTicketDate'))
             ->groupBy('ticketable_id');
 
         return (
-            Ticket::unresolved()
+            Ticket::open()
                 ->officialCore()
                 ->join('achievements', 'achievements.id', '=', 'tickets.ticketable_id')
                 ->join('games', 'games.id', '=', 'achievements.game_id')

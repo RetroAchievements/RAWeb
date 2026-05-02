@@ -48,9 +48,15 @@ class InertiaAwareHasher implements RequestHasher
         $queryString = '';
         if ($params = $request->getQueryString()) {
             parse_str($params, $parsed);
+
+            $ignored = config('responsecache.ignored_query_parameters', []);
+            if (!empty($ignored)) {
+                $parsed = array_diff_key($parsed, array_flip($ignored));
+            }
+
             $this->ksortRecursive($parsed);
 
-            $queryString = '?' . http_build_query($parsed);
+            $queryString = !empty($parsed) ? '?' . http_build_query($parsed) : '';
         }
 
         return $request->getBaseUrl() . $request->getPathInfo() . $queryString;
