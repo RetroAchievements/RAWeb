@@ -3,7 +3,9 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
+use App\Models\GameScreenshot;
 use App\Models\PlayerBadge;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
@@ -350,9 +352,9 @@ function RenderAward(
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
     } elseif ($awardTypeEnum === AwardType::MediaContribution) {
-        $threshold = PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData);
+        $description = getMediaContributionDescription($ownerUsername, (int) $awardData);
         echo avatar("mediaContributionAward", $awardData,
-            tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p><span>Awarded for contributing {$threshold} or more approved screenshots to game galleries.</span><p class='italic'>{$awardDate}</p></div>",
+            tooltip: "<div class='p-2 w-fit max-w-[400px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
             iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
             iconSize: $imageSize,
             iconClass: 'goldimage',
@@ -561,6 +563,26 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
         $firstDisplayOrders['eventAwards'],
         $firstDisplayOrders['siteAwards'],
     ];
+}
+
+function getMediaContributionDescription(string $username, int $currentTier): string
+{
+    $user = User::whereName($username)->first();
+    $eligibleCount = $user
+        ? GameScreenshot::query()->eligibleForMediaContributionBy($user)->count()
+        : 0;
+
+    $nextThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier + 1);
+
+    $formattedCount = number_format($eligibleCount);
+
+    if ($nextThreshold === 0) {
+        return "<p class='text-balance'><span class='font-semibold'>{$formattedCount}</span> approved screenshots</p><p class='opacity-70'>Top tier reached.</p>";
+    }
+
+    $formattedThreshold = number_format($nextThreshold);
+
+    return "<p class='text-balance'><span class='font-semibold'>{$formattedCount} of {$formattedThreshold}</span> approved screenshots toward the next tier</p>";
 }
 
 function generateManualMoveButtons(
