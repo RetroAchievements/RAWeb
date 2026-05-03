@@ -354,7 +354,7 @@ function RenderAward(
     } elseif ($awardTypeEnum === AwardType::MediaContribution) {
         $description = getMediaContributionDescription($ownerUsername, (int) $awardData);
         echo avatar("mediaContributionAward", $awardData,
-            tooltip: "<div class='p-2 w-fit max-w-[400px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
+            tooltip: "<div class='p-2 w-fit max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
             iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
             iconSize: $imageSize,
             iconClass: 'goldimage',
@@ -567,22 +567,29 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
 
 function getMediaContributionDescription(string $username, int $currentTier): string
 {
+    $currentThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier);
+    $nextThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier + 1);
+
+    $formattedCurrent = number_format($currentThreshold);
+    $achievement = "<p class='text-balance'>Awarded for contributing <span class='font-semibold'>{$formattedCurrent}</span> approved screenshots to game galleries.</p>";
+
+    if ($nextThreshold === 0) {
+        return $achievement;
+    }
+
     $user = User::whereName($username)->first();
     $eligibleCount = $user
         ? GameScreenshot::query()->eligibleForMediaContributionBy($user)->count()
         : 0;
 
-    $nextThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier + 1);
-
-    $formattedCount = number_format($eligibleCount);
-
-    if ($nextThreshold === 0) {
-        return "<p class='text-balance'><span class='font-semibold'>{$formattedCount}</span> approved screenshots</p><p class='opacity-70'>Top tier reached.</p>";
+    $remaining = $nextThreshold - $eligibleCount;
+    if ($remaining <= 0) {
+        return $achievement;
     }
 
-    $formattedThreshold = number_format($nextThreshold);
+    $formattedRemaining = number_format($remaining);
 
-    return "<p class='text-balance'><span class='font-semibold'>{$formattedCount} of {$formattedThreshold}</span> approved screenshots toward the next tier</p>";
+    return $achievement . "<p class='opacity-70'>{$formattedRemaining} more to next tier.</p>";
 }
 
 function generateManualMoveButtons(
