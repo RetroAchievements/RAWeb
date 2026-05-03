@@ -30,23 +30,6 @@ function static_addnewregistereduser(string $user): void
 /**
  * @deprecated
  */
-function static_setlastearnedachievement(int $id, string $user, int $points): void
-{
-    $query = "UPDATE StaticData
-              SET NumAwarded = NumAwarded+1,
-                  LastAchievementEarnedID = $id,
-                  LastAchievementEarnedByUser = :user,
-                  LastAchievementEarnedAt = :now,
-                  TotalPointsEarned = TotalPointsEarned+$points";
-    $dbResult = legacyDbStatement($query, ['user' => $user, 'now' => Carbon::now()]);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
-}
-
-/**
- * @deprecated
- */
 function static_setlastupdatedgame(int $id): void
 {
     $query = "UPDATE StaticData SET LastUpdatedGameID = $id";

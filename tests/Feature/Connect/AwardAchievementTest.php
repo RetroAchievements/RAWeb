@@ -8,6 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\ConnectWarning;
+use App\Models\Emulator;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -140,6 +141,16 @@ class AwardAchievementTestHelpers
 
         return $eventAchievement;
     }
+
+    public static function getWarning(Achievement $achievement): ConnectWarning
+    {
+        return ConnectWarning::query()
+            ->where('method', 'awardachievement')
+            ->where('related_type', 'achievement')
+            ->where('related_id', $achievement->id)
+            ->whereNull('extra')
+            ->first();
+    }
 }
 
 beforeEach(function () {
@@ -149,7 +160,7 @@ beforeEach(function () {
     $this->createConnectUser();
 });
 
-describe('unlock', function() {
+describe('normal unlock', function() {
     test('new hardcore unlock', function() {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
@@ -571,7 +582,11 @@ describe('unlock', function() {
         $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarnedHardcore']);
         $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarned']);
 
-        $this->assertEquals(0, ConnectWarning::count());
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals($offset, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
     });
 
     test('backdated hardcore unlock with negative offset is not forward-dated', function() {
@@ -757,7 +772,11 @@ describe('unlock', function() {
         $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarnedHardcore']);
         $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarned']);
 
-        $this->assertEquals(0, ConnectWarning::count());
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals($offset, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
     });
 
     test('new softcore unlock', function() {
@@ -1460,7 +1479,7 @@ describe('delegated unlock', function() {
             ->assertExactJson([
                 'Success' => false,
                 'Code' => 'access_denied',
-                'Error' => 'You do not have permission to do that.',
+                'Error' => 'Access denied.',
                 'Status' => 403,
             ]);
 
@@ -1512,7 +1531,7 @@ describe('delegated unlock', function() {
             ->assertExactJson([
                 'Success' => false,
                 'Code' => 'access_denied',
-                'Error' => 'You do not have permission to do that.',
+                'Error' => 'Access denied.',
                 'Status' => 403,
             ]);
 
@@ -1838,13 +1857,12 @@ describe('validation', function() {
                 'm' => $gameHash->md5,
                 'v' => $validationHash,
             ]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Data not found for achievement 999999',
-                'AchievementID' => 999999,
-                'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'Code' => 'not_found',
+                'Error' => 'Unknown achievement.',
+                'Status' => 404,
             ]);
 
         // player score should not have increased
@@ -1880,13 +1898,12 @@ describe('validation', function() {
                 'm' => $gameHash->md5,
                 'v' => $validationHash,
             ]))
-            ->assertStatus(200)
+            ->assertStatus(409)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unofficial achievements cannot be unlocked',
-                'AchievementID' => $achievement1->id,
-                'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'Code' => 'invalid_state',
+                'Error' => 'Unpromoted achievements cannot be unlocked.',
+                'Status' => 409,
             ]);
 
         // player score should not have increased
@@ -1944,7 +1961,12 @@ describe('validation', function() {
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
 
-        $this->assertEquals(0, ConnectWarning::count());
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('unknown_client', $warning->smells);
+        $this->assertEquals($this->userAgentUnknown, $warning->user_agent);
     });
 
     test('unknown user agent allowed in softcore', function() {
@@ -1990,7 +2012,12 @@ describe('validation', function() {
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
 
-        $this->assertEquals(0, ConnectWarning::count());
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('unknown_client', $warning->smells);
+        $this->assertEquals($this->userAgentUnknown, $warning->user_agent);
     });
 
     test('unsupported user agent demotes hardcore unlock to softcore', function() {
@@ -2201,7 +2228,8 @@ describe('validation', function() {
             ->assertStatus(403)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'This emulator is not supported',
+                'Code' => 'unsupported_client',
+                'Error' => 'This client is not supported.',
                 'Status' => 403,
             ]);
 
@@ -2214,7 +2242,12 @@ describe('validation', function() {
         // make sure the unlock didn't happen
         $this->assertEquals(0, PlayerAchievement::count());
 
-        $this->assertEquals(0, ConnectWarning::count());
+        $warning = AwardAchievementTestHelpers::getWarning($achievement1);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('blocked_client', $warning->smells);
+        $this->assertEquals($this->userAgentBlocked, $warning->user_agent);
     });
 
     test('blocked user agent cannot unlock softcore achievements', function() {
@@ -2241,7 +2274,8 @@ describe('validation', function() {
             ->assertStatus(403)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'This emulator is not supported',
+                'Code' => 'unsupported_client',
+                'Error' => 'This client is not supported.',
                 'Status' => 403,
             ]);
 
@@ -2254,6 +2288,333 @@ describe('validation', function() {
         // make sure the unlock didn't happen
         $this->assertEquals(0, PlayerAchievement::count());
 
+        $warning = AwardAchievementTestHelpers::getWarning($achievement1);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('blocked_client', $warning->smells);
+        $this->assertEquals($this->userAgentBlocked, $warning->user_agent);
+    });
+
+    test('user agent for incorrect system still unlocks hardcore achievements', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // $userAgentValid is associated to the "Test Client". Attach a differing system to that.
+        $otherSystem = System::factory()->create();
+        Emulator::where('name', 'Test Client')->first()->systems()->attach($otherSystem->id);
+
+        // do the hardcore unlock
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should be captured
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('wrong_client', $warning->smells);
+        $this->assertEquals($this->userAgentValid, $warning->user_agent);
+    });
+
+    test('user agent for incorrect system on multi-system client does not generate warning', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // $userAgentValid is associated to the "Test Client". Attach differing systems to that.
+        $emulator = Emulator::where('name', 'Test Client')->first();
+        for ($i = 0; $i < 5; $i++) {
+            $otherSystem = System::factory()->create();
+            $emulator->systems()->attach($otherSystem->id);
+        }
+
+        // do the hardcore unlock
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should not be captured
         $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('no validation hash still unlocks hardcore achievements', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should be captured
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals('', $warning->validation_hash);
+        $this->assertEquals('no_validation', $warning->smells);
+        $this->assertEquals($this->userAgentValid, $warning->user_agent);
+    });
+
+    test('invalid validation hash still unlocks hardcore achievements', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $validationHash = md5('This is the wrong validation hash');
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should be captured
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation', $warning->smells);
+        $this->assertEquals($this->userAgentValid, $warning->user_agent);
+    });
+
+    test('validation has containing 0 offset still unlocked hardcore achievements', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $validationHash = md5($achievement3->id . $this->user->username . '1' . $achievement3->id . '0');
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should not be captured
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('repeated invalid validation hash on different achievements creates warning', function() {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $validationHash = md5('This is the wrong validation hash');
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        ConnectWarning::create([
+            'method' => 'awardachievement',
+            'username' => $this->user->username,
+            'related_type' => 'achievement',
+            'related_id' => $achievement1->id,
+            'hardcore' => 1,
+            'validation_hash' => $validationHash,
+            'smells' => 'bad_validation',
+            'user_agent' => $this->userAgentValid,
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should be captured
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals(0, $warning->offset);
+        $this->assertEquals($validationHash, $warning->validation_hash);
+        $this->assertEquals('bad_validation,repeated_validation', $warning->smells);
+        $this->assertEquals($this->userAgentValid, $warning->user_agent);
     });
 });

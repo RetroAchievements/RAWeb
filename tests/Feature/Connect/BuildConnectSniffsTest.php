@@ -268,19 +268,4 @@ describe('smells', function () {
         // blocked_client comes from the entry, so it's not added to clients
         $this->assertEquals(['curl'], $clients);
     });
-
-    test('same bad_validation hash used for multiple leaderboards', function () {
-        $leaderboard1 = Leaderboard::factory()->create();
-        $leaderboard2 = Leaderboard::factory()->create();
-        $user1 = User::factory()->create();
-        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard1, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
-        Carbon::setTestNow(Carbon::now()->addSeconds(1));
-        $entry2 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard2, 1234, validationHash: 'ABCDEF0123456789', smells: 'bad_validation');
-
-        $clients = [];
-        $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
-        $this->assertEquals(2, count($sniffs));
-        $this->assertEquals(['bad_validation', 'repeated_validation'], $sniffs[0]['smells']);
-        $this->assertEquals(['bad_validation'], $sniffs[1]['smells']);
-    });
 });

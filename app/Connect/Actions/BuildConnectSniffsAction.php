@@ -17,7 +17,6 @@ class BuildConnectSniffsAction
         $sniffs = [];
         $usernames = [];
         $leaderboardIds = [];
-        $invalidUserHashes = [];
         $userAgentService = new UserAgentService();
 
         $entries = ConnectWarning::query()
@@ -42,18 +41,6 @@ class BuildConnectSniffsAction
 
             foreach (explode(',', $entry->smells) as $smell) {
                 $sniff['smells'][] = $smell;
-
-                if ($smell === 'bad_validation' && $entry->related_id) {
-                    $validationHash = strtolower($entry->validation_hash);
-
-                    $existingId = (int) ($invalidUserHashes[$entry->username][$validationHash] ?? 0);
-                    if ($existingId === 0) {
-                        $invalidUserHashes[$entry->username][$validationHash] = $entry->related_id;
-                    } elseif ($existingId !== $entry->related_id) {
-                        $sniff['smells'][] = 'repeated_validation';
-                        $sniff['repeatedHash' . ucfirst($entry->related_type) . 'Id'] = $existingId;
-                    }
-                }
             }
 
             if ($entry->offset !== null) {
