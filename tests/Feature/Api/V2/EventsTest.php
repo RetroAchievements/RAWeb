@@ -9,8 +9,10 @@ use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\EventAward;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
@@ -68,6 +70,86 @@ class EventsTest extends JsonApiResourceTestCase
         $response->assertFetchedMany([
             ['type' => 'events', 'id' => (string) $event->id],
         ]);
+    }
+
+    public function testItDoesNotListFutureEventsForNonEventManagers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['id' => System::Events]);
+
+        $activeGame = Game::factory()->create(['system_id' => System::Events]);
+        $activeEvent = Event::factory()->create([
+            'legacy_game_id' => $activeGame->id,
+            'active_from' => Carbon::now()->subMonth(),
+        ]);
+
+        $futureGame = Game::factory()->create(['system_id' => System::Events]);
+        Event::factory()->create([
+            'legacy_game_id' => $futureGame->id,
+            'active_from' => Carbon::now()->addMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/events');
+
+        // Assert
+        $response->assertSuccessful();
+        $response->assertFetchedMany([
+            ['type' => 'events', 'id' => (string) $activeEvent->id],
+        ]);
+    }
+
+    public function testItListsFutureEventsForEventManagers(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        $user->assignRole(Role::EVENT_MANAGER);
+
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create(['system_id' => System::Events]);
+        $event = Event::factory()->create([
+            'legacy_game_id' => $game->id,
+            'active_from' => Carbon::now()->addMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/events');
+
+        // Assert
+        $response->assertSuccessful();
+        $response->assertFetchedMany([
+            ['type' => 'events', 'id' => (string) $event->id],
+        ]);
+    }
+
+    public function testItPreventsAccessToFutureEventsForNonEventManagers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create(['system_id' => System::Events]);
+        $event = Event::factory()->create([
+            'legacy_game_id' => $game->id,
+            'active_from' => Carbon::now()->addMonth(),
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('events')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/events/{$event->id}");
+
+        // Assert
+        $response->assertForbidden();
     }
 
     public function testItReturnsCorrectAttributes(): void
