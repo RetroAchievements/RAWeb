@@ -3064,6 +3064,121 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given the game has an in-progress claim, does not include screenshot upload props', function (ClaimStatus $claimStatus) {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        AchievementSetClaim::factory()->create([
+            'game_id' => $game->id,
+            'status' => $claimStatus,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    })->with([
+        'active' => ClaimStatus::Active,
+        'in review' => ClaimStatus::InReview,
+    ]);
+
+    it('given the game has a resolved claim, includes screenshot upload props', function (ClaimStatus $claimStatus) {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        AchievementSetClaim::factory()->create([
+            'game_id' => $game->id,
+            'status' => $claimStatus,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', true)
+            ->has('screenshotUploadStatuses')
+            ->has('screenshotUploadPendingCount')
+            ->has('screenshotUploadUserSubmissions')
+        );
+    })->with([
+        'complete' => ClaimStatus::Complete,
+        'dropped' => ClaimStatus::Dropped,
+    ]);
+
+    it('given this is a linked subset, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetSet' => $subsetSet] = createGameWithSubset(
+            $system,
+            'Test Game',
+            'Test Game [Subset - Bonus]'
+        );
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', [
+            'game' => $baseGame,
+            'set' => $subsetSet->achievement_set_id,
+        ]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given this is a subset-by-label-only, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game [Subset - Bonus]');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
     it('given an eligible user, screenshotUploadStatuses groups primary approved screenshots by type', function () {
         // ARRANGE
         Storage::fake('s3');
