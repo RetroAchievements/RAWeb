@@ -1,4 +1,8 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
+
+import { normalizeUrl } from '@/common/utils/normalizeUrl';
 
 import { processVideoUrl } from '../../utils/shortcodes/processVideoUrl';
 
@@ -9,11 +13,23 @@ interface VideoEmbedProps {
 }
 
 export const VideoEmbed: FC<VideoEmbedProps> = ({ src }) => {
+  const { t } = useTranslation();
+
   const processedVideo = processVideoUrl(src);
 
   if (!processedVideo) {
+    const normalizedSrc = normalizeUrl(src);
+
+    if (!normalizedSrc) {
+      return <span className="line-through">{t('Broken Link')}</span>;
+    }
+
     return (
-      <a href={src} target="_blank" rel="noreferrer">
+      <a
+        href={route('redirect', { url: normalizedSrc })}
+        target="_blank"
+        rel="noreferrer noopener nofollow"
+      >
         {src}
       </a>
     );
