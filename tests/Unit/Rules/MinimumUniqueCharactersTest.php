@@ -30,6 +30,18 @@ class MinimumUniqueCharactersTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
+    public function testItCountsCharactersRatherThanBytesForMultibyteInput(): void
+    {
+        // 日本語 contributes 3 unique characters but 8 unique bytes.
+        $validator = Validator::make([
+            'password' => '日本語日本語日本語',
+        ], [
+            'password' => [new MinimumUniqueCharacters()],
+        ]);
+
+        $this->assertTrue($validator->fails());
+    }
+
     public function testItStripsConfiguredWordsBeforeCountingUniqueCharacters(): void
     {
         $validator = Validator::make([

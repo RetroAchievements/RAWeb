@@ -54,11 +54,12 @@ class MinimumUniqueCharacters implements ValidationRule
         $byteLength = strlen($value);
 
         while ($offset < $byteLength) {
-            if (preg_match('/\G./us', $value, $matches, 0, $offset) === 1) {
+            $character = $value[$offset];
+
+            if (ord($character) >= 0x80 && preg_match('/\G./us', $value, $matches, 0, $offset) === 1) {
                 $character = $matches[0];
                 $offset += strlen($character);
             } else {
-                $character = $value[$offset];
                 $offset++;
             }
 
