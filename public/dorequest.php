@@ -15,6 +15,7 @@ use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\GetOfficialGamesListAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
+use App\Connect\Actions\GetSystemGamesAction;
 use App\Connect\Actions\GetUserProgressForConsoleAction;
 use App\Connect\Actions\LegacyGetPatchAction;
 use App\Connect\Actions\LegacyLoginAction;
@@ -75,6 +76,7 @@ $handler = match ($requestType) {
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitlbentry' => new SubmitLeaderboardEntryAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
+    'systemgames' => new GetSystemGamesAction(),
     'unlocks' => new GetPlayerGameUnlocksAction(),
     'uploadachievement' => new SubmitAchievementAction(),
     'uploadleaderboard' => new SubmitLeaderboardAction(),

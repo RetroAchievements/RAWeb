@@ -322,6 +322,36 @@ describe('Basic Rendering', function () {
         );
     });
 
+    it('given an array view query param, falls back to achievements without erroring', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]) . '?view[]=foo');
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('initialView', 'achievements')
+        );
+    });
+
+    it('given an array sort query param, falls back to display order without erroring', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]) . '?sort[]=foo');
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('initialSort', 'displayOrder')
+        );
+    });
+
     it('given a sort query param, sets the initial sort', function () {
         // ARRANGE
         $system = System::factory()->create();

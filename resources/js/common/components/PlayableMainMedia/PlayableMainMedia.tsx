@@ -39,7 +39,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   // null = closed, number = open at that screenshot index.
   const [openAtIndex, setOpenAtIndex] = useState<number | null>(null);
 
-  const { preloadGameScreenshots } = usePreloadGameScreenshots(screenshots);
+  const { preloadGameScreenshots } = usePreloadGameScreenshots(screenshots, { isPixelated });
 
   // If both images are the "No Screenshot Found" default, display nothing.
   if (imageTitleUrl.includes('000002') && imageIngameUrl.includes('000002')) {

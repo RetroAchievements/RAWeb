@@ -15,6 +15,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
 use App\Models\System;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildAchievementChangelogAction;
 use App\Platform\Data\AchievementData;
@@ -120,7 +121,10 @@ class AchievementController extends Controller
             }
         }
 
-        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
+        $tabParam = $request->query('tab');
+        $initialTab =
+            (is_string($tabParam) ? AchievementPageTab::tryFrom($tabParam) : null)
+            ?? AchievementPageTab::Comments;
 
         // Safeguard: event achievement pages don't have the Changelog tab.
         // Fall back to comments as the initial tab.
@@ -248,6 +252,10 @@ class AchievementController extends Controller
             );
         }
 
+        // This powers the "Report an issue" hub link. Ticket creation itself
+        // still uses TicketPolicy::createFor() and requires a played game.
+        $can->createTicket = Lazy::create(fn () => $user ? $user->can('create', Ticket::class) : false);
+
         return $can;
     }
 
@@ -267,6 +275,7 @@ class AchievementController extends Controller
             ->join('achievements', 'achievements.id', '=', 'achievement_set_achievements.achievement_id')
             ->where('achievement_set_achievements.achievement_set_id', $achievementSet->id)
             ->where('achievements.is_promoted', true)
+            ->whereNull('achievements.deleted_at')
             ->orderBy('achievement_set_achievements.order_column')
             ->orderBy('achievement_set_achievements.created_at')
             ->select('achievement_set_achievements.achievement_id', 'achievements.points');

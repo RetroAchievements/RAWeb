@@ -12,6 +12,7 @@ import {
   createSystem,
 } from '@/test/factories';
 
+import { currentTabAtom } from '../../state/achievements.atoms';
 import { AchievementShowRoot } from './AchievementShowRoot';
 
 describe('Component: AchievementShowRoot', () => {
@@ -130,6 +131,44 @@ describe('Component: AchievementShowRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/great achievement!/i)).toBeVisible();
+  });
+
+  it('given stale tab state from a previous achievement, syncs the active tab indicator to comments', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      jotaiAtoms: [[currentTabAtom, 'changelog']],
+      pageProps: {
+        achievement,
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: false },
+        changelog: [],
+        initialTab: 'comments',
+        isSubscribedToComments: false,
+        numComments: 1,
+        recentVisibleComments: [createComment({ payload: 'Fresh comment for this achievement.' })],
+      },
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/fresh comment for this achievement/i)).toBeVisible();
+    });
+
+    expect(screen.queryByText(/no changelog entries found/i)).not.toBeInTheDocument();
+
+    const desktopTabs = screen
+      .getAllByRole('tab')
+      .filter((tab) => tab.className.includes('relative z-10'));
+
+    expect(desktopTabs.find((tab) => tab.textContent === 'Comments')).toHaveClass('text-link');
+    expect(desktopTabs.find((tab) => tab.textContent === 'Changelog')).not.toHaveClass('text-link');
   });
 
   it('allows switching to the unlocks tab', async () => {

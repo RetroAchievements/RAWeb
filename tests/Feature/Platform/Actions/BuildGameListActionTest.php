@@ -1000,7 +1000,7 @@ class BuildGameListActionTest extends TestCase
             'players_hardcore' => 100,
         ]);
 
-        // ... below threshold (< 5 completions), should sort to end ...
+        // ... below threshold (< 5 completions), should sort second ...
         $game2 = Game::factory()->create([
             'system_id' => $system->id,
             'title' => 'Game C',
@@ -1011,7 +1011,7 @@ class BuildGameListActionTest extends TestCase
             'players_hardcore' => 50,
         ]);
 
-        // ... 5% mastery (10 completions / 200 players), should sort second when descending ...
+        // ... 5% mastery (10 completions / 200 players), should sort third when descending ...
         $game3 = Game::factory()->create([
             'system_id' => $system->id,
             'title' => 'Game B',
@@ -1033,8 +1033,8 @@ class BuildGameListActionTest extends TestCase
 
         // Assert
         $this->assertEquals($game1->id, $result->items[0]->game->id);
-        $this->assertEquals($game3->id, $result->items[1]->game->id);
-        $this->assertEquals($game2->id, $result->items[2]->game->id);
+        $this->assertEquals($game2->id, $result->items[1]->game->id);
+        $this->assertEquals($game3->id, $result->items[2]->game->id);
     }
 
     public function testItCanSortByMedianTimeToMasterHardcore(): void
