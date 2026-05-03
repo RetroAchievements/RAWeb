@@ -81,7 +81,6 @@ class CommentsTest extends TestCase
         $this->assertEquals($author->avatarUrl, $response->json('data.0.attributes.authorAvatarUrl'));
         $this->assertEquals('CommentAuthor', $response->json('data.0.attributes.authorDisplayName'));
         $this->assertEquals($author->ulid, $response->json('data.0.attributes.authorId'));
-        $this->assertFalse($response->json('data.0.attributes.isAutomated'));
         $this->assertEquals(route('comment.show', ['comment' => $comment1->id]), $response->json('data.0.attributes.permalink'));
         $this->assertArrayHasKey('submittedAt', $response->json('data.0.attributes'));
         $this->assertArrayNotHasKey('links', $response->json('data.0'));
@@ -335,6 +334,39 @@ class CommentsTest extends TestCase
         $response->assertSuccessful();
         $response->assertFetchedMany([
             ['type' => 'comments', 'id' => (string) $visibleComment->id],
+        ]);
+        $this->assertCount(1, $response->json('data'));
+    }
+
+    public function testItExcludesAutomatedSystemComments(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['id' => Comment::SYSTEM_USER_ID]);
+        $achievement = $this->createAchievement();
+        $author = User::factory()->create();
+
+        $humanComment = Comment::factory()->create([
+            'commentable_id' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'user_id' => $author->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_id' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'user_id' => Comment::SYSTEM_USER_ID, // !!
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('comments')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/achievements/{$achievement->id}/comments");
+
+        // Assert
+        $response->assertSuccessful();
+        $response->assertFetchedMany([
+            ['type' => 'comments', 'id' => (string) $humanComment->id],
         ]);
         $this->assertCount(1, $response->json('data'));
     }

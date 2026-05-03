@@ -27,7 +27,6 @@ class CommentResource extends BaseJsonApiResource
             'authorDisplayName' => $this->resource->getAttribute('author_display_name') ?? $this->resource->user->display_name,
             'authorId' => $this->resource->getAttribute('author_ulid') ?? $this->resource->user->ulid,
             'body' => $this->resource->body,
-            'isAutomated' => $this->resource->is_automated,
             'permalink' => $this->resource->url,
             'submittedAt' => $this->resource->created_at,
         ];
