@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
+use App\Platform\Actions\ClearGameScreenshotsFromGamePageAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -97,7 +98,7 @@ it('given a pending screenshot is promoted to primary, auto-approves it from pen
     expect($fresh->status)->toEqual(GameScreenshotStatus::Approved);
 });
 
-it('given a primary screenshot is deleted, automatically promotes the next approved screenshot to primary', function () {
+it('given a primary screenshot is permanently deleted, automatically promotes the next approved screenshot to primary', function () {
     // ARRANGE
     $game = Game::factory()->create([
         'system_id' => System::factory(),
@@ -119,16 +120,17 @@ it('given a primary screenshot is deleted, automatically promotes the next appro
     ]);
 
     // ACT
-    // ... simulate the delete action (media cleanup + record deletion) ...
-    $primary->media?->delete();
-    $primary->delete();
+    // ... simulate the destructive row delete action ...
+    $media = $primary->media;
+    $primary->forceDelete();
+    $media?->delete();
 
     // ASSERT
     // ... observer promotes the next approved screenshot ...
     expect($next->fresh()->is_primary)->toBeTrue();
 });
 
-it('given the last screenshot is deleted, resets the legacy column to the placeholder image', function () {
+it('given the last screenshot is permanently deleted, resets the legacy column to the placeholder image', function () {
     // ARRANGE
     $game = Game::factory()->create([
         'system_id' => System::factory(),
@@ -142,14 +144,15 @@ it('given the last screenshot is deleted, resets the legacy column to the placeh
     ]);
 
     // ACT
-    $screenshot->media?->delete();
-    $screenshot->delete();
+    $media = $screenshot->media;
+    $screenshot->forceDelete();
+    $media?->delete();
 
     // ASSERT
     expect($game->fresh()->image_ingame_asset_path)->toEqual('/Images/000002.png');
 });
 
-it('given a screenshot is deleted, also cleans up the accompanying Spatie Media record', function () {
+it('given a screenshot is permanently deleted, also cleans up the accompanying Spatie Media record', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
 
@@ -162,13 +165,83 @@ it('given a screenshot is deleted, also cleans up the accompanying Spatie Media 
     ]);
 
     // ACT
-    // ... simulate the delete action ...
-    $screenshot->media?->delete();
-    $screenshot->delete();
+    // ... simulate the destructive row delete action ...
+    $media = $screenshot->media;
+    $screenshot->forceDelete();
+    $media?->delete();
 
     // ASSERT
     expect(Media::find($mediaId))->toBeNull();
     expect(GameScreenshot::find($screenshot->id))->toBeNull();
+});
+
+it('given screenshots are cleared from the game page, soft deletes every screenshot and preserves media', function () {
+    // ARRANGE
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_title_asset_path' => '/Images/088888.png',
+        'image_ingame_asset_path' => '/Images/099999.png',
+    ]);
+
+    $titleMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/011111.png']);
+    $ingameMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/022222.png']);
+    $rejectedMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/033333.png']);
+
+    $title = GameScreenshot::factory()->for($game)->title()->primary()->create([
+        'media_id' => $titleMedia->id,
+    ]);
+
+    $ingame = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $ingameMedia->id,
+    ]);
+
+    $rejected = GameScreenshot::factory()->for($game)->ingame()->rejected()->create([
+        'media_id' => $rejectedMedia->id,
+    ]);
+
+    // ACT
+    $clearedCount = (new ClearGameScreenshotsFromGamePageAction())->execute($game);
+
+    // ASSERT
+    expect($clearedCount)->toEqual(3);
+    expect(GameScreenshot::where('game_id', $game->id)->count())->toEqual(0);
+    expect(GameScreenshot::withTrashed()->where('game_id', $game->id)->count())->toEqual(3);
+
+    $this->assertSoftDeleted($title);
+    $this->assertSoftDeleted($ingame);
+    $this->assertSoftDeleted($rejected);
+
+    expect(Media::find($titleMedia->id))->not->toBeNull();
+    expect(Media::find($ingameMedia->id))->not->toBeNull();
+    expect(Media::find($rejectedMedia->id))->not->toBeNull();
+
+    expect(GameScreenshot::withTrashed()->where('game_id', $game->id)->where('is_primary', true)->count())->toEqual(0);
+
+    $freshGame = $game->fresh();
+    expect($freshGame->image_title_asset_path)->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+    expect($freshGame->image_ingame_asset_path)->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+    expect(GameScreenshot::withTrashed()->findOrFail($rejected->id)->status)->toEqual(GameScreenshotStatus::Rejected);
+});
+
+it('given a cleared screenshot is restored, restores it with its prior status', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $media = createScreenshotMedia($game);
+
+    $screenshot = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $media->id,
+    ]);
+
+    (new ClearGameScreenshotsFromGamePageAction())->execute($game);
+
+    // ACT
+    $trashedScreenshot = GameScreenshot::onlyTrashed()->findOrFail($screenshot->id);
+    $trashedScreenshot->restore();
+
+    // ASSERT
+    $fresh = GameScreenshot::findOrFail($screenshot->id);
+    expect($fresh->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($fresh->is_primary)->toBeFalse();
 });
 
 it('given a screenshot is uploaded as the first of its type, auto-promotes it to the primary of that type', function () {

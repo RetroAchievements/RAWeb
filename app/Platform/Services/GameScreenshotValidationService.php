@@ -75,7 +75,10 @@ class GameScreenshotValidationService
         $hash = sha1_file($file->getRealPath());
 
         // Reject duplicates based on SHA1 within this game's non-rejected screenshots.
+        // Trashed screenshots are included so that re-uploading a cleared screenshot
+        // can't bypass the check and create a collision when the original is restored.
         $isDuplicate = $game->gameScreenshots()
+            ->withTrashed()
             ->where('status', '!=', GameScreenshotStatus::Rejected)
             ->whereHas('media', function ($query) use ($hash) {
                 $query->where('custom_properties->sha1', $hash);

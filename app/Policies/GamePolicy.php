@@ -262,6 +262,15 @@ class GamePolicy
         return in_array($fieldName, $allowedFieldsForUser, true);
     }
 
+    public function clearScreenshots(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_EDITOR,
+            Role::MEDIA_EDITOR,
+        ]);
+    }
+
     public static function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim

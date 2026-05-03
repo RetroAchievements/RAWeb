@@ -89,6 +89,24 @@ it('rejects duplicate images for the same game', function () {
     $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
 })->throws(ValidationException::class);
 
+it('rejects re-uploading an image that matches a soft-deleted screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+
+    $source = UploadedFile::fake()->image('screenshot.png', 256, 224);
+    $sourceContent = file_get_contents($source->getRealPath());
+
+    $original = $action->execute($game, $source, ScreenshotType::Ingame);
+    $original->delete();
+
+    $duplicate = UploadedFile::fake()->image('duplicate.png', 256, 224);
+    file_put_contents($duplicate->getRealPath(), $sourceContent);
+
+    // ASSERT
+    $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
 it('enforces a cap of 20 approved ingame screenshots', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
