@@ -14,7 +14,6 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\StaticData;
 use App\Models\User;
-use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -210,7 +209,7 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
                 $achievementsRemaining -= $playerGame->achievements_unlocked;
             }
         } else {
-            $achievementsRemaining -= 1;
+            $achievementsRemaining--;
         }
 
         $retVal = [

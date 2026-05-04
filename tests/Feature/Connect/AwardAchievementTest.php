@@ -18,14 +18,12 @@ use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
-use Tests\TestCase;
 
 uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
@@ -75,7 +73,7 @@ class AwardAchievementTestHelpers
                 $achievement4,
                 $achievement5,
                 $achievement6,
-            ]
+            ],
         ];
     }
 
@@ -117,7 +115,7 @@ class AwardAchievementTestHelpers
                 $achievement4,
                 $achievement5,
                 $achievement6,
-            ]
+            ],
         ];
     }
 
@@ -160,8 +158,8 @@ beforeEach(function () {
     $this->createConnectUser();
 });
 
-describe('normal unlock', function() {
-    test('new hardcore unlock', function() {
+describe('normal unlock', function () {
+    test('new hardcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -251,7 +249,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('repeated hardcore unlock', function() {
+    test('repeated hardcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -319,7 +317,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('final hardcore unlock awards badge', function() {
+    test('final hardcore unlock awards badge', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -375,7 +373,6 @@ describe('normal unlock', function() {
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
 
-
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement2->points, $user1->points_hardcore);
@@ -399,7 +396,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('new backdated hardcore unlock', function() {
+    test('new backdated hardcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -492,7 +489,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('backdated hardcore unlock with invalid validation hash is not backdated', function() {
+    test('backdated hardcore unlock with invalid validation hash is not backdated', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -589,7 +586,7 @@ describe('normal unlock', function() {
         $this->assertEquals('bad_validation', $warning->smells);
     });
 
-    test('backdated hardcore unlock with negative offset is not forward-dated', function() {
+    test('backdated hardcore unlock with negative offset is not forward-dated', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -682,7 +679,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('backdated hardcore unlock with large offset is not backdated', function() {
+    test('backdated hardcore unlock with large offset is not backdated', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -779,7 +776,7 @@ describe('normal unlock', function() {
         $this->assertEquals('bad_validation', $warning->smells);
     });
 
-    test('new softcore unlock', function() {
+    test('new softcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -869,7 +866,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('repeated softcore unlock', function() {
+    test('repeated softcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -937,7 +934,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('repeated softcore unlock for previous hardcore unlock', function() {
+    test('repeated softcore unlock for previous hardcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1005,7 +1002,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('final softcore unlock awards badge', function() {
+    test('final softcore unlock awards badge', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1061,7 +1058,6 @@ describe('normal unlock', function() {
                 'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points,
             ]);
 
-
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
@@ -1085,7 +1081,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('hardcore unlock upgrades softcore unlock', function() {
+    test('hardcore unlock upgrades softcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1150,7 +1146,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('final hardcore unlock upgrades softcore badge', function() {
+    test('final hardcore unlock upgrades softcore badge', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1238,7 +1234,7 @@ describe('normal unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('warning achievement is ignored', function() {
+    test('warning achievement is ignored', function () {
         // requesting an unlock for the warning achievement should return success without actually unlocking it
         $validationHash = md5(Achievement::CLIENT_WARNING_ID . $this->user->display_name . '1');
         $scoreBefore = $this->user->points_hardcore;
@@ -1274,8 +1270,8 @@ describe('normal unlock', function() {
     });
 });
 
-describe('delegated unlock', function() {
-    test('by name', function() {
+describe('delegated unlock', function () {
+    test('by name', function () {
         $data = AwardAchievementTestHelpers::createStandaloneGame();
         $integrationUser = $data['integrationUser'];
         $delegatedUser = $data['delegatedUser'];
@@ -1364,7 +1360,7 @@ describe('delegated unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('by ulid', function() {
+    test('by ulid', function () {
         $data = AwardAchievementTestHelpers::createStandaloneGame();
         $integrationUser = $data['integrationUser'];
         $delegatedUser = $data['delegatedUser'];
@@ -1453,7 +1449,7 @@ describe('delegated unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('not allowed for user other than author', function() {
+    test('not allowed for user other than author', function () {
         $data = AwardAchievementTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1502,7 +1498,7 @@ describe('delegated unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('not allowed for non-standalone game', function() {
+    test('not allowed for non-standalone game', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1554,7 +1550,7 @@ describe('delegated unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('not allowed without validation hash', function() {
+    test('not allowed without validation hash', function () {
         $data = AwardAchievementTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1602,7 +1598,7 @@ describe('delegated unlock', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('not allowed without correct validation hash', function() {
+    test('not allowed without correct validation hash', function () {
         $data = AwardAchievementTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1653,8 +1649,8 @@ describe('delegated unlock', function() {
     });
 });
 
-describe('event unlocks', function() {
-    test('new hardcore unlock unlocks event achievement', function() {
+describe('event unlocks', function () {
+    test('new hardcore unlock unlocks event achievement', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1698,7 +1694,7 @@ describe('event unlocks', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('repeated hardcore unlock still unlocks event achievement', function() {
+    test('repeated hardcore unlock still unlocks event achievement', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1745,7 +1741,7 @@ describe('event unlocks', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('new softcore unlock does not unlock event achievement', function() {
+    test('new softcore unlock does not unlock event achievement', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1791,7 +1787,7 @@ describe('event unlocks', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('new hardcore unlock does not unlock event achievement for unranked user', function() {
+    test('new hardcore unlock does not unlock event achievement for unranked user', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1838,10 +1834,10 @@ describe('event unlocks', function() {
     });
 });
 
-describe('validation', function() {
-    test('unknown achievement cannot be unlocked', function() {
+describe('validation', function () {
+    test('unknown achievement cannot be unlocked', function () {
         $data = AwardAchievementTestHelpers::createGame();
-        $gameHash = $data['gameHash'];;
+        $gameHash = $data['gameHash'];
         $now = Carbon::now();
 
         // do the hardcore unlock
@@ -1877,12 +1873,12 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('unpromoted achievement cannot be unlocked', function() {
+    test('unpromoted achievement cannot be unlocked', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $achievement1 = $data['achievements'][0];
         $achievement1->is_promoted = false;
         $achievement1->save();
-        $gameHash = $data['gameHash'];;
+        $gameHash = $data['gameHash'];
         $now = Carbon::now();
 
         // do the hardcore unlock
@@ -1918,7 +1914,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('unknown user agent demotes hardcore unlock to softcore', function() {
+    test('unknown user agent demotes hardcore unlock to softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -1969,7 +1965,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentUnknown, $warning->user_agent);
     });
 
-    test('unknown user agent allowed in softcore', function() {
+    test('unknown user agent allowed in softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2020,7 +2016,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentUnknown, $warning->user_agent);
     });
 
-    test('unsupported user agent demotes hardcore unlock to softcore', function() {
+    test('unsupported user agent demotes hardcore unlock to softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2066,7 +2062,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('unsupported user agent allowed in softcore', function() {
+    test('unsupported user agent allowed in softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2112,7 +2108,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('outdated user agent demotes hardcore unlock to softcore', function() {
+    test('outdated user agent demotes hardcore unlock to softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2158,7 +2154,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('outdated user agent allowed in softcore', function() {
+    test('outdated user agent allowed in softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2204,12 +2200,12 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('blocked user agent cannot unlock hardcore achievements', function() {
+    test('blocked user agent cannot unlock hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $achievement1 = $data['achievements'][0];
         $achievement1->is_promoted = false;
         $achievement1->save();
-        $gameHash = $data['gameHash'];;
+        $gameHash = $data['gameHash'];
         $now = Carbon::now();
 
         // do the hardcore unlock
@@ -2250,12 +2246,12 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentBlocked, $warning->user_agent);
     });
 
-    test('blocked user agent cannot unlock softcore achievements', function() {
+    test('blocked user agent cannot unlock softcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $achievement1 = $data['achievements'][0];
         $achievement1->is_promoted = false;
         $achievement1->save();
-        $gameHash = $data['gameHash'];;
+        $gameHash = $data['gameHash'];
         $now = Carbon::now();
 
         // do the unlock
@@ -2296,7 +2292,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentBlocked, $warning->user_agent);
     });
 
-    test('user agent for incorrect system still unlocks hardcore achievements', function() {
+    test('user agent for incorrect system still unlocks hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2352,7 +2348,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
     });
 
-    test('user agent for incorrect system on multi-system client does not generate warning', function() {
+    test('user agent for incorrect system on multi-system client does not generate warning', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2406,7 +2402,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('no validation hash still unlocks hardcore achievements', function() {
+    test('no validation hash still unlocks hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2456,7 +2452,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
     });
 
-    test('invalid validation hash still unlocks hardcore achievements', function() {
+    test('invalid validation hash still unlocks hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2508,7 +2504,7 @@ describe('validation', function() {
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
     });
 
-    test('validation has containing 0 offset still unlocked hardcore achievements', function() {
+    test('validation has containing 0 offset still unlocked hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2555,7 +2551,7 @@ describe('validation', function() {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
-    test('repeated invalid validation hash on different achievements creates warning', function() {
+    test('repeated invalid validation hash on different achievements creates warning', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];

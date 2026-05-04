@@ -2,10 +2,7 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\PlayerAchievement;
-use App\Models\PlayerGame;
-use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

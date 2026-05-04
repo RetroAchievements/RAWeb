@@ -1,6 +1,5 @@
 <?php
 
-use App\Actions\FindUserByIdentifierAction;
 use App\Connect\Actions\AwardAchievementAction;
 use App\Connect\Actions\GetAchievementSetsAction;
 use App\Connect\Actions\GetAchievementUnlocksAction;
@@ -30,17 +29,12 @@ use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitLeaderboardEntryAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
-use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
-use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use App\Platform\Services\UserAgentService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 use Sentry\State\Scope;
 
 use function Sentry\configureScope;
