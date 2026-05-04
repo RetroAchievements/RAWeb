@@ -267,15 +267,26 @@ switch ($requestType) {
 
         $newAwardedIds = [];
         foreach ($awardableAchievements as $achievement) {
-            $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
+            if ($hardcore) {
+                $targetUser->points_hardcore += $achievement->points;
 
-            if (!isset($unlockAchievementResult['Error'])) {
-                dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
-                    ->onQueue('player-achievements');
-
-                $newAwardedIds[] = $achievement->id;
+                $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $achievement->id);
+                if ($foundPlayerAchievement) {
+                    // if there's a found PlayerAchievement and we're doing a hardcore unlock,
+                    // it must be an upgrade from softcore.
+                    $targetUser->points -= $achievement->points;
+                }
+            } else {
+                $targetUser->points += $achievement->points;
             }
+
+            dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
+                ->onQueue('player-achievements');
+
+            $newAwardedIds[] = $achievement->id;
         }
+
+        $targetUser->save();
 
         $response['Score'] = $targetUser->points_hardcore;
         $response['SoftcoreScore'] = $targetUser->points;
