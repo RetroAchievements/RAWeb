@@ -308,22 +308,6 @@ $response['Success'] = (bool) $response['Success'];
 $jsonContent = json_encode($response);
 $contentLength = (string) strlen($jsonContent);
 
-if (array_key_exists('Status', $response)) {
-    $status = $response['Status'];
-    if ($status === 401) {
-        return response($jsonContent, $status)
-            ->header('Content-Type', 'application/json')
-            ->header('Content-Length', $contentLength)
-            ->header('Cache-Control', 'no-transform, private, must-revalidate')
-            ->header('WWW-Authenticate', 'Bearer');
-    }
-
-    return response($jsonContent, $status)
-        ->header('Content-Type', 'application/json')
-        ->header('Content-Length', $contentLength)
-        ->header('Cache-Control', 'no-transform, private, must-revalidate');
-}
-
 return response($jsonContent)
     ->header('Content-Type', 'application/json')
     ->header('Content-Length', $contentLength)

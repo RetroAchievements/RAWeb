@@ -119,7 +119,7 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
         if ($this->connectWarning) {
             $this->connectWarning->related_type = 'achievement';
             $this->connectWarning->related_id = $this->achievement->id;
-            $this->connectWarning->hardcore = $this->hardcore;
+            $this->connectWarning->hardcore = (int) $this->hardcore;
             $this->connectWarning->offset = $request->has('o') ? (int) $request->input('o') : null;
             $this->connectWarning->validation_hash = mb_strimwidth($request->input('v', ''), 0, 40, "..."); // capture unnormalized parameter
         }
