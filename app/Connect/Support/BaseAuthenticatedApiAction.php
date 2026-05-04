@@ -39,14 +39,14 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
 
     private function authenticateFromRequest(Request $request): ?array
     {
-        $username = request()->input('u');
+        $username = $request->input('u');
         if (!$username) {
             // no user specified
             return $this->invalidCredentials();
         }
 
         // this pulls the user associated to the 't' parameter
-        $this->user = request()->user('connect-token');
+        $this->user = $request->user('connect-token');
 
         if (!$this->user) {
             // no user found for provided token
