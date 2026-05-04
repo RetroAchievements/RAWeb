@@ -1,6 +1,10 @@
+import { route } from 'ziggy-js';
+
 import { render, screen } from '@/test';
 
 import { VideoEmbed } from './VideoEmbed';
+
+console.debug = vi.fn();
 
 describe('Component: VideoEmbed', () => {
   it('renders without crashing', () => {
@@ -11,7 +15,7 @@ describe('Component: VideoEmbed', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given an unrecognized URL, renders a fallback link', () => {
+  it('given an unrecognized URL, renders a fallback link through the redirect route', () => {
     // ARRANGE
     render(<VideoEmbed src="https://ibb.co/9gShSmF" />);
 
@@ -19,8 +23,27 @@ describe('Component: VideoEmbed', () => {
     expect(screen.queryByTestId('video-embed')).not.toBeInTheDocument();
 
     const linkEl = screen.getByRole('link');
-    expect(linkEl).toHaveAttribute('href', 'https://ibb.co/9gShSmF');
+    expect(linkEl.getAttribute('href')).toContain(route('redirect'));
     expect(linkEl).toHaveAttribute('target', '_blank');
+    expect(linkEl).toHaveAttribute('rel', 'noreferrer noopener nofollow');
+  });
+
+  it('given a dangerous unrecognized URL, renders broken link text', () => {
+    // ARRANGE
+    render(<VideoEmbed src="javascript:alert(1)" />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText(/broken link/i)).toBeVisible();
+  });
+
+  it('given a malformed unrecognized URL, renders broken link text', () => {
+    // ARRANGE
+    render(<VideoEmbed src="<a" />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText(/broken link/i)).toBeVisible();
   });
 
   it('given a YouTube URL, renders a YouTube embed iframe', () => {

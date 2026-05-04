@@ -107,4 +107,39 @@ describe('getHashFor', function () {
         // ASSERT
         expect($hashA)->not->toEqual($hashB);
     });
+
+    it('produces the same hash for URLs differing only by ignored tracking parameters', function () {
+        // ARRANGE
+        config()->set('responsecache.ignored_query_parameters', ['utm_source', 'utm_medium', 'gclid', 'fbclid']);
+
+        $hasher = createHasher();
+        $cleanRequest = Request::create('/games', 'GET');
+        $utmRequest = Request::create('/games?utm_source=twitter&utm_medium=social', 'GET');
+        $gclidRequest = Request::create('/games?gclid=abc123', 'GET');
+
+        // ACT
+        $cleanHash = $hasher->getHashFor($cleanRequest);
+        $utmHash = $hasher->getHashFor($utmRequest);
+        $gclidHash = $hasher->getHashFor($gclidRequest);
+
+        // ASSERT
+        expect($cleanHash)->toEqual($utmHash);
+        expect($cleanHash)->toEqual($gclidHash);
+    });
+
+    it('still distinguishes meaningful query params even when tracking params are stripped', function () {
+        // ARRANGE
+        config()->set('responsecache.ignored_query_parameters', ['utm_source']);
+
+        $hasher = createHasher();
+        $requestA = Request::create('/games?page=1&utm_source=twitter', 'GET');
+        $requestB = Request::create('/games?page=2&utm_source=twitter', 'GET');
+
+        // ACT
+        $hashA = $hasher->getHashFor($requestA);
+        $hashB = $hasher->getHashFor($requestB);
+
+        // ASSERT
+        expect($hashA)->not->toEqual($hashB);
+    });
 });

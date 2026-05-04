@@ -34,6 +34,10 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
   const hoverLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { width: windowWidth } = useWindowSize();
 
+  useEffect(() => {
+    setActiveIndex(safeIndex);
+  }, [safeIndex]);
+
   // Debounce null values so moving between tabs doesn't
   // briefly reset the hover state and break the slide animation.
   const setHoveredIndexDebounced = (index: number | null) => {
