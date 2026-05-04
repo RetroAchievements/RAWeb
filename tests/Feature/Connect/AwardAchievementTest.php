@@ -34,9 +34,9 @@ class AwardAchievementTestHelpers
 {
     public static function buildValidationHash(Achievement $achievement, User $user, int $hardcore, int $offset = 0): string
     {
-        $data = $achievement->id . $user->username . $hardcore . $achievement->id;
+        $data = $achievement->id . $user->username . $hardcore;
         if ($offset > 0) {
-            $data .= $offset;
+            $data .= "{$achievement->id}{$offset}";
         }
 
         return md5($data);
@@ -1298,7 +1298,7 @@ describe('delegated unlock', function () {
         $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the delegated hardcore unlock
-        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $delegatedUser, 1);
+        $validationHash = md5($achievement3->id . $delegatedUser->username . '1' . $achievement3->id);
         $scoreBefore = $delegatedUser->points_hardcore;
         $softcoreScoreBefore = $delegatedUser->points;
 
@@ -1387,7 +1387,7 @@ describe('delegated unlock', function () {
         $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the delegated hardcore unlock
-        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $delegatedUser, 1);
+        $validationHash = md5($achievement3->id . $delegatedUser->ulid . '1' . $achievement3->id);
         $scoreBefore = $delegatedUser->points_hardcore;
         $softcoreScoreBefore = $delegatedUser->points;
 
@@ -2504,7 +2504,7 @@ describe('validation', function () {
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
     });
 
-    test('validation has containing 0 offset still unlocked hardcore achievements', function () {
+    test('validation hash containing 0 offset still unlocks hardcore achievements', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -2528,6 +2528,55 @@ describe('validation', function () {
                 'm' => $gameHash->md5,
                 'v' => $validationHash,
             ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // smell should not be captured
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('validation hash honors provided casing', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $validationHash = md5($achievement3->id . strtoupper($this->user->username) . '1' . $achievement3->id . '0');
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'u' => strtoupper($this->user->username),
+                't' => $this->user->connect_token,
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,

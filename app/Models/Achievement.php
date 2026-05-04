@@ -283,16 +283,6 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $maintainer ? $maintainer->user : $this->developer;
     }
 
-    public function unlockValidationHash(User $user, int $hardcore, int $offset = 0, bool $includeZeroOffset = false): string
-    {
-        $data = $this->id . $user->username . $hardcore . $this->id;
-        if ($offset > 0 || $includeZeroOffset) {
-            $data .= $offset;
-        }
-
-        return md5($data);
-    }
-
     /**
      * Returns game IDs that are related to this achievement for multiset purposes.
      * For bonus sets: includes the base game.

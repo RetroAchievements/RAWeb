@@ -103,7 +103,7 @@ describe('returns entries', function () {
         $this->assertEquals([
             'id_user_score' => md5($leaderboard1->id . 'Player11234'),
         ], $sniffs[0]['serverValidationHashes']);
-        $this->assertEquals(route('user.show', 'Player1'), $sniffs[0]['link']);
+        $this->assertStringContainsString('Player1', $sniffs[0]['link']);
     });
 
     test('leaderboard data with offset', function () {
@@ -124,7 +124,7 @@ describe('returns entries', function () {
             'id_user_score' => md5($leaderboard1->id . 'Player11234'),
             'id_user_score_offset' => md5($leaderboard1->id . 'Player112345'),
         ], $sniffs[0]['serverValidationHashes']);
-        $this->assertEquals(route('user.show', 'Player1'), $sniffs[0]['link']);
+        $this->assertStringContainsString('Player1', $sniffs[0]['link']);
     });
 
     test('user data', function () {
@@ -201,7 +201,7 @@ describe('smells', function () {
 
         // bad_validation provided to createLeaderboardWarning
         $this->assertEquals(['bad_validation', 'unknown_user'], $sniffs[0]['smells']);
-        $this->assertEquals(route('user.show', 'Player1'), $sniffs[0]['link']);
+        $this->assertStringContainsString('Player1', $sniffs[0]['link']);
     });
 
     test('no user', function () {

@@ -286,16 +286,6 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
 
     // == helpers
 
-    public function submitValidationHash(User $user, int $score, int $offset = 0, bool $includeZeroOffset = false): string
-    {
-        $data = $this->id . $user->username . $score;
-        if ($offset > 0 || $includeZeroOffset) {
-            $data .= $offset;
-        }
-
-        return md5($data);
-    }
-
     public function getRank(int $score): int
     {
         $entries = $this->entries();

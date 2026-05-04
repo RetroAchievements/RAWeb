@@ -68,8 +68,6 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
         }
         $this->achievement = $achievement;
 
-        $this->hardcore = $request->boolean('h', false);
-
         // determine if request is being delegated
         $actingUser = $this->user;
         $result = $this->applyDelegationForUnlock($request, $this->achievement);
@@ -77,28 +75,44 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
             return $result;
         }
 
-        // check validation hash
-
         // ignore negative values and offsets greater than max.
         // clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) $request->input('o', 0), 0), $maxOffset);
 
+        $this->hardcore = $request->boolean('h', false);
+
+        // check validation hash (note use of parameters k/u - the parameter may not have the same casing as the model)
         $validationHash = strtolower($request->input('v', ''));
 
         if ($this->user != $actingUser) {
             // delegated unlocks will be rejected if the appropriate validation hash is not provided
-            if ($validationHash !== $this->achievement->unlockValidationHash($this->user, (int) $this->hardcore, $offset)) {
+            // NOTE: delegated validationStr has an extra copy of the achievement ID.
+            $validationStr = $this->achievement->id . $request->input('k', '') . ($this->hardcore ? '1' : '0') . $this->achievement->id;
+            if ($offset !== 0) {
+                $validationStr .= $offset;
+            }
+            if ($validationHash !== md5($validationStr)) {
                 return $this->accessDenied();
             }
         } elseif (empty($validationHash)) {
             $this->addSmell($request, 'no_validation');
-        } elseif ($validationHash !== $this->achievement->unlockValidationHash($this->user, (int) $this->hardcore, $offset)) {
-            if ($offset !== 0 || $validationHash !== $this->achievement->unlockValidationHash($this->user, (int) $this->hardcore, $offset, true)) {
+        } elseif ($offset !== 0) {
+            // NOTE: the achievement ID appears before the offset
+            $validationStr = $this->achievement->id . $request->input('u', '') . ($this->hardcore ? '1' : '0') . $this->achievement->id . $offset;
+            if ($validationHash !== md5($validationStr)) {
                 $this->addSmell($request, 'bad_validation');
 
                 // hash failed - ignore offset
                 $offset = 0;
+            }
+        } else {
+            // an offset of 0 is expected to not be included in the hash, but if the first
+            // check fails, also check to see if an offset of 0 was included and ignore it.
+            $validationStr = $this->achievement->id . $request->input('u', '') . ($this->hardcore ? '1' : '0');
+            if ($validationHash !== md5($validationStr)
+                && $validationHash !== md5("{$validationStr}{$this->achievement->id}0")) {
+                $this->addSmell($request, 'bad_validation');
             }
         }
 

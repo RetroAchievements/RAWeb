@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
+use App\Models\Achievement;
 use App\Models\ConnectWarning;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -17,6 +18,7 @@ class BuildConnectSniffsAction
         $sniffs = [];
         $usernames = [];
         $leaderboardIds = [];
+        $achievementIds = [];
         $userAgentService = new UserAgentService();
 
         $entries = ConnectWarning::query()
@@ -47,7 +49,21 @@ class BuildConnectSniffsAction
                 $sniff['offset'] = $entry->offset;
             }
 
-            if ($entry->related_type === 'leaderboard') {
+            if ($entry->related_type === 'achievement') {
+                if (!in_array($entry->related_id, $achievementIds)) {
+                    $achievementIds[] = $entry->related_id;
+                }
+
+                $sniff['achievementId'] = $entry->related_id;
+                $sniff['hardcore'] = $entry->hardcore;
+
+                $sniff['serverValidationHashes']['id_user_hardcore'] = md5($entry->related_id . $entry->username . ($entry->hardcore ? '1' : '0'));
+
+                if ($entry->offset !== null) {
+                    $sniff['serverValidationHashes']['id_user_hardcore_id_offset'] = md5($entry->related_id . $entry->username . ($entry->hardcore ? '1' : '0') . $entry->related_id . $entry->offset);
+                }
+
+            } elseif ($entry->related_type === 'leaderboard') {
                 if (!in_array($entry->related_id, $leaderboardIds)) {
                     $leaderboardIds[] = $entry->related_id;
                 }
@@ -98,6 +114,13 @@ class BuildConnectSniffsAction
             $userInfos[strtolower($user['display_name'])] = $user;
         }
 
+        $achievements = Achievement::query()
+            ->whereIn('id', $achievementIds)
+            ->select('id', 'title')
+            ->get()
+            ->keyBy('id')
+            ->toArray();
+
         $leaderboards = Leaderboard::query()
             ->whereIn('id', $leaderboardIds)
             ->select('id', 'title')
@@ -109,19 +132,24 @@ class BuildConnectSniffsAction
             $lowerUsername = strtolower($sniff['user']);
             if (array_key_exists($lowerUsername, $userInfos)) {
                 $sniff['userinfo'] = $userInfos[$lowerUsername];
-                $sniff['link'] = route('user.show', $sniff['userinfo']['display_name']);
+                $linkUsername = $sniff['userinfo']['display_name'];
             } elseif (empty($lowerUsername)) {
                 $sniff['smells'][] = 'no_user';
-                $sniff['link'] = '';
+                $linkUsername = '';
             } else {
                 $sniff['smells'][] = 'unknown_user';
-                $sniff['link'] = route('user.show', $sniff['user']);
+                $linkUsername = $sniff['user'];
+            }
+
+            $sniff['link'] = empty($linkUsername) ? '' : "historyexamine.php?u={$linkUsername}&d=" . strtotime($sniff['date']);
+
+            if (array_key_exists('achievementId', $sniff) && array_key_exists($sniff['achievementId'], $achievements)) {
+                $sniff['achievement'] = $achievements[$sniff['achievementId']];
             }
 
             if (array_key_exists('leaderboardId', $sniff) && array_key_exists($sniff['leaderboardId'], $leaderboards)) {
                 $sniff['leaderboard'] = $leaderboards[$sniff['leaderboardId']];
             }
-
         }
 
         return array_reverse($sniffs); // newest first
