@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Connect\Actions\BuildConnectSniffsAction;
+use App\Models\Achievement;
 use App\Models\ConnectWarning;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -43,6 +44,30 @@ class BuildConnectSniffsTestHelpers
             'related_id' => $leaderboard->id,
             'hardcore' => 1,
             'extra' => $score,
+            'smells' => $smells,
+        ]);
+    }
+
+    public static function createAchievementWarning(
+        string $user,
+        Achievement $achievement,
+        bool $hardcore,
+        ?string $smells = 'unknown_client',
+        ?string $userAgent = 'MyClient/1.5',
+        ?string $validationHash = null,
+        ): ConnectWarning {
+        if ($validationHash === null) {
+            $validationHash = md5($achievement->id . $user . ($hardcore ? '1' : '0'));
+        }
+
+        return ConnectWarning::create([
+            'method' => 'awardachievement',
+            'username' => $user,
+            'user_agent' => $userAgent ?? '',
+            'validation_hash' => $validationHash,
+            'related_type' => 'achievement',
+            'related_id' => $achievement->id,
+            'hardcore' => $hardcore ? 1 : 0,
             'smells' => $smells,
         ]);
     }
@@ -86,6 +111,45 @@ describe('returns entries', function () {
         $this->assertEquals($entry3->validation_hash, $sniffs[0]['validationHash']);
         $this->assertEquals($entry2->validation_hash, $sniffs[1]['validationHash']);
         $this->assertEquals($entry1->validation_hash, $sniffs[2]['validationHash']);
+    });
+
+    test('achievement data', function () {
+        $achievement1 = Achievement::factory()->create();
+        $entry1 = BuildConnectSniffsTestHelpers::createAchievementWarning('Player1', $achievement1, true);
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
+        $this->assertEquals(1, count($sniffs));
+        $this->assertEquals('awardachievement', $sniffs[0]['method']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievementId']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']['id']);
+        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']['title']);
+        $this->assertEquals(1, $sniffs[0]['hardcore']);
+        $this->assertEquals([
+            'id_user_hardcore' => md5($achievement1->id . 'Player11'),
+        ], $sniffs[0]['serverValidationHashes']);
+        $this->assertStringContainsString('Player1', $sniffs[0]['link']);
+    });
+
+    test('achievement data with offset', function () {
+        $achievement1 = Achievement::factory()->create();
+        $entry1 = BuildConnectSniffsTestHelpers::createAchievementWarning('Player1', $achievement1, true);
+        $entry1->offset = 5;
+        $entry1->save();
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
+        $this->assertEquals(1, count($sniffs));
+        $this->assertEquals('awardachievement', $sniffs[0]['method']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievementId']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']['id']);
+        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']['title']);
+        $this->assertEquals(1, $sniffs[0]['hardcore']);
+        $this->assertEquals([
+            'id_user_hardcore' => md5($achievement1->id . 'Player11'),
+            'id_user_hardcore_id_offset' => md5($achievement1->id . 'Player11' . $achievement1->id . '5'),
+        ], $sniffs[0]['serverValidationHashes']);
+        $this->assertStringContainsString('Player1', $sniffs[0]['link']);
     });
 
     test('leaderboard data', function () {
