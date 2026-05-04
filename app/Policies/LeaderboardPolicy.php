@@ -85,8 +85,8 @@ class LeaderboardPolicy
     public function updateField(User $user, ?Leaderboard $leaderboard, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state'],
-            Role::DEVELOPER => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state', 'trigger_definition'],
+            Role::DEVELOPER => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state', 'trigger_definition'],
             Role::WRITER => ['title', 'description'],
             Role::EVENT_MANAGER => ['title', 'description', 'order_column', 'state'],
         ];

@@ -496,6 +496,96 @@ class UploadLeaderboardTest extends TestCase
         $this->assertNotEquals('Description2', $leaderboard2->description);
     }
 
+    public function testUploadLeaderboardWriterCanUpdateTitleAndDescription(): void
+    {
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user->assignRole(Role::WRITER);
+
+        $game = $this->seedGame();
+        $this->addServerUser();
+
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'title' => 'Original Title',
+            'description' => 'Original Description',
+            'trigger_definition' => 'STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0',
+            'rank_asc' => true,
+            'format' => 'VALUE',
+        ]);
+
+        $this->post('dorequest.php', $this->checksumParams([
+            'i' => $leaderboard->id,
+            'g' => $game->id,
+            'n' => 'Writer Title',
+            'd' => 'Writer Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+        ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => $leaderboard->id,
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals('Writer Title', $leaderboard->title);
+        $this->assertEquals('Writer Description', $leaderboard->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard->trigger_definition);
+        $this->assertEquals(true, $leaderboard->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard->format);
+        $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard->id,
+            "{$this->user->display_name} edited this leaderboard's title, description.");
+    }
+
+    public function testUploadLeaderboardWriterCannotUpdateLogicOrderOrFormat(): void
+    {
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user->assignRole(Role::WRITER);
+
+        $game = $this->seedGame();
+        $this->addServerUser();
+
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'title' => 'Original Title',
+            'description' => 'Original Description',
+            'trigger_definition' => 'STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0',
+            'rank_asc' => true,
+            'format' => 'VALUE',
+        ]);
+
+        $this->post('dorequest.php', $this->checksumParams([
+            'i' => $leaderboard->id,
+            'g' => $game->id,
+            'n' => 'Writer Title',
+            'd' => 'Writer Description',
+            's' => '11=0',
+            'b' => '12=0',
+            'c' => '13=0',
+            'l' => '14=0',
+            'w' => 0,
+            'f' => 'SCORE',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Access denied.',
+            ]);
+
+        $leaderboard->refresh();
+        $this->assertEquals('Original Title', $leaderboard->title);
+        $this->assertEquals('Original Description', $leaderboard->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard->trigger_definition);
+        $this->assertEquals(true, $leaderboard->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard->format);
+    }
+
     public function testUploadLeaderboardNonDeveloper(): void
     {
         $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
