@@ -82,7 +82,7 @@ class GetPlayerGameUnlocksAction extends BaseAuthenticatedApiAction
             // if the user is using an unknown or outdated client, mark the warning
             // achievement as earned in softcore so it only pops in hardcore.
             $userAgentService = new UserAgentService();
-            $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+            $clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);
             if ($clientSupportLevel !== ClientSupportLevel::Full) {
                 // don't allow outdated client popup to appear in softcore mode
                 $response['UserUnlocks'][] = Achievement::CLIENT_WARNING_ID;
