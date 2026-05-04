@@ -280,8 +280,6 @@ switch ($requestType) {
             $newAwardedIds[] = $achievement->id;
         }
 
-        $targetUser->save();
-
         $response['Score'] = $targetUser->points_hardcore;
         $response['SoftcoreScore'] = $targetUser->points;
         $response['ExistingIDs'] = $alreadyAwardedIds;
