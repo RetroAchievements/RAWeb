@@ -12,9 +12,13 @@ use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Enums\UserRelationStatus;
 use App\Enums\UserPreference;
 use App\Models\Message;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRelation;
 use App\Notifications\Message\PrivateMessageReceivedNotification;
+use App\Policies\MessageThreadPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
@@ -543,6 +547,74 @@ class MessagesTest extends TestCase
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 2]);
     }
 
+    public function testMessageThreadPolicyAllowsFreshUserWithNoExistingTeamThread(): void
+    {
+        /** @var User $freshUser */
+        $freshUser = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now(),
+        ]);
+        $teamAccount = $this->createTeamAccount('RAdmin');
+
+        $canCreate = (new MessageThreadPolicy())->create($freshUser, null, $teamAccount);
+
+        $this->assertTrue($canCreate);
+    }
+
+    public function testMessageThreadPolicyBlocksFreshUserWithOpenThreadToSameTeamAccount(): void
+    {
+        /** @var User $freshUser */
+        $freshUser = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now(),
+        ]);
+        $teamAccount = $this->createTeamAccount('RAdmin');
+        $this->createMessageThreadBetween($freshUser, $teamAccount);
+
+        $canCreate = (new MessageThreadPolicy())->create($freshUser, null, $teamAccount);
+
+        $this->assertFalse($canCreate);
+    }
+
+    public function testMessageThreadPolicyAllowsFreshUserWithOpenThreadToDifferentTeamAccount(): void
+    {
+        /** @var User $freshUser */
+        $freshUser = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now(),
+        ]);
+        $firstTeamAccount = $this->createTeamAccount('RAdmin');
+        $secondTeamAccount = $this->createTeamAccount('UnlockTeam');
+        $this->createMessageThreadBetween($freshUser, $firstTeamAccount);
+
+        $canCreate = (new MessageThreadPolicy())->create($freshUser, null, $secondTeamAccount);
+
+        $this->assertTrue($canCreate);
+    }
+
+    public function testMessageThreadPolicyAllowsNonFreshUserWithOpenThreadToTeamAccount(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now()->subWeeks(3),
+        ]);
+        $teamAccount = $this->createTeamAccount('RAdmin');
+        $this->createMessageThreadBetween($user, $teamAccount);
+
+        $canCreate = (new MessageThreadPolicy())->create($user, null, $teamAccount);
+
+        $this->assertTrue($canCreate);
+    }
+
     public function testMessageToSelf(): void
     {
         $now = Carbon::now()->floorSecond();
@@ -604,5 +676,44 @@ class MessagesTest extends TestCase
         $this->assertDatabaseMissing('messages', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 2]);
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 1]);
+    }
+
+    private function createTeamAccount(string $username): User
+    {
+        Role::query()->firstOrCreate([
+            'name' => Role::TEAM_ACCOUNT,
+            'guard_name' => 'web',
+        ], [
+            'display' => 1,
+        ]);
+
+        /** @var User $teamAccount */
+        $teamAccount = User::factory()->create([
+            'username' => $username,
+            'display_name' => $username,
+            'points' => 0,
+            'points_hardcore' => 0,
+        ]);
+        $teamAccount->assignRole(Role::TEAM_ACCOUNT);
+
+        return $teamAccount;
+    }
+
+    private function createMessageThreadBetween(User $sender, User $recipient): MessageThread
+    {
+        /** @var MessageThread $thread */
+        $thread = MessageThread::factory()->create();
+
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $sender->id,
+        ]);
+
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $recipient->id,
+        ]);
+
+        return $thread;
     }
 }

@@ -66,7 +66,18 @@ class MessageThreadPolicy
 
         // Fresh accounts can message team accounts.
         if ($recipient && $recipient->hasRole(Role::TEAM_ACCOUNT)) {
-            return true;
+            if (!$user->isFreshAccount()) {
+                return true;
+            }
+
+            $hasOpenThreadWithRecipient = MessageThreadParticipant::where('user_id', $user->id)
+                ->whereIn('thread_id', MessageThreadParticipant::withTrashed()
+                    ->select('thread_id')
+                    ->where('user_id', $recipient->id)
+                )
+                ->exists();
+
+            return !$hasOpenThreadWithRecipient;
         }
 
         // Fresh accounts cannot create new message threads to regular users.
