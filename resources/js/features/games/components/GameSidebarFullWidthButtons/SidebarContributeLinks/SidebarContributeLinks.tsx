@@ -13,7 +13,6 @@ import {
 } from '@/common/components/+vendor/BaseCollapsible';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
-import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -37,7 +36,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const { isOpen, setIsOpen } = useAnimatedCollapse();
+  const [isOpen, setIsOpen] = useState(false);
 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
