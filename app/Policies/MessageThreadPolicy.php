@@ -70,8 +70,9 @@ class MessageThreadPolicy
                 return true;
             }
 
-            $hasOpenThreadWithRecipient = MessageThreadParticipant::where('user_id', $user->id)
-                ->whereIn('thread_id', MessageThreadParticipant::withTrashed()
+            $hasOpenThreadWithRecipient = MessageThreadParticipant::withTrashed() // still count delete + re-sends
+                ->where('user_id', $user->id)
+                ->whereIn('thread_id', MessageThreadParticipant::query()
                     ->select('thread_id')
                     ->where('user_id', $recipient->id)
                 )
