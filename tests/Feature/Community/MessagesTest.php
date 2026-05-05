@@ -598,6 +598,44 @@ class MessagesTest extends TestCase
         $this->assertTrue($canCreate);
     }
 
+    public function testMessageThreadPolicyBlocksFreshUserAfterDeletingTheirSideOfTeamThread(): void
+    {
+        /** @var User $freshUser */
+        $freshUser = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now(),
+        ]);
+        $teamAccount = $this->createTeamAccount('RAdmin');
+        $thread = $this->createMessageThreadBetween($freshUser, $teamAccount);
+
+        (new DeleteMessageThreadAction())->execute($thread, $freshUser);
+
+        $canCreate = (new MessageThreadPolicy())->create($freshUser, null, $teamAccount);
+
+        $this->assertFalse($canCreate);
+    }
+
+    public function testMessageThreadPolicyAllowsFreshUserAfterTeamAccountClosesThread(): void
+    {
+        /** @var User $freshUser */
+        $freshUser = User::factory()->create([
+            'forum_verified_at' => null,
+            'points' => 0,
+            'points_hardcore' => 0,
+            'created_at' => now(),
+        ]);
+        $teamAccount = $this->createTeamAccount('RAdmin');
+        $thread = $this->createMessageThreadBetween($freshUser, $teamAccount);
+
+        (new DeleteMessageThreadAction())->execute($thread, $teamAccount);
+
+        $canCreate = (new MessageThreadPolicy())->create($freshUser, null, $teamAccount);
+
+        $this->assertTrue($canCreate);
+    }
+
     public function testMessageThreadPolicyAllowsNonFreshUserWithOpenThreadToTeamAccount(): void
     {
         /** @var User $user */
