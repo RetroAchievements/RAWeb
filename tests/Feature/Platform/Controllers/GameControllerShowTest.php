@@ -3179,6 +3179,59 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given an unranked non-developer, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'unranked_at' => now(), // !!
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given an unranked developer or junior developer, still includes screenshot upload props', function (string $role) {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+        seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'unranked_at' => now(), // !!
+        ]);
+        $user->assignRole($role);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', true)
+            ->has('screenshotUploadStatuses')
+            ->has('screenshotUploadPendingCount')
+            ->has('screenshotUploadUserSubmissions')
+        );
+    })->with([
+        'developer' => Role::DEVELOPER,
+        'junior developer' => Role::DEVELOPER_JUNIOR,
+    ]);
+
     it('given an eligible user, screenshotUploadStatuses groups primary approved screenshots by type', function () {
         // ARRANGE
         Storage::fake('s3');
