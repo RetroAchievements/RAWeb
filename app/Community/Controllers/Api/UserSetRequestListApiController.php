@@ -92,7 +92,7 @@ class UserSetRequestListApiController extends Controller
         $filters = $request->getFilters(defaultAchievementsPublishedFilter: 'none');
 
         if (!isset($filters['system'])) {
-            $filters['system'] = $targetUser ? ['all'] : ['supported'];
+            $filters['system'] = [$targetUser ? 'all' : 'supported'];
         }
 
         return $filters;
