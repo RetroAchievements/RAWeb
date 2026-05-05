@@ -62,8 +62,16 @@ return [
                 'achievement_issues_url' => env('DISCORD_WEBHOOK_QATEAM_ACHIEVEMENT_ISSUES'),
                 'incorrect_type_url' => env('DISCORD_WEBHOOK_QATEAM_INCORRECT_TYPE'),
             ],
+            'SetDesigners' => [
+                'url' => env('DISCORD_WEBHOOK_SETDESIGN_TEAM'),
+                'is_forum' => true,
+            ],
             'WritingTeam' => [
                 'url' => env('DISCORD_WEBHOOK_WRITING_TEAM'),
+                'is_forum' => true,
+            ],
+            'UnlockTeam' => [
+                'url' => env('DISCORD_WEBHOOK_UNLOCKTEAM'),
                 'is_forum' => true,
             ],
             'QualityQuest' => [
@@ -81,7 +89,6 @@ return [
                     env('DISCORD_ROLE_ADMIN'),
                     env('DISCORD_ROLE_MODERATOR'),
                 ],
-                'manual_unlock_url' => env('DISCORD_WEBHOOK_MOD_MANUAL_UNLOCK'),
                 'verify_url' => env('DISCORD_WEBHOOK_MOD_VERIFY'),
                 'reports_url' => env('DISCORD_WEBHOOK_MOD_REPORTS'),
             ],
@@ -102,6 +109,7 @@ return [
              * @example "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
              */
             'claim_with_unresolved_tickets' => env('DISCORD_WEBHOOK_ALERT_CLAIM_WITH_UNRESOLVED_TICKETS'),
+            'inappropriate_game_screenshot' => env('DISCORD_WEBHOOK_ALERT_INAPPROPRIATE_GAME_SCREENSHOT'),
             'muted_user_message' => env('DISCORD_WEBHOOK_ALERT_MUTED_USER_MESSAGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
         ],

@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
-use App\Platform\Services\ScreenshotResolutionService;
 use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\ValidScreenshotResolutionRule;
 use BackedEnum;
@@ -64,8 +63,6 @@ class GameScreenshotsRelationManager extends RelationManager
     {
         /** @var Game $game */
         $game = $this->getOwnerRecord();
-        $system = $game->system;
-        $resolutionService = new ScreenshotResolutionService();
 
         return $table
             ->headerActions([
@@ -145,9 +142,16 @@ class GameScreenshotsRelationManager extends RelationManager
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 /** @var Builder<GameScreenshot> $query */
-                $query->with('media')
+                $query->with(['media', 'game.system'])
                     ->orderByType()
                     ->orderBy('order_column');
+
+                if (!$this->shouldShowArchivedScreenshots()) {
+                    $query->whereNotIn('status', [
+                        GameScreenshotStatus::Rejected->value,
+                        GameScreenshotStatus::Replaced->value,
+                    ]);
+                }
             })
             ->reorderRecordsTriggerAction(
                 fn (Action $action, bool $isReordering) => $action
@@ -202,20 +206,10 @@ class GameScreenshotsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('resolution')
                     ->label('Resolution')
-                    ->getStateUsing(function (GameScreenshot $record) use ($system, $resolutionService): ?string {
-                        if (!$record->width || !$record->height) {
-                            return null;
-                        }
-
-                        // Stash validity so the color/icon closures
-                        // don't need to recompute it per row.
-                        $record->setAttribute('has_wrong_resolution',
-                            !empty($system?->screenshot_resolutions)
-                            && !$resolutionService->isValidResolution($record->width, $record->height, $system)
-                        );
-
-                        return "{$record->width}x{$record->height}";
-                    })
+                    ->state(fn (GameScreenshot $record): ?string => ($record->width && $record->height)
+                        ? "{$record->width}x{$record->height}"
+                        : null
+                    )
                     ->color(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'danger' : null)
                     ->icon(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'heroicon-o-exclamation-triangle' : null),
             ])
@@ -226,11 +220,8 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->toArray()),
 
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        GameScreenshotStatus::Approved->value => 'Published',
-                        GameScreenshotStatus::Pending->value => 'Pending',
-                        GameScreenshotStatus::Rejected->value => 'Rejected',
-                    ]),
+                    ->placeholder('Published + Pending')
+                    ->options(fn (): array => $this->getStatusFilterOptions()),
 
             ])
             ->emptyStateHeading('No screenshots yet')
@@ -382,6 +373,36 @@ class GameScreenshotsRelationManager extends RelationManager
         $this->logReorderingActivity();
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function getStatusFilterOptions(): array
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $selectedType = data_get($this->getTableFilterState('type'), 'value');
+
+        $counts = $game->gameScreenshots()
+            ->when($selectedType, fn (Builder $query) => $query->where('type', $selectedType))
+            ->whereIn('status', [
+                GameScreenshotStatus::Approved->value,
+                GameScreenshotStatus::Pending->value,
+                GameScreenshotStatus::Rejected->value,
+                GameScreenshotStatus::Replaced->value,
+            ])
+            ->select('status', DB::raw('COUNT(*) as aggregate'))
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return [
+            GameScreenshotStatus::Approved->value => 'Published (' . ($counts[GameScreenshotStatus::Approved->value] ?? 0) . ')',
+            GameScreenshotStatus::Pending->value => 'Pending (' . ($counts[GameScreenshotStatus::Pending->value] ?? 0) . ')',
+            GameScreenshotStatus::Rejected->value => 'Rejected (' . ($counts[GameScreenshotStatus::Rejected->value] ?? 0) . ')',
+            GameScreenshotStatus::Replaced->value => 'Replaced (' . ($counts[GameScreenshotStatus::Replaced->value] ?? 0) . ')',
+        ];
+    }
+
     private function logScreenshotActivity(Game $game): ActivityLogger
     {
         return activity()
@@ -452,5 +473,15 @@ class GameScreenshotsRelationManager extends RelationManager
         }
 
         return $text;
+    }
+
+    private function shouldShowArchivedScreenshots(): bool
+    {
+        $selectedStatus = data_get($this->getTableFilterState('status'), 'value');
+
+        return in_array($selectedStatus, [
+            GameScreenshotStatus::Rejected->value,
+            GameScreenshotStatus::Replaced->value,
+        ], true);
     }
 }

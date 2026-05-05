@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { getIsValidScreenshotResolution } from '@/common/utils/getIsValidScreenshotResolution';
 import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
-import { isValidScreenshotResolution } from '@/common/utils/isValidScreenshotResolution';
 
 import { useSubmitGameScreenshotMutation } from '../../hooks/mutations/useSubmitGameScreenshotMutation';
 
@@ -54,7 +54,7 @@ export function useGameScreenshotUploadForm({
 
     // Step 2: Validate the resolution client-side.
     if (
-      !isValidScreenshotResolution(
+      !getIsValidScreenshotResolution(
         width,
         height,
         screenshotResolutions,

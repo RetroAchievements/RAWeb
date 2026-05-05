@@ -120,18 +120,14 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
     private function syncAchievementSetAchievements(AchievementSet $coreSet, Collection $syncData): void
     {
         if ($syncData->isEmpty()) {
-            // Delete achievements that are no longer in the set.
-            AchievementSetAchievement::where('achievement_set_id', $coreSet->id)->delete();
+            $this->deleteActiveAchievementsMissingFromSet($coreSet, []);
 
             return;
         }
 
         $achievementIds = array_keys($syncData->toArray());
 
-        // Delete achievements that are no longer in the set.
-        AchievementSetAchievement::where('achievement_set_id', $coreSet->id)
-            ->whereNotIn('achievement_id', $achievementIds)
-            ->delete();
+        $this->deleteActiveAchievementsMissingFromSet($coreSet, $achievementIds);
 
         // Prepare data for the upsert.
         $upsertData = [];
@@ -152,5 +148,24 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
                 ['order_column', 'updated_at'] // columns to update if exists
             );
         }
+    }
+
+    /**
+     * @param int[] $achievementIds
+     */
+    private function deleteActiveAchievementsMissingFromSet(AchievementSet $coreSet, array $achievementIds): void
+    {
+        $query = AchievementSetAchievement::where('achievement_set_id', $coreSet->id)
+            ->whereIn('achievement_id', function ($query) {
+                $query->select('id')
+                    ->from('achievements')
+                    ->whereNull('deleted_at');
+            });
+
+        if (!empty($achievementIds)) {
+            $query->whereNotIn('achievement_id', $achievementIds);
+        }
+
+        $query->delete();
     }
 }

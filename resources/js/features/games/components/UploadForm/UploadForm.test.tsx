@@ -59,7 +59,7 @@ describe('Component: UploadForm', () => {
     // ARRANGE
     render(<UploadForm gameId={1} screenshotResolutions={[]} selectedType="ingame" />);
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
 
     // ACT
     await userEvent.upload(fileInput, createMockImageFile());
@@ -75,7 +75,7 @@ describe('Component: UploadForm', () => {
     // ARRANGE
     render(<UploadForm gameId={1} screenshotResolutions={[]} selectedType="ingame" />);
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
 
     // ACT
     await userEvent.upload(fileInput, createMockImageFile('first.png'));
@@ -103,6 +103,126 @@ describe('Component: UploadForm', () => {
     expect(screen.getByText(/expected resolutions: 320x240/i)).toBeVisible();
   });
 
+  it('given the preview is valid and matches the existing canonical resolution, does not show a consistency warning', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        screenshotUploadConsistency={{
+          existingResolutions: [{ width: 320, height: 240 }],
+          canonicalResolution: '320x240',
+        }}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, createMockImageFile());
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/valid resolution/i)).toBeVisible();
+      expect(screen.queryByText(/existing screenshots use/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/doesn't match existing screenshots/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it('given the preview is valid but differs from the canonical resolution, shows a consistency warning', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        screenshotUploadConsistency={{
+          existingResolutions: [{ width: 256, height: 224 }],
+          canonicalResolution: '256x224',
+        }}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, createMockImageFile());
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/valid resolution/i)).toBeVisible();
+      expect(screen.getByText(/doesn't match existing screenshots \(256x224\)/i)).toBeVisible();
+    });
+  });
+
+  it('given the preview is 1px off from the canonical resolution, does not show a consistency warning', async () => {
+    // ARRANGE
+    vi.stubGlobal(
+      'Image',
+      class MockImage {
+        naturalWidth = 257;
+        naturalHeight = 224;
+        onload: (() => void) | null = null;
+        onerror: ((error: unknown) => void) | null = null;
+
+        set src(_value: string) {
+          queueMicrotask(() => this.onload?.());
+        }
+      },
+    );
+
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 256, height: 224 }]}
+        screenshotUploadConsistency={{
+          existingResolutions: [{ width: 256, height: 224 }],
+          canonicalResolution: '256x224',
+        }}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, createMockImageFile());
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/valid resolution/i)).toBeVisible();
+      expect(screen.queryByText(/doesn't match existing screenshots/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it('given the preview is invalid, does not show a consistency warning', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 256, height: 224 }]}
+        screenshotUploadConsistency={{
+          existingResolutions: [{ width: 320, height: 240 }],
+          canonicalResolution: '320x240',
+        }}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, createMockImageFile());
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/invalid resolution/i)).toBeVisible();
+      expect(screen.queryByText(/existing screenshots use/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/doesn't match existing screenshots/i)).not.toBeInTheDocument();
+    });
+  });
+
   it('given the user submits a valid file, makes the correct POST call to the server', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
@@ -117,7 +237,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
 
     await waitFor(() => {
@@ -154,7 +274,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('img', { name: /preview/i })).toBeInTheDocument();
@@ -189,7 +309,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
@@ -221,7 +341,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
@@ -260,7 +380,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
@@ -300,7 +420,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
@@ -371,7 +491,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
 
     // ACT
     await userEvent.upload(fileInput, createMockImageFile());
@@ -395,7 +515,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('img', { name: /preview/i })).toBeInTheDocument();
@@ -422,7 +542,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     const jpegFile = new File(['test'], 'screenshot.jpg', { type: 'image/jpeg' });
 
     // ACT
@@ -549,7 +669,7 @@ describe('Component: UploadForm', () => {
       />,
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
     await userEvent.upload(fileInput, createMockImageFile());
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();

@@ -16,10 +16,10 @@ class GameAchievementSetData extends Data
         public int $id,
         public AchievementSetType $type,
         public ?string $title,
-        public int $orderColumn,
         public ?Carbon $createdAt,
         public ?Carbon $updatedAt,
         public AchievementSetData $achievementSet,
+        public int $orderColumn = 0,
     ) {
     }
 }

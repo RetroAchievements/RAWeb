@@ -5,8 +5,12 @@ import type { RouteName } from 'ziggy-js';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildBeatRatioColumnDef } from '../../utils/column-definitions/buildBeatRatioColumnDef';
+import { buildBeatTimeColumnDef } from '../../utils/column-definitions/buildBeatTimeColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
+import { buildMasteryRatioColumnDef } from '../../utils/column-definitions/buildMasteryRatioColumnDef';
+import { buildMasteryTimeColumnDef } from '../../utils/column-definitions/buildMasteryTimeColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
 import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
 import { buildPlayerGameProgressColumnDef } from '../../utils/column-definitions/buildPlayerGameProgressColumnDef';
@@ -48,6 +52,27 @@ export function useColumnDefinitions(options: {
       tableApiRouteParams,
       t_label: t('RetroRatio'),
       strings: { t_none: t('none') },
+    }),
+    buildBeatRatioColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Beat %'),
+    }),
+    buildBeatTimeColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Time to Beat'),
+      strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
+    }),
+    buildMasteryRatioColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Mastery %'),
+    }),
+    buildMasteryTimeColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Time to Master'),
     }),
     buildLastUpdatedColumnDef({
       locale: i18n.language,

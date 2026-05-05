@@ -16,6 +16,8 @@ interface ScreenshotDropZoneProps {
   isResolutionValid: boolean;
   previewUrl: string | null;
 
+  canonicalResolution?: string | null;
+  hasConsistencyWarning?: boolean;
   hasPreview?: boolean;
   onDrop?: (e: DragEvent) => void;
   onFileChange?: (file: File | undefined) => void;
@@ -24,8 +26,10 @@ interface ScreenshotDropZoneProps {
 }
 
 export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
+  canonicalResolution,
   fileInputRef,
   formattedResolutions,
+  hasConsistencyWarning,
   hasPreview,
   isResolutionValid,
   onDrop,
@@ -72,6 +76,7 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
       <input
         ref={fileInputRef}
         type="file"
+        aria-label={t('Upload screenshot file')}
         accept={supportsUpscaledScreenshots ? '.png,.jpeg,.jpg,.webp' : '.png'}
         className="hidden"
         onChange={(event) => {
@@ -93,9 +98,11 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
 
             {previewDimensions ? (
               <ScreenshotPreviewMeta
-                width={previewDimensions.width}
+                canonicalResolution={canonicalResolution}
+                hasConsistencyWarning={hasConsistencyWarning}
                 height={previewDimensions.height}
                 isResolutionValid={isResolutionValid}
+                width={previewDimensions.width}
               />
             ) : null}
 

@@ -66,12 +66,13 @@ describe('Util: buildMasteryTimeColumnDef', () => {
     );
   });
 
-  it('given a game has fewer than 5 masteries, renders a dash', () => {
+  it('given a game has fewer than 5 masteries but has hardcore players, renders a dash', () => {
     // ARRANGE
     const gameListEntry = createGameListEntry({
       game: createGame(),
       gameListStats: createGameListEntryStats({
         coreSetTimesCompletedHardcore: 3,
+        coreSetPlayersHardcore: 50,
         coreSetMedianTimeToCompleteHardcore: 3600,
       }),
     });
@@ -91,6 +92,26 @@ describe('Util: buildMasteryTimeColumnDef', () => {
     const gameListEntry = createGameListEntry({
       game: createGame(),
       gameListStats: null,
+    });
+
+    const columnDef = buildMasteryTimeColumnDef({ t_label: 'Time to Master' as TranslatedString });
+    const CellComponent = columnDef.cell as any;
+
+    // ACT
+    render(<CellComponent row={{ original: gameListEntry }} />);
+
+    // ASSERT
+    expect(screen.getByText('-')).toBeVisible();
+  });
+
+  it('given a game has no hardcore players, renders a dash', () => {
+    // ARRANGE
+    const gameListEntry = createGameListEntry({
+      game: createGame(),
+      gameListStats: createGameListEntryStats({
+        coreSetTimesCompletedHardcore: 0,
+        coreSetPlayersHardcore: 0,
+      }),
     });
 
     const columnDef = buildMasteryTimeColumnDef({ t_label: 'Time to Master' as TranslatedString });

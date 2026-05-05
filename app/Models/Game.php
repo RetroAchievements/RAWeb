@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Platform\Actions\ComputeGameSearchTitlesAction;
@@ -387,6 +388,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                         ->performOnCollections('screenshots');
                 }
 
+                // Height-constrained thumbnails for the game page preview area.
+                // The large max width is intentionally unconstrained so only
+                // height is the binding dimension, preserving the original aspect ratio.
+                $this->addMediaConversion('thumbnail')
+                    ->format('png')
+                    ->fit(Fit::Max, 10000, 240)
+                    ->performOnCollections('screenshots');
+
                 $this->addMediaConversion('placeholder')
                     ->format('webp')
                     ->width(32)
@@ -585,9 +594,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     private function resolveScreenshotUrl(ScreenshotType $type, string $fallbackAssetPath): string
     {
         if (!$this->is_media_restricted && $this->relationLoaded('gameScreenshots')) {
-            $url = $this->getPrimaryScreenshot($type)?->media?->getUrl();
-            if ($url) {
-                return $url;
+            $media = $this->getPrimaryScreenshot($type)?->media;
+            if ($media) {
+                // Prefer the height-constrained thumbnail when available.
+                if ($media->hasGeneratedConversion('thumbnail')) {
+                    return $media->getUrl('thumbnail');
+                }
+
+                return $media->getUrl();
             }
         }
 
@@ -685,8 +699,30 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         });
     }
 
+    public function getHasActiveOrInReviewClaimsAttribute(): bool
+    {
+        // BuildsGameListQueries injects this as a virtual field.
+        // When it does, prefer that value instead.
+        if (array_key_exists('has_active_or_in_review_claims', $this->attributes)) {
+            return (bool) $this->attributes['has_active_or_in_review_claims'];
+        }
+
+        if ($this->relationLoaded('achievementSetClaims')) {
+            return $this->achievementSetClaims->contains(
+                fn (AchievementSetClaim $claim) => in_array($claim->status, [ClaimStatus::Active, ClaimStatus::InReview], true)
+            );
+        }
+
+        return $this->achievementSetClaims()->activeOrInReview()->exists();
+    }
+
     public function getIsSubsetGameAttribute(): bool
     {
+        // See if we can short circut the queries to build parentGameId first.
+        if (str_contains($this->title, '[Subset')) {
+            return true;
+        }
+
         return $this->parentGameId !== null;
     }
 
@@ -1099,7 +1135,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
      */
     public function unresolvedTickets(): HasManyThrough
     {
-        return $this->tickets()->unresolved();
+        return $this->tickets()->open();
     }
 
     /**

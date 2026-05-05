@@ -48,8 +48,7 @@ export function buildMasteryRatioColumnDef<TEntry extends App.Platform.Data.Game
         row.original.gameListStats?.coreSetTimesCompletedHardcore ?? 0;
       const coreSetPlayersHardcore = row.original.gameListStats?.coreSetPlayersHardcore ?? 0;
 
-      // Require a minimum number of masteries before showing a ratio.
-      if (coreSetTimesCompletedHardcore < 5) {
+      if (coreSetPlayersHardcore === 0) {
         return <p className="text-muted">{'-'}</p>;
       }
 

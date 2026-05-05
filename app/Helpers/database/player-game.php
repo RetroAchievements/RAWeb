@@ -269,6 +269,7 @@ function getUserAchievementUnlocksForGame(
         )
 
         ->where('is_promoted', $isPromoted)
+        ->whereNull('achievements.deleted_at')
         ->orderBy('player_achievements.achievement_id')
         ->get([
             DB::raw('player_achievements.achievement_id'),

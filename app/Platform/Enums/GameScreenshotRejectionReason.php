@@ -13,7 +13,7 @@ enum GameScreenshotRejectionReason: string
     case PoorQuality = 'poor_quality';
     case Duplicate = 'duplicate'; // too similar to another image in the game's gallery
     case IncorrectType = 'incorrect_type';
-    case InappropriateContent = 'inappropriate_content'; // TODO should raise a #mod-feed alert
+    case InappropriateContent = 'inappropriate_content';
     case Other = 'other';
 
     public function label(): string

@@ -114,6 +114,10 @@ class AchievementSet extends BaseModel
 
     public function getImageAssetPathUrlAttribute(): string
     {
+        if (!$this->image_asset_path) {
+            return '';
+        }
+
         return media_asset($this->image_asset_path);
     }
 
@@ -208,6 +212,14 @@ class AchievementSet extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<AchievementSetVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(AchievementSetVersion::class);
     }
 
     // == scopes

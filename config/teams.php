@@ -33,6 +33,8 @@ return [
         'RACheats' => [Role::CHEAT_INVESTIGATOR],
         'RAdmin' => [Role::ADMINISTRATOR, Role::MODERATOR],
         'RAEvents' => [Role::EVENT_MANAGER],
+        'SetDesigners' => [Role::SET_DESIGNER],
         'WritingTeam' => [Role::WRITER],
+        'UnlockTeam' => [Role::MANUAL_UNLOCKER],
     ],
 ];

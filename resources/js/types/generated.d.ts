@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.UserAwards {
+export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-hardcore' | 'beaten-softcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'patreon-supporter' | 'playtest';
+}
 declare namespace App.Community.Data {
 export type AchievementChecklistGroup = {
 header: string;
@@ -197,7 +200,7 @@ export type MessageThreadTemplateKind = 'achievement-issue' | 'manual-unlock' | 
 export type ModerationActionType = 'mute' | 'unmute' | 'ban' | 'unban' | 'unrank' | 'rerank';
 export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopicComment' | 'UserProfile';
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
-export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket';
+export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
 export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
@@ -406,6 +409,7 @@ createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
 develop?: boolean;
 lockForumTopic?: boolean;
+manageAchievements?: boolean;
 manageAchievementSetClaims?: boolean;
 manageEmulators?: boolean;
 manageEvents?: boolean;
@@ -415,6 +419,7 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+quickEditAchievement?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
 updateAchievementDescription?: boolean;
@@ -434,7 +439,7 @@ viewDeveloperInterest?: boolean;
 };
 }
 declare namespace App.Enums {
-export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5;
+export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
@@ -484,7 +489,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -638,9 +643,9 @@ systems?: Array<App.Platform.Data.System> | null;
 };
 export type EmulatorDownload = {
 id: number;
-platformId: number;
 label: string | null;
 url: string;
+platformId: number;
 };
 export type EventAchievement = {
 achievement?: App.Platform.Data.Achievement;
@@ -698,10 +703,10 @@ export type GameAchievementSet = {
 id: number;
 type: App.Platform.Enums.AchievementSetType;
 title: string | null;
-orderColumn: number;
 createdAt: string | null;
 updatedAt: string | null;
 achievementSet: App.Platform.Data.AchievementSet;
+orderColumn: number;
 };
 export type GameClaimant = {
 user: App.Data.User;
@@ -824,6 +829,7 @@ originalUrl: string;
 smWebpUrl: string;
 mdWebpUrl: string;
 lgWebpUrl: string;
+thumbnailUrl: string;
 };
 export type GameSet = {
 id: number;
@@ -897,6 +903,7 @@ targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
+screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
 screenshotUploadUserSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
 };
@@ -1103,6 +1110,10 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+};
+export type ScreenshotUploadConsistency = {
+existingResolutions: Array<{ width: number; height: number }>;
+canonicalResolution?: string;
 };
 export type ScreenshotUploadTypeStatus = {
 count: number;
