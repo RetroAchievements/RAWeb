@@ -293,6 +293,9 @@ function RenderAward(
                 $tooltipDescription = "Awarded for earning at least {$actualEventAward->points_required} {$pointsLabel}";
             }
 
+            $tooltipTitle = e($tooltipTitle);
+            $tooltipDescription = e($tooltipDescription);
+
             echo avatar('event', $event->id,
                 link: route('event.show', $event->id),
                 tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>{$tooltipTitle}</p><span>{$tooltipDescription}</span><p class='italic'>{$awardDate}</p></div>",
@@ -311,7 +314,7 @@ function RenderAward(
             return;
         }
 
-        $tierLine = $awardGameTitle ? "<span>{$awardGameTitle}</span>" : '';
+        $tierLine = $awardGameTitle ? '<span>' . e($awardGameTitle) . '</span>' : '';
 
         echo avatar('playtestAward', $awardData,
             tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Playtester Award</p>{$tierLine}<p class='italic'>{$awardDate}</p></div>",

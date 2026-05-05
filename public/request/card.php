@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -26,9 +27,10 @@ $html = match ($type) {
     default => '?',
 };
 
-// User cards and cards with context contain user-specific data and should not be CDN-cached.
+// User cards, cards with context, and authenticated game cards contain user-specific data.
 // Other card types contain static content that can be cached at the CDN level.
-$isUserSpecific = $type === 'user' || $context !== null;
+$isGameCardForAuthenticatedUser = $type === 'game' && $context === null && Auth::check();
+$isUserSpecific = $type === 'user' || $context !== null || $isGameCardForAuthenticatedUser;
 $isCacheable = request()->isMethod('GET') && !$isUserSpecific;
 
 $cacheControl = $isCacheable
