@@ -13,8 +13,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 function RenderFilterButton(string $text, string $filter, int $count): void
 {
     if ($count > 0) {
-        echo "<button class='btn' type='button' data-filter='$filter'>";
-        echo "$text ($count)";
+        echo "<button class='btn' type='button' data-filter='" . e($filter) . "'>";
+        echo e($text) . " ($count)";
         echo '</button>';
     }
 }
@@ -226,7 +226,7 @@ foreach ($clients as $client) {
                 $classes = [
                     'smell',
                     'user-' . key_to_class($sniff['user']),
-                    'method-' . $sniff['method'],
+                    'method-' . key_to_class($sniff['method']),
                     ...array_map(fn ($class) => 'smell-' . key_to_class($class), $sniff['smells'] ?? []),
                 ];
                 if (empty($sniff['userAgent'])) {
@@ -235,10 +235,10 @@ foreach ($clients as $client) {
                 ?>
                 <details class="<?= implode(' ', $classes) ?>">
                     <summary class="cursor-pointer mb-2">
-                        <code><?= $sniff['date'] ?></code>
-                        <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= $sniff['method'] ?></code>
+                        <code><?= e($sniff['date']) ?></code>
+                        <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= e($sniff['method']) ?></code>
                         <?php foreach ($sniff['smells'] ?? [] as $smell): ?>
-                            <code style="padding:1px 5px;border:1px solid <?= $colors[$smell]['border'] ?? 'gray' ?>;background:<?= $colors[$smell]['background'] ?? 'gray' ?>;color:white"><?= $smell ?></code>
+                            <code style="padding:1px 5px;border:1px solid <?= e($colors[$smell]['border'] ?? 'gray') ?>;background:<?= e($colors[$smell]['background'] ?? 'gray') ?>;color:white"><?= e($smell) ?></code>
                         <?php endforeach ?>
                         <?php
                             if ($sniff['user']) {
