@@ -14,6 +14,8 @@ class PreventRequestForgery extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-
+        // RFC 8058 one-click unsubscribe POSTs come from
+        // email client proxies and can't carry a CSRF token.
+        'unsubscribe/*',
     ];
 }

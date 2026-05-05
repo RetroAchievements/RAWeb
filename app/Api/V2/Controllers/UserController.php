@@ -7,6 +7,8 @@ namespace App\Api\V2\Controllers;
 use App\Api\V2\UserAwards\UserAwardKind;
 use App\Models\PlayerBadge;
 use App\Models\User;
+use App\Policies\UserCommentPolicy;
+use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use LaravelJsonApi\Core\Pagination\Page;
 use LaravelJsonApi\Core\Responses\RelatedResponse;
 use LaravelJsonApi\Laravel\Http\Controllers\Actions;
@@ -56,5 +58,33 @@ class UserController extends JsonApiController
         return RelatedResponse::make($user, 'awards', $data)
             ->withMeta($meta)
             ->withQueryParameters($request);
+    }
+
+    protected function readingWallComments(
+        User $user,
+        ResourceQuery $request,
+    ): void {
+        $this->abortIfWallCommentsAreHidden($user, $request);
+    }
+
+    protected function readingRelatedWallComments(
+        User $user,
+        ResourceQuery $request,
+    ): void {
+        $this->abortIfWallCommentsAreHidden($user, $request);
+    }
+
+    private function abortIfWallCommentsAreHidden(User $user, ResourceQuery $request): void
+    {
+        if ((new UserCommentPolicy())->viewAny($request->user(), $user)) {
+            return;
+        }
+
+        throw JsonApiException::error([
+            'status' => '404',
+            'code' => 'not_found',
+            'title' => 'Not Found',
+            'detail' => "No comments found for user {$user->display_name}.",
+        ]);
     }
 }
