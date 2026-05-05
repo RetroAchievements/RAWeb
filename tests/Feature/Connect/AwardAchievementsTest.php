@@ -423,4 +423,45 @@ class AwardAchievementsTest extends TestCase
                 "Status" => 405,
             ]);
     }
+
+    public function testUnpromotedAchievementIsNotAwarded(): void
+    {
+        /** @var System $standalonesSystem */
+        $standalonesSystem = System::factory()->create(['id' => System::Standalones]);
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
+
+        /** @var User $integrationUser */
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
+        /** @var User $delegatedUser */
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
+
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            'a' => (string) $achievement1->id,
+            'h' => 1,
+            'v' => md5($achievement1->id . $delegatedUser->username . '1'),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertExactJson([
+                "Success" => true,
+                "Score" => $scoreBefore,
+                "SoftcoreScore" => $softcoreScoreBefore,
+                "ExistingIDs" => [],
+                "SuccessfulIDs" => [],
+            ]);
+    }
 }

@@ -586,6 +586,102 @@ describe('normal unlock', function () {
         $this->assertEquals('bad_validation', $warning->smells);
     });
 
+    test('backdated hardcore unlock with no validation hash is not backdated', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $achievement5 = $data['achievements'][4];
+        $achievement6 = $data['achievements'][5];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+
+        $playerSession1 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession1);
+
+        // cache the unlocks for the game
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
+        $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
+
+        // do the hardcore unlock
+        $offset = 30;
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'o' => $offset,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // achievement unlocked
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement3->id,
+            'player_session_id' => $playerSession2->id,
+        ])->first();
+        $unlockDate = $now; // not backdated
+        $this->assertModelExists($playerAchievement);
+        $this->assertEquals($unlockDate, $playerAchievement->unlocked_at);
+        $this->assertEquals($unlockDate, $playerAchievement->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // make sure the unlock cache was updated
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarnedHardcore']);
+        $this->assertEquals($unlockDate, $unlocks[$achievement3->id]['DateEarned']);
+
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals($offset, $warning->offset);
+        $this->assertEquals('', $warning->validation_hash);
+        $this->assertEquals('no_validation', $warning->smells);
+    });
+
     test('backdated hardcore unlock with negative offset is not forward-dated', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
@@ -1702,7 +1798,7 @@ describe('event unlocks', function () {
         $gameHash = $data['gameHash'];
         $now = Carbon::now();
 
-        $unlock1Date = $now->clone()->subMinutes(65);
+        $unlock1Date = $now->clone()->subDays(5); // must be before event achievement active (-1 days)
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         // do the hardcore unlock

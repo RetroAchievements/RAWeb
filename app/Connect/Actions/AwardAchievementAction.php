@@ -95,13 +95,11 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
             if ($validationHash !== md5($validationStr)) {
                 return $this->accessDenied();
             }
-        } elseif (empty($validationHash)) {
-            $this->addSmell($request, 'no_validation');
         } elseif ($offset !== 0) {
             // NOTE: the achievement ID appears before the offset
             $validationStr = $this->achievement->id . $request->input('u', '') . ($this->hardcore ? '1' : '0') . $this->achievement->id . $offset;
             if ($validationHash !== md5($validationStr)) {
-                $this->addSmell($request, 'bad_validation');
+                $this->addSmell($request, empty($validationHash) ? 'no_validation' : 'bad_validation');
 
                 // hash failed - ignore offset
                 $offset = 0;
@@ -112,7 +110,7 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
             $validationStr = $this->achievement->id . $request->input('u', '') . ($this->hardcore ? '1' : '0');
             if ($validationHash !== md5($validationStr)
                 && $validationHash !== md5("{$validationStr}{$this->achievement->id}0")) {
-                $this->addSmell($request, 'bad_validation');
+                $this->addSmell($request, empty($validationHash) ? 'no_validation' : 'bad_validation');
             }
         }
 
@@ -235,10 +233,20 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
         ];
 
         if ($alreadyAwarded) {
-            if ($this->hardcore && $this->user->isRanked() && $this->achievement->eventAchievements()->active()->exists()) {
-                // if event achievements are active, assume they still need to be unlocked and indicate success.
-            } else {
-                $retVal['Success'] = false;
+            $retVal['Success'] = false;
+
+            if ($this->hardcore && $this->user->isRanked()) {
+                // if active event achievements are associated to this achievement, dispatch
+                // unlock requests for them.
+                foreach ($this->achievement->eventAchievements()->active($this->when)->get() as $eventAchievement) {
+                    dispatch(new UnlockPlayerAchievementJob($this->user->id, $eventAchievement->achievement->id, true,
+                                                            gameHashId: $this->gameHash?->id,
+                                                            timestamp: $this->when))
+                            ->onQueue('player-achievements');
+
+                    // if at least one active event achievement was found, report the request as successful.
+                    $retVal['Success'] = true;
+                }
             }
 
             // =============================================================================
@@ -251,13 +259,14 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
             }
             // =============================================================================
         } else {
+            // primary achievement is newly awarded. update the global stats
             StaticData::incrementEach([
                 'NumAwarded' => 1,
                 'TotalPointsEarned' => $this->achievement->points,
             ], [
                 'LastAchievementEarnedID' => $this->achievement->id,
                 'LastAchievementEarnedByUser' => $this->user->display_name,
-                'LastAchievementEarnedAt' => Carbon::now(),
+                'LastAchievementEarnedAt' => Carbon::now(), // NOTE: this should be $this->when, but unlocks happen so frequently that no one will notice if a backdated unlock appears as the most recently unlocked achievement
             ]);
 
             // this job actually unlocks the achievement and updates all the associated metrics

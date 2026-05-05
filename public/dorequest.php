@@ -32,8 +32,10 @@ use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use App\Models\StaticData;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Sentry\State\Scope;
 
@@ -260,7 +262,13 @@ switch ($requestType) {
             ->get();
 
         $newAwardedIds = [];
+        $lastAwardedId = null;
+        $pointsEarned = 0;
         foreach ($awardableAchievements as $achievement) {
+            if (!$achievement->is_promoted) {
+                continue;
+            }
+
             if ($hardcore) {
                 $targetUser->points_hardcore += $achievement->points;
 
@@ -277,7 +285,19 @@ switch ($requestType) {
             dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
                 ->onQueue('player-achievements');
 
-            $newAwardedIds[] = $achievement->id;
+            $newAwardedIds[] = $lastAwardedId = $achievement->id;
+            $pointsEarned += $achievement->points;
+        }
+
+        if ($lastAwardedId) {
+            StaticData::incrementEach([
+                'NumAwarded' => count($newAwardedIds),
+                'TotalPointsEarned' => $pointsEarned,
+            ], [
+                'LastAchievementEarnedID' => $lastAwardedId,
+                'LastAchievementEarnedByUser' => $targetUser->display_name,
+                'LastAchievementEarnedAt' => Carbon::now(),
+            ]);
         }
 
         $response['Score'] = $targetUser->points_hardcore;
