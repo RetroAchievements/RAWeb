@@ -69,7 +69,7 @@ class GameData extends Data
             forumTopicId: Lazy::create(fn () => $game->forum_topic_id),
             genre: Lazy::create(fn () => $game->genre),
             guideUrl: Lazy::create(fn () => $game->legacy_guide_url),
-            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
+            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims),
             imageBoxArtUrl: Lazy::create(fn () => $game->image_box_art_url),
             imageIngameUrl: Lazy::create(fn () => $game->image_ingame_url),
             imageTitleUrl: Lazy::create(fn () => $game->image_title_url),

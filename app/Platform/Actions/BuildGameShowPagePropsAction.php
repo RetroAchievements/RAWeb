@@ -441,7 +441,7 @@ class BuildGameShowPagePropsAction
         }
 
         // Only include screenshot upload data when the user can create screenshots.
-        if ($user && $user->can('create', [GameScreenshot::class, $game])) {
+        if ($user && $user->can('create', [GameScreenshot::class, $backingGame])) {
             $propsData = $propsData->include(
                 'screenshotUploadStatuses',
                 'screenshotUploadConsistency',
