@@ -1138,7 +1138,7 @@
     "Achievement Set": "Set de logros",
     "Photosensitive Epilepsy Warning": "Advertencia de epilepsia fotosensible",
     "View all {{count}} achievements": "Ver todos los logros {{count}}",
-    "View all {{val, number}} leaderboards": "Ver todas {{{val, number}} las tablas de clasificación",
+    "View all {{val, number}} leaderboards": "Ver todas {{val, number}} las tablas de clasificación",
     "Set Requests - {{user}}": "Solicitudes de set - {{user}}",
     "Hashes": "Hashes",
     "Claims": "Reclamados",
