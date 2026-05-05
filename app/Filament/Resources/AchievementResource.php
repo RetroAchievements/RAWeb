@@ -633,7 +633,7 @@ class AchievementResource extends Resource
 
         // Reassign any open tickets for this achievement to the new maintainer.
         $record->tickets()
-            ->unresolved()
+            ->open()
             ->update([
                 'ticketable_author_id' => $newMaintainerId,
             ]);

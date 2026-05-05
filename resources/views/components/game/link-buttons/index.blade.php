@@ -25,7 +25,7 @@ $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $gameTickets = Ticket::forGame($game)->unresolved();
+    $gameTickets = Ticket::forGame($game)->open();
     if ($isViewingOfficial) {
         $gameTickets->officialCore();
     } else {

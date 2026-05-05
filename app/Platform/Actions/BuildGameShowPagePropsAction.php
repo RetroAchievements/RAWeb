@@ -353,8 +353,8 @@ class BuildGameShowPagePropsAction
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
             numOpenTickets: $isPromoted
-                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
-                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+                ? Ticket::forGame($backingGame)->open()->officialCore()->count()
+                : Ticket::forGame($backingGame)->open()->unofficial()->count(),
 
             numScreenshots: $game->gameScreenshots()->approved()->count(),
             screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()
@@ -441,7 +441,7 @@ class BuildGameShowPagePropsAction
         }
 
         // Only include screenshot upload data when the user can create screenshots.
-        if ($user && $user->can('create', [GameScreenshot::class, $game])) {
+        if ($user && $user->can('create', [GameScreenshot::class, $backingGame])) {
             $propsData = $propsData->include(
                 'screenshotUploadStatuses',
                 'screenshotUploadConsistency',

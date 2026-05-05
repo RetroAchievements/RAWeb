@@ -184,6 +184,21 @@ describe('Basic Rendering', function () {
         );
     });
 
+    it('given an array tab query param, falls back to comments without erroring', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [, $achievement] = createGameWithAchievementAndSet($system);
+
+        // ACT
+        $response = get(route('achievement.show', ['achievement' => $achievement]) . '?tab[]=foo');
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('initialTab', 'comments')
+        );
+    });
+
     it('given no tab query param, defaults initialTab to comments', function () {
         // ARRANGE
         $system = System::factory()->create();
@@ -241,6 +256,21 @@ describe('Permissions Props', function () {
             ->where('can.updateAchievementTitle', false)
             ->where('can.updateAchievementType', false)
             ->where('can.viewAchievementLogic', false)
+        );
+    });
+
+    it('given an eligible user has not played the game, allows opening the report issue hub', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [, $achievement] = createGameWithAchievementAndSet($system);
+        $user = User::factory()->create(['created_at' => now()->subDays(2)]);
+
+        // ACT
+        $response = actingAs($user)->get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createTicket', true)
         );
     });
 

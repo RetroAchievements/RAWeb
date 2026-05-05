@@ -34,7 +34,7 @@ class GetGameIdFromHashAction extends BaseApiAction
         // unknown and outdated clients are still allowed to unlock stuff in softcore, so
         // don't block them.
         $userAgentService = new UserAgentService();
-        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        $clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);
         if ($clientSupportLevel === ClientSupportLevel::Blocked) {
             $error = $this->unsupportedClient();
             $error['GameID'] = 0; // include "no match" for clients not checking the error state

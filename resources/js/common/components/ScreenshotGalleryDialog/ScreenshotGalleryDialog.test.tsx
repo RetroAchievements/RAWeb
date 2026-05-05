@@ -218,6 +218,34 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given a high-res pixelated screenshot, uses the original lossless URL', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        width: 560,
+        originalUrl: 'https://example.com/original.png',
+        lgWebpUrl: 'https://example.com/lg.webp',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveAttribute('src', 'https://example.com/original.png');
+    });
+  });
+
   it('given a pixelated system, constrains the image container to an integer-scaled width', async () => {
     // ARRANGE
     const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 256, height: 224 })];

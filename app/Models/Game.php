@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Platform\Actions\ComputeGameSearchTitlesAction;
@@ -698,8 +699,30 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         });
     }
 
+    public function getHasActiveOrInReviewClaimsAttribute(): bool
+    {
+        // BuildsGameListQueries injects this as a virtual field.
+        // When it does, prefer that value instead.
+        if (array_key_exists('has_active_or_in_review_claims', $this->attributes)) {
+            return (bool) $this->attributes['has_active_or_in_review_claims'];
+        }
+
+        if ($this->relationLoaded('achievementSetClaims')) {
+            return $this->achievementSetClaims->contains(
+                fn (AchievementSetClaim $claim) => in_array($claim->status, [ClaimStatus::Active, ClaimStatus::InReview], true)
+            );
+        }
+
+        return $this->achievementSetClaims()->activeOrInReview()->exists();
+    }
+
     public function getIsSubsetGameAttribute(): bool
     {
+        // See if we can short circut the queries to build parentGameId first.
+        if (str_contains($this->title, '[Subset')) {
+            return true;
+        }
+
         return $this->parentGameId !== null;
     }
 
@@ -1112,7 +1135,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
      */
     public function unresolvedTickets(): HasManyThrough
     {
-        return $this->tickets()->unresolved();
+        return $this->tickets()->open();
     }
 
     /**

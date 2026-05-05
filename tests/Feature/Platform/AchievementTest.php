@@ -9,9 +9,11 @@ use App\Models\Game;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,7 +33,9 @@ class AchievementTest extends TestCase
     {
         Event::fake([
             AchievementCreated::class,
+            AchievementDeleted::class,
             AchievementPromoted::class,
+            AchievementRestored::class,
             AchievementUnpromoted::class,
             AchievementPointsChanged::class,
             AchievementTypeChanged::class,
@@ -69,5 +73,11 @@ class AchievementTest extends TestCase
         $achievement->game_id = $game2->id;
         $achievement->save();
         Event::assertDispatched(AchievementMoved::class);
+
+        $achievement->delete();
+        Event::assertDispatched(AchievementDeleted::class);
+
+        $achievement->restore();
+        Event::assertDispatched(AchievementRestored::class);
     }
 }
