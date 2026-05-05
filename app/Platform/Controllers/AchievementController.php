@@ -121,7 +121,10 @@ class AchievementController extends Controller
             }
         }
 
-        $initialTab = AchievementPageTab::tryFrom($request->query('tab', '')) ?? AchievementPageTab::Comments;
+        $tabParam = $request->query('tab');
+        $initialTab =
+            (is_string($tabParam) ? AchievementPageTab::tryFrom($tabParam) : null)
+            ?? AchievementPageTab::Comments;
 
         // Safeguard: event achievement pages don't have the Changelog tab.
         // Fall back to comments as the initial tab.
