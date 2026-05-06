@@ -15,15 +15,20 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
     {
         $user = null;
         $game = null;
-        // TODO forward hardcore flag
-        $hardcore = null;
+
+        /**
+         * Keep full recounts unless another job is already refreshing the changed unlock total.
+         * Live unlocks dispatch UpdateAchievementMetricsJob separately, so their player count
+         * cascade only needs to recompute percentages from stored unlock counts.
+         */
+        $shouldRecalculateAchievementUnlockCounts = true;
 
         switch ($event::class) {
             case PlayerAchievementUnlocked::class:
                 $user = $event->user;
                 $achievement = $event->achievement;
                 $game = $achievement->game;
-                $hardcore = $event->hardcore;
+                $shouldRecalculateAchievementUnlockCounts = false;
                 break;
             case PlayerGameAttached::class:
                 $user = $event->user;
@@ -39,7 +44,11 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
             return;
         }
 
-        dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id))
+        dispatch(new UpdatePlayerGameMetricsJob(
+            $user->id,
+            $game->id,
+            shouldRecalculateAchievementUnlockCounts: $shouldRecalculateAchievementUnlockCounts
+        ))
             ->onQueue('player-game-metrics');
     }
 }

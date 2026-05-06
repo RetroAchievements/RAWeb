@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Actions\UpdateGamePlayerCountAction;
 use App\Platform\Enums\AchievementSetType;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -112,6 +116,71 @@ describe('core set', function () {
         $achievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
         $this->assertEquals(5, $achievementSet->players_total);
         $this->assertEquals(2, $achievementSet->players_hardcore);
+    });
+
+    test('can refresh achievement percentages from stored unlock counts without recounting player achievements', function () {
+        $game = UpdateGamePlayerCountActionTestHelpers::createGame();
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 5,
+            'unlocks_total' => 1,
+            'unlocks_hardcore' => 1,
+            'unlock_percentage' => 1.0,
+            'unlock_hardcore_percentage' => 1.0,
+        ]);
+
+        UpdateGamePlayerCountActionTestHelpers::addPlayers($game, 2, true);
+
+        $queries = [];
+        DB::listen(function (QueryExecuted $query) use (&$queries): void {
+            $queries[] = $query->sql;
+        });
+
+        (new UpdateGamePlayerCountAction())->execute($game, shouldRecalculateAchievementUnlockCounts: false);
+
+        $achievement->refresh();
+        $this->assertEquals(1, $achievement->unlocks_total);
+        $this->assertEquals(1, $achievement->unlocks_hardcore);
+        $this->assertEquals(0.5, $achievement->unlock_percentage);
+        $this->assertEquals(0.5, $achievement->unlock_hardcore_percentage);
+
+        $wasPlayerAchievementsQueried = collect($queries)
+            ->contains(fn (string $sql): bool => str_contains($sql, 'player_achievements'));
+
+        $this->assertFalse($wasPlayerAchievementsQueried);
+    });
+
+    test('recounts achievement unlock counts by default', function () {
+        $game = UpdateGamePlayerCountActionTestHelpers::createGame();
+        $user = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 5,
+            'unlocks_total' => 0,
+            'unlocks_hardcore' => 0,
+        ]);
+
+        PlayerGame::create([
+            'game_id' => $game->id,
+            'user_id' => $user->id,
+            'achievements_unlocked' => 1,
+            'achievements_unlocked_hardcore' => 1,
+        ]);
+
+        PlayerAchievement::create([
+            'user_id' => $user->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => now(),
+            'unlocked_hardcore_at' => now(),
+        ]);
+
+        (new UpdateGamePlayerCountAction())->execute($game);
+
+        $achievement->refresh();
+        $this->assertEquals(1, $achievement->unlocks_total);
+        $this->assertEquals(1, $achievement->unlocks_hardcore);
+        $this->assertEquals(1.0, $achievement->unlock_percentage);
+        $this->assertEquals(1.0, $achievement->unlock_hardcore_percentage);
     });
 });
 

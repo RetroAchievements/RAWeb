@@ -12,6 +12,8 @@ use App\Platform\Services\SearchIndexingService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+// TODO either convert to a service, or refactor so there's only one publicly-exposed function
+
 class UpdateAchievementMetricsAction
 {
     private const CHUNK_SIZE = 50;
@@ -36,11 +38,6 @@ class UpdateAchievementMetricsAction
             return;
         }
 
-        // NOTE if game has a parent game it contains the parent game's players metrics
-        $playersTotal = $game->players_total;
-        $playersHardcore = $game->players_hardcore ?? 0;
-        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
-
         // Get both total and hardcore counts in a single query.
         $achievementIds = $achievements->pluck('id')->all();
         $unlockStats = PlayerAchievement::query()
@@ -63,6 +60,40 @@ class UpdateAchievementMetricsAction
             $hardcoreUnlockCounts[$stat->achievement_id] = $stat->hardcore_unlocks;
         }
 
+        $this->updateUsingUnlockCounts($game, $achievements, $unlockCounts, $hardcoreUnlockCounts);
+    }
+
+    /**
+     * @param Collection<int, Achievement> $achievements
+     */
+    public function updateFromStoredUnlockCounts(Game $game, Collection $achievements): void
+    {
+        if ($achievements->isEmpty()) {
+            return;
+        }
+
+        $unlockCounts = [];
+        $hardcoreUnlockCounts = [];
+
+        foreach ($achievements as $achievement) {
+            $unlockCounts[$achievement->id] = (int) ($achievement->unlocks_total ?? 0);
+            $hardcoreUnlockCounts[$achievement->id] = (int) ($achievement->unlocks_hardcore ?? 0);
+        }
+
+        $this->updateUsingUnlockCounts($game, $achievements, $unlockCounts, $hardcoreUnlockCounts);
+    }
+
+    /**
+     * @param Collection<int, Achievement> $achievements
+     * @param array<int, int> $unlockCounts
+     * @param array<int, int> $hardcoreUnlockCounts
+     */
+    private function updateUsingUnlockCounts(Game $game, Collection $achievements, array $unlockCounts, array $hardcoreUnlockCounts): void
+    {
+        // NOTE if game has a parent game it contains the parent game's players metrics
+        $playersTotal = $game->players_total;
+        $playersHardcore = $game->players_hardcore ?? 0;
+        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
         $searchIndexingService = app()->make(SearchIndexingService::class);
 
         /**
@@ -75,7 +106,7 @@ class UpdateAchievementMetricsAction
         $bulkUpdates = [];
 
         foreach ($achievements as $achievement) {
-            $unlocksCount = $unlockCounts[$achievement->id] ?? 0;
+            $unlocksCount = (int) ($unlockCounts[$achievement->id] ?? 0);
             $unlocksHardcoreCount = (int) ($hardcoreUnlockCounts[$achievement->id] ?? 0);
 
             $pointsWeighted = $this->calculateWeightedPoints->execute(
