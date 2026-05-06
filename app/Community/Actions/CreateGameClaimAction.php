@@ -15,6 +15,7 @@ use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Support\Alerts\ClaimWithUnresolvedTicketsAlert;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
@@ -66,6 +67,8 @@ class CreateGameClaimAction
             'special_type' => $special,
             'finished_at' => $expiresAt,
         ]);
+
+        (new RevalidateMediaContributionBadgeEligibilityAction())->execute($currentUser);
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->username));
 
