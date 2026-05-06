@@ -165,10 +165,14 @@ class GameController extends Controller
         }
 
         // Get the initial view from query params.
-        $initialView = GamePageListView::tryFrom($request->query('view', '')) ?? GamePageListView::Achievements;
+        $viewParam = $request->query('view');
+        $initialView =
+            (is_string($viewParam) ? GamePageListView::tryFrom($viewParam) : null)
+            ?? GamePageListView::Achievements;
 
         // Get the initial sort from query params.
-        $initialSort = $request->query('sort') ? GamePageListSort::tryFrom($request->query('sort')) : null;
+        $sortParam = $request->query('sort');
+        $initialSort = is_string($sortParam) ? GamePageListSort::tryFrom($sortParam) : null;
 
         $game = $loadGameWithRelationsAction->execute($game, $isPromoted, $targetAchievementSet);
         $props = $buildGameShowPagePropsAction->execute(

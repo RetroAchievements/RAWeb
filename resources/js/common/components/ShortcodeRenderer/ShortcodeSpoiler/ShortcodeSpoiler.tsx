@@ -1,8 +1,8 @@
 import { type FC, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 
-import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { cn } from '@/common/utils/cn';
 
 import { stripLeadingWhitespaceFromChildren } from '../../../utils/shortcodes/stripLeadingWhitespaceFromChildren';
@@ -20,7 +20,7 @@ interface ShortcodeSpoilerProps {
 export const ShortcodeSpoiler: FC<ShortcodeSpoilerProps> = ({ children }) => {
   const { t } = useTranslation();
 
-  const { isOpen, setIsOpen } = useAnimatedCollapse();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <BaseCollapsible open={isOpen} onOpenChange={setIsOpen}>

@@ -69,6 +69,14 @@ class UserPolicy
         return true;
     }
 
+    public function viewWallComments(?User $user, User $model): bool
+    {
+        // This is only to facilitate the V2 Web API.
+        // Disabled or banned walls are hidden by the V2 controller hooks so both
+        // related-resource and relationship-linkage routes return JSON:API 404s.
+        return true;
+    }
+
     public function create(User $user): bool
     {
         // nobody creates users just like that.

@@ -54,7 +54,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $this->isPromoted = Achievement::isPromotedFromLegacyFlags($flag);
 
         $userAgentService = new UserAgentService();
-        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction(request()->header('User-Agent'));
+        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction($this->userAgent);
 
         // Core-specific blocks show warnings but still allow game loading.
         // Only emulator-level blocks should fully reject the request.
