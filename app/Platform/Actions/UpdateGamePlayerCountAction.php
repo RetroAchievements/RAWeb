@@ -16,7 +16,7 @@ class UpdateGamePlayerCountAction
     {
         $gameIds = [$game->id];
 
-        $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
+        $coreGameAchievementSet = $game->gameAchievementSets()->core()->with('achievementSet')->first();
         if ($coreGameAchievementSet) {
             $bonusSubsetAchievementSets = GameAchievementSet::query()
                 ->where('achievement_set_id', $coreGameAchievementSet->achievement_set_id)
@@ -29,21 +29,26 @@ class UpdateGamePlayerCountAction
             }
         }
 
-        $playersQuery = PlayerGame::whereIn('game_id', $gameIds)
+        // multi-gameId path means parent + bonus subset; the same user can appear in both,
+        // so we COUNT(DISTINCT user_id) there instead of SUM-ing rows directly
+        $isMultiGame = count($gameIds) > 1;
+        $countExpr = fn (string $column): string => $isMultiGame
+            ? "COUNT(DISTINCT CASE WHEN player_games.{$column} > 0 THEN player_games.user_id END)"
+            : "SUM(CASE WHEN player_games.{$column} > 0 THEN 1 ELSE 0 END)";
+
+        $row = PlayerGame::query()
+            ->whereIn('player_games.game_id', $gameIds)
             ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id');
+            ->whereNull('unranked_users.id')
+            ->selectRaw(sprintf(
+                '%s AS total, %s AS hardcore',
+                $countExpr('achievements_unlocked'),
+                $countExpr('achievements_unlocked_hardcore'),
+            ))
+            ->first();
 
-        if (count($gameIds) > 1) {
-            $playersQuery->distinct('player_games.user_id');
-        }
-
-        $game->players_total = $playersQuery->clone()
-            ->where('achievements_unlocked', '>', 0)
-            ->count();
-
-        $game->players_hardcore = $playersQuery->clone()
-            ->where('achievements_unlocked_hardcore', '>', 0)
-            ->count();
+        $game->players_total = (int) ($row->total ?? 0);
+        $game->players_hardcore = (int) ($row->hardcore ?? 0);
 
         if ($game->isDirty()) {
             $game->saveQuietly();
