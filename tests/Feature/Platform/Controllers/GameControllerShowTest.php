@@ -3027,6 +3027,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ACT
@@ -3041,6 +3042,55 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given a user with enough points but it is a fresh account, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(7), // !!
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given a user with an old enough account but not enough points, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 0, // !!
+            'points' => 0, // !!
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
     it('given the feature is disabled, does not include screenshot upload props even for eligible users', function () {
         // ARRANGE
         config()->set('feature.game_screenshot_uploads', false);
@@ -3050,6 +3100,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ACT
@@ -3073,6 +3124,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3104,6 +3156,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3139,6 +3192,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ACT
@@ -3165,6 +3219,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ACT
@@ -3188,6 +3243,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
         ]);
 
@@ -3213,6 +3269,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
         ]);
         $user->assignRole($role);
@@ -3242,6 +3299,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ... primary approved screenshots should be counted ...
@@ -3278,6 +3336,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3302,6 +3361,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ACT
@@ -3323,6 +3383,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3352,6 +3413,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3379,6 +3441,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3406,6 +3469,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3431,6 +3495,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ... the user's pending screenshots on any game should be counted ...
@@ -3462,6 +3527,7 @@ describe('Screenshot Upload Props', function () {
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
         ]);
 
         // ... the user's pending screenshots on this game should be returned ...
