@@ -259,6 +259,7 @@ class GameScreenshotsRelationManager extends RelationManager
                     ->placeholder('Published + Pending')
                     ->options(fn (): array => $this->getStatusFilterOptions())
                     ->query(function (Builder $query, array $data): Builder {
+                        /** @var Builder<GameScreenshot> $query */
                         $value = $data['value'] ?? null;
 
                         if ($value === self::DELETED_STATUS_VALUE) {
