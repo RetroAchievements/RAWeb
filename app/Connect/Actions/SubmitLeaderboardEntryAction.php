@@ -65,15 +65,25 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) $request->input('o', 0), 0), $maxOffset);
 
+        // NOTE: use u parameter for building hash - the casing might differ from the model
+        $validationStr = $this->leaderboard->id . $request->input('u', '') . $this->score;
         $validationHash = strtolower($request->input('v', ''));
         if (empty($validationHash)) {
             $this->addSmell($request, 'no_validation');
-        } elseif ($validationHash !== $this->leaderboard->submitValidationHash($this->user, $this->score, $offset)) {
-            if ($offset !== 0 || $validationHash !== $this->leaderboard->submitValidationHash($this->user, $this->score, $offset, true)) {
+        } elseif ($offset !== 0) {
+            $validationStr .= $offset;
+            if ($validationHash !== md5($validationStr)) {
                 $this->addSmell($request, 'bad_validation');
 
                 // hash failed - ignore offset
                 $offset = 0;
+            }
+        } else {
+            // an offset of 0 is expected to not be included in the hash, but if the first
+            // check fails, also check to see if an offset of 0 was included and ignore it.
+            if ($validationHash !== md5($validationStr)
+                && $validationHash !== md5($validationStr . '0')) {
+                $this->addSmell($request, 'bad_validation');
             }
         }
 
