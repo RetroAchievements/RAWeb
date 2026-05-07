@@ -16,7 +16,6 @@ use App\Rules\ValidScreenshotResolutionRule;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -368,12 +367,15 @@ class GameScreenshotsRelationManager extends RelationManager
                                 ->log($oldStatus === GameScreenshotStatus::Approved ? 'Unpublished screenshot' : 'Rejected screenshot');
                         }),
 
-                    DeleteAction::make()
+                    Action::make('delete')
+                        ->label('Delete')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
                         ->requiresConfirmation()
                         ->modalHeading('Permanently delete screenshot?')
                         ->modalDescription('This cannot be undone. The image and its history will be removed.')
                         ->visible(fn (GameScreenshot $record): bool => $record->status === GameScreenshotStatus::Rejected)
-                        ->using(function (GameScreenshot $record) use ($game): void {
+                        ->action(function (GameScreenshot $record) use ($game): void {
                             $screenshotUrl = $record->media?->getUrl();
                             $type = $record->type->label();
 
