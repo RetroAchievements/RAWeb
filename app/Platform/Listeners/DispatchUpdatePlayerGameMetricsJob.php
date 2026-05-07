@@ -18,13 +18,13 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
 
         /**
          * PlayerAchievementUnlocked kicks off several separate metrics updates.
-         * 
+         *
          * UpdateAchievementMetricsJob recounts the unlocked achievement's
          * denormalized totals from player_achievements. This player game metrics
          * path may also update the game's player count, which means aggregate
          * achievement percentages and RetroPoints (weighted points) need to be
          * refreshed for the game.
-         * 
+         *
          * Since the achievement job owns the expensive unlock recount, this path
          * can reuse the stored unlock totals and avoid running that same recount again.
          */
