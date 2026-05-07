@@ -34,7 +34,8 @@ export interface FacetedFilterOption<TValue = string> {
   t_label: TranslatedString;
 
   icon?: React.ComponentType<{ className?: string }>;
-  isDefaultOption?: boolean;
+  selectedWhenEmpty?: boolean;
+  clearsFilterOnSelect?: boolean;
   selectedLabel?: string;
   t_description?: TranslatedString;
   value?: TValue;
@@ -204,8 +205,7 @@ function FacetedFilterContent<TData, TValue>({
 
   const handleOptionToggle = (option: FacetedFilterOption) => {
     if (isSingleSelect) {
-      if (option.isDefaultOption) {
-        // Clear the filter when the default option is selected.
+      if (option.clearsFilterOnSelect) {
         column?.setFilterValue(undefined);
       } else {
         // For radio button behavior, set the filter to the selected option directly.
@@ -260,7 +260,7 @@ function FacetedFilterContent<TData, TValue>({
                   key={`${option.value}-${optionIndex}`}
                   option={option}
                   isSelected={
-                    option.isDefaultOption
+                    option.selectedWhenEmpty
                       ? !selectedValues.size || selectedValues.has(option.value!)
                       : selectedValues.has(option.value!)
                   }
@@ -280,7 +280,7 @@ function FacetedFilterContent<TData, TValue>({
                 key={option.value}
                 option={option}
                 isSelected={
-                  option.isDefaultOption
+                  option.selectedWhenEmpty
                     ? !selectedValues.size || selectedValues.has(option.value!)
                     : selectedValues.has(option.value!)
                 }

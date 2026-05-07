@@ -31,7 +31,9 @@ export function DataTableProgressFilter<TData>({
       options={
         [
           {
-            options: [{ t_label: t('All Games'), isDefaultOption: true }],
+            options: [
+              { t_label: t('All Games'), selectedWhenEmpty: true, clearsFilterOnSelect: true },
+            ],
           },
           ...playerPreferredProgressFilterOptions,
         ] as FilterOptions

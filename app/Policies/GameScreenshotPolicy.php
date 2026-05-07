@@ -58,15 +58,19 @@ class GameScreenshotPolicy
             return false;
         }
 
+        if ($user->unranked_at !== null && !$user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            return false;
+        }
+
         if (!$user->hasVerifiedEmail()) {
             return false;
         }
 
-        // Either the user has enough points or their account is old enough.
+        // The user must have enough points and their account must be old enough.
         $hasEnoughPoints = $user->points_hardcore >= Rank::MIN_POINTS || $user->points >= Rank::MIN_POINTS;
-        $isOldEnough = $user->created_at && $user->created_at->diffInDays(now()) >= 14;
+        $isOldEnough = $user->created_at && $user->created_at->diffInDays(now()) >= 30;
 
-        return $hasEnoughPoints || $isOldEnough;
+        return $hasEnoughPoints && $isOldEnough;
     }
 
     public function delete(User $user, GameScreenshot $screenshot): bool

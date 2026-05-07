@@ -10,6 +10,7 @@ use App\Models\GameScreenshot;
 use App\Models\User;
 use App\Platform\Actions\ApproveGameScreenshotAction;
 use App\Platform\Actions\RejectGameScreenshotAction;
+use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
@@ -214,6 +215,9 @@ class GameScreenshotModerationResource extends Resource
                     ->action(function (GameScreenshot $record) use ($user) {
                         try {
                             (new ApproveGameScreenshotAction())->execute($record, $user);
+                            if ($record->capturedBy) {
+                                (new RevalidateMediaContributionBadgeEligibilityAction())->execute($record->capturedBy);
+                            }
 
                             Notification::make()
                                 ->success()
