@@ -21,6 +21,7 @@ trait GeneratesConnectWarnings
         $result = parent::handleRequest($request);
 
         if ($this->connectWarning !== null) {
+            $this->finalizeWarning();
             $this->connectWarning->save();
         }
 
@@ -68,6 +69,22 @@ trait GeneratesConnectWarnings
             ]);
         } else {
             $this->connectWarning->smells .= ',' . $smell;
+        }
+    }
+
+    private function finalizeWarning(): void
+    {
+        if ($this->connectWarning->related_id && str_contains($this->connectWarning->smells, 'bad_validation')) {
+            $isRepeated = ConnectWarning::query()
+                ->where('method', $this->connectWarning->method)
+                ->where('username', $this->connectWarning->username)
+                ->where('related_type', $this->connectWarning->related_type)
+                ->where('related_id', '!=', $this->connectWarning->related_id)
+                ->where('validation_hash', $this->connectWarning->validation_hash)
+                ->exists();
+            if ($isRepeated) {
+                $this->connectWarning->smells .= ',repeated_validation';
+            }
         }
     }
 }
