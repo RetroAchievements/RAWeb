@@ -1654,6 +1654,42 @@ describe('validation', function () {
         $this->assertEquals('bad_validation', $warning->smells);
     });
 
+    test('validation hash uses parameter casing', function () {
+        $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
+        $leaderboard = $data['leaderboard'];
+
+        $score = 22222;
+        $data['entries'][] = SubmitLeaderboardEntryTestHelpers::buildEntry(0, $this->user, $score, Carbon::now());
+        SubmitLeaderboardEntryTestHelpers::updateRanks($data['entries'], lowerIsBetter: true);
+
+        $validationHash = md5($leaderboard->id . strtoupper($this->user->username) . $score);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('submitlbentry', [
+                'u' => strtoupper($this->user->username),
+                't' => $this->user->connect_token,
+                'i' => $leaderboard->id,
+                's' => $score,
+                'm' => $data['gameHash'],
+                'v' => $validationHash,
+            ], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Score' => $score,
+                    'BestScore' => $score,
+                    'RankInfo' => [
+                        'NumEntries' => 6,
+                        'Rank' => 3,
+                    ],
+                    'TopEntries' => $data['entries'],
+                ],
+            ]);
+
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
     test('validation hash includes zero offset', function () {
         $data = SubmitLeaderboardEntryTestHelpers::createLowerIsBetterLeaderboard();
         $leaderboard = $data['leaderboard'];
