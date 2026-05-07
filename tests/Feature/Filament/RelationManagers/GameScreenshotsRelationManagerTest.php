@@ -120,7 +120,6 @@ it('given a primary screenshot is permanently deleted, automatically promotes th
     ]);
 
     // ACT
-    // ... simulate the destructive row delete action ...
     $media = $primary->media;
     $primary->forceDelete();
     $media?->delete();
@@ -165,7 +164,6 @@ it('given a screenshot is permanently deleted, also cleans up the accompanying S
     ]);
 
     // ACT
-    // ... simulate the destructive row delete action ...
     $media = $screenshot->media;
     $screenshot->forceDelete();
     $media?->delete();

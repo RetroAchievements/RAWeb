@@ -17,4 +17,14 @@ enum GameScreenshotStatus: string
 
     /** This screenshot was previously the primary, but was replaced when a newer submission was approved. */
     case Replaced = 'replaced';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Approved => 'Published',
+            self::Pending => 'Pending',
+            self::Rejected => 'Rejected',
+            self::Replaced => 'Replaced',
+        };
+    }
 }

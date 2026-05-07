@@ -16,7 +16,6 @@ use App\Rules\ValidScreenshotResolutionRule;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -34,6 +33,8 @@ use Spatie\Activitylog\ActivityLogger;
 
 class GameScreenshotsRelationManager extends RelationManager
 {
+    private const DELETED_STATUS_VALUE = 'deleted';
+
     protected static string $relationship = 'gameScreenshots';
     protected static ?string $recordTitleAttribute = 'id';
     protected static string|BackedEnum|null $icon = 'heroicon-s-camera';
@@ -231,10 +232,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         GameScreenshotStatus::Rejected => 'danger',
                         GameScreenshotStatus::Replaced => 'gray',
                     })
-                    ->formatStateUsing(fn (GameScreenshotStatus $state): string => match ($state) {
-                        GameScreenshotStatus::Approved => 'Published',
-                        default => $state->name,
-                    })
+                    ->formatStateUsing(fn (GameScreenshotStatus $state): string => $state->label())
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('resolution')
@@ -259,13 +257,20 @@ class GameScreenshotsRelationManager extends RelationManager
 
                 Tables\Filters\SelectFilter::make('status')
                     ->placeholder('Published + Pending')
-                    ->options(fn (): array => $this->getStatusFilterOptions()),
+                    ->options(fn (): array => $this->getStatusFilterOptions())
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
 
-                Tables\Filters\TrashedFilter::make()
-                    ->label('Deleted screenshots')
-                    ->placeholder('Current screenshots')
-                    ->trueLabel('All screenshots')
-                    ->falseLabel('Deleted screenshots'),
+                        if ($value === self::DELETED_STATUS_VALUE) {
+                            return $query->onlyTrashed();
+                        }
+
+                        if (filled($value)) {
+                            return $query->where('status', $value);
+                        }
+
+                        return $query;
+                    }),
             ])
             ->emptyStateHeading('No screenshots yet')
             ->emptyStateDescription('Upload screenshots using the button above.')
@@ -384,30 +389,6 @@ class GameScreenshotsRelationManager extends RelationManager
                                 ->log($oldStatus === GameScreenshotStatus::Approved ? 'Unpublished screenshot' : 'Rejected screenshot');
                         }),
 
-                    DeleteAction::make()
-                        ->requiresConfirmation()
-                        ->modalDescription(fn (GameScreenshot $record): string => $record->is_primary
-                            ? 'This is a primary screenshot. The next published screenshot of this type will be promoted automatically, or the placeholder will be restored.'
-                            : 'Are you sure you want to permanently delete this screenshot?')
-                        ->using(function (GameScreenshot $record) use ($game): void {
-                            $screenshotUrl = $record->media?->getUrl();
-                            $media = $record->media;
-                            $type = $record->type->label();
-                            $wasPrimary = $record->is_primary;
-
-                            $record->forceDelete();
-                            $media?->delete();
-
-                            $this->logScreenshotActivity($game)
-                                ->withProperty('attributes', [
-                                    'screenshot' => $screenshotUrl,
-                                    'type' => $type,
-                                    'was_primary' => $wasPrimary,
-                                ])
-                                ->event('deletedScreenshot')
-                                ->log('Deleted screenshot');
-                        }),
-
                     RestoreAction::make(),
                 ]),
             ]);
@@ -429,27 +410,24 @@ class GameScreenshotsRelationManager extends RelationManager
         $game = $this->getOwnerRecord();
 
         $selectedType = data_get($this->getTableFilterState('type'), 'value');
-        $selectedTrashed = $this->getSelectedTrashedFilter();
 
         $counts = $game->gameScreenshots()
-            ->when($selectedTrashed === true, fn (Builder $query) => $query->withTrashed())
-            ->when($selectedTrashed === false, fn (Builder $query) => $query->onlyTrashed())
             ->when($selectedType, fn (Builder $query) => $query->where('type', $selectedType))
-            ->whereIn('status', [
-                GameScreenshotStatus::Approved->value,
-                GameScreenshotStatus::Pending->value,
-                GameScreenshotStatus::Rejected->value,
-                GameScreenshotStatus::Replaced->value,
-            ])
             ->select('status', DB::raw('COUNT(*) as aggregate'))
             ->groupBy('status')
             ->pluck('aggregate', 'status');
 
+        $deletedCount = $game->gameScreenshots()
+            ->onlyTrashed()
+            ->when($selectedType, fn (Builder $query) => $query->where('type', $selectedType))
+            ->count();
+
         return [
-            GameScreenshotStatus::Approved->value => 'Published (' . ($counts[GameScreenshotStatus::Approved->value] ?? 0) . ')',
-            GameScreenshotStatus::Pending->value => 'Pending (' . ($counts[GameScreenshotStatus::Pending->value] ?? 0) . ')',
-            GameScreenshotStatus::Rejected->value => 'Rejected (' . ($counts[GameScreenshotStatus::Rejected->value] ?? 0) . ')',
-            GameScreenshotStatus::Replaced->value => 'Replaced (' . ($counts[GameScreenshotStatus::Replaced->value] ?? 0) . ')',
+            GameScreenshotStatus::Approved->value => GameScreenshotStatus::Approved->label() . ' (' . ($counts[GameScreenshotStatus::Approved->value] ?? 0) . ')',
+            GameScreenshotStatus::Pending->value => GameScreenshotStatus::Pending->label() . ' (' . ($counts[GameScreenshotStatus::Pending->value] ?? 0) . ')',
+            GameScreenshotStatus::Rejected->value => GameScreenshotStatus::Rejected->label() . ' (' . ($counts[GameScreenshotStatus::Rejected->value] ?? 0) . ')',
+            GameScreenshotStatus::Replaced->value => GameScreenshotStatus::Replaced->label() . ' (' . ($counts[GameScreenshotStatus::Replaced->value] ?? 0) . ')',
+            self::DELETED_STATUS_VALUE => 'Deleted (' . $deletedCount . ')',
         ];
     }
 
@@ -527,27 +505,15 @@ class GameScreenshotsRelationManager extends RelationManager
 
     private function shouldShowRejectedOrReplacedScreenshots(): bool
     {
-        if ($this->getSelectedTrashedFilter() === false) {
-            return true;
-        }
-
         $selectedStatus = data_get($this->getTableFilterState('status'), 'value');
 
+        // 'deleted' is included because soft-deleted rows retain their prior status,
+        // and the trashed view needs to show rejected/replaced rows so they remain
+        // undoable / available for restore decisions.
         return in_array($selectedStatus, [
             GameScreenshotStatus::Rejected->value,
             GameScreenshotStatus::Replaced->value,
+            self::DELETED_STATUS_VALUE,
         ], true);
-    }
-
-    /**
-     * Normalize the trashed filter state to a tri-state value.
-     * Filament serializes booleans as '1'/'0' through the form layer,
-     * so === true / === false comparisons against the raw value silently fail.
-     */
-    private function getSelectedTrashedFilter(): ?bool
-    {
-        $value = data_get($this->getTableFilterState('trashed'), 'value');
-
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }
