@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Game;
 use App\Models\GameScreenshot;
+use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
@@ -12,8 +14,10 @@ use App\Platform\Actions\ApproveGameScreenshotAction;
 use App\Platform\Actions\SubmitPendingGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\Conversions\FileManipulator;
@@ -108,7 +112,7 @@ it('approves a pending screenshot, moves its media, and records review metadata'
     expect($delayedSubscription->subject_id)->toEqual($fresh->id);
     expect($delayedSubscription->first_update_id)->toEqual($fresh->id);
 
-    expect(App\Models\PlayerBadge::count())->toEqual(0);
+    expect(PlayerBadge::count())->toEqual(0);
 });
 
 it('does not notify the submitter when they approve their own screenshot', function () {
@@ -131,6 +135,38 @@ it('does not notify the submitter when they approve their own screenshot', funct
     // ASSERT
     expect($pending->fresh()->status)->toEqual(GameScreenshotStatus::Approved);
     expect(UserDelayedSubscription::count())->toEqual(0);
+});
+
+it('does not award media contribution badges outside the moderation resource', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'order_column' => 1,
+    ]);
+    GameScreenshot::factory()->for($game)->ingame()->create([
+        'captured_by_user_id' => $submitter->id,
+        'status' => GameScreenshotStatus::Approved,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Ingame);
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    Event::fake();
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer);
+
+    // ASSERT
+    expect(PlayerBadge::where('user_id', $submitter->id)
+        ->where('award_type', AwardType::MediaContribution)
+        ->count())->toEqual(0);
+
+    Event::assertNotDispatched(SiteBadgeAwarded::class);
 });
 
 it('replaces the existing approved title screenshot when a new one is approved', function () {

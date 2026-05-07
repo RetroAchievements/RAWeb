@@ -65,6 +65,8 @@ class Role extends SpatieRole
 
     public const PLAYTEST_MANAGER = 'playtest-manager';
 
+    public const SET_DESIGNER = 'set-designer';
+
     public const MEDIA_EDITOR = 'media-editor';
 
     public const CHEAT_INVESTIGATOR = 'cheat-investigator';
@@ -121,6 +123,7 @@ class Role extends SpatieRole
             Role::NEWS_MANAGER => 'info',
             Role::EVENT_MANAGER => 'info',
             Role::PLAYTEST_MANAGER => 'info',
+            Role::SET_DESIGNER => 'info',
             Role::MEDIA_EDITOR => 'info',
             Role::CHEAT_INVESTIGATOR => 'info',
 

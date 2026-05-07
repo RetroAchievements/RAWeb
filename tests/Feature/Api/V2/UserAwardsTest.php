@@ -501,6 +501,38 @@ class UserAwardsTest extends TestCase
         $this->assertEquals($siteAward->id, $response->json('data.0.attributes.context.siteAwardId'));
     }
 
+    public function testItExposesMediaContributionAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::MediaContribution,
+            'award_key' => 2,
+            'award_tier' => 0,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[kind]=media-contribution");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals('media-contribution', $response->json('data.0.attributes.kind'));
+        $this->assertEquals('Media Contribution', $response->json('data.0.attributes.title'));
+        $this->assertStringEndsWith('/assets/images/badge/mediaContrib-2.png', $response->json('data.0.attributes.badgeUrl'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(100, $response->json('data.0.attributes.context.threshold'));
+        $this->assertEquals(1, $response->json('meta.siteAwardsCount'));
+    }
+
     public function testItCanSortByAwardedAtDescending(): void
     {
         // Arrange
@@ -811,6 +843,41 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('achievement-unlocks-yield', $response->json('data.0.attributes.kind'));
         $this->assertEquals(2, $response->json('data.0.attributes.context.tier'));
         $this->assertEquals(1, $response->json('meta.totalAwardsCount'));
+    }
+
+    public function testItCollapsesMediaContributionAwardsToTheHighestTier(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::MediaContribution,
+            'award_key' => 1,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::MediaContribution,
+            'award_key' => 2,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals('media-contribution', $response->json('data.0.attributes.kind'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(1, $response->json('meta.totalAwardsCount'));
+        $this->assertEquals(1, $response->json('meta.siteAwardsCount'));
     }
 
     public function testItPaginatesBy50ByDefault(): void

@@ -35,6 +35,7 @@ class UserAwardPresenter
             AwardType::AchievementPointsYield => 'Achievement Points Earned by Others',
             AwardType::PatreonSupporter => 'Patreon Supporter',
             AwardType::CertifiedLegend => 'Certified Legend',
+            AwardType::MediaContribution => 'Media Contribution',
         };
     }
 
@@ -52,6 +53,7 @@ class UserAwardPresenter
             AwardType::AchievementPointsYield => asset("/assets/images/badge/contribPoints-{$this->award->award_key}.png"),
             AwardType::PatreonSupporter => asset('/assets/images/badge/patreon.png'),
             AwardType::CertifiedLegend => asset('/assets/images/badge/legend.png'),
+            AwardType::MediaContribution => asset("/assets/images/badge/mediaContrib-{$this->award->award_key}.png"),
         };
     }
 
@@ -72,6 +74,10 @@ class UserAwardPresenter
                 'siteAwardId' => $this->award->award_key,
             ],
             AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield => [
+                'tier' => $this->award->award_key,
+                'threshold' => PlayerBadge::getBadgeThreshold($this->award->award_type, $this->award->award_key),
+            ],
+            AwardType::MediaContribution => [
                 'tier' => $this->award->award_key,
                 'threshold' => PlayerBadge::getBadgeThreshold($this->award->award_type, $this->award->award_key),
             ],
