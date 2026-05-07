@@ -58,6 +58,10 @@ class GameScreenshotPolicy
             return false;
         }
 
+        if ($user->unranked_at !== null && !$user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            return false;
+        }
+
         if (!$user->hasVerifiedEmail()) {
             return false;
         }

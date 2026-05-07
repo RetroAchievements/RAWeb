@@ -113,6 +113,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
+                                    $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                 });
 
@@ -128,6 +129,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
+                                    $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('hashes')->readOnly();
                                 });
 
@@ -158,6 +160,7 @@ class RouteServiceProvider extends ServiceProvider
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();
+                                    $relationships->hasMany('wallComments')->readOnly();
                                 });
                         });
                 });

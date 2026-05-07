@@ -13,7 +13,6 @@ import {
 } from '@/common/components/+vendor/BaseCollapsible';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
-import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -37,7 +36,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const { contentHeight, contentRef, isOpen, setIsOpen } = useAnimatedCollapse();
+  const [isOpen, setIsOpen] = useState(false);
 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
@@ -65,7 +64,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
             <BaseCollapsibleContent forceMount asChild>
               <m.div
                 initial={{ height: 0 }}
-                animate={{ height: contentHeight }}
+                animate={{ height: 'auto' }}
                 exit={{ height: 0 }}
                 transition={{
                   duration: 0.3,
@@ -73,7 +72,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
                 }}
                 className="overflow-hidden"
               >
-                <div ref={contentRef} className="flex flex-col gap-6 rounded-b-lg bg-embed p-4">
+                <div className="flex flex-col gap-6 rounded-b-lg bg-embed p-4">
                   {canShowManagement ? <SidebarManagementSection game={game} /> : null}
 
                   {canShowDevelopmentAndSubscribe ? (

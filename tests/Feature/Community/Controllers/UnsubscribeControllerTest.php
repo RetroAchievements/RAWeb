@@ -6,11 +6,13 @@ namespace Tests\Feature\Community\Controllers;
 
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
+use App\Http\Middleware\PreventRequestForgery;
 use App\Mail\Services\UnsubscribeService;
 use App\Models\ForumTopic;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class UnsubscribeControllerTest extends TestCase
@@ -223,5 +225,20 @@ class UnsubscribeControllerTest extends TestCase
         $user->refresh();
         $isSet = ($user->preferences_bitfield & (1 << UserPreference::EmailOn_ForumReply)) !== 0;
         $this->assertFalse($isSet);
+    }
+
+    public function testPostUnsubscribeIsExemptFromCsrfVerification(): void
+    {
+        // Arrange
+        $middleware = app(PreventRequestForgery::class);
+        $request = Request::create('/unsubscribe/some-signed-token', 'POST');
+
+        // Act
+        $isExempt = collect($middleware->getExcludedPaths())->contains(
+            fn (string $pattern): bool => $request->is(trim($pattern, '/'))
+        );
+
+        // Assert
+        $this->assertTrue($isExempt);
     }
 }
