@@ -89,7 +89,7 @@ it('rejects duplicate images for the same game', function () {
     $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
 })->throws(ValidationException::class);
 
-it('rejects re-uploading an image that matches a soft-deleted screenshot', function () {
+it('rejects re-uploading an image that matches a previously rejected screenshot', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
     $action = new AddGameScreenshotAction();
@@ -98,7 +98,10 @@ it('rejects re-uploading an image that matches a soft-deleted screenshot', funct
     $sourceContent = file_get_contents($source->getRealPath());
 
     $original = $action->execute($game, $source, ScreenshotType::Ingame);
-    $original->delete();
+    $original->update([
+        'is_primary' => false,
+        'status' => GameScreenshotStatus::Rejected,
+    ]);
 
     $duplicate = UploadedFile::fake()->image('duplicate.png', 256, 224);
     file_put_contents($duplicate->getRealPath(), $sourceContent);

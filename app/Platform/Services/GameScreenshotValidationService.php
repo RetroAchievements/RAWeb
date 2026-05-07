@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Models\Game;
-use App\Platform\Enums\GameScreenshotStatus;
 use App\Rules\DisallowAnimatedImageRule;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
@@ -74,12 +73,10 @@ class GameScreenshotValidationService
     {
         $hash = sha1_file($file->getRealPath());
 
-        // Reject duplicates based on SHA1 within this game's non-rejected screenshots.
-        // Trashed screenshots are included so that re-uploading a cleared screenshot
-        // can't bypass the check and create a collision when the original is restored.
+        // Reject duplicates based on SHA1 across all of this game's screenshots,
+        // including those previously rejected. A rejection is a review decision,
+        // so re-uploading the same image should not bypass the decision.
         $isDuplicate = $game->gameScreenshots()
-            ->withTrashed()
-            ->where('status', '!=', GameScreenshotStatus::Rejected)
             ->whereHas('media', function ($query) use ($hash) {
                 $query->where('custom_properties->sha1', $hash);
             })

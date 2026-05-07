@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.UserAwards {
+export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-hardcore' | 'beaten-softcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'patreon-supporter' | 'playtest';
+}
 declare namespace App.Community.Data {
 export type AchievementChecklistGroup = {
 header: string;
@@ -640,9 +643,9 @@ systems?: Array<App.Platform.Data.System> | null;
 };
 export type EmulatorDownload = {
 id: number;
-platformId: number;
 label: string | null;
 url: string;
+platformId: number;
 };
 export type EventAchievement = {
 achievement?: App.Platform.Data.Achievement;
@@ -700,10 +703,10 @@ export type GameAchievementSet = {
 id: number;
 type: App.Platform.Enums.AchievementSetType;
 title: string | null;
-orderColumn: number;
 createdAt: string | null;
 updatedAt: string | null;
 achievementSet: App.Platform.Data.AchievementSet;
+orderColumn: number;
 };
 export type GameClaimant = {
 user: App.Data.User;
