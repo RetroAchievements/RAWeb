@@ -46,6 +46,11 @@ class GamePolicy
         return true;
     }
 
+    public function view(?User $user, Game $game): bool
+    {
+        return true;
+    }
+
     public function viewContributionCredit(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
@@ -108,10 +113,8 @@ class GamePolicy
         return $this->manage($user);
     }
 
-    public function view(?User $user, Game $game): bool
+    public function viewAchievementSetClaims(?User $user, Game $game): bool
     {
-        // Age gates are handled at the UI level.
-
         return true;
     }
 
