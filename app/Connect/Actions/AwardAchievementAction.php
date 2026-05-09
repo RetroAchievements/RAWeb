@@ -28,8 +28,13 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
     protected ?GameHash $gameHash = null;
     protected Carbon $when;
 
-    public function execute(User $user, Achievement $achievement, bool $hardcore, ?GameHash $gameHash = null, ?Carbon $when = null): array
-    {
+    public function execute(
+        User $user,
+        Achievement $achievement,
+        bool $hardcore,
+        ?GameHash $gameHash = null,
+        ?Carbon $when = null,
+    ): array {
         $this->user = $user;
         $this->achievement = $achievement;
         $this->hardcore = $hardcore;
@@ -239,10 +244,14 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
                 // if active event achievements are associated to this achievement, dispatch
                 // unlock requests for them.
                 foreach ($this->achievement->eventAchievements()->active($this->when)->get() as $eventAchievement) {
-                    dispatch(new UnlockPlayerAchievementJob($this->user->id, $eventAchievement->achievement->id, true,
-                                                            gameHashId: $this->gameHash?->id,
-                                                            timestamp: $this->when))
-                            ->onQueue('player-achievements');
+                    dispatch(new UnlockPlayerAchievementJob(
+                        $this->user->id,
+                        $eventAchievement->achievement->id,
+                        true,
+                        gameHashId: $this->gameHash?->id,
+                        timestamp: $this->when,
+                        userAgent: $this->userAgent
+                    ))->onQueue('player-achievements');
 
                     // if at least one active event achievement was found, report the request as successful.
                     $retVal['Success'] = true;
@@ -271,10 +280,14 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
 
             // this job actually unlocks the achievement and updates all the associated metrics
             // asynchronously in the background so we can respond to the client as quickly as possible.
-            dispatch(new UnlockPlayerAchievementJob($this->user->id, $this->achievement->id, $this->hardcore,
-                                                    gameHashId: $this->gameHash?->id,
-                                                    timestamp: $this->when))
-                    ->onQueue('player-achievements');
+            dispatch(new UnlockPlayerAchievementJob(
+                $this->user->id,
+                $this->achievement->id,
+                $this->hardcore,
+                gameHashId: $this->gameHash?->id,
+                timestamp: $this->when,
+                userAgent: $this->userAgent
+            ))->onQueue('player-achievements');
         }
 
         return $retVal;
