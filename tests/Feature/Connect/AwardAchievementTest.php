@@ -2024,12 +2024,13 @@ describe('validation', function () {
         $scoreBefore = $this->user->points_hardcore;
         $softcoreScoreBefore = $this->user->points;
 
-        $this->get($this->apiUrl('awardachievement', [
-            'a' => $achievement3->id,
-            'h' => 0,
-            'm' => $gameHash->md5,
-            'v' => $validationHash,
-        ]))
+        $this->withHeaders(['User-Agent' => null])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 0,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
