@@ -2010,6 +2010,41 @@ describe('validation', function () {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
+    test('missing user agent header records warning without erroring', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+
+        $this->get($this->apiUrl('awardachievement', [
+            'a' => $achievement3->id,
+            'h' => 0,
+            'm' => $gameHash->md5,
+            'v' => $validationHash,
+        ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+            ]);
+
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals('unknown_client', $warning->smells);
+        $this->assertEquals('', $warning->user_agent);
+    });
+
     test('unknown user agent demotes hardcore unlock to softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
