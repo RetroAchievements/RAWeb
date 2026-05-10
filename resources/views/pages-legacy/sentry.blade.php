@@ -243,7 +243,7 @@ foreach ($clients as $client) {
                         <?php
                             if ($sniff['user']) {
                                 echo "&middot; <a href='" . $sniff['link'] . "'>" . $sniff['user'] . '</a>';
-                                if (!$sniff['userinfo']) {
+                                if (!array_key_exists('userinfo', $sniff)) {
                                     echo ' (non-existant)';
                                 } elseif ($sniff['userinfo']['deleted_at'] ?? false) {
                                     echo ' (deleted)';
