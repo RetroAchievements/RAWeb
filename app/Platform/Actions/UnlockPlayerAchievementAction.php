@@ -23,6 +23,7 @@ class UnlockPlayerAchievementAction
         ?Carbon $timestamp = null,
         ?User $unlockedBy = null,
         ?GameHash $gameHash = null,
+        ?string $userAgent = null,
     ): void {
         $timestamp ??= Carbon::now();
 
@@ -38,7 +39,7 @@ class UnlockPlayerAchievementAction
         // also unlock active event achievements associated to the achievement being unlocked
         if ($hardcore && $user->isRanked()) {
             foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
+                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id, $userAgent))
                     ->onQueue('player-achievements');
             }
         }
@@ -52,7 +53,13 @@ class UnlockPlayerAchievementAction
         } else {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSessionAction::class)
-                ->execute($user, $gameHash?->game ?? $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
+                ->execute(
+                    $user,
+                    $gameHash?->game ?? $achievement->game,
+                    gameHash: $gameHash,
+                    timestamp: $timestamp,
+                    userAgent: $userAgent
+                );
 
             // if the gameHash isn't associated with the achievement game, make sure a player_games record
             // exists for the achievement game so points for unlocking the achievement can be captured.
