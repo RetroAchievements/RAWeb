@@ -105,6 +105,7 @@ class BuildConnectSniffsAction
         $userInfos = [];
         $users = User::query()
             ->whereIn('display_name', $usernames)
+            ->orWhereIn('username', $usernames)
             ->withTrashed()
             ->select('id', 'username', 'display_name', 'Permissions', 'deleted_at', 'unranked_at')
             ->get()

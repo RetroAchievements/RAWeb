@@ -191,15 +191,32 @@ describe('returns entries', function () {
         $this->assertStringContainsString('Player1', $sniffs[0]['link']);
     });
 
-    test('user data', function () {
+    test('user data by display_name', function () {
         $leaderboard1 = Leaderboard::factory()->create();
-        $user1 = User::factory()->create();
+        $user1 = User::factory()->create(['username' => 'UserName', 'display_name' => 'DisplayName']);
         $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard1, 1234);
 
         $clients = [];
         $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->display_name, $sniffs[0]['user']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
+        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
+        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+    });
+
+    test('user data by username', function () {
+        $leaderboard1 = Leaderboard::factory()->create();
+        $user1 = User::factory()->create(['username' => 'UserName', 'display_name' => 'DisplayName']);
+        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->username, $leaderboard1, 1234);
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
+        $this->assertEquals(1, count($sniffs));
+        $this->assertEquals($user1->username, $sniffs[0]['user']);
         $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
         $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
         $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
