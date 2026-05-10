@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
+use App\Models\ConnectOfflineSubmissionClient;
 use App\Models\Emulator;
 use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
@@ -474,5 +475,28 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertNull(
             $userAgentService->getCoreRestrictionForUserAgent('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75')
         );
+    }
+
+    public function testConnectOfflineSubmissionClientMarkerReturnsSoftcoreOnly(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $emulator = Emulator::create([
+            'name' => 'RetroArch',
+            'active' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'RetroArch',
+        ]);
+
+        $userAgent = 'RetroArch/1.21.0 (Android 13.0) snes9x_libretro_android/1.63_5a40cd5 RAOfflineProxy/1.0.0-alpha1';
+
+        $this->assertEquals(ClientSupportLevel::SoftcoreOnly, $userAgentService->getSupportLevel($userAgent));
+        $this->assertEquals('RetroArch', $userAgentService->decode($userAgent)['client']);
+
+        ConnectOfflineSubmissionClient::where('client', 'RAOfflineProxy')->delete();
+
+        $this->assertEquals(ClientSupportLevel::Full, $userAgentService->getSupportLevel($userAgent));
     }
 }

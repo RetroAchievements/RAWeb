@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
+use App\Models\ConnectOfflineSubmissionClient;
 use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 
@@ -341,7 +342,7 @@ class UserAgentService
         // Ordering matters: minimum_allowed_version still blocks ancient
         // clients above, and core restrictions below are intentionally
         // bypassed because softcore_only is a blanket emulator-wide flag.
-        if ($isSoftcoreOnly) {
+        if ($isSoftcoreOnly || $this->hasOfflineSubmissionClient($data)) {
             return [ClientSupportLevel::SoftcoreOnly, null];
         }
 
@@ -435,5 +436,10 @@ class UserAgentService
         }
 
         return null;
+    }
+
+    private function hasOfflineSubmissionClient(array $data): bool
+    {
+        return ConnectOfflineSubmissionClient::whereIn('client', array_keys($data['extra'] ?? []))->exists();
     }
 }
