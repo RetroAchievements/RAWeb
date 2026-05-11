@@ -7,7 +7,7 @@ export function buildEventMetaDescription(event: App.Platform.Data.Event): strin
 
   // Evergreen events are always ongoing and dates are just historical metadata.
   if (event.state === 'evergreen') {
-    return `A non time limited event containing ${totalAchievements} achievements.`;
+    return `A non time limited event containing ${totalAchievements} ${totalAchievements === 1 ? 'achievement' : 'achievements'}.`;
   }
 
   // Active events emphasize end date if available.

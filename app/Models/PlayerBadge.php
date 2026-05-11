@@ -79,11 +79,21 @@ class PlayerBadge extends BaseModel
         50_000_000,
     ];
 
+    private const MEDIA_CONTRIBUTION_BOUNDARIES = [
+        10,
+        30,
+        100,
+        300,
+        1000,
+        3000,
+    ];
+
     private static function getThresholds(AwardType $awardType): ?array
     {
         return match ($awardType) {
             AwardType::AchievementUnlocksYield => self::DEVELOPER_COUNT_BOUNDARIES,
             AwardType::AchievementPointsYield => self::DEVELOPER_POINT_BOUNDARIES,
+            AwardType::MediaContribution => self::MEDIA_CONTRIBUTION_BOUNDARIES,
             default => null,
         };
     }
@@ -199,6 +209,7 @@ class PlayerBadge extends BaseModel
             AwardType::PatreonSupporter,
             AwardType::CertifiedLegend,
             AwardType::Playtest,
+            AwardType::MediaContribution,
         ], true);
     }
 
@@ -286,6 +297,7 @@ class PlayerBadge extends BaseModel
             AwardType::AchievementPointsYield->value,
             AwardType::PatreonSupporter->value,
             AwardType::CertifiedLegend->value,
+            AwardType::MediaContribution->value,
         ];
         $gameTypes = AwardType::gameValues();
 

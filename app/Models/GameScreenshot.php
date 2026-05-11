@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\ClaimStatus;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
@@ -151,6 +152,29 @@ class GameScreenshot extends BaseModel
     public function scopePrimary(Builder $query): Builder
     {
         return $query->where('is_primary', true);
+    }
+
+    /**
+     * Grab screenshots that currently count toward a user's media contribution badge.
+     *
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    public function scopeEligibleForMediaContributionBy(Builder $query, User $user): Builder
+    {
+        return $query->approved()
+            ->where('captured_by_user_id', $user->id)
+            ->whereColumn('captured_by_user_id', '!=', 'reviewed_by_user_id')
+            ->whereDoesntHave('game.achievements', function (Builder $query) use ($user) {
+                /** @var Builder<Achievement> $query */
+                $query->withTrashed()->where('user_id', $user->id);
+            })
+            ->whereDoesntHave('game.achievementSetClaims', function (Builder $query) use ($user) {
+                /** @var Builder<AchievementSetClaim> $query */
+                $query
+                    ->where('user_id', $user->id)
+                    ->where('status', '!=', ClaimStatus::Dropped);
+            });
     }
 
     /**

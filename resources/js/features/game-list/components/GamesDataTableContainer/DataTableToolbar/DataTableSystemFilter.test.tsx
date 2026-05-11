@@ -230,4 +230,28 @@ describe('Component: DataTableSystemFilter', () => {
 
     expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('N64');
   });
+
+  it('given includeDefaultOption is true, isSingleSelect is true, and defaultOptionValue is "all", selecting "All systems" reflects it as selected', async () => {
+    // ARRANGE
+    render(
+      <DataTableSystemFilterHarness
+        filterableSystemOptions={[createSystem({ name: 'Nintendo 64', nameShort: 'N64' })]}
+        includeDefaultOption={true}
+        isSingleSelect={true}
+        defaultOptionValue="all"
+        defaultOptionLabel={'All systems' as TranslatedString}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /system/i }));
+    await userEvent.click(screen.getByText('All systems'));
+
+    // ASSERT
+    expect(screen.getByRole('option', { name: /all systems/i })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('All systems');
+  });
 });

@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\FindUserByIdentifierAction;
+use App\Connect\Actions\AwardAchievementAction;
 use App\Connect\Actions\GetAchievementSetsAction;
 use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Connect\Actions\GetBadgeIdRangeAction;
@@ -29,17 +29,14 @@ use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitLeaderboardEntryAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
-use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
-use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\PlayerAchievement;
+use App\Models\StaticData;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use App\Platform\Services\UserAgentService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 use Sentry\State\Scope;
 
 use function Sentry\configureScope;
@@ -55,6 +52,7 @@ $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
     'achievementsets' => new GetAchievementSetsAction(),
     'allprogress' => new GetUserProgressForConsoleAction(),
+    'awardachievement' => new AwardAchievementAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
@@ -155,7 +153,6 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
-    "awardachievement",
     "awardachievements",
     "richpresencepatch",
     "submitgametitle",
@@ -181,143 +178,10 @@ if (!$credentialsOK) {
     return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
 }
 
-/*
- * It is possible for some calls to be made on behalf of another user.
- * This is only currently supported for "Standalone" integrations.
- * NOTE: "awardachievements" is not included here because it accepts an array of
- * achievement ID values. It doesn't use the generic `delegateUserAction()` function.
- */
-$allowsGenericDelegation = [
-    "awardachievement",
-];
-if (
-    in_array($requestType, $allowsGenericDelegation)
-    && $delegateTo !== null
-    && ($gameID || $achievementID)
-) {
-    if (request()->method() !== 'POST') {
-        return DoRequestError('Access denied.', 405, 'access_denied');
-    }
-
-    $foundDelegateToUser = (new FindUserByIdentifierAction())->execute($delegateTo);
-    if (!$foundDelegateToUser) {
-        return DoRequestError("The target user couldn't be found.", 404, 'not_found');
-    }
-
-    if ($gameID) {
-        $game = Game::find($gameID);
-
-        if (!$game) {
-            return DoRequestError("The target game couldn't be found.", 404, 'not_found');
-        } elseif (!$game->getCanDelegateActivity($user)) {
-            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
-        }
-    }
-
-    if ($achievementID) {
-        $achievement = Achievement::find($achievementID);
-
-        if (!$achievement) {
-            return DoRequestError("The target achievement couldn't be found.", 404, 'not_found');
-        } elseif (!$achievement->getCanDelegateUnlocks($user)) {
-            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
-        }
-    }
-
-    // Replace the initiating user's properties with those of the user being delegated.
-    $user = $foundDelegateToUser;
-    $username = $foundDelegateToUser->username;
-}
-
 switch ($requestType) {
     /*
      * User-based (require credentials)
      */
-
-    case "awardachievement":
-        $achIDToAward = (int) request()->input('a', 0);
-        $hardcore = (bool) request()->input('h', 0);
-        $validationHash = request()->input('v');
-        $gameHashMd5 = request()->input('m');
-
-        if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
-            $response = [
-                'Success' => true,
-                'Score' => $user->points_hardcore,
-                'SoftcoreScore' => $user->points,
-                'AchievementID' => $achIDToAward,
-                'AchievementsRemaining' => 9999,
-            ];
-            break;
-        }
-
-        $userAgentService = new UserAgentService();
-        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
-            $response = [
-                'Status' => 403,
-                'Success' => false,
-                'Error' => 'This emulator is not supported',
-            ];
-            break;
-        }
-
-        // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
-        $maxOffset = 14 * 24 * 60 * 60; // 14 days
-        $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
-
-        $foundAchievement = Achievement::where('id', $achIDToAward)->first();
-        if ($foundAchievement !== null) {
-            // delegated unlocks will be rejected if the appropriate validation hash is not provided
-            // backdated unlocks will not be backdated if the appropriate validation hash is not provided
-            if (
-                ($delegateTo || $offset > 0)
-                && strcasecmp(
-                    $validationHash,
-                    $foundAchievement->unlockValidationHash($delegateTo ? $foundDelegateToUser : $user, (int) $hardcore, $offset)
-                ) !== 0
-            ) {
-                if ($delegateTo) {
-                    return DoRequestError('Access denied.', 403, 'access_denied');
-                }
-
-                $offset = 0;
-            }
-
-            $gameHash = null;
-            if ($gameHashMd5) {
-                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-            }
-
-            // If client support is restricted, force the unlock to softcore
-            if (!$clientSupportLevel->allowsHardcoreUnlocks() && $hardcore) {
-                $hardcore = 0;
-            }
-
-            /**
-             * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
-             * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
-             */
-            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore, $gameHash));
-
-            if ($response['Success']) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore,
-                                                        gameHashId: $gameHash?->id,
-                                                        timestamp: Carbon::now()->subSeconds($offset)))
-                    ->onQueue('player-achievements');
-            }
-        } else {
-            $response['Error'] = "Data not found for achievement {$achIDToAward}";
-            $response['Success'] = false;
-        }
-
-        if (empty($response['Score'])) {
-            $response['Score'] = $user->points_hardcore;
-            $response['SoftcoreScore'] = $user->points;
-        }
-
-        $response['AchievementID'] = $achIDToAward;
-        break;
 
     // This is only currently supported for "Standalone" integrations.
     case "awardachievements":
@@ -398,15 +262,42 @@ switch ($requestType) {
             ->get();
 
         $newAwardedIds = [];
+        $lastAwardedId = null;
+        $pointsEarned = 0;
         foreach ($awardableAchievements as $achievement) {
-            $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
-
-            if (!isset($unlockAchievementResult['Error'])) {
-                dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
-                    ->onQueue('player-achievements');
-
-                $newAwardedIds[] = $achievement->id;
+            if (!$achievement->is_promoted) {
+                continue;
             }
+
+            if ($hardcore) {
+                $targetUser->points_hardcore += $achievement->points;
+
+                $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $achievement->id);
+                if ($foundPlayerAchievement) {
+                    // if there's a found PlayerAchievement and we're doing a hardcore unlock,
+                    // it must be an upgrade from softcore.
+                    $targetUser->points -= $achievement->points;
+                }
+            } else {
+                $targetUser->points += $achievement->points;
+            }
+
+            dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
+                ->onQueue('player-achievements');
+
+            $newAwardedIds[] = $lastAwardedId = $achievement->id;
+            $pointsEarned += $achievement->points;
+        }
+
+        if ($lastAwardedId) {
+            StaticData::incrementEach([
+                'NumAwarded' => count($newAwardedIds),
+                'TotalPointsEarned' => $pointsEarned,
+            ], [
+                'LastAchievementEarnedID' => $lastAwardedId,
+                'LastAchievementEarnedByUser' => $targetUser->display_name,
+                'LastAchievementEarnedAt' => Carbon::now(),
+            ]);
         }
 
         $response['Score'] = $targetUser->points_hardcore;
@@ -434,22 +325,6 @@ $response['Success'] = (bool) $response['Success'];
 // that these responses are immutable and should be passed straight through.
 $jsonContent = json_encode($response);
 $contentLength = (string) strlen($jsonContent);
-
-if (array_key_exists('Status', $response)) {
-    $status = $response['Status'];
-    if ($status === 401) {
-        return response($jsonContent, $status)
-            ->header('Content-Type', 'application/json')
-            ->header('Content-Length', $contentLength)
-            ->header('Cache-Control', 'no-transform, private, must-revalidate')
-            ->header('WWW-Authenticate', 'Bearer');
-    }
-
-    return response($jsonContent, $status)
-        ->header('Content-Type', 'application/json')
-        ->header('Content-Length', $contentLength)
-        ->header('Cache-Control', 'no-transform, private, must-revalidate');
-}
 
 return response($jsonContent)
     ->header('Content-Type', 'application/json')

@@ -33,6 +33,7 @@ return [
         Role::NEWS_MANAGER => __('News Manager'),
         Role::EVENT_MANAGER => __('Event Manager'),
         Role::PLAYTEST_MANAGER => __('Playtest Manager'),
+        Role::SET_DESIGNER => __('Set Designer'),
         Role::MEDIA_EDITOR => __('Media Editor'),
         Role::CHEAT_INVESTIGATOR => __('Cheat Investigator'),
 

@@ -97,6 +97,7 @@ class UserSchema extends Schema
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
+            HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
                 ->cannotEagerLoad()
@@ -116,7 +117,6 @@ class UserSchema extends Schema
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
             // - claims (HasMany AchievementSetClaim)
-            // - wall comments (HasMany Comment, commentable_type=user.comment, commentable_id=self)
         ];
     }
 

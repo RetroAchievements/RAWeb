@@ -23,6 +23,7 @@ class UnlockPlayerAchievementAction
         ?Carbon $timestamp = null,
         ?User $unlockedBy = null,
         ?GameHash $gameHash = null,
+        ?string $userAgent = null,
     ): void {
         $timestamp ??= Carbon::now();
 
@@ -38,7 +39,7 @@ class UnlockPlayerAchievementAction
         // also unlock active event achievements associated to the achievement being unlocked
         if ($hardcore && $user->isRanked()) {
             foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
+                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id, $userAgent))
                     ->onQueue('player-achievements');
             }
         }
@@ -57,6 +58,7 @@ class UnlockPlayerAchievementAction
                     $gameHash?->game ?? $achievement->game,
                     gameHash: $gameHash,
                     timestamp: $timestamp,
+                    userAgent: $userAgent,
                     shouldDispatchPlayerGameAttached: false
                 );
 

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
-use App\Models\User;
+use App\Models\PlayerBadge;
 use App\Platform\Enums\UnlockMode;
 
 /**
@@ -136,7 +138,7 @@ function getGlobalRankingData(
     };
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $totalAwards = "SUM(IF(award_tier > 0, 1, 0))";
+        $totalAwards = "SUM(" . ifStatement('award_tier > 0', 1, 0) . ")";
     } else {
         $totalAwards = "COUNT(*)";
         $pointRequirement = "AND ua.points >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
@@ -158,12 +160,16 @@ function getGlobalRankingData(
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        ua.display_name AS DisplayName,
+                        ua.deleted_at AS DeletedAt,
                         COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
                         COALESCE(ua.points_hardcore, 0) AS Points,
                         COALESCE(ua.points_weighted, 0) AS RetroPoints,
                         COALESCE(ROUND(ua.points_weighted/ua.points_hardcore, 2), 0) AS RetroRatio ";
             } else {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        ua.display_name AS DisplayName,
+                        ua.deleted_at AS DeletedAt,
                         COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
                         COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints,
@@ -172,10 +178,14 @@ function getGlobalRankingData(
         } else {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        ua.display_name AS DisplayName,
+                        ua.deleted_at AS DeletedAt,
                         COALESCE(ua.points_hardcore, 0) AS Points,
                         COALESCE(ua.points_weighted, 0) AS RetroPoints ";
             } else {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        ua.display_name AS DisplayName,
+                        ua.deleted_at AS DeletedAt,
                         COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints ";
             }
@@ -188,25 +198,30 @@ function getGlobalRankingData(
                     $orderCond, ua.username
                     LIMIT $offset, $count";
 
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            $userIds = [];
-            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                $retVal[] = $db_entry;
-                $userIds[] = $db_entry['ID'];
-            }
+        $retVal = legacyDbFetchAll($query)->toArray();
 
-            // Get site award info for each user.
-            $usersCount = count($userIds);
-            for ($i = 0; $i < $usersCount; $i++) {
-                $query2 = "SELECT $totalAwards AS TotalAwards FROM user_awards WHERE user_id = '" . $userIds[$i] . "' " . $masteryCond;
+        if (!empty($retVal)) {
+            $userIds = array_map(static fn (array $dbEntry): int => (int) $dbEntry['ID'], $retVal);
+            $totalAwardsSelect = $unlockMode === UnlockMode::Hardcore
+                ? 'COALESCE(SUM(CASE WHEN award_tier > 0 THEN 1 ELSE 0 END), 0) AS TotalAwards'
+                : 'COUNT(*) AS TotalAwards';
+            $totalAwardsByUserId = PlayerBadge::query()
+                ->select('user_id')
+                ->selectRaw($totalAwardsSelect)
+                ->whereIn('user_id', $userIds)
+                ->where('award_type', AwardType::Mastery->value)
+                ->groupBy('user_id')
+                ->get()
+                ->mapWithKeys(
+                    fn (PlayerBadge $playerBadge): array => [
+                        (int) $playerBadge->user_id => (int) $playerBadge->getAttribute('TotalAwards'),
+                    ]
+                )->all();
 
-                $dbResult2 = s_mysql_query($query2);
-                if ($dbResult2 !== false) {
-                    $db_entry2 = mysqli_fetch_assoc($dbResult2);
-                    $retVal[$i]['TotalAwards'] = $db_entry2['TotalAwards'];
-                }
+            foreach ($retVal as &$dbEntry) {
+                $dbEntry['TotalAwards'] = $totalAwardsByUserId[(int) $dbEntry['ID']] ?? 0;
             }
+            unset($dbEntry);
         }
 
         return $retVal;
@@ -250,7 +265,7 @@ function getGlobalRankingData(
     }
 
     return legacyDbFetchAll("
-        SELECT User, DisplayName,
+        SELECT User, DisplayName, MAX(DeletedAt) AS DeletedAt,
             COALESCE(MAX(AchievementCount), 0) AS AchievementCount,
             COALESCE(MAX(Points), 0) AS Points,
             COALESCE(MAX(RetroPoints), 0) AS RetroPoints,
@@ -261,6 +276,7 @@ function getGlobalRankingData(
             (
                 SELECT ua.username AS User,
                     ua.display_name AS DisplayName,
+                    ua.deleted_at AS DeletedAt,
                     ua.id as user_id,
                     SUM($achCount) AS AchievementCount,
                     SUM($achPoints) as Points,
@@ -279,6 +295,7 @@ function getGlobalRankingData(
             (
                 SELECT ua.username AS User,
                     ua.display_name AS DisplayName,
+                    ua.deleted_at AS DeletedAt,
                     ua.id AS user_id,
                     NULL AS AchievementCount,
                     NULL AS Points,
