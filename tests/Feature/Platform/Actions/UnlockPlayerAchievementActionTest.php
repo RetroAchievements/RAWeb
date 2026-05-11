@@ -22,7 +22,7 @@ class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testUnlockingFirstAchievementDoesntDispatchPlayerGameAttached(): void
+    public function testUnlockingFirstAchievementDispatchesPlayerGameAttachedWhenItCreatesPlayerGame(): void
     {
         $user = User::factory()->create();
         $game = $this->seedGame(achievements: 1);
@@ -36,7 +36,36 @@ class UnlockPlayerAchievementActionTest extends TestCase
         (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
 
         Event::assertDispatched(PlayerAchievementUnlocked::class);
-        Event::assertNotDispatched(PlayerGameAttached::class);
+        Event::assertDispatched(function (PlayerGameAttached $event) use ($game, $user): bool {
+            return $event->user->is($user) && $event->game->is($game);
+        });
+    }
+
+    public function testCrossGameHashUnlockDispatchesPlayerGameAttachedForHashGame(): void
+    {
+        $user = User::factory()->create();
+        $sessionGame = $this->seedGame(achievements: 1);
+        $sessionGameHash = $sessionGame->hashes()->first();
+        $achievementGame = $this->seedGame(achievements: 1);
+        $achievement = $achievementGame->achievements->first();
+
+        Event::fake([
+            PlayerAchievementUnlocked::class,
+            PlayerGameAttached::class,
+        ]);
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true, gameHash: $sessionGameHash);
+
+        Event::assertDispatched(PlayerAchievementUnlocked::class);
+        Event::assertDispatched(function (PlayerGameAttached $event) use ($sessionGame, $user): bool {
+            return $event->user->is($user) && $event->game->is($sessionGame);
+        });
+
+        $sessionPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $sessionGame->id)->first();
+        $this->assertNotNull($sessionPlayerGame);
+
+        $achievementPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $achievementGame->id)->first();
+        $this->assertNotNull($achievementPlayerGame);
     }
 
     public function testManualUnlockDoesntUpdateLastActivityAt(): void

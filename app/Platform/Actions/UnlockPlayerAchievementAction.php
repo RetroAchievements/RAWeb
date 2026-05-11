@@ -49,25 +49,27 @@ class UnlockPlayerAchievementAction
             // if it's a manual unlock or a non-game achievement, attach the game
             // but don't generate a session.
             app()->make(AttachPlayerGameAction::class)
-                ->execute($user, $achievement->game, shouldDispatchPlayerGameAttached: false);
+                ->execute($user, $achievement->game);
         } else {
+            $sessionGame = $gameHash?->game ?? $achievement->game;
+            $isUnlockForDifferentHashGame = $sessionGame->id !== $achievement->game->id;
+
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSessionAction::class)
                 ->execute(
                     $user,
-                    $gameHash?->game ?? $achievement->game,
+                    $sessionGame,
                     gameHash: $gameHash,
                     timestamp: $timestamp,
-                    userAgent: $userAgent,
-                    shouldDispatchPlayerGameAttached: false
+                    userAgent: $userAgent
                 );
 
             // if the gameHash isn't associated with the achievement game, make sure a player_games record
             // exists for the achievement game so points for unlocking the achievement can be captured.
-            if ($gameHash?->game && $gameHash?->game->id !== $achievement->game->id) {
+            if ($isUnlockForDifferentHashGame) {
                 // this is normally done by ResumePlayerSessionAction, but we just called it with a different game
                 app()->make(AttachPlayerGameAction::class)
-                    ->execute($user, $achievement->game, shouldDispatchPlayerGameAttached: false);
+                    ->execute($user, $achievement->game);
             }
         }
 
