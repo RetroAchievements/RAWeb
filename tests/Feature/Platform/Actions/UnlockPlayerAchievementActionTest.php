@@ -11,13 +11,33 @@ use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Events\PlayerGameAttached;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function testUnlockingFirstAchievementDoesntDispatchPlayerGameAttached(): void
+    {
+        $user = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        $achievement = $game->achievements->first();
+
+        Event::fake([
+            PlayerAchievementUnlocked::class,
+            PlayerGameAttached::class,
+        ]);
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
+
+        Event::assertDispatched(PlayerAchievementUnlocked::class);
+        Event::assertNotDispatched(PlayerGameAttached::class);
+    }
 
     public function testManualUnlockDoesntUpdateLastActivityAt(): void
     {

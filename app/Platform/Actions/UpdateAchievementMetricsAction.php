@@ -74,13 +74,45 @@ class UpdateAchievementMetricsAction
 
         $unlockCounts = [];
         $hardcoreUnlockCounts = [];
+        $achievementsRequiringRecount = collect();
+
+        $storedUnlockCounts = Achievement::query()
+            ->whereIn('id', $achievements->pluck('id')->all())
+            ->get(['id', 'unlocks_total', 'unlocks_hardcore'])
+            ->keyBy('id');
 
         foreach ($achievements as $achievement) {
-            $unlockCounts[$achievement->id] = (int) ($achievement->unlocks_total ?? 0);
-            $hardcoreUnlockCounts[$achievement->id] = (int) ($achievement->unlocks_hardcore ?? 0);
+            $storedUnlockCount = $storedUnlockCounts->get($achievement->id);
+
+            if (!$storedUnlockCount || $storedUnlockCount->unlocks_total === null || $storedUnlockCount->unlocks_hardcore === null) {
+                $achievementsRequiringRecount->push($achievement);
+
+                continue;
+            }
+
+            $unlockCounts[$achievement->id] = (int) $storedUnlockCount->unlocks_total;
+            $hardcoreUnlockCounts[$achievement->id] = (int) $storedUnlockCount->unlocks_hardcore;
         }
 
-        $this->updateUsingUnlockCounts($game, $achievements, $unlockCounts, $hardcoreUnlockCounts);
+        if (!empty($unlockCounts)) {
+            $skippedAchievementIds = $this->updateUsingUnlockCounts(
+                $game,
+                $achievements->whereIn('id', array_keys($unlockCounts)),
+                $unlockCounts,
+                $hardcoreUnlockCounts,
+                useStoredUnlockCounts: true
+            );
+
+            if (!empty($skippedAchievementIds)) {
+                $achievementsRequiringRecount = $achievementsRequiringRecount->merge(
+                    Achievement::query()->whereIn('id', $skippedAchievementIds)->get()
+                );
+            }
+        }
+
+        if ($achievementsRequiringRecount->isNotEmpty()) {
+            $this->update($game, $achievementsRequiringRecount->unique('id')->values());
+        }
     }
 
     /**
@@ -88,13 +120,28 @@ class UpdateAchievementMetricsAction
      * @param array<int, int> $unlockCounts
      * @param array<int, int> $hardcoreUnlockCounts
      */
-    private function updateUsingUnlockCounts(Game $game, Collection $achievements, array $unlockCounts, array $hardcoreUnlockCounts): void
-    {
+    private function updateUsingUnlockCounts(
+        Game $game,
+        Collection $achievements,
+        array $unlockCounts,
+        array $hardcoreUnlockCounts,
+        bool $useStoredUnlockCounts = false,
+    ): array {
         // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
         $playersHardcore = $game->players_hardcore ?? 0;
         $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
         $searchIndexingService = app()->make(SearchIndexingService::class);
+
+        $dirtyColumns = [
+            'unlock_percentage',
+            'unlock_hardcore_percentage',
+            'points_weighted',
+        ];
+
+        if (!$useStoredUnlockCounts) {
+            array_unshift($dirtyColumns, 'unlocks_total', 'unlocks_hardcore');
+        }
 
         /**
          * In Horizon, each write requires an entire network round trip to the DB.
@@ -123,29 +170,44 @@ class UpdateAchievementMetricsAction
 
             // We'll optimistically set attributes on the model to leverage Laravel's dirty checking.
             // This doesn't necessarily mean we'll be doing a save for the model, though.
-            $achievement->unlocks_total = $unlocksCount;
-            $achievement->unlocks_hardcore = $unlocksHardcoreCount;
+            if (!$useStoredUnlockCounts) {
+                $achievement->unlocks_total = $unlocksCount;
+                $achievement->unlocks_hardcore = $unlocksHardcoreCount;
+            }
+
             $achievement->unlock_percentage = $unlockPercentage;
             $achievement->unlock_hardcore_percentage = $unlockHardcorePercentage;
             $achievement->points_weighted = $pointsWeighted;
 
             // Only actually add the achievement to the bulk updates list if the model has changed.
-            if ($achievement->isDirty()) {
-                $bulkUpdates[] = [
+            if ($achievement->isDirty($dirtyColumns)) {
+                $bulkUpdate = [
                     'id' => $achievement->id,
-                    'unlocks_total' => $unlocksCount,
-                    'unlocks_hardcore' => $unlocksHardcoreCount,
                     'unlock_percentage' => $unlockPercentage,
                     'unlock_hardcore_percentage' => $unlockHardcorePercentage,
                     'points_weighted' => $pointsWeighted,
                 ];
+
+                if (!$useStoredUnlockCounts) {
+                    $bulkUpdate['unlocks_total'] = $unlocksCount;
+                    $bulkUpdate['unlocks_hardcore'] = $unlocksHardcoreCount;
+                }
+
+                if ($useStoredUnlockCounts) {
+                    $bulkUpdate['expected_unlocks_total'] = $unlocksCount;
+                    $bulkUpdate['expected_unlocks_hardcore'] = $unlocksHardcoreCount;
+                }
+
+                $bulkUpdates[] = $bulkUpdate;
 
                 $searchIndexingService->queueAchievementForIndexing($achievement->id);
             }
         }
 
         if (!empty($bulkUpdates)) {
-            $this->performBulkUpdate($bulkUpdates);
+            $skippedAchievementIds = $this->performBulkUpdate($bulkUpdates, $dirtyColumns, $useStoredUnlockCounts);
+        } else {
+            $skippedAchievementIds = [];
         }
 
         $game->points_weighted = $game->achievements()->promoted()->sum('points_weighted');
@@ -162,6 +224,8 @@ class UpdateAchievementMetricsAction
 
             $searchIndexingService->queueGameForIndexing($game->id);
         }
+
+        return $skippedAchievementIds;
     }
 
     /**
@@ -169,29 +233,27 @@ class UpdateAchievementMetricsAction
      * During the weekly recalc, hundreds of jobs hit this table concurrently.
      * Smaller batches mean shorter lock windows and fewer deadlocks.
      */
-    private function performBulkUpdate(array $bulkUpdates): void
+    private function performBulkUpdate(array $bulkUpdates, array $columns, bool $useStoredUnlockCounts = false): array
     {
         usort($bulkUpdates, fn ($a, $b) => $a['id'] <=> $b['id']);
 
+        $skippedAchievementIds = [];
         foreach (array_chunk($bulkUpdates, self::CHUNK_SIZE) as $chunk) {
-            $this->updateChunk($chunk);
+            array_push(
+                $skippedAchievementIds,
+                ...$this->updateChunk($chunk, $columns, $useStoredUnlockCounts)
+            );
         }
+
+        return $skippedAchievementIds;
     }
 
     /**
      * Executes the CASE-based bulk update within a transaction that
      * automatically retries on deadlocks (via DB::transaction's second argument).
      */
-    private function updateChunk(array $chunk): void
+    private function updateChunk(array $chunk, array $columns, bool $useStoredUnlockCounts): array
     {
-        $columns = [
-            'unlocks_total',
-            'unlocks_hardcore',
-            'unlock_percentage',
-            'unlock_hardcore_percentage',
-            'points_weighted',
-        ];
-
         $cases = [];
         foreach ($columns as $column) {
             $whens = implode(' ', array_map(
@@ -204,11 +266,39 @@ class UpdateAchievementMetricsAction
         $cases['updated_at'] = now();
 
         $ids = array_column($chunk, 'id');
+        $skippedAchievementIds = [];
 
-        DB::transaction(function () use ($ids, $cases) {
-            DB::table('achievements')
-                ->whereIn('id', $ids)
-                ->update($cases);
+        DB::transaction(function () use ($ids, $cases, $chunk, $useStoredUnlockCounts, &$skippedAchievementIds) {
+            $applyStoredUnlockCountGuard = function ($query) use ($chunk) {
+                return $query->where(function ($query) use ($chunk) {
+                    foreach ($chunk as $row) {
+                        $query->orWhere(function ($query) use ($row) {
+                            $query
+                                ->where('id', $row['id'])
+                                ->where('unlocks_total', $row['expected_unlocks_total'])
+                                ->where('unlocks_hardcore', $row['expected_unlocks_hardcore']);
+                        });
+                    }
+                });
+            };
+
+            $query = DB::table('achievements')->whereIn('id', $ids);
+
+            if ($useStoredUnlockCounts) {
+                $query = $applyStoredUnlockCountGuard($query);
+            }
+
+            $query->update($cases);
+
+            if ($useStoredUnlockCounts) {
+                $matchedAchievementIds = $applyStoredUnlockCountGuard(DB::table('achievements')->whereIn('id', $ids))
+                    ->pluck('id')
+                    ->all();
+
+                $skippedAchievementIds = array_values(array_diff($ids, $matchedAchievementIds));
+            }
         }, attempts: 5);
+
+        return $skippedAchievementIds;
     }
 }
