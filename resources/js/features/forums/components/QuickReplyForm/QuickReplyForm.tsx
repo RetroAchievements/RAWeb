@@ -27,7 +27,7 @@ interface QuickReplyFormProps {
 }
 
 export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
-  const { auth, forumTopic, accessibleTeamAccounts } =
+  const { auth, forumTopic, replyableTeamAccounts } =
     usePageProps<App.Data.ShowForumTopicPageProps>();
 
   const { t } = useTranslation();
@@ -41,13 +41,13 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
 
   const watchedPostAsUser =
     watchedPostAsUserId !== 'self'
-      ? accessibleTeamAccounts?.find((ta) => ta.id === Number(watchedPostAsUserId))
+      ? replyableTeamAccounts?.find((ta) => ta.id === Number(watchedPostAsUserId))
       : null;
 
   // Sort team accounts alphabetically by display name.
-  const sortedTeamAccounts = accessibleTeamAccounts
-    ? [...accessibleTeamAccounts].sort((a, b) => a.displayName.localeCompare(b.displayName))
-    : null;
+  const sortedTeamAccounts = (replyableTeamAccounts ?? [])
+    .slice()
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   const formRef = useRef<HTMLFormElement>(null);
   useSubmitOnMetaEnter({
@@ -72,7 +72,7 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
           <div className="flex w-full flex-col gap-2 lg:flex-row lg:justify-between lg:gap-5">
             <ShortcodePanel className="p-0" />
 
-            {sortedTeamAccounts?.length ? (
+            {sortedTeamAccounts.length ? (
               <BaseFormField
                 control={form.control}
                 name="postAsUserId"
@@ -152,7 +152,7 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
                     />
                   ) : null}
 
-                  {!watchedPostAsUser && accessibleTeamAccounts?.length ? (
+                  {!watchedPostAsUser && replyableTeamAccounts?.length ? (
                     <img
                       src={auth.user.avatarUrl}
                       alt={auth.user.displayName}
