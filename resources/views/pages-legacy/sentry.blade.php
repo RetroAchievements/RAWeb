@@ -52,21 +52,26 @@ $selected = requestInputSanitized('file');
 if ($selected) {
     $date = Carbon::parse(substr($selected, 7));
     $sniffs = (new BuildConnectSniffsAction())->execute($date, $clients);
-
-    foreach ($sniffs as $sniff) {
-        $user_counts[$sniff['user']] = ($user_counts[$sniff['user']] ?? 0) + 1;
-        $method_counts[$sniff['method']] = ($method_counts[$sniff['method']] ?? 0) + 1;
-
-        foreach ($sniff['smells'] as $smell) {
-            $smell_counts[$smell] = ($smell_counts[$smell] ?? 0) + 1;
-        }
+} else {
+    $user = requestInputSanitized('user');
+    if ($user) {
+        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, $user);
     }
-
-    ksort($user_counts);
-    ksort($method_counts);
-    ksort($smell_counts);
-    sort($clients);
 }
+
+foreach ($sniffs as $sniff) {
+    $user_counts[$sniff['user']] = ($user_counts[$sniff['user']] ?? 0) + 1;
+    $method_counts[$sniff['method']] = ($method_counts[$sniff['method']] ?? 0) + 1;
+
+    foreach ($sniff['smells'] as $smell) {
+        $smell_counts[$smell] = ($smell_counts[$smell] ?? 0) + 1;
+    }
+}
+
+ksort($user_counts);
+ksort($method_counts);
+ksort($smell_counts);
+sort($clients);
 
 $colors = [
     'bad_validation' => [ // validation hash did not match expected values
@@ -123,7 +128,7 @@ foreach ($clients as $client) {
             </div>
         <?php endforeach ?>
     </x-slot>
-    <?php if ($selected): ?>
+    <?php if (!empty($sniffs)): ?>
         <div>
             <h2>
                 <?= $selected ?>
