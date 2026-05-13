@@ -20,8 +20,6 @@ class RouteServiceProvider extends ServiceProvider
 
     private const array DEVELOPER_PUBLISH_REQUEST_TYPES = [
         'submitcodenote',
-        'submitgametitle',
-        'submitrichpresence',
         'uploadachievement',
         'uploadleaderboard',
     ];
@@ -31,8 +29,16 @@ class RouteServiceProvider extends ServiceProvider
         'login2',
     ];
 
+    private const array DELEGATED_REQUEST_TYPES = [
+        'awardachievement',
+        'awardachievements',
+        'ping',
+        'startsession',
+    ];
+
     private const int PUBLISH_PER_MINUTE = 600;
     private const int DEFAULT_PER_MINUTE = 180;
+    private const int DELEGATED_PER_MINUTE = 6000;
     private const int LOGIN_PER_IP = 30;
     private const int LOGIN_PER_USER_IP = 5;
 
@@ -89,6 +95,10 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('connect-dorequest', function (Request $request): array|Limit {
             $requestType = $request->input('r');
 
+            if ($this->isDelegatedRequest($request, $requestType)) {
+                return $this->connectLimit(self::DELEGATED_PER_MINUTE, 'delegated', $this->connectRateLimitIdentifier($request));
+            }
+
             if (in_array($requestType, self::DEVELOPER_PUBLISH_REQUEST_TYPES, true)) {
                 return $this->connectLimit(self::PUBLISH_PER_MINUTE, 'publish', $this->connectRateLimitIdentifier($request));
             }
@@ -99,6 +109,19 @@ class RouteServiceProvider extends ServiceProvider
 
             return $this->connectLimit(self::DEFAULT_PER_MINUTE, 'default', $this->connectRateLimitIdentifier($request));
         });
+    }
+
+    /**
+     * Cheap preconditions only. The full permission check (target user
+     * exists, caller may delegate to them) runs in the action, not here.
+     */
+    private function isDelegatedRequest(Request $request, mixed $requestType): bool
+    {
+        return
+            $request->isMethod('POST')
+            && $request->filled('k')
+            && in_array($requestType, self::DELEGATED_REQUEST_TYPES, true)
+            && $request->user('connect-token') !== null;
     }
 
     /**
@@ -114,9 +137,22 @@ class RouteServiceProvider extends ServiceProvider
         $ip = $this->ipBucket($request);
 
         return [
-            $this->connectLimit(self::LOGIN_PER_IP, 'login-ip', 'ip:' . $ip),
-            $this->connectLimit(self::LOGIN_PER_USER_IP, 'login', ($username ?: 'noname') . '|ip:' . $ip),
+            $this->loginLimit(self::LOGIN_PER_IP, 'login-ip', 'ip:' . $ip),
+            $this->loginLimit(self::LOGIN_PER_USER_IP, 'login', ($username ?: 'noname') . '|ip:' . $ip),
         ];
+    }
+
+    private function loginLimit(int $perMinute, string $bucket, string $identifier): Limit
+    {
+        return $this->connectLimit($perMinute, $bucket, $identifier)
+            ->after(fn (Response $response): bool => !$this->isSuccessfulLogin($response));
+    }
+
+    private function isSuccessfulLogin(Response $response): bool
+    {
+        $data = $response instanceof JsonResponse ? $response->getData(true) : null;
+
+        return is_array($data) && ($data['Success'] ?? false) === true;
     }
 
     private function connectLimit(int $perMinute, string $bucket, string $identifier): Limit
