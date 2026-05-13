@@ -690,6 +690,7 @@
     "code-reviewer": "Koodintarkastaja",
     "community-manager": "Yhteisöpäällikkö",
     "quality-assurance": "Laadunvarmistus",
+    "set-designer": "Set Designer",
     "Messages": "Viestit",
     "unreadMessages": "Sinulla on $t(unreadMessageCount, {\"count\": {{unreadCount}} }) $t(threadCount, {\"count\": {{threadCount}} }).",
     "delegatedUnreadMessages": "Käyttäjällä {{username}} on $t(unreadMessageCount, {\"count\": {{unreadCount}} }) $t(threadCount, {\"count\": {{threadCount}} }).",

@@ -690,6 +690,7 @@
     "code-reviewer": "Код ревьюер",
     "community-manager": "Менеджер сообщества",
     "quality-assurance": "Контроль качества",
+    "set-designer": "Set Designer",
     "Messages": "Сообщения",
     "unreadMessages": "У вас есть $t(unreadMessageCount, {\"count\": {{unreadCount}} }) в $t(threadCount, {\"count\": {{threadCount}}}).",
     "delegatedUnreadMessages": "{{username}} имеет $t(unreadMessageCount, {\"count\": {{unreadCount}} }) в $t(threadCount, {\"count\": {{threadCount}}}).",

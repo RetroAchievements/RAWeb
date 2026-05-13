@@ -690,6 +690,7 @@
     "code-reviewer": "Adolygydd Cod",
     "community-manager": "Rheolwr Cymunedol",
     "quality-assurance": "Sicrwydd Ansawdd",
+    "set-designer": "Set Designer",
     "Messages": "Negeseuon",
     "unreadMessages": "Mae gennych chi $t(unreadMessageCount, {\"count\": {{unreadCount}} }) yn $t(threadCount, {\"count\": {{threadCount}} }).",
     "delegatedUnreadMessages": "{{username}} yn gael $t(unreadMessageCount, {\"count\": {{unreadCount}} }) yn $t(threadCount, {\"count\": {{threadCount}} }).",
