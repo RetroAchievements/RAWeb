@@ -2,6 +2,7 @@
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
+use App\Models\ConnectWarning;
 ?>
 
 @props([
@@ -27,6 +28,7 @@ for ($i = Permissions::Banned; $i <= $myPermissions; $i++) {
 
 $hasPatreonBadge = HasPatreonBadge($targetUser);
 $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
+$hasConnectSmells = ConnectWarning::where('username', $targetUsername)->orWhere('username', $targetUser->display_name)->exists();
 ?>
 
 {{-- TODO port to Filament and delete component --}}
@@ -103,6 +105,9 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
             </td>
             <td class="w-full">
                 {{ $isTargetUserUntracked ? 'Untracked User' : 'Tracked User' }}
+                @if ($hasConnectSmells)
+                    - <a href="/sentry.php?user={{ $targetUsername }}">Connect Smells</a>
+                @endif
             </td>
         </tr>
 
