@@ -22,11 +22,11 @@ class BuildConnectSniffsAction
         $userAgentService = new UserAgentService();
 
         $entries = ConnectWarning::query()
-            ->when($date != null, function($query) use ($date) {
+            ->when($date != null, function ($query) use ($date) {
                 $query->where('created_at', '>=', $date->clone()->startOfDay())
                       ->where('created_at', '<=', $date->clone()->endOfDay());
             })
-            ->when(!empty($username), function($query) use ($username) {
+            ->when(!empty($username), function ($query) use ($username) {
                 $query->where('username', $username);
             })
             ->with('playerSession', 'playerSession.gameHash')
