@@ -690,6 +690,7 @@
     "code-reviewer": "Recenzent kodu",
     "community-manager": "Menedżer społeczności",
     "quality-assurance": "Kontrola jakości",
+    "set-designer": "Set Designer",
     "Messages": "Wiadomości",
     "unreadMessages": "Masz $t(unreadMessageCount, {\"count\": {{unreadCount}} }) w $t(threadCount, {\"count\": {{threadCount}} }).",
     "delegatedUnreadMessages": "{{username}} ma $t(unreadMessageCount, {\"count\": {{unreadCount}} }) w $t(threadCount, {\"count\": {{threadCount}} }).",

@@ -690,6 +690,7 @@
     "code-reviewer": "Kodgranskare",
     "community-manager": "Gemenskapsansvarig",
     "quality-assurance": "Kvalitetssäkring",
+    "set-designer": "Set Designer",
     "Messages": "Meddelanden",
     "unreadMessages": "Du har $t(unreadMessageCount, {\"count\": {{unreadCount}} }) i $t(threadCount, {\"count\": {{threadCount}} }).",
     "delegatedUnreadMessages": "{{username}} har $t(unreadMessageCount, {\"count\": {{unreadCount}} }) i $t(threadCount, {\"count\": {{threadCount}} }).",
