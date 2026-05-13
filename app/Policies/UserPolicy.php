@@ -49,6 +49,11 @@ class UserPolicy
         return true;
     }
 
+    public function viewAchievementSetClaims(?User $user, User $model): bool
+    {
+        return true;
+    }
+
     public function viewAwards(?User $user, User $model): bool
     {
         return true;
