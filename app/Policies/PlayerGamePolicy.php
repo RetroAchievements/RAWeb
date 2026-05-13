@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\User;
