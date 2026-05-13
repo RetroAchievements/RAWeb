@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
  * @deprecated use <x-user.avatar />
  */
 function userAvatar(
-    string|User|null $user,
+    string|array|User|null $user,
     ?bool $label = null,
     ?bool $icon = null,
     int $iconSize = 32,

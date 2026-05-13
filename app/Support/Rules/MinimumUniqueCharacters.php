@@ -24,9 +24,8 @@ class MinimumUniqueCharacters implements ValidationRule
 
         // Strip specified words (case-insensitive) before counting.
         $processedValue = str_ireplace($this->stripWords, '', $stringValue);
-        $uniqueCount = count(array_unique(mb_str_split($processedValue)));
 
-        if ($uniqueCount >= $this->minimum) {
+        if ($this->hasMinimumUniqueCharacters($processedValue)) {
             return;
         }
 
@@ -39,5 +38,38 @@ class MinimumUniqueCharacters implements ValidationRule
         $fail($messageKey)->translate([
             'minimum' => $this->minimum,
         ]);
+    }
+
+    /**
+     * Count unique characters without splitting the full password into an array.
+     *
+     * A lengthy input string may contain millions of characters. Don't exhaust
+     * memory with mb_str_split() or array_unique() on that. Store only the unique
+     * characters seen so far and stop as soon as that minimum is met.
+     */
+    private function hasMinimumUniqueCharacters(string $value): bool
+    {
+        $uniqueCharacters = [];
+        $offset = 0;
+        $byteLength = strlen($value);
+
+        while ($offset < $byteLength) {
+            $character = $value[$offset];
+
+            if (ord($character) >= 0x80 && preg_match('/\G./us', $value, $matches, 0, $offset) === 1) {
+                $character = $matches[0];
+                $offset += strlen($character);
+            } else {
+                $offset++;
+            }
+
+            $uniqueCharacters[$character] = true;
+
+            if (count($uniqueCharacters) >= $this->minimum) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

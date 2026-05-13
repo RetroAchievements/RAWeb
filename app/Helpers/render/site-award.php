@@ -3,7 +3,9 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
+use App\Models\GameScreenshot;
 use App\Models\PlayerBadge;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
@@ -352,6 +354,19 @@ function RenderAward(
         $imagepath = asset('/assets/images/badge/patreon.png');
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
+    } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+        $description = getMediaContributionDescription($ownerUsername, (int) $awardData);
+        echo avatar("mediaContributionAward", $awardData,
+            tooltip: "<div class='p-2 w-fit max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
+            iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
+            iconSize: $imageSize,
+            iconClass: 'goldimage',
+            context: $ownerUsername,
+            altText: 'Media Contribution',
+            hasLink: false,
+        );
+
+        return;
     } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
@@ -443,6 +458,8 @@ function RenderAwardOrderTable(
             $awardTitle = "Achievement Points Earned by Others";
         } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
             $awardTitle = "Patreon Supporter";
+        } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+            $awardTitle = "Media Contribution";
         } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
             $awardTitle = "Certified Legend";
         }
@@ -549,6 +566,33 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
         $firstDisplayOrders['eventAwards'],
         $firstDisplayOrders['siteAwards'],
     ];
+}
+
+function getMediaContributionDescription(string $username, int $currentTier): string
+{
+    $currentThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier);
+    $nextThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier + 1);
+
+    $formattedCurrent = number_format($currentThreshold);
+    $achievement = "<p class='text-balance'>Awarded for contributing <span class='font-semibold'>{$formattedCurrent}</span> approved screenshots to game galleries.</p>";
+
+    if ($nextThreshold === 0) {
+        return $achievement;
+    }
+
+    $user = User::whereName($username)->first();
+    $eligibleCount = $user
+        ? GameScreenshot::query()->eligibleForMediaContributionBy($user)->count()
+        : 0;
+
+    $remaining = $nextThreshold - $eligibleCount;
+    if ($remaining <= 0) {
+        return $achievement;
+    }
+
+    $formattedRemaining = number_format($remaining);
+
+    return $achievement . "<p class='opacity-70'>{$formattedRemaining} more to next tier.</p>";
 }
 
 function generateManualMoveButtons(

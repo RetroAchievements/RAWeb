@@ -33,6 +33,20 @@ describe('Util: buildEventMetaDescription', () => {
     expect(result).toEqual('A non time limited event containing 2 achievements.');
   });
 
+  it('given an evergreen event with only 1 achievement, pluralizes correctly', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      state: 'evergreen',
+      eventAchievements: [createEventAchievement()],
+    });
+
+    // ACT
+    const result = buildEventMetaDescription(event);
+
+    // ASSERT
+    expect(result).toEqual('A non time limited event containing 1 achievement.');
+  });
+
   it('given an active event with an end date, returns a message with the end date', () => {
     // ARRANGE
     const event = createRaEvent({

@@ -690,6 +690,7 @@
     "code-reviewer": "Peninjau Kode",
     "community-manager": "Community Manager",
     "quality-assurance": "Quality Assurance",
+    "set-designer": "Set Designer",
     "Messages": "Pesan",
     "unreadMessages": "Kamu memiliki $t(unreadMessageCount, {\"count\": {{unreadCount}} }) di $t(threadCount, {\"count\": {{threadCount}} })",
     "delegatedUnreadMessages": "{{username}} memiliki $t(unreadMessageCount, {\"count\": {{unreadCount}} }) di $t(threadCount, {\"count\": {{threadCount}} }).",

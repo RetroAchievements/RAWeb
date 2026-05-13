@@ -19,6 +19,7 @@ enum UserAwardKind: string
     case Completed = 'completed';
     case Event = 'event';
     case Mastered = 'mastered';
+    case MediaContribution = 'media-contribution';
     case PatreonSupporter = 'patreon-supporter';
     case Playtest = 'playtest';
 
@@ -33,6 +34,7 @@ enum UserAwardKind: string
             AwardType::AchievementPointsYield => self::AchievementPointsYield,
             AwardType::PatreonSupporter => self::PatreonSupporter,
             AwardType::CertifiedLegend => self::CertifiedLegend,
+            AwardType::MediaContribution => self::MediaContribution,
         };
     }
 
@@ -53,6 +55,7 @@ enum UserAwardKind: string
             self::AchievementPointsYield => $query->where('award_type', AwardType::AchievementPointsYield),
             self::PatreonSupporter => $query->where('award_type', AwardType::PatreonSupporter),
             self::CertifiedLegend => $query->where('award_type', AwardType::CertifiedLegend),
+            self::MediaContribution => $query->where('award_type', AwardType::MediaContribution),
         };
     }
 
