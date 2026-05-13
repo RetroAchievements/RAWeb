@@ -53,9 +53,9 @@ if ($selected) {
     $date = Carbon::parse(substr($selected, 7));
     $sniffs = (new BuildConnectSniffsAction())->execute($date, $clients);
 } else {
-    $user = requestInputSanitized('user');
-    if ($user) {
-        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, $user);
+    $selected = requestInputSanitized('user');
+    if ($selected) {
+        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, $selected);
     }
 }
 
@@ -128,7 +128,7 @@ foreach ($clients as $client) {
             </div>
         <?php endforeach ?>
     </x-slot>
-    <?php if (!empty($sniffs)): ?>
+    <?php if ($selected): ?>
         <div>
             <h2>
                 <?= $selected ?>
