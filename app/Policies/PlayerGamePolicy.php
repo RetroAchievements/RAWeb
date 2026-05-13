@@ -63,17 +63,7 @@ class PlayerGamePolicy
         return false;
     }
 
-    public function viewSessionHistory(User $user): bool
-    {
-        return $user->hasAnyRole([
-            Role::MODERATOR,
-            Role::CHEAT_INVESTIGATOR,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::Moderator;
-    }
-
-    // TODO when deleting the Blade UI player game activity page, replace viewSessionHistory with this implementation
-    public function viewSessionHistory2(User $user, ?PlayerGame $playerGame = null): bool
+    public function viewSessionHistory(User $user, ?PlayerGame $playerGame = null): bool
     {
         // TODO also visible on tickets
 
@@ -81,6 +71,7 @@ class PlayerGamePolicy
             Role::ADMINISTRATOR,
             Role::MODERATOR,
             Role::CHEAT_INVESTIGATOR,
+            Role::QUALITY_ASSURANCE,
         ]);
     }
 }
