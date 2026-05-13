@@ -13,7 +13,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 function RenderFilterButton(string $text, string $filter, int $count): void
 {
     if ($count > 0) {
-        echo "<button class='btn' type='button' data-filter='" . e($filter) . "'>";
+        echo "<button class='btn' type='button' data-filter='$filter'>";
         echo e($text) . " ($count)";
         echo '</button>';
     }
@@ -25,7 +25,7 @@ function key_to_class(?string $key): string
         return '_null_';
     }
 
-    return str_replace([' ', '.'], '-', str_replace('%', '_pct_', $key));
+    return preg_replace('/[^A-Za-z0-9_-]/', '-', str_replace('%', '_pct_', $key)) ?? '';
 }
 
 // render
@@ -235,15 +235,15 @@ foreach ($clients as $client) {
                 ?>
                 <details class="<?= implode(' ', $classes) ?>">
                     <summary class="cursor-pointer mb-2">
-                        <code><?= e($sniff['date']) ?></code>
-                        <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= e($sniff['method']) ?></code>
+                        <code><?= $sniff['date'] ?></code>
+                        <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= $sniff['method'] ?></code>
                         <?php foreach ($sniff['smells'] ?? [] as $smell): ?>
-                            <code style="padding:1px 5px;border:1px solid <?= e($colors[$smell]['border'] ?? 'gray') ?>;background:<?= e($colors[$smell]['background'] ?? 'gray') ?>;color:white"><?= e($smell) ?></code>
+                            <code style="padding:1px 5px;border:1px solid <?= $colors[$smell]['border'] ?? 'gray' ?>;background:<?= $colors[$smell]['background'] ?? 'gray' ?>;color:white"><?= e($smell) ?></code>
                         <?php endforeach ?>
                         <?php
                             if ($sniff['user']) {
-                                echo "&middot; <a href='" . $sniff['link'] . "'>" . $sniff['user'] . '</a>';
-                                if (!$sniff['userinfo']) {
+                                echo "&middot; <a href='" . e($sniff['link']) . "'>" . e($sniff['user']) . '</a>';
+                                if (!array_key_exists('userinfo', $sniff)) {
                                     echo ' (non-existant)';
                                 } elseif ($sniff['userinfo']['deleted_at'] ?? false) {
                                     echo ' (deleted)';
