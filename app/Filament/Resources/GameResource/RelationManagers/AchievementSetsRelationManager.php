@@ -13,6 +13,7 @@ use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\LogGameAchievementSetActivityAction;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\AchievementSetType;
+use App\Support\Cache\GameParentCacheInvalidator;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\DetachAction;
@@ -371,6 +372,10 @@ class AchievementSetsRelationManager extends RelationManager
                             ]
                         );
 
+                        // updateExistingPivot is a pivot-level write and skips the
+                        // GameAchievementSet observer, so invalidate explicitly.
+                        GameParentCacheInvalidator::invalidate($currentGame->id, $record->id);
+
                         $gameAchievementSet = GameAchievementSet::where('game_id', $currentGame->id)
                             ->where('achievement_set_id', $record->id)
                             ->first();
@@ -411,7 +416,12 @@ class AchievementSetsRelationManager extends RelationManager
 
                 DetachAction::make()
                     ->visible(fn () => $user->can('delete', [GameAchievementSet::class, null]))
-                    ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value),
+                    ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value)
+                    ->after(function (AchievementSet $record) use ($game) {
+                        // Detach is a pivot-level write and skips the GameAchievementSet
+                        // observer, so invalidate the parent_id cache for both sides.
+                        GameParentCacheInvalidator::invalidate($game->id, $record->id);
+                    }),
             ])
             ->toolbarActions([
 
@@ -441,10 +451,21 @@ class AchievementSetsRelationManager extends RelationManager
             ? self::WILL_BE_TO_FINAL_TYPE_MAP
             : array_flip(self::WILL_BE_TO_FINAL_TYPE_MAP);
 
+        // Capture which sets we touched so we can invalidate the parent_id cache
+        // for both this game and every other game sharing those sets. The bulk
+        // update below uses query-builder ->update which skips model events.
+        $affectedSetIds = $game->gameAchievementSets()
+            ->whereIn('type', array_keys($mapping))
+            ->pluck('achievement_set_id');
+
         foreach ($mapping as $from => $to) {
             $game->gameAchievementSets()
                 ->where('type', $from)
                 ->update(['type' => $to, 'updated_at' => now()]);
+        }
+
+        foreach ($affectedSetIds as $affectedSetId) {
+            GameParentCacheInvalidator::invalidate($game->id, (int) $affectedSetId);
         }
 
         /** @var User $user */
