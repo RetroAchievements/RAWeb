@@ -350,9 +350,12 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         ? "AND pg.achievements_unlocked < gd.achievements_published"
         : "";
 
+    $mostRecentDate = 'COALESCE(' . greatestStatement(['pg.last_unlock_at', 'pg.last_unlock_hardcore_at']) . ', pg.last_unlock_at, pg.last_unlock_hardcore_at)';
+
     $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
             gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
-            pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
+            pg.first_unlock_at AS FirstWonDate,
+            $mostRecentDate AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
