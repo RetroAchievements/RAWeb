@@ -127,6 +127,7 @@ if ($followed == 1) {
     }
     echo "</tbody></table>";
     echo "</div>";
+
     // Add page traversal
     echo "<div class='text-right'>";
     if ($date > $minDate) {

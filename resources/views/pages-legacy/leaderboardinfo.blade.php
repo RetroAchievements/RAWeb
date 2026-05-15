@@ -86,7 +86,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             :gameTitle="$gameTitle"
         />
         <?php
-        echo "<table class='nicebox bg-red-900'><tbody>";
+        echo "<table class='nicebox'><tbody>";
 
         echo "<tr>";
         echo "<td style='width:70px' class='p-0'>";
