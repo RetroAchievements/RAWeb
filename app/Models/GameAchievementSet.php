@@ -10,6 +10,7 @@ use Database\Factories\GameAchievementSetFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 class GameAchievementSet extends BaseModel
 {
@@ -33,6 +34,25 @@ class GameAchievementSet extends BaseModel
     protected static function newFactory(): GameAchievementSetFactory
     {
         return GameAchievementSetFactory::new();
+    }
+
+    /**
+     * Returns every game whose denormalized parent_game_id may be affected by a
+     * mutation to the given game_id+achievement_set_id pair.
+     *
+     * @return Collection<int, int>
+     */
+    public static function gameIdsAffectedBy(?int $gameId, ?int $achievementSetId): Collection
+    {
+        $gameIds = $achievementSetId === null
+            ? collect()
+            : self::query()->where('achievement_set_id', $achievementSetId)->pluck('game_id');
+
+        if ($gameId !== null) {
+            $gameIds->push($gameId);
+        }
+
+        return $gameIds->unique()->values();
     }
 
     // == accessors

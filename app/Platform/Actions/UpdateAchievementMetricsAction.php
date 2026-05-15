@@ -42,8 +42,8 @@ class UpdateAchievementMetricsAction
 
         // if game has a parent game, fetch the parent game's players metrics
         $retroRatioPlayerCount = $playersHardcore;
-        if ($game->parentGameId) {
-            $retroRatioPlayerCount = Game::find($game->parentGameId)->players_hardcore ?? 0;
+        if ($game->parent_game_id) {
+            $retroRatioPlayerCount = Game::find($game->parent_game_id)->players_hardcore ?? 0;
         }
 
         // Get both total and hardcore counts in a single query.

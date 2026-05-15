@@ -7,8 +7,8 @@ namespace App\Platform\Actions;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementSetType;
-use App\Support\Cache\GameParentCacheInvalidator;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +37,11 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
                 ]);
 
                 // The attach is a pivot insert and doesn't fire the GameAchievementSet
-                // observer, so we have to invalidate explicitly here.
-                GameParentCacheInvalidator::invalidate($game->id, $newAchievementSet->id);
+                // observer, so we have to sync explicitly here.
+                $syncAction = new SyncGameParentGameIdAction();
+                foreach (GameAchievementSet::gameIdsAffectedBy($game->id, $newAchievementSet->id) as $affectedGameId) {
+                    $syncAction->execute($affectedGameId);
+                }
             }
         });
     }
