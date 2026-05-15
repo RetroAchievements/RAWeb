@@ -86,7 +86,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             :gameTitle="$gameTitle"
         />
         <?php
-        echo "<table class='nicebox'><tbody>";
+        echo "<table class='nicebox bg-red-900'><tbody>";
 
         echo "<tr>";
         echo "<td style='width:70px' class='p-0'>";
@@ -229,6 +229,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "</div>";
         }
 
+        echo "<div class='table-wrapper'>";
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
 
@@ -295,6 +296,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         }
 
         echo "</tbody></table><br>";
+        echo "</div>";
 
         if (!$localUserFound && isset($user)) {
             echo "<div>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br>";
