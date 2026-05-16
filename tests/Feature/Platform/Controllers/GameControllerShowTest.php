@@ -8,6 +8,7 @@ use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Enums\GameHashCompatibility;
+use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\AchievementGroup;
@@ -3030,6 +3031,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3054,6 +3056,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(7), // !!
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3079,6 +3082,7 @@ describe('Screenshot Upload Props', function () {
             'points' => 0, // !!
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3103,6 +3107,32 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given an otherwise-eligible user has not opted into beta features, does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 0, // !! not set
         ]);
 
         // ACT
@@ -3127,6 +3157,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3159,6 +3190,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3195,6 +3227,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3222,6 +3255,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3247,6 +3281,7 @@ describe('Screenshot Upload Props', function () {
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3273,6 +3308,7 @@ describe('Screenshot Upload Props', function () {
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
         $user->assignRole($role);
 
@@ -3302,6 +3338,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... primary approved screenshots should be counted ...
@@ -3339,6 +3376,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3364,6 +3402,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3386,6 +3425,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3416,6 +3456,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3444,6 +3485,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3472,6 +3514,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3498,6 +3541,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... the user's pending screenshots on any game should be counted ...
@@ -3530,6 +3574,7 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... the user's pending screenshots on this game should be returned ...
