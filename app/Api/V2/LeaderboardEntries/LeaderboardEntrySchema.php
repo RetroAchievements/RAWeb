@@ -103,7 +103,7 @@ class LeaderboardEntrySchema extends Schema
             return $query;
         }
 
-        $direction = $leaderboard->rank_asc ? 'ASC' : 'DESC';
+        $direction = $leaderboard->rank_asc ? 'asc' : 'desc';
         if ($leaderboard->format === ValueFormat::ValueUnsigned) {
             $query->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);
         } else {

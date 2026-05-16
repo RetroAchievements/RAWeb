@@ -3,7 +3,7 @@
 import type { Visit, VisitCallbacks } from '@inertiajs/core';
 import type { InertiaLinkProps as OriginalInertiaLinkProps } from '@inertiajs/react';
 import { Link, router } from '@inertiajs/react';
-import { type FC, useRef } from 'react';
+import { type FC, useCallback, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -19,11 +19,24 @@ export type InertiaLinkProps = Omit<OriginalInertiaLinkProps, 'prefetch'> & {
   prefetch?: LinkPrefetchBehavior;
 };
 
-export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ...rest }) => {
+export const InertiaLink: FC<InertiaLinkProps> = ({
+  href,
+  data,
+  except,
+  headers,
+  only,
+  preserveScroll,
+  preserveState,
+  replace,
+  method = 'get',
+  prefetch = 'never',
+  ...rest
+}) => {
   const { ziggy } = usePageProps();
   const isMobile = ziggy?.device === 'mobile';
 
   const hoverTimeoutRef = useRef<number>(undefined);
+  const hasMobilePrefetchedRef = useRef(false);
 
   const safeHref = typeof href === 'string' ? href : String(href || '');
 
@@ -36,26 +49,13 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
     skip: !isMobile || prefetch !== 'desktop-hover-and-mobile-intersect',
   });
 
-  const handlePrefetch = () => {
-    // Inertia uses navigation options to generate cache keys for prefetched requests.
-    // If we don't pass the same options during prefetch that the Link will use during
-    // actual navigation, the cache keys won't match and the prefetched data won't be used.
-    // This defeats the purpose of prefetching. To fix this, we extract all navigation
-    // options from the Link props and pass them to the prefetch call.
-    const {
-      data,
-      preserveScroll,
-      preserveState,
-      only,
-      except,
-      headers,
-      replace,
-      method = 'get',
-    } = rest;
+  // Inertia uses navigation options to generate cache keys for prefetched requests, so the
+  // options we send to prefetch must match those the Link uses during actual navigation.
+  // Otherwise, the cache keys diverge and the prefetched payload is discarded.
+  const buildPrefetchOptions = useCallback((): Partial<Visit & VisitCallbacks> => {
     const options: Partial<Visit & VisitCallbacks> = { method };
 
-    // Only include defined navigation options to avoid passing undefined values
-    // which could cause issues with Inertia's comparison logic.
+    // Skip undefined values to avoid tripping Inertia's comparison logic.
     if (data !== undefined) options.data = data;
     if (except !== undefined) options.except = except;
     if (headers !== undefined) options.headers = headers;
@@ -64,22 +64,55 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
     if (preserveState !== undefined) options.preserveState = preserveState;
     if (replace !== undefined) options.replace = replace;
 
-    router.prefetch(safeHref, options, { cacheFor: '30s' });
-  };
+    return options;
+  }, [data, except, headers, method, only, preserveScroll, preserveState, replace]);
+
+  const handlePrefetch = useCallback(() => {
+    router.prefetch(safeHref, buildPrefetchOptions(), { cacheFor: '30s' });
+  }, [buildPrefetchOptions, safeHref]);
+
+  useEffect(() => {
+    hasMobilePrefetchedRef.current = false;
+  }, [safeHref]);
 
   /**
    * Handle mobile prefetch via the intersection observer.
    */
-  if (isMobile && inView && prefetch === 'desktop-hover-and-mobile-intersect') {
+  useEffect(() => {
+    if (!isMobile || !inView || prefetch !== 'desktop-hover-and-mobile-intersect') {
+      return;
+    }
+
+    if (hasMobilePrefetchedRef.current) {
+      return;
+    }
+
+    hasMobilePrefetchedRef.current = true;
     handlePrefetch();
-  }
+  }, [handlePrefetch, inView, isMobile, prefetch]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Link
       ref={ref}
       href={safeHref}
+      data={data}
+      except={except}
+      headers={headers}
+      method={method}
+      only={only}
       // We'll manage prefetching explicitly.
       prefetch={false}
+      preserveScroll={preserveScroll}
+      preserveState={preserveState}
+      replace={replace}
       onMouseEnter={() => {
         if (!isMobile && prefetch !== 'never') {
           hoverTimeoutRef.current = window.setTimeout(handlePrefetch, 75);

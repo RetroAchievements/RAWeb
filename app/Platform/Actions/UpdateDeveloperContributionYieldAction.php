@@ -127,7 +127,7 @@ class UpdateDeveloperContributionYieldAction
         $badge = PlayerBadge::query()
             ->where('user_id', $user->id)
             ->where('award_type', '=', $type)
-            ->orderBy('award_key', 'DESC')
+            ->orderBy('award_key', 'desc')
             ->first();
 
         if ($badge && $badge->award_key >= $tier) {

@@ -28,7 +28,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         $friends = $this->user->followedUsers()
             ->where('users.Permissions', '>=', Permissions::Unregistered)
             ->whereNull('users.deleted_at')
-            ->orderBy('users.last_activity_at', 'DESC')
+            ->orderBy('users.last_activity_at', 'desc')
             ->limit(100)
             ->select([
                 'users.id',
