@@ -6,11 +6,13 @@ namespace Tests\Feature\Platform\Controllers;
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\UserGameListType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -160,6 +162,47 @@ class GameControllerTest extends TestCase
 
         // Assert
         $response->assertForbidden();
+    }
+
+    public function testSetRequestsExcludesSoftDeletedRequestors(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
+
+        /** @var User $viewer */
+        $viewer = User::factory()->create();
+        $this->actingAs($viewer);
+
+        /** @var User $activeRequestor */
+        $activeRequestor = User::factory()->create(['display_name' => 'ActiveUser']);
+        /** @var User $deletedRequestor */
+        $deletedRequestor = User::factory()->create(['display_name' => 'DeletedUser']);
+
+        UserGameListEntry::factory()->create([
+            'user_id' => $activeRequestor->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::AchievementSetRequest,
+        ]);
+        UserGameListEntry::factory()->create([
+            'user_id' => $deletedRequestor->id,
+            'game_id' => $game->id,
+            'type' => UserGameListType::AchievementSetRequest,
+        ]);
+
+        $deletedRequestor->delete();
+
+        // Act
+        $response = $this->get(route('game.requests.show', ['game' => $game]));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->where('totalCount', 1)
+            ->has('initialRequestors', 1)
+            ->where('initialRequestors.0.displayName', 'ActiveUser')
+            ->etc()
+        );
     }
 
     public function testDevInterestReturnsCorrectInertiaResponse(): void
