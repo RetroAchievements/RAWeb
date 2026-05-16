@@ -97,7 +97,8 @@ $playerAchievements = $eventAchievement->achievement->playerAchievements()
     ->with('user')
     ->orderByDesc(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)')) // newest winners first
     ->limit(500)
-    ->get();
+    ->get()
+    ->reject(fn ($playerAchievement) => $playerAchievement->user === null);
 $numWinners = $playerAchievements->count();
 $numWinnersHardcore = 0;
 

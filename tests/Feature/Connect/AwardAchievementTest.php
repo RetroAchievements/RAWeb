@@ -962,6 +962,58 @@ describe('normal unlock', function () {
         $this->assertEquals(0, ConnectWarning::count());
     });
 
+    test('offline submission client marker downgrades hardcore unlock and is captured on player session', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+        $offlineSubmissionUserAgent = $this->userAgentValid . ' RAOfflineProxy/1.0.0-alpha1';
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+
+        $this->withHeaders(['User-Agent' => $offlineSubmissionUserAgent])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+            ]);
+        $this->user->refresh();
+
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement3->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement);
+        $this->assertNotNull($playerAchievement->unlocked_at);
+        $this->assertNull($playerAchievement->unlocked_hardcore_at);
+
+        $playerSession = PlayerSession::find($playerAchievement->player_session_id);
+        $this->assertModelExists($playerSession);
+        $this->assertEquals($offlineSubmissionUserAgent, $playerSession->user_agent);
+
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
     test('repeated softcore unlock', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
@@ -2008,6 +2060,42 @@ describe('validation', function () {
         $this->assertEquals(0, PlayerAchievement::count());
 
         $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('missing user agent header records warning without erroring', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+
+        $this->withHeaders(['User-Agent' => null])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 0,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+            ]);
+
+        $warning = AwardAchievementTestHelpers::getWarning($achievement3);
+        $this->assertEquals($this->user->username, $warning->username);
+        $this->assertEquals('unknown_client', $warning->smells);
+        $this->assertEquals('', $warning->user_agent);
     });
 
     test('unknown user agent demotes hardcore unlock to softcore', function () {

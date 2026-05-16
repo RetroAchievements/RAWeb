@@ -690,6 +690,7 @@
     "code-reviewer": "Người đánh giá code",
     "community-manager": "Quản lý cộng đồng",
     "quality-assurance": "Người kiểm định chất lượng",
+    "set-designer": "Set Designer",
     "Messages": "Tin nhắn",
     "unreadMessages": "Bạn có $t(unreadMessageCount, {\"count\": {{unreadCount}} }) ở $t(threadCount, {\"count\": {{threadCount}} }).",
     "delegatedUnreadMessages": "{{username}} có $t(unreadMessageCount, {\"count\": {{unreadCount}} }) tại $t(threadCount, {\"count\": {{threadCount}} }).",

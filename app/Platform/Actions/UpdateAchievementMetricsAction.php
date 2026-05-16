@@ -36,10 +36,15 @@ class UpdateAchievementMetricsAction
             return;
         }
 
-        // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
         $playersHardcore = $game->players_hardcore ?? 0;
         $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
+
+        // if game has a parent game, fetch the parent game's players metrics
+        $retroRatioPlayerCount = $playersHardcore;
+        if ($game->parentGameId) {
+            $retroRatioPlayerCount = Game::find($game->parentGameId)->players_hardcore ?? 0;
+        }
 
         // Get both total and hardcore counts in a single query.
         $achievementIds = $achievements->pluck('id')->all();
@@ -81,7 +86,7 @@ class UpdateAchievementMetricsAction
             $pointsWeighted = $this->calculateWeightedPoints->execute(
                 $achievement->points,
                 $unlocksHardcoreCount,
-                $playersHardcore,
+                $retroRatioPlayerCount,
                 $rankedPlayerCount
             );
 

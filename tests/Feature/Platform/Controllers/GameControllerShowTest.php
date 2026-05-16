@@ -24,7 +24,6 @@ use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
-use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
@@ -42,7 +41,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\EventHubIdCacheService;
 use Database\Seeders\RolesTableSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -50,7 +49,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\seed;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 /**
  * Creates a game with achievements and optionally sets up its core achievement set.
@@ -1098,6 +1097,14 @@ describe('Achievement Set Props', function () {
             'Dragon Quest III',
             'Dragon Quest III [Subset - Bonus]'
         );
+
+        $baseGame->players_total = 10;
+        $baseGame->players_hardcore = 6;
+        $baseGame->save();
+
+        $subsetSet->achievementSet->players_total = 2;
+        $subsetSet->achievementSet->players_hardcore = 1;
+        $subsetSet->achievementSet->save();
 
         // ACT
         $response = get(route('game.show', [
@@ -2687,7 +2694,7 @@ describe('Subset Context Props', function () {
         );
     });
 
-    it('given a non-core set, player counts come from player_achievement_sets', function () {
+    it('given a non-core set, player counts come from subset achievement_set', function () {
         // ARRANGE
         $system = System::factory()->create();
         ['baseGame' => $baseGame, 'subsetSet' => $subsetSet] = createGameWithSubset(
@@ -2699,18 +2706,13 @@ describe('Subset Context Props', function () {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
 
-        PlayerAchievementSet::create([
-            'user_id' => $user1->id,
-            'achievement_set_id' => $subsetSet->achievement_set_id,
-            'achievements_unlocked' => 3,
-            'achievements_unlocked_hardcore' => 3,
-        ]);
-        PlayerAchievementSet::create([
-            'user_id' => $user2->id,
-            'achievement_set_id' => $subsetSet->achievement_set_id,
-            'achievements_unlocked' => 2,
-            'achievements_unlocked_hardcore' => 0, // !!
-        ]);
+        $baseGame->players_total = 10;
+        $baseGame->players_hardcore = 6;
+        $baseGame->save();
+
+        $subsetSet->achievementSet->players_total = 2;
+        $subsetSet->achievementSet->players_hardcore = 1;
+        $subsetSet->achievementSet->save();
 
         // ACT
         $response = get(route('game.show', [

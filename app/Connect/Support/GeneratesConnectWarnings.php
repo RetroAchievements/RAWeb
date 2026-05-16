@@ -65,7 +65,7 @@ trait GeneratesConnectWarnings
                 'method' => $request->input('r'),
                 'username' => $request->input('u') ?? '',
                 'smells' => $smell,
-                'user_agent' => $this->userAgent,
+                'user_agent' => $this->userAgent ?? '',
             ]);
         } else {
             $this->connectWarning->smells .= ',' . $smell;
