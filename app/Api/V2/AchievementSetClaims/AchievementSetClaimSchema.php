@@ -114,7 +114,7 @@ class AchievementSetClaimSchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Where::make('gameId', 'game_id'),
 
             new ClaimStatusFilter(),

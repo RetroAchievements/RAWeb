@@ -26,7 +26,6 @@ import { SearchModeSelector } from './components/SearchModeSelector';
 import { SearchResults } from './components/SearchResults';
 import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
 import { useGlobalSearchDebounce } from './hooks/useGlobalSearchDebounce';
-import { useGlobalSearchHotkey } from './hooks/useGlobalSearchHotkey';
 import { useScrollToTopOnSearchResults } from './hooks/useScrollToTopOnSearchResults';
 import { buildSearchUrl } from './utils/buildSearchUrl';
 
@@ -54,7 +53,6 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
   });
 
   useGlobalSearchDebounce({ rawQuery, setSearchTerm });
-  useGlobalSearchHotkey({ onOpenChange });
   const scrollContainerRef = useScrollToTopOnSearchResults({ searchResults, isLoading });
 
   /**

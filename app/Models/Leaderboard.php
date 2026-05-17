@@ -167,7 +167,7 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     {
         $entries = $this->entries();
 
-        $direction = $this->rank_asc ? 'ASC' : 'DESC';
+        $direction = $this->rank_asc ? 'asc' : 'desc';
 
         if ($this->format === ValueFormat::ValueUnsigned) {
             $entries->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);

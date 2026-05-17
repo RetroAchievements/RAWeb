@@ -89,7 +89,7 @@ class UserAwardSchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Scope::make('awardedFrom'),
             Scope::make('awardedTo'),
             Scope::make('eventId', 'forEventId'),
