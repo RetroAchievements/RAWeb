@@ -22,8 +22,8 @@ class SuspiciousConnectWarningAlert extends Alert
         $user = User::whereName($this->warning->username)->firstOrFail();
 
         $gameId = match ($this->warning->method) {
-            'submitlbentry' => Leaderboard::findOrFail($this->warning->related_id)->value('game_id'),
-            default => Achievement::findOrFail($this->warning->related_id)->value('game_id'),
+            'submitlbentry' => Leaderboard::find($this->warning->related_id)?->game_id,
+            default => Achievement::find($this->warning->related_id)?->game_id,
         };
 
         if ($gameId) {
