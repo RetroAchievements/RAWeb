@@ -27,7 +27,7 @@ class LoadGameRecentPlayersAction
                 $query->whereNull('deleted_at');
             })
             ->where('game_id', $game->id)
-            ->orderBy('rich_presence_updated_at', 'DESC')
+            ->orderBy('rich_presence_updated_at', 'desc')
             ->limit($limit)
             ->get();
 

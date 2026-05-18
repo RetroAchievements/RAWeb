@@ -56,6 +56,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
                 $friendIds = $this->user->followedUsers()->pluck('related_user_id');
                 $q->whereIn('user_id', $friendIds);
             })
+            ->whereHas('user')
             ->with('user')
             ->orderByDesc('unlocked_effective_at')
             ->offset($this->offset)
