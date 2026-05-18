@@ -127,9 +127,13 @@ class UpdateAchievementMetricsAction
         array $hardcoreUnlockCounts,
         bool $useStoredUnlockCounts = false,
     ): array {
-        // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
         $playersHardcore = $game->players_hardcore ?? 0;
+        $retroRatioPlayerCount = $playersHardcore;
+        if ($game->parentGameId) {
+            $retroRatioPlayerCount = Game::find($game->parentGameId)->players_hardcore ?? 0;
+        }
+
         $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
         $searchIndexingService = app()->make(SearchIndexingService::class);
 
@@ -159,7 +163,7 @@ class UpdateAchievementMetricsAction
             $pointsWeighted = $this->calculateWeightedPoints->execute(
                 $achievement->points,
                 $unlocksHardcoreCount,
-                $playersHardcore,
+                $retroRatioPlayerCount,
                 $rankedPlayerCount
             );
 

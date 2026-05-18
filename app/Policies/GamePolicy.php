@@ -46,6 +46,11 @@ class GamePolicy
         return true;
     }
 
+    public function view(?User $user, Game $game): bool
+    {
+        return true;
+    }
+
     public function viewContributionCredit(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
@@ -108,10 +113,8 @@ class GamePolicy
         return $this->manage($user);
     }
 
-    public function view(?User $user, Game $game): bool
+    public function viewAchievementSetClaims(?User $user, Game $game): bool
     {
-        // Age gates are handled at the UI level.
-
         return true;
     }
 
@@ -265,6 +268,15 @@ class GamePolicy
         // If any of the user's roles allow updating the specified field, return true.
         // Otherwise, they can't edit the field.
         return in_array($fieldName, $allowedFieldsForUser, true);
+    }
+
+    public function clearScreenshots(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_EDITOR,
+            Role::MEDIA_EDITOR,
+        ]);
     }
 
     public static function canDeveloperJuniorUpdateGame(User $user, Game $game): bool

@@ -398,14 +398,14 @@ describe('subset', function () {
         $this->assertEquals(0, $achievementSet->players_total);
         $this->assertEquals(0, $achievementSet->players_hardcore);
 
-        // bonus subset game should include players of subset and base game
+        // bonus subset game should only include players of subset
         $subset->refresh();
-        $this->assertEquals(8, $subset->players_total);
-        $this->assertEquals(3, $subset->players_hardcore);
+        $this->assertEquals(3, $subset->players_total);
+        $this->assertEquals(1, $subset->players_hardcore);
 
         $achievementSet = $subset->gameAchievementSets()->core()->first()->achievementSet;
-        $this->assertEquals(8, $achievementSet->players_total);
-        $this->assertEquals(3, $achievementSet->players_hardcore);
+        $this->assertEquals(3, $achievementSet->players_total);
+        $this->assertEquals(1, $achievementSet->players_hardcore);
     });
 
     test('constructs player count from game and challenge subset records', function () {
@@ -496,75 +496,5 @@ describe('subset', function () {
         $achievementSet = $subset->gameAchievementSets()->core()->first()->achievementSet;
         $this->assertEquals(3, $achievementSet->players_total);
         $this->assertEquals(1, $achievementSet->players_hardcore);
-    });
-
-    test('constructs player count from game and bonus subset records ignoring duplicates', function () {
-        $game = UpdateGamePlayerCountActionTestHelpers::createGame();
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game, 3, false);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game, 2, true);
-
-        $subset = UpdateGamePlayerCountActionTestHelpers::createSubset($game, AchievementSetType::Bonus);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($subset, 2, false);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($subset, 1, true);
-
-        // have one of the game players also play the subset
-        PlayerGame::create([
-            'game_id' => $subset->id,
-            'user_id' => PlayerGame::where('game_id', $game->id)->where('achievements_unlocked_hardcore', 0)->first()->user_id,
-            'achievements_unlocked' => 5,
-            'achievements_unlocked_hardcore' => 0,
-        ]);
-
-        (new UpdateGamePlayerCountAction())->execute($subset);
-
-        // base game should not be updated
-        $game->refresh();
-        $this->assertEquals(0, $game->players_total);
-        $this->assertEquals(0, $game->players_hardcore);
-
-        $achievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
-        $this->assertEquals(0, $achievementSet->players_total);
-        $this->assertEquals(0, $achievementSet->players_hardcore);
-
-        // bonus subset game should include players of subset and base game
-        $subset->refresh();
-        $this->assertEquals(8, $subset->players_total);
-        $this->assertEquals(3, $subset->players_hardcore);
-
-        $achievementSet = $subset->gameAchievementSets()->core()->first()->achievementSet;
-        $this->assertEquals(8, $achievementSet->players_total);
-        $this->assertEquals(3, $achievementSet->players_hardcore);
-    });
-
-    test('constructs player count from multiple parent games and bonus subset records', function () {
-        $game1 = UpdateGamePlayerCountActionTestHelpers::createGame();
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game1, 3, false);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game1, 2, true);
-
-        $game2 = UpdateGamePlayerCountActionTestHelpers::createGame();
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game2, 3, false);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($game2, 2, true);
-
-        $subset = UpdateGamePlayerCountActionTestHelpers::createSubset($game1, AchievementSetType::Bonus);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($subset, 2, false);
-        UpdateGamePlayerCountActionTestHelpers::addPlayers($subset, 1, true);
-
-        // also associate subset to second game
-        GameAchievementSet::create([
-            'game_id' => $game2->id,
-            'achievement_set_id' => $subset->gameAchievementSets()->core()->first()->achievement_set_id,
-            'type' => AchievementSetType::Bonus,
-        ]);
-
-        (new UpdateGamePlayerCountAction())->execute($subset);
-
-        // bonus subset game should include players of subset and both base games
-        $subset->refresh();
-        $this->assertEquals(13, $subset->players_total);
-        $this->assertEquals(5, $subset->players_hardcore);
-
-        $achievementSet = $subset->gameAchievementSets()->core()->first()->achievementSet;
-        $this->assertEquals(13, $achievementSet->players_total);
-        $this->assertEquals(5, $achievementSet->players_hardcore);
     });
 });

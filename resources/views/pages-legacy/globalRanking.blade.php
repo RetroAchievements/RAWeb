@@ -141,6 +141,7 @@ $unlockMode = match ($sort % 10) {
     }
     echo "</div>";
 
+    echo "<div class='table-wrapper'>";
     echo "<table class='table-highlight'><tbody>";
 
     echo "<tr class='do-not-highlight'>";
@@ -378,6 +379,7 @@ $unlockMode = match ($sort % 10) {
         }
     }
     echo "</tbody></table>";
+    echo "</div>";
 
     // Add page traversal
     echo "<div class='text-right mt-2'>";

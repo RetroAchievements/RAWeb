@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { act, renderHook } from '@/test';
 
 import { useGlobalSearchHotkey } from './useGlobalSearchHotkey';
@@ -13,7 +15,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
     const mockOnOpenChange = vi.fn();
 
     // ACT
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ASSERT
     expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
@@ -25,7 +29,12 @@ describe('Hook: useGlobalSearchHotkey', () => {
     const mockOnOpenChange = vi.fn();
 
     // ACT
-    const { unmount } = renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    const { unmount } = renderHook(
+      () => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }),
+      {
+        wrapper: ({ children }: { children: ReactNode }) => children,
+      },
+    );
     unmount();
 
     // ASSERT
@@ -35,7 +44,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given the user presses Cmd+K, calls onOpenChange with true', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     act(() => {
@@ -53,7 +64,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given the user presses Ctrl+K, calls onOpenChange with true', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     act(() => {
@@ -71,7 +84,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given the user presses Cmd+K, prevents the default browser behavior', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     const event = new KeyboardEvent('keydown', {
@@ -91,7 +106,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given the user presses only K without modifier, does not call onOpenChange', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     act(() => {
@@ -108,7 +125,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given the user presses Cmd+J, does not call onOpenChange', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     act(() => {
@@ -126,7 +145,9 @@ describe('Hook: useGlobalSearchHotkey', () => {
   it('given both Cmd and Ctrl are pressed with K, still calls onOpenChange', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }));
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
 
     // ACT
     act(() => {

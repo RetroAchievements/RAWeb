@@ -115,4 +115,48 @@ class AchievementOfTheWeekTest extends TestCase
                 'UnlocksHardcoreCount' => 2,
             ]);
     }
+
+    public function testGetAchievementOfTheWeekExcludesSoftDeletedUsers(): void
+    {
+        /** @var User $deletedUser */
+        $deletedUser = User::factory()->create();
+        /** @var User $activeUser */
+        $activeUser = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        /** @var Achievement $sourceAchievement */
+        $sourceAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $now = Carbon::now();
+        $this->addHardcoreUnlock($activeUser, $sourceAchievement, $now->clone()->subMinutes(1));
+        $this->addHardcoreUnlock($deletedUser, $sourceAchievement, $now->clone()->subMinutes(2));
+
+        // soft delete one user to confirm the endpoint skips them rather than crashing
+        $deletedUser->delete();
+
+        System::factory()->create(['id' => System::Events]);
+        /** @var Game $eventGame */
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 1]);
+        Event::factory()->create([
+            'legacy_game_id' => $eventGame->id,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+        /** @var Achievement $eventAchievement1 */
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
+
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement1->id,
+            'source_achievement_id' => $sourceAchievement->id,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+
+        $response = $this->get($this->apiUrl('GetAchievementOfTheWeek'))
+            ->assertSuccessful();
+
+        $response->assertJsonCount(1, 'Unlocks');
+        $response->assertJsonPath('UnlocksCount', 1);
+        $response->assertJsonPath('UnlocksHardcoreCount', 1);
+        $response->assertJsonPath('Unlocks.0.User', $activeUser->username);
+    }
 }

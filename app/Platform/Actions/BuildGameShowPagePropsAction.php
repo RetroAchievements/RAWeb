@@ -16,7 +16,6 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameScreenshot;
 use App\Models\GameSet;
-use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -226,8 +225,8 @@ class BuildGameShowPagePropsAction
         $targetAchievementSetPlayersTotal = null;
         $targetAchievementSetPlayersHardcore = null;
         if ($targetAchievementSet !== null && $targetAchievementSet->type !== AchievementSetType::Core) {
-            [$targetAchievementSetPlayersTotal, $targetAchievementSetPlayersHardcore] =
-                $this->getAchievementSetPlayerCounts($targetAchievementSet->achievement_set_id);
+            $targetAchievementSetPlayersTotal = $targetAchievementSet->achievementSet->players_total;
+            $targetAchievementSetPlayersHardcore = $targetAchievementSet->achievementSet->players_hardcore;
         }
 
         $subscriptionService = new SubscriptionService();
@@ -590,30 +589,6 @@ class BuildGameShowPagePropsAction
         }
 
         return GamePageListSort::DisplayOrder;
-    }
-
-    /**
-     * Get actual player counts for a specific achievement set from player_achievement_sets.
-     *
-     * @return array{int, int} [$playersTotal, $playersHardcore]
-     */
-    private function getAchievementSetPlayerCounts(int $achievementSetId): array
-    {
-        $playersTotal = PlayerAchievementSet::query()
-            ->where('achievement_set_id', $achievementSetId)
-            ->where('achievements_unlocked', '>', 0)
-            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->count();
-
-        $playersHardcore = PlayerAchievementSet::query()
-            ->where('achievement_set_id', $achievementSetId)
-            ->where('achievements_unlocked_hardcore', '>', 0)
-            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->count();
-
-        return [$playersTotal, $playersHardcore];
     }
 
     /**

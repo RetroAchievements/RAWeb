@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Platform\Enums\AchievementSetType;
+use App\Support\Cache\GameParentCacheInvalidator;
 use InvalidArgumentException;
 
 /**
@@ -62,6 +63,10 @@ class AssociateAchievementSetToGameAction
             'order_column' => ($game->achievementSets()->max('order_column') ?? 0) + 1,
             'title' => $title,
         ]);
+
+        // The attach is a pivot insert and doesn't fire the GameAchievementSet
+        // observer, so we have to invalidate explicitly here.
+        GameParentCacheInvalidator::invalidate($game->id, $achievementSet->id);
     }
 
     private function isSpecialtyType(AchievementSetType $type): bool
