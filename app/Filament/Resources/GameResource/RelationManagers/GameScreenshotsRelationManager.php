@@ -152,6 +152,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalHeading("Clear this game's screenshots?")
                         ->modalDescription('Published and pending screenshots will be moved to Rejected and the game will use placeholder images. You can restore them individually from the Rejected filter.')
                         ->modalSubmitActionLabel('Clear Screenshots')
+                        ->authorize(fn (): bool => $user->can('clearScreenshots', $game))
                         ->action(function () use ($game): void {
                             $clearedCount = (new ClearGameScreenshotsFromGamePageAction())->execute($game);
 
@@ -375,6 +376,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalHeading('Permanently delete screenshot?')
                         ->modalDescription('This cannot be undone. The image and its history will be removed.')
                         ->visible(fn (GameScreenshot $record): bool => $record->status === GameScreenshotStatus::Rejected)
+                        ->authorize(fn (GameScreenshot $record): bool => $user->can('forceDelete', $record))
                         ->action(function (GameScreenshot $record) use ($game): void {
                             $screenshotUrl = $record->media?->getUrl();
                             $type = $record->type->label();
