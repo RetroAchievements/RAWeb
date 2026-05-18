@@ -28,7 +28,7 @@ for ($i = Permissions::Banned; $i <= $myPermissions; $i++) {
 
 $hasPatreonBadge = HasPatreonBadge($targetUser);
 $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
-$hasConnectSmells = ConnectWarning::where('username', $targetUsername)->orWhere('username', $targetUser->display_name)->exists();
+$firstConnectSmell = ConnectWarning::where('username', $targetUsername)->orWhere('username', $targetUser->display_name)->first();
 ?>
 
 {{-- TODO port to Filament and delete component --}}
@@ -105,8 +105,8 @@ $hasConnectSmells = ConnectWarning::where('username', $targetUsername)->orWhere(
             </td>
             <td class="w-full">
                 {{ $isTargetUserUntracked ? 'Untracked User' : 'Tracked User' }}
-                @if ($hasConnectSmells)
-                    - <a href="/sentry.php?user={{ $targetUsername }}">Connect Smells</a>
+                @if ($firstConnectSmell)
+                    - <a href="/sentry.php?user={{ $firstConnectSmell->username }}">Connect Smells</a>
                 @endif
             </td>
         </tr>
