@@ -690,6 +690,7 @@
     "code-reviewer": "Kod İcmalçısı",
     "community-manager": "İcma İdarəçi",
     "quality-assurance": "Keyfiyyət Təminatı",
+    "set-designer": "Set Designer",
     "Messages": "Mesajlar",
     "unreadMessages": "Sənin $t(threadCount, {\"count\": {{threadCount}} }) mövzu içində $t(unreadMessageCount, {\"count\": {{unreadCount}} }) oxunmamış mesajın var.",
     "delegatedUnreadMessages": "{{username}} istifadəçisinin $t(unreadMessageCount, {\"count\": {{unreadCount}} }) $t(threadCount, {\"count\": {{threadCount}} }) mövzuda var.",

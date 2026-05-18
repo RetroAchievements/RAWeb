@@ -71,7 +71,7 @@ class LeaderboardEntrySchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Scope::make('user', 'forUserIdentifier'),
         ];
     }
@@ -103,7 +103,7 @@ class LeaderboardEntrySchema extends Schema
             return $query;
         }
 
-        $direction = $leaderboard->rank_asc ? 'ASC' : 'DESC';
+        $direction = $leaderboard->rank_asc ? 'asc' : 'desc';
         if ($leaderboard->format === ValueFormat::ValueUnsigned) {
             $query->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);
         } else {
