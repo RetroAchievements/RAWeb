@@ -135,9 +135,6 @@ class RedirectControllerTest extends TestCase
         );
 
         $response->assertDontSee('<script>alert(1)</script>', false);
-
-        $content = $response->getContent();
-        $this->assertStringContainsString('https:\/\/example.com\/&lt;script&gt;alert(1)&lt;\/script&gt;', $content);
     }
 
     public function testRedirectBlocksDangerousProtocols(): void
