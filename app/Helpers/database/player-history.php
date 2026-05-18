@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): array
 {
-    $retVal = [];
-
     if ($sortBy < 1 || $sortBy > 13) {
         $sortBy = 1;
     }
@@ -27,30 +25,22 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
         $orderCond = "ORDER BY TotalPointsEarned ASC ";
     }
 
-    $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(ach.points) AS TotalPointsEarned
+    $query = "SELECT DATE(pa.unlocked_effective_at) AS Date, COUNT(*) AS NumAwarded, SUM(ach.points) AS TotalPointsEarned
                 FROM player_achievements pa
                 INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
                 INNER JOIN games AS gd ON gd.id = ach.game_id
-                WHERE pa.user_id={$user->id}
+                WHERE pa.user_id = :userId
                 AND ach.is_promoted = 1
                 AND gd.system_id != " . System::Events . "
                 GROUP BY Date
                 $orderCond
-                LIMIT $offset, $limit";
+                LIMIT :offset, :limit";
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $daysCount = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[$daysCount] = $db_entry;
-            $daysCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, [
+        'userId' => $user->id,
+        'offset' => $offset,
+        'limit' => $limit,
+    ])->toArray();
 }
 
 function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $user): array
