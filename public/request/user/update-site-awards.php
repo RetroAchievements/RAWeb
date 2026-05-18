@@ -63,7 +63,7 @@ foreach ($awards as $award) {
     // Change display order for all entries if it's a "stacking" award type.
     $awardTypeEnum = AwardType::fromLegacyInteger($awardType);
     $awardTypeValue = $awardTypeEnum->value;
-    if (in_array($awardTypeEnum, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
+    if (in_array($awardTypeEnum, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield, AwardType::MediaContribution])) {
         $query = "UPDATE user_awards SET order_column = $value WHERE user_id = $userId " .
             "AND award_type = '$awardTypeValue' " .
             "AND award_tier = $awardDataExtra";
