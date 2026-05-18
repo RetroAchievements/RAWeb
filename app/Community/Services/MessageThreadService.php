@@ -31,7 +31,7 @@ class MessageThreadService
 
         $messageThreads = $messageThreads
             ->join('messages', 'messages.id', '=', 'message_threads.last_message_id')
-            ->orderBy('messages.created_at', 'DESC')
+            ->orderBy('messages.created_at', 'desc')
             ->offset(($currentPage - 1) * $pageSize)
             ->limit($pageSize)
             ->select(['message_threads.*',

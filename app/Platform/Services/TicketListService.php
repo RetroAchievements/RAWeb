@@ -178,7 +178,7 @@ class TicketListService
      */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
-        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'DESC')->get();
+        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'desc')->get();
     }
 
     /**
