@@ -33,6 +33,7 @@ class Server extends BaseServer
         return [
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
+            AchievementSetClaims\AchievementSetClaimSchema::class,
             Comments\CommentSchema::class,
             EventAwards\EventAwardSchema::class,
             Events\EventSchema::class,

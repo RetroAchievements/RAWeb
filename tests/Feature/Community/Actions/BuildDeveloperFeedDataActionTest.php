@@ -236,6 +236,72 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $this->assertEquals($players[0]->id, $result->recentLeaderboardEntries[1]->user->id->resolve());
     }
 
+    public function testItExcludesSoftDeletedUsersFromFeed(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'author_id' => $developer->id,
+        ]);
+
+        $deletedUser = User::factory()->create();
+        $trackedUser = User::factory()->create();
+
+        PlayerAchievement::factory()->create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $deletedUser->id,
+            'unlocked_at' => now(),
+        ]);
+        PlayerAchievement::factory()->create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $trackedUser->id,
+            'unlocked_at' => now(),
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $deletedUser->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $trackedUser->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $deletedUser->id,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $trackedUser->id,
+        ]);
+
+        $deletedUser->delete();
+
+        // Act
+        $result = (new BuildDeveloperFeedDataAction())->execute($developer);
+
+        // Assert
+        $this->assertCount(1, $result->recentUnlocks);
+        $this->assertEquals($trackedUser->id, $result->recentUnlocks[0]->user->id->resolve());
+
+        $this->assertCount(1, $result->recentPlayerBadges);
+        $this->assertEquals($trackedUser->id, $result->recentPlayerBadges[0]->user->id->resolve());
+
+        $this->assertCount(1, $result->recentLeaderboardEntries);
+        $this->assertEquals($trackedUser->id, $result->recentLeaderboardEntries[0]->user->id->resolve());
+    }
+
     public function testItExcludesDeletedLeaderboardsFromLeaderboardEntries(): void
     {
         // Arrange

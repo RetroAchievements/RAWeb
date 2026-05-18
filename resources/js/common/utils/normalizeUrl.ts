@@ -13,10 +13,6 @@ export function normalizeUrl(href: string): string {
   try {
     const url = new URL(explicitScheme ? trimmedHref : `https://${trimmedHref}`);
 
-    if (!['http:', 'https:'].includes(url.protocol)) {
-      return '';
-    }
-
     if (url.hostname.endsWith('retroachievements.org') && url.protocol === 'http:') {
       url.protocol = 'https:';
     }

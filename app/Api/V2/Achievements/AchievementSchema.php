@@ -101,7 +101,7 @@ class AchievementSchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Scope::make('state', 'withState'),
             Scope::make('gameId', 'forGameId'),
             WhereIn::make('type')->delimiter(','),
