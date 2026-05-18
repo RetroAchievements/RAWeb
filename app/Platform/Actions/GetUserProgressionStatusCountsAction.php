@@ -18,14 +18,15 @@ class GetUserProgressionStatusCountsAction
     /**
      * @return array{
      *     avgCompletionPercentage: float,
-     *     systemProgress: array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, systemId: int}>,
+     *     systemProgress: array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}>,
+     *
      *     topSystemId: int|null,
      *     totalCounts: array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int},
      *     totalHardcoreAchievements: int,
      *     totalSoftcoreAchievements: int,
      * }
      */
-    public function execute(User $user, ?int $recentSystemId = null): array
+    public function execute(User $user): array
     {
         // Subsets are identified by their core achievement set being linked to another game as a non-core type.
         $subsetExistsSubquery = "EXISTS (
@@ -47,6 +48,7 @@ class GetUserProgressionStatusCountsAction
         $results = $this->buildQualifyingGamesQuery($user)
             ->selectRaw("
                 games.system_id,
+                MAX(player_games.last_played_at) as last_played_at,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
                 SUM(GREATEST(0, CAST(player_games.achievements_unlocked AS SIGNED) - CAST(player_games.achievements_unlocked_hardcore AS SIGNED))) as total_sc_achievements,
                 SUM(mastery_hc.id IS NOT NULL) as mastered_count,
@@ -100,6 +102,7 @@ class GetUserProgressionStatusCountsAction
             $beatenHc = (int) $row->beaten_hc_count;
             $beatenSc = (int) $row->beaten_sc_count;
             $unfinished = (int) $row->unfinished_count;
+            $lastPlayedAt = (string) $row->last_played_at;
 
             $systemProgress[$systemId] = [
                 'unfinishedCount' => $unfinished,
@@ -107,6 +110,7 @@ class GetUserProgressionStatusCountsAction
                 'beatenHardcoreCount' => $beatenHc,
                 'completedCount' => $completed,
                 'masteredCount' => $mastered,
+                'lastPlayedAt' => $lastPlayedAt,
                 'systemId' => $systemId,
             ];
 
@@ -126,9 +130,13 @@ class GetUserProgressionStatusCountsAction
 
         $avgCompletionPercentage = $this->calculateAvgCompletionExcludingSubsets($user);
 
-        $topSystemId = ($recentSystemId !== null && isset($systemProgress[$recentSystemId]))
-            ? $recentSystemId
-            : array_key_first($systemProgress);
+        // topSystem is the most recent valid system where the user has earned achievements.
+        $topSystemId = !empty($systemProgress)
+            ? collect($systemProgress)
+                ->sortByDesc(fn ($progress) => strtotime($progress['lastPlayedAt'] ?? '') ?: 0)
+                ->keys()
+                ->first()
+            : null;
 
         // Sort: topSystem first, then by total games played descending.
         uasort($systemProgress, function ($a, $b) use ($topSystemId) {
@@ -159,7 +167,7 @@ class GetUserProgressionStatusCountsAction
      * Finds badges for games not included in the main query and adds them to the counts.
      * This handles edge cases like demoted games, etc.
      *
-     * @param array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, systemId: int}> $systemProgress
+     * @param array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}> $systemProgress
      * @param array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int} $totalCounts
      */
     private function addOrphanBadgeCounts(User $user, array &$systemProgress, array &$totalCounts): void
@@ -224,6 +232,7 @@ class GetUserProgressionStatusCountsAction
                     'completedCount' => 0,
                     'masteredCount' => 0,
                     'systemId' => $systemId,
+                    'lastPlayedAt' => null,
                 ];
             }
 
