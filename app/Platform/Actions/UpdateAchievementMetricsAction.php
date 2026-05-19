@@ -130,8 +130,9 @@ class UpdateAchievementMetricsAction
         $playersTotal = $game->players_total;
         $playersHardcore = $game->players_hardcore ?? 0;
         $retroRatioPlayerCount = $playersHardcore;
-        if ($game->parentGameId) {
-            $retroRatioPlayerCount = Game::find($game->parentGameId)->players_hardcore ?? 0;
+        $game->loadMissing('parentGame');
+        if ($game->parentGame) {
+            $retroRatioPlayerCount = $game->parentGame->players_hardcore ?? 0;
         }
 
         $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
