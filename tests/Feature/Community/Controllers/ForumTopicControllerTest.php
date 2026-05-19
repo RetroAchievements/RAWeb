@@ -8,7 +8,9 @@ use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -115,6 +117,41 @@ class ForumTopicControllerTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->has('forumTopic')
             ->has('paginatedForumTopicComments')
+        );
+    }
+
+    public function testShowIncludesSentByForHistoricalTeamAccountPosts(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $admin = User::factory()->create([
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'email_verified_at' => now(),
+        ]);
+        $admin->assignRole(Role::ADMINISTRATOR);
+
+        $radminAccount = User::factory()->create(['username' => 'RAdmin']);
+        $originalAuthor = User::factory()->create();
+
+        $topic = ForumTopic::factory()->create(['required_permissions' => 0]);
+
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $radminAccount->id,
+            'sent_by_id' => $originalAuthor->id,
+            'is_authorized' => true,
+        ]);
+
+        // Act
+        $response = $this->actingAs($admin)->get(route('forum-topic.show', $topic));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('paginatedForumTopicComments.items.0.sentBy')
+            ->where('paginatedForumTopicComments.items.0.sentBy.displayName', $originalAuthor->display_name)
         );
     }
 }

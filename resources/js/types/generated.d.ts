@@ -344,6 +344,7 @@ isSubscribed: boolean;
 paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
 metaDescription: string;
 accessibleTeamAccounts: Array<App.Data.User> | null;
+replyableTeamAccounts: Array<App.Data.User> | null;
 };
 export type StaticData = {
 numGames: number;
