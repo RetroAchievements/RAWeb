@@ -141,6 +141,7 @@ $unlockMode = match ($sort % 10) {
     }
     echo "</div>";
 
+    echo "<div class='table-wrapper'>";
     echo "<table class='table-highlight'><tbody>";
 
     echo "<tr class='do-not-highlight'>";
@@ -278,7 +279,11 @@ $unlockMode = match ($sort % 10) {
                 echo "<td>" . localized_number($rank) . "</td>";
             }
             echo "<td>";
-            echo userAvatar($dataPoint['User'], iconClass: 'mr-1');
+            echo userAvatar([
+                'username' => $dataPoint['User'],
+                'display_name' => $dataPoint['DisplayName'],
+                'deleted_at' => $dataPoint['DeletedAt'] ?? null,
+            ], iconClass: 'mr-1');
             echo "</td>";
 
             // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
@@ -340,7 +345,11 @@ $unlockMode = match ($sort % 10) {
                     }
                 }
                 echo "<td>";
-                echo userAvatar($userData[0]['User'], iconClass: 'mr-1');
+                echo userAvatar([
+                    'username' => $userData[0]['User'],
+                    'display_name' => $userData[0]['DisplayName'],
+                    'deleted_at' => $userData[0]['DeletedAt'] ?? null,
+                ], iconClass: 'mr-1');
                 echo "</td>";
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
@@ -370,6 +379,7 @@ $unlockMode = match ($sort % 10) {
         }
     }
     echo "</tbody></table>";
+    echo "</div>";
 
     // Add page traversal
     echo "<div class='text-right mt-2'>";

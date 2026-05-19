@@ -159,9 +159,9 @@ return [
     ],
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'key' => env('AWS_SES_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+        'secret' => env('AWS_SES_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
+        'region' => env('AWS_SES_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
     ],
 
     'twitch' => [

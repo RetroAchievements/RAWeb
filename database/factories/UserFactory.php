@@ -55,6 +55,9 @@ class UserFactory extends Factory
         ];
     }
 
+    /**
+     * @phpstan-return static
+     */
     public function configure(): static
     {
         /**

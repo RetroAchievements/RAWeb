@@ -21,6 +21,7 @@ globalThis.Ziggy = Ziggy;
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
+const pages = import.meta.glob('./pages/**/*.tsx');
 
 // Initialize Sentry.
 Sentry.init({
@@ -30,68 +31,70 @@ Sentry.init({
   tracesSampleRate: import.meta.env.SENTRY_TRACES_SAMPLE_RATE,
 });
 
-createServer(
-  async (page) => {
-    const url = page.props.ziggy?.location ?? 'unknown';
+const renderPage = async (page) => {
+  const url = page.props.ziggy?.location ?? 'unknown';
 
-    Sentry.setTag('ssr.url', url);
-    Sentry.setTag('ssr.component', page.component);
+  Sentry.setTag('ssr.url', url);
+  Sentry.setTag('ssr.component', page.component);
 
-    try {
-      return await createInertiaApp({
-        page,
+  try {
+    return await createInertiaApp({
+      page,
 
-        render: ReactDOMServer.renderToString,
+      render: ReactDOMServer.renderToString,
 
-        title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
+      title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
 
-        resolve: (name) =>
-          resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
+      resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, pages),
 
-        async setup({ App, props }) {
-          global['route'] = (name, params, absolute) =>
-            route(name, params, absolute, {
-              ...page.props.ziggy,
-              location: new URL(page.props.ziggy.location),
-            });
+      async setup({ App, props }) {
+        global['route'] = (name, params, absolute) =>
+          route(name, params, absolute, {
+            ...page.props.ziggy,
+            location: new URL(page.props.ziggy.location),
+          });
 
-          const globalProps = props.initialPage.props as AppGlobalProps;
-          const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+        const globalProps = props.initialPage.props as AppGlobalProps;
+        const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
-          if (globalProps.auth?.user) {
-            Sentry.setUser({
-              id: globalProps.auth.user.id,
-              username: globalProps.auth.user.displayName,
-            });
-          }
+        if (globalProps.auth?.user) {
+          Sentry.setUser({
+            id: globalProps.auth.user.id,
+            username: globalProps.auth.user.displayName,
+          });
+        }
 
-          // Always reset the dayjs locale state on each request.
-          // Otherwise, we may be holding on to a different user's locale
-          // setting, and the current user will get a hydration issue.
-          dayjs.locale('en');
+        // Always reset the dayjs locale state on each request.
+        // Otherwise, we may be holding on to a different user's locale
+        // setting, and the current user will get a hydration issue.
+        dayjs.locale('en');
 
-          const i18nInstance = await createServerI18nInstance(userLocale);
-          await loadDayjsLocale(userLocale);
+        const i18nInstance = await createServerI18nInstance(userLocale);
+        await loadDayjsLocale(userLocale);
 
-          return (
-            <AppProviders i18n={i18nInstance}>
-              <App {...props} />
-            </AppProviders>
-          );
-        },
-      });
-    } catch (error) {
-      // Prepend the URL to the error message so it appears in server logs.
-      // Otherwise, we can't trace the URL the error came from for debugging.
-      if (error instanceof Error) {
-        error.message = `[SSR ${url}] ${error.message}`;
-      }
-
-      throw error;
+        return (
+          <AppProviders i18n={i18nInstance}>
+            <App {...props} />
+          </AppProviders>
+        );
+      },
+    });
+  } catch (error) {
+    // Prepend the URL to the error message so it appears in server logs.
+    // Otherwise, we can't trace the URL the error came from for debugging.
+    if (error instanceof Error) {
+      error.message = `[SSR ${url}] ${error.message}`;
     }
-  },
-  {
+
+    throw error;
+  }
+};
+
+if (import.meta.env.PROD) {
+  createServer(renderPage, {
     cluster: false, // enabling this seems to hurt perf more than help it on prod
     port: inertiaDaemonPort,
-  },
-);
+  });
+}
+
+export default renderPage;

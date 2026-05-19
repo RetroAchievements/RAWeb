@@ -105,6 +105,7 @@ class RegenerateGameScreenshotConversions extends Command
         if (!empty($jobs)) {
             Bus::batch($jobs)
                 ->name('regenerate-game-screenshot-conversions')
+                ->onQueue('media')
                 ->allowFailures()
                 ->finally(function ($batch) {
                     if (!$batch->finished()) {

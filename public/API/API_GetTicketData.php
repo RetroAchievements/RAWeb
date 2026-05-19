@@ -238,8 +238,8 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     $result = [];
 
     $tickets = $builder->with(['achievement.game.system', 'reporter', 'resolver'])
-       ->orderBy('created_at', 'DESC')
-       ->orderBy('id', 'DESC')
+       ->orderBy('created_at', 'desc')
+       ->orderBy('id', 'desc')
        ->offset($offset)
        ->take($count)
        ->get();

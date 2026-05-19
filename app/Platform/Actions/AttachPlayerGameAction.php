@@ -11,8 +11,11 @@ use App\Platform\Events\PlayerGameAttached;
 
 class AttachPlayerGameAction
 {
-    public function execute(User $user, Game $game): PlayerGame
-    {
+    public function execute(
+        User $user,
+        Game $game,
+        bool $shouldDispatchPlayerGameAttached = true,
+    ): PlayerGame {
         // upsert game attachment without running into unique constraints
 
         $playerGame = PlayerGame::firstOrCreate(
@@ -27,7 +30,7 @@ class AttachPlayerGameAction
         );
 
         // Only dispatch event if this was newly created.
-        if ($playerGame->wasRecentlyCreated) {
+        if ($shouldDispatchPlayerGameAttached && $playerGame->wasRecentlyCreated) {
             PlayerGameAttached::dispatch($user, $game);
         }
 

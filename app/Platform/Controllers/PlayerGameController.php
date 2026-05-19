@@ -132,8 +132,7 @@ class PlayerGameController extends Controller
         BuildPlayerGameActivityDataAction $buildPlayerGameActivityData,
     ): InertiaResponse {
         $playerGame = $user->playerGames()->whereGameId($game->id)->first();
-        // TODO rename to viewSessionHistory
-        $this->authorize('viewSessionHistory2', [PlayerGame::class, $playerGame]);
+        $this->authorize('viewSessionHistory', [PlayerGame::class, $playerGame]);
 
         $props = new PlayerGameActivityPagePropsData(
             player: UserData::fromUser($user),

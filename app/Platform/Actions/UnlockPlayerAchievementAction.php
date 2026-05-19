@@ -23,6 +23,7 @@ class UnlockPlayerAchievementAction
         ?Carbon $timestamp = null,
         ?User $unlockedBy = null,
         ?GameHash $gameHash = null,
+        ?string $userAgent = null,
     ): void {
         $timestamp ??= Carbon::now();
 
@@ -38,7 +39,7 @@ class UnlockPlayerAchievementAction
         // also unlock active event achievements associated to the achievement being unlocked
         if ($hardcore && $user->isRanked()) {
             foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
+                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id, $userAgent))
                     ->onQueue('player-achievements');
             }
         }
@@ -50,15 +51,25 @@ class UnlockPlayerAchievementAction
             app()->make(AttachPlayerGameAction::class)
                 ->execute($user, $achievement->game);
         } else {
+            $sessionGame = $gameHash?->game ?? $achievement->game;
+            $isUnlockForDifferentHashGame = $sessionGame->id !== $achievement->game->id;
+
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSessionAction::class)
-                ->execute($user, $gameHash?->game ?? $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
+                ->execute(
+                    $user,
+                    $sessionGame,
+                    gameHash: $gameHash,
+                    timestamp: $timestamp,
+                    userAgent: $userAgent
+                );
 
             // if the gameHash isn't associated with the achievement game, make sure a player_games record
             // exists for the achievement game so points for unlocking the achievement can be captured.
-            if ($gameHash?->game && $gameHash?->game->id !== $achievement->game->id) {
+            if ($isUnlockForDifferentHashGame) {
                 // this is normally done by ResumePlayerSessionAction, but we just called it with a different game
-                app()->make(AttachPlayerGameAction::class)->execute($user, $achievement->game);
+                app()->make(AttachPlayerGameAction::class)
+                    ->execute($user, $achievement->game);
             }
         }
 

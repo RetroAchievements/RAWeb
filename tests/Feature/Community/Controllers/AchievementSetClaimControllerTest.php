@@ -1262,4 +1262,31 @@ class AchievementSetClaimControllerTest extends TestCase
 
         Queue::assertNotPushed(SendAlertWebhookJob::class);
     }
+
+    public function testCollaborationClaimDoesNotQueueDevComplianceAlertWhenDeveloperHasMultipleOpenTickets(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$primaryDeveloper, $game] = $this->createDeveloperAndClaimableGame();
+
+        $collaborator = User::factory()->create();
+        $collaborator->assignRole(Role::DEVELOPER);
+        $this->createOpenTicketsForDeveloper($collaborator, 3);
+
+        // ... primary developer claims the game first ...
+        $this->actingAs($primaryDeveloper)->postJson(route('achievement-set-claim.create', $game->id));
+        Session::flush();
+
+        // Act
+        // ... collaborator joins ...
+        $response = $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $collabClaim = $game->achievementSetClaims()->where('user_id', $collaborator->id)->first();
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
 }
