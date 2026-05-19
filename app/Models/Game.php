@@ -678,11 +678,6 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getIsSubsetGameAttribute(): bool
     {
-        // See if we can short circut the queries to build parentGameId first.
-        if (str_contains($this->title, '[Subset')) {
-            return true;
-        }
-
         return $this->parent_game_id !== null;
     }
 
@@ -782,9 +777,12 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
     }
 
-    public function parentGame(): ?Game
+    /**
+     * @return BelongsTo<Game, $this>
+     */
+    public function parentGame(): BelongsTo
     {
-        return $this->parent;
+        return $this->belongsTo(Game::class, 'parent_game_id');
     }
 
     /**
@@ -892,14 +890,6 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         $currentUser = $user ?? Auth::user();
 
         return $this->modificationsComments()->visibleTo($currentUser);
-    }
-
-    /**
-     * @return BelongsTo<Game, $this>
-     */
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(Game::class, 'parent_game_id');
     }
 
     /**
