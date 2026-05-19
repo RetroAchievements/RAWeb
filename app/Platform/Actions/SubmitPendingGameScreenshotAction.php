@@ -29,22 +29,23 @@ class SubmitPendingGameScreenshotAction
         ScreenshotType $type,
         User $user,
     ): GameScreenshot {
+        $pendingCount = GameScreenshot::where('captured_by_user_id', $user->id)
+            ->where('status', GameScreenshotStatus::Pending)
+            ->count();
+
+        $maxPendingSubmissions = max(1, (int) config('screenshots.max_pending_submissions_per_user'));
+
+        if ($pendingCount >= $maxPendingSubmissions) {
+            throw ValidationException::withMessages([
+                'screenshot' => 'You have reached the maximum number of pending submissions.',
+            ]);
+        }
+
         $this->validationService->validateFile($file, $game);
 
         [$width, $height] = getimagesize($file->getRealPath());
         $this->validationService->validateResolution($width, $height, $game);
         $hash = $this->validationService->validateHash($file, $game);
-
-        // Enforce a global pending cap to prevent queue abuse.
-        $pendingCount = GameScreenshot::where('captured_by_user_id', $user->id)
-            ->where('status', GameScreenshotStatus::Pending)
-            ->count();
-
-        if ($pendingCount >= 200) {
-            throw ValidationException::withMessages([
-                'screenshot' => 'You have reached the maximum number of pending submissions.',
-            ]);
-        }
 
         // Add to the pending collection so no conversions are generated yet.
         // Conversions are triggered later if a reviewer approves the screenshot.
