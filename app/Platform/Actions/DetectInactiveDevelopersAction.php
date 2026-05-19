@@ -39,11 +39,7 @@ class DetectInactiveDevelopersAction
         $developers = User::query()
             ->whereNull('banned_at')
             ->whereHas('roles', fn (Builder $query) => $query->where('name', Role::DEVELOPER))
-            ->whereDoesntHave('roles', fn (Builder $query) => $query->whereIn('name', [
-                Role::ADMINISTRATOR,
-                Role::DEVELOPER_JUNIOR,
-                Role::MODERATOR,
-            ]))
+            ->whereDoesntHave('roles', fn (Builder $query) => $query->where('name', Role::ROOT))
             ->orderBy('display_name')
             ->get();
 
@@ -89,17 +85,15 @@ class DetectInactiveDevelopersAction
             ];
         }
 
-        $lastDeveloperActivityAt = $this->lastDeveloperActivityAt($developer);
-
-        if ($lastDeveloperActivityAt === null || $lastDeveloperActivityAt->lt($developerInactivityThreshold)) {
-            return [
-                'reason' => DeveloperInactivityAlert::REASON_DEVELOPER_INACTIVITY,
-                'threshold' => '6-month',
-                'lastActivityAt' => $lastDeveloperActivityAt?->toDateTimeString(),
-            ];
+        if ($this->hasDeveloperActivitySince($developer, $developerInactivityThreshold)) {
+            return null;
         }
 
-        return null;
+        return [
+            'reason' => DeveloperInactivityAlert::REASON_DEVELOPER_INACTIVITY,
+            'threshold' => '6-month',
+            'lastActivityAt' => $this->lastDeveloperActivityAt($developer)?->toDateTimeString(),
+        ];
     }
 
     /**
@@ -117,6 +111,59 @@ class DetectInactiveDevelopersAction
         );
 
         return Cache::add($cacheKey, true, Carbon::now()->addDays(self::DEDUPE_TTL_DAYS));
+    }
+
+    private function hasDeveloperActivitySince(User $developer, Carbon $since): bool
+    {
+        // publishing memory notes, achievements, or leaderboards
+        if (Activity::query()
+            ->where('causer_type', $developer->getMorphClass())
+            ->where('causer_id', $developer->id)
+            ->whereIn('subject_type', $this->authoredSubjectTypes())
+            ->where('created_at', '>=', $since)
+            ->exists()
+        ) {
+            return true;
+        }
+
+        // updating trigger logic
+        if (Trigger::query()
+            ->where('user_id', $developer->id)
+            ->where('updated_at', '>=', $since)
+            ->exists()
+        ) {
+            return true;
+        }
+
+        // creating a claim
+        if (AchievementSetClaim::query()
+            ->where('user_id', $developer->id)
+            ->where('created_at', '>=', $since)
+            ->exists()
+        ) {
+            return true;
+        }
+
+        // commenting on a ticket
+        if (Comment::query()
+            ->where('user_id', $developer->id)
+            ->where('commentable_type', CommentableType::AchievementTicket)
+            ->where('created_at', '>=', $since)
+            ->exists()
+        ) {
+            return true;
+        }
+
+        // resolving a ticket
+        if (Ticket::query()
+            ->where('resolver_id', $developer->id)
+            ->where('resolved_at', '>=', $since)
+            ->exists()
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     private function lastDeveloperActivityAt(User $developer): ?Carbon
@@ -163,19 +210,25 @@ class DetectInactiveDevelopersAction
      */
     private function lastAuthoredAuditLogAt(User $developer): ?Carbon
     {
-        $subjectTypes = [
-            (new Achievement())->getMorphClass(),
-            (new Leaderboard())->getMorphClass(),
-            (new MemoryNote())->getMorphClass(),
-        ];
-
         return $this->toCarbon(
             Activity::query()
                 ->where('causer_type', $developer->getMorphClass())
                 ->where('causer_id', $developer->id)
-                ->whereIn('subject_type', $subjectTypes)
+                ->whereIn('subject_type', $this->authoredSubjectTypes())
                 ->max('created_at')
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function authoredSubjectTypes(): array
+    {
+        return [
+            (new Achievement())->getMorphClass(),
+            (new Leaderboard())->getMorphClass(),
+            (new MemoryNote())->getMorphClass(),
+        ];
     }
 
     /**

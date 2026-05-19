@@ -102,20 +102,14 @@ it('queues the first inactivity finding for full developers', function (): void 
     });
 });
 
-it('ignores junior developers, admins, moderators, and banned users who have a developer role', function (): void {
+it('ignores root and banned users who have a developer role', function (): void {
     // Arrange
     Carbon::setTestNow(Carbon::parse('2026-05-08 12:00:00'));
 
     $inactiveAttributes = ['last_activity_at' => Carbon::now()->subMonths(7)];
 
-    $juniorDeveloper = createDeveloperForInactivityTest($inactiveAttributes);
-    $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
-
-    $administrator = createDeveloperForInactivityTest($inactiveAttributes);
-    $administrator->assignRole(Role::ADMINISTRATOR);
-
-    $moderator = createDeveloperForInactivityTest($inactiveAttributes);
-    $moderator->assignRole(Role::MODERATOR);
+    $root = createDeveloperForInactivityTest($inactiveAttributes);
+    $root->assignRole(Role::ROOT);
 
     createDeveloperForInactivityTest(array_merge($inactiveAttributes, [
         'banned_at' => Carbon::now()->subDay(),
