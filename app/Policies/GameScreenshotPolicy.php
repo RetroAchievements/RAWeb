@@ -80,6 +80,21 @@ class GameScreenshotPolicy
             && $screenshot->status === GameScreenshotStatus::Pending;
     }
 
+    public function forceDelete(User $user, GameScreenshot $screenshot): bool
+    {
+        // Only rejected screenshots may be permanently deleted.
+        if ($screenshot->status !== GameScreenshotStatus::Rejected) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::GAME_EDITOR,
+            Role::MEDIA_EDITOR,
+            Role::MODERATOR,
+        ]);
+    }
+
     public function review(User $user, GameScreenshot $screenshot): bool
     {
         if ($user->hasAnyRole(self::REVIEWER_ROLES)) {

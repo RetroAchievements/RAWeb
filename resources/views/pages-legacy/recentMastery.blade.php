@@ -62,6 +62,7 @@ if ($followed == 1) {
         :selectedUsers="$followed == 1 ? 'followed' : 'all'"
     />
     <?php
+    echo "<div class='table-wrapper'>";
     echo "<table class='table-highlight'><tbody>";
 
     // Headers
@@ -125,6 +126,7 @@ if ($followed == 1) {
         }
     }
     echo "</tbody></table>";
+    echo "</div>";
 
     // Add page traversal
     echo "<div class='text-right'>";

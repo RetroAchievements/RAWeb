@@ -8,7 +8,7 @@ use App\Models\Game;
 
 class UpdateGameAchievementsMetricsAction
 {
-    public function execute(Game $game): void
+    public function execute(Game $game, bool $shouldRecalculateAchievementUnlockCounts = true): void
     {
         // TODO refactor to do this for each achievement set
 
@@ -19,7 +19,11 @@ class UpdateGameAchievementsMetricsAction
         }
 
         $action = app(UpdateAchievementMetricsAction::class);
-        $action->update($game, $achievements);
+        if ($shouldRecalculateAchievementUnlockCounts) {
+            $action->update($game, $achievements);
+        } else {
+            $action->updateFromStoredUnlockCounts($game, $achievements);
+        }
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);
     }

@@ -70,6 +70,7 @@ $dateStr = strftime("%d %b %Y", $dateInput);
 
     echo "</div>";
 
+    echo "<div class='table-wrapper'>";
     echo "<table class='table-highlight'><tbody>";
 
     echo "<tr class='do-not-highlight'>";
@@ -147,6 +148,7 @@ $dateStr = strftime("%d %b %Y", $dateInput);
     }
 
     echo "</tbody></table>";
+    echo "</div>";
 
     echo "<h3>Summary</h3>";
     echo "<div class='historyexaminesummary'>";

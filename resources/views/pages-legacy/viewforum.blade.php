@@ -98,6 +98,7 @@ sanitize_outputs(
     }
     echo "</div>";
 
+    echo "<div class='table-wrapper'>";
     echo "<table class='table-highlight my-3'><tbody>";
 
     echo "<tr class='do-not-highlight'>";
@@ -167,6 +168,7 @@ sanitize_outputs(
         echo "</tr>";
     }
     echo "</tbody></table>";
+    echo "</div>";
 
     echo "<div class='flex justify-between items-center'>";
     if ($numTotalTopics > $count) {

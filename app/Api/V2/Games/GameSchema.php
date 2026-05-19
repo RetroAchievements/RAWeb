@@ -94,7 +94,7 @@ class GameSchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Where::make('systemId', 'system_id'),
         ];
     }

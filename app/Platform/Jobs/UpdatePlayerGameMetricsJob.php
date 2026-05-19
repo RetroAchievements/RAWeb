@@ -24,18 +24,24 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     use Queueable;
     use SerializesModels;
 
+    private bool $shouldRecalculateAchievementUnlockCounts = true;
+
     public function __construct(
         private readonly int $userId,
         private readonly int $gameId,
         private readonly ?string $expectedVersionHash = null,
+        bool $shouldRecalculateAchievementUnlockCounts = true,
     ) {
+        $this->shouldRecalculateAchievementUnlockCounts = $shouldRecalculateAchievementUnlockCounts;
     }
 
     public int $uniqueFor = 3600;
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->userId . '-' . $this->gameId;
+        return config('queue.default') === 'sync'
+            ? ''
+            : $this->userId . '-' . $this->gameId . ':' . ($this->shouldRecalculateAchievementUnlockCounts ? 'recount' : 'stored-counts');
     }
 
     /**
@@ -113,7 +119,11 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
         }
 
         app()->make(UpdatePlayerGameMetricsAction::class)
-            ->execute($playerGame, silent: $isBatched);
+            ->execute(
+                $playerGame,
+                silent: $isBatched,
+                shouldRecalculateAchievementUnlockCounts: $this->shouldRecalculateAchievementUnlockCounts
+            );
 
         // if this job was executed from within a batch it means that it's been initiated
         // by a game metrics update.

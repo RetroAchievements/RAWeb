@@ -98,6 +98,48 @@ class HubsTest extends JsonApiResourceTestCase
         $this->assertNotContains((string) $similarGames->id, $ids);
     }
 
+    public function testItFiltersByIdAsScalar(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $target = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $other = GameSet::factory()->create(['type' => GameSetType::Hub]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('hubs')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/hubs?filter[id]={$target->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains((string) $target->id, $ids);
+        $this->assertNotContains((string) $other->id, $ids);
+    }
+
+    public function testItFiltersByIdAsCommaDelimitedList(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $first = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $second = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $other = GameSet::factory()->create(['type' => GameSetType::Hub]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('hubs')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/hubs?filter[id]={$first->id},{$second->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains((string) $first->id, $ids);
+        $this->assertContains((string) $second->id, $ids);
+        $this->assertNotContains((string) $other->id, $ids);
+    }
+
     public function testItFiltersByParentId(): void
     {
         // Arrange
