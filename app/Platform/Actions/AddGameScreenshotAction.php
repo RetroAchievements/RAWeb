@@ -75,14 +75,15 @@ class AddGameScreenshotAction
         if ($shouldBePrimary) {
             $legacyPath = (new CreateLegacyScreenshotPngAction())->execute($imageContents);
 
-            // Demote existing approved screenshots of this type to pending. This
-            // prevents the 20-screenshot cap from being hit by normal editor
-            // uploads and keeps demoted screenshots available for future gallery
-            // management (Set as Primary, Delete, etc).
+            $demotedStatus = match ($type) {
+                ScreenshotType::Title, ScreenshotType::Completion => GameScreenshotStatus::Replaced,
+                ScreenshotType::Ingame => GameScreenshotStatus::Pending,
+            };
+
             $game->gameScreenshots()
                 ->ofType($type)
                 ->approved()
-                ->update(['is_primary' => false, 'status' => GameScreenshotStatus::Pending]);
+                ->update(['is_primary' => false, 'status' => $demotedStatus]);
         }
 
         $customProperties = ['sha1' => $hash];
@@ -146,10 +147,7 @@ class AddGameScreenshotAction
             return;
         }
 
-        $cap = match ($type) {
-            ScreenshotType::Ingame => 20,
-            ScreenshotType::Title, ScreenshotType::Completion => 1,
-        };
+        $cap = $type->approvedCap();
 
         $approvedCount = $game->gameScreenshots()
             ->ofType($type)
