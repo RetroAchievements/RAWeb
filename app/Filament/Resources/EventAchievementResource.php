@@ -12,6 +12,7 @@ use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\User;
+use Closure;
 use Filament\Forms;
 use Filament\Infolists;
 use Filament\Pages\Page;
@@ -167,6 +168,17 @@ class EventAchievementResource extends Resource
                                 }
 
                                 return $label;
+                            })
+                            ->rule(function (?EventAchievement $record): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                                    if (
+                                        $record !== null
+                                        && $value !== null
+                                        && (int) $value === (int) $record->achievement_id
+                                    ) {
+                                        $fail('Source achievement cannot be the same as the event achievement.');
+                                    }
+                                };
                             }),
 
                         Forms\Components\DatePicker::make('active_from')

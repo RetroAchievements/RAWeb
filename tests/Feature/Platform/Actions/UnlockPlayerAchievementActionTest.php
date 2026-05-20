@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
+use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
@@ -13,9 +15,12 @@ use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerGameAttached;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class UnlockPlayerAchievementActionTest extends TestCase
@@ -181,6 +186,32 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // there still shouldn't be any player sessions
         $user1->refresh();
         $this->assertEquals(0, $user1->playerSessions()->count());
+    }
+
+    public function testFanOutSkipsSelfReferentialEventAchievement(): void
+    {
+        // a self-referential EventAchievement (source_achievement_id == achievement_id) would
+        // dispatch a job re-targeting the same achievement and infinite loop, pinning our infra
+        $user = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        /** @var Achievement $achievement */
+        $achievement = $game->achievements->first();
+
+        DB::table('event_achievements')->insert([
+            'achievement_id' => $achievement->id,
+            'source_achievement_id' => $achievement->id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        Queue::fake();
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
+
+        Queue::assertNotPushed(
+            UnlockPlayerAchievementJob::class,
+            fn (UnlockPlayerAchievementJob $job) => in_array(Achievement::class . ':' . $achievement->id, $job->tags(), true)
+        );
     }
 
     public function testSubsetAchievementThroughCoreSetDoesntCreateSubsetSession(): void
