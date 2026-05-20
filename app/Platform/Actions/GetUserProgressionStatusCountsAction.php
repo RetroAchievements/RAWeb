@@ -18,7 +18,7 @@ class GetUserProgressionStatusCountsAction
     /**
      * @return array{
      *     avgCompletionPercentage: float,
-     *     systemProgress: array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, isOrphan: bool, lastPlayedAt: string|null, systemId: int}>,
+     *     systemProgress: array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}>,
      *     topSystemId: int|null,
      *     totalCounts: array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int},
      *     totalHardcoreAchievements: int,
@@ -124,10 +124,6 @@ class GetUserProgressionStatusCountsAction
             $totalSoftcoreAchievements += (int) $row->total_sc_achievements;
         }
 
-        // Add counts for "orphan badges" - badges for games not in the main query.
-        // This handles demoted games, games with < 6 achievements, etc.
-        $this->addOrphanBadgeCounts($user, $systemProgress, $totalCounts);
-
         $avgCompletionPercentage = $this->calculateAvgCompletionExcludingSubsets($user);
 
         // topSystem is the most recent valid system where the user has earned achievements.
@@ -135,7 +131,7 @@ class GetUserProgressionStatusCountsAction
         $latestTimestamp = null;
 
         foreach ($systemProgress as $systemId => $progress) {
-            if ($progress['isOrphan'] || $progress['lastPlayedAt'] === null) {
+            if ($progress['lastPlayedAt'] === null) {
                 continue;
             }
 
@@ -146,6 +142,10 @@ class GetUserProgressionStatusCountsAction
                 $topSystemId = $systemId;
             }
         }
+
+        // Add counts for "orphan badges" - badges for games not in the main query.
+        // This handles demoted games, games with < 6 achievements, etc.
+        $this->addOrphanBadgeCounts($user, $systemProgress, $totalCounts);
 
         // Sort: topSystem first, then by total games played descending.
         uasort($systemProgress, function ($a, $b) use ($topSystemId) {
@@ -176,7 +176,7 @@ class GetUserProgressionStatusCountsAction
      * Finds badges for games not included in the main query and adds them to the counts.
      * This handles edge cases like demoted games, etc.
      *
-     * @param array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, isOrphan: bool, lastPlayedAt: string|null, systemId: int}> $systemProgress
+     * @param array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}> $systemProgress
      * @param array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int} $totalCounts
      */
     private function addOrphanBadgeCounts(User $user, array &$systemProgress, array &$totalCounts): void
@@ -240,7 +240,6 @@ class GetUserProgressionStatusCountsAction
                     'beatenHardcoreCount' => 0,
                     'completedCount' => 0,
                     'masteredCount' => 0,
-                    'isOrphan' => true,
                     'lastPlayedAt' => null,
                     'systemId' => $systemId,
                 ];
