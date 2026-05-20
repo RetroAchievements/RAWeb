@@ -239,7 +239,7 @@ class GameScreenshotModerationResource extends Resource
                     ->modalSubmitAction(function (Action $action, GameScreenshot $record) {
                         if (
                             $record->type === ScreenshotType::Ingame
-                            && $record->game->gameScreenshots()->ofType(ScreenshotType::Ingame)->approved()->count() >= 20
+                            && $record->game->gameScreenshots()->ofType(ScreenshotType::Ingame)->approved()->count() >= ScreenshotType::Ingame->approvedCap()
                         ) {
                             return $action->hidden();
                         }
@@ -395,11 +395,12 @@ class GameScreenshotModerationResource extends Resource
 
         $countLabel = $approvedCount === 1 ? 'screenshot' : 'screenshots';
         $mediaPageUrl = GameResource::getUrl('media', ['record' => $record->game]);
+        $cap = ScreenshotType::Ingame->approvedCap();
 
-        if ($approvedCount >= 20) {
+        if ($approvedCount >= $cap) {
             return new HtmlString(
                 $subjectLine
-                . self::buildApproveExplanation('This game already has 20 in-game screenshots approved.&nbsp;(20&nbsp;max)')
+                . self::buildApproveExplanation("This game already has {$cap} in-game screenshots approved.&nbsp;({$cap}&nbsp;max)")
                 . self::buildApproveExplanation("To approve this submission, first remove a screenshot from the <a href=\"{$mediaPageUrl}\" target=\"_blank\" style=\"text-decoration: underline;\">game's media page</a>.")
                 . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
             );
@@ -419,7 +420,7 @@ class GameScreenshotModerationResource extends Resource
             return new HtmlString(
                 $subjectLine
                 . self::buildApproveExplanation('This will replace the current primary in-game screenshot (invalid resolution) and add it to the gallery.')
-                . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;(20&nbsp;max)")
+                . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;({$cap}&nbsp;max)")
                 . $mixedResolutionWarning
                 . self::buildComparisonPreview(
                     currentLabel: 'Current Primary (' . $currentResolutionLabel . ')',
@@ -433,7 +434,7 @@ class GameScreenshotModerationResource extends Resource
         return new HtmlString(
             $subjectLine
             . self::buildApproveExplanation("This will add the screenshot to the game's gallery.")
-            . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;(20&nbsp;max)")
+            . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;({$cap}&nbsp;max)")
             . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
         );
     }
