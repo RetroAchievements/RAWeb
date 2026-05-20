@@ -109,7 +109,6 @@ class GetUserProgressionStatusCountsAction
                 'beatenHardcoreCount' => $beatenHc,
                 'completedCount' => $completed,
                 'masteredCount' => $mastered,
-                'isOrphan' => false,
                 'lastPlayedAt' => $lastPlayedAt,
                 'systemId' => $systemId,
             ];
