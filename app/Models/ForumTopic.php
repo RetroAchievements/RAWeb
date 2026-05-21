@@ -68,6 +68,7 @@ class ForumTopic extends BaseModel
         'author_id',
         'latest_comment_id',
         'required_permissions',
+        'comment_role_id',
         'pinned_at',
         'locked_at',
     ];
