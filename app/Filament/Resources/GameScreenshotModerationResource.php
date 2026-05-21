@@ -400,7 +400,7 @@ class GameScreenshotModerationResource extends Resource
         if ($approvedCount >= $cap) {
             return new HtmlString(
                 $subjectLine
-                . self::buildApproveExplanation("This game already has {$cap} in-game screenshots approved.&nbsp;({$cap}&nbsp;max)")
+                . self::buildApproveExplanation("This game already has {$approvedCount} in-game screenshots approved.&nbsp;({$cap}&nbsp;max)")
                 . self::buildApproveExplanation("To approve this submission, first remove a screenshot from the <a href=\"{$mediaPageUrl}\" target=\"_blank\" style=\"text-decoration: underline;\">game's media page</a>.")
                 . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
             );
