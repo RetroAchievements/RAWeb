@@ -243,6 +243,42 @@ describe('returns entries', function () {
         $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
     });
 
+    test('only for user by display_name', function () {
+        $leaderboard1 = Leaderboard::factory()->create();
+        $user1 = User::factory()->create(['username' => 'UserName', 'display_name' => 'DisplayName']);
+        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->display_name, $leaderboard1, 1234);
+        $entry2 = BuildConnectSniffsTestHelpers::createLeaderboardWarning('Player1', $leaderboard1, 1234);
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, 'DisplayName');
+        $this->assertEquals(1, count($sniffs));
+        $this->assertEquals($user1->display_name, $sniffs[0]['user']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
+        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
+        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+    });
+
+    test('only for user by username', function () {
+        $leaderboard1 = Leaderboard::factory()->create();
+        $user1 = User::factory()->create(['username' => 'UserName', 'display_name' => 'DisplayName']);
+        $entry1 = BuildConnectSniffsTestHelpers::createLeaderboardWarning($user1->username, $leaderboard1, 1234);
+        $entry2 = BuildConnectSniffsTestHelpers::createLeaderboardWarning('Player1', $leaderboard1, 1234);
+
+        $clients = [];
+        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, 'UserName');
+        $this->assertEquals(1, count($sniffs));
+        $this->assertEquals($user1->username, $sniffs[0]['user']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
+        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
+        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+    });
+
     test('session data', function () {
         $game1 = Game::factory()->create();
         $gameHash1 = GameHash::factory()->create(['game_id' => $game1->id]);

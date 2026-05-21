@@ -19,8 +19,10 @@ use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
+use App\Support\Alerts\Jobs\SendAlertWebhookJob;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -148,6 +150,12 @@ class AwardAchievementTestHelpers
             ->where('related_id', $achievement->id)
             ->whereNull('extra')
             ->first();
+    }
+
+    public static function initializeFakeQueue(): void
+    {
+        Queue::fake([SendAlertWebhookJob::class]);
+        config(['services.discord.alerts_webhook.suspicious_connect_warning' => 'https://discord.com/api/webhooks/test']);
     }
 }
 
@@ -2487,6 +2495,8 @@ describe('validation', function () {
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
+        AwardAchievementTestHelpers::initializeFakeQueue();
+
         // $userAgentValid is associated to the "Test Client". Attach a differing system to that.
         $otherSystem = System::factory()->create();
         Emulator::where('name', 'Test Client')->first()->systems()->attach($otherSystem->id);
@@ -2530,6 +2540,11 @@ describe('validation', function () {
         $this->assertEquals($validationHash, $warning->validation_hash);
         $this->assertEquals('wrong_client', $warning->smells);
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
+
+        // notification should be sent
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) {
+            return $job->webhookUrl === 'https://discord.com/api/webhooks/test';
+        });
     });
 
     test('user agent for incorrect system on multi-system client does not generate warning', function () {
@@ -2647,6 +2662,8 @@ describe('validation', function () {
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
+        AwardAchievementTestHelpers::initializeFakeQueue();
+
         // do the hardcore unlock
         $validationHash = md5('This is the wrong validation hash');
         $scoreBefore = $this->user->points_hardcore;
@@ -2686,6 +2703,9 @@ describe('validation', function () {
         $this->assertEquals($validationHash, $warning->validation_hash);
         $this->assertEquals('bad_validation', $warning->smells);
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
+
+        // notification should not be sent
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
     });
 
     test('validation hash containing 0 offset still unlocks hardcore achievements', function () {
@@ -2795,6 +2815,8 @@ describe('validation', function () {
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
+        AwardAchievementTestHelpers::initializeFakeQueue();
+
         // do the hardcore unlock
         $validationHash = md5('This is the wrong validation hash');
         $scoreBefore = $this->user->points_hardcore;
@@ -2845,5 +2867,84 @@ describe('validation', function () {
         $this->assertEquals($validationHash, $warning->validation_hash);
         $this->assertEquals('bad_validation,repeated_validation', $warning->smells);
         $this->assertEquals($this->userAgentValid, $warning->user_agent);
+
+        // notification should be sent
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) {
+            return $job->webhookUrl === 'https://discord.com/api/webhooks/test';
+        });
+    });
+
+    test('only one warning notification per user per day', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $achievement4 = $data['achievements'][3];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        AwardAchievementTestHelpers::initializeFakeQueue();
+
+        // do the hardcore unlock
+        $validationHash = md5('This is the wrong validation hash');
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        ConnectWarning::create([
+            'method' => 'awardachievement',
+            'username' => $this->user->username,
+            'related_type' => 'achievement',
+            'related_id' => $achievement1->id,
+            'hardcore' => 1,
+            'validation_hash' => $validationHash,
+            'smells' => 'bad_validation',
+            'user_agent' => $this->userAgentValid,
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+
+        // notification should be sent
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) {
+            return $job->webhookUrl === 'https://discord.com/api/webhooks/test';
+        });
+
+        AwardAchievementTestHelpers::initializeFakeQueue();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement4->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->id,
+                'AchievementsRemaining' => 3,
+                'Score' => $scoreBefore + $achievement3->points + $achievement4->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+
+        // notification should not be sent
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
     });
 });

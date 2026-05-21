@@ -160,7 +160,7 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
 
     switch ($ticketVal) {
         case TicketState::Closed:
-            if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement) {
+            if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement?->is_promoted) {
                 updateAchievementPromotedStatus($ticket->achievement->id, false);
                 addArticleComment("Server", CommentableType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
