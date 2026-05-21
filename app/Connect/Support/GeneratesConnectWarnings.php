@@ -8,8 +8,11 @@ use App\Enums\ClientSupportLevel;
 use App\Models\ConnectWarning;
 use App\Models\Game;
 use App\Platform\Services\UserAgentService;
+use App\Support\Alerts\SuspiciousConnectWarningAlert;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 trait GeneratesConnectWarnings
 {
@@ -23,6 +26,7 @@ trait GeneratesConnectWarnings
         if ($this->connectWarning !== null) {
             $this->finalizeWarning();
             $this->connectWarning->save();
+            $this->sendNotifications();
         }
 
         return $result;
@@ -84,6 +88,19 @@ trait GeneratesConnectWarnings
                 ->exists();
             if ($isRepeated) {
                 $this->connectWarning->smells .= ',repeated_validation';
+            }
+        }
+    }
+
+    private function sendNotifications(): void
+    {
+        if (str_contains($this->connectWarning->smells, 'repeated_validation')
+            || str_contains($this->connectWarning->smells, 'wrong_client')) {
+
+            // only send one notification per user per day
+            $key = 'user:' . strtolower($this->connectWarning->username) . ':connect_warning_notification';
+            if (Cache::add($key, '1', Carbon::now()->addDay())) {
+                (new SuspiciousConnectWarningAlert($this->connectWarning))->send();
             }
         }
     }

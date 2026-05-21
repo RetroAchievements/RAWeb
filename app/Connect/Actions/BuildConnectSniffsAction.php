@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 class BuildConnectSniffsAction
 {
-    public function execute(Carbon $date, array &$clients): array
+    public function execute(?Carbon $date, array &$clients, ?string $username = null): array
     {
         $sniffs = [];
         $usernames = [];
@@ -22,8 +22,8 @@ class BuildConnectSniffsAction
         $userAgentService = new UserAgentService();
 
         $entries = ConnectWarning::query()
-            ->where('created_at', '>=', $date->clone()->startOfDay())
-            ->where('created_at', '<=', $date->clone()->endOfDay())
+            ->when($date != null, fn ($query) => $query->whereDate('created_at', $date))
+            ->when(filled($username), fn ($query) => $query->where('username', $username))
             ->with('playerSession', 'playerSession.gameHash')
             ->orderBy('created_at')
             ->get();
