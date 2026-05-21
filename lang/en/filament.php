@@ -16,6 +16,7 @@ return [
             'achievementsAssignedToGroup' => 'Achievements assigned to group',
             'approvedScreenshot' => 'Approved screenshot',
             'changedScreenshotType' => 'Changed screenshot type',
+            'clearedScreenshots' => 'Cleared screenshots',
             'created' => 'Created',
             'creditCreated' => 'Credit added',
             'creditDeleted' => 'Credit removed',

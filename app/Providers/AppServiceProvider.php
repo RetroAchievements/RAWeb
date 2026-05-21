@@ -17,6 +17,7 @@ use App\Console\Commands\ProcessFallbackBanner;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Http\InertiaSsrGateway;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Message;
@@ -34,6 +35,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\ResponseFactory;
+use Inertia\Ssr\Gateway;
+use Inertia\Ssr\HttpGateway;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
@@ -49,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
         // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
+        $this->app->singleton(HttpGateway::class, InertiaSsrGateway::class);
+        $this->app->bind(Gateway::class, HttpGateway::class);
 
         // Track user recent activity timestamps in Redis and flush them periodically to the DB.
         // This keeps the users table indexes from constantly rebalancing 24/7.

@@ -11,13 +11,62 @@ use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Events\PlayerGameAttached;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function testUnlockingFirstAchievementDispatchesPlayerGameAttachedWhenItCreatesPlayerGame(): void
+    {
+        $user = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        $achievement = $game->achievements->first();
+
+        Event::fake([
+            PlayerAchievementUnlocked::class,
+            PlayerGameAttached::class,
+        ]);
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
+
+        Event::assertDispatched(PlayerAchievementUnlocked::class);
+        Event::assertDispatched(function (PlayerGameAttached $event) use ($game, $user): bool {
+            return $event->user->is($user) && $event->game->is($game);
+        });
+    }
+
+    public function testCrossGameHashUnlockDispatchesPlayerGameAttachedForHashGame(): void
+    {
+        $user = User::factory()->create();
+        $sessionGame = $this->seedGame(achievements: 1);
+        $sessionGameHash = $sessionGame->hashes()->first();
+        $achievementGame = $this->seedGame(achievements: 1);
+        $achievement = $achievementGame->achievements->first();
+
+        Event::fake([
+            PlayerAchievementUnlocked::class,
+            PlayerGameAttached::class,
+        ]);
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true, gameHash: $sessionGameHash);
+
+        Event::assertDispatched(PlayerAchievementUnlocked::class);
+        Event::assertDispatched(function (PlayerGameAttached $event) use ($sessionGame, $user): bool {
+            return $event->user->is($user) && $event->game->is($sessionGame);
+        });
+
+        $sessionPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $sessionGame->id)->first();
+        $this->assertNotNull($sessionPlayerGame);
+
+        $achievementPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $achievementGame->id)->first();
+        $this->assertNotNull($achievementPlayerGame);
+    }
 
     public function testManualUnlockDoesntUpdateLastActivityAt(): void
     {

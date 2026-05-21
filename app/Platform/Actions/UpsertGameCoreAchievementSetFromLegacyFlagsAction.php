@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -34,6 +35,13 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
                     'created_at' => $newAchievementSet->created_at,
                     'updated_at' => $newAchievementSet->created_at,
                 ]);
+
+                // The attach is a pivot insert and doesn't fire the GameAchievementSet
+                // observer, so we have to sync explicitly here.
+                $syncAction = new SyncGameParentGameIdAction();
+                foreach (GameAchievementSet::gameIdsAffectedBy($game->id, $newAchievementSet->id) as $affectedGameId) {
+                    $syncAction->execute($affectedGameId);
+                }
             }
         });
     }

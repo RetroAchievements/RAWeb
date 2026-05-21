@@ -24,16 +24,22 @@ class UpdateGamePlayerCountJob implements ShouldQueue, ShouldBeUniqueUntilProces
     public int $tries = 3;
     public int $backoff = 10;
 
+    private bool $shouldRecalculateAchievementUnlockCounts = true;
+
     public function __construct(
         private readonly int $gameId,
+        bool $shouldRecalculateAchievementUnlockCounts = true,
     ) {
+        $this->shouldRecalculateAchievementUnlockCounts = $shouldRecalculateAchievementUnlockCounts;
     }
 
     public int $uniqueFor = 3600;
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->gameId;
+        return config('queue.default') === 'sync'
+            ? ''
+            : $this->gameId . ':' . ($this->shouldRecalculateAchievementUnlockCounts ? 'recount' : 'stored-counts');
     }
 
     /**
@@ -53,6 +59,9 @@ class UpdateGamePlayerCountJob implements ShouldQueue, ShouldBeUniqueUntilProces
         }
 
         app()->make(UpdateGamePlayerCountAction::class)
-            ->execute(Game::findOrFail($this->gameId));
+            ->execute(
+                Game::findOrFail($this->gameId),
+                $this->shouldRecalculateAchievementUnlockCounts
+            );
     }
 }

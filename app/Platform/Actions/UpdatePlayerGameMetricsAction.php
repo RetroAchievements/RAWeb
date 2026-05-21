@@ -21,8 +21,11 @@ use Illuminate\Support\Collection;
 
 class UpdatePlayerGameMetricsAction
 {
-    public function execute(PlayerGame $playerGame, bool $silent = false): void
-    {
+    public function execute(
+        PlayerGame $playerGame,
+        bool $silent = false,
+        bool $shouldRecalculateAchievementUnlockCounts = true,
+    ): void {
         $game = $playerGame->game;
         $user = $playerGame->user;
 
@@ -202,7 +205,11 @@ class UpdatePlayerGameMetricsAction
         }
 
         foreach ($possiblePlayerCountChangeGameIds as $gameId) {
-            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
+            dispatch(new UpdateGamePlayerCountJob(
+                $gameId,
+                shouldRecalculateAchievementUnlockCounts: $shouldRecalculateAchievementUnlockCounts
+            ))
+                ->onQueue('game-player-count');
         }
 
         app()->make(RevalidateAchievementSetBadgeEligibilityAction::class)->execute($playerGame);
