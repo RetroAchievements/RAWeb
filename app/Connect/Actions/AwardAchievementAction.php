@@ -14,6 +14,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\StaticData;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -165,6 +166,19 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
         if (!isValidConsoleId($this->achievement->game->system_id)) {
             // shouldn't be able to promote achievements for unsupported console, so this is probably unnecessary.
             return $this->unsupportedSystem('Cannot unlock achievements for unsupported console.');
+        }
+
+        $playerSession = app()->make(ResumePlayerSessionAction::class)->execute(
+            $this->user,
+            $this->achievement->game,
+            ($this->gameHash && !$this->gameHash->isMultiDiscGameHash()) ? $this->gameHash : null,
+            timestamp: $this->when,
+            userAgent: $this->userAgent,
+            ipAddress: $this->ipAddress,
+        );
+
+        if ($this->connectWarning) {
+            $this->connectWarning->player_session_id = $playerSession->id;
         }
 
         $playerGame = PlayerGame::query()
