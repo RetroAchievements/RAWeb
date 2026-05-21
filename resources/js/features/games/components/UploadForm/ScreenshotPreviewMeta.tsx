@@ -51,10 +51,6 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
   return (
     <div className="flex flex-col items-center gap-1 text-xs">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span className="text-neutral-400">
-          {width}x{height}
-        </span>
-
         {isResolutionValid ? (
           <span className="flex items-center gap-1 text-green-500">
             <LuCircleCheckBig className="size-3" />
@@ -84,6 +80,10 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
             {t('Invalid resolution')}
           </span>
         )}
+
+        <span className="text-neutral-400">
+          {width}x{height}
+        </span>
       </div>
 
       {!isResolutionValid ? (
