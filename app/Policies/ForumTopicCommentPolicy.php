@@ -49,32 +49,59 @@ class ForumTopicCommentPolicy
         return false;
     }
 
+    public function viewUserPosts(User $currentUser, User $targetUser): bool
+    {
+        return !$targetUser->isBlocking($currentUser);
+    }
+
     public function create(User $user, ForumTopic $topic, ?User $teamAccount = null): bool
     {
-        // Users are able to create forum topic replies on behalf of team accounts,
-        // assuming the correct role is attached to the user.
-        if ($teamAccount) {
-            return $this->canActAsTeamAccount($user, $teamAccount);
-        }
-
-        /*
-         * verified and unverified users may comment
-         * muted, suspended, banned may not comment
-         */
         if ($user->isMuted()) {
             return false;
         }
 
-        /*
-         * users may not reply to locked topics, unless they have
-         * the ability to lock/unlock topics themselves.
-         */
+        // Users are able to create forum topic replies on behalf of team accounts,
+        // assuming the correct role is attached to the user.
+        if ($teamAccount) {
+            if (!$this->canActAsTeamAccount($user, $teamAccount)) {
+                return false;
+            }
+
+            // A topic lock still applies, even when posting on behalf of a team account.
+            if ($topic->is_locked && !$user->can('lock', $topic)) {
+                return false;
+            }
+
+            // When a comment role allowlist exists for the topic, it must be satisfied
+            // by the effective author (the team account, since that's whose name will
+            // appear on the comment).
+            if ($topic->comment_role_id !== null
+                && !$this->matchesCommentRoleAllowlist($teamAccount, $topic)
+            ) {
+                return false;
+            }
+
+            return true;
+        }
+
+        // Users may not reply to locked topics, unless they have
+        // the ability to lock/unlock topics themselves.
         if ($topic->is_locked && !$user->can('lock', $topic)) {
             return false;
         }
 
         if (!$user->hasVerifiedEmail()) {
             return false;
+        }
+
+        // A topic with a comment-role allowlist only accepts
+        // replies from users in those roles.
+        if ($topic->comment_role_id !== null) {
+            if ($this->manage($user)) {
+                return true;
+            }
+
+            return $this->matchesCommentRoleAllowlist($user, $topic);
         }
 
         return true;
@@ -135,8 +162,12 @@ class ForumTopicCommentPolicy
         return false;
     }
 
-    public function viewUserPosts(User $currentUser, User $targetUser): bool
+    public function matchesCommentRoleAllowlist(User $user, ForumTopic $topic): bool
     {
-        return !$targetUser->isBlocking($currentUser);
+        if ($topic->comment_role_id === null) {
+            return false;
+        }
+
+        return $user->roles->contains('id', $topic->comment_role_id);
     }
 }

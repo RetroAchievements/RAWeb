@@ -26,7 +26,7 @@ class AchievementApiController extends Controller
             array_key_exists('type', $validated)
             && $validated['type'] !== null
             && AchievementType::isProgression($validated['type'])
-            && $achievement->game->parentGame() !== null
+            && $achievement->game->parentGame !== null
         ) {
             abort(422, 'Subset achievements cannot have progression or win_condition types.');
         }

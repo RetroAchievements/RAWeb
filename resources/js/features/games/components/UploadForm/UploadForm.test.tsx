@@ -89,18 +89,36 @@ describe('Component: UploadForm', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
   });
 
-  it('given screenshot resolutions are provided, displays them in the drop zone', () => {
+  it('given a non-upscaling system, displays the supported resolutions line in the drop zone with the x sign', () => {
     // ARRANGE
     render(
       <UploadForm
         gameId={1}
         screenshotResolutions={[{ width: 320, height: 240 }]}
         selectedType="ingame"
+        supportsUpscaledScreenshots={false}
       />,
     );
 
     // ASSERT
-    expect(screen.getByText(/expected resolutions: 320x240/i)).toBeVisible();
+    expect(screen.getByText('Supported resolutions: 320x240')).toBeVisible();
+  });
+
+  it('given an upscaling-capable system, displays the upscale nudge in the drop zone', () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+        supportsUpscaledScreenshots={true}
+      />,
+    );
+
+    // ASSERT
+    expect(
+      screen.getByText(/upscaled screenshots look sharper\. render at 2x or 3x/i),
+    ).toBeVisible();
   });
 
   it('given the preview is valid and matches the existing canonical resolution, does not show a consistency warning', async () => {
@@ -356,7 +374,7 @@ describe('Component: UploadForm', () => {
     });
   });
 
-  it('given the file has an invalid resolution, shows a validation error', async () => {
+  it('given the file has an invalid resolution, shows a short form-error pointing to the preview', async () => {
     // ARRANGE
     vi.stubGlobal(
       'Image',
@@ -391,47 +409,7 @@ describe('Component: UploadForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/999x888.*don't match/i)).toBeVisible();
-    });
-  });
-
-  it('given upscaled screenshots are supported and the resolution is invalid, includes multiples info in the error', async () => {
-    // ARRANGE
-    vi.stubGlobal(
-      'Image',
-      class MockImage {
-        naturalWidth = 999;
-        naturalHeight = 888;
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
-
-        set src(_value: string) {
-          queueMicrotask(() => this.onload?.());
-        }
-      },
-    );
-
-    render(
-      <UploadForm
-        gameId={1}
-        screenshotResolutions={[{ width: 320, height: 240 }]}
-        selectedType="ingame"
-        supportsUpscaledScreenshots={true}
-      />,
-    );
-
-    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
-    await userEvent.upload(fileInput, createMockImageFile());
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeEnabled();
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /submit screenshot/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/2x\/3x multiples/i)).toBeVisible();
+      expect(screen.getByText(/resolution doesn't match\. see the preview above/i)).toBeVisible();
     });
   });
 
