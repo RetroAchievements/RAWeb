@@ -29,6 +29,7 @@ class ResumePlayerSessionAction
         ?Carbon $timestamp = null,
         ?string $userAgent = null,
         ?string $ipAddress = null,
+        bool $shouldDispatchPlayerGameAttached = true,
     ): PlayerSession {
         $sessionKeepAliveTimeInMinutes = 10;
         $isBackdated = ($timestamp && $timestamp->diffInMinutes(Carbon::now(), true) > $sessionKeepAliveTimeInMinutes);
@@ -41,7 +42,7 @@ class ResumePlayerSessionAction
 
         // upsert player game and update last played date right away
         $playerGame = app()->make(AttachPlayerGameAction::class)
-            ->execute($user, $game);
+            ->execute($user, $game, shouldDispatchPlayerGameAttached: $shouldDispatchPlayerGameAttached);
         if (!$playerGame->last_played_at || $timestamp > $playerGame->last_played_at) {
             $playerGame->last_played_at = $timestamp;
             $playerGame->save();
