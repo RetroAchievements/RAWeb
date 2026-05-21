@@ -169,14 +169,14 @@ class EventAchievementResource extends Resource
 
                                 return $label;
                             })
-                            ->rule(function (?EventAchievement $record): Closure {
-                                return function (string $attribute, mixed $value, Closure $fail) use ($record): void {
-                                    if (
-                                        $record !== null
-                                        && $value !== null
-                                        && (int) $value === (int) $record->achievement_id
-                                    ) {
-                                        $fail('Source achievement cannot be the same as the event achievement.');
+                            ->rule(function (): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail): void {
+                                    if ($value === null) {
+                                        return;
+                                    }
+
+                                    if (EventAchievement::where('achievement_id', (int) $value)->exists()) {
+                                        $fail('Source achievement cannot be an event achievement.');
                                     }
                                 };
                             }),
