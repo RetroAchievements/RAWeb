@@ -71,6 +71,22 @@ it('demotes existing primary image when a new screenshot is forced as primary', 
     expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
 });
 
+it('archives the prior completion image as replaced when a new completion is uploaded', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('completion-1.png', 256, 224), ScreenshotType::Completion);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('completion-2.png', 320, 240), ScreenshotType::Completion, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
+});
+
 it('rejects duplicate images for the same game', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
@@ -110,10 +126,10 @@ it('rejects re-uploading an image that matches a previously rejected screenshot'
     $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
 })->throws(ValidationException::class);
 
-it('enforces a cap of 20 approved ingame screenshots', function () {
+it('enforces a cap of 10 approved ingame screenshots', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
-    GameScreenshot::factory()->count(20)->for($game)->ingame()->create();
+    GameScreenshot::factory()->count(10)->for($game)->ingame()->create();
     $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
 
     // ASSERT
@@ -123,7 +139,7 @@ it('enforces a cap of 20 approved ingame screenshots', function () {
 it('does not enforce the ingame cap for title screenshots', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
-    GameScreenshot::factory()->count(20)->for($game)->ingame()->create();
+    GameScreenshot::factory()->count(10)->for($game)->ingame()->create();
     $file = UploadedFile::fake()->image('title.png', 256, 224);
 
     // ACT
@@ -159,7 +175,7 @@ it('demotes the existing title primary image when a new title screenshot is forc
     expect($second->is_primary)->toBeTrue();
     expect($second->status)->toEqual(GameScreenshotStatus::Approved);
     expect($first->fresh()->is_primary)->toBeFalse();
-    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
 });
 
 it('rejects a file smaller than 64x64', function () {
