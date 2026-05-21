@@ -60,8 +60,8 @@ class BuildFollowedPlayerCompletionAction
                     ->orWhere('achievements_unlocked_hardcore', '>', 0);
             })
             ->select($fields)
-            ->orderBy('achievements_unlocked_hardcore', 'DESC')
-            ->orderBy('achievements_unlocked', 'DESC')
+            ->orderBy('achievements_unlocked_hardcore', 'desc')
+            ->orderBy('achievements_unlocked', 'desc')
             ->limit(50)
             ->get();
 

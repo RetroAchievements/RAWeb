@@ -200,7 +200,7 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', true)
-            ->orderBy('created_at', 'DESC');
+            ->orderBy('created_at', 'desc');
     }
 
     /**
@@ -210,7 +210,7 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('minimum', true)
-            ->orderBy('created_at', 'DESC');
+            ->orderBy('created_at', 'desc');
     }
 
     /**
@@ -220,7 +220,7 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', false)
-            ->orderBy('created_at', 'DESC');
+            ->orderBy('created_at', 'desc');
     }
 
     /**

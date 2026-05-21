@@ -207,6 +207,38 @@ class PlayerCompletionProgressTest extends TestCase
         $view->assertDontSeeText(config('systems')[2]['name_short']);
     }
 
+    public function testMasteryAfterSoftcoreCompletionUsesHardcoreUnlockDateAsMostRecentDate(): void
+    {
+        // Arrange
+        /** @var User $me */
+        $me = User::factory()->create(['username' => 'myUser']);
+
+        /** @var System $system */
+        $system = System::factory()->create(['id' => 1]);
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Upgrade Later']);
+        $achievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id]);
+
+        $softcoreCompletionDate = Carbon::parse('2025-09-27 12:00:00');
+        foreach ($achievements as $index => $achievement) {
+            $this->addSoftcoreUnlock($me, $achievement, $softcoreCompletionDate->clone()->addMinutes($index));
+        }
+
+        $hardcoreMasteryDate = Carbon::parse('2025-10-02 12:00:00');
+        foreach ($achievements as $index => $achievement) {
+            $this->addHardcoreUnlock($me, $achievement, $hardcoreMasteryDate->clone()->addMinutes($index));
+        }
+
+        // Act
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress');
+
+        // Assert
+        $view->assertSeeText('Upgrade Later');
+        $view->assertSeeText('October 2 2025');
+        $view->assertDontSeeText('September 27 2025');
+    }
+
     public function testCorrectAwardsCountsDisplayed(): void
     {
         /**

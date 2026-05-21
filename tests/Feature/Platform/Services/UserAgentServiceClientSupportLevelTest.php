@@ -499,4 +499,31 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals(ClientSupportLevel::Full, $userAgentService->getSupportLevel($userAgent));
     }
+
+    public function testConnectOfflineSubmissionClientMarkerDoesNotBypassBlockedCoreRestriction(): void
+    {
+        $userAgentService = new UserAgentService();
+
+        $emulator = Emulator::create([
+            'name' => 'RetroArch',
+            'active' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'RetroArch',
+        ]);
+        EmulatorCoreRestriction::create([
+            'core_name' => 'dolphin_libretro',
+            'support_level' => ClientSupportLevel::Blocked,
+            'notes' => 'accuracy issues',
+        ]);
+
+        $userAgent = 'RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75 RAOfflineProxy/1.0';
+
+        [$supportLevel, $coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction($userAgent);
+
+        $this->assertEquals(ClientSupportLevel::Blocked, $supportLevel);
+        $this->assertNotNull($coreRestriction);
+        $this->assertEquals('dolphin_libretro', $coreRestriction->core_name);
+    }
 }
