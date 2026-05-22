@@ -245,18 +245,14 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query->whereHas('developer', function ($query2) {
-                        $query2->where('Permissions', '>=', Permissions::JuniorDeveloper);
-                    });
+                $tickets->whereHas('author', function ($query) {
+                    $query->where('Permissions', '>=', Permissions::JuniorDeveloper);
                 });
                 break;
 
             case 'junior':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query->whereHas('developer', function ($query2) {
-                        $query2->where('Permissions', '=', Permissions::JuniorDeveloper);
-                    });
+                $tickets->whereHas('author', function ($query) {
+                    $query->where('Permissions', '=', Permissions::JuniorDeveloper);
                 });
                 break;
 

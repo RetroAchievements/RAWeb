@@ -51,13 +51,12 @@ class Ticket extends BaseModel
 
     public function getTicketableModel(): Achievement|Leaderboard
     {
-        return match ($this->ticketable_type) {
-            TicketableType::Achievement->value => $this->achievement
-                ?? throw new LogicException("Ticket {$this->id} has no resolvable achievement."),
-            TicketableType::Leaderboard->value => $this->leaderboard
-                ?? throw new LogicException("Ticket {$this->id} has no resolvable leaderboard."),
-            default => throw new LogicException("Unsupported ticketable_type: {$this->ticketable_type}"),
-        };
+        $ticketable = $this->ticketable;
+        if ($ticketable instanceof Achievement || $ticketable instanceof Leaderboard) {
+            return $ticketable;
+        }
+
+        throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
     }
 
     // == accessors
