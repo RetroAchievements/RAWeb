@@ -258,7 +258,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.id, SUM(!ISNULL(ach.id)) as total
                   FROM users as ua
-                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = 'resolved' AND tick.resolver_id != tick.reporter_id
+                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = 'resolved' AND tick.resolver_id != tick.reporter_id AND tick.ticketable_type = 'achievement'
                   LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND ach.user_id != ua.id
                   WHERE $stateCond
                   GROUP BY ua.id

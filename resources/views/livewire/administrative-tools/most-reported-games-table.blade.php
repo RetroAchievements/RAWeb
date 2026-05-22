@@ -2,6 +2,7 @@
 
 use App\Models\Role;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -72,18 +73,21 @@ new class extends Component implements HasForms, HasTable, HasActions {
     private function buildMostTicketedSetsQuery(): Builder
     {
         $oldestTicketSubquery = Ticket::open()
-            ->officialCore()
+            ->forTicketableType(TicketableType::Achievement)
+            ->promoted()
             ->select('ticketable_id', DB::raw('MIN(created_at) as OldestTicketDate'))
             ->groupBy('ticketable_id');
 
         $newestTicketSubquery = Ticket::open()
-            ->officialCore()
+            ->forTicketableType(TicketableType::Achievement)
+            ->promoted()
             ->select('ticketable_id', DB::raw('MAX(created_at) as NewestTicketDate'))
             ->groupBy('ticketable_id');
 
         return (
             Ticket::open()
-                ->officialCore()
+                ->forTicketableType(TicketableType::Achievement)
+                ->promoted()
                 ->join('achievements', 'achievements.id', '=', 'tickets.ticketable_id')
                 ->join('games', 'games.id', '=', 'achievements.game_id')
                 ->join('systems', 'systems.id', '=', 'games.system_id')

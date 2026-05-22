@@ -39,6 +39,7 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\LeaderboardState;
+use App\Platform\Enums\TicketableType;
 use App\Platform\Services\EventHubIdCacheService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -1801,6 +1802,52 @@ describe('Open Tickets Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('numOpenTickets', 1)
+        );
+    });
+
+    it('sums open ticket counts across achievement and leaderboard tickets for the game', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'author_id' => $developer->id,
+            'state' => LeaderboardState::Active,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $reporter = User::factory()->create();
+
+        // ... an open achievement ticket ...
+        Ticket::factory()->create([
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $reporter->id,
+            'ticketable_author_id' => $developer->id,
+            'state' => TicketState::Open,
+        ]);
+
+        // ... and an open leaderboard ticket on the same game ...
+        Ticket::factory()->create([
+            'ticketable_type' => TicketableType::Leaderboard->value,
+            'ticketable_id' => $leaderboard->id,
+            'ticketable_author_id' => $developer->id,
+            'reporter_id' => $reporter->id,
+            'state' => TicketState::Open,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('numOpenTickets', 2)
         );
     });
 });
