@@ -47,6 +47,19 @@ class Ticket extends BaseModel
         return TicketFactory::new();
     }
 
+    // == helpers
+
+    public function getTicketableModel(): Achievement|Leaderboard
+    {
+        return match ($this->ticketable_type) {
+            TicketableType::Achievement->value => $this->achievement
+                ?? throw new LogicException("Ticket {$this->id} has no resolvable achievement."),
+            TicketableType::Leaderboard->value => $this->leaderboard
+                ?? throw new LogicException("Ticket {$this->id} has no resolvable leaderboard."),
+            default => throw new LogicException("Unsupported ticketable_type: {$this->ticketable_type}"),
+        };
+    }
+
     // == accessors
 
     public function getIsOpenAttribute(): bool
@@ -68,7 +81,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = achievement` filter.
-     * Use `ticketable()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()` or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Achievement, $this>
      */
@@ -79,7 +92,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = leaderboard` filter.
-     * Use `ticketable()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()` or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Leaderboard, $this>
      */

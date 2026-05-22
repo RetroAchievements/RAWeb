@@ -230,12 +230,13 @@ function informAllSubscribersAboutActivity(
             break;
 
         case CommentableType::AchievementTicket:  // Ticket
-            $ticket = Ticket::with(['achievement.game', 'reporter'])->find($commentableId);
-            if (!$ticket) {
+            $ticket = Ticket::with(['ticketable.game', 'reporter'])->find($commentableId);
+            if (!$ticket || !$ticket->ticketable) {
                 return;
             }
 
-            $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->title})";
+            $ticketable = $ticket->getTicketableModel();
+            $articleTitle = "{$ticketable->getTicketableTitle()} ({$ticketable->getTicketableGame()->title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->id]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;

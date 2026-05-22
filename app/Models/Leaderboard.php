@@ -136,9 +136,28 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->getCanonicalUrlAttribute();
     }
 
-    public function getTicketableBadgeUrl(): ?string
+    public function getTicketableIconUrl(): string
     {
-        return null;
+        // Leaderboards don't have a dedicated badge, so display the game's icon.
+        return media_asset($this->game->image_icon_asset_path);
+    }
+
+    public function demoteForTicket(User $byUser): void
+    {
+        if ($this->state === LeaderboardState::Unpromoted) {
+            return;
+        }
+
+        $this->state = LeaderboardState::Unpromoted;
+        $this->save();
+
+        addArticleComment(
+            'Server',
+            CommentableType::Leaderboard,
+            $this->id,
+            "{$byUser->display_name} demoted this leaderboard to Unpromoted.",
+            $byUser->display_name,
+        );
     }
 
     // == accessors
@@ -146,6 +165,29 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function getCanonicalUrlAttribute(): string
     {
         return route('leaderboard.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    /**
+     * Decompose `trigger_definition` into its four sections.
+     * A leaderboard trigger string looks like:
+     *  `STA:<start>::CAN:<cancel>::SUB:<submit>::VAL:<value>`.
+     * This returns those sections keyed by lowercase name.
+     *
+     * @return array{start: string, cancel: string, submit: string, value: string}
+     */
+    public function getTriggerPartsAttribute(): array
+    {
+        $parts = ['start' => '', 'cancel' => '', 'submit' => '', 'value' => ''];
+        $map = ['STA:' => 'start', 'CAN:' => 'cancel', 'SUB:' => 'submit', 'VAL:' => 'value'];
+
+        foreach (explode('::', $this->trigger_definition) as $chunk) {
+            $prefix = substr($chunk, 0, 4);
+            if (isset($map[$prefix])) {
+                $parts[$map[$prefix]] = substr($chunk, 4);
+            }
+        }
+
+        return $parts;
     }
 
     /**

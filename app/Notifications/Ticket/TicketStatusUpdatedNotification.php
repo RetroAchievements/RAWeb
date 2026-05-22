@@ -6,8 +6,6 @@ namespace App\Notifications\Ticket;
 
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
-use App\Models\Achievement;
-use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -43,12 +41,7 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
             UserPreference::EmailOn_TicketActivity
         );
 
-        /**
-         * TODO For now, we only support achievement tickets.
-         * When leaderboard tickets are implemented, this will need to be updated.
-         */
-        /** @var Achievement|Leaderboard|null $ticketable */
-        $ticketable = $this->ticket->achievement;
+        $ticketable = $this->ticket->getTicketableModel();
 
         return (new MailMessage())
             ->subject('Ticket status changed')
@@ -59,7 +52,7 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
                 'comment' => $this->comment,
                 'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
                 'ticketable' => $ticketable,
-                'game' => $ticketable?->game,
+                'game' => $ticketable->getTicketableGame(),
                 'categoryUrl' => $categoryUrl,
                 'categoryText' => 'Unsubscribe from all ticket emails',
             ])

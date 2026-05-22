@@ -6,7 +6,9 @@ namespace App\Platform\Services;
 
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
@@ -193,7 +195,8 @@ class TicketListService
             $tickets = Ticket::query();
         }
 
-        $tickets->whereHas('achievement'); // don't include tickets where the achievement is hard deleted
+        // Don't include tickets where the ticketable is hard deleted.
+        $tickets->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
 
         $this->totalTickets = $tickets->count();
 
@@ -274,15 +277,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
-                        $query->where('user_id', '=', $filterOptions['userId']);
-                    });
+                    $tickets->where('ticketable_author_id', '=', $filterOptions['userId']);
                     break;
 
                 case 'others':
-                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
-                        $query->where('user_id', '!=', $filterOptions['userId']);
-                    });
+                    $tickets->where('ticketable_author_id', '!=', $filterOptions['userId']);
                     break;
             }
 
@@ -323,6 +322,6 @@ class TicketListService
             $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
         }
 
-        return $tickets->with(['achievement', 'author', 'reporter', 'resolver']);
+        return $tickets->with(['ticketable', 'author', 'reporter', 'resolver']);
     }
 }
