@@ -12,9 +12,12 @@ describe('Hook: usePreloadGameScreenshots', () => {
     expect(() => result.current.preloadGameScreenshots()).not.toThrow();
   });
 
-  it('given screenshots are provided, skips the first two and preloads the next two', () => {
+  it('given screenshots are provided, preloads the first four gallery URLs', () => {
     // ARRANGE
-    const ImageSpy = vi.fn();
+    const preloadedImages: Array<{ src?: string }> = [];
+    const ImageSpy = vi.fn(function (this: Record<string, unknown>) {
+      preloadedImages.push(this);
+    });
     vi.stubGlobal('Image', ImageSpy);
 
     const screenshots = [
@@ -31,7 +34,11 @@ describe('Hook: usePreloadGameScreenshots', () => {
     result.current.preloadGameScreenshots();
 
     // ASSERT
-    expect(ImageSpy).toHaveBeenCalledTimes(2);
+    expect(ImageSpy).toHaveBeenCalledTimes(4);
+    expect(preloadedImages[0].src).toEqual('https://example.com/title.png');
+    expect(preloadedImages[1].src).toEqual('https://example.com/ingame.png');
+    expect(preloadedImages[2].src).toEqual('https://example.com/third.png');
+    expect(preloadedImages[3].src).toEqual('https://example.com/fourth.png');
 
     vi.unstubAllGlobals();
   });
@@ -45,8 +52,18 @@ describe('Hook: usePreloadGameScreenshots', () => {
     vi.stubGlobal('Image', ImageSpy);
 
     const screenshots = [
-      createGameScreenshot({ id: 1, width: 560 }),
-      createGameScreenshot({ id: 2, width: 560 }),
+      createGameScreenshot({
+        id: 1,
+        width: 560,
+        originalUrl: 'https://example.com/first.png',
+        lgWebpUrl: 'https://example.com/first.webp',
+      }),
+      createGameScreenshot({
+        id: 2,
+        width: 560,
+        originalUrl: 'https://example.com/second.png',
+        lgWebpUrl: 'https://example.com/second.webp',
+      }),
       createGameScreenshot({
         id: 3,
         width: 560,
@@ -69,9 +86,11 @@ describe('Hook: usePreloadGameScreenshots', () => {
     result.current.preloadGameScreenshots();
 
     // ASSERT
-    expect(ImageSpy).toHaveBeenCalledTimes(2);
-    expect(preloadedImages[0].src).toEqual('https://example.com/third.png');
-    expect(preloadedImages[1].src).toEqual('https://example.com/fourth.png');
+    expect(ImageSpy).toHaveBeenCalledTimes(4);
+    expect(preloadedImages[0].src).toEqual('https://example.com/first.png');
+    expect(preloadedImages[1].src).toEqual('https://example.com/second.png');
+    expect(preloadedImages[2].src).toEqual('https://example.com/third.png');
+    expect(preloadedImages[3].src).toEqual('https://example.com/fourth.png');
 
     vi.unstubAllGlobals();
   });
@@ -95,12 +114,12 @@ describe('Hook: usePreloadGameScreenshots', () => {
     result.current.preloadGameScreenshots();
 
     // ASSERT
-    expect(ImageSpy).toHaveBeenCalledTimes(2);
+    expect(ImageSpy).toHaveBeenCalledTimes(4);
 
     vi.unstubAllGlobals();
   });
 
-  it('given fewer than three screenshots, does not preload anything', () => {
+  it('given fewer than four screenshots, preloads everything that is available', () => {
     // ARRANGE
     const ImageSpy = vi.fn();
     vi.stubGlobal('Image', ImageSpy);
@@ -116,7 +135,7 @@ describe('Hook: usePreloadGameScreenshots', () => {
     result.current.preloadGameScreenshots();
 
     // ASSERT
-    expect(ImageSpy).toHaveBeenCalledTimes(0);
+    expect(ImageSpy).toHaveBeenCalledTimes(2);
 
     vi.unstubAllGlobals();
   });
