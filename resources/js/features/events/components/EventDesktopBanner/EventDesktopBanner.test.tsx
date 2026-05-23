@@ -151,7 +151,7 @@ describe('Component: EventDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[212px]');
+    expect(bannerEl).toHaveClass('lg:h-53');
   });
 
   it('given the user can manage events, shows the manage chip', () => {

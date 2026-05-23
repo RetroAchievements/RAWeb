@@ -279,7 +279,7 @@ describe('Component: AchievementOfTheWeek', () => {
 
     // ASSERT
     const imgEl = screen.getByRole('img', { name: /that was easy/i });
-    expect(imgEl).toHaveClass('outline outline-[gold]');
+    expect(imgEl).toHaveClass('outline-[gold]');
   });
 
   it('given the user has not unlocked the achievement of the week, does not give the achievement badge a border', () => {

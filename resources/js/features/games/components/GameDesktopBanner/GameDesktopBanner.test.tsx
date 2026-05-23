@@ -222,8 +222,8 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
 
-    expect(bannerEl).toHaveClass('lg:h-[212px]');
-    expect(bannerEl).not.toHaveClass('lg:h-[474px]!');
+    expect(bannerEl).toHaveClass('lg:h-53');
+    expect(bannerEl).not.toHaveClass('lg:h-118.5!');
   });
 
   it('given a fallback banner, does not render the expand/collapse button', () => {
@@ -382,7 +382,7 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[212px]!');
+    expect(bannerEl).toHaveClass('lg:h-53!');
   });
 
   it('given the "expanded" banner preference, applies the expanded height class', () => {
@@ -401,7 +401,7 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[474px]!');
+    expect(bannerEl).toHaveClass('lg:h-118.5!');
   });
 
   it('given the toggle button is clicked, cycles through banner preferences', async () => {
@@ -423,19 +423,19 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     // ... normal -> compact ...
     await userEvent.click(screen.getByRole('button', { name: /expand banner/i }));
-    expect(bannerEl).toHaveClass('lg:h-[212px]!');
+    expect(bannerEl).toHaveClass('lg:h-53!');
 
     // ASSERT
     // ... compact -> expanded ...
     await userEvent.click(screen.getByRole('button', { name: /expand banner/i }));
-    expect(bannerEl).toHaveClass('lg:h-[474px]!');
+    expect(bannerEl).toHaveClass('lg:h-118.5!');
 
     // ASSERT
     // ... expanded -> normal ...
     await userEvent.click(screen.getByRole('button', { name: /collapse banner/i }));
 
-    expect(bannerEl).not.toHaveClass('lg:h-[212px]!');
-    expect(bannerEl).not.toHaveClass('lg:h-[474px]!');
+    expect(bannerEl).not.toHaveClass('lg:h-53!');
+    expect(bannerEl).not.toHaveClass('lg:h-118.5!');
   });
 
   it('given the toggle button is hovered, changes the border color', async () => {
