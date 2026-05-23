@@ -34,7 +34,7 @@ export const GameMobileHeader: FC = () => {
             aspectRatio: '1/1',
           }}
           className={cn(
-            'z-10 mt-3 rounded-sm bg-neutral-800/60 object-cover',
+            'z-10 mt-3 rounded-xs bg-neutral-800/60 object-cover',
             'ring-1 ring-white/20 ring-offset-2 ring-offset-black/50',
             'shadow-md shadow-black/50',
             'light:bg-white/50 light:shadow-black/20 light:ring-black/20 light:ring-offset-white/50',

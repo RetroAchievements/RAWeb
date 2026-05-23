@@ -1,4 +1,4 @@
-@import 'tailwindcss4';
+@import 'tailwindcss';
 
 @import '../../../vendor/filament/support/resources/css/index.css';
 @import '../../../vendor/filament/actions/resources/css/index.css';

@@ -139,7 +139,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
               <CommandPrimitive.Input
                 value={rawQuery}
                 onValueChange={setRawQuery}
-                className="peer w-[calc(100%-48px)] border-text ps-10 focus:outline-none"
+                className="peer w-[calc(100%-48px)] border-text ps-10 focus:outline-hidden"
                 placeholder={t('Search')}
               />
 

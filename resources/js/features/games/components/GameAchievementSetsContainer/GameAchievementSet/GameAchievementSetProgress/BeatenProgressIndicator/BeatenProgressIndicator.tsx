@@ -61,8 +61,8 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
               className={cn(
                 'flex items-center gap-1 pl-3.5 pr-4 text-neutral-300',
                 isBeaten
-                  ? 'text-opacity-100 light:text-neutral-600'
-                  : 'text-opacity-30 light:text-neutral-500 light:text-opacity-40',
+                  ? 'light:text-neutral-600'
+                  : 'text-neutral-300/30 light:text-neutral-500/40',
               )}
             >
               <Icon className="size-5" />

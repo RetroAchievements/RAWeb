@@ -18,7 +18,7 @@ export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = (
   return (
     <div role="status" aria-label={t('Loading...')}>
       <div className="flex items-center gap-3">
-        <BaseSkeleton className="h-12 w-12 rounded-sm" />
+        <BaseSkeleton className="h-12 w-12 rounded-xs" />
 
         <div className="flex-grow">
           <div className="flex flex-col gap-1.5">

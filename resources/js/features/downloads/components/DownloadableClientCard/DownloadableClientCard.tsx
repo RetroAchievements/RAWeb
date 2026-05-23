@@ -57,7 +57,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
   return (
     <BaseCard
       data-testid="downloadable-client"
-      className="flex h-full flex-col light:bg-white light:shadow-sm"
+      className="flex h-full flex-col light:bg-white light:shadow-xs"
     >
       <BaseCardHeader>
         <BaseCardTitle className="flex items-center gap-2 text-xl">
@@ -69,7 +69,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
                 onMouseEnter={() => setIsPopoverOpen(true)}
                 onMouseLeave={() => setIsPopoverOpen(false)}
                 onClick={(e) => e.preventDefault()}
-                className="cursor-help focus:outline-none focus:ring-0"
+                className="cursor-help focus:outline-hidden focus:ring-0"
               >
                 <LuCircleAlert data-testid="warning-icon" className="text-neutral-500" />
               </BasePopoverTrigger>

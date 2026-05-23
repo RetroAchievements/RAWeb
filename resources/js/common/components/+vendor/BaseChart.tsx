@@ -56,9 +56,9 @@ const BaseChartContainer = React.forwardRef<
           '[&_.recharts-rectangle.recharts-tooltip-cursor]:light:fill-zinc-200',
           "[&_.recharts-reference-line_[stroke='#ccc']]:stroke-border",
           'flex justify-center text-xs',
-          "[&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none",
-          "[&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none",
-          '[&_.recharts-surface]:outline-none',
+          "[&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden",
+          "[&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden",
+          '[&_.recharts-surface]:outline-hidden',
           className,
         )}
         {...props}
@@ -185,7 +185,7 @@ const BaseChartTooltipContent = React.forwardRef<
                       !hideIndicator && (
                         <div
                           className={cn(
-                            'shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]',
+                            'shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)',
                             {
                               'h-2.5 w-2.5': indicator === 'dot',
                               'w-1': indicator === 'line',

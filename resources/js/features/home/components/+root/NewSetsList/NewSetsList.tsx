@@ -32,7 +32,7 @@ export const NewSetsList: FC = () => {
       <HomeHeading>{t('Just Released')}</HomeHeading>
 
       {!completedClaims?.length ? (
-        <div className="rounded bg-embed">
+        <div className="rounded-xs bg-embed">
           <EmptyState>{t("Couldn't find any completed claims.")}</EmptyState>
         </div>
       ) : null}

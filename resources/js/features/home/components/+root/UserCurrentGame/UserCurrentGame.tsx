@@ -39,7 +39,7 @@ export const UserCurrentGame: FC = () => {
           alt={userCurrentGame.title}
           width={20}
           height={20}
-          className="rounded-sm"
+          className="rounded-xs"
         />
 
         {treatmentKind === 'active' ? (

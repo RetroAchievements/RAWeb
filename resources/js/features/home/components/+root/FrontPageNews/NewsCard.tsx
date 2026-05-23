@@ -128,7 +128,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
   const [isImageValid, setIsImageValid] = useState(!!src);
 
   return (
-    <div className="overflow-hidden rounded">
+    <div className="overflow-hidden rounded-xs">
       {/* eslint-disable-next-line jsx-a11y/alt-text -- only img tags can detect if the image is invalid/broken (via onError) */}
       <img
         data-testid="hidden-image"
@@ -143,7 +143,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
           role="img"
           aria-label="news post photo"
           className={cn(
-            'h-28 w-full rounded bg-cover bg-center',
+            'h-28 w-full rounded-xs bg-cover bg-center',
             ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
           )}
           style={{ backgroundImage: `url(${src})` }}
@@ -151,7 +151,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
       ) : (
         <div
           className={cn(
-            'flex h-28 w-full items-center justify-center rounded bg-gradient-to-br',
+            'flex h-28 w-full items-center justify-center rounded-xs bg-gradient-to-br',
             'from-slate-800 to-zinc-950',
             'light:from-slate-100 light:to-slate-300',
 

@@ -48,7 +48,7 @@
         aria-valuemax="{{ $maxProgress }}"
         aria-valuenow="{{ $softcoreProgress }}"
         aria-label="{{ $tooltipLabel }}"
-        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded' }}"
+        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded-sm' }}"
     >
         @if ($hardcoreProgress > 0)
             <div

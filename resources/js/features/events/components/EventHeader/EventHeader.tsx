@@ -29,7 +29,7 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
         <img
           src={event.legacyGame.badgeUrl}
           alt={event.legacyGame.title}
-          className="size-16 rounded-sm sm:size-24"
+          className="size-16 rounded-xs sm:size-24"
         />
 
         <div className="-mt-1 flex flex-col gap-4 sm:-mt-1.5">

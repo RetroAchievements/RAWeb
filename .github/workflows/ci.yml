@@ -33,7 +33,8 @@ jobs:
               - 'pnpm-lock.yaml'
               - '.oxlintrc*'
               - '.oxfmtrc*'
-              - 'tailwind.config.json'
+              - 'resources/css/app.css'
+              - 'resources/css/tailwind-v3-compat.css'
               - 'lang/**/*.json'
 
   node-setup:

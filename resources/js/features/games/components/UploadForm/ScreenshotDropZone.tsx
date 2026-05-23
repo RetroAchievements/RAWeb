@@ -93,7 +93,7 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
             transition={{ duration: 0.3, delay: 0.1 }}
             className="flex w-full flex-col items-center gap-3"
           >
-            <img src={previewUrl!} alt="Preview" className="max-h-48 rounded object-contain" />
+            <img src={previewUrl!} alt="Preview" className="max-h-48 rounded-xs object-contain" />
 
             {previewDimensions ? (
               <ScreenshotPreviewMeta

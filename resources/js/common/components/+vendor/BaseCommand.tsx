@@ -49,7 +49,7 @@ const BaseCommandInput = React.forwardRef<
       ref={ref}
       className={cn(
         'placeholder:text-muted-foreground flex h-10 w-full rounded-md border-none bg-transparent py-3',
-        'text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        'text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
@@ -115,8 +115,8 @@ const BaseCommandItem = React.forwardRef<
     ref={ref}
     className={cn(
       'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground',
-      'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5',
-      'text-sm outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
+      'relative flex cursor-default select-none items-center rounded-xs px-2 py-1.5',
+      'text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
       'cursor-pointer hover:bg-neutral-800/60 light:hover:bg-neutral-200/60',
       className,
     )}

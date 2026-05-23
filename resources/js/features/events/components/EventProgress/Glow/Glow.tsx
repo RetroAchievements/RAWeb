@@ -12,7 +12,7 @@ export const Glow: FC<GlowProps> = ({ isMastered }) => {
       data-testid="progress-blur"
       className={cn([
         'absolute rounded-lg',
-        'opacity-75 blur transition-all duration-1000 group-hover:opacity-100 group-hover:duration-200',
+        'opacity-75 blur-sm transition-all duration-1000 group-hover:opacity-100 group-hover:duration-200',
         'bg-gradient-to-tr',
         'motion-safe:animate-tilt',
 

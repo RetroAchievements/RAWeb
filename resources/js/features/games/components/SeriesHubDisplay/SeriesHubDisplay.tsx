@@ -34,7 +34,7 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
               <img
                 src={seriesHub.hub.badgeUrl!}
                 alt={seriesHub.hub.title!}
-                className="size-12 rounded-sm"
+                className="size-12 rounded-xs"
               />
             </a>
 

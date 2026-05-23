@@ -15,7 +15,7 @@ const BaseSelectNative = React.forwardRef<HTMLSelectElement, BaseSelectPropsNati
           className={cn(
             'peer inline-flex h-10 w-full cursor-pointer appearance-none items-center rounded-md',
             'border border-neutral-800 bg-neutral-950 text-sm text-menu-link',
-            'focus-visible:border-ring transition-colors focus-visible:outline-none focus-visible:ring-1',
+            'focus-visible:border-ring transition-colors focus-visible:outline-hidden focus-visible:ring-1',
             'focus-visible:ring-neutral-300 disabled:pointer-events-none disabled:cursor-not-allowed',
             'has-[option[disabled]:checked]:text-muted-foreground disabled:opacity-50',
             'light:border-neutral-200 light:bg-white light:focus:ring-neutral-950',

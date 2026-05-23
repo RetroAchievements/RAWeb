@@ -46,12 +46,12 @@
 }
 
 .btn-warning {
-  color: theme('colors.orange.500');
-  border-color: theme('colors.orange.500');
+  color: var(--color-orange-500);
+  border-color: var(--color-orange-500);
 }
 [data-theme='orange'] .btn-warning {
-  color: theme('colors.fuchsia.500');
-  border-color: theme('colors.fuchsia.500');
+  color: var(--color-fuchsia-500);
+  border-color: var(--color-fuchsia-500);
 }
 [data-theme='orange'] .btn-warning:hover {
   color: var(--menu-link-hover-color);
@@ -59,12 +59,12 @@
 }
 
 .btn-danger {
-  color: theme('colors.red.500');
-  border-color: theme('colors.red.500');
+  color: var(--color-red-500);
+  border-color: var(--color-red-500);
 }
 [data-theme='red'] .btn-danger {
-  color: theme('colors.fuchsia.500');
-  border-color: theme('colors.fuchsia.500');
+  color: var(--color-fuchsia-500);
+  border-color: var(--color-fuchsia-500);
 }
 [data-theme='red'] .btn-danger:hover {
   color: var(--menu-link-hover-color);

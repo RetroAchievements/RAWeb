@@ -110,7 +110,7 @@ export function GameListDataTable({ table, isLoading = false }: GameListDataTabl
       <BaseTable
         containerClassName={cn(
           'overflow-auto rounded-md border border-neutral-700/80 bg-embed',
-          'light:border-neutral-300 lg:overflow-visible lg:rounded-sm',
+          'light:border-neutral-300 lg:overflow-visible lg:rounded-xs',
           'transition-opacity duration-150',
           {
             'lg:!overflow-x-scroll': visibleColumnCount > 8,

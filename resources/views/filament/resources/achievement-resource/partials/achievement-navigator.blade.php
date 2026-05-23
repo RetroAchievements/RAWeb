@@ -79,7 +79,7 @@
         <a
             href="{{ $prevUrl }}"
             wire:navigate
-            class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
+            class="p-1 rounded-sm hover:bg-gray-100 dark:hover:bg-white/5 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
             title="Previous {{ $isPromoted ? 'promoted' : 'unpromoted' }} achievement"
         >
             <x-heroicon-m-chevron-left class="size-4" />
@@ -95,7 +95,7 @@
         <button
             @click="open = !open; if (open) $nextTick(() => $refs.searchInput?.focus())"
             type="button"
-            class="flex items-center gap-1.5 px-2 py-1 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded transition-colors"
+            class="flex items-center gap-1.5 px-2 py-1 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-sm transition-colors"
         >
             <span>{{ $isPromoted ? 'Promoted' : 'Unpromoted' }} Achievement {{ $currentIndex + 1 }} of {{ $totalInStatus }}</span>
             <x-heroicon-m-chevron-down class="size-3.5" x-bind:class="{ 'rotate-180': open }" />
@@ -146,7 +146,7 @@
                                     <img
                                         :src="achievement.badge_url"
                                         alt=""
-                                        class="size-8 rounded shrink-0"
+                                        class="size-8 rounded-sm shrink-0"
                                     >
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2">
@@ -194,7 +194,7 @@
         <a
             href="{{ $nextUrl }}"
             wire:navigate
-            class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
+            class="p-1 rounded-sm hover:bg-gray-100 dark:hover:bg-white/5 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
             title="Next {{ $isPromoted ? 'promoted' : 'unpromoted' }} achievement"
         >
             <x-heroicon-m-chevron-right class="size-4" />

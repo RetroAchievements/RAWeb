@@ -75,7 +75,7 @@ const BaseDropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+      'flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm outline-hidden',
       'light:focus:bg-neutral-100 light:data-[state=open]:bg-neutral-100',
       'focus:bg-neutral-800 data-[state=open]:bg-neutral-800',
       inset && 'pl-8',
@@ -143,8 +143,8 @@ const BaseDropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
-      'outline-none transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
+      'relative flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm',
+      'outline-hidden transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       'focus:bg-neutral-800 focus:text-neutral-50',
       inset && 'pl-8',
@@ -162,8 +162,8 @@ const BaseDropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2',
-      'text-sm outline-none transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
+      'relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2',
+      'text-sm outline-hidden transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       'focus:bg-neutral-800 focus:text-neutral-50',
       className,
@@ -188,8 +188,8 @@ const BaseDropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm',
-      'outline-none transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
+      'relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm',
+      'outline-hidden transition-colors light:focus:bg-neutral-100 light:focus:text-neutral-900',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       'focus:bg-neutral-800 focus:text-neutral-50',
       className,

@@ -72,7 +72,7 @@ export const AchievementTabs: FC<AchievementTabsProps> = ({ tabConfigs, children
                 className={cn(
                   'relative z-10 h-full whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium',
                   'bg-transparent transition-colors duration-200',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
+                  'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
 
                   activeIndex === index
                     ? 'text-link'

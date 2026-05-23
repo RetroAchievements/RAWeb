@@ -43,7 +43,7 @@ render(function (View $view, Achievement $achievement, TicketListService $ticket
     />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! achievementAvatar($achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! achievementAvatar($achievement, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 

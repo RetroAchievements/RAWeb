@@ -74,7 +74,7 @@
                 {{-- Version header --}}
                 <button
                     @click="toggleVersion({{ $trigger->version ?? "'draft'" }})"
-                    class="w-full text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 -mx-2 px-2 py-1.5 rounded transition-colors"
+                    class="w-full text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 -mx-2 px-2 py-1.5 rounded-sm transition-colors"
                 >
                     <div class="flex items-center justify-between gap-4">
                         {{-- Avatar + author + time --}}
@@ -109,12 +109,12 @@
                             @endif
 
                             @if ($trigger->version)
-                                <span class="font-mono text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                                <span class="font-mono text-xs px-2 py-0.5 rounded-sm bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
                                     v{{ $trigger->version }}
                                 </span>
                             @else
                                 <span
-                                    class="font-mono text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-help"
+                                    class="font-mono text-xs px-2 py-0.5 rounded-sm bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-help"
                                     x-tooltip="{ content: 'This asset is unpublished', theme: $store.theme }"
                                 >
                                     Draft
@@ -148,7 +148,7 @@
                                 :class="(viewMode[{{ $trigger->version ?? "'draft'" }}] ?? 'diff') === 'diff'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
-                                class="px-3 py-1 text-xs font-medium rounded transition-colors"
+                                class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
                             >
                                 Diff
                             </button>
@@ -158,7 +158,7 @@
                                 :class="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
-                                class="px-3 py-1 text-xs font-medium rounded transition-colors"
+                                class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
                             >
                                 Raw
                             </button>

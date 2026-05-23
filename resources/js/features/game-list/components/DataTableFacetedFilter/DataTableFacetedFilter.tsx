@@ -135,7 +135,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     {selectedValues.size > 2 ? (
                       <BaseBadge
                         variant="secondary"
-                        className="rounded-sm px-1 font-normal leading-3"
+                        className="rounded-xs px-1 font-normal leading-3"
                       >
                         {t('{{count, number}} selected', { count: selectedValues.size })}
                       </BaseBadge>
@@ -147,7 +147,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                             <BaseBadge
                               variant="secondary"
                               key={`label-${option.value}`}
-                              className="rounded-sm px-1 font-normal leading-3"
+                              className="rounded-xs px-1 font-normal leading-3"
                               data-testid="filter-selected-label"
                             >
                               {option.selectedLabel ?? option.t_label}
@@ -323,11 +323,11 @@ const FilterOption: FC<FilterOptionProps> = ({
     >
       <div
         className={cn(
-          'mr-2 flex size-4 min-w-4 items-center justify-center rounded-sm',
+          'mr-2 flex size-4 min-w-4 items-center justify-center rounded-xs',
           'border border-neutral-600 light:border-neutral-900',
 
           // If it's a single select, give the appearance of a radio button.
-          isSingleSelect ? 'mt-[3px] rounded-full' : 'rounded-sm',
+          isSingleSelect ? 'mt-[3px] rounded-full' : 'rounded-xs',
 
           isSelected
             ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'

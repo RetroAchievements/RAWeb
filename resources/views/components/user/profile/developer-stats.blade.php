@@ -34,7 +34,7 @@ if (!empty($userClaims)) {
 ?>
 
 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Developer Stats</p>
-<div class="relative w-full p-2 mb-6 bg-embed rounded">
+<div class="relative w-full p-2 mb-6 bg-embed rounded-sm">
     <x-user.profile.arranged-stat-items
         :stats="[
             $developerStats['setsWorkedOnStat'],                    $developerStats['codeNotesCreatedStat'],

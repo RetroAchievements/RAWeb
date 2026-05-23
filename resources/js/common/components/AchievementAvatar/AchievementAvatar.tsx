@@ -139,7 +139,7 @@ const AchievementBadge: FC<AchievementBadgeProps> = ({
       src={badgeUrl}
       alt={title ?? 'Achievement'}
       className={cn(
-        'rounded-sm',
+        'rounded-xs',
 
         displayLockedStatus === 'unlocked-hardcore'
           ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'

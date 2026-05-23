@@ -97,7 +97,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
                       getDisplayValue={(user) => (
                         <div className="flex items-center gap-2">
                           <img
-                            className="size-6 rounded-sm"
+                            className="size-6 rounded-xs"
                             src={user.avatarUrl}
                             alt={user.displayName}
                           />
@@ -107,7 +107,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
                       renderOption={(user) => (
                         <div className="flex items-center gap-2">
                           <img
-                            className="size-6 rounded-sm"
+                            className="size-6 rounded-xs"
                             src={user.avatarUrl}
                             alt={user.displayName}
                           />

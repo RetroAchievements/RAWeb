@@ -20,7 +20,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
 
 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Player Stats</p>
 <div
-    class="relative w-full px-2 pt-2 bg-embed rounded mb-6 pb-4 transition-all"
+    class="relative w-full px-2 pt-2 bg-embed rounded-sm mb-6 pb-4 transition-all"
     x-data="{
         isExpanded: false,
         handleToggle() { this.isExpanded = !this.isExpanded; }
@@ -66,8 +66,8 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         x-cloak
         x-show="isExpanded"
         x-transition:enter="ease-in-out duration-100"
-        x-transition:enter-start="opacity-0 max-h-0 -translate-y-1 overflow-hidden"
-        x-transition:enter-end="opacity-1 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} translate-y-0 overflow-hidden"
+        x-transition:enter-start="opacity-0 max-h-0 [transform:translateY(-0.25rem)] overflow-hidden"
+        x-transition:enter-end="opacity-100 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} [transform:translateY(0)] overflow-hidden"
         class="pt-1"
     >
         {{--
