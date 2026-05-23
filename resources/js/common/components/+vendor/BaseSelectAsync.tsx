@@ -138,7 +138,7 @@ export function BaseSelectAsync<T>({
       <BasePopoverContent style={{ width }} className={cn('p-0', className)} align="start">
         <BaseCommand>
           <div className="relative w-full">
-            <LuSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 transform text-neutral-500" />
+            <LuSearch className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 transform text-neutral-500" />
             <BaseInput
               placeholder={popoverPlaceholder}
               value={localSearchTerm}
@@ -148,7 +148,7 @@ export function BaseSelectAsync<T>({
             />
 
             {query.isFetching ? (
-              <div className="absolute right-2 top-1/2 flex -translate-y-1/2 transform items-center">
+              <div className="absolute top-1/2 right-2 flex -translate-y-1/2 transform items-center">
                 <LuLoaderCircle className="h-4 w-4 animate-spin" />
               </div>
             ) : null}

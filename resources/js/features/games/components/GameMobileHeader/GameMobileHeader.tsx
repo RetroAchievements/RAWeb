@@ -20,7 +20,7 @@ export const GameMobileHeader: FC = () => {
       <GameMobileBannerImage />
 
       {/* Content */}
-      <div className="flex h-full flex-col gap-3 pb-4 pl-4 pr-3">
+      <div className="flex h-full flex-col gap-3 pr-3 pb-4 pl-4">
         {/* Badge */}
         <img
           loading="eager"

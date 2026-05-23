@@ -31,7 +31,7 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
   return (
     <li className="group relative flex gap-3 pb-6 last:pb-0" data-testid="changelog-entry">
       {/* The last entry has no successor, so there's no reason to draw a connector. */}
-      <div className="absolute -bottom-1 left-[3px] top-3 w-px bg-neutral-700 group-last:hidden" />
+      <div className="absolute top-3 -bottom-1 left-[3px] w-px bg-neutral-700 group-last:hidden" />
 
       <div
         data-testid="changelog-dot"
@@ -57,7 +57,7 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
                 <LuInfo className="size-3.5 text-neutral-500 transition hover:text-neutral-300 light:text-neutral-700" />
               </BaseTooltipTrigger>
 
-              <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+              <BaseTooltipContent className="max-w-72 leading-normal font-normal">
                 <span className="text-xs">
                   {t('Detailed change tracking was not available before April 2022.')}
                 </span>

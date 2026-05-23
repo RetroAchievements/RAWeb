@@ -75,7 +75,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({
                       {cleanedAwardLabel}
                     </p>
 
-                    <span className="whitespace-nowrap rounded-xs bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
+                    <span className="rounded-xs bg-white/5 px-1.5 text-2xs whitespace-nowrap text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
                       {t(
                         areAllAchievementsOnePoint
                           ? '{{val, number}} achievements'

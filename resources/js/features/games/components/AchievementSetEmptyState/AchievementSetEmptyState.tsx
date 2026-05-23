@@ -24,7 +24,7 @@ export const AchievementSetEmptyState: FC = () => {
           <LuTrophy className="size-12 text-neutral-700" />
         </div>
 
-        <div className="flex flex-col items-center gap-1 text-balance text-center">
+        <div className="flex flex-col items-center gap-1 text-center text-balance">
           <p className="text-base text-neutral-400">{t('No achievements yet')}</p>
           <p>{t('Set requests help developers decide what games to work on next.')}</p>
         </div>

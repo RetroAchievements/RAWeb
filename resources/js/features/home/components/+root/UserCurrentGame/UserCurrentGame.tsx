@@ -43,7 +43,7 @@ export const UserCurrentGame: FC = () => {
         />
 
         {treatmentKind === 'active' ? (
-          <div className="absolute -right-1.5 -top-1.5 size-3 rounded-full border-2 border-embed bg-green-500" />
+          <div className="absolute -top-1.5 -right-1.5 size-3 rounded-full border-2 border-embed bg-green-500" />
         ) : null}
       </div>
 

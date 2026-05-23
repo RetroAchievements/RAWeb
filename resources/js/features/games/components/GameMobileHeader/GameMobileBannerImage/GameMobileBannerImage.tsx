@@ -102,7 +102,7 @@ export const GameMobileBannerImage: FC = () => {
 
       {/* Additional darkening behind the badge */}
       <div
-        className="bg-radial-gradient absolute -left-10 -top-8 size-40"
+        className="bg-radial-gradient absolute -top-8 -left-10 size-40"
         style={{
           background:
             'radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 30%, transparent 70%)',

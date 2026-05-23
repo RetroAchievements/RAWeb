@@ -19,7 +19,7 @@ export const EmptyState: FC<EmptyStateProps> = ({ children, shouldShowImage = tr
         />
       ) : null}
 
-      <p className="text-balance text-center">{children}</p>
+      <p className="text-center text-balance">{children}</p>
     </div>
   );
 };

@@ -132,7 +132,7 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
         <BaseDialogContent className="block h-full">
           <BaseDialogHeader className="mb-6">
             <BaseDialogTitle>{t('Credits')}</BaseDialogTitle>
-            <BaseDialogDescription className="text-balance text-xs">
+            <BaseDialogDescription className="text-xs text-balance">
               {t('The following users have contributed to this achievement set.')}
             </BaseDialogDescription>
           </BaseDialogHeader>

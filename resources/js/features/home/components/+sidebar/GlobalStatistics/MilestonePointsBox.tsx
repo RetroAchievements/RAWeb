@@ -37,7 +37,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
             'light:border-amber-500/30 light:to-amber-100/10 light:before:via-amber-500/10',
           )}
         >
-          <p className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs">
+          <p className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950">
             {t('Points Earned Since {{date}}', {
               date: formatDate(dayjs('2013-03-02'), 'LL'),
             })}

@@ -96,7 +96,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                   <img
                     src={gas.achievementSet.imageAssetPathUrl}
                     alt={gas.title ?? BASE_SET_LABEL}
-                    className="size-8 select-none rounded-xs"
+                    className="size-8 rounded-xs select-none"
                   />
                 </div>
               </InertiaLink>

@@ -32,7 +32,7 @@ export const RedirectRoot: FC = () => {
             <Trans
               i18nKey="<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there."
               values={{ url }}
-              components={{ 1: <span className="break-all font-bold" /> }}
+              components={{ 1: <span className="font-bold break-all" /> }}
             />
           </p>
 

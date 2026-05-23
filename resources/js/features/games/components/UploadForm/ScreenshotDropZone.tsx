@@ -149,13 +149,13 @@ const EmptyState: FC<EmptyStateProps> = ({
         </p>
 
         {supportsUpscaledScreenshots ? (
-          <p className="text-balance text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-balance text-neutral-500">
             {t('Upscaled screenshots look sharper. Render at 2x or 3x in your emulator.')}
           </p>
         ) : null}
 
         {shouldShowNativeList ? (
-          <p className="text-balance text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-balance text-neutral-500">
             {t('Supported resolutions: {{resolutions}}', { resolutions: formattedNatives })}
           </p>
         ) : null}

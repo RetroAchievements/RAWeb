@@ -111,7 +111,7 @@
         "postcss": "^8.5.4",
         "pusher-js": "^8.2.0",
         "tailwind-merge": "^3.0.0",
-        "tailwindcss": "^4.1.17",
+        "tailwindcss": "^4.3.0",
         "tsx": "^4.20.5",
         "type-fest": "^4.39.1",
         "vite": "^8.0.10",

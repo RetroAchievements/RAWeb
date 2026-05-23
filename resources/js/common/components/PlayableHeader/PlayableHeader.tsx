@@ -29,19 +29,19 @@ export const PlayableHeader: FC<PlayableHeaderProps> = ({
               <GameTitle title={title} />
             </h1>
 
-            <span className="flex items-center gap-1 whitespace-nowrap text-xs">
+            <span className="flex items-center gap-1 text-xs whitespace-nowrap">
               <img src={systemIconUrl} alt="icon" width={18} height={18} />
               <span>{systemLabel}</span>
             </span>
           </div>
 
-          <div className="hidden flex-wrap gap-x-2 gap-y-1 text-neutral-300 light:text-neutral-700 sm:flex">
+          <div className="hidden flex-wrap gap-x-2 gap-y-1 text-neutral-300 sm:flex light:text-neutral-700">
             {children}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-x-2 gap-y-1 text-neutral-300 light:text-neutral-700 sm:hidden">
+      <div className="flex flex-wrap gap-x-2 gap-y-1 text-neutral-300 sm:hidden light:text-neutral-700">
         {children}
       </div>
     </div>

@@ -87,7 +87,7 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
       </div>
 
       {!isResolutionValid ? (
-        <p className="text-balance text-center text-red-500/80">{invalidExplanation}</p>
+        <p className="text-center text-balance text-red-500/80">{invalidExplanation}</p>
       ) : null}
 
       {showUpscaleNudge ? (

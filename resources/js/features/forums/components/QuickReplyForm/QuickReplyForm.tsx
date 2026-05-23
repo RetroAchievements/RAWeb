@@ -65,7 +65,7 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
       <form
         ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="rounded-lg bg-embed p-2 light:border light:border-neutral-300 light:bg-white sm:p-4"
+        className="rounded-lg bg-embed p-2 sm:p-4 light:border light:border-neutral-300 light:bg-white"
         name="quick-reply"
       >
         <div className="flex flex-col gap-3">

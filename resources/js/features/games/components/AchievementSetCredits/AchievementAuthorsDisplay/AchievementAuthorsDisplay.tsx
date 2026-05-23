@@ -87,7 +87,7 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({
           <Fragment key={`ach-set-author-${author.displayName}`}>
             <UserAvatar
               size={20}
-              imgClassName="select-none rounded-full bg-embed"
+              imgClassName="rounded-full bg-embed select-none"
               labelClassName={cn(author.isGone ? 'text-neutral-500' : null)}
               {...author}
             />

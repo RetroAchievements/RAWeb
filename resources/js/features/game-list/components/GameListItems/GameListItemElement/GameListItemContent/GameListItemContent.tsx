@@ -127,7 +127,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
       </div>
 
       {isLastItem ? null : (
-        <hr className="ml-14 mt-2 border-neutral-700 light:border-neutral-200" />
+        <hr className="mt-2 ml-14 border-neutral-700 light:border-neutral-200" />
       )}
     </li>
   );

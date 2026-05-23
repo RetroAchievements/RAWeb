@@ -121,7 +121,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                 </div>
 
                 {/* Stacked images */}
-                <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pb-8 pt-4 sm:gap-6">
+                <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pt-4 pb-8 sm:gap-6">
                   {screenshots.map((screenshot) => {
                     const isCompletion = screenshot.type === 'completion';
                     // Players who have already beaten the game have seen the
@@ -186,7 +186,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                             )}
                             onClick={() => handleRevealCompletion(screenshot.id)}
                           >
-                            <span className="text-xs uppercase tracking-widest text-neutral-300">
+                            <span className="text-xs tracking-widest text-neutral-300 uppercase">
                               {t('Completion screenshot')}
                             </span>
 

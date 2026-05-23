@@ -69,7 +69,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
                 onMouseEnter={() => setIsPopoverOpen(true)}
                 onMouseLeave={() => setIsPopoverOpen(false)}
                 onClick={(e) => e.preventDefault()}
-                className="cursor-help focus:outline-hidden focus:ring-0"
+                className="cursor-help focus:ring-0 focus:outline-hidden"
               >
                 <LuCircleAlert data-testid="warning-icon" className="text-neutral-500" />
               </BasePopoverTrigger>

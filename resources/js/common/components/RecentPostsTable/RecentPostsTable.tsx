@@ -34,7 +34,7 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
           <th>{t('Message')}</th>
 
           {showAdditionalPosts ? (
-            <th className="whitespace-nowrap text-right">{t('Additional Posts')}</th>
+            <th className="text-right whitespace-nowrap">{t('Additional Posts')}</th>
           ) : null}
         </tr>
       </thead>

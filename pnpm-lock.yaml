@@ -140,7 +140,7 @@ importers:
         version: 2.0.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.1.17)
+        version: 1.0.7(tailwindcss@4.3.0)
       ua-parser-js:
         specifier: ^1.0.35
         version: 1.0.39
@@ -168,19 +168,19 @@ importers:
         version: 4.9.1
       '@tailwindcss/aspect-ratio':
         specifier: ^0.4.2
-        version: 0.4.2(tailwindcss@4.1.17)
+        version: 0.4.2(tailwindcss@4.3.0)
       '@tailwindcss/container-queries':
         specifier: ^0.1.1
-        version: 0.1.1(tailwindcss@4.1.17)
+        version: 0.1.1(tailwindcss@4.3.0)
       '@tailwindcss/forms':
         specifier: ^0.5.3
-        version: 0.5.9(tailwindcss@4.1.17)
+        version: 0.5.9(tailwindcss@4.3.0)
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
       '@tailwindcss/typography':
         specifier: ^0.5.0
-        version: 0.5.15(tailwindcss@4.1.17)
+        version: 0.5.15(tailwindcss@4.3.0)
       '@tanstack/eslint-plugin-query':
         specifier: ^5.71.5
         version: 5.71.5(eslint@9.39.2(jiti@2.6.1))(typescript@5.7.3)
@@ -275,8 +275,8 @@ importers:
         specifier: ^3.0.0
         version: 3.6.0
       tailwindcss:
-        specifier: ^4.1.17
-        version: 4.1.17
+        specifier: ^4.3.0
+        version: 4.3.0
       tsx:
         specifier: ^4.20.5
         version: 4.20.5
@@ -4760,6 +4760,9 @@ packages:
   tailwindcss@4.1.17:
     resolution: {integrity: sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q==}
 
+  tailwindcss@4.3.0:
+    resolution: {integrity: sha512-y6nxMGB1nMW9R6k96e5gdIFzcfL/gTJRNaqGes1YvkLnPVXzWgbqFF2yLC0T8G774n24cx3Pe8XrKoniCOAH+Q==}
+
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
@@ -7129,18 +7132,18 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@tailwindcss/aspect-ratio@0.4.2(tailwindcss@4.1.17)':
+  '@tailwindcss/aspect-ratio@0.4.2(tailwindcss@4.3.0)':
     dependencies:
-      tailwindcss: 4.1.17
+      tailwindcss: 4.3.0
 
-  '@tailwindcss/container-queries@0.1.1(tailwindcss@4.1.17)':
+  '@tailwindcss/container-queries@0.1.1(tailwindcss@4.3.0)':
     dependencies:
-      tailwindcss: 4.1.17
+      tailwindcss: 4.3.0
 
-  '@tailwindcss/forms@0.5.9(tailwindcss@4.1.17)':
+  '@tailwindcss/forms@0.5.9(tailwindcss@4.3.0)':
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 4.1.17
+      tailwindcss: 4.3.0
 
   '@tailwindcss/node@4.1.17':
     dependencies:
@@ -7211,13 +7214,13 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.17
 
-  '@tailwindcss/typography@0.5.15(tailwindcss@4.1.17)':
+  '@tailwindcss/typography@0.5.15(tailwindcss@4.3.0)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.1.17
+      tailwindcss: 4.3.0
 
   '@tanstack/eslint-plugin-query@5.71.5(eslint@9.39.2(jiti@2.6.1))(typescript@5.7.3)':
     dependencies:
@@ -9846,11 +9849,13 @@ snapshots:
 
   tailwind-merge@3.6.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.1.17):
+  tailwindcss-animate@1.0.7(tailwindcss@4.3.0):
     dependencies:
-      tailwindcss: 4.1.17
+      tailwindcss: 4.3.0
 
   tailwindcss@4.1.17: {}
+
+  tailwindcss@4.3.0: {}
 
   tapable@2.3.0: {}
 

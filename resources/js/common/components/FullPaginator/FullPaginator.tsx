@@ -107,7 +107,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             ))}
           </BaseSelectNative>
 
-          <span className="whitespace-nowrap pl-1.5 pr-1 text-neutral-500 light:text-neutral-700">
+          <span className="pr-1 pl-1.5 whitespace-nowrap text-neutral-500 light:text-neutral-700">
             {t('of {{pageNumber, number}}', { pageNumber: lastPage })}
           </span>
         </BasePaginationItem>

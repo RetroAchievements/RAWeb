@@ -217,7 +217,7 @@ const BaseChartTooltipContent = React.forwardRef<
                       </div>
 
                       {item.value ? (
-                        <span className="font-mono font-medium tabular-nums text-neutral-300 light:text-neutral-800">
+                        <span className="font-mono font-medium text-neutral-300 tabular-nums light:text-neutral-800">
                           {typeof item.value === 'number' ? formatNumber(item.value) : item.value}
                         </span>
                       ) : null}

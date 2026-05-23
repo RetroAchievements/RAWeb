@@ -24,7 +24,7 @@ export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor,
   return (
     <BaseChip
       data-testid="shared-author-reason"
-      className="flex gap-1.5 py-1 text-neutral-300 light:text-neutral-900 xl:whitespace-nowrap"
+      className="flex gap-1.5 py-1 text-neutral-300 xl:whitespace-nowrap light:text-neutral-900"
     >
       <LuWrench className="size-[18px]" />
 

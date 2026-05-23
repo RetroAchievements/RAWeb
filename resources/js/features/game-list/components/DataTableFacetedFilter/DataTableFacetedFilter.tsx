@@ -135,7 +135,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     {selectedValues.size > 2 ? (
                       <BaseBadge
                         variant="secondary"
-                        className="rounded-xs px-1 font-normal leading-3"
+                        className="rounded-xs px-1 leading-3 font-normal"
                       >
                         {t('{{count, number}} selected', { count: selectedValues.size })}
                       </BaseBadge>
@@ -147,7 +147,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                             <BaseBadge
                               variant="secondary"
                               key={`label-${option.value}`}
-                              className="rounded-xs px-1 font-normal leading-3"
+                              className="rounded-xs px-1 leading-3 font-normal"
                               data-testid="filter-selected-label"
                             >
                               {option.selectedLabel ?? option.t_label}

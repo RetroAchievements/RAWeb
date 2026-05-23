@@ -91,7 +91,7 @@ export const AchievementHero: FC = () => {
                   )}
                 />
               ) : (
-                <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
+                <p className="pb-[3px] text-lg leading-[1.25em] font-bold text-neutral-100 light:text-neutral-900">
                   {isRevealedEventAchievement ? (
                     <InertiaLink
                       href={route('achievement.show', {
@@ -113,7 +113,7 @@ export const AchievementHero: FC = () => {
                 <AchievementTypeIndicator
                   showLabel={true}
                   type={achievement.type}
-                  wrapperClassName="hidden !bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800 md:inline-flex"
+                  wrapperClassName="hidden !bg-neutral-800 !pr-2 md:inline-flex light:!bg-neutral-100 light:!text-neutral-800"
                 />
               ) : (
                 <div className="hidden h-[30px] md:block" />

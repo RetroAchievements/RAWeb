@@ -50,7 +50,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-[197px]' : null)}
       >
         {news.pinnedAt && ziggy.device === 'mobile' ? (
-          <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+          <div className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
             <LuPin className="mr-[2px] size-5 text-white" />
             <p className="sr-only">{t('Pinned')}</p>
           </div>
@@ -62,8 +62,8 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
       <div className="relative w-full">
         {news.pinnedAt && ziggy.device === 'desktop' ? (
           <BaseTooltip>
-            <BaseTooltipTrigger className="absolute -right-2 -top-2">
-              <div className="flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+            <BaseTooltipTrigger className="absolute -top-2 -right-2">
+              <div className="flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
                 <LuPin className="mr-[2px] size-5 text-white" />
                 <p className="sr-only">{t('Pinned')}</p>
               </div>

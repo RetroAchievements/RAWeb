@@ -134,7 +134,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
           ])}
           onKeyDown={handleCommandKeyDown}
         >
-          <div className="mb-3 pl-2 pt-2 sm:hidden">
+          <div className="mb-3 pt-2 pl-2 sm:hidden">
             <div className="relative flex items-center">
               <CommandPrimitive.Input
                 value={rawQuery}
@@ -185,7 +185,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-10 top-4 z-10"
+                  className="absolute top-4 right-10 z-10"
                 >
                   <LuLoaderCircle className="size-4 animate-spin" />
                 </motion.div>

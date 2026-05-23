@@ -55,7 +55,7 @@ export const ProfileSectionCard: FC = () => {
       onSubmit={onSubmit}
       isSubmitting={formMutation.isPending}
     >
-      <div className="flex flex-col gap-7 @container @xl:gap-5">
+      <div className="@container flex flex-col gap-7 @xl:gap-5">
         <VisibleRoleField />
 
         <BaseFormField

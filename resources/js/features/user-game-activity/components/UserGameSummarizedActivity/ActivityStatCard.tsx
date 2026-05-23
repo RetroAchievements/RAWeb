@@ -22,7 +22,7 @@ export const ActivityStatCard: FC<ActivityStatCardProps> = ({ children, t_label,
 
   return (
     <BaseCard>
-      <BaseCardHeader className="flex flex-row items-center gap-1 px-4 pb-0 pt-4">
+      <BaseCardHeader className="flex flex-row items-center gap-1 px-4 pt-4 pb-0">
         {t_label}
 
         {t_tooltip ? (

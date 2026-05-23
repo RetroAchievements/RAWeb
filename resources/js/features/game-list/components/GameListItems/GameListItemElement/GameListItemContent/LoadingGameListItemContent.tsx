@@ -35,7 +35,7 @@ export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = (
         </div>
       </div>
 
-      {isLastItem ? null : <BaseSkeleton data-testid="bottom-border" className="ml-14 mt-2 h-px" />}
+      {isLastItem ? null : <BaseSkeleton data-testid="bottom-border" className="mt-2 ml-14 h-px" />}
     </div>
   );
 };
