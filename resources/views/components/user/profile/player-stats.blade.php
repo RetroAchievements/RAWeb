@@ -25,7 +25,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         isExpanded: false,
         handleToggle() { this.isExpanded = !this.isExpanded; }
     }"
-    :class="{ '!pb-2': isExpanded }"
+    :class="{ 'pb-2!': isExpanded }"
 >
     @if ($hasMixedProgress)
         @if ($primaryMode === 'hardcore')
@@ -66,8 +66,8 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         x-cloak
         x-show="isExpanded"
         x-transition:enter="ease-in-out duration-100"
-        x-transition:enter-start="opacity-0 max-h-0 [transform:translateY(-0.25rem)] overflow-hidden"
-        x-transition:enter-end="opacity-100 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} [transform:translateY(0)] overflow-hidden"
+        x-transition:enter-start="opacity-0 max-h-0 transform-[translateY(-0.25rem)] overflow-hidden"
+        x-transition:enter-end="opacity-100 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} transform-[translateY(0)] overflow-hidden"
         class="pt-1"
     >
         {{--
@@ -94,7 +94,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
     </div>
 
     <button
-        class="absolute left-1/2 -translate-x-1/2 bottom-[-10px] text-2xs btn z-[2] transition lg:active:scale-95"
+        class="absolute left-1/2 -translate-x-1/2 bottom-[-10px] text-2xs btn z-2 transition lg:active:scale-95"
         @click="handleToggle"
         :class="{ 'hidden': isExpanded }"
     >

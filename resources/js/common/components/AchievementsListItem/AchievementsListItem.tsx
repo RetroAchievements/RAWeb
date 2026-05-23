@@ -194,7 +194,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
               segments={[
                 {
                   value: unlocksHardcoreTotal,
-                  className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                  className: 'bg-linear-to-r from-amber-500 to-[gold]',
                 },
                 {
                   value: unlocksTotal - unlocksHardcoreTotal,

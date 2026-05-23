@@ -50,7 +50,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     {t('New Email Address')}
                   </BaseFormLabel>
 
-                  <div className="flex flex-grow flex-col gap-1">
+                  <div className="flex grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"
@@ -75,7 +75,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     {t('Confirm New Email Address')}
                   </BaseFormLabel>
 
-                  <div className="flex flex-grow flex-col gap-1">
+                  <div className="flex grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"

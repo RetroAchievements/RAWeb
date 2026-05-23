@@ -39,7 +39,7 @@ const BaseAlertDialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] bg-embed',
-        'gap-4 border border-neutral-600 p-6 shadow-lg duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] light:border-neutral-200',
+        'gap-4 border border-neutral-600 p-6 shadow-lg duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] light:border-neutral-200',
         'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-6',
         'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-6',
         'sm:rounded-lg',

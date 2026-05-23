@@ -64,7 +64,7 @@ export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
                     game: backingGame.id,
                     user: recentPlayer.user.displayName,
                   })}
-                  className="!py-0"
+                  className="py-0!"
                   variant="minimal"
                 />
               </div>

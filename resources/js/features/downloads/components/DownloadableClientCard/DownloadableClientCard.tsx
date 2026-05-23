@@ -91,7 +91,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
         </BaseCardTitle>
       </BaseCardHeader>
 
-      <BaseCardContent className="flex flex-grow flex-col gap-8">
+      <BaseCardContent className="flex grow flex-col gap-8">
         {systems.length ? (
           <div className="flex flex-col gap-1">
             <p className="tracking-wide text-neutral-400 light:text-neutral-700">
@@ -118,7 +118,7 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
                   </BaseTooltipTrigger>
 
                   <BaseTooltipContent>
-                    <span className="flex max-w-[300px] flex-wrap gap-x-1 gap-y-1.5 py-2 lg:max-w-[500px]">
+                    <span className="flex max-w-75 flex-wrap gap-x-1 gap-y-1.5 py-2 lg:max-w-125">
                       {tooltipSystems.map((system) => (
                         <SystemChip
                           key={`${emulator.id}-${system.id}`}

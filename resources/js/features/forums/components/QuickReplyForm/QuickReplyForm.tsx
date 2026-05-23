@@ -81,7 +81,7 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
                     <BaseFormLabel className="whitespace-nowrap">{t('Post as')}</BaseFormLabel>
 
                     <BaseFormControl>
-                      <BaseSelectNative {...field} className="h-10 min-w-[200px] lg:h-[30px]">
+                      <BaseSelectNative {...field} className="h-10 min-w-50 lg:h-7.5">
                         <option value="self">{auth.user.displayName}</option>
 
                         {sortedTeamAccounts.map((teamAccount) => (

@@ -57,7 +57,7 @@ export const SearchPagination: FC<SearchPaginationProps> = ({
 
   const buttonClassNames = cn(
     baseButtonVariants({ size: 'sm' }),
-    'border-none hover:outline hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
+    'border-none hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
     'disabled:pointer-events-none disabled:opacity-50',
   );
 
@@ -91,7 +91,7 @@ export const SearchPagination: FC<SearchPaginationProps> = ({
           <BaseSelectNative
             value={internalValue}
             onChange={handlePageSelect}
-            className="h-8 min-w-[70px] text-xs leading-5"
+            className="h-8 min-w-17.5 text-xs leading-5"
           >
             {pageOptions.map((pageNumber) => (
               <option key={`page-value-${pageNumber}`} value={pageNumber.toString()}>

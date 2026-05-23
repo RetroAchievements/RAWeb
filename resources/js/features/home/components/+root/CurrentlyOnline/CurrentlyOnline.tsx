@@ -94,10 +94,7 @@ export const CurrentlyOnline: FC = () => {
 
             <BaseChartTooltip
               content={
-                <BaseChartTooltipContent
-                  className="min-w-[164px]"
-                  labelFormatter={formatTooltipLabel}
-                />
+                <BaseChartTooltipContent className="min-w-41" labelFormatter={formatTooltipLabel} />
               }
             />
 

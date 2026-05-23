@@ -32,7 +32,7 @@ const TimelineItem: FC<TimelineItemProps> = ({ label, children }) => {
         </div>
       </div>
 
-      <div className="relative hidden before:absolute before:top-5 before:bottom-[-3.5rem] before:left-32 before:w-px before:bg-neutral-700 last:before:hidden md:block">
+      <div className="relative hidden before:absolute before:top-5 before:-bottom-14 before:left-32 before:w-px before:bg-neutral-700 last:before:hidden md:block">
         {/* Label on the left side. */}
         <div className="absolute top-2 left-0 w-24 text-right text-sm tracking-tight text-gray-400 light:text-neutral-900">
           {label}

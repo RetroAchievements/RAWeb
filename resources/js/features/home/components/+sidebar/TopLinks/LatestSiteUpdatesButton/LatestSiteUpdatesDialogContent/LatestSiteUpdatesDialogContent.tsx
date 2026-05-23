@@ -18,7 +18,7 @@ export const LatestSiteUpdatesDialogContent: FC = () => {
   const { t } = useTranslation();
 
   return (
-    <BaseDialogContent className="flex h-full max-w-[52rem] flex-col overflow-auto px-0 pb-0 sm:max-h-[60vh]">
+    <BaseDialogContent className="flex h-full max-w-208 flex-col overflow-auto px-0 pb-0 sm:max-h-[60vh]">
       <BaseDialogHeader className="px-4">
         <BaseDialogTitle>{t('Latest Site Updates')}</BaseDialogTitle>
 

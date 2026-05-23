@@ -156,7 +156,7 @@ const BaseChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-neutral-600 bg-embed px-2.5 py-1.5 text-xs text-neutral-300 shadow-xl light:text-neutral-800',
+          'grid min-w-32 items-start gap-1.5 rounded-lg border border-neutral-600 bg-embed px-2.5 py-1.5 text-xs text-neutral-300 shadow-xl light:text-neutral-800',
           className,
         )}
       >
@@ -184,16 +184,13 @@ const BaseChartTooltipContent = React.forwardRef<
                     ) : (
                       !hideIndicator && (
                         <div
-                          className={cn(
-                            'shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)',
-                            {
-                              'h-2.5 w-2.5': indicator === 'dot',
-                              'w-1': indicator === 'line',
-                              'w-0 border-[1.5px] border-dashed bg-transparent':
-                                indicator === 'dashed',
-                              'my-0.5': nestLabel && indicator === 'dashed',
-                            },
-                          )}
+                          className={cn('shrink-0 rounded-xs border-(--color-border) bg-bg', {
+                            'h-2.5 w-2.5': indicator === 'dot',
+                            'w-1': indicator === 'line',
+                            'w-0 border-[1.5px] border-dashed bg-transparent':
+                              indicator === 'dashed',
+                            'my-0.5': nestLabel && indicator === 'dashed',
+                          })}
                           style={
                             {
                               '--color-bg': indicatorColor,
@@ -274,7 +271,7 @@ const BaseChartLegendContent = React.forwardRef<
               <itemConfig.icon />
             ) : (
               <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
+                className="h-2 w-2 shrink-0 rounded-xs"
                 style={{
                   backgroundColor: item.color,
                 }}

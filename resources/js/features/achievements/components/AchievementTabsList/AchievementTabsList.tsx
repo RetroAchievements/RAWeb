@@ -93,7 +93,7 @@ export const AchievementTabs: FC<AchievementTabsProps> = ({ tabConfigs, children
           <div
             data-testid="tab-indicator"
             className={cn(
-              'absolute left-0 top-0 h-[2px] will-change-transform',
+              'absolute left-0 top-0 h-0.5 will-change-transform',
               'bg-link',
               isAnimationReady ? 'transition-all duration-200' : null,
             )}

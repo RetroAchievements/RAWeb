@@ -47,7 +47,7 @@ export const AchievementChangelog: FC = () => {
 
       {/* No timeline dot here -- the collapse toggle sits between entries. */}
       <li className="relative pb-6">
-        <div className="absolute top-0 -bottom-1 left-[3px] w-px bg-neutral-700" />
+        <div className="absolute top-0 -bottom-1 left-0.75 w-px bg-neutral-700" />
 
         <button
           type="button"

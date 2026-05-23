@@ -113,8 +113,8 @@ export function GameListDataTable({ table, isLoading = false }: GameListDataTabl
           'light:border-neutral-300 lg:overflow-visible lg:rounded-xs',
           'transition-opacity duration-150',
           {
-            'lg:!overflow-x-scroll': visibleColumnCount > 8,
-            'xl:!overflow-x-scroll': visibleColumnCount > 10,
+            'lg:overflow-x-scroll!': visibleColumnCount > 8,
+            'xl:overflow-x-scroll!': visibleColumnCount > 10,
             'opacity-50': isLoading,
             'opacity-100': !isLoading,
             'system-sort-active': shouldGroupBySystem,

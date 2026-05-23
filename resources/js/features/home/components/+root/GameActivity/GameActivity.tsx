@@ -54,7 +54,7 @@ export const GameActivity: FC = () => {
             size="sm"
             value="popular"
             aria-label={t('Toggle popular')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
             disabled={!hasPopular}
           >
             {t('Popular')}
@@ -64,7 +64,7 @@ export const GameActivity: FC = () => {
             size="sm"
             value="trending"
             aria-label={t('Toggle trending')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
             disabled={!hasTrending}
           >
             {t('Trending')}

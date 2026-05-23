@@ -51,7 +51,7 @@ export const StatBox: FC<StatBoxProps> = ({
       <p
         aria-labelledby={labelId}
         className={cn(
-          '!text-[20px] leading-7 text-neutral-300',
+          'text-xl! leading-7 text-neutral-300',
           'group-hover:text-neutral-50 light:text-neutral-950 light:group-hover:text-neutral-950',
         )}
       >

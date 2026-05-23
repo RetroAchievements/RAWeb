@@ -68,7 +68,7 @@ export const PlaytimeStatistics: FC = () => {
             size="sm"
             value="softcore"
             aria-label={t('Toggle softcore')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
           >
             {t('Softcore')}
           </BaseToggleGroupItem>
@@ -77,7 +77,7 @@ export const PlaytimeStatistics: FC = () => {
             size="sm"
             value="hardcore"
             aria-label={t('Toggle hardcore')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
           >
             {t('Hardcore')}
           </BaseToggleGroupItem>

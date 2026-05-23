@@ -95,7 +95,7 @@ export const GameMobileBannerImage: FC = () => {
       {/* Background image gradient */}
       <div
         className={cn(
-          'absolute inset-0 bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
+          'absolute inset-0 bg-linear-to-b from-black/40 from-0% via-black/50 via-60% to-black',
           'light:from-black/20 light:via-black/30 light:to-black/50',
         )}
       />

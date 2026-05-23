@@ -23,7 +23,7 @@ export const AchievementPoints: FC<AchievementPointsProps> = ({
   }
 
   return (
-    <span className="inline-flex gap-1 text-[12px]">
+    <span className="inline-flex gap-1 text-xs">
       <span>{`(${points})`}</span>
 
       {!isEvent && pointsWeighted ? (

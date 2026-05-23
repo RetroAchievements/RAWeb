@@ -88,7 +88,7 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
         <div class="overflow-x-auto lg:overflow-x-visible">
             <table class="table-highlight mb-4">
                 <thead>
-                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
+                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-1 bg-box">
                         <th style="width:40%">Achievement</th>
                         <th style="width:30%">
                         {!! userAvatar($otherUser, label: true, icon: true, iconSize: 24, iconClass: 'rounded-xs') !!}

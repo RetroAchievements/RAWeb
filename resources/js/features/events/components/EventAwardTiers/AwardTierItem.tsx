@@ -54,7 +54,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({
               className={cn(
                 'size-12 rounded-xs transition',
                 isEarned
-                  ? 'opacity-100 outline outline-2 outline-offset-1 outline-[gold]'
+                  ? 'opacity-100 outline-2 outline-offset-1 outline-[gold]'
                   : 'opacity-50 group-hover:opacity-100',
               )}
             />

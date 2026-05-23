@@ -25,7 +25,7 @@ export function DataTableProgressFilter<TData>({
   return (
     <DataTableFacetedFilter
       className="w-full sm:w-auto"
-      baseCommandListClassName="!max-h-[calc(80vh-100px)]"
+      baseCommandListClassName="max-h-[calc(80vh-100px)]!"
       column={table.getColumn('progress')}
       t_title={t('Progress')}
       options={

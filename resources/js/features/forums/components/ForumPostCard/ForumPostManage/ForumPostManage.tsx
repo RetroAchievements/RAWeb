@@ -54,7 +54,7 @@ export const ForumPostManage: FC<ForumPostManageProps> = ({ comment }) => {
     <>
       <BaseButton
         size="sm"
-        className="max-h-[22px] !p-1 !text-2xs lg:!text-xs"
+        className="max-h-5.5 p-1! text-2xs! lg:text-xs!"
         onClick={handleAuthorizeClick}
       >
         {t('Authorize')}
@@ -63,7 +63,7 @@ export const ForumPostManage: FC<ForumPostManageProps> = ({ comment }) => {
       <BaseButton
         size="sm"
         variant="destructive"
-        className="max-h-[22px] !p-1 !text-2xs lg:!text-xs"
+        className="max-h-5.5 p-1! text-2xs! lg:text-xs!"
         onClick={handleBlockClick}
       >
         {t('Block')}

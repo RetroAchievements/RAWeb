@@ -54,7 +54,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
     baseButtonVariants({
       size: 'sm',
     }),
-    'border-none hover:outline hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
+    'border-none hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
     'aria-disabled:pointer-events-none aria-disabled:opacity-50',
   );
 
@@ -92,7 +92,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
           <BaseSelectNative
             value={internalValue}
             onChange={handlePageSelect}
-            className="h-8 min-w-[70px] text-xs leading-5"
+            className="h-8 min-w-17.5 text-xs leading-5"
           >
             {pageOptions.map((pageNumber) => (
               <Fragment key={`page-value-${pageNumber}`}>

@@ -85,7 +85,7 @@ export const GlobalStatistics: FC = () => {
             <p className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950">
               {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
             </p>
-            <p className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
+            <p className="text-xl! leading-7 text-neutral-300 light:text-neutral-950">
               {formatNumber(staticData?.totalPointsEarned)}
             </p>
           </div>

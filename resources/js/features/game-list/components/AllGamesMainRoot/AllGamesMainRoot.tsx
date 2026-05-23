@@ -34,7 +34,7 @@ export const AllGamesMainRoot: FC = () => {
     <div>
       <DataTablePaginationScrollTarget>
         <div className="mb-3 flex w-full">
-          <h1 className="text-h3 w-full sm:!text-[2.0em]">{t('All Games')}</h1>
+          <h1 className="text-h3 w-full sm:text-[2.0em]!">{t('All Games')}</h1>
         </div>
       </DataTablePaginationScrollTarget>
 

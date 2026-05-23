@@ -46,12 +46,10 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         className,
       )}
     >
-      <div
-        className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-[197px]' : null)}
-      >
+      <div className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-49.25' : null)}>
         {news.pinnedAt && ziggy.device === 'mobile' ? (
           <div className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
-            <LuPin className="mr-[2px] size-5 text-white" />
+            <LuPin className="mr-0.5 size-5 text-white" />
             <p className="sr-only">{t('Pinned')}</p>
           </div>
         ) : null}
@@ -64,7 +62,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           <BaseTooltip>
             <BaseTooltipTrigger className="absolute -top-2 -right-2">
               <div className="flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
-                <LuPin className="mr-[2px] size-5 text-white" />
+                <LuPin className="mr-0.5 size-5 text-white" />
                 <p className="sr-only">{t('Pinned')}</p>
               </div>
             </BaseTooltipTrigger>
@@ -86,7 +84,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           )}
         >
           {isRecentPost ? (
-            <BaseBadge className="mr-2 max-h-[16px] bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
+            <BaseBadge className="mr-2 max-h-4 bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
               {t('new')}
             </BaseBadge>
           ) : null}
@@ -144,18 +142,18 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
           aria-label="news post photo"
           className={cn(
             'h-28 w-full rounded-xs bg-cover bg-center',
-            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
+            ziggy.device === 'desktop' ? 'sm:w-49.25' : null,
           )}
           style={{ backgroundImage: `url(${src})` }}
         />
       ) : (
         <div
           className={cn(
-            'flex h-28 w-full items-center justify-center rounded-xs bg-gradient-to-br',
+            'flex h-28 w-full items-center justify-center rounded-xs bg-linear-to-br',
             'from-slate-800 to-zinc-950',
             'light:from-slate-100 light:to-slate-300',
 
-            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
+            ziggy.device === 'desktop' ? 'sm:w-49.25' : null,
           )}
         >
           <img

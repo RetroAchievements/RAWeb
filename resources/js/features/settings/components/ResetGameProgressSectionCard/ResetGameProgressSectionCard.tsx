@@ -74,7 +74,7 @@ export const ResetGameProgressSectionCard: FC = () => {
                   {t('Game')}
                 </BaseFormLabel>
 
-                <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
+                <div ref={inViewRef} className="col-span-3 flex grow flex-col gap-1">
                   <BaseSelect value={field.value} onValueChange={field.onChange}>
                     <BaseFormControl>
                       <BaseSelectTrigger id="resettable-game-select">
@@ -126,7 +126,7 @@ export const ResetGameProgressSectionCard: FC = () => {
                   {t('Achievement')}
                 </BaseFormLabel>
 
-                <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
+                <div ref={inViewRef} className="col-span-3 flex grow flex-col gap-1">
                   <BaseSelect
                     value={field.value}
                     onValueChange={field.onChange}

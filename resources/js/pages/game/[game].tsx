@@ -80,7 +80,7 @@ const GameShow: AppPage = () => {
         </AppLayout.Main>
       ) : (
         <>
-          <AppLayout.Banner className="md:-mb-[30px]">
+          <AppLayout.Banner className="md:-mb-7.5">
             <GameDesktopBanner banner={banner} />
           </AppLayout.Banner>
 

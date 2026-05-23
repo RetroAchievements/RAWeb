@@ -119,7 +119,7 @@ describe('Component: EventDesktopBanner', () => {
 
     // ASSERT
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveClass('!text-base');
+    expect(heading).toHaveClass('text-base!');
   });
 
   it('given a very long title, clamps it to two lines', () => {

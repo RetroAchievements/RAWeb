@@ -92,7 +92,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   <BaseProgress
                     className={cn(
                       'h-2 bg-zinc-800',
-                      winConditionAchievements.length ? 'w-40' : 'w-[184px]',
+                      winConditionAchievements.length ? 'w-40' : 'w-46',
                     )}
                     max={progressionAchievements.length}
                     segments={[
@@ -108,7 +108,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   <BaseProgress
                     className={cn(
                       'h-2 bg-zinc-800',
-                      progressionAchievements.length ? 'w-6' : 'w-[184px]',
+                      progressionAchievements.length ? 'w-6' : 'w-46',
                     )}
                     max={1}
                     segments={[

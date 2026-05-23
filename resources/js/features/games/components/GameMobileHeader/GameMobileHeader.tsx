@@ -13,10 +13,7 @@ export const GameMobileHeader: FC = () => {
   const { backingGame, can, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   return (
-    <div
-      data-testid="mobile-header"
-      className="relative -mx-4 -mt-4 h-[13.25rem] w-[calc(100vw+4px)]"
-    >
+    <div data-testid="mobile-header" className="relative -mx-4 -mt-4 h-53 w-[calc(100vw+4px)]">
       <GameMobileBannerImage />
 
       {/* Content */}
@@ -46,13 +43,13 @@ export const GameMobileHeader: FC = () => {
             {/* Game title */}
             <h1
               className={cn(
-                'font-bold leading-tight text-white [text-shadow:_0_1px_0_rgb(0_0_0),_0_0_12px_rgb(0_0_0)]',
+                'font-bold leading-tight text-white [text-shadow:0_1px_0_rgb(0_0_0),0_0_12px_rgb(0_0_0)]',
                 'light:border-b-0',
 
                 'text-2xl',
-                game.title.length > 22 ? '!text-xl' : null,
-                game.title.length > 40 ? '!text-base' : null,
-                game.title.length > 60 ? 'line-clamp-2 !text-sm' : null,
+                game.title.length > 22 ? 'text-xl!' : null,
+                game.title.length > 40 ? 'text-base!' : null,
+                game.title.length > 60 ? 'line-clamp-2 text-sm!' : null,
               )}
             >
               <GameTitle title={game.title} />
@@ -65,7 +62,7 @@ export const GameMobileHeader: FC = () => {
                 <WantToPlayToggle variant="sm" />
               </div>
 
-              {can.manageGames ? <ResponsiveManageChip className="h-[28px]" /> : null}
+              {can.manageGames ? <ResponsiveManageChip className="h-7" /> : null}
             </div>
           </div>
         </div>

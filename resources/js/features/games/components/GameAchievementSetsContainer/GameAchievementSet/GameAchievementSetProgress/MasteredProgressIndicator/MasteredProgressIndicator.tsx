@@ -192,12 +192,12 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
         </div>
 
         <BaseProgress
-          className="h-2 w-[184px] bg-zinc-800"
+          className="h-2 w-46 bg-zinc-800"
           max={achievements.length}
           segments={[
             {
               value: unlockedHardcoreCount,
-              className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+              className: 'bg-linear-to-r from-amber-500 to-[gold]',
             },
             {
               value: unlockedSoftcoreCount,

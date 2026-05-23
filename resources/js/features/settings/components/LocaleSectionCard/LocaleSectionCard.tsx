@@ -46,7 +46,7 @@ export const LocaleSectionCard: FC = () => {
                 {t('Current Locale')}
               </BaseFormLabel>
 
-              <div className="flex flex-grow flex-col gap-1">
+              <div className="flex grow flex-col gap-1">
                 <BaseFormControl>
                   <BaseSelect onValueChange={field.onChange} defaultValue={field.value}>
                     <BaseSelectTrigger id="locale-select">

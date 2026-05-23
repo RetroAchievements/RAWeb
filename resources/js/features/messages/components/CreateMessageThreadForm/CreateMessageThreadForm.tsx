@@ -124,7 +124,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
               control={form.control}
               name="title"
               render={({ field }) => (
-                <BaseFormItem className="flex flex-col gap-1 md:flex-grow">
+                <BaseFormItem className="flex flex-col gap-1 md:grow">
                   <BaseFormLabel>{t('Subject')}</BaseFormLabel>
                   <BaseFormControl>
                     <BaseInput

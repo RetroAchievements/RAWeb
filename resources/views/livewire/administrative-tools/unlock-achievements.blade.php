@@ -382,7 +382,7 @@ new class extends Component implements HasForms {
                                         <img src="{{ media_asset('Badge/' . $achievement->image_name . '.png') }}" alt="Badge" class="w-full h-full object-contain rounded-md bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
                                     </div>
                                 </td>
-                                <td class="fi-ta-cell px-4 py-3 align-top w-full min-w-[12rem]">
+                                <td class="fi-ta-cell px-4 py-3 align-top w-full min-w-48">
                                     <div class="flex flex-col">
                                         <a href="{{ route('achievement.show', $achievement->id) }}" target="_blank" class="font-medium text-gray-950 dark:text-white hover:underline">
                                             {{ $achievement->title }}

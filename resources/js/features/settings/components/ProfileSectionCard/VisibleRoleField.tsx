@@ -63,7 +63,7 @@ export const VisibleRoleField: FC = () => {
             {t('Visible Role')}
           </BaseFormLabel>
 
-          <div className="flex flex-grow flex-col gap-1">
+          <div className="flex grow flex-col gap-1">
             <BaseFormControl>
               <BaseSelect onValueChange={field.onChange} defaultValue={String(field.value)}>
                 <BaseSelectTrigger id="visible-role-select">

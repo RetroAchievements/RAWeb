@@ -126,7 +126,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game }
                   <BaseButton
                     size="sm"
                     className={cn(
-                      'w-full rounded-t-none border-none bg-transparent !text-2xs',
+                      'w-full rounded-t-none border-none bg-transparent text-2xs!',
                       'lg:transition-none lg:active:translate-y-0 lg:active:scale-100',
                     )}
                     onClick={() => setIsSeeMoreOpen(true)}

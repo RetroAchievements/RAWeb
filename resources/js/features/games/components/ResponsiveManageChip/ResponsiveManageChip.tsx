@@ -22,7 +22,7 @@ export const ResponsiveManageChip: FC<ResponsiveManageChipProps> = ({ className 
       href={can.updateGame ? `/manage/games/${game.id}/edit` : `/manage/games/${game.id}`}
       target="_blank"
       aria-label={t('Manage')}
-      className={cn(responsiveHeaderChipClassNames, '!gap-0 !rounded-full !px-2.5', className)}
+      className={cn(responsiveHeaderChipClassNames, 'gap-0! rounded-full! px-2.5!', className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

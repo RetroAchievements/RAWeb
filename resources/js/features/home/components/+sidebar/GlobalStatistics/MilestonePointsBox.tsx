@@ -30,10 +30,10 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
           className={cn(
             'group flex h-full cursor-help flex-col rounded-xs bg-embed px-2 py-2.5',
             'relative overflow-hidden',
-            'border border-amber-400/30 bg-gradient-to-br from-embed to-amber-950/10',
-            'before:absolute before:inset-0 before:bg-gradient-to-r',
+            'border border-amber-400/30 bg-linear-to-br from-embed to-amber-950/10',
+            'before:absolute before:inset-0 before:bg-linear-to-r',
             'before:from-transparent before:via-amber-400/10 before:to-transparent',
-            'before:bg-[length:200%_100%] before:motion-safe:animate-shimmer',
+            'before:bg-size-[200%_100%] before:motion-safe:animate-shimmer',
             'light:border-amber-500/30 light:to-amber-100/10 light:before:via-amber-500/10',
           )}
         >
@@ -43,7 +43,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
             })}
           </p>
 
-          <div className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
+          <div className="text-xl! leading-7 text-neutral-300 light:text-neutral-950">
             <span className="text-amber-400 light:text-amber-600">{formatNumber(totalPoints)}</span>
           </div>
         </div>

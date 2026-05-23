@@ -76,7 +76,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                       {t('New Username')}
                     </BaseFormLabel>
 
-                    <div className="flex flex-grow flex-col gap-1">
+                    <div className="flex grow flex-col gap-1">
                       <BaseFormControl>
                         <BaseInput
                           placeholder={t('enter your new username here...')}
@@ -103,7 +103,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                       {t('Confirm New Username')}
                     </BaseFormLabel>
 
-                    <div className="flex flex-grow flex-col gap-1">
+                    <div className="flex grow flex-col gap-1">
                       <BaseFormControl>
                         <BaseInput
                           placeholder={t('confirm your new username here...')}

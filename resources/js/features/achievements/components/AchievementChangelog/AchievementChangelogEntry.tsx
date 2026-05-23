@@ -31,7 +31,7 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
   return (
     <li className="group relative flex gap-3 pb-6 last:pb-0" data-testid="changelog-entry">
       {/* The last entry has no successor, so there's no reason to draw a connector. */}
-      <div className="absolute top-3 -bottom-1 left-[3px] w-px bg-neutral-700 group-last:hidden" />
+      <div className="absolute top-3 -bottom-1 left-0.75 w-px bg-neutral-700 group-last:hidden" />
 
       <div
         data-testid="changelog-dot"

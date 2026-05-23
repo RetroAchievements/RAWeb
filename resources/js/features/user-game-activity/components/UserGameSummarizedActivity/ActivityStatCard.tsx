@@ -32,7 +32,7 @@ export const ActivityStatCard: FC<ActivityStatCardProps> = ({ children, t_label,
               <span className="sr-only">{t('See more info')}</span>
             </BaseTooltipTrigger>
 
-            <BaseTooltipContent sideOffset={12} className="max-w-[280px]">
+            <BaseTooltipContent sideOffset={12} className="max-w-70">
               <span className="text-xs">{t_tooltip}</span>
             </BaseTooltipContent>
           </BaseTooltip>

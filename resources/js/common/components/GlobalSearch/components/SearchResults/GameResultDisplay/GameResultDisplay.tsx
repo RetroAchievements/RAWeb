@@ -31,17 +31,17 @@ export const GameResultDisplay: FC<GameResultDisplayProps> = ({ game }) => {
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <ImTrophy className="!size-3" />
+            <ImTrophy className="size-3!" />
             {formatNumber(game.achievementsPublished ?? 0, { locale: i18n.language })}
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <PiMedalFill className="!size-3" />
+            <PiMedalFill className="size-3!" />
             {formatNumber(game.pointsTotal ?? 0, { locale: i18n.language })}
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <LuUsers className="!size-3" />
+            <LuUsers className="size-3!" />
             {formatNumber(game.playersTotal ?? 0, { locale: i18n.language })}
           </div>
         </div>

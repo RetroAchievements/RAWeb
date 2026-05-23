@@ -58,8 +58,8 @@ export const EventDesktopBanner: FC = () => {
       {/* Event info and associated controls. */}
       <div
         className={cn(
-          'absolute inset-x-0 bottom-0 z-[19] mx-auto max-w-screen-xl px-3 pb-4 transition-[padding]',
-          'sm:px-4 md:px-6 md:pb-[46px] xl:px-0',
+          'absolute inset-x-0 bottom-0 z-19 mx-auto max-w-(--breakpoint-xl) px-3 pb-4 transition-[padding]',
+          'sm:px-4 md:px-6 md:pb-11.5 xl:px-0',
         )}
       >
         <div className="flex w-full flex-col gap-5 sm:gap-4 md:flex-row md:items-end">
@@ -84,11 +84,11 @@ export const EventDesktopBanner: FC = () => {
             <h1
               className={cn(
                 'w-fit font-bold leading-tight text-white',
-                '[text-shadow:_0_1px_2px_rgb(0_0_0),_0_2px_6px_rgb(0_0_0_/_80%),_0_0_14px_rgb(0_0_0_/_60%)]',
+                '[text-shadow:0_1px_2px_rgb(0_0_0),0_2px_6px_rgb(0_0_0/80%),0_0_14px_rgb(0_0_0/60%)]',
                 'text-2xl md:text-3xl',
-                legacyGame.title.length > 26 ? '!text-xl md:!text-2xl' : null,
-                legacyGame.title.length > 30 ? '!text-base md:!text-xl' : null,
-                legacyGame.title.length > 50 ? 'line-clamp-2 !text-sm md:!text-xl' : null,
+                legacyGame.title.length > 26 ? 'text-xl! md:text-2xl!' : null,
+                legacyGame.title.length > 30 ? 'text-base! md:text-xl!' : null,
+                legacyGame.title.length > 50 ? 'line-clamp-2 text-sm! md:text-xl!' : null,
               )}
             >
               <GameTitle title={legacyGame.title} />
@@ -104,7 +104,7 @@ export const EventDesktopBanner: FC = () => {
                   <img
                     src="/assets/images/system/events.png"
                     alt={t('Event')}
-                    className="size-4 sm:size-[18px]"
+                    className="size-4 sm:size-4.5"
                   />
 
                   <span className="text-xs font-medium sm:text-sm">
@@ -136,7 +136,7 @@ export const EventDesktopBanner: FC = () => {
                   href={`/manage/events/${event.id}`}
                   target="_blank"
                   aria-label={t('Manage')}
-                  className={cn(responsiveHeaderChipClassNames, '!gap-0 !rounded-full !px-2.5')}
+                  className={cn(responsiveHeaderChipClassNames, 'gap-0! rounded-full! px-2.5!')}
                   onMouseEnter={() => setIsManageHovered(true)}
                   onMouseLeave={() => setIsManageHovered(false)}
                 >

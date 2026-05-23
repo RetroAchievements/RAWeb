@@ -119,7 +119,7 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
     <div className="flex w-full flex-col gap-x-1 sm:hidden">
       <BaseDialog>
         <BaseDialogTrigger asChild>
-          <BaseButton size="sm" className="w-full gap-1.5 py-[15px]">
+          <BaseButton size="sm" className="w-full gap-1.5 py-3.75">
             {buttonSections.map((section, index) => (
               <Fragment key={index}>
                 {section}

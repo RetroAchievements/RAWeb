@@ -80,7 +80,7 @@
                         {{-- Avatar + author + time --}}
                         <div class="flex items-center gap-2 text-sm">
                             @if ($trigger->user)
-                                <x-filament-panels::avatar.user :user="$trigger->user" class="!size-5" />
+                                <x-filament-panels::avatar.user :user="$trigger->user" class="size-5!" />
                             @endif
 
                             <span class="text-neutral-950 dark:text-white font-medium">{{ $trigger->user?->display_name ?? 'Unknown' }}</span>
@@ -296,7 +296,7 @@
 
                         {{-- Raw view, shown when user selects the 'Raw' toggle button/tab --}}
                         <div x-show="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'" x-cloak>
-                            <code class="block p-3 font-mono text-[11px] rounded-lg bg-gray-950/[0.02] dark:bg-white/[0.02] border border-gray-950/5 dark:border-white/10 break-all text-neutral-600 dark:text-neutral-400">
+                            <code class="block p-3 font-mono text-[11px] rounded-lg bg-gray-950/2 dark:bg-white/2 border border-gray-950/5 dark:border-white/10 break-all text-neutral-600 dark:text-neutral-400">
                                 {{ $trigger->conditions }}
                             </code>
                         </div>
