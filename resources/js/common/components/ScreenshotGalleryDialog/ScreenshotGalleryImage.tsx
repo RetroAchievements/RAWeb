@@ -65,26 +65,15 @@ export const ScreenshotGalleryImage: FC<ScreenshotGalleryImageProps> = ({
     }
   };
 
-  const hidePlaceholder = () => {
-    cancelHideTimer();
-    setIsPlaceholderHidden(true);
-  };
-
   const markLoaded = () => {
-    setIsLoaded((wasLoaded) => {
-      if (wasLoaded) {
-        return wasLoaded;
-      }
+    cancelHideTimer();
 
-      if (hideTimerRef.current === null) {
-        hideTimerRef.current = setTimeout(() => {
-          hideTimerRef.current = null;
-          setIsPlaceholderHidden(true);
-        }, PLACEHOLDER_HIDE_DELAY_MS);
-      }
+    hideTimerRef.current = setTimeout(() => {
+      hideTimerRef.current = null;
+      setIsPlaceholderHidden(true);
+    }, PLACEHOLDER_HIDE_DELAY_MS);
 
-      return true;
-    });
+    setIsLoaded(true);
   };
 
   // Hover preloads can finish before React attaches onLoad, so check `complete` on mount too.
@@ -123,12 +112,6 @@ export const ScreenshotGalleryImage: FC<ScreenshotGalleryImageProps> = ({
           style={{
             filter: 'blur(16px)',
             transform: 'scale(1.1)',
-          }}
-          onTransitionEnd={(e) => {
-            if (e.propertyName !== 'opacity' || !isLoaded) {
-              return;
-            }
-            hidePlaceholder();
           }}
         />
       ) : null}

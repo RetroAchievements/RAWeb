@@ -6,7 +6,7 @@ import type { FC } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RxCross2 } from 'react-icons/rx';
-import { useUpdateEffect } from 'react-use';
+import { useLockBodyScroll, useUpdateEffect } from 'react-use';
 
 import { cn } from '@/common/utils/cn';
 
@@ -34,6 +34,8 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
   initialIndex = 0,
 }) => {
   const { t } = useTranslation();
+
+  useLockBodyScroll(isOpen);
 
   const imageRefs = useRef<Map<number, HTMLElement>>(new Map());
 

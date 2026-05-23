@@ -1,11 +1,16 @@
 import userEvent from '@testing-library/user-event';
 
-import { fireEvent, render, screen, waitFor } from '@/test';
+import { act, fireEvent, render, screen, waitFor } from '@/test';
 import { createGameScreenshot } from '@/test/factories';
 
 import { ScreenshotGalleryDialog } from './ScreenshotGalleryDialog';
 
 describe('Component: ScreenshotGalleryDialog', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
@@ -49,6 +54,51 @@ describe('Component: ScreenshotGalleryDialog', () => {
 
     // ASSERT
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('given the dialog is open, locks body scrolling', async () => {
+    // ARRANGE
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={[createGameScreenshot()]}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(document.body).toHaveStyle({ overflow: 'hidden' });
+    });
+  });
+
+  it('given the dialog closes, restores body scrolling', async () => {
+    // ARRANGE
+    const { rerender } = render(
+      <ScreenshotGalleryDialog
+        screenshots={[createGameScreenshot()]}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(document.body).toHaveStyle({ overflow: 'hidden' });
+    });
+
+    // ACT
+    rerender(
+      <ScreenshotGalleryDialog
+        screenshots={[createGameScreenshot()]}
+        isOpen={false}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(document.body.style.overflow).toEqual('');
+    });
   });
 
   it('given there is a completion screenshot and the user has not beaten the game, shows the spoiler overlay', async () => {
@@ -380,30 +430,67 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
-  it('given the placeholder fade-out has completed, removes the placeholder from the DOM to release compositor layers', async () => {
+  it('given the real image load fires more than once, replaces the placeholder hide timer', async () => {
     // ARRANGE
+    vi.useFakeTimers();
+
     const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
 
     render(
       <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
     );
 
-    await waitFor(() => {
-      expect(screen.getAllByRole('presentation', { hidden: true })).toHaveLength(2);
-    });
+    const realImage = screen.getByRole('presentation');
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
 
     // ACT
-    // ... mark the real image as loaded ...
-    const realImage = screen.getByRole('presentation');
+    fireEvent.load(realImage);
     fireEvent.load(realImage);
 
-    // ... then finish the placeholder's opacity transition ...
-    const [placeholder] = screen.getAllByRole('presentation', { hidden: true });
-    fireEvent.transitionEnd(placeholder, { propertyName: 'opacity' });
+    // ASSERT
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('given the placeholder opacity transition does not fire, removes the placeholder after the fallback delay', async () => {
+    // ARRANGE
+    vi.useFakeTimers();
+
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    const realImage = screen.getByRole('presentation');
+
+    // ACT
+    fireEvent.load(realImage);
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('presentation', { hidden: true })).toHaveLength(1);
+  });
+
+  it('given the real image was already loaded before ref attachment, marks it as loaded', async () => {
+    // ARRANGE
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(1);
+
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getAllByRole('presentation', { hidden: true })).toHaveLength(1);
+      const realImage = screen.getByRole('presentation');
+      expect(realImage).not.toHaveClass('opacity-0');
     });
   });
 
