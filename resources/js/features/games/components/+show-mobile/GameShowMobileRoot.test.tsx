@@ -151,6 +151,7 @@ describe('Component: GameShowMobileRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        numScreenshots: 1,
         playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
@@ -161,7 +162,10 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
-    expect(ingameImage.parentElement).toHaveStyle({
+    const ingameFrame = ingameImage.closest('button');
+
+    expect(ingameFrame).not.toBeNull();
+    expect(ingameFrame).toHaveStyle({
       aspectRatio: '256 / 224',
       maxWidth: '100%',
       width: '256px',
