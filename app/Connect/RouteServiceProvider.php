@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
     private const int PUBLISH_PER_MINUTE = 600;
     private const int DEFAULT_PER_MINUTE = 180;
     private const int DELEGATED_PER_MINUTE = 6000;
-    private const int LOGIN_PER_IP = 30;
+    private const int LOGIN_PER_IP = 300;
     private const int LOGIN_PER_USER_IP = 5;
 
     public function boot(): void
