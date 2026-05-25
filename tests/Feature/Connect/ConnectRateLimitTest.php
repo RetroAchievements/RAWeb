@@ -24,15 +24,15 @@ it('segments dorequest rate limits by request type', function () {
 
     $this->post('dorequest.php', $this->apiParams('ping'))
         ->assertUnprocessable()
-        ->assertHeader('X-RateLimit-Limit', '180');
+        ->assertHeader('X-RateLimit-Limit', '600');
 
     $this->post('dorequest.php', $this->apiParams('submitgametitle'))
         ->assertUnprocessable()
-        ->assertHeader('X-RateLimit-Limit', '180');
+        ->assertHeader('X-RateLimit-Limit', '600');
 
     $this->post('dorequest.php', $this->apiParams('submitrichpresence'))
         ->assertUnprocessable()
-        ->assertHeader('X-RateLimit-Limit', '180');
+        ->assertHeader('X-RateLimit-Limit', '600');
 
     $this->post('dorequest.php', ['r' => 'login2', 'u' => 'someuser'])
         ->assertUnprocessable()
@@ -75,12 +75,12 @@ it('does not treat k as a rate limit bypass for non-delegated request types', fu
 
 it('does not let an unauthenticated caller bypass the rate limit by adding k', function () {
     $this->post('dorequest.php', ['r' => 'ping', 'u' => 'SomeUser', 'k' => 'AnotherUser'])
-        ->assertHeader('X-RateLimit-Limit', '180');
+        ->assertHeader('X-RateLimit-Limit', '600');
 });
 
 it('does not let a GET request bypass the rate limit by adding k', function () {
     $this->get($this->apiUrl('ping', ['g' => 1, 'k' => 'TargetUser', 'm' => 'hi']))
-        ->assertHeader('X-RateLimit-Limit', '180');
+        ->assertHeader('X-RateLimit-Limit', '600');
 });
 
 it('caps authenticated developer publish at 600 per minute', function () {
