@@ -36,7 +36,7 @@ it('segments dorequest rate limits by request type', function () {
 
     $this->post('dorequest.php', ['r' => 'login2', 'u' => 'someuser'])
         ->assertUnprocessable()
-        ->assertHeader('X-RateLimit-Limit', '5');
+        ->assertHeader('X-RateLimit-Limit', '30');
 });
 
 it('applies a generous rate limit to delegated connect requests', function () {
@@ -120,7 +120,7 @@ it('does not let a spoofed username consume the authenticated developer publish 
 it('returns the connect JSON shape and a Retry-After header when login is rate limited', function () {
     $params = ['r' => 'login2', 'u' => 'someuser'];
 
-    for ($attempt = 1; $attempt <= 5; $attempt++) {
+    for ($attempt = 1; $attempt <= 30; $attempt++) {
         $this->post('dorequest.php', $params)
             ->assertUnprocessable();
     }
