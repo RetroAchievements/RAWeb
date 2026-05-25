@@ -9,6 +9,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -40,7 +41,7 @@ class RouteServiceProvider extends ServiceProvider
     private const int DEFAULT_PER_MINUTE = 180;
     private const int DELEGATED_PER_MINUTE = 6000;
     private const int LOGIN_PER_IP = 300;
-    private const int LOGIN_PER_USER_IP = 5;
+    private const int LOGIN_PER_USER_IP = 30;
 
     public function boot(): void
     {
@@ -144,7 +145,7 @@ class RouteServiceProvider extends ServiceProvider
 
     private function loginLimit(int $perMinute, string $bucket, string $identifier): Limit
     {
-        return $this->connectLimit($perMinute, $bucket, $identifier)
+        return $this->connectLimit($perMinute, $bucket, $identifier, shouldLog: true)
             ->after(fn (Response $response): bool => !$this->isSuccessfulLogin($response));
     }
 
@@ -155,15 +156,39 @@ class RouteServiceProvider extends ServiceProvider
         return is_array($data) && ($data['Success'] ?? false) === true;
     }
 
-    private function connectLimit(int $perMinute, string $bucket, string $identifier): Limit
+    private function connectLimit(int $perMinute, string $bucket, string $identifier, bool $shouldLog = false): Limit
     {
         return Limit::perMinute($perMinute)
             ->by("connect:{$bucket}:{$identifier}")
-            ->response(fn (Request $request, array $headers): JsonResponse => response()->json([
-                'Success' => false,
-                'Error' => 'Too Many Attempts',
-                'Status' => Response::HTTP_TOO_MANY_REQUESTS,
-            ], Response::HTTP_TOO_MANY_REQUESTS, $headers));
+            ->response(function (Request $request, array $headers) use ($bucket, $identifier, $perMinute, $shouldLog): JsonResponse {
+                if ($shouldLog) {
+                    $this->logConnectLoginRateLimit($request, $bucket, $identifier, $perMinute, $headers);
+                }
+
+                return response()->json([
+                    'Success' => false,
+                    'Error' => 'Too Many Attempts',
+                    'Status' => Response::HTTP_TOO_MANY_REQUESTS,
+                ], Response::HTTP_TOO_MANY_REQUESTS, $headers);
+            });
+    }
+
+    /**
+     * @param array<string, mixed> $headers
+     */
+    private function logConnectLoginRateLimit(Request $request, string $bucket, string $identifier, int $perMinute, array $headers): void
+    {
+        Log::info('Connect login rate limited', [
+            'bucket' => $bucket,
+            'identifier' => $identifier,
+            'ip' => $request->ip(),
+            'ip_bucket' => $this->ipBucket($request),
+            'limit_per_minute' => $perMinute,
+            'request_type' => $request->input('r'),
+            'retry_after' => $headers['Retry-After'] ?? null,
+            'username' => Str::transliterate(Str::lower((string) $request->input('u', ''))),
+            'user_agent' => $request->userAgent(),
+        ]);
     }
 
     private function connectRateLimitIdentifier(Request $request): string
