@@ -52,7 +52,7 @@ export function buildMasteryRatioColumnDef<TEntry extends App.Platform.Data.Game
         return <p className="text-muted">{'-'}</p>;
       }
 
-      const masteryRatio = coreSetTimesCompletedHardcore / coreSetPlayersHardcore;
+      const masteryRatio = Math.min(coreSetTimesCompletedHardcore / coreSetPlayersHardcore, 1);
 
       return (
         <p>

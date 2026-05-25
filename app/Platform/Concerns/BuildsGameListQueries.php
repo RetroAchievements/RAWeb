@@ -362,7 +362,13 @@ trait BuildsGameListQueries
                                 ELSE 0
                             END AS can_be_beaten"
                         )
-                        ->selectRaw('times_beaten_hardcore / players_hardcore as beat_ratio')
+                        ->selectRaw(
+                            "CASE
+                                WHEN players_hardcore = 0 THEN 0
+                                WHEN times_beaten_hardcore > players_hardcore THEN 1
+                                ELSE times_beaten_hardcore * 1.0 / players_hardcore
+                            END AS beat_ratio"
+                        )
                         ->orderByDesc('can_be_beaten')
                         ->orderBy('beat_ratio', $sortDirection)
                         ->orderByDesc('players_total');
@@ -378,9 +384,9 @@ trait BuildsGameListQueries
                     $query
                         ->selectRaw(
                             "CASE
-                                WHEN COALESCE({$setPlayersSub}, 0) > 0
-                                    THEN COALESCE({$timesCompletedSub}, 0) * 1.0 / COALESCE({$setPlayersSub}, 0)
-                                ELSE 0
+                                WHEN COALESCE({$setPlayersSub}, 0) = 0 THEN 0
+                                WHEN COALESCE({$timesCompletedSub}, 0) > COALESCE({$setPlayersSub}, 0) THEN 1
+                                ELSE COALESCE({$timesCompletedSub}, 0) * 1.0 / COALESCE({$setPlayersSub}, 0)
                             END AS mastery_ratio"
                         )
                         ->orderBy('mastery_ratio', $sortDirection)

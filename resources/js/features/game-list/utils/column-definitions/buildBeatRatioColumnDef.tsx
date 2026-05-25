@@ -41,7 +41,9 @@ export function buildBeatRatioColumnDef<TEntry extends App.Platform.Data.GameLis
 
       const playersHardcore = row.original.game.playersHardcore ?? 0;
       const beatRatio =
-        playersHardcore > 0 ? (row.original.game.timesBeatenHardcore ?? 0) / playersHardcore : 0.0;
+        playersHardcore > 0
+          ? Math.min((row.original.game.timesBeatenHardcore ?? 0) / playersHardcore, 1)
+          : 0.0;
 
       return (
         <p className={playersHardcore === 0 ? 'text-muted' : ''}>
