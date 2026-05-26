@@ -14,6 +14,7 @@ class ShowForumTopicPagePropsData extends Data
 {
     /**
      * @param Collection<int, UserData>|null $accessibleTeamAccounts
+     * @param Collection<int, UserData>|null $replyableTeamAccounts
      */
     public function __construct(
         public UserPermissionsData $can,
@@ -23,6 +24,7 @@ class ShowForumTopicPagePropsData extends Data
         public PaginatedData $paginatedForumTopicComments,
         public string $metaDescription,
         public ?Collection $accessibleTeamAccounts = null,
+        public ?Collection $replyableTeamAccounts = null,
     ) {
     }
 }

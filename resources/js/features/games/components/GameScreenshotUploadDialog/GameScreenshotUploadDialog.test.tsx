@@ -230,7 +230,10 @@ describe('Component: GameScreenshotUploadDialog', () => {
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
         game: createGame({
-          system: createSystem({ screenshotResolutions: [{ width: 320, height: 240 }] }),
+          system: createSystem({
+            screenshotResolutions: [{ width: 320, height: 240 }],
+            supportsUpscaledScreenshots: false,
+          }),
         }),
         screenshotUploadConsistency: {
           existingResolutions: [{ width: 256, height: 224 }],

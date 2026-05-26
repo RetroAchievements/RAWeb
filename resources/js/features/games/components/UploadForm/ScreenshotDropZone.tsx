@@ -4,21 +4,22 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuUpload } from 'react-icons/lu';
 
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 
 import { ScreenshotPreviewMeta } from './ScreenshotPreviewMeta';
 
+const MAX_NATIVE_RESOLUTIONS_TO_SHOW = 3;
+
 interface ScreenshotDropZoneProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
-  formattedResolutions: string;
   isResolutionValid: boolean;
   previewUrl: string | null;
+  screenshotResolutions: Array<{ width: number; height: number }>;
 
   canonicalResolution?: string | null;
   hasConsistencyWarning?: boolean;
   hasPreview?: boolean;
+  is1xCapture?: boolean;
   onDrop?: (e: DragEvent) => void;
   onFileChange?: (file: File | undefined) => void;
   previewDimensions?: { width: number; height: number } | null;
@@ -28,20 +29,18 @@ interface ScreenshotDropZoneProps {
 export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
   canonicalResolution,
   fileInputRef,
-  formattedResolutions,
   hasConsistencyWarning,
   hasPreview,
+  is1xCapture,
   isResolutionValid,
   onDrop,
   onFileChange,
   previewDimensions,
   previewUrl,
+  screenshotResolutions,
   supportsUpscaledScreenshots,
 }) => {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
-
-  const locale = getUserIntlLocale(auth?.user);
 
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -101,7 +100,10 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
                 canonicalResolution={canonicalResolution}
                 hasConsistencyWarning={hasConsistencyWarning}
                 height={previewDimensions.height}
+                is1xCapture={is1xCapture}
                 isResolutionValid={isResolutionValid}
+                screenshotResolutions={screenshotResolutions}
+                supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 width={previewDimensions.width}
               />
             ) : null}
@@ -109,41 +111,56 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
             <p className="text-xs text-neutral-500">{t('Click or drag to replace')}</p>
           </m.div>
         ) : (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <LuUpload className="h-8 w-8 text-neutral-500" />
-
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-sm text-neutral-300 light:text-neutral-600">
-                {t('Drop your screenshot here, or click to browse')}
-              </p>
-
-              <p className="text-xs text-neutral-500">
-                {supportsUpscaledScreenshots
-                  ? new Intl.ListFormat(locale, { style: 'narrow', type: 'unit' }).format([
-                      'PNG',
-                      'JPEG',
-                      'WebP',
-                    ])
-                  : 'PNG'}{' '}
-                — max 4 MB
-              </p>
-            </div>
-
-            {formattedResolutions ? (
-              <p className="text-balance text-center text-xs text-neutral-500">
-                {supportsUpscaledScreenshots
-                  ? t('Expected Resolutions: {{resolutions}} (or 2x/3x multiples)', {
-                      resolutions: formattedResolutions,
-                    })
-                  : t('Expected Resolutions: {{resolutions}}', {
-                      resolutions: formattedResolutions,
-                    })}
-              </p>
-            ) : null}
-          </div>
+          <EmptyState
+            screenshotResolutions={screenshotResolutions}
+            supportsUpscaledScreenshots={supportsUpscaledScreenshots}
+          />
         )}
       </div>
     </m.button>
+  );
+};
+
+interface EmptyStateProps {
+  screenshotResolutions: Array<{ width: number; height: number }>;
+  supportsUpscaledScreenshots?: boolean;
+}
+
+const EmptyState: FC<EmptyStateProps> = ({
+  screenshotResolutions,
+  supportsUpscaledScreenshots,
+}) => {
+  const { t } = useTranslation();
+
+  const formattedNatives = screenshotResolutions.map((r) => `${r.width}x${r.height}`).join(', ');
+
+  const shouldShowNativeList =
+    !supportsUpscaledScreenshots &&
+    screenshotResolutions.length > 0 &&
+    screenshotResolutions.length <= MAX_NATIVE_RESOLUTIONS_TO_SHOW;
+
+  return (
+    <div className="flex flex-col items-center gap-3 py-8">
+      <LuUpload className="h-8 w-8 text-neutral-500" />
+
+      <div className="flex flex-col items-center gap-1">
+        <p className="text-sm text-neutral-300 light:text-neutral-600">
+          {t('Drop your screenshot here, or click to browse')}
+        </p>
+
+        {supportsUpscaledScreenshots ? (
+          <p className="text-balance text-center text-xs text-neutral-500">
+            {t('Upscaled screenshots look sharper. Render at 2x or 3x in your emulator.')}
+          </p>
+        ) : null}
+
+        {shouldShowNativeList ? (
+          <p className="text-balance text-center text-xs text-neutral-500">
+            {t('Supported resolutions: {{resolutions}}', { resolutions: formattedNatives })}
+          </p>
+        ) : null}
+      </div>
+    </div>
   );
 };
 
