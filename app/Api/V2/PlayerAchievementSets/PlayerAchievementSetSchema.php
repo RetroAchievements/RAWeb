@@ -89,7 +89,7 @@ class PlayerAchievementSetSchema extends Schema
     public function filters(): array
     {
         return [
-            WhereIdIn::make($this),
+            WhereIdIn::make($this)->delimiter(','),
             Where::make('achievementSetId', 'achievement_set_id'),
             Scope::make('gameId', 'forGameId'),
         ];

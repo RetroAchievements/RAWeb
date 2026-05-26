@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
@@ -128,6 +129,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Developer
                 BackfillAuthorYieldUnlocks::class,
+                CheckDeveloperInactivity::class,
                 ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
@@ -143,19 +145,21 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->hourly();
-            $schedule->command(PruneGameRecentPlayers::class)->daily();
-            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
 
-            if (app()->environment() === 'production') {
-                $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
-                $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
-                $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-                $schedule->command(ProcessExpiringClaims::class)->hourly();
-                $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
-                $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
-                $schedule->command(CheckForAchievementSetChanges::class)->daily();
-            }
+            $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->hourly();
+            $schedule->command(ProcessExpiringClaims::class)->hourly();
+
+            $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
+
+            $schedule->command(PruneGameRecentPlayers::class)->daily();
+            $schedule->command(CheckDeveloperInactivity::class)->daily();
+            $schedule->command(CheckForAchievementSetChanges::class)->daily();
+
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
+            $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
         });
 
         Relation::morphMap([

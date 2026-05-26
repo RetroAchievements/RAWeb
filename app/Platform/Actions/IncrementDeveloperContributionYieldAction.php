@@ -119,7 +119,7 @@ class IncrementDeveloperContributionYieldAction
         $lastBadge = PlayerBadge::query()
             ->where('user_id', $developer->id)
             ->where('award_type', '=', $type)
-            ->orderBy('award_key', 'DESC')
+            ->orderBy('award_key', 'desc')
             ->first();
 
         $displayOrder = $lastBadge ? $lastBadge->order_column : PlayerBadge::getNextDisplayOrder($developer);

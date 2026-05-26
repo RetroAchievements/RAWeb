@@ -18,9 +18,9 @@ describe('Component: ScreenshotDropZone', () => {
     const { container } = render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -33,10 +33,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         hasPreview={false}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -44,58 +44,114 @@ describe('Component: ScreenshotDropZone', () => {
     expect(screen.getByText(/drop your screenshot here, or click to browse/i)).toBeVisible();
   });
 
-  it('given there is no preview and upscaled screenshots are not supported, shows only PNG and does not include multiples info', () => {
+  it('shows the upscale nudge only when upscaled screenshots are supported', () => {
     // ARRANGE
-    render(
+    const { rerender } = render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
-        isResolutionValid={true}
-        previewUrl={null}
-        hasPreview={false}
-        supportsUpscaledScreenshots={false}
-      />,
-    );
-
-    // ASSERT
-    expect(screen.getByText(/PNG — max 4 MB/i)).toBeVisible();
-    expect(screen.queryByText(/2x\/3x multiples/i)).not.toBeInTheDocument();
-  });
-
-  it('given there is no preview and upscaled screenshots are supported, shows multiple formats and includes multiples info', () => {
-    // ARRANGE
-    render(
-      <ScreenshotDropZone
-        fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         hasPreview={false}
         supportsUpscaledScreenshots={true}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
     // ASSERT
-    expect(screen.getByText(/PNG/)).toBeVisible();
-    expect(screen.getByText(/JPEG/)).toBeVisible();
-    expect(screen.getByText(/WebP/)).toBeVisible();
-    expect(screen.getByText(/2x\/3x multiples/i)).toBeVisible();
+    expect(
+      screen.getByText(/upscaled screenshots look sharper\. render at 2x or 3x/i),
+    ).toBeVisible();
+
+    // ACT
+    rerender(
+      <ScreenshotDropZone
+        fileInputRef={createFileInputRef()}
+        isResolutionValid={true}
+        previewUrl={null}
+        hasPreview={false}
+        supportsUpscaledScreenshots={false}
+        screenshotResolutions={[{ width: 256, height: 224 }]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/upscaled screenshots/i)).not.toBeInTheDocument();
   });
 
-  it('given there is no preview and formatted resolutions is empty, does not show the resolutions line', () => {
+  it('given a non-upscaling system with exactly one supported resolution, shows it', () => {
     // ARRANGE
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions=""
         isResolutionValid={true}
         previewUrl={null}
         hasPreview={false}
+        supportsUpscaledScreenshots={false}
+        screenshotResolutions={[{ width: 256, height: 224 }]}
       />,
     );
 
     // ASSERT
-    expect(screen.queryByText(/expected resolutions/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Supported resolutions: 256x224')).toBeVisible();
+  });
+
+  it('given a non-upscaling system with two or three supported resolutions, joins them with comma-separated dimensions', () => {
+    // ARRANGE
+    render(
+      <ScreenshotDropZone
+        fileInputRef={createFileInputRef()}
+        isResolutionValid={true}
+        previewUrl={null}
+        hasPreview={false}
+        supportsUpscaledScreenshots={false}
+        screenshotResolutions={[
+          { width: 256, height: 224 },
+          { width: 256, height: 240 },
+        ]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('Supported resolutions: 256x224, 256x240')).toBeVisible();
+  });
+
+  it('given a non-upscaling system with more than three supported resolutions, omits the supported resolutions line', () => {
+    // ARRANGE
+    render(
+      <ScreenshotDropZone
+        fileInputRef={createFileInputRef()}
+        isResolutionValid={true}
+        previewUrl={null}
+        hasPreview={false}
+        supportsUpscaledScreenshots={false}
+        screenshotResolutions={[
+          { width: 256, height: 224 },
+          { width: 256, height: 240 },
+          { width: 320, height: 224 },
+          { width: 320, height: 240 },
+        ]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/native resolution/i)).not.toBeInTheDocument();
+  });
+
+  it('given an upscaling-capable system, does not show a supported resolutions line', () => {
+    // ARRANGE
+    render(
+      <ScreenshotDropZone
+        fileInputRef={createFileInputRef()}
+        isResolutionValid={true}
+        previewUrl={null}
+        hasPreview={false}
+        supportsUpscaledScreenshots={true}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/supported resolutions/i)).not.toBeInTheDocument();
   });
 
   it('given there is a preview, shows the preview image and replacement prompt', () => {
@@ -103,10 +159,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl="https://example.com/preview.png"
         hasPreview={true}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -120,11 +176,11 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl="https://example.com/preview.png"
         hasPreview={true}
         previewDimensions={{ width: 320, height: 240 }}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -138,11 +194,11 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl="https://example.com/preview.png"
         hasPreview={true}
         previewDimensions={null}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -156,10 +212,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         supportsUpscaledScreenshots={true}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -173,10 +229,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         supportsUpscaledScreenshots={false}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -191,9 +247,9 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={fileInputRef}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -213,10 +269,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         onFileChange={onFileChange}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -236,10 +292,10 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
         onDrop={onDrop}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -268,9 +324,9 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 
@@ -288,9 +344,9 @@ describe('Component: ScreenshotDropZone', () => {
     render(
       <ScreenshotDropZone
         fileInputRef={createFileInputRef()}
-        formattedResolutions="320x240"
         isResolutionValid={true}
         previewUrl={null}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
       />,
     );
 

@@ -12,10 +12,9 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { usePageProps } from '@/common/hooks/usePageProps';
+import { getIsNativeScreenshotResolution } from '@/common/utils/getIsNativeScreenshotResolution';
 import { getIsSameScreenshotResolution } from '@/common/utils/getIsSameScreenshotResolution';
 import { getIsValidScreenshotResolution } from '@/common/utils/getIsValidScreenshotResolution';
-import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 
 import { ScreenshotDropZone } from './ScreenshotDropZone';
 import { useGameScreenshotUploadForm } from './useGameScreenshotUploadForm';
@@ -43,10 +42,7 @@ export const UploadForm: FC<UploadFormProps> = ({
   selectedType,
   supportsUpscaledScreenshots,
 }) => {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
-
-  const locale = getUserIntlLocale(auth?.user);
 
   const { form, mutation, onSubmit } = useGameScreenshotUploadForm({
     gameId,
@@ -156,12 +152,16 @@ export const UploadForm: FC<UploadFormProps> = ({
     )
   );
 
-  const formattedResolutions =
-    screenshotResolutions.length > 0
-      ? new Intl.ListFormat(locale, { style: 'narrow', type: 'conjunction' }).format(
-          screenshotResolutions.map((r) => `${r.width}x${r.height}`),
-        )
-      : '';
+  const is1xCapture = !!(
+    previewDimensions &&
+    isResolutionValid &&
+    getIsNativeScreenshotResolution(
+      previewDimensions.width,
+      previewDimensions.height,
+      screenshotResolutions,
+      hasAnalogTvOutput,
+    )
+  );
 
   const handleFormSubmit = async (values: Parameters<typeof onSubmit>[0]) => {
     await onSubmit(values, (screenshot) => {
@@ -189,14 +189,15 @@ export const UploadForm: FC<UploadFormProps> = ({
                 <ScreenshotDropZone
                   canonicalResolution={screenshotUploadConsistency?.canonicalResolution}
                   fileInputRef={fileInputRef}
-                  formattedResolutions={formattedResolutions}
                   hasConsistencyWarning={hasConsistencyWarning}
                   hasPreview={hasPreview}
+                  is1xCapture={is1xCapture}
                   isResolutionValid={isResolutionValid}
                   onDrop={handleDrop}
                   onFileChange={handleFileChange}
                   previewDimensions={previewDimensions}
                   previewUrl={previewUrl}
+                  screenshotResolutions={screenshotResolutions}
                   supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 />
               </BaseFormControl>

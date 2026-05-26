@@ -1,6 +1,7 @@
 import { type FC, type ReactNode, useEffect, useState } from 'react';
 
 import { GlobalSearch } from '../GlobalSearch';
+import { useGlobalSearchHotkey } from '../GlobalSearch/hooks/useGlobalSearchHotkey';
 import { GlobalSearchContext } from './GlobalSearchContext';
 
 interface GlobalSearchProviderProps {
@@ -12,21 +13,21 @@ export const GlobalSearchProvider: FC<GlobalSearchProviderProps> = ({ children }
 
   const openSearch = () => setIsOpen(true);
 
-  // Listen for custom events to open search from non-React code.
-  useEffect(() => {
-    const handleOpenSearch = () => setIsOpen(true);
-    if (typeof window !== 'undefined') {
-      window.addEventListener('open-global-search', handleOpenSearch);
-    }
+  useGlobalSearchHotkey({ onOpenChange: setIsOpen });
 
-    return () => window.removeEventListener('open-global-search', handleOpenSearch);
+  // Bridge for non-React code (Blade pages, vanilla JS) that dispatches the open event.
+  useEffect(() => {
+    const handler = () => setIsOpen(true);
+    window.addEventListener('open-global-search', handler);
+
+    return () => window.removeEventListener('open-global-search', handler);
   }, []);
 
   return (
     <GlobalSearchContext.Provider value={{ openSearch }}>
       {children}
 
-      <GlobalSearch isOpen={isOpen} onOpenChange={setIsOpen} />
+      {isOpen ? <GlobalSearch isOpen={isOpen} onOpenChange={setIsOpen} /> : null}
     </GlobalSearchContext.Provider>
   );
 };

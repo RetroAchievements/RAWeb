@@ -1,3 +1,4 @@
+import inertia from '@inertiajs/vite';
 import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
@@ -5,7 +6,7 @@ import { existsSync, readFileSync } from 'fs';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -59,6 +60,16 @@ export default defineConfig(({ mode, isSsrBuild }) => {
 
       react(),
 
+      inertiaDevSsrBasePath(),
+
+      inertia({
+        ssr: {
+          entry: 'resources/js/ssr.tsx',
+          port: Number(env.VITE_INERTIA_SSR_PORT ?? 13714),
+          cluster: env.INERTIA_SSR_CLUSTER === 'true',
+        },
+      }),
+
       // @tanstack/react-table uses a mutable API that's incompatible with
       // React Compiler's memoization. The useReactTable hook returns a stable
       // object, so the compiler caches stale results from table/column/row
@@ -109,6 +120,38 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     server: detectServerConfig(env),
   };
 });
+
+/**
+ * Allow `pnpm dev` to work with SSR.
+ */
+function inertiaDevSsrBasePath(): Plugin {
+  return {
+    name: 'raweb-inertia-dev-ssr-base-path',
+    apply: 'serve',
+
+    configureServer(server) {
+      const basePath = resolveViteBasePath(server.config.base);
+
+      if (!basePath) {
+        return;
+      }
+
+      server.middlewares.use((request, _response, next) => {
+        if (request.url?.startsWith(`${basePath}/__inertia_ssr`)) {
+          request.url = request.url.slice(basePath.length);
+        }
+
+        next();
+      });
+    },
+  };
+}
+
+function resolveViteBasePath(base: string): string {
+  const pathname = base.startsWith('http') ? new URL(base).pathname : base;
+
+  return pathname.replace(/\/$/, '');
+}
 
 function detectServerConfig(env: Record<string, string>) {
   const watch = {

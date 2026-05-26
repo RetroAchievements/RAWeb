@@ -150,7 +150,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: [teamAccount1, teamAccount2], // !!
+        replyableTeamAccounts: [teamAccount1, teamAccount2], // !!
       },
     });
 
@@ -165,7 +165,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: null, // !!
+        replyableTeamAccounts: null, // !!
       },
     });
 
@@ -187,7 +187,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: [teamAccount], // !!
+        replyableTeamAccounts: [teamAccount], // !!
       },
     });
 
@@ -218,7 +218,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: [teamAccount], // !!
+        replyableTeamAccounts: [teamAccount], // !!
       },
     });
 
@@ -245,7 +245,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: [teamAccount], // !!
+        replyableTeamAccounts: [teamAccount], // !!
       },
     });
 
@@ -274,7 +274,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         forumTopic: topic,
-        accessibleTeamAccounts: [teamAccount], // !!
+        replyableTeamAccounts: [teamAccount], // !!
       },
     });
 
@@ -312,7 +312,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         forumTopic: topic,
-        accessibleTeamAccounts: [teamAccount], // !!
+        replyableTeamAccounts: [teamAccount], // !!
       },
     });
 
@@ -355,7 +355,7 @@ describe('Component: QuickReplyForm', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         forumTopic: createForumTopic(),
-        accessibleTeamAccounts: [teamAccount1, teamAccount2, teamAccount3], // !! unsorted
+        replyableTeamAccounts: [teamAccount1, teamAccount2, teamAccount3], // !! unsorted
       },
     });
 

@@ -243,13 +243,13 @@ it('promotes a newly approved ingame screenshot when the current primary has an 
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
 });
 
-it('enforces the 20 approved ingame screenshot cap during approval', function () {
+it('enforces the 10 approved ingame screenshot cap during approval', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
     $submitter = User::factory()->create();
     $reviewer = User::factory()->create();
 
-    GameScreenshot::factory()->count(20)->for($game)->ingame()->create();
+    GameScreenshot::factory()->count(10)->for($game)->ingame()->create();
 
     $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Ingame);
 

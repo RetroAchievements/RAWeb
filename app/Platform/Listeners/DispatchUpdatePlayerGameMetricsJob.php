@@ -15,15 +15,27 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
     {
         $user = null;
         $game = null;
-        // TODO forward hardcore flag
-        $hardcore = null;
+
+        /**
+         * PlayerAchievementUnlocked kicks off several separate metrics updates.
+         *
+         * UpdateAchievementMetricsJob recounts the unlocked achievement's
+         * denormalized totals from player_achievements. This player game metrics
+         * path may also update the game's player count, which means aggregate
+         * achievement percentages and RetroPoints (weighted points) need to be
+         * refreshed for the game.
+         *
+         * Since the achievement job owns the expensive unlock recount, this path
+         * can reuse the stored unlock totals and avoid running that same recount again.
+         */
+        $shouldRecalculateAchievementUnlockCounts = true;
 
         switch ($event::class) {
             case PlayerAchievementUnlocked::class:
                 $user = $event->user;
                 $achievement = $event->achievement;
                 $game = $achievement->game;
-                $hardcore = $event->hardcore;
+                $shouldRecalculateAchievementUnlockCounts = false;
                 break;
             case PlayerGameAttached::class:
                 $user = $event->user;
@@ -39,7 +51,11 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
             return;
         }
 
-        dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id))
+        dispatch(new UpdatePlayerGameMetricsJob(
+            $user->id,
+            $game->id,
+            shouldRecalculateAchievementUnlockCounts: $shouldRecalculateAchievementUnlockCounts
+        ))
             ->onQueue('player-game-metrics');
     }
 }
