@@ -43,15 +43,8 @@ $userSetRequestInformation = getUserRequestsInformation($userPageModel);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
-$recentlyPlayedSystemId = collect($userMassData['RecentlyPlayed'] ?? [])
-    ->filter(fn ($game) => System::isGameSystem($game['ConsoleID'] ?? 0) && ($game['AchievementsTotal'] ?? 0) > 0)
-    ->sortByDesc('LastPlayed')
-    ->pluck('ConsoleID')
-    ->first();
-
 $progressionCounts = (new GetUserProgressionStatusCountsAction())->execute(
-    $userPageModel,
-    $recentlyPlayedSystemId
+    $userPageModel
 );
 
 $averageCompletionPercentage = sprintf("%01.2f", $progressionCounts['avgCompletionPercentage']);
