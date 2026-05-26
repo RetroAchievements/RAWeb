@@ -151,6 +151,86 @@ class GetRecentGameAwardsTest extends TestCase
             ]);
     }
 
+    public function testGetRecentAwardsFiltersByDate(): void
+    {
+        Carbon::setTestNow(Carbon::today()->setHour(12));
+
+        /** @var User $playerOne */
+        $playerOne = User::factory()->create(['username' => 'playerOne']);
+        /** @var User $playerTwo */
+        $playerTwo = User::factory()->create(['username' => 'playerTwo']);
+        /** @var User $playerThree */
+        $playerThree = User::factory()->create(['username' => 'playerThree']);
+        /** @var System $system */
+        $system = System::factory()->create(['id' => 1]);
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $earlyToday = Carbon::today()->setHour(2);
+        $lateToday = Carbon::today()->setHour(23)->setMinute(59);
+        $tomorrowMorning = Carbon::tomorrow()->setHour(8);
+
+        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Hardcore, $earlyToday);
+        $this->addMasteryBadge($playerTwo, $game, UnlockMode::Hardcore, $lateToday);
+        $this->addGameBeatenAward($playerThree, $game, UnlockMode::Softcore, $tomorrowMorning);
+
+        $this->get($this->apiUrl('GetRecentGameAwards', ['d' => Carbon::today()->format('Y-m-d')]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 2,
+                'Total' => 2,
+                'Results' => [
+                    [
+                        'User' => 'playerTwo',
+                        'ULID' => $playerTwo->ulid,
+                        'AwardKind' => 'mastered',
+                        'AwardDate' => $lateToday->toIso8601String(),
+                    ],
+                    [
+                        'User' => 'playerOne',
+                        'ULID' => $playerOne->ulid,
+                        'AwardKind' => 'beaten-hardcore',
+                        'AwardDate' => $earlyToday->toIso8601String(),
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetRecentAwardsExcludesAwardsAfterTargetDate(): void
+    {
+        Carbon::setTestNow(Carbon::today()->setHour(12));
+
+        /** @var User $playerOne */
+        $playerOne = User::factory()->create(['username' => 'playerOne']);
+        /** @var User $playerTwo */
+        $playerTwo = User::factory()->create(['username' => 'playerTwo']);
+        /** @var System $system */
+        $system = System::factory()->create(['id' => 1]);
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $todayAward = Carbon::today()->setHour(10);
+        $yesterdayAward = Carbon::yesterday()->setHour(15);
+
+        $this->addMasteryBadge($playerOne, $game, UnlockMode::Hardcore, $todayAward);
+        $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, $yesterdayAward);
+
+        $this->get($this->apiUrl('GetRecentGameAwards', ['d' => Carbon::yesterday()->format('Y-m-d')]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'User' => 'playerTwo',
+                        'ULID' => $playerTwo->ulid,
+                        'AwardKind' => 'beaten-hardcore',
+                        'AwardDate' => $yesterdayAward->toIso8601String(),
+                    ],
+                ],
+            ]);
+    }
+
     public function testGetRecentAwardsWithOffset(): void
     {
         Carbon::setTestNow(Carbon::now());
