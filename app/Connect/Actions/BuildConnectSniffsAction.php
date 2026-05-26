@@ -112,16 +112,18 @@ class BuildConnectSniffsAction
             ->orWhereIn('username', $usernames)
             ->withTrashed()
             ->select('id', 'username', 'display_name', 'Permissions', 'deleted_at', 'unranked_at')
+            ->toBase()
             ->get()
             ->toArray();
         foreach ($users as $user) {
-            $userInfos[strtolower($user['username'])] = $user;
-            $userInfos[strtolower($user['display_name'])] = $user;
+            $userInfos[strtolower($user->username)] = $user;
+            $userInfos[strtolower($user->display_name)] = $user;
         }
 
         $achievements = Achievement::query()
             ->whereIn('id', $achievementIds)
             ->select('id', 'title')
+            ->toBase()
             ->get()
             ->keyBy('id')
             ->toArray();
@@ -129,6 +131,7 @@ class BuildConnectSniffsAction
         $leaderboards = Leaderboard::query()
             ->whereIn('id', $leaderboardIds)
             ->select('id', 'title')
+            ->toBase()
             ->get()
             ->keyBy('id')
             ->toArray();
@@ -137,7 +140,7 @@ class BuildConnectSniffsAction
             $lowerUsername = strtolower($sniff['user']);
             if (array_key_exists($lowerUsername, $userInfos)) {
                 $sniff['userinfo'] = $userInfos[$lowerUsername];
-                $linkUsername = $sniff['userinfo']['display_name'];
+                $linkUsername = $sniff['userinfo']->display_name;
             } elseif (empty($lowerUsername)) {
                 $sniff['smells'][] = 'no_user';
                 $linkUsername = '';
