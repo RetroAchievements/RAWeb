@@ -68,7 +68,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   };
 
   const imgProps = {
-    className: 'w-full rounded-sm',
+    className: 'w-full rounded-xs',
     style: isPixelated ? { imageRendering: 'pixelated' as const } : aspectRatioStyle,
     ...dimensionProps,
   };
@@ -79,7 +79,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
         'flex w-full items-center justify-around',
         'border border-embed-highlight bg-zinc-900/50 light:bg-neutral-50',
         'gap-x-5 gap-y-1',
-        'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
+        'xl:mx-0 xl:min-h-45 xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
       {hasGallery ? (
@@ -111,7 +111,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
               <span
                 className={cn(
                   'absolute bottom-1.5 right-1.5 flex items-center gap-1',
-                  'rounded bg-black/80 px-1.5 py-0.5 text-2xs text-white/90',
+                  'rounded-xs bg-black/80 px-1.5 py-0.5 text-2xs text-white/90',
                 )}
               >
                 <LuCamera className="size-3" />

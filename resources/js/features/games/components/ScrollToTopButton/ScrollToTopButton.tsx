@@ -23,7 +23,7 @@ export const ScrollToTopButton: FC = () => {
           transition={{ duration: 0.1 }}
           onClick={handleClick}
           className={cn(
-            'fixed bottom-8 right-8 z-50 mx-[-18px] flex size-12',
+            'fixed bottom-8 right-8 z-50 -mx-4.5 flex size-12',
             'sm:bottom-6 sm:right-6',
             'items-center justify-center rounded-full bg-neutral-700 shadow-xl',
             'light:border light:border-neutral-400 light:bg-neutral-300',

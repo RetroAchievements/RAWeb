@@ -36,7 +36,7 @@ export const LocaleSectionCard: FC = () => {
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
     >
-      <div className="flex flex-col gap-7 @container @xl:gap-5">
+      <div className="@container flex flex-col gap-7 @xl:gap-5">
         <BaseFormField
           control={form.control}
           name="locale"
@@ -46,7 +46,7 @@ export const LocaleSectionCard: FC = () => {
                 {t('Current Locale')}
               </BaseFormLabel>
 
-              <div className="flex flex-grow flex-col gap-1">
+              <div className="flex grow flex-col gap-1">
                 <BaseFormControl>
                   <BaseSelect onValueChange={field.onChange} defaultValue={field.value}>
                     <BaseSelectTrigger id="locale-select">

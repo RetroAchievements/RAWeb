@@ -31,7 +31,7 @@ export const HubHeading: FC = () => {
         </div>
       ) : null}
 
-      <h1 className="text-h3 flex w-full flex-col justify-between gap-2 self-end sm:mt-2.5 sm:!text-[2.0em] md:flex-row md:items-center">
+      <h1 className="text-h3 flex w-full flex-col justify-between gap-2 self-end sm:mt-2.5 sm:text-[2.0em]! md:flex-row md:items-center">
         <div className="flex items-center gap-2">
           <img
             aria-hidden={true}

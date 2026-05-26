@@ -72,7 +72,7 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
     <>
       {/* This prevents a flash of the page content appearing before the dialog has rendered on the client. */}
       {isOpen ? (
-        <div className="absolute left-0 top-0 z-20 h-full w-full bg-black/10 backdrop-blur-sm" />
+        <div className="absolute top-0 left-0 z-20 h-full w-full bg-black/10 backdrop-blur-xs" />
       ) : null}
 
       <BaseAlertDialog open={isOpen} onOpenChange={setIsOpen}>

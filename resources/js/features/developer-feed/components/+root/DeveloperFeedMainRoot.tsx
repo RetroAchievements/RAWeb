@@ -32,7 +32,7 @@ export const DeveloperFeedMainRoot: FC = () => {
   return (
     <div>
       <UserBreadcrumbs user={developer} t_currentPageLabel={t('Developer Feed')} />
-      <UserHeading user={developer} wrapperClassName="!mb-1">
+      <UserHeading user={developer} wrapperClassName="mb-1!">
         {t('Developer Feed')}
       </UserHeading>
 

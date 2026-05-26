@@ -22,7 +22,7 @@ const BaseSelectTrigger = React.forwardRef<
     className={cn(
       'flex h-10 w-full items-center justify-between rounded-md border light:border-neutral-200',
       'px-3 py-2 text-sm light:bg-white light:ring-offset-white light:placeholder:text-neutral-500',
-      'focus:outline-none focus:ring-1 focus:ring-offset-1 light:focus:ring-neutral-950',
+      'focus:outline-hidden focus:ring-1 focus:ring-offset-1 light:focus:ring-neutral-950',
       'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       'border-neutral-800 bg-neutral-950 text-menu-link ring-offset-neutral-950 placeholder:text-neutral-400',
       'focus:ring-neutral-300',
@@ -46,7 +46,7 @@ const BaseSelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 min-w-[8rem] overflow-hidden rounded-md border light:border-neutral-200 light:bg-white',
+        'relative z-50 min-w-32 overflow-hidden rounded-md border light:border-neutral-200 light:bg-white',
         'shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out light:text-neutral-950',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95',
         'data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
@@ -54,7 +54,7 @@ const BaseSelectContent = React.forwardRef<
         'border-neutral-800 bg-neutral-950 text-neutral-50',
 
         // Don't overflow on mobile Android Chrome.
-        'max-h-[var(--radix-select-content-available-height)]',
+        'max-h-(--radix-select-content-available-height)',
 
         position === 'popper' &&
           'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
@@ -68,7 +68,7 @@ const BaseSelectContent = React.forwardRef<
         className={cn(
           'p-1',
           position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]',
+            'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)',
         )}
       >
         {children}
@@ -97,8 +97,8 @@ const BaseSelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50 light:focus:bg-neutral-100 light:focus:text-neutral-900',
+      'relative flex w-full cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden',
+      'data-disabled:pointer-events-none data-disabled:opacity-50 light:focus:bg-neutral-100 light:focus:text-neutral-900',
       'focus:bg-neutral-800 focus:text-neutral-50',
       className,
     )}

@@ -6,7 +6,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 }
 ?>
 
-<h2 class="text-h4 !leading-none mb-2">Progression Status</h2>
+<h2 class="text-h4 leading-none! mb-2">Progression Status</h2>
 
 <div x-data="{ widthMode: '{{ $widthMode }}' }">
     <div class="flex flex-col-reverse gap-y-2 sm:gap-y-0 sm:flex-row sm:justify-between w-full mb-2">
@@ -17,7 +17,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             :totalMasteredCount="$totalCounts['mastered']"
         />
 
-        <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition sm:-mt-[2px] md:active:scale-95">
+        <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition sm:mt-[-2px] md:active:scale-95">
             <input
                 type="checkbox"
                 autocomplete="off"

@@ -80,7 +80,7 @@ render(function (View $view, Game $game) {
     />
 
     <div class="mt-3 w-full flex gap-x-3">
-        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">Claim History</h1>
     </div>
 

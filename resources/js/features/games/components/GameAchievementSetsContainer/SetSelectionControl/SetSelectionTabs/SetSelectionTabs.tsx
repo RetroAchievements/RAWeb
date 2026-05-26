@@ -45,14 +45,14 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       <div
         data-testid="tab-indicator"
         className={cn(
-          'absolute left-0 top-0 h-[2px] bg-neutral-300 will-change-transform light:bg-neutral-800',
+          'absolute left-0 top-0 h-0.5 bg-neutral-300 will-change-transform light:bg-neutral-800',
           isAnimationReady ? 'transition-all duration-150 ease-out' : null,
         )}
         style={indicatorStyles}
       />
 
       {/* Tabs */}
-      <div className="relative flex flex-wrap items-center gap-x-[6px] gap-y-4">
+      <div className="relative flex flex-wrap items-center gap-x-1.5 gap-y-4">
         {selectableGameAchievementSets.map((gas, index) => (
           <BaseHoverCard
             key={gas.id}
@@ -86,7 +86,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                     tabRefs.current[index] = el;
                   }}
                   className={cn(
-                    'flex h-[30px] cursor-pointer items-center px-2 pb-[18px] pt-4 duration-300',
+                    'flex h-7.5 cursor-pointer items-center px-2 pb-4.5 pt-4 duration-300',
                     'lg:active:translate-y-px',
                     index === activeIndex
                       ? 'text-white light:text-[#0e0e10]'
@@ -96,7 +96,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                   <img
                     src={gas.achievementSet.imageAssetPathUrl}
                     alt={gas.title ?? BASE_SET_LABEL}
-                    className="size-8 select-none rounded-sm"
+                    className="size-8 rounded-xs select-none"
                   />
                 </div>
               </InertiaLink>

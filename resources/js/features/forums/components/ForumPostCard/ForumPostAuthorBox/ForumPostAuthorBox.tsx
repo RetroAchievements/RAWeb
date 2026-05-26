@@ -16,7 +16,7 @@ export const ForumPostAuthorBox: FC<ForumPostAuthorBoxProps> = ({ comment }) => 
   const author = comment?.user as App.Data.User;
 
   return (
-    <div className="border-b border-neutral-700 px-0.5 pb-2 light:border-neutral-300 lg:border-b-0 lg:border-r lg:py-2">
+    <div className="border-b border-neutral-700 px-0.5 pb-2 lg:border-r lg:border-b-0 lg:py-2 light:border-neutral-300">
       {author ? (
         <div className="flex w-full items-center lg:w-44 lg:flex-col lg:text-center">
           <UserAvatar {...author} showLabel={false} size={72} />
@@ -27,21 +27,21 @@ export const ForumPostAuthorBox: FC<ForumPostAuthorBoxProps> = ({ comment }) => 
             </div>
 
             {author.isBanned ? (
-              <p data-testid="banned-status" className="smalltext !text-xs !leading-4 lg:!text-2xs">
+              <p data-testid="banned-status" className="smalltext text-xs! leading-4! lg:text-2xs!">
                 {t('Banned')}
               </p>
             ) : author.isMuted ? (
-              <p data-testid="muted-status" className="smalltext !text-xs !leading-4 lg:!text-2xs">
+              <p data-testid="muted-status" className="smalltext text-xs! leading-4! lg:text-2xs!">
                 {t('Muted')}
               </p>
             ) : author.visibleRole ? (
-              <p data-testid="visible-role" className="smalltext !text-xs !leading-4 lg:!text-2xs">
+              <p data-testid="visible-role" className="smalltext text-xs! leading-4! lg:text-2xs!">
                 {t(author.visibleRole.name as TranslationKey)}
               </p>
             ) : null}
 
             {author.createdAt && !author.deletedAt ? (
-              <p className="smalltext !text-xs !leading-4 lg:!text-2xs">
+              <p className="smalltext text-xs! leading-4! lg:text-2xs!">
                 {t('Joined {{joinDate}}', { joinDate: formatDate(author.createdAt, 'll') })}
               </p>
             ) : null}

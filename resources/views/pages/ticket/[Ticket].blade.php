@@ -91,14 +91,14 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
     </div>
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! achievementAvatar($ticket->achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! achievementAvatar($ticket->achievement, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">{{ $ticket->achievement->title }} ({{ $ticket->type->label() }})</h1>
     </div>
 
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
         <div class="flex flex-col gap-y-1">
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Ticket Information</p>
-            <div class="relative w-full p-2 bg-embed rounded">
+            <div class="relative w-full p-2 bg-embed rounded-sm">
                 <x-ticket.stat-element label="State">{{ $ticket->state->label() }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->created_at->unix()) }}</x-ticket.stat-element>
@@ -131,7 +131,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
         </div>
         <div class="flex flex-col gap-y-1">
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Achievement Information</p>
-                <div class="relative w-full p-2 bg-embed rounded">
+                <div class="relative w-full p-2 bg-embed rounded-sm">
                     <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize: 16) !!}</x-ticket.stat-element>
                     <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize: 16) !!}</x-ticket.stat-element>
                     @php
@@ -181,7 +181,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                 </p>
             </div>
 
-            <div class="relative w-full p-2 bg-embed rounded">
+            <div class="relative w-full p-2 bg-embed rounded-sm">
                 <div class="w-full relative flex gap-x-3">
                     <x-user.client-list :clients="$clients" />
 

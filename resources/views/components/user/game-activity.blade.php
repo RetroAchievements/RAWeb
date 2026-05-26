@@ -19,7 +19,7 @@ use App\Models\Achievement;
     <div class="overflow-x-auto lg:overflow-x-visible">
         <table class="do-not-highlight mb-4">
             <thead>
-                <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
+                <tr class="do-not-highlight lg:sticky lg:top-[42px] z-1 bg-box">
                     <th style="width:25%">When</th>
                     <th style="width:75%">What</th>
                 </tr>

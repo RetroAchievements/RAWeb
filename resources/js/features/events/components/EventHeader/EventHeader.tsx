@@ -29,7 +29,7 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
         <img
           src={event.legacyGame.badgeUrl}
           alt={event.legacyGame.title}
-          className="size-16 rounded-sm sm:size-24"
+          className="size-16 rounded-xs sm:size-24"
         />
 
         <div className="-mt-1 flex flex-col gap-4 sm:-mt-1.5">
@@ -38,13 +38,13 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
               {event.legacyGame.title}
             </h1>
 
-            <span className="flex items-center gap-1 whitespace-nowrap text-xs">
+            <span className="flex items-center gap-1 text-xs whitespace-nowrap">
               <img src="/assets/images/system/events.png" alt="icon" width={18} height={18} />
               <span>{t('Event')}</span>
             </span>
           </div>
 
-          <div className="hidden flex-wrap gap-x-2 gap-y-1 text-neutral-300 light:text-neutral-700 sm:flex">
+          <div className="hidden flex-wrap gap-x-2 gap-y-1 text-neutral-300 sm:flex light:text-neutral-700">
             <IsPlayableChip event={event} />
             <StartDateChip event={event} />
             <EndDateChip event={event} />
@@ -52,7 +52,7 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-x-2 gap-y-1 text-neutral-300 light:text-neutral-700 sm:hidden">
+      <div className="flex flex-wrap gap-x-2 gap-y-1 text-neutral-300 sm:hidden light:text-neutral-700">
         <IsPlayableChip event={event} />
         <StartDateChip event={event} />
         <EndDateChip event={event} />

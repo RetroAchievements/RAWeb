@@ -15,7 +15,7 @@ $lastAffectedAt = Carbon::parse($paginatedRow->last_affected_at)->format('F j Y'
 ?>
 
 <tr
-    class="hidden sm:table-row {{ $isHighlighted ? 'rounded' : '' }}"
+    class="hidden sm:table-row {{ $isHighlighted ? 'rounded-sm' : '' }}"
     @if ($isHighlighted) style="outline: thin solid" @endif
 >
     <td>
@@ -24,7 +24,7 @@ $lastAffectedAt = Carbon::parse($paginatedRow->last_affected_at)->format('F j Y'
         @endif
     </td>
 
-    <td>{!! userAvatar($paginatedRow->User, iconClass: 'rounded-sm mr-1') !!}</td>
+    <td>{!! userAvatar($paginatedRow->User, iconClass: 'rounded-xs mr-1') !!}</td>
 
     <td class='py-2.5'>
         <x-game.multiline-avatar

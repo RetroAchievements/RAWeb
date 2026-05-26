@@ -323,7 +323,7 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
     // the hidden checkbox status.
     const allTdEls = targetRowEl.querySelectorAll('td');
     for (const tdEl of allTdEls) {
-      if (isHiddenChecked && !tdEl.classList.contains('!opacity-100')) {
+      if (isHiddenChecked && !tdEl.classList.contains('opacity-100!')) {
         tdEl.classList.add('opacity-40');
       } else {
         tdEl.classList.remove('opacity-40');

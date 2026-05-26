@@ -23,7 +23,7 @@ export const SessionModeToggleGroup: FC = () => {
       name="mode"
       render={({ field }) => (
         <BaseFormItem className="flex w-full flex-col gap-1 sm:flex-row sm:items-center">
-          <BaseFormLabel className="text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start">
+          <BaseFormLabel className="text-menu-link sm:mt-3.25 sm:min-w-36 sm:self-start">
             {t('Mode')}
           </BaseFormLabel>
 

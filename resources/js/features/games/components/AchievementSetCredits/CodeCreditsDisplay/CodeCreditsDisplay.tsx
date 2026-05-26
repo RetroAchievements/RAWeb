@@ -59,7 +59,7 @@ const CodeCreditIcon: FC<CodeCreditIconProps> = ({ activeMaintainers, logicCredi
 
   return (
     <BaseTooltip>
-      <BaseTooltipTrigger className="px-2 py-[5px]">
+      <BaseTooltipTrigger className="px-2 py-1.25">
         <LuCode className="size-3.5" />
       </BaseTooltipTrigger>
 

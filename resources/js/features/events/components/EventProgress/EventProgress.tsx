@@ -48,7 +48,7 @@ export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => 
         <Glow isMastered={isMastered} />
       ) : null}
 
-      <div className="relative border border-embed-highlight bg-embed px-5 pb-5 pt-3.5 light:border-neutral-200 light:bg-white lg:rounded">
+      <div className="relative border border-embed-highlight bg-embed px-5 pt-3.5 pb-5 lg:rounded-xs light:border-neutral-200 light:bg-white">
         <div className="mb-2">
           <p className="sr-only">{t('Your Progress')}</p>
 

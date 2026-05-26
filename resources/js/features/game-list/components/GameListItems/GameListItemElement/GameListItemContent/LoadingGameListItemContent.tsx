@@ -18,13 +18,13 @@ export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = (
   return (
     <div role="status" aria-label={t('Loading...')}>
       <div className="flex items-center gap-3">
-        <BaseSkeleton className="h-12 w-12 rounded-sm" />
+        <BaseSkeleton className="h-12 w-12 rounded-xs" />
 
-        <div className="flex-grow">
+        <div className="grow">
           <div className="flex flex-col gap-1.5">
             <BaseSkeleton className="h-4 w-40" />
             <div className="flex gap-1">
-              <BaseSkeleton className="h-[20px] w-16 rounded-full" />
+              <BaseSkeleton className="h-5 w-16 rounded-full" />
             </div>
           </div>
         </div>
@@ -35,7 +35,7 @@ export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = (
         </div>
       </div>
 
-      {isLastItem ? null : <BaseSkeleton data-testid="bottom-border" className="ml-14 mt-2 h-px" />}
+      {isLastItem ? null : <BaseSkeleton data-testid="bottom-border" className="mt-2 ml-14 h-px" />}
     </div>
   );
 };

@@ -108,7 +108,7 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     const imgEl = screen.getByRole('img');
     expect(imgEl).toHaveClass(
-      'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
+      'rounded-[1px] outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
     );
   });
 
@@ -197,7 +197,7 @@ describe('Component: AchievementAvatar', () => {
 
     // ASSERT
     const containerEl = screen.getByTestId('ach-avatar-root');
-    expect(containerEl).toHaveClass('inline-block min-h-[26px]');
+    expect(containerEl).toHaveClass('inline-block min-h-6.5');
     expect(containerEl).not.toHaveClass('flex max-w-fit items-center');
   });
 
@@ -273,7 +273,7 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     const imgEl = screen.getByRole('img');
     expect(imgEl).toHaveClass(
-      'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
+      'rounded-[1px] outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
     );
   });
 

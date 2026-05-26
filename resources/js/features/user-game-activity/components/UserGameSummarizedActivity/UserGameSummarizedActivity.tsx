@@ -82,7 +82,7 @@ const EstimatedLabel: FC = () => {
         <span className="ml-1 text-xs">{t('(estimated)')}</span>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent className="max-w-[280px]">
+      <BaseTooltipContent className="max-w-70">
         <span className="text-xs">
           {t(
             'This player has sessions for the game where the playtime recorded to the server is not precise.',

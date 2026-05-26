@@ -34,7 +34,7 @@ export const WantToPlayToggle: FC<WantToPlayToggleProps> = ({
       onClick={() => toggleWantToPlay()}
       className={cn(
         'group flex items-center gap-1 whitespace-nowrap rounded-full',
-        'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-sm hover:bg-black/80',
+        'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-xs hover:bg-black/80',
         'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md light:hover:bg-white/90',
         variant === 'base' ? 'hover:border-link-hover' : null,
         className,

@@ -53,7 +53,7 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubId
               />
             </BaseTooltipTrigger>
 
-            <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+            <BaseTooltipContent className="max-w-72 leading-normal font-normal">
               <span className="text-xs font-normal">
                 {t(
                   'Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.',

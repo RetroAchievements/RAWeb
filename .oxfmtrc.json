@@ -4,7 +4,7 @@
   "tabWidth": 2,
   "singleQuote": true,
   "sortTailwindcss": {
-    "config": "./tailwind.config.js",
+    "stylesheet": "./resources/css/app.css",
     "attributes": [
       "anchorClassName",
       "baseCommandListClassName",

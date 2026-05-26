@@ -32,7 +32,7 @@ $richPresenceDate = $user?->rich_presence_updated_at;
             </p>
         </div>
 
-        <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded">
+        <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded-sm">
             <x-game.multiline-avatar
                 :gameId="$sessionGame->id"
                 :gameTitle="$sessionGame->title"

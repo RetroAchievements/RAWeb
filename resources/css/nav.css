@@ -42,7 +42,7 @@ nav.has-banner.bg-embedded {
   transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
   will-change: background-color, backdrop-filter;
 }
-/* Only apply blur to the first nav to avoid banding where navs meet. */
+/* Only apply blur-sm to the first nav to avoid banding where navs meet. */
 nav.has-banner:first-of-type {
   backdrop-filter: blur(8px);
 }

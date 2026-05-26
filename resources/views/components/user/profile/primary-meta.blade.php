@@ -53,7 +53,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
     <img
         src="{{ $user->avatar_url }}"
         alt="{{ $user->display_name }}'s avatar"
-        class="rounded-sm h-[64px] w-[64px] sm:max-h-[128px] sm:max-w-[128px] sm:min-w-[128px] sm:min-h-[128px]"
+        class="rounded-xs h-[64px] w-[64px] sm:max-h-[128px] sm:max-w-[128px] sm:min-w-[128px] sm:min-h-[128px]"
     >
 
     <div class="w-full">
@@ -71,24 +71,24 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
 
             {{-- Status Badge: Banned > Muted > Visible Role --}}
             @if ($userMassData['Permissions'] === Permissions::Spam)
-                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded-sm sm:-mt-1">
                     <p class="text-2xs -mb-0.5">Spam</p>
                 </div>
             @elseif ($userMassData['Permissions'] === Permissions::Banned)
-                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded-sm sm:-mt-1">
                     <p class="text-2xs -mb-0.5">Banned</p>
                 </div>
             @elseif ($userMassData['Permissions'] === Permissions::Unregistered)
-                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded-sm sm:-mt-1">
                     <p class="text-2xs -mb-0.5">Unregistered</p>
                 </div>
             @elseif ($user->isMuted())
-                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded-sm sm:-mt-1">
                     <p class="text-2xs -mb-0.5">{{ __('Muted') }}</p>
                 </div>
             @elseif ($hasVisibleRole)
                 <div
-                    class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1 {{ $fullRolesLabel ? 'cursor-help border border-dotted border-neutral-400' : '' }}"
+                    class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded-sm sm:-mt-1 {{ $fullRolesLabel ? 'cursor-help border border-dotted border-neutral-400' : '' }}"
                     @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
                 >
                     <p class="text-2xs -mb-0.5">
@@ -100,7 +100,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
 
         {{-- Motto --}}
         @if (!empty($userMassData['Motto']) && !$user->isMuted())
-            <div x-data="{}" class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
+            <div x-data="{}" class="rounded-sm bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
                 <p x-linkify class="[&>a]:text-text [&>a]:transition-colors [&>a]:duration-700 [&>a]:ease-out" style="word-break: break-word;">
                     {{ $userMassData['Motto'] }}
                 </p>

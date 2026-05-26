@@ -23,7 +23,7 @@ const EventShow: AppPage = () => {
       <SEOPreloadBanner banner={banner} device={ziggy.device} />
 
       {ziggy.device === 'desktop' ? (
-        <AppLayout.Banner className="md:-mb-[30px]">
+        <AppLayout.Banner className="md:-mb-7.5">
           <EventDesktopBanner />
         </AppLayout.Banner>
       ) : null}

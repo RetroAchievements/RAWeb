@@ -87,7 +87,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
             {/* Content (a scrollable vertical image list) */}
             <DialogPrimitive.Content asChild forceMount aria-describedby={undefined}>
               <motion.div
-                className="fixed inset-0 flex flex-col items-center overflow-y-auto outline-none"
+                className="fixed inset-0 flex flex-col items-center overflow-y-auto outline-hidden"
                 style={{ zIndex: 9999 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -111,7 +111,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                       className={cn(
                         'flex size-8 items-center justify-center rounded-full',
                         'text-neutral-100 transition-colors',
-                        'hover:text-white focus:outline-none',
+                        'hover:text-white focus:outline-hidden',
                       )}
                     >
                       <RxCross2 className="size-6" />
@@ -121,7 +121,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                 </div>
 
                 {/* Stacked images */}
-                <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pb-8 pt-4 sm:gap-6">
+                <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pt-4 pb-8 sm:gap-6">
                   {screenshots.map((screenshot) => {
                     const isCompletion = screenshot.type === 'completion';
                     // Players who have already beaten the game have seen the
@@ -156,7 +156,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                           }
                         }}
                         className={cn(
-                          'pointer-events-auto relative scroll-mt-20 overflow-hidden rounded ring-1 ring-neutral-800',
+                          'pointer-events-auto relative scroll-mt-20 overflow-hidden rounded-xs ring-1 ring-neutral-800',
                           integerScaledMaxWidth && 'mx-auto w-full',
                         )}
                         style={
@@ -167,7 +167,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                           src={getScreenshotGalleryUrl(screenshot, { isPixelated })}
                           alt={isCompletion ? t('Completion screenshot') : ''}
                           className={cn(
-                            'w-full rounded transition-[filter] duration-300 ease-out',
+                            'w-full rounded-xs transition-[filter] duration-300 ease-out',
                             isCompletion && !isRevealed && 'blur-3xl',
                           )}
                           style={{
@@ -181,12 +181,12 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                             type="button"
                             aria-label={t('Reveal completion screenshot')}
                             className={cn(
-                              'absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded',
+                              'absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xs',
                               'bg-black/60 transition-colors hover:bg-black/70',
                             )}
                             onClick={() => handleRevealCompletion(screenshot.id)}
                           >
-                            <span className="text-xs uppercase tracking-widest text-neutral-300">
+                            <span className="text-xs tracking-widest text-neutral-300 uppercase">
                               {t('Completion screenshot')}
                             </span>
 

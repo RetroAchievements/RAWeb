@@ -34,9 +34,9 @@ export const AchievementTypeIndicator: FC<AchievementTypeIndicatorProps> = ({
     AchievementTypeIndicatorProps['type'],
     { label: TranslatedString; icon: ReactNode }
   > = {
-    missable: { icon: <RaMissable className="size-[18px]" />, label: t('Missable') },
-    progression: { icon: <RaProgression className="size-[18px]" />, label: t('Progression') },
-    win_condition: { icon: <RaWinCondition className="size-[18px]" />, label: t('Win Condition') },
+    missable: { icon: <RaMissable className="size-4.5" />, label: t('Missable') },
+    progression: { icon: <RaProgression className="size-4.5" />, label: t('Progression') },
+    win_condition: { icon: <RaWinCondition className="size-4.5" />, label: t('Win Condition') },
   };
 
   const { icon, label } = typeMetaMap[type];

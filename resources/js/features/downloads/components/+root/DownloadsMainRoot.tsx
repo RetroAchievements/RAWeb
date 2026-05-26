@@ -34,7 +34,7 @@ export const DownloadsMainRoot: FC = () => {
       </h1>
 
       <div className="flex flex-col gap-6 sm:gap-10">
-        <BaseCard className="flex flex-col gap-5 light:bg-white light:shadow-sm">
+        <BaseCard className="flex flex-col gap-5 light:bg-white light:shadow-xs">
           <div className="grid lg:grid-cols-2">
             <SystemSelector />
             <PlatformSelector />

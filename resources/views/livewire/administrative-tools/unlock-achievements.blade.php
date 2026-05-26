@@ -328,7 +328,7 @@ new class extends Component implements HasForms {
             $groupedAchievements = $achievements->groupBy('game_id');
         @endphp
 
-        <div class="mb-6 overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
+        <div class="mb-6 overflow-x-auto rounded-xl bg-white shadow-xs ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
             <div>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     You are about to award <span class="font-medium text-gray-950 dark:text-white">{{ count($this->validAchievementIds) }}</span> achievement(s) worth a total of <span class="font-medium text-gray-950 dark:text-white">{{ number_format($achievements->sum('points')) }}</span> point(s) to <span class="font-medium text-gray-950 dark:text-white">{{ count($this->validUserIds) }}</span> user(s) in <span class="font-medium text-primary-600 dark:text-primary-400 uppercase">{{ $this->selectedMode }}</span> mode. <br> 
@@ -348,7 +348,7 @@ new class extends Component implements HasForms {
             </div>
         </div>
 
-        <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        <div class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <div class="max-h-96 overflow-y-auto overflow-x-auto">
                 <table class="fi-ta-table w-full text-sm text-left">
                     <tbody class="divide-y divide-gray-200 dark:divide-white/5">
@@ -360,7 +360,7 @@ new class extends Component implements HasForms {
                                 <th colspan="3" class="px-4 py-3 text-left">
                                     <div class="flex items-center gap-3">
                                         @if($game && !empty($game->image_icon_asset_path))
-                                            <img src="{{ media_asset($game->image_icon_asset_path) }}" alt="Game Icon" class="w-10 h-10 rounded-sm object-contain bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
+                                            <img src="{{ media_asset($game->image_icon_asset_path) }}" alt="Game Icon" class="w-10 h-10 rounded-xs object-contain bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
                                         @endif
                                         <div class="flex flex-col">
                                             @if($game)
@@ -382,7 +382,7 @@ new class extends Component implements HasForms {
                                         <img src="{{ media_asset('Badge/' . $achievement->image_name . '.png') }}" alt="Badge" class="w-full h-full object-contain rounded-md bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
                                     </div>
                                 </td>
-                                <td class="fi-ta-cell px-4 py-3 align-top w-full min-w-[12rem]">
+                                <td class="fi-ta-cell px-4 py-3 align-top w-full min-w-48">
                                     <div class="flex flex-col">
                                         <a href="{{ route('achievement.show', $achievement->id) }}" target="_blank" class="font-medium text-gray-950 dark:text-white hover:underline">
                                             {{ $achievement->title }}

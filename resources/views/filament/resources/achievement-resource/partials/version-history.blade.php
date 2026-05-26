@@ -74,13 +74,13 @@
                 {{-- Version header --}}
                 <button
                     @click="toggleVersion({{ $trigger->version ?? "'draft'" }})"
-                    class="w-full text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 -mx-2 px-2 py-1.5 rounded transition-colors"
+                    class="w-full text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 -mx-2 px-2 py-1.5 rounded-sm transition-colors"
                 >
                     <div class="flex items-center justify-between gap-4">
                         {{-- Avatar + author + time --}}
                         <div class="flex items-center gap-2 text-sm">
                             @if ($trigger->user)
-                                <x-filament-panels::avatar.user :user="$trigger->user" class="!size-5" />
+                                <x-filament-panels::avatar.user :user="$trigger->user" class="size-5!" />
                             @endif
 
                             <span class="text-neutral-950 dark:text-white font-medium">{{ $trigger->user?->display_name ?? 'Unknown' }}</span>
@@ -109,12 +109,12 @@
                             @endif
 
                             @if ($trigger->version)
-                                <span class="font-mono text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                                <span class="font-mono text-xs px-2 py-0.5 rounded-sm bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
                                     v{{ $trigger->version }}
                                 </span>
                             @else
                                 <span
-                                    class="font-mono text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-help"
+                                    class="font-mono text-xs px-2 py-0.5 rounded-sm bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-help"
                                     x-tooltip="{ content: 'This asset is unpublished', theme: $store.theme }"
                                 >
                                     Draft
@@ -148,7 +148,7 @@
                                 :class="(viewMode[{{ $trigger->version ?? "'draft'" }}] ?? 'diff') === 'diff'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
-                                class="px-3 py-1 text-xs font-medium rounded transition-colors"
+                                class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
                             >
                                 Diff
                             </button>
@@ -158,7 +158,7 @@
                                 :class="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
-                                class="px-3 py-1 text-xs font-medium rounded transition-colors"
+                                class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
                             >
                                 Raw
                             </button>
@@ -296,7 +296,7 @@
 
                         {{-- Raw view, shown when user selects the 'Raw' toggle button/tab --}}
                         <div x-show="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'" x-cloak>
-                            <code class="block p-3 font-mono text-[11px] rounded-lg bg-gray-950/[0.02] dark:bg-white/[0.02] border border-gray-950/5 dark:border-white/10 break-all text-neutral-600 dark:text-neutral-400">
+                            <code class="block p-3 font-mono text-[11px] rounded-lg bg-gray-950/2 dark:bg-white/2 border border-gray-950/5 dark:border-white/10 break-all text-neutral-600 dark:text-neutral-400">
                                 {{ $trigger->conditions }}
                             </code>
                         </div>

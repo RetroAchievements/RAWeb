@@ -19,7 +19,7 @@
         @click="handleClick($el)"
         @class([
             'fixed left-0 -bottom-0.5 z-50 sm:left-1',
-            'flex gap-1 sm:flex-col rounded bg-black p-1 text-neutral-200 text-2xs',
+            'flex gap-1 sm:flex-col rounded-sm bg-black p-1 text-neutral-200 text-2xs',
             app()->isLocal() ? 'sm:bottom-10' : 'sm:bottom-2.5'
         ])
     >

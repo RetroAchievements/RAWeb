@@ -39,7 +39,7 @@ export const PageSizeSelect: FC<PageSizeSelectProps> = ({
         <BaseSelectTrigger
           id="rows-per-page-select"
           aria-labelledby="rows-per-page-label"
-          className="h-8 w-[70px]"
+          className="h-8 w-17.5"
         >
           <BaseSelectValue placeholder={value} />
         </BaseSelectTrigger>

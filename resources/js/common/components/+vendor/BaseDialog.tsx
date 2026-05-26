@@ -95,17 +95,16 @@ const BaseDialogContent = React.forwardRef<
 
     return (
       <BaseDialogPortal>
-        <BaseDialogOverlay className={cn(shouldBlurBackdrop ? 'backdrop-blur' : '')} />
+        <BaseDialogOverlay className={cn(shouldBlurBackdrop ? 'backdrop-blur-sm' : '')} />
 
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
             'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg bg-embed light:bg-neutral-100',
-            'translate-x-[-50%] translate-y-[-50%] gap-4 border border-neutral-600 p-6 shadow-lg duration-200 light:border-neutral-200',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
-            'data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-            'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
-            'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
+            'translate-x-[-50%] translate-y-[-50%] gap-4 border border-neutral-600 p-6 shadow-lg duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] light:border-neutral-200',
+            'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-6',
+            'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-6',
+            'sm:rounded-lg',
             className,
           )}
           {...props}
@@ -117,8 +116,8 @@ const BaseDialogContent = React.forwardRef<
               ref={closeButtonRef}
               className={cn(
                 'ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
-                'absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100',
-                'focus:outline-none focus:ring-offset-2 disabled:pointer-events-none',
+                'absolute right-4 top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100',
+                'focus:outline-hidden focus:ring-offset-2 disabled:pointer-events-none',
                 'text-link',
               )}
               onTouchEnd={handleCloseTouchEnd}

@@ -18,7 +18,7 @@ export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame, sou
       data-testid="similar-game-reason"
       className="flex gap-1.5 py-1 text-neutral-300 light:text-neutral-900"
     >
-      <LuGamepad2 className="size-[18px] lg:hidden xl:block" />
+      <LuGamepad2 className="size-4.5 lg:hidden xl:block" />
 
       {sourceGameKind === 'beaten' ? t('Similar to beaten') : null}
       {sourceGameKind === 'mastered' ? t('Similar to mastered') : null}

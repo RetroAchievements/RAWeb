@@ -22,7 +22,7 @@ export const AchievementHeading: FC<AchievementHeadingProps> = ({
         <AchievementAvatar {...achievement} showLabel={false} size={48} />
       </div>
 
-      <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">{children}</h1>
+      <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:text-[2.0em]!">{children}</h1>
     </div>
   );
 };
