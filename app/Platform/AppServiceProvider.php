@@ -30,6 +30,7 @@ use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
+use App\Platform\Commands\DeleteOldConnectWarnings;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
@@ -104,6 +105,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Players
                 CrawlPlayerWeightedPoints::class,
+                DeleteOldConnectWarnings::class,
                 ResetPlayerAchievement::class,
                 RevertManualUnlocks::class,
                 UnlockPlayerAchievement::class,
@@ -158,6 +160,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(CheckForAchievementSetChanges::class)->daily();
 
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(DeleteOldConnectWarnings::class)->weekly();
             $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
             $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
         });
