@@ -123,7 +123,7 @@ class AwardAchievementAction extends BaseAuthenticatedApiAction
         // check client support level
         $this->validateClient($request, $this->achievement->game);
 
-        if (!$this->clientSupportLevel->allowsHardcoreUnlocks() && $this->hardcore) {
+        if ($this->hardcore && !$this->clientSupportLevel->allowsHardcoreUnlocks()) {
             $this->hardcore = false;
         }
 

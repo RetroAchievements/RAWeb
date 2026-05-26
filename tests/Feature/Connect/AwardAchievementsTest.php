@@ -17,7 +17,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
-use Tests\TestCase;
 
 uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
@@ -85,8 +84,8 @@ beforeEach(function () {
     $this->createConnectUser();
 });
 
-describe('normal unlock', function() {
-    test('single achievement hardcore', function() {
+describe('normal unlock', function () {
+    test('single achievement hardcore', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -116,6 +115,7 @@ describe('normal unlock', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
+            ->assertStatus(200)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement1->points,
@@ -169,7 +169,7 @@ describe('normal unlock', function() {
         $this->assertEquals($now, $unlocks[$achievement1->id]['DateEarned']);
     });
 
-    test('single achievement softcore', function() {
+    test('single achievement softcore', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -199,6 +199,7 @@ describe('normal unlock', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
+            ->assertStatus(200)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
@@ -252,7 +253,7 @@ describe('normal unlock', function() {
         $this->assertEquals($now, $unlocks[$achievement1->id]['DateEarned']);
     });
 
-    test('multiple achievements hardcore', function() {
+    test('multiple achievements hardcore', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -295,6 +296,7 @@ describe('normal unlock', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
+            ->assertStatus(200)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement2->points + $achievement3->points + $achievement4->points,
@@ -377,8 +379,8 @@ describe('normal unlock', function() {
     });
 });
 
-describe('validation', function() {
-    test('non standalone system', function() {
+describe('validation', function () {
+    test('non standalone system', function () {
         $game = Game::factory()->create();
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id]);
         $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered]);
@@ -400,12 +402,12 @@ describe('validation', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
+            ->assertStatus(403)
             ->assertExactJson([
-                "Success" => true,
-                "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore,
-                "ExistingIDs" => [],
-                "SuccessfulIDs" => [], // empty because the achievement isn't part of a standalone system's game
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
             ]);
         $delegatedUser->refresh();
 
@@ -420,7 +422,7 @@ describe('validation', function() {
         ]);
     });
 
-    test('wrong validation hash', function() {
+    test('wrong validation hash', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -464,7 +466,7 @@ describe('validation', function() {
         ]);
     });
 
-    test('integration user is not author', function() {
+    test('integration user is not author', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -487,12 +489,12 @@ describe('validation', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
+            ->assertStatus(403)
             ->assertExactJson([
-                "Success" => true,
-                "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore,
-                "ExistingIDs" => [],
-                "SuccessfulIDs" => [], // empty because the achievement was not authored by the integration user
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
             ]);
         $delegatedUser->refresh();
 
@@ -507,7 +509,7 @@ describe('validation', function() {
         ]);
     });
 
-    test('no delegated user', function() {
+    test('no delegated user', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -525,15 +527,16 @@ describe('validation', function() {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertExactJson([
-                "Success" => false,
-                "Error" => "You must specify a target user.",
-                "Status" => 400,
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
             ]);
     });
 
-    test('delegated user is unknown', function() {
+    test('delegated user is unknown', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -554,14 +557,14 @@ describe('validation', function() {
         $this->post($requestUrl, $payload)
             ->assertStatus(404)
             ->assertExactJson([
-                "Success" => false,
-                "Error" => "The target user couldn't be found.",
-                "Status" => 404,
-                "Code" => "not_found",
+                'Success' => false,
+                'Error' => 'Unknown target user.',
+                'Status' => 404,
+                'Code' => 'not_found',
             ]);
     });
 
-    test('must be POSTed', function() {
+    test('must be POSTed', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
@@ -590,7 +593,7 @@ describe('validation', function() {
             ]);
     });
 
-    test('unpromoted achievement is not awarded', function() {
+    test('unpromoted achievement is not awarded', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
         $achievement1 = $data['achievements'][0];
