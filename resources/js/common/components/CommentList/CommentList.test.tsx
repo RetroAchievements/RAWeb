@@ -8,6 +8,13 @@ import { createComment, createUser } from '@/test/factories';
 
 import { CommentList } from './CommentList';
 
+// Disable draft persistence to avoid conflicts with userEvent.type
+vi.mock('@/common/hooks/useFormDraft', () => ({
+  useFormDraft: () => ({
+    clearDraft: vi.fn(),
+  }),
+}));
+
 describe('Component: CommentList', () => {
   it('renders without crashing', () => {
     // ARRANGE

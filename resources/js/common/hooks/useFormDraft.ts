@@ -10,6 +10,10 @@ import { useWatch } from 'react-hook-form';
  */
 export function useFormDraft<T extends FieldValues>(key: string | null, form: UseFormReturn<T>) {
   const values = useWatch({ control: form.control });
+
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -25,6 +29,14 @@ export function useFormDraft<T extends FieldValues>(key: string | null, form: Us
       }
     };
   }, [key, values]);
+
+  useEffect(() => {
+    return () => {
+      if (key) {
+        sessionStorage.setItem(key, JSON.stringify(valuesRef.current));
+      }
+    };
+  }, [key]);
 
   const clearDraft = () => {
     if (key) {

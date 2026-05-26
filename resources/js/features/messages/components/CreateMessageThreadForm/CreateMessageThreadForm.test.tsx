@@ -10,6 +10,13 @@ import { createUser } from '@/test/factories';
 
 import { CreateMessageThreadForm } from './CreateMessageThreadForm';
 
+// Disable draft persistence to avoid conflicts with userEvent.type
+vi.mock('@/common/hooks/useFormDraft', () => ({
+  useFormDraft: () => ({
+    clearDraft: vi.fn(),
+  }),
+}));
+
 // Suppress JSDOM errors that are not relevant.
 console.error = vi.fn();
 
