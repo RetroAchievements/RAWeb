@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -6,6 +7,8 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { loadDraft } from '@/common/utils/loadDraft';
 
 import { useCommentListContext } from './CommentListContext';
 
@@ -35,10 +38,21 @@ export function useSubmitCommentForm({
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
+  const draftKey = `comment-${commentableType}-${commentableId}`;
+
+  const draft = loadDraft<FormValues>(draftKey);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(addCommentFormSchema),
-    defaultValues: { body: '' },
+    defaultValues: { body: draft.body ?? '' },
   });
+
+  useEffect(() => {
+    const currentDraft = loadDraft<FormValues>(draftKey);
+    form.reset({ body: currentDraft.body ?? '' });
+  }, [draftKey, form]);
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useSubmitCommentMutation();
 
@@ -55,8 +69,10 @@ export function useSubmitCommentForm({
       {
         loading: t('Submitting...'),
         success: () => {
+          clearDraft();
           onSubmitSuccess?.();
-          form.reset();
+
+          form.reset({ body: '' });
 
           return t('Submitted!');
         },
