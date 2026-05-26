@@ -66,7 +66,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         ssr: {
           entry: 'resources/js/ssr.tsx',
           port: Number(env.VITE_INERTIA_SSR_PORT ?? 13714),
-          cluster: false,
+          cluster: env.INERTIA_SSR_CLUSTER === 'true',
         },
       }),
 
