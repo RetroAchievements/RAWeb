@@ -190,7 +190,7 @@ switch ($requestType) {
         }
 
         $achievementIdsInput = request()->post('a', '');
-        $hardcore = (bool) request()->post('h', 'false');
+        $hardcore = (int) request()->post('h', '0');
         $validationHash = request()->post('v');
 
         if (!$delegateTo) {
