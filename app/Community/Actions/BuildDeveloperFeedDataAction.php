@@ -127,8 +127,8 @@ class BuildDeveloperFeedDataAction
             ->orderByDesc('unlocked_at');
 
         if ($shouldUseDateRange) {
-            $thirtyDaysAgo = Carbon::now()->subDays(30);
-            $query->whereDate('unlocked_at', '>=', $thirtyDaysAgo);
+            $thirtyDaysAgo = Carbon::now()->subDays(30)->startOfDay();
+            $query->where('unlocked_at', '>=', $thirtyDaysAgo);
         }
 
         return $query
@@ -151,13 +151,13 @@ class BuildDeveloperFeedDataAction
      */
     private function getRecentPlayerBadges(array $gameIds): array
     {
-        $thirtyDaysAgo = Carbon::now()->subDays(30);
+        $thirtyDaysAgo = Carbon::now()->subDays(30)->startOfDay();
 
         return PlayerBadge::from('user_awards as pb')
             ->with(['user', 'gameIfApplicable', 'gameIfApplicable.system'])
             ->whereIn('pb.award_key', $gameIds)
             ->whereIn('pb.award_type', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereDate('pb.awarded_at', '>=', $thirtyDaysAgo)
+            ->where('pb.awarded_at', '>=', $thirtyDaysAgo)
             ->joinSub(
                 PlayerBadge::selectRaw('MAX(award_tier) as MaxExtra, award_key, award_type, user_id')
                     ->groupBy('award_key', 'award_type', 'user_id'),
