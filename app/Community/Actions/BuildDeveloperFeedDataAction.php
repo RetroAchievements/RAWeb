@@ -157,7 +157,7 @@ class BuildDeveloperFeedDataAction
             ->with(['user', 'gameIfApplicable', 'gameIfApplicable.system'])
             ->whereIn('pb.award_key', $gameIds)
             ->whereIn('pb.award_type', [AwardType::Mastery, AwardType::GameBeaten])
-            ->where('pb.awarded_at', '>=', $thirtyDaysAgo)
+            ->where(DB::raw('pb.awarded_at'), '>=', $thirtyDaysAgo)
             ->joinSub(
                 PlayerBadge::selectRaw('MAX(award_tier) as MaxExtra, award_key, award_type, user_id')
                     ->groupBy('award_key', 'award_type', 'user_id'),
