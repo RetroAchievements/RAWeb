@@ -69,7 +69,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 $gameId = $achievement->game_id;
                 $this->game = $achievement->game;
             } elseif ($gameId !== $achievement->game_id) {
-                return $this->invalidParameter('All provided achievements must be from the same game');
+                return $this->invalidParameter('All provided achievements must be from the same game.');
             }
         }
 

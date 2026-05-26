@@ -253,6 +253,148 @@ describe('normal unlock', function () {
         $this->assertEquals($now, $unlocks[$achievement1->id]['DateEarned']);
     });
 
+    test('single achievement previously unlocked in hardcore', function () {
+        $data = AwardAchievementsTestHelpers::createStandaloneGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $delegatedUser = $data['delegatedUser'];
+        $integrationUser = $data['integrationUser'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
+
+        // do the delegated unlocks sync
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            'a' => $achievement1->id,
+            'h' => 1,
+            'v' => AwardAchievementsTestHelpers::buildValidationHash(strval($achievement1->id), $delegatedUser, 1),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(200)
+            ->assertExactJson([
+                "Success" => true,
+                "Score" => $scoreBefore,
+                "SoftcoreScore" => $softcoreScoreBefore,
+                "ExistingIDs" => [
+                    $achievement1->id,
+                ],
+                "SuccessfulIDs" => [],
+            ]);
+        $delegatedUser->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement1->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement1->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertEquals($now, $playerGame->last_played_at);
+
+        // achievement unlock dates not modified
+        $playerAchievement1 = PlayerAchievement::where([
+            'user_id' => $delegatedUser->id,
+            'achievement_id' => $achievement1->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement1);
+        $this->assertEquals($unlock1Date, $playerAchievement1->unlocked_at);
+        $this->assertEquals($unlock1Date, $playerAchievement1->unlocked_hardcore_at);
+
+        // player score should not have increased
+        $user1 = User::whereName($delegatedUser->username)->first();
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+    });
+
+    test('single achievement upgraded to hardcore', function () {
+        $data = AwardAchievementsTestHelpers::createStandaloneGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $delegatedUser = $data['delegatedUser'];
+        $integrationUser = $data['integrationUser'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addSoftcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
+
+        // do the delegated unlocks sync
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            'a' => $achievement1->id,
+            'h' => 1,
+            'v' => AwardAchievementsTestHelpers::buildValidationHash(strval($achievement1->id), $delegatedUser, 1),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(200)
+            ->assertExactJson([
+                "Success" => true,
+                "Score" => $scoreBefore + $achievement1->points,
+                "SoftcoreScore" => $softcoreScoreBefore - $achievement1->points,
+                "ExistingIDs" => [],
+                "SuccessfulIDs" => [
+                    $achievement1->id,
+                ],
+            ]);
+        $delegatedUser->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement1->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement1->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertEquals($now, $playerGame->last_played_at);
+
+        // hardcore unlock date set, softcore unlock date not modified
+        $playerAchievement1 = PlayerAchievement::where([
+            'user_id' => $delegatedUser->id,
+            'achievement_id' => $achievement1->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement1);
+        $this->assertEquals($unlock1Date, $playerAchievement1->unlocked_at);
+        $this->assertEquals($now, $playerAchievement1->unlocked_hardcore_at);
+
+        // player score should not have increased
+        $user1 = User::whereName($delegatedUser->username)->first();
+        $this->assertEquals($scoreBefore + $achievement1->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore - $achievement1->points, $user1->points);
+    });
+
     test('multiple achievements hardcore', function () {
         $data = AwardAchievementsTestHelpers::createStandaloneGame();
         $game = $data['game'];
@@ -464,6 +606,98 @@ describe('validation', function () {
             'user_id' => $delegatedUser->id,
             'game_id' => $game->id,
         ]);
+    });
+
+    test('unknown achievement', function () {
+        $data = AwardAchievementsTestHelpers::createStandaloneGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $delegatedUser = $data['delegatedUser'];
+        $integrationUser = $data['integrationUser'];
+
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            'a' => 999999,
+            'h' => 1,
+            'v' => md5('999999' . $delegatedUser->username . '1'),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown achievement.',
+            ]);
+        $delegatedUser->refresh();
+
+        // Points shouldn't change.
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+
+        // A session shouldn't have been created.
+        $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
+            'user_id' => $delegatedUser->id,
+            'game_id' => $game->id,
+        ]);
+    });
+
+    test('multiple achievements must be from same game', function () {
+        $data = AwardAchievementsTestHelpers::createStandaloneGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement2 = $data['achievements'][1];
+        $achievement3 = $data['achievements'][2];
+        $achievement4 = $data['achievements'][3];
+        $delegatedUser = $data['delegatedUser'];
+        $integrationUser = $data['integrationUser'];
+        $now = Carbon::now();
+
+        $game2 = Game::factory()->create(['system_id' => $game->system_id]);
+        $achievement3->game_id = $game2->id;
+        $achievement3->save();
+
+        // do the delegated unlocks sync
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
+            'a' => "1,2,3,4",
+            'h' => 1,
+            'v' => AwardAchievementsTestHelpers::buildValidationHash('1,2,3,4', $delegatedUser, 1),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Error' => 'All provided achievements must be from the same game.',
+            ]);
+
+        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement1);
+        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement2);
+        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement3);
+        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement4);
     });
 
     test('integration user is not author', function () {
