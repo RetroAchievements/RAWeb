@@ -10,11 +10,11 @@ use App\Platform\Actions\UpdatePlayerGameMetricsChunkAction;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 it('given a game has no player games, dispatches GamePlayerGameMetricsUpdated', function () {
     // ARRANGE

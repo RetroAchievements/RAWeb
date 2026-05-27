@@ -7,10 +7,10 @@ use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsChunkAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 it('updates each PlayerGame in the chunk and refreshes per-user metrics', function () {
     // ARRANGE
