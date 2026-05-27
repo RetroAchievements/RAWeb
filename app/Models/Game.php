@@ -79,6 +79,8 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     public const PLACEHOLDER_BADGE_PATH = '/Images/000001.png';
     public const PLACEHOLDER_IMAGE_PATH = '/Images/000002.png';
 
+    private const GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT = 240;
+
     // TODO migrate forum_topic_id to forumable morph
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     protected $table = 'games';
@@ -394,7 +396,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                 // height is the binding dimension, preserving the original aspect ratio.
                 $this->addMediaConversion('thumbnail')
                     ->format('png')
-                    ->fit(Fit::Max, 10000, 240)
+                    ->fit(Fit::Max, 10000, self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT)
                     ->performOnCollections('screenshots');
 
                 $this->addMediaConversion('placeholder')
@@ -577,9 +579,25 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return media_asset($this->image_box_art_asset_path);
     }
 
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    public function getImageTitleDimensionsAttribute(): ?array
+    {
+        return $this->resolveScreenshotDimensions(ScreenshotType::Title);
+    }
+
     public function getImageTitleUrlAttribute(): string
     {
         return $this->resolveScreenshotUrl(ScreenshotType::Title, $this->image_title_asset_path);
+    }
+
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    public function getImageIngameDimensionsAttribute(): ?array
+    {
+        return $this->resolveScreenshotDimensions(ScreenshotType::Ingame);
     }
 
     public function getImageIngameUrlAttribute(): string
@@ -607,6 +625,48 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         }
 
         return media_asset($fallbackAssetPath);
+    }
+
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    private function resolveScreenshotDimensions(ScreenshotType $type): ?array
+    {
+        if ($this->is_media_restricted || !$this->relationLoaded('gameScreenshots')) {
+            return null;
+        }
+
+        $primary = $this->getPrimaryScreenshot($type);
+        if (!$primary) {
+            return null;
+        }
+
+        // defense in depth just in case there's a race with the media queue
+        if (!$primary->media?->hasGeneratedConversion('thumbnail')) {
+            return ['width' => $primary->width, 'height' => $primary->height];
+        }
+
+        return $this->scaleScreenshotDimensionsToThumbnail($primary);
+    }
+
+    /**
+     * Calculate the dimensions of the thumbnail without doing a read
+     * of the thumbnail.
+     *
+     * @return array{width: int, height: int}
+     */
+    private function scaleScreenshotDimensionsToThumbnail(GameScreenshot $screenshot): array
+    {
+        if ($screenshot->height <= self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT) {
+            return ['width' => $screenshot->width, 'height' => $screenshot->height];
+        }
+
+        $scale = self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT / $screenshot->height;
+
+        return [
+            'width' => (int) round($screenshot->width * $scale),
+            'height' => self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT,
+        ];
     }
 
     /**
