@@ -25,6 +25,10 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\BackfillGameBadgesCollapseSameDayCommand;
+use App\Platform\Commands\BackfillGameBadgesCurrentCanonicalCommand;
+use App\Platform\Commands\BackfillGameBadgesFromAuditLogCommand;
+use App\Platform\Commands\BackfillGameBadgesFromCommentsCommand;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
@@ -82,6 +86,10 @@ class AppServiceProvider extends ServiceProvider
                 RecalculateAchievementWeightedPoints::class,
 
                 // Games
+                BackfillGameBadgesCollapseSameDayCommand::class,
+                BackfillGameBadgesCurrentCanonicalCommand::class,
+                BackfillGameBadgesFromAuditLogCommand::class,
+                BackfillGameBadgesFromCommentsCommand::class,
                 CheckForAchievementSetChanges::class,
                 ConvertGameToEvent::class,
                 PruneDuplicateSubsetNotes::class,
