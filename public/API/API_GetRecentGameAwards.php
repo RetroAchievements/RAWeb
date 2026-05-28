@@ -29,6 +29,7 @@ use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
@@ -68,7 +69,9 @@ $baseQuery = PlayerBadge::with('user')->where(function ($query) {
 
 // If the consumer is trying to filter by a start date, add that filtering to the query.
 if ($targetDate !== null) {
-    $baseQuery->whereDate('awarded_at', '<=', $targetDate);
+    // whereDate() forces a full scan + filesort on user_awards, so
+    // we'll use where() with an explicit end-of-day bound instead.
+    $baseQuery->where('awarded_at', '<=', Carbon::parse($targetDate)->endOfDay());
 }
 
 // If the consumer is trying to filter by specific award kinds, add that filtering to the query.

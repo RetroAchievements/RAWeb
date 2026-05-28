@@ -9,6 +9,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -35,12 +36,6 @@ class RouteServiceProvider extends ServiceProvider
         'ping',
         'startsession',
     ];
-
-    private const int PUBLISH_PER_MINUTE = 600;
-    private const int DEFAULT_PER_MINUTE = 180;
-    private const int DELEGATED_PER_MINUTE = 6000;
-    private const int LOGIN_PER_IP = 30;
-    private const int LOGIN_PER_USER_IP = 5;
 
     public function boot(): void
     {
@@ -96,18 +91,18 @@ class RouteServiceProvider extends ServiceProvider
             $requestType = $request->input('r');
 
             if ($this->isDelegatedRequest($request, $requestType)) {
-                return $this->connectLimit(self::DELEGATED_PER_MINUTE, 'delegated', $this->connectRateLimitIdentifier($request));
+                return $this->connectLimit($this->rateLimit('delegated_per_minute'), 'delegated', $this->connectRateLimitIdentifier($request));
             }
 
             if (in_array($requestType, self::DEVELOPER_PUBLISH_REQUEST_TYPES, true)) {
-                return $this->connectLimit(self::PUBLISH_PER_MINUTE, 'publish', $this->connectRateLimitIdentifier($request));
+                return $this->connectLimit($this->rateLimit('publish_per_minute'), 'publish', $this->connectRateLimitIdentifier($request));
             }
 
             if (in_array($requestType, self::LOGIN_REQUEST_TYPES, true)) {
                 return $this->loginLimits($request);
             }
 
-            return $this->connectLimit(self::DEFAULT_PER_MINUTE, 'default', $this->connectRateLimitIdentifier($request));
+            return $this->connectLimit($this->rateLimit('default_per_minute'), 'default', $this->connectRateLimitIdentifier($request));
         });
     }
 
@@ -137,8 +132,8 @@ class RouteServiceProvider extends ServiceProvider
         $ip = $this->ipBucket($request);
 
         return [
-            $this->loginLimit(self::LOGIN_PER_IP, 'login-ip', 'ip:' . $ip),
-            $this->loginLimit(self::LOGIN_PER_USER_IP, 'login', ($username ?: 'noname') . '|ip:' . $ip),
+            $this->loginLimit($this->rateLimit('login_per_ip'), 'login-ip', 'ip:' . $ip),
+            $this->loginLimit($this->rateLimit('login_per_user_ip'), 'login', ($username ?: 'noname') . '|ip:' . $ip),
         ];
     }
 
@@ -159,11 +154,48 @@ class RouteServiceProvider extends ServiceProvider
     {
         return Limit::perMinute($perMinute)
             ->by("connect:{$bucket}:{$identifier}")
-            ->response(fn (Request $request, array $headers): JsonResponse => response()->json([
-                'Success' => false,
-                'Error' => 'Too Many Attempts',
-                'Status' => Response::HTTP_TOO_MANY_REQUESTS,
-            ], Response::HTTP_TOO_MANY_REQUESTS, $headers));
+            ->response(function (Request $request, array $headers) use ($bucket, $identifier, $perMinute): JsonResponse {
+                $this->logConnectRateLimit($request, $bucket, $identifier, $perMinute, $headers);
+
+                return response()->json([
+                    'Success' => false,
+                    'Error' => 'Too Many Attempts',
+                    'Status' => Response::HTTP_TOO_MANY_REQUESTS,
+                ], Response::HTTP_TOO_MANY_REQUESTS, $headers);
+            });
+    }
+
+    /**
+     * @param array<string, mixed> $headers
+     */
+    private function logConnectRateLimit(Request $request, string $bucket, string $identifier, int $perMinute, array $headers): void
+    {
+        Log::info('Connect rate limited', [
+            'bucket' => $bucket,
+            'identifier' => $identifier,
+            'ip' => $request->ip(),
+            'ip_bucket' => $this->ipBucket($request),
+            'limit_per_minute' => $perMinute,
+            'method' => $request->method(),
+            'request_type' => $request->input('r'),
+            'retry_after' => $headers['Retry-After'] ?? null,
+            'username' => Str::transliterate(Str::lower((string) $request->input('u', ''))),
+            'user_agent' => $request->userAgent(),
+        ]);
+    }
+
+    private function rateLimit(string $key): int
+    {
+        $default = match ($key) {
+            'publish_per_minute' => 600,
+            'default_per_minute' => 600,
+            'delegated_per_minute' => 6000,
+            'login_per_ip' => 300,
+            'login_per_user_ip' => 30,
+            default => 1,
+        };
+
+        return max(1, (int) config("connect.rate_limits.{$key}", $default));
     }
 
     private function connectRateLimitIdentifier(Request $request): string
