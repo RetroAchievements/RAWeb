@@ -99,6 +99,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         GamePlayerGameMetricsUpdated::class => [
             DispatchUpdateGamePlayerCountJob::class,
+            DispatchUpdateGameBeatenMetricsJob::class,
         ],
         PlayerAchievementLocked::class => [
             DispatchUpdateAchievementMetricsJob::class,

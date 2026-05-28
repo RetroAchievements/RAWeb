@@ -294,6 +294,11 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->getBadgeUrlAttribute();
     }
 
+    public function getTicketableBadgeUrl(): ?string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
     public function demoteForTicket(User $byUser): void
     {
         if (!$this->is_promoted) {

@@ -36,7 +36,7 @@ it('segments dorequest rate limits by request type', function () {
 
     $this->post('dorequest.php', ['r' => 'login2', 'u' => 'someuser'])
         ->assertUnprocessable()
-        ->assertHeader('X-RateLimit-Limit', '5');
+        ->assertHeader('X-RateLimit-Limit', '30');
 });
 
 it('applies a generous rate limit to delegated connect requests', function () {
@@ -120,7 +120,7 @@ it('does not let a spoofed username consume the authenticated developer publish 
 it('returns the connect JSON shape and a Retry-After header when login is rate limited', function () {
     $params = ['r' => 'login2', 'u' => 'someuser'];
 
-    for ($attempt = 1; $attempt <= 5; $attempt++) {
+    for ($attempt = 1; $attempt <= 30; $attempt++) {
         $this->post('dorequest.php', $params)
             ->assertUnprocessable();
     }
@@ -141,9 +141,9 @@ it('returns the connect JSON shape and a Retry-After header when login is rate l
 it('does not count successful login responses toward the login rate limit', function () {
     $this->user->update(['Permissions' => Permissions::Registered]);
 
-    // The stricter of the two login buckets caps at 30 per IP.
+    // The broader of the two login buckets caps at 300 per IP.
     // Succeeding past that proves successful logins aren't counted by either bucket.
-    for ($attempt = 1; $attempt <= 31; $attempt++) {
+    for ($attempt = 1; $attempt <= 301; $attempt++) {
         $response = $this->post('dorequest.php', [
             'r' => 'login2',
             'u' => $this->user->username,
@@ -157,11 +157,11 @@ it('does not count successful login responses toward the login rate limit', func
 });
 
 it('caps login attempts per IP even when the attacker rotates usernames', function () {
-    for ($attempt = 1; $attempt <= 30; $attempt++) {
+    for ($attempt = 1; $attempt <= 300; $attempt++) {
         $this->post('dorequest.php', ['r' => 'login2', 'u' => "user{$attempt}"])
             ->assertUnprocessable();
     }
 
-    $this->post('dorequest.php', ['r' => 'login2', 'u' => 'user31'])
+    $this->post('dorequest.php', ['r' => 'login2', 'u' => 'user301'])
         ->assertTooManyRequests();
 });

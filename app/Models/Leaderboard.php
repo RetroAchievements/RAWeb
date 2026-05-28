@@ -142,6 +142,11 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         return media_asset($this->game->image_icon_asset_path);
     }
 
+    public function getTicketableBadgeUrl(): ?string
+    {
+        return null;
+    }
+
     public function demoteForTicket(User $byUser): void
     {
         if ($this->state === LeaderboardState::Unpromoted) {

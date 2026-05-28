@@ -80,7 +80,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = achievement` filter.
-     * Use `getTicketableModel()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()`, `ticketable()`, or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Achievement, $this>
      */
@@ -91,7 +91,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = leaderboard` filter.
-     * Use `getTicketableModel()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()`, `ticketable()`, or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Leaderboard, $this>
      */

@@ -738,7 +738,9 @@ developer?: string;
 genre?: string;
 guideUrl?: string;
 imageBoxArtUrl?: string;
+imageIngameDimensions?: { width: number; height: number } | null;
 imageIngameUrl?: string;
+imageTitleDimensions?: { width: number; height: number } | null;
 imageTitleUrl?: string;
 publisher?: string;
 system?: App.Platform.Data.System;
@@ -830,6 +832,7 @@ originalUrl: string;
 smWebpUrl: string;
 mdWebpUrl: string;
 lgWebpUrl: string;
+placeholderUrl: string;
 thumbnailUrl: string;
 };
 export type GameSet = {
