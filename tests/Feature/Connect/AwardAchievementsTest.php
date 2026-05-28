@@ -124,6 +124,7 @@ describe('normal unlock', function () {
                 "SuccessfulIDs" => [
                     $achievement1->id,
                 ],
+                "AchievementsRemaining" => 5,
             ]);
         $delegatedUser->refresh();
 
@@ -208,6 +209,7 @@ describe('normal unlock', function () {
                 "SuccessfulIDs" => [
                     $achievement1->id,
                 ],
+                "AchievementsRemaining" => 5,
             ]);
         $delegatedUser->refresh();
 
@@ -291,6 +293,7 @@ describe('normal unlock', function () {
                     $achievement1->id,
                 ],
                 "SuccessfulIDs" => [],
+                "AchievementsRemaining" => 5,
             ]);
         $delegatedUser->refresh();
 
@@ -362,6 +365,7 @@ describe('normal unlock', function () {
                 "SuccessfulIDs" => [
                     $achievement1->id,
                 ],
+                "AchievementsRemaining" => 5,
             ]);
         $delegatedUser->refresh();
 
@@ -451,6 +455,7 @@ describe('normal unlock', function () {
                     $achievement3->id,
                     $achievement4->id,
                 ],
+                "AchievementsRemaining" => 2,
             ]);
         $delegatedUser->refresh();
 
@@ -854,13 +859,12 @@ describe('validation', function () {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
-            ->assertStatus(200)
+            ->assertStatus(409)
             ->assertExactJson([
-                "Success" => true,
-                "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore,
-                "ExistingIDs" => [],
-                "SuccessfulIDs" => [],
+                'Success' => false,
+                'Status' => 409,
+                'Code' => 'invalid_state',
+                'Error' => 'Unpromoted achievements cannot be unlocked.',
             ]);
         $delegatedUser->refresh();
 

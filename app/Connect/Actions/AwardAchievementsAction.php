@@ -8,8 +8,10 @@ use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Connect\Support\CanBeDelegated;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\StaticData;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
@@ -23,13 +25,16 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
     protected array $achievements;
     protected Game $game;
+    protected ?GameHash $gameHash = null;
     protected bool $hardcore;
     protected Carbon $when;
+    public ?PlayerSession $playerSession = null;
 
     public function execute(
         User $user,
         array $achievements,
         bool $hardcore,
+        ?GameHash $gameHash = null,
         ?Carbon $when = null,
         ?string $userAgent = null,
         ?string $ipAddress = null,
@@ -41,6 +46,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             $this->game = $achievements[0]->game;
         }
         $this->hardcore = $hardcore;
+        $this->gameHash = $gameHash;
         $this->when = $when ?? Carbon::now();
         $this->userAgent = $userAgent;
         $this->ipAddress = $ipAddress;
@@ -56,7 +62,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
         $achievementIds = array_map('intval', explode(',', strval($request->input('a', ''))));
 
-        // ensure achievements exist
+        // Ensure achievements exist
         $this->achievements = Achievement::query()
             ->whereIn('id', $achievementIds)
             ->with('game')
@@ -77,7 +83,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             }
         }
 
-        // if any requested achievement cannot be delegated, fail.
+        // If any requested achievement cannot be delegated, fail.
         $actingUser = $this->user;
         $result = $this->applyDelegationForUnlocks($request, $this->achievements);
         if ($result !== null) {
@@ -86,10 +92,10 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
         $this->hardcore = $request->boolean('h', false);
 
-        // check validation hash (note use of parameters k/u - the parameter may not have the same casing as the model)
+        // Check validation hash (note use of parameters k/u - the parameter may not have the same casing as the model)
         $validationHash = strtolower($request->input('v', ''));
 
-        // delegated unlocks will be rejected if the appropriate validation hash is not provided
+        // Delegated unlocks will be rejected if the appropriate validation hash is not provided
         $validationStr = $request->input('a', '') . $request->input('k', '') . ($this->hardcore ? '1' : '0');
         if ($validationHash !== md5($validationStr)) {
             return $this->accessDenied();
@@ -102,16 +108,27 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
+        if (!isValidConsoleId($this->game->system_id)) {
+            // shouldn't be able to promote achievements for unsupported console, so this is probably unnecessary.
+            return $this->unsupportedSystem('Cannot unlock achievements for unsupported console.');
+        }
+
         // Fetch all achievements already awarded to the user.
         $foundPlayerAchievements = PlayerAchievement::where('user_id', $this->user->id)
             ->whereIn('achievement_id', array_column($this->achievements, 'id'))
             ->get();
 
-        // Filter out achievements based on promoted state and whether or not the user has already unlocked them.
         $alreadyAwardedIds = [];
-        $awardableAchievements = array_filter($this->achievements, function ($achievement) use (&$alreadyAwardedIds, $foundPlayerAchievements) {
+        $newAwardedIds = [];
+        $eventAchievementIds = [];
+
+        // Filter out achievements based on promoted state and whether or not the user has already unlocked them.
+        $numUnpromoted = 0;
+        $awardableAchievements = array_filter($this->achievements, function ($achievement) use (&$alreadyAwardedIds, &$eventAchievementIds, &$numUnpromoted, $foundPlayerAchievements) {
             if (!$achievement->is_promoted) {
                 // unpromoted achievements cannot be unlocked.
+                $numUnpromoted++;
+
                 return false;
             }
 
@@ -128,6 +145,14 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 // Case 3: The achievement was already unlocked in hardcore mode, and a hardcore unlock is being requested.
                 $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
 
+                if ($this->user->isRanked()) {
+                    // if active event achievements are associated to this achievement,
+                    // we still need to dispatch unlock requests for them.
+                    foreach ($achievement->eventAchievements()->active($this->when)->get() as $eventAchievement) {
+                        $eventAchievementIds[] = $eventAchievement->achievement_id;
+                    }
+                }
+
                 return false;
             }
 
@@ -135,25 +160,28 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return true;
         });
 
-        // extend the session if achievements have been or will be awarded.
-        if (!empty($awardableAchievements) || !empty($alreadyAwardedIds)) {
-            $playerSession = app()->make(ResumePlayerSessionAction::class)->execute(
+        // Extend the session if achievements have been or will be awarded.
+        if (!empty($awardableAchievements) || !empty($alreadyAwardedIds) || !empty($eventAchievementIds)) {
+            $this->playerSession = app()->make(ResumePlayerSessionAction::class)->execute(
                 $this->user,
                 $this->game,
-                null,
+                $this->gameHash,
                 timestamp: $this->when,
                 userAgent: $this->userAgent,
                 ipAddress: $this->ipAddress,
             );
         }
 
-        $newAwardedIds = [];
-        if (!empty($awardableAchievements)) {
-            $playerGame = PlayerGame::query()
-                ->where('user_id', $this->user->id)
-                ->where('game_id', $this->game->id)
-                ->first();
+        // ResumePlayerSessionAction should ensure a playerGame exists
+        $playerGame = PlayerGame::query()
+            ->where('user_id', $this->user->id)
+            ->where('game_id', $this->game->id)
+            ->first();
 
+        if (!empty($awardableAchievements)) {
+            // Update user's points and playerGame achievements unlocked counts.
+            // NOTE: The user's points are not committed, but are returned to client.
+            //       The unlock job will trigger a full recalculation of the user's points.
             $lastAwardedId = null;
             $pointsEarned = 0;
             foreach ($awardableAchievements as $achievement) {
@@ -184,20 +212,33 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                         $playerGame->achievements_unlocked++;
                     }
                 }
+            }
 
+            // The client is expecting to receive the number of AchievementsRemaining in the response, and if
+            // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
+            // the same time using separate requests, so we need to update the unlock counts for the
+            // player_game (and commit it) as soon as possible so whichever request is processed last _should_
+            // return the correct number of remaining achievements. It will be accurately recalculated by the
+            // UpdatePlayerGameMetricsAction triggered by an asynchronous UnlockPlayerAchievementJob.
+            if ($playerGame) {
+                $playerGame->save();
+            }
+
+            // Kick off jobs for each unlocked achievement
+            foreach ($awardableAchievements as $achievement) {
                 dispatch(new UnlockPlayerAchievementJob(
                     $this->user->id,
                     $achievement->id,
                     $this->hardcore,
+                    gameHashId: $this->gameHash?->id,
                     timestamp: $this->when,
                     userAgent: $this->userAgent
                 ))->onQueue('player-achievements');
             }
 
-            if ($playerGame) {
-                $playerGame->save();
-            }
-
+            // Update the metrics for the main page
+            // NOTE: this double-counts achievements the user is upgrading from softcore to hardcore
+            //       and anything the user has previously reset.
             if ($lastAwardedId) {
                 StaticData::incrementEach([
                     'NumAwarded' => count($newAwardedIds),
@@ -208,6 +249,44 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     'LastAchievementEarnedAt' => Carbon::now(),
                 ]);
             }
+        } elseif ($numUnpromoted === count($this->achievements)) {
+            // If only unpromoted achievements were requested, return an error.
+            // Otherwise, just ignore them and return the successful promoted achievements.
+            return [
+                'Success' => false,
+                'Status' => 409,
+                'Code' => 'invalid_state',
+                'Error' => 'Unpromoted achievements cannot be unlocked.',
+            ];
+        }
+
+        if (!empty($eventAchievementIds)) {
+            // If any achievements were previously earned, but associated to event achievements,
+            // we have to kick off unlock requests for the event achievements separately.
+            foreach ($eventAchievementIds as $eventAchievementId) {
+                dispatch(new UnlockPlayerAchievementJob(
+                    $this->user->id,
+                    $eventAchievementId,
+                    true,
+                    gameHashId: $this->gameHash?->id,
+                    timestamp: $this->when,
+                    userAgent: $this->userAgent
+                ))->onQueue('player-achievements');
+
+                $newAwardedIds[] = $eventAchievementId;
+            }
+        }
+
+        // Calculate the number of achievements remaining to complete the set.
+        $achievementsRemaining = $this->game->achievements_published;
+        if ($playerGame) {
+            if ($this->hardcore) {
+                $achievementsRemaining -= $playerGame->achievements_unlocked_hardcore;
+            } else {
+                $achievementsRemaining -= $playerGame->achievements_unlocked;
+            }
+        } else {
+            $achievementsRemaining -= count($newAwardedIds);
         }
 
         return [
@@ -216,6 +295,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             'SoftcoreScore' => $this->user->points,
             'ExistingIDs' => $alreadyAwardedIds,
             'SuccessfulIDs' => $newAwardedIds,
+            'AchievementsRemaining' => $achievementsRemaining,
         ];
     }
 }
