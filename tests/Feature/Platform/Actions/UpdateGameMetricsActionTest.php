@@ -9,7 +9,6 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -108,7 +107,7 @@ it('keeps restored achievements attached to their set with existing metadata', f
         ->and($visibleAchievementIds)->toContain($restoredAchievement->id);
 });
 
-it('queues player and beaten metrics when achievement set version changes', function () {
+it('queues outdated player games when achievement set version changes', function () {
     // ARRANGE
     Queue::fake();
 
@@ -125,5 +124,4 @@ it('queues player and beaten metrics when achievement set version changes', func
 
     // ASSERT
     Queue::assertPushedOn('game-player-games', UpdateGamePlayerGamesJob::class);
-    Queue::assertPushedOn('game-beaten-metrics', UpdateGameBeatenMetricsJob::class);
 });

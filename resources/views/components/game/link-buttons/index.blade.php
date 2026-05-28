@@ -27,9 +27,9 @@ $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny'
 if ($canSeeOpenTickets) {
     $gameTickets = Ticket::forGame($game)->open();
     if ($isViewingOfficial) {
-        $gameTickets->officialCore();
+        $gameTickets->promoted();
     } else {
-        $gameTickets->unofficial();
+        $gameTickets->unpromoted();
     }
     $numOpenTickets = $gameTickets->count();
 }
