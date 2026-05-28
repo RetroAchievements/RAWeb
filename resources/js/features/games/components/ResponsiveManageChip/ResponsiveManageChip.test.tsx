@@ -11,7 +11,7 @@ describe('Component: ResponsiveManageChip', () => {
     const { container } = render(<ResponsiveManageChip />, {
       pageProps: {
         can: {},
-        game: createGame(),
+        backingGame: createGame(),
       },
     });
 
@@ -21,12 +21,12 @@ describe('Component: ResponsiveManageChip', () => {
 
   it('has an accessible label', () => {
     // ARRANGE
-    const game = createGame();
+    const backingGame = createGame();
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: {},
-        game,
+        backingGame,
       },
     });
 
@@ -36,12 +36,12 @@ describe('Component: ResponsiveManageChip', () => {
 
   it('opens in a new tab', () => {
     // ARRANGE
-    const game = createGame();
+    const backingGame = createGame();
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: {},
-        game,
+        backingGame,
       },
     });
 
@@ -49,14 +49,14 @@ describe('Component: ResponsiveManageChip', () => {
     expect(screen.getByRole('link', { name: /manage/i })).toHaveAttribute('target', '_blank');
   });
 
-  it('given the user can update the game, links to the edit page', () => {
+  it('given the user can update the backingGame, links to the edit page', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const backingGame = createGame({ id: 1 });
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: { updateGame: true },
-        game,
+        backingGame,
       },
     });
 
@@ -67,14 +67,14 @@ describe('Component: ResponsiveManageChip', () => {
     );
   });
 
-  it('given the user cannot update the game, links to the details page', () => {
+  it('given the user cannot update the backingGame, links to the details page', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const backingGame = createGame({ id: 1 });
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: { updateGame: false },
-        game,
+        backingGame,
       },
     });
 
@@ -87,12 +87,12 @@ describe('Component: ResponsiveManageChip', () => {
 
   it('given the user hovers over the chip, shows the manage label text', async () => {
     // ARRANGE
-    const game = createGame();
+    const backingGame = createGame();
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: {},
-        game,
+        backingGame,
       },
     });
 
@@ -105,12 +105,12 @@ describe('Component: ResponsiveManageChip', () => {
 
   it('given the user stops hovering over the chip, hides the manage label text', async () => {
     // ARRANGE
-    const game = createGame();
+    const backingGame = createGame();
 
     render(<ResponsiveManageChip />, {
       pageProps: {
         can: {},
-        game,
+        backingGame,
       },
     });
 

@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Support\Facades\DB;
 
 function getUserIDFromUser(?string $user): int
@@ -233,7 +234,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.id, SUM(!ISNULL(tick.id)) AS OpenTickets
                   FROM users ua
                   LEFT JOIN achievements ach ON ach.user_id = ua.id
-                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
+                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='" . TicketableType::Achievement->value . "' AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY OpenTickets DESC, ua.display_name";
@@ -241,7 +242,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.id, SUM(!ISNULL(ach.id)) as total
                   FROM users as ua
-                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = 'resolved' AND tick.resolver_id != tick.reporter_id
+                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = '" . TicketState::Resolved->value . "' AND tick.resolver_id != tick.reporter_id AND tick.ticketable_type = '" . TicketableType::Achievement->value . "'
                   LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND ach.user_id != ua.id
                   WHERE $stateCond
                   GROUP BY ua.id
@@ -288,9 +289,9 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $query = "SELECT ach.user_id as id, COUNT(*) AS OpenTickets
               FROM tickets tick
               INNER JOIN achievements ach ON ach.id=tick.ticketable_id
-              WHERE tick.ticketable_type = 'achievement'
+              WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
               AND ach.user_id IN ($devList)
-              AND tick.state IN ('open','request')
+              AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
               GROUP BY ach.user_id";
     foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
         $data[$row['id']]['OpenTickets'] = $row['OpenTickets'];
@@ -300,7 +301,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $query = "SELECT tick.resolver_id AS id, COUNT(*) as total
               FROM tickets AS tick
               INNER JOIN achievements as ach ON ach.id = tick.ticketable_id
-              WHERE tick.ticketable_type = 'achievement'
+              WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
               AND tick.resolver_id != tick.reporter_id
               AND ach.user_id != tick.resolver_id
               AND ach.is_promoted = 1

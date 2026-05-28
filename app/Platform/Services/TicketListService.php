@@ -8,6 +8,7 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Emulator;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -217,11 +218,11 @@ class TicketListService
 
         switch ($filterOptions['achievement']) {
             case 'core':
-                $tickets->officialCore();
+                $tickets->forTicketableType(TicketableType::Achievement)->promoted();
                 break;
 
             case 'unofficial':
-                $tickets->unofficial();
+                $tickets->forTicketableType(TicketableType::Achievement)->unpromoted();
                 break;
         }
 
