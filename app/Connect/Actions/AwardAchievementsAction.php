@@ -250,14 +250,26 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 ]);
             }
         } elseif ($numUnpromoted === count($this->achievements)) {
-            // If only unpromoted achievements were requested, return an error.
-            // Otherwise, just ignore them and return the successful promoted achievements.
+            // If only unpromoted achievements were requested, return an error. Otherwise,
+            // just ignore them and return the successfully processed promoted achievements.
             return [
                 'Success' => false,
                 'Status' => 409,
                 'Code' => 'invalid_state',
                 'Error' => 'Unpromoted achievements cannot be unlocked.',
             ];
+        }
+
+        // Calculate the number of achievements remaining to complete the set.
+        $achievementsRemaining = $this->game->achievements_published;
+        if ($playerGame) {
+            if ($this->hardcore) {
+                $achievementsRemaining -= $playerGame->achievements_unlocked_hardcore;
+            } else {
+                $achievementsRemaining -= $playerGame->achievements_unlocked;
+            }
+        } else {
+            $achievementsRemaining -= count($newAwardedIds);
         }
 
         if (!empty($eventAchievementIds)) {
@@ -275,18 +287,6 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
                 $newAwardedIds[] = $eventAchievementId;
             }
-        }
-
-        // Calculate the number of achievements remaining to complete the set.
-        $achievementsRemaining = $this->game->achievements_published;
-        if ($playerGame) {
-            if ($this->hardcore) {
-                $achievementsRemaining -= $playerGame->achievements_unlocked_hardcore;
-            } else {
-                $achievementsRemaining -= $playerGame->achievements_unlocked;
-            }
-        } else {
-            $achievementsRemaining -= count($newAwardedIds);
         }
 
         return [
