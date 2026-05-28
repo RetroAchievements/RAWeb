@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @deprecated use PlayerBadge model
@@ -112,7 +113,9 @@ function getUsersSiteAwards(?User $user): array
             GROUP BY saw.award_type
         ORDER BY order_column, AwardedAt, award_type, award_tier ASC";
 
-    $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
+    $dbResult = collect(DB::select($query, $bindings))
+        ->map(fn (object $row): array => (array) $row)
+        ->toArray();
 
     foreach ($dbResult as &$award) {
         unset($award['user_id']);
@@ -214,23 +217,24 @@ function getRecentProgressionAwardData(
             LEFT JOIN systems AS sys ON sys.id = gd.system_id
             LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_key = saw.award_key AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
             $onlyAwardTypeClause AND saw.award_key > 0 AND $onlyUnlockModeClause $friendCondAward
-            AND saw.awarded_at BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
+            AND saw.awarded_at BETWEEN TIMESTAMP(:date) AND DATE_ADD(:date2, INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) sub
         JOIN users AS ua ON ua.id = sub.user_id
         WHERE sub.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
-            $db_entry['AwardData'] = (int) $db_entry['award_key'];
-            $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
-            unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
+    $dbResult = collect(DB::select($query, ['date' => $date, 'date2' => $date]))
+        ->map(fn (object $row): array => (array) $row)
+        ->toArray();
 
-            $retVal[] = $db_entry;
-        }
+    foreach ($dbResult as $db_entry) {
+        $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
+        $db_entry['AwardData'] = (int) $db_entry['award_key'];
+        $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
+        unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
+
+        $retVal[] = $db_entry;
     }
 
     return $retVal;

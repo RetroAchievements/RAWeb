@@ -6,6 +6,7 @@ use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
 use App\Models\PlayerBadge;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Gets all the global ranking information.
@@ -198,7 +199,9 @@ function getGlobalRankingData(
                     $orderCond, ua.username
                     LIMIT $offset, $count";
 
-        $retVal = legacyDbFetchAll($query)->toArray();
+        $retVal = collect(DB::select($query))
+            ->map(fn ($row) => (array) $row)
+            ->toArray();
 
         if (!empty($retVal)) {
             $userIds = array_map(static fn (array $dbEntry): int => (int) $dbEntry['ID'], $retVal);
@@ -235,7 +238,7 @@ function getGlobalRankingData(
 
     // Just Hardcore Points and Retro Points. Used for the sidebar rankings
     if ($info == 1) {
-        return legacyDbFetchAll("
+        return collect(DB::select("
             SELECT ua.username AS User,
             SUM(ach.points) AS Points,
             SUM(ach.points_weighted) AS RetroPoints
@@ -249,7 +252,7 @@ function getGlobalRankingData(
             GROUP BY ua.username
             $orderCond
             LIMIT $offset, $count
-        ")->toArray();
+        "))->map(fn ($row) => (array) $row)->toArray();
     }
 
     // All ranking stats
@@ -264,7 +267,7 @@ function getGlobalRankingData(
         $achTruePoints = 0;
     }
 
-    return legacyDbFetchAll("
+    return collect(DB::select("
         SELECT User, DisplayName, MAX(DeletedAt) AS DeletedAt,
             COALESCE(MAX(AchievementCount), 0) AS AchievementCount,
             COALESCE(MAX(Points), 0) AS Points,
@@ -315,5 +318,5 @@ function getGlobalRankingData(
         HAVING Points > 0 AND AchievementCount > 0
         $orderCond
         LIMIT $offset, $count
-    ")->toArray();
+    "))->map(fn ($row) => (array) $row)->toArray();
 }

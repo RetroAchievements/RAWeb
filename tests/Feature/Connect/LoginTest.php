@@ -81,8 +81,7 @@ class LoginTest extends TestCase
 
         $response = $this->get($this->apiUrl('login', ['u' => $user2->username, 'p' => $password], credentials: false));
 
-        /* direct query to access non-visible attributes */
-        $data = legacyDbFetch('SELECT connect_token, legacy_salted_password, password FROM users WHERE username=:user', ['user' => $user2->username]);
+        $data = User::withTrashed()->where('username', $user2->username)->first()->getAttributes();
         $this->assertNotEquals('', $data['connect_token']);
         $this->assertEquals('', $data['legacy_salted_password']);
         $this->assertTrue(Hash::check($password, $data['password']));

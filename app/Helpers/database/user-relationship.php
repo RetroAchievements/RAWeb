@@ -98,29 +98,17 @@ function GetFriendsSubquery(string $user, bool $includeUser = true, bool $return
     $userModel = User::whereName($user)->first();
     $userId = $userModel->id;
 
-    $selectColumn = $returnUserIds ? 'ua.id' : 'ua.username';
-
-    $friendsSubquery = "SELECT $selectColumn FROM users ua
-        JOIN (
-            SELECT related_user_id FROM user_relations
-            WHERE user_id = :userId AND status = :status
-        ) AS Friends1 ON Friends1.related_user_id = ua.id
-        WHERE ua.deleted_at IS NULL AND ua.Permissions >= :permissionsLevel
-    ";
-
-    $bindings = [
-        'userId' => $userId,
-        'status' => UserRelationStatus::Following->value,
-        'permissionsLevel' => Permissions::Unregistered,
-    ];
-
     // TODO: why is it so much faster to run this query and build the IN list
     //       than to use it as a subquery? i.e. "AND aw.User IN ($friendsSubquery)"
     //       local testing took over 2 seconds with the subquery and < 0.01 seconds
     //       total for two separate queries
+    $friendValues = $userModel->followedUsers()
+        ->where('Permissions', '>=', Permissions::Unregistered)
+        ->pluck($returnUserIds ? 'users.id' : 'users.username');
+
     $friends = [];
-    foreach (legacyDbFetchAll($friendsSubquery, $bindings) as $db_entry) {
-        $friends[] = $returnUserIds ? $db_entry['id'] : "'" . $db_entry['username'] . "'";
+    foreach ($friendValues as $value) {
+        $friends[] = $returnUserIds ? $value : "'" . $value . "'";
     }
 
     if ($includeUser) {
