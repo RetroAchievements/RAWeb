@@ -31,6 +31,8 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
         array $achievements,
         bool $hardcore,
         ?Carbon $when = null,
+        ?string $userAgent = null,
+        ?string $ipAddress = null,
     ): array {
         $this->user = $user;
         $this->achievements = $achievements;
@@ -40,6 +42,8 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
         }
         $this->hardcore = $hardcore;
         $this->when = $when ?? Carbon::now();
+        $this->userAgent = $userAgent;
+        $this->ipAddress = $ipAddress;
 
         return $this->process();
     }
@@ -127,9 +131,8 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 return false;
             }
 
-                // Case 4: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
-                return true;
-
+            // Case 4: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
+            return true;
         });
 
         // extend the session if achievements have been or will be awarded.
@@ -182,8 +185,13 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     }
                 }
 
-                dispatch(new UnlockPlayerAchievementJob($this->user->id, $achievement->id, $this->hardcore))
-                    ->onQueue('player-achievements');
+                dispatch(new UnlockPlayerAchievementJob(
+                    $this->user->id,
+                    $achievement->id,
+                    $this->hardcore,
+                    timestamp: $this->when,
+                    userAgent: $this->userAgent
+                ))->onQueue('player-achievements');
             }
 
             if ($playerGame) {
