@@ -32,7 +32,7 @@ export function useFormDraft<T extends FieldValues>(
     if (key) {
       isClearedRef.current = false;
       const draft = loadDraft<T>(key);
-      
+
       if (JSON.stringify(form.getValues()) !== JSON.stringify({ ...baseDefaults, ...draft })) {
         form.reset({ ...baseDefaults, ...draft } as DefaultValues<T>);
       }
