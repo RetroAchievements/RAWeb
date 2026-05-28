@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConnectWarning extends BaseModel
 {
+    use MassPrunable;
+
     protected $table = 'connect_warnings';
 
     protected $fillable = [
@@ -26,6 +30,14 @@ class ConnectWarning extends BaseModel
     ];
 
     public const UPDATED_AT = null;
+
+    /**
+     * @return Builder<ConnectWarning>
+     */
+    public function prunable(): Builder
+    {
+        return $this->where('created_at', '<', now()->subDays(90));
+    }
 
     // == accessors
 
