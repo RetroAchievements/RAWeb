@@ -16,6 +16,10 @@ window.scrollTo = vi.fn();
 console.error = vi.fn();
 
 describe('Component: CreateTopicForm', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<CreateTopicForm onPreview={vi.fn()} />, {

@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -39,20 +38,16 @@ export function useSubmitCommentForm({
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
   const draftKey = `comment-${commentableType}-${commentableId}`;
+  const baseDefaults = { body: '' };
 
   const draft = loadDraft<FormValues>(draftKey);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(addCommentFormSchema),
-    defaultValues: { body: draft.body ?? '' },
+    defaultValues: { ...baseDefaults, ...draft },
   });
 
-  useEffect(() => {
-    const currentDraft = loadDraft<FormValues>(draftKey);
-    form.reset({ body: currentDraft.body ?? '' });
-  }, [draftKey, form]);
-
-  const { clearDraft } = useFormDraft(draftKey, form);
+  const { clearDraft } = useFormDraft(draftKey, form, baseDefaults);
 
   const mutation = useSubmitCommentMutation();
 
@@ -72,7 +67,7 @@ export function useSubmitCommentForm({
           clearDraft();
           onSubmitSuccess?.();
 
-          form.reset({ body: '' });
+          form.reset(baseDefaults);
 
           return t('Submitted!');
         },
