@@ -117,7 +117,7 @@ class CreateGameClaimAction
             return;
         }
 
-        $ticketCount = Ticket::forDeveloper($currentUser)->awaitingDeveloper()->count();
+        $ticketCount = Ticket::forAssignee($currentUser)->awaitingDeveloper()->count();
         if ($ticketCount < 2) { // two or more suggests the developer may be ignoring tickets
             return;
         }
