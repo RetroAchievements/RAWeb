@@ -18,7 +18,7 @@ class RecordGameBadgeChangeAction
 {
     public function execute(
         Game $game,
-        string $imageAssetPath,
+        ?string $imageAssetPath,
         GameBadgeAttribution $attribution = GameBadgeAttribution::Live,
         ?User $uploadedBy = null,
         ?CarbonInterface $becameCurrentAt = null,

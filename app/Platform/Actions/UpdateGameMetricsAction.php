@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,8 @@ class UpdateGameMetricsAction
 {
     public function execute(Game $game): void
     {
+        $wasPlayable = ((int) $game->getOriginal('achievements_published')) > 0;
+
         $game->achievements_published = $game->achievements()->promoted()->count();
         $game->achievements_unpublished = $game->achievements()->unpromoted()->count();
 
@@ -47,6 +50,10 @@ class UpdateGameMetricsAction
         $game->saveQuietly();
 
         GameMetricsUpdated::dispatch($game);
+
+        if (!$wasPlayable && $game->achievements_published > 0) {
+            GameBecamePlayable::dispatch($game);
+        }
 
         if ($achievementSetVersionChanged) {
             Log::info("Hash change detected for game [" . $game->id . "]. Queueing all outdated player games.");

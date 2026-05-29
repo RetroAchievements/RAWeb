@@ -14,6 +14,7 @@ use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
+use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -42,6 +43,7 @@ use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
 use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
+use App\Platform\Listeners\RecordGameBadgeOnGameBecamePlayable;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Platform\Listeners\RevalidateMediaContributionBadgeEligibility;
@@ -94,6 +96,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
+        ],
+        GameBecamePlayable::class => [
+            RecordGameBadgeOnGameBecamePlayable::class,
         ],
         GameMetricsUpdated::class => [
         ],
