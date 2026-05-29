@@ -7,6 +7,7 @@ namespace Database\Factories;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
@@ -20,7 +21,7 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'ticketable_type' => 'achievement',
+            'ticketable_type' => TicketableType::Achievement->value,
             'body' => $this->faker->sentence(),
             'type' => TicketType::DidNotTrigger,
             'state' => TicketState::Open,
