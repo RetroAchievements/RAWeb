@@ -27,10 +27,16 @@ class RecordGameBadgeChangeAction
             return null;
         }
 
+        // don't track icons while the set is WIP. game_badges only holds badges that were live
+        // while the game was playable. the activitylog still records all underlying icon changes.
+        if (!($game->achievements_published > 0)) {
+            return null;
+        }
+
         $transitionAt = $becameCurrentAt ?? now();
 
         return DB::transaction(function () use ($game, $imageAssetPath, $attribution, $uploadedBy, $transitionAt) {
-            if ($this->isPlaceholderPath($imageAssetPath)) {
+            if (GameBadge::isPlaceholderPath($imageAssetPath)) {
                 $game->badges()
                     ->whereNull('replaced_at')
                     ->update(['replaced_at' => $transitionAt]);
@@ -45,6 +51,16 @@ class RecordGameBadgeChangeAction
             }
 
             $sha1 = sha1(Storage::disk('media')->get($storagePath));
+
+            // a placeholder re-uploaded under a unique filename means the badge was removed,
+            // so retire the current row without recording the placeholder as a real badge.
+            if (GameBadge::isPlaceholderSha1($sha1)) {
+                $game->badges()
+                    ->whereNull('replaced_at')
+                    ->update(['replaced_at' => $transitionAt]);
+
+                return null;
+            }
 
             $existingRow = $game->badges()->where('sha1', $sha1)->first();
 
@@ -80,10 +96,5 @@ class RecordGameBadgeChangeAction
                 'replaced_at' => null,
             ]);
         });
-    }
-
-    private function isPlaceholderPath(string $path): bool
-    {
-        return in_array($path, [Game::PLACEHOLDER_BADGE_PATH, Game::PLACEHOLDER_IMAGE_PATH], true);
     }
 }

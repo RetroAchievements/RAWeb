@@ -90,13 +90,15 @@ class GameBadgeBackfillService
         GameBadgeAttribution $attribution,
         ?int $uploadedByUserId = null,
     ): void {
-        if ($this->isPlaceholderPath($imageAssetPath)) {
+        if (GameBadge::isPlaceholderPath($imageAssetPath)) {
             return;
         }
 
         $sha1 = $this->computeSha1($imageAssetPath);
 
-        if ($sha1 === null) {
+        // placeholders re-uploaded under unique filenames evade isPlaceholderPath, so
+        // catch them by content here and never record them as a real badge.
+        if ($sha1 === null || GameBadge::isPlaceholderSha1($sha1)) {
             return;
         }
 
@@ -115,7 +117,12 @@ class GameBadgeBackfillService
                 'became_current_at' => $at,
                 'replaced_at' => null,
             ]);
-        } elseif ($at->greaterThanOrEqualTo($existingRow->became_current_at)) {
+        } elseif (
+            $existingRow->attribution_source !== GameBadgeAttribution::Live
+            && $at->greaterThanOrEqualTo($existingRow->became_current_at)
+        ) {
+            // never advance a live-recorded row's timestamp from a backfill
+            // the live write is authoritative for when this badge became current
             $existingRow->update([
                 'image_asset_path' => $imageAssetPath,
                 'uploaded_by_user_id' => $uploadedByUserId ?? $existingRow->uploaded_by_user_id,
@@ -135,7 +142,7 @@ class GameBadgeBackfillService
 
     public function markAsReplaced(int $gameId, string $imageAssetPath, CarbonInterface $at): void
     {
-        if ($this->isPlaceholderPath($imageAssetPath)) {
+        if (GameBadge::isPlaceholderPath($imageAssetPath)) {
             return;
         }
 
@@ -199,6 +206,20 @@ class GameBadgeBackfillService
                     return;
                 }
 
+                $liveRows = $group->filter(
+                    fn (GameBadge $row): bool => $row->attribution_source === GameBadgeAttribution::Live,
+                );
+
+                if ($liveRows->isNotEmpty()) {
+                    foreach ($group as $row) {
+                        if ($row->attribution_source !== GameBadgeAttribution::Live) {
+                            $deleteIds[] = $row->id;
+                        }
+                    }
+
+                    return;
+                }
+
                 $keeper = $group->sortByDesc(fn (GameBadge $row) => $row->became_current_at->getTimestamp())->first();
 
                 foreach ($group as $row) {
@@ -248,21 +269,55 @@ class GameBadgeBackfillService
         }
     }
 
+    /**
+     * @template TRow
+     * @param iterable<TRow> $rows
+     * @param callable(TRow): int $gameIdOf
+     * @param callable(TRow, int): bool $process
+     */
+    public function streamByGame(iterable $rows, callable $gameIdOf, callable $process): void
+    {
+        $currentGameId = null;
+        $touched = false;
+
+        foreach ($rows as $row) {
+            $gameId = $gameIdOf($row);
+
+            if ($currentGameId !== null && $gameId !== $currentGameId && $touched) {
+                $this->chainReplacedAtForGame($currentGameId);
+                $touched = false;
+            }
+
+            $currentGameId = $gameId;
+            $touched = $process($row, $gameId) || $touched;
+        }
+
+        if ($currentGameId !== null && $touched) {
+            $this->chainReplacedAtForGame($currentGameId);
+        }
+    }
+
     public function reconcileCurrentCanonical(Game $game): void
     {
         if (!System::isGameSystem($game->system_id)) {
             return;
         }
 
+        // only playable games get a canonical badge row
+        if (!($game->achievements_published > 0)) {
+            return;
+        }
+
         $path = $game->image_icon_asset_path;
 
-        if ($path === null || $this->isPlaceholderPath($path)) {
+        if ($path === null || GameBadge::isPlaceholderPath($path)) {
             return;
         }
 
         $sha1 = $this->computeSha1($path);
 
-        if ($sha1 === null) {
+        // a game whose canonical icon is a placeholder has no real badge to reconcile
+        if ($sha1 === null || GameBadge::isPlaceholderSha1($sha1)) {
             return;
         }
 
@@ -274,14 +329,17 @@ class GameBadgeBackfillService
             ->first();
 
         if ($existingRow !== null) {
-            $this->retireStaleCurrentRows($game, $becameCurrentAt, exceptRowId: $existingRow->id);
+            $effectiveBecameCurrentAt = ($existingRow->attribution_source === GameBadgeAttribution::Live
+                || $existingRow->became_current_at->greaterThan($becameCurrentAt))
+                ? $existingRow->became_current_at
+                : $becameCurrentAt;
+
+            $this->retireStaleCurrentRows($game, $effectiveBecameCurrentAt, exceptRowId: $existingRow->id);
 
             $existingRow->update([
                 'image_asset_path' => $path,
                 'replaced_at' => null,
-                'became_current_at' => $existingRow->became_current_at->greaterThan($becameCurrentAt)
-                    ? $existingRow->became_current_at
-                    : $becameCurrentAt,
+                'became_current_at' => $effectiveBecameCurrentAt,
             ]);
 
             return;
@@ -305,7 +363,7 @@ class GameBadgeBackfillService
             return $this->sha1Cache[$imageAssetPath];
         }
 
-        $storagePath = ltrim($imageAssetPath, '/');
+        $storagePath = $this->storagePath($imageAssetPath);
 
         if (!Storage::disk('media')->exists($storagePath)) {
             return $this->sha1Cache[$imageAssetPath] = null;
@@ -316,7 +374,7 @@ class GameBadgeBackfillService
 
     public function resolveFileMtime(string $imageAssetPath): ?CarbonInterface
     {
-        $storagePath = ltrim($imageAssetPath, '/');
+        $storagePath = $this->storagePath($imageAssetPath);
 
         if (Storage::disk('media')->exists($storagePath)) {
             return Carbon::createFromTimestamp(Storage::disk('media')->lastModified($storagePath));
@@ -327,18 +385,13 @@ class GameBadgeBackfillService
 
     public function resolveFileTimestamp(string $imageAssetPath, Game $game): CarbonInterface
     {
-        $storagePath = ltrim($imageAssetPath, '/');
-
-        if (Storage::disk('media')->exists($storagePath)) {
-            return Carbon::createFromTimestamp(Storage::disk('media')->lastModified($storagePath));
-        }
-
-        return $game->updated_at ?? now();
+        // same as the file mtime, falling back to the game's own timestamps when the file is gone
+        return $this->resolveFileMtime($imageAssetPath) ?? $game->updated_at ?? now();
     }
 
-    private function isPlaceholderPath(string $path): bool
+    private function storagePath(string $imageAssetPath): string
     {
-        return in_array($path, [Game::PLACEHOLDER_BADGE_PATH, Game::PLACEHOLDER_IMAGE_PATH], true);
+        return ltrim($imageAssetPath, '/');
     }
 
     private function ensureFileIndexBuilt(): void

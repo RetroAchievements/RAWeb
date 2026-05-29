@@ -10,4 +10,5 @@ enum GameBadgeAttribution: string
     case BackfillAuditLog = 'backfill_audit_log';
     case BackfillCommentHeuristic = 'backfill_comment_heuristic';
     case BackfillCurrentCanonical = 'backfill_current_canonical';
+    case BackfillForumComment = 'backfill_forum_comment';
 }

@@ -18,6 +18,20 @@ class GameBadge extends BaseModel
 
     protected $table = 'game_badges';
 
+    /**
+     * SHA1 hashes of placeholder badge content. We match on content rather than path
+     * because a dev removing a badge would re-upload the placeholder image, producing a
+     * brand new /Images/NNNNNN.png that is byte-identical to the placeholder but carries
+     * its own unique filename. Path-based detection alone would miss those re-uploads.
+     */
+    public const PLACEHOLDER_BADGE_SHA1S = [
+        '822169dcf0c2fbf293975881ee5890de9148bdfa', // gamepad placeholder
+        'e92ab7425e301a1320bda861def13959b69d98d9', // another gamepad placeholder
+        '37b1131b6a980410f86930da7de6e08ab3867005', // solid black placeholder
+        '6a8ececcb019f7048a2195e9265bbf8a84f4158e', // "under construction" placeholder
+        'ee7b886701810faaae44fd845e2d7d07e65ba663', // current icon-safe.png
+    ];
+
     protected $fillable = [
         'game_id',
         'image_asset_path',
@@ -37,6 +51,18 @@ class GameBadge extends BaseModel
     protected static function newFactory(): GameBadgeFactory
     {
         return GameBadgeFactory::new();
+    }
+
+    // == helpers
+
+    public static function isPlaceholderPath(string $path): bool
+    {
+        return in_array($path, [Game::PLACEHOLDER_BADGE_PATH, Game::PLACEHOLDER_IMAGE_PATH], true);
+    }
+
+    public static function isPlaceholderSha1(string $sha1): bool
+    {
+        return in_array($sha1, self::PLACEHOLDER_BADGE_SHA1S, true);
     }
 
     // == accessors

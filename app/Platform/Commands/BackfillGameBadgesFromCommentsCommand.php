@@ -51,10 +51,7 @@ class BackfillGameBadgesFromCommentsCommand extends Command
         $progressBar = $this->output->createProgressBar($total);
 
         // use a cursor so we don't use too much memory
-        $currentGameId = null;
-        $gameTouched = false;
-
-        Comment::query()
+        $cursor = Comment::query()
             ->where('commentable_type', CommentableType::GameModification)
             ->where('user_id', Comment::SYSTEM_USER_ID)
             ->where('body', 'like', '%changed the game icon%')
@@ -66,24 +63,18 @@ class BackfillGameBadgesFromCommentsCommand extends Command
             })
             ->orderBy('commentable_id')
             ->orderBy('created_at')
-            ->cursor()
-            ->each(function (Comment $comment) use ($backfillService, $progressBar, &$currentGameId, &$gameTouched): void {
-                $gameId = (int) $comment->commentable_id;
+            ->cursor();
 
-                if ($currentGameId !== null && $gameId !== $currentGameId && $gameTouched) {
-                    $backfillService->chainReplacedAtForGame($currentGameId);
-                    $gameTouched = false;
-                }
-
-                $currentGameId = $gameId;
-                $gameTouched = $this->processComment($backfillService, $gameId, $comment) || $gameTouched;
-
+        $backfillService->streamByGame(
+            $cursor,
+            fn (Comment $comment): int => (int) $comment->commentable_id,
+            function (Comment $comment, int $gameId) use ($backfillService, $progressBar): bool {
+                $touched = $this->processComment($backfillService, $gameId, $comment);
                 $progressBar->advance();
-            });
 
-        if ($currentGameId !== null && $gameTouched) {
-            $backfillService->chainReplacedAtForGame($currentGameId);
-        }
+                return $touched;
+            },
+        );
 
         $progressBar->finish();
 
