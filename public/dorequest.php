@@ -1,6 +1,7 @@
 <?php
 
 use App\Connect\Actions\AwardAchievementAction;
+use App\Connect\Actions\AwardAchievementsAction;
 use App\Connect\Actions\GetAchievementSetsAction;
 use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Connect\Actions\GetBadgeIdRangeAction;
@@ -30,12 +31,7 @@ use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitLeaderboardEntryAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\Permissions;
-use App\Models\Achievement;
-use App\Models\PlayerAchievement;
-use App\Models\StaticData;
 use App\Models\User;
-use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Sentry\State\Scope;
 
@@ -53,6 +49,7 @@ $handler = match ($requestType) {
     'achievementsets' => new GetAchievementSetsAction(),
     'allprogress' => new GetUserProgressForConsoleAction(),
     'awardachievement' => new AwardAchievementAction(),
+    'awardachievements' => new AwardAchievementsAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
@@ -149,20 +146,7 @@ if (!function_exists('DoRequestError')) {
 /**
  * Early exit if we need a valid login
  */
-$credentialsOK = match ($requestType) {
-    /*
-     * Registration required and user=local
-     */
-    "awardachievements",
-    "richpresencepatch",
-    "submitgametitle",
-    "submitrichpresence" => $validLogin && ($permissions >= Permissions::Registered),
-    /*
-     * Anything else is public. Includes login
-     */
-    default => true,
-};
-
+$credentialsOK = $validLogin && ($permissions >= Permissions::Registered);
 if (!$credentialsOK) {
     if (!$validLogin) {
         return DoRequestError("Invalid user/token combination.", 401, 'invalid_credentials');
@@ -179,134 +163,6 @@ if (!$credentialsOK) {
 }
 
 switch ($requestType) {
-    /*
-     * User-based (require credentials)
-     */
-
-    // This is only currently supported for "Standalone" integrations.
-    case "awardachievements":
-        if (request()->method() !== 'POST') {
-            return DoRequestError('Access denied.', 405, 'access_denied');
-        }
-
-        $achievementIdsInput = request()->post('a', '');
-        $hardcore = (bool) request()->post('h', 'false');
-        $validationHash = request()->post('v');
-
-        if (!$delegateTo) {
-            return DoRequestError("You must specify a target user.", 400);
-        }
-
-        if (strcasecmp($validationHash, md5($achievementIdsInput . $delegateTo . $hardcore)) !== 0) {
-            return DoRequestError('Access denied.', 403, 'access_denied');
-        }
-
-        $targetUser = User::whereName($delegateTo)->first();
-        if (!$targetUser) {
-            return DoRequestError("The target user couldn't be found.", 404, 'not_found');
-        }
-
-        $achievementIdsArray = explode(',', $achievementIdsInput);
-        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) {
-            return filter_var($id, FILTER_VALIDATE_INT) !== false;
-        });
-
-        // Fetch all achievements already awarded to the user.
-        $foundPlayerAchievements = PlayerAchievement::whereIn('achievement_id', $achievementIdsArray)
-            ->where('user_id', $targetUser->id)
-            ->with('achievement')
-            ->get();
-
-        $alreadyAwardedIds = [];
-
-        // Filter out achievements based on the hardcore flag and existing unlocks.
-        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) use (&$alreadyAwardedIds, $user, $foundPlayerAchievements, $hardcore) {
-            $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $id);
-
-            if ($foundPlayerAchievement) {
-                // Case 1: The achievement was already unlocked in hardcore mode.
-                if ($hardcore && $foundPlayerAchievement->unlocked_hardcore_at !== null) {
-                    $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
-
-                    return false;
-                }
-
-                // Case 2: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
-                if (
-                    $hardcore
-                    && $foundPlayerAchievement->unlocked_hardcore_at === null
-                    && $foundPlayerAchievement->achievement->getCanDelegateUnlocks($user)
-                ) {
-                    return true;
-                }
-
-                // Case 3: The achievement was already unlocked in either mode, and a softcore unlock is being requested.
-                if (!$hardcore) {
-                    $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
-
-                    return false;
-                }
-
-                // Case 4: The caller can't delegate an unlock.
-                if (!$foundPlayerAchievement->achievement->getCanDelegateUnlocks($user)) {
-                    return false;
-                }
-            }
-
-            // If no PlayerAchievement record exists for this ID, it's eligible for awarding if the user can delegate it.
-            return Achievement::find($id)->getCanDelegateUnlocks($user);
-        });
-
-        $awardableAchievements = Achievement::whereIn('id', $filteredAchievementIds)
-            ->with('game')
-            ->get();
-
-        $newAwardedIds = [];
-        $lastAwardedId = null;
-        $pointsEarned = 0;
-        foreach ($awardableAchievements as $achievement) {
-            if (!$achievement->is_promoted) {
-                continue;
-            }
-
-            if ($hardcore) {
-                $targetUser->points_hardcore += $achievement->points;
-
-                $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $achievement->id);
-                if ($foundPlayerAchievement) {
-                    // if there's a found PlayerAchievement and we're doing a hardcore unlock,
-                    // it must be an upgrade from softcore.
-                    $targetUser->points -= $achievement->points;
-                }
-            } else {
-                $targetUser->points += $achievement->points;
-            }
-
-            dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
-                ->onQueue('player-achievements');
-
-            $newAwardedIds[] = $lastAwardedId = $achievement->id;
-            $pointsEarned += $achievement->points;
-        }
-
-        if ($lastAwardedId) {
-            StaticData::incrementEach([
-                'NumAwarded' => count($newAwardedIds),
-                'TotalPointsEarned' => $pointsEarned,
-            ], [
-                'LastAchievementEarnedID' => $lastAwardedId,
-                'LastAchievementEarnedByUser' => $targetUser->display_name,
-                'LastAchievementEarnedAt' => Carbon::now(),
-            ]);
-        }
-
-        $response['Score'] = $targetUser->points_hardcore;
-        $response['SoftcoreScore'] = $targetUser->points;
-        $response['ExistingIDs'] = $alreadyAwardedIds;
-        $response['SuccessfulIDs'] = $newAwardedIds;
-
-        break;
-
     case "richpresencepatch":
         $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);
         $response['RichPresencePatch'] = $richPresenceData;
