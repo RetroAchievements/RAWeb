@@ -323,11 +323,6 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         ];
     }
 
-    private function mustBeDeveloper(): array
-    {
-        return $this->accessDenied('You must be a developer to perform this action! Please drop a message in the forums to apply.');
-    }
-
     private function mustHaveClaim(): array
     {
         return $this->accessDenied('You must have an active claim on this game to perform this action.');

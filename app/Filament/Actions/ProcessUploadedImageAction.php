@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions;
 
+use App\Connect\Actions\UploadBadgeImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Platform\Enums\ImageType;
 use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,8 +46,14 @@ class ProcessUploadedImageAction
             if ($imageUploadType === ImageUploadType::News) {
                 $imagePath = UploadNewsImage($dataUrl);
             } elseif ($imageUploadType === ImageUploadType::AchievementBadge) {
-                $file = createFileArrayFromDataUrl($dataUrl);
-                $imagePath = UploadBadgeImage($file);
+                $file = new UploadedFile(
+                    $tempImagePath,
+                    str_replace('image/', 'data-url.', $mimeType),
+                    $mimeType,
+                    test: true, // prevent HTTP validation
+                );
+
+                $imagePath = new UploadBadgeImageAction()->execute($file);
             } else {
                 $imageType = match ($imageUploadType) {
                     ImageUploadType::HubBadge => ImageType::GameIcon,

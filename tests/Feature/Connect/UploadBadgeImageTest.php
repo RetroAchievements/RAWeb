@@ -4,28 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
-use App\Models\AchievementSetClaim;
-use App\Models\EventAchievement;
-use App\Models\Game;
-use App\Models\GameAchievementSet;
-use App\Models\GameHash;
-use App\Models\PlayerGame;
 use App\Models\Role;
-use App\Models\System;
-use App\Models\Trigger;
-use App\Models\User;
-use App\Platform\Actions\UpdatePlayerGameMetricsAction;
-use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementType;
-use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
-use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 
 uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
@@ -50,10 +36,10 @@ describe('valid badge', function () {
         $this->user->assignRole(Role::DEVELOPER);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -70,10 +56,10 @@ describe('valid badge', function () {
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -88,14 +74,16 @@ describe('valid badge', function () {
 
     test('cannot be uploaded by non-developer', function () {
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(403)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'You must be a developer to upload badge images.',
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         Storage::disk('media')->assertCount('Badge/', 0);
@@ -104,12 +92,14 @@ describe('valid badge', function () {
 
     test('cannot be uploaded anonymously', function () {
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(401)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Missing Token',
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         Storage::disk('media')->assertCount('Badge/', 0);
@@ -118,13 +108,15 @@ describe('valid badge', function () {
 
     test('cannot be uploaded without token', function () {
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'u' => $this->user->display_name,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(401)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Missing Token',
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         Storage::disk('media')->assertCount('Badge/', 0);
@@ -133,14 +125,59 @@ describe('valid badge', function () {
 
     test('cannot be uploaded with wrong token', function () {
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => 'LetMeIn',
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
-            ])
+            'u' => $this->user->display_name,
+            't' => 'LetMeIn',
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
             ->assertStatus(401)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => "Unknown Request: 'uploadbadgeimage'", // this is clearly wrong
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
+            ]);
+
+        Storage::disk('media')->assertCount('Badge/', 0);
+        Storage::disk('s3')->assertCount('Badge/', 0);
+    });
+
+    test('can be uploaded without r parameter', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+
+        // if r= is not provided, it is derived from the filename
+        $this->post('doupload.php', [
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => ['BadgeIter' => '00001'],
+            ]);
+
+        Storage::disk('media')->assertExists('Badge/00001.png');
+        Storage::disk('media')->assertExists('Badge/00001_lock.png');
+        Storage::disk('s3')->assertExists('Badge/00001.png');
+        Storage::disk('s3')->assertExists('Badge/00001_lock.png');
+    });
+
+    test('can only be uploaded 1500x per day', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+
+        RateLimiter::increment('badge-upload:' . $this->user->id, amount: 1500);
+
+        $this->post('doupload.php?r=uploadbadgeimage', [
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
+            ->assertStatus(429)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 429,
+                'Code' => 'too_many_requests',
+                'Error' => 'Too many requests. Please try again later.',
             ]);
 
         Storage::disk('media')->assertCount('Badge/', 0);
@@ -151,10 +188,10 @@ describe('valid badge', function () {
         $this->user->assignRole(Role::DEVELOPER);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
+        ])
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -185,10 +222,10 @@ describe('valid badge', function () {
         Storage::disk('media')->put('Badge/00001.png', 'dummy data');
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
+        ])
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -207,10 +244,10 @@ describe('valid badge', function () {
         Achievement::factory()->create(['image_name' => 12345]);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
-            ])
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 160, 128),
+        ])
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -227,14 +264,16 @@ describe('valid badge', function () {
         $this->user->assignRole(Role::DEVELOPER);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
-                'u' => $this->user->display_name,
-                't' => $this->user->connect_token,
-                'file' => UploadedFile::fake()->image('uploadbadgeimage.bmp', 64, 64),
-            ])
-            ->assertStatus(200)
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.bmp', 64, 64),
+        ])
+            ->assertStatus(422)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Invalid file type',
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Error' => 'Invalid file type.',
             ]);
 
         Storage::disk('media')->assertCount('Badge/', 0);

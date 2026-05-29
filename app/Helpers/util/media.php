@@ -1,7 +1,6 @@
 <?php
 
 use App\Actions\PurgeAvatarFromCloudflareCacheAction;
-use App\Connect\Actions\GetBadgeIdRangeAction;
 use App\Models\User;
 use App\Platform\Enums\ImageType;
 use App\Support\Media\FilenameIterator;
@@ -92,56 +91,6 @@ function createFileArrayFromDataUrl(string $dataUrl): array
     }
 
     return ['name' => 'data-url.' . $extension, 'tmp_name' => $tempFilename];
-}
-
-/**
- * @throws Exception
- */
-function UploadBadgeImage(array $file): string
-{
-    validateFile($file);
-    $sourceImage = createImageFromExtension($file);
-
-    [$width, $height] = getimagesize($file['tmp_name']);
-
-    $size = 64;
-
-    $image = imagecreatetruecolor($size, $size);
-    imagecopyresampled($image, $sourceImage, 0, 0, 0, 0, $size, $size, $width, $height);
-
-    $imageLocked = imagecreatetruecolor($size, $size);
-    imagecopyresampled($imageLocked, $sourceImage, 0, 0, 0, 0, $size, $size, $width, $height);
-    imagefilter($imageLocked, IMG_FILTER_GRAYSCALE);
-    imagefilter($imageLocked, IMG_FILTER_CONTRAST, 20);
-    imagefilter($imageLocked, IMG_FILTER_GAUSSIAN_BLUR);
-
-    $badgeRange = (new GetBadgeIdRangeAction())->execute();
-    while (true) {
-        $badgeIterator = str_pad((string) $badgeRange['NextBadge'], 5, '0', STR_PAD_LEFT);
-
-        $imagePath = 'Badge/' . $badgeIterator . '.png';
-        if (!Storage::disk('media')->exists($imagePath)) {
-            $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
-
-            $localImagePath = tempnam(sys_get_temp_dir(), $badgeIterator . '.png');
-            $localImagePathLocked = tempnam(sys_get_temp_dir(), $badgeIterator . '_lock.png');
-            break;
-        }
-
-        $badgeRange['NextBadge']++;
-    }
-
-    if (!imagepng($image, $localImagePath) || !imagepng($imageLocked, $localImagePathLocked)) {
-        throw new Exception('Cannot copy image to destination');
-    }
-
-    Storage::disk('media')->put($imagePath, file_get_contents($localImagePath));
-    Storage::disk('media')->put($imagePathLocked, file_get_contents($localImagePathLocked));
-
-    UploadToS3($localImagePath, $imagePath);
-    UploadToS3($localImagePathLocked, $imagePathLocked);
-
-    return $badgeIterator;
 }
 
 /**
