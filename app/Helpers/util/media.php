@@ -120,11 +120,11 @@ function UploadBadgeImage(array $file): string
         $badgeIterator = str_pad((string) $badgeRange['NextBadge'], 5, '0', STR_PAD_LEFT);
 
         $imagePath = 'Badge/' . $badgeIterator . '.png';
-        $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
+        if (!Storage::disk('media')->exists($imagePath)) {
+            $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
 
-        $localImagePath = storage_path('app/media/' . $imagePath);
-        $localImagePathLocked = storage_path('app/media/' . $imagePathLocked);
-        if (!file_exists($localImagePath)) {
+            $localImagePath = tempnam(sys_get_temp_dir(), $badgeIterator . '.png');
+            $localImagePathLocked = tempnam(sys_get_temp_dir(), $badgeIterator . '_lock.png');
             break;
         }
 
@@ -134,6 +134,9 @@ function UploadBadgeImage(array $file): string
     if (!imagepng($image, $localImagePath) || !imagepng($imageLocked, $localImagePathLocked)) {
         throw new Exception('Cannot copy image to destination');
     }
+
+    Storage::disk('media')->put($imagePath, file_get_contents($localImagePath));
+    Storage::disk('media')->put($imagePathLocked, file_get_contents($localImagePathLocked));
 
     UploadToS3($localImagePath, $imagePath);
     UploadToS3($localImagePathLocked, $imagePathLocked);

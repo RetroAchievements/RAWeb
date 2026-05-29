@@ -43,12 +43,6 @@ if (RateLimiter::tooManyAttempts($rateLimitKey, 1500)) {
 }
 RateLimiter::hit($rateLimitKey, 60 * 60 * 24);
 
-// Infer request type from app
-// TODO: remove if not required anymore
-if (isset($_FILES['file']) && isset($_FILES['file']['name'])) {
-    $requestType = mb_substr($_FILES['file']['name'], 0, -4);
-}
-
 if ($requestType !== 'uploadbadgeimage') {
     return response()->json([
         'Success' => false,
@@ -57,7 +51,14 @@ if ($requestType !== 'uploadbadgeimage') {
 }
 
 try {
-    $badgeIterator = UploadBadgeImage($_FILES['file']);
+    $file = request()->file('file');
+    $badgeIterator = UploadBadgeImage([
+        'name'     => $file->getClientOriginalName(),
+        'type'     => $file->getClientMimeType(),
+        'tmp_name' => $file->getPathname(),
+        'error'    => $file->getError(),
+        'size'     => $file->getSize(),
+    ]);
 } catch (Exception $exception) {
     return response()->json([
         'Success' => false,
