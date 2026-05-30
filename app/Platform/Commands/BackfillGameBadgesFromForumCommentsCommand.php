@@ -26,6 +26,7 @@ class BackfillGameBadgesFromForumCommentsCommand extends Command
     private int $skippedNoKeyword = 0;
     private int $skippedUnlabeledMulti = 0;
     private int $skippedMissingFile = 0;
+    private int $skippedWrongSize = 0; // matched a non-96x96 image
 
     /** @var array<int, int|null> */
     private array $userIdCache = [];
@@ -61,7 +62,8 @@ class BackfillGameBadgesFromForumCommentsCommand extends Command
         $this->newLine();
         $this->info(sprintf(
             'Forum comment backfill complete. Processed: %d (new rows: %d, reused rows: %d). '
-            . 'Skipped - contamination: %d, no link: %d, no keyword: %d, unlabeled multi-image: %d, missing file: %d.',
+            . 'Skipped - contamination: %d, no link: %d, no keyword: %d, unlabeled multi-image: %d, '
+            . 'missing file: %d, wrong size: %d.',
             $this->processed,
             $this->newRows,
             $this->reusedRows,
@@ -70,6 +72,7 @@ class BackfillGameBadgesFromForumCommentsCommand extends Command
             $this->skippedNoKeyword,
             $this->skippedUnlabeledMulti,
             $this->skippedMissingFile,
+            $this->skippedWrongSize,
         ));
     }
 
@@ -207,7 +210,8 @@ class BackfillGameBadgesFromForumCommentsCommand extends Command
     }
 
     /**
-     * Gate only on a missing file (the service can't be called without a sha1).
+     * Gate on a missing file (the service can't be called without a sha1) and on
+     * non-badge dimensions (the service refuses to record anything that isn't 96x96).
      */
     private function preflight(GameBadgeBackfillService $backfillService, int $gameId, string $imageAssetPath): bool
     {
@@ -215,6 +219,12 @@ class BackfillGameBadgesFromForumCommentsCommand extends Command
 
         if ($sha1 === null) {
             $this->skippedMissingFile++;
+
+            return false;
+        }
+
+        if (!$backfillService->isBadgeSized($imageAssetPath)) {
+            $this->skippedWrongSize++;
 
             return false;
         }

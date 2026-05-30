@@ -20,6 +20,15 @@ class GameBadgeBackfillService
     /** @var array<string, string|null> */
     private array $sha1Cache = [];
 
+    /** @var array<string, bool> */
+    private array $badgeSizedCache = [];
+
+    /**
+     * Game badges are always 96x96.
+     */
+    public const REQUIRED_BADGE_WIDTH = 96;
+    public const REQUIRED_BADGE_HEIGHT = 96;
+
     public function buildFileIndex(): void
     {
         $entries = [];
@@ -99,6 +108,10 @@ class GameBadgeBackfillService
         // placeholders re-uploaded under unique filenames evade isPlaceholderPath, so
         // catch them by content here and never record them as a real badge.
         if ($sha1 === null || GameBadge::isPlaceholderSha1($sha1)) {
+            return;
+        }
+
+        if (!$this->isBadgeSized($imageAssetPath)) {
             return;
         }
 
@@ -328,6 +341,10 @@ class GameBadgeBackfillService
             return;
         }
 
+        if (!$this->isBadgeSized($path)) {
+            return;
+        }
+
         $becameCurrentAt = $this->resolveFileTimestamp($path, $game);
 
         // revive a trashed row for this badge rather than insert a duplicate.
@@ -384,6 +401,29 @@ class GameBadgeBackfillService
         }
 
         return $this->sha1Cache[$imageAssetPath] = sha1(Storage::disk('media')->get($storagePath));
+    }
+
+    /**
+     * Determine whether the file is a genuine 96x96 badge.
+     */
+    public function isBadgeSized(string $imageAssetPath): bool
+    {
+        if (array_key_exists($imageAssetPath, $this->badgeSizedCache)) {
+            return $this->badgeSizedCache[$imageAssetPath];
+        }
+
+        $storagePath = $this->storagePath($imageAssetPath);
+
+        if (!Storage::disk('media')->exists($storagePath)) {
+            return $this->badgeSizedCache[$imageAssetPath] = false;
+        }
+
+        $size = @getimagesizefromstring(Storage::disk('media')->get($storagePath));
+
+        return
+            $this->badgeSizedCache[$imageAssetPath] = $size !== false
+            && $size[0] === self::REQUIRED_BADGE_WIDTH
+            && $size[1] === self::REQUIRED_BADGE_HEIGHT;
     }
 
     public function resolveFileMtime(string $imageAssetPath): ?CarbonInterface

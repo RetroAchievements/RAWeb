@@ -22,6 +22,7 @@ class BackfillGameBadgesFromCommentsCommand extends Command
     private int $skippedMultiCandidate = 0;
     private int $skippedNoCandidate = 0;
     private int $skippedExisting = 0;
+    private int $skippedWrongSize = 0;
     private int $processed = 0;
 
     /** @var array<string, int|null> */
@@ -80,11 +81,13 @@ class BackfillGameBadgesFromCommentsCommand extends Command
 
         $this->newLine();
         $this->info(sprintf(
-            'Comment backfill complete. Processed: %d, skipped (multi-candidate): %d, skipped (no candidate): %d, skipped (existing): %d.',
+            'Comment backfill complete. Processed: %d, skipped (multi-candidate): %d, skipped (no candidate): %d, '
+            . 'skipped (existing): %d, skipped (wrong size): %d.',
             $this->processed,
             $this->skippedMultiCandidate,
             $this->skippedNoCandidate,
             $this->skippedExisting,
+            $this->skippedWrongSize,
         ));
     }
 
@@ -115,6 +118,12 @@ class BackfillGameBadgesFromCommentsCommand extends Command
 
         if ($sha1 === null) {
             $this->skippedNoCandidate++;
+
+            return false;
+        }
+
+        if (!$backfillService->isBadgeSized($matchedPath)) {
+            $this->skippedWrongSize++;
 
             return false;
         }
