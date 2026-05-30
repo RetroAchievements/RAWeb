@@ -86,11 +86,11 @@ class PruneWipGameBadgesCommand extends Command
             $deleted = (clone $base)
                 ->whereNotNull('replaced_at')
                 ->where('replaced_at', '<=', $firstPublishedAt)
-                ->delete();
+                ->forceDelete();
             $this->deletedPrePublish += $deleted;
         } elseif (!($game->achievements_published > 0)) {
             // the set was never playable, so none of its badges were ever selectable
-            $deleted = (clone $base)->delete();
+            $deleted = (clone $base)->forceDelete();
             $this->deletedNeverPlayable += $deleted;
         } else {
             $this->undeterminedGames++;

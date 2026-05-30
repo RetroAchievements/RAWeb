@@ -37,6 +37,11 @@ return new class extends Migration {
 
             $table->timestamps();
 
+            // to better support a cleanup tool in Filament for removing things
+            // that were added in the past that have been rightfully replaced.
+            // soft deletes makes it easy to revert a delete if something goes wrong.
+            $table->softDeletes();
+
             // one row per unique badge per game
             $table->unique(['game_id', 'sha1']);
 

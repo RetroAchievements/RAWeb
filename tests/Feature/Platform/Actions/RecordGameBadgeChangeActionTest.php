@@ -98,3 +98,30 @@ it('keeps real badges and ignores WIP churn across a demote and republish', func
     expect($badges->firstWhere('image_asset_path', $pathA)->replaced_at)->toBeNull();
     expect($badges->firstWhere('image_asset_path', $pathC)->replaced_at)->not->toBeNull();
 });
+
+it('revives a soft-deleted badge row when its image is uploaded again', function () {
+    // ARRANGE
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'achievements_published' => 5,
+    ]);
+    $action = new RecordGameBadgeChangeAction();
+    $path = recordBadgePath('200020');
+
+    $badge = $action->execute($game, $path);
+
+    $badge->delete();
+    expect(GameBadge::withTrashed()->where('game_id', $game->id)->count())->toEqual(1);
+    expect(GameBadge::where('game_id', $game->id)->count())->toEqual(0);
+
+    // ACT
+    // ... the same image is uploaded again ...
+    $revived = $action->execute($game, $path);
+
+    // ASSERT
+    // ... the original row is restored rather than a duplicate inserted ...
+    expect($revived->id)->toEqual($badge->id);
+    expect(GameBadge::withTrashed()->where('game_id', $game->id)->count())->toEqual(1);
+    expect($revived->trashed())->toBeFalse();
+    expect($revived->replaced_at)->toBeNull();
+});

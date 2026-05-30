@@ -103,6 +103,7 @@ class GameBadgeBackfillService
         }
 
         $existingRow = GameBadge::query()
+            ->withTrashed()
             ->where('game_id', $gameId)
             ->where('sha1', $sha1)
             ->first();
@@ -123,6 +124,10 @@ class GameBadgeBackfillService
         ) {
             // never advance a live-recorded row's timestamp from a backfill
             // the live write is authoritative for when this badge became current
+            if ($existingRow->trashed()) {
+                $existingRow->restore();
+            }
+
             $existingRow->update([
                 'image_asset_path' => $imageAssetPath,
                 'uploaded_by_user_id' => $uploadedByUserId ?? $existingRow->uploaded_by_user_id,
@@ -233,7 +238,9 @@ class GameBadgeBackfillService
             return 0;
         }
 
-        $deleted = GameBadge::query()->whereIn('id', $deleteIds)->delete();
+        // these are backfill reconstruction artifacts that were never the real badge,
+        // so hard-delete them rather than leaving soft-deleted rows in the table.
+        $deleted = GameBadge::query()->whereIn('id', $deleteIds)->forceDelete();
 
         $this->chainReplacedAtForGame($gameId);
 
@@ -323,7 +330,10 @@ class GameBadgeBackfillService
 
         $becameCurrentAt = $this->resolveFileTimestamp($path, $game);
 
+        // revive a trashed row for this badge rather than insert a duplicate.
+        // the canonical icon is unambiguously current, so a prior soft delete should be undone.
         $existingRow = GameBadge::query()
+            ->withTrashed()
             ->where('game_id', $game->id)
             ->where('sha1', $sha1)
             ->first();
@@ -335,6 +345,10 @@ class GameBadgeBackfillService
                 : $becameCurrentAt;
 
             $this->retireStaleCurrentRows($game, $effectiveBecameCurrentAt, exceptRowId: $existingRow->id);
+
+            if ($existingRow->trashed()) {
+                $existingRow->restore();
+            }
 
             $existingRow->update([
                 'image_asset_path' => $path,

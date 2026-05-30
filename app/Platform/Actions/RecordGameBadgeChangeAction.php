@@ -62,7 +62,7 @@ class RecordGameBadgeChangeAction
                 return null;
             }
 
-            $existingRow = $game->badges()->where('sha1', $sha1)->first();
+            $existingRow = $game->badges()->withTrashed()->where('sha1', $sha1)->first();
 
             if ($existingRow !== null) {
                 if ($existingRow->replaced_at !== null) {
@@ -70,6 +70,10 @@ class RecordGameBadgeChangeAction
                         ->whereNull('replaced_at')
                         ->where('id', '!=', $existingRow->id)
                         ->update(['replaced_at' => $transitionAt]);
+                }
+
+                if ($existingRow->trashed()) {
+                    $existingRow->restore();
                 }
 
                 $existingRow->update([
