@@ -23,6 +23,8 @@ class UpdateGameAchievementUnlockMediansJob implements ShouldQueue, ShouldBeUniq
     ) {
     }
 
+    public int $uniqueFor = 86400; // 1 day
+
     public function uniqueId(): string
     {
         return config('queue.default') === 'sync' ? '' : $this->gameId;

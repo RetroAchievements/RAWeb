@@ -37,17 +37,12 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Platform\Actions\UpdateGameAchievementUnlockMediansAction;
 
 $gameId = (int) request()->query('i');
 
 $game = Game::with('system')->find($gameId);
 if (!$game) {
     return response()->json([], 404);
-}
-
-if (!$game->last_median_unlock_calculation_at) {
-    (new UpdateGameAchievementUnlockMediansAction())->execute($game);
 }
 
 // ===== basic game information =====

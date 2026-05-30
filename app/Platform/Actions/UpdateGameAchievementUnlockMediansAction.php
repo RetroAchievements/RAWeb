@@ -29,7 +29,7 @@ class UpdateGameAchievementUnlockMediansAction
 
         [$unlock_times, $unlock_hardcore_times] = $this->calculateUnlockTimes($game, $achievements, $recentPlayerIds);
 
-        foreach ($achievements as &$achievement) {
+        foreach ($achievements as $achievement) {
             $achievement->median_time_to_unlock_samples = count($unlock_times[$achievement->id]);
             $achievement->median_time_to_unlock = $this->getMedian($unlock_times[$achievement->id]);
             $achievement->median_time_to_unlock_hardcore_samples = count($unlock_hardcore_times[$achievement->id]);
