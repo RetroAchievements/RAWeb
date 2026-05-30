@@ -11,7 +11,6 @@ use App\Models\PlayerGame;
 use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Platform\Enums\PlayerProgressResetType;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class UpdateGameAchievementUnlockMediansAction
@@ -36,9 +35,6 @@ class UpdateGameAchievementUnlockMediansAction
             $achievement->median_time_to_unlock_hardcore = $this->getMedian($unlock_hardcore_times[$achievement->id]);
             $achievement->saveQuietly();
         }
-
-        $game->last_median_unlock_calculation_at = Carbon::now();
-        $game->saveQuietly();
     }
 
     private function getRecentPlayerIds(Game $game, bool $hardcore): array
