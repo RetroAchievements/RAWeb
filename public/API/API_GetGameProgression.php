@@ -3,7 +3,6 @@
 /*
  *  API_GetGameProgression - returns information about the average time to unlock achievements in a game
  *    i : game id
- *    h : 1=prefer players with more hardcore unlocks than non-hardcore unlocks
  *
  *  int        ID                                unique identifier of the game
  *  string     Title                             name of the game
@@ -41,7 +40,6 @@ use App\Models\Game;
 use App\Platform\Actions\UpdateGameAchievementUnlockMediansAction;
 
 $gameId = (int) request()->query('i');
-$preferHardcore = (int) request()->query('h');
 
 $game = Game::with('system')->find($gameId);
 if (!$game) {

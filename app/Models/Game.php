@@ -109,6 +109,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'comments_locked_at' => 'datetime',
         'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
+        'last_median_unlock_calculation_at' => 'datetime',
         'parent_game_id' => 'integer',
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',

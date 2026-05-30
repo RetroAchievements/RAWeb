@@ -174,9 +174,9 @@ class UpdateGameAchievementUnlockMediansAction
                 fn (array $a, array $b): int => ($b['unlocked_effective_at'] ?? 0) <=> ($a['unlocked_effective_at'] ?? 0),
             );
 
-            if (!empty($userUnlocks)) {
+            if (count($userUnlocks) > 0) {
                 // Unlocks are sorted by date desc, so the first element will be the latest
-                $lastUserUnlockAt = $userUnlocks[array_key_first($userUnlocks)]['unlocked_effect_at'] ?? 0;
+                $lastUserUnlockAt = $userUnlocks[array_key_first($userUnlocks)]['unlocked_effective_at'] ?? 0;
                 if (!$latestUnlockAt || $lastUserUnlockAt > $latestUnlockAt) {
                     $latestUnlockAt = $lastUserUnlockAt;
                 }
