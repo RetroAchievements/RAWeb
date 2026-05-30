@@ -82,12 +82,8 @@ class GameBadgesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->state(fn (GameBadge $record): string => $this->statusLabel($record))
-                    ->color(fn (GameBadge $record): string => match ($this->statusLabel($record)) {
-                        'Current' => 'success',
-                        'Removed' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->state(fn (GameBadge $record): string => $this->statusFor($record)['label'])
+                    ->color(fn (GameBadge $record): string => $this->statusFor($record)['color']),
 
                 Tables\Columns\TextColumn::make('became_current_at')
                     ->label('Set on')
@@ -142,13 +138,19 @@ class GameBadgesRelationManager extends RelationManager
             ]);
     }
 
-    private function statusLabel(GameBadge $record): string
+    /**
+     * Derive the label and its Filament badge color from the same underlying state so the
+     * two can never drift apart. A null replaced_at is the canonical badge (the live icon).
+     *
+     * @return array{label: string, color: string}
+     */
+    private function statusFor(GameBadge $record): array
     {
-        if ($record->trashed()) {
-            return 'Removed';
-        }
-
-        return $record->replaced_at === null ? 'Current' : 'Replaced';
+        return match (true) {
+            $record->trashed() => ['label' => 'Removed', 'color' => 'danger'],
+            $record->replaced_at === null => ['label' => 'Current', 'color' => 'success'],
+            default => ['label' => 'Replaced', 'color' => 'gray'],
+        };
     }
 
     private function logBadgeActivity(string $event, string $message, GameBadge $record): void
