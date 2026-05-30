@@ -7,6 +7,7 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 use App\Models\Game;
 use App\Models\GameBadge;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -17,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GameBadgesRelationManager extends RelationManager
 {
@@ -109,7 +111,12 @@ class GameBadgesRelationManager extends RelationManager
                     ->visible(fn (GameBadge $record): bool => !$record->trashed() && $record->replaced_at !== null)
                     ->authorize(fn (GameBadge $record): bool => $user->can('delete', $record))
                     ->action(function (GameBadge $record): void {
-                        $record->delete();
+                        DB::transaction(function () use ($record): void {
+                            $record->delete();
+
+                            // a removed badge must stop displaying on every profile that chose it
+                            UserGameBadgePreference::pruneForBadges($record->game_id, [$record->sha1]);
+                        });
 
                         $this->logBadgeActivity('removedGameBadge', 'Removed game badge', $record);
 

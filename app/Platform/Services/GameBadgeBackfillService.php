@@ -7,6 +7,7 @@ namespace App\Platform\Services;
 use App\Models\Game;
 use App\Models\GameBadge;
 use App\Models\System;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\GameBadgeAttribution;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -250,6 +251,8 @@ class GameBadgeBackfillService
         if (empty($deleteIds)) {
             return 0;
         }
+
+        UserGameBadgePreference::pruneForBadgeRows(GameBadge::query()->whereIn('id', $deleteIds));
 
         // these are backfill reconstruction artifacts that were never the real badge,
         // so hard-delete them rather than leaving soft-deleted rows in the table.

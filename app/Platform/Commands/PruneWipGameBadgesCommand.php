@@ -6,6 +6,7 @@ namespace App\Platform\Commands;
 
 use App\Models\Game;
 use App\Models\GameBadge;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
 use App\Platform\Enums\GameBadgeAttribution;
 use App\Platform\Services\GameBadgeBackfillService;
@@ -83,13 +84,18 @@ class PruneWipGameBadgesCommand extends Command
         if ($firstPublishedAt !== null) {
             // a badge whose window ended at or before the first publish was
             // only ever a pre-publish (WIP) badge
-            $deleted = (clone $base)
+            $wipQuery = (clone $base)
                 ->whereNotNull('replaced_at')
-                ->where('replaced_at', '<=', $firstPublishedAt)
-                ->forceDelete();
+                ->where('replaced_at', '<=', $firstPublishedAt);
+
+            UserGameBadgePreference::pruneForBadgeRows($wipQuery);
+
+            $deleted = $wipQuery->forceDelete();
             $this->deletedPrePublish += $deleted;
         } elseif (!($game->achievements_published > 0)) {
             // the set was never playable, so none of its badges were ever selectable
+            UserGameBadgePreference::pruneForBadgeRows($base);
+
             $deleted = (clone $base)->forceDelete();
             $this->deletedNeverPlayable += $deleted;
         } else {
