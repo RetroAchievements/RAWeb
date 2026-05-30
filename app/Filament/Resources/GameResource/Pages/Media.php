@@ -147,6 +147,7 @@ class Media extends EditRecord
 
         return [
             GameResource\RelationManagers\GameScreenshotsRelationManager::class,
+            GameResource\RelationManagers\GameBadgesRelationManager::class,
         ];
     }
 
