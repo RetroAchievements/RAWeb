@@ -67,7 +67,7 @@ class UpdateGameAchievementUnlockMediansAction
             (int) floor($game->achievements_published / 4),
             2,
         ];
-        $players = $hardcore ? $game->players_hardcore : $game->players_softcore;
+        $players = $hardcore ? $game->players_hardcore : $game->players_total - $game->players_hardcore;
         $unlockThresholdIndex = ($players > 500) ? 0 : (($players > 200) ? 1 : 2);
 
         $recentPlayerIds = [];
@@ -182,6 +182,7 @@ class UpdateGameAchievementUnlockMediansAction
                 }
             }
         }
+        unset($userUnlocks); // prevent corruption when new $userUnlocks is assigned below
 
         // ===== Process all sessions for recent players, calculating distance to each unlock =====
         $resets = PlayerProgressReset::query()
