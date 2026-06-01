@@ -15,7 +15,11 @@ class BuildAchievementSetDefinitionAction
      */
     public function execute(AchievementSet $achievementSet): array
     {
-        $rows = $achievementSet->achievements
+        $achievements = $achievementSet->relationLoaded('achievements')
+            ? $achievementSet->achievements
+            : $achievementSet->achievements()->get();
+
+        $rows = $achievements
             ->map(fn (Achievement $achievement): array => [
                 'id' => $achievement->id,
                 'points' => $achievement->points,
