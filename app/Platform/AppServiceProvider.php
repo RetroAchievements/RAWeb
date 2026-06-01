@@ -24,6 +24,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillAchievementSetVersionDefinitions;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
@@ -78,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Achievements
+                BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
 
