@@ -32,6 +32,7 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchIncrementDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameAchievementUnlockMediansJob;
 use App\Platform\Listeners\DispatchUpdateGameBeatenMetricsJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsForGamesPlayedByUserJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
@@ -105,6 +106,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
+            DispatchUpdateGameAchievementUnlockMediansJob::class,
         ],
         PlayerAchievementUnlocked::class => [
             // dispatches PlayerGameAttached
@@ -112,6 +114,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
+            DispatchUpdateGameAchievementUnlockMediansJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player

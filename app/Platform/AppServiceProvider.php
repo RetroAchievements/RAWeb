@@ -49,6 +49,7 @@ use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
+use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerCount;
@@ -88,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
                 PruneGameRecentPlayers::class,
                 RegenerateGameScreenshotConversions::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameAchievementUnlockMedians::class,
                 UpdateGameBeatenMetrics::class,
                 UpdateGameMetrics::class,
                 UpdateGamePlayerCount::class,
