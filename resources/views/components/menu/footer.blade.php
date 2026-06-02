@@ -50,13 +50,6 @@ $menu = collect([
                 // 'url' => route('forum-category.show', 1),
                 'visible' => true,
             ],
-            [
-                'active' => Route::is('user*'),
-                'label' => __res('user'),
-                'url' => url('userList.php'),
-                // 'url' => route('user.index'),
-                'visible' => true,
-            ],
             // [
             //     'active' => Route::is('news*'),
             //     'label' => __res('news'),

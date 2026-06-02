@@ -61,11 +61,7 @@ export const GlobalStatistics: FC = () => {
             {formatNumber(staticData?.numHardcoreGameBeatenAwards)}
           </StatBox>
 
-          <StatBox
-            t_label={t('Registered Players')}
-            href="/userList.php"
-            anchorClassName={buildTrackingClassNames('Click Statistic Registered Players')}
-          >
+          <StatBox t_label={t('Registered Players')}>
             {formatNumber(staticData?.numRegisteredUsers)}
           </StatBox>
 

@@ -6,7 +6,6 @@ import type { TranslatedString } from '@/types/i18next';
 
 interface StatBoxProps {
   t_label: TranslatedString;
-  href: string;
   children: ReactNode;
 
   anchorClassName?: string;
@@ -16,33 +15,60 @@ interface StatBoxProps {
    * route to improve the performance of loading that page.
    */
   asClientSideRoute?: boolean;
+
+  href?: string;
 }
 
 export const StatBox: FC<StatBoxProps> = ({
-  t_label,
-  href,
   children,
+  href,
+  t_label,
   anchorClassName,
   asClientSideRoute = false,
 }) => {
-  const Wrapper = asClientSideRoute ? InertiaLink : 'a';
   const labelId = `${t_label.toLowerCase().replace(/\s+/g, '-')}-label`;
+
+  const baseClassName = cn(
+    'group flex h-full flex-col rounded border bg-embed px-2 py-2.5',
+    'border-neutral-700/80 light:border-neutral-400',
+  );
+
+  const labelClassName = cn(
+    'text-xs leading-4 lg:text-2xs text-neutral-400/90 light:text-neutral-950',
+  );
+
+  const valueClassName = cn('!text-[20px] leading-7 text-neutral-300 light:text-neutral-950');
+
+  if (!href) {
+    return (
+      <div className={baseClassName}>
+        <span id={labelId} className={labelClassName}>
+          {t_label}
+        </span>
+
+        <p aria-labelledby={labelId} className={valueClassName}>
+          {children}
+        </p>
+      </div>
+    );
+  }
+
+  const Wrapper = asClientSideRoute ? InertiaLink : 'a';
 
   return (
     <Wrapper
       href={href}
       className={cn(
-        'group flex h-full flex-col rounded border bg-embed px-2 py-2.5',
-        'border-neutral-700/80 hover:border-neutral-50',
-        'light:border-neutral-400 light:hover:border-neutral-900 light:hover:bg-neutral-100',
+        baseClassName,
+        'hover:border-neutral-50 light:hover:border-neutral-900 light:hover:bg-neutral-100',
         anchorClassName,
       )}
     >
       <span
         id={labelId}
         className={cn(
-          'text-xs leading-4 lg:text-2xs',
-          'text-neutral-400/90 group-hover:text-neutral-50 light:text-neutral-950 light:group-hover:text-neutral-950',
+          labelClassName,
+          'group-hover:text-neutral-50 light:group-hover:text-neutral-950',
         )}
       >
         {t_label}
@@ -51,8 +77,8 @@ export const StatBox: FC<StatBoxProps> = ({
       <p
         aria-labelledby={labelId}
         className={cn(
-          '!text-[20px] leading-7 text-neutral-300',
-          'group-hover:text-neutral-50 light:text-neutral-950 light:group-hover:text-neutral-950',
+          valueClassName,
+          'group-hover:text-neutral-50 light:group-hover:text-neutral-950',
         )}
       >
         {children}
