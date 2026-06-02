@@ -7,7 +7,11 @@
 
 <div class='navpath'>
     @if (empty($currentPage))
-        <span class="font-bold">{{ $user->display_name }}</span>
+        @if ($user->deleted_at)
+            <span class="line-through font-bold">{{ $user->display_name }}</span>
+        @else
+            <span class="font-bold">{{ $user->display_name }}</span>
+        @endif
     @else
         @if ($user->deleted_at)
             <span class="line-through">{{ $user->display_name }}</span>

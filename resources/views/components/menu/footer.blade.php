@@ -35,7 +35,6 @@ $menu = collect([
                 'active' => Route::is('ranking*'),
                 'label' => __res('ranking'),
                 'url' => url('globalRanking.php'),
-                // 'url' => route('user.index'),
                 'visible' => true,
             ],
             [
