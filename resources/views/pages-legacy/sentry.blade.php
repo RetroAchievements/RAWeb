@@ -265,6 +265,13 @@ foreach ($clients as $client) {
                                 (hardcore)
                             <?php endif ?>
                         <?php endif ?>
+                        <?php // remove the additional data we added for the UI before dumping the record
+                        unset($sniff['achievement']);
+                        unset($sniff['game']);
+                        unset($sniff['leaderboard']);
+                        unset($sniff['link']);
+                        unset($sniff['userinfo']);
+                        ?>
                         <?php if ($sniff['leaderboard'] ?? null): ?>
                             &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']->id ?>"><?= $sniff['leaderboard']->title ?></a>
                             &middot; <code><?= $sniff['score'] ?></code>

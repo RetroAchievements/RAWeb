@@ -2106,6 +2106,46 @@ describe('validation', function () {
         $this->assertEquals('', $warning->user_agent);
     });
 
+    test('missing user agent header demotes hardcore unlock to softcore', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+
+        $this->withHeaders(['User-Agent' => null])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+            ]);
+
+        // achievement unlocked
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+    });
+
     test('unknown user agent demotes hardcore unlock to softcore', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];
