@@ -777,7 +777,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Tickets resolved for other users
         echo "<tr><td>Tickets Resolved for Others:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[achievement]' => 'core', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
         echo $closedResolvedTicketInfo['ResolvedCount'];
         echo "</a>";
         echo "</td></tr>";

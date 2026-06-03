@@ -167,15 +167,16 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     @if ($ticketable->format)
                         <x-ticket.stat-element label="Format">{{ ValueFormat::toString($ticketable->format) }}</x-ticket.stat-element>
                     @endif
-                    <x-ticket.stat-element label="Rank order">{{ $ticketable->rank_asc ? 'Low score wins' : 'High score wins' }}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Rank order">{{ $ticketable->rank_asc ? 'Lower is better' : 'Higher is better' }}</x-ticket.stat-element>
                     @if ($reporterLeaderboardEntry)
                         @php
                             $reporterRank = $ticketable->getRank($reporterLeaderboardEntry->score);
+                            $totalEntries = $ticketable->entries()->count();
                             $reporterScoreLabel = $ticketable->format
                                 ? ValueFormat::format($reporterLeaderboardEntry->score, $ticketable->format)
                                 : (string) $reporterLeaderboardEntry->score;
                         @endphp
-                        <x-ticket.stat-element label="Reporter's entry">#{{ $reporterRank }} — {{ $reporterScoreLabel }} ({{ getNiceDate($reporterLeaderboardEntry->updated_at->unix()) }})</x-ticket.stat-element>
+                        <x-ticket.stat-element label="Reporter's entry">#{{ $reporterRank }} / {{ $totalEntries }} - {{ $reporterScoreLabel }}</x-ticket.stat-element>
                     @else
                         <x-ticket.stat-element label="Reporter's entry"><span class="text-muted">No entry yet</span></x-ticket.stat-element>
                     @endif

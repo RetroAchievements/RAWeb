@@ -64,7 +64,7 @@ $gameCache = [];
                                 @if ($ticket->ticketable_type === TicketableType::Achievement->value)
                                     {!! achievementAvatar($ticket->ticketable) !!}
                                 @else
-                                    <a href="{{ $ticket->ticketable->getTicketableUrl() }}">{{ $ticket->ticketable->getTicketableTitle() }}</a>
+                                    <a href="{{ $ticket->ticketable->getTicketableUrl() }}">(LB) {{ $ticket->ticketable->getTicketableTitle() }}</a>
                                 @endif
                             </td>
                             <td>

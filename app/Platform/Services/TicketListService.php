@@ -10,7 +10,6 @@ use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
-use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -41,7 +40,7 @@ class TicketListService
         $validatedData = $request->validate([
             'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
             'filter.type' => 'sometimes|integer|min:0|max:2',
-            'filter.achievement' => 'sometimes|string|in:all,core,unofficial',
+            'filter.publishedStatus' => 'sometimes|string|in:all,published,unpublished',
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
             'filter.developer' => 'sometimes|string|in:all,self,others',
@@ -52,7 +51,7 @@ class TicketListService
         return [
             'status' => $validatedData['filter']['status'] ?? 'unresolved',
             'type' => (int) ($validatedData['filter']['type'] ?? 0),
-            'achievement' => $validatedData['filter']['achievement'] ?? 'all',
+            'publishedStatus' => $validatedData['filter']['publishedStatus'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
             'developerType' => $validatedData['filter']['developerType'] ?? 'all',
             'developer' => $validatedData['filter']['developer'] ?? 'all',
@@ -63,7 +62,7 @@ class TicketListService
 
     public function getSelectFilters(
         bool $showStatus = true,
-        bool $showAchievementType = true,
+        bool $showPublishedStatus = true,
         bool $showDevType = true,
         bool $showDeveloper = false,
         bool $showReporter = false,
@@ -94,14 +93,14 @@ class TicketListService
             ],
         ];
 
-        if ($showAchievementType) {
+        if ($showPublishedStatus) {
             $availableSelectFilters[] = [
-                'kind' => 'achievement',
-                'label' => 'Achievement Type',
+                'kind' => 'publishedStatus',
+                'label' => 'Published Status',
                 'options' => [
                     'all' => 'All',
-                    'core' => 'Core',
-                    'unofficial' => 'Unofficial',
+                    'published' => 'Published',
+                    'unpublished' => 'Unpublished',
                 ],
             ];
         }
@@ -219,13 +218,13 @@ class TicketListService
             $tickets->where('type', $ticketType);
         }
 
-        switch ($filterOptions['achievement']) {
-            case 'core':
-                $tickets->forTicketableType(TicketableType::Achievement)->promoted();
+        switch ($filterOptions['publishedStatus']) {
+            case 'published':
+                $tickets->promoted();
                 break;
 
-            case 'unofficial':
-                $tickets->forTicketableType(TicketableType::Achievement)->unpromoted();
+            case 'unpublished':
+                $tickets->unpromoted();
                 break;
         }
 
