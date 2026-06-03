@@ -12,12 +12,12 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
     }
 
     [$orderColumn, $orderDirection] = match ($sortBy) {
-        1 => ['Date', 'desc'],               // Date, asc
-        2 => ['NumAwarded', 'desc'],         // Num Awarded, asc
-        3 => ['TotalPointsEarned', 'desc'],  // Total Points earned, asc
-        11 => ['Date', 'asc'],               // Date, desc
-        12 => ['NumAwarded', 'asc'],         // Num Awarded, desc
-        13 => ['TotalPointsEarned', 'asc'],  // Total Points earned, desc
+        1 => ['Date', 'desc'],
+        2 => ['NumAwarded', 'desc'],
+        3 => ['TotalPointsEarned', 'desc'],
+        11 => ['Date', 'asc'],
+        12 => ['NumAwarded', 'asc'],
+        13 => ['TotalPointsEarned', 'asc'],
         default => [null, null],
     };
 
