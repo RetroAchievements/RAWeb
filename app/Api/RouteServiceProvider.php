@@ -15,6 +15,7 @@ use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
 use App\Api\V2\Controllers\AchievementSetClaimController;
 use App\Api\V2\Controllers\AchievementSetController;
+use App\Api\V2\Controllers\AchievementSetVersionController;
 use App\Api\V2\Controllers\EventController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\HubController;
@@ -125,6 +126,9 @@ class RouteServiceProvider extends ServiceProvider
                             $server->resource('achievement-set-claims', AchievementSetClaimController::class)
                                 ->only('index');
 
+                            $server->resource('achievement-set-versions', AchievementSetVersionController::class)
+                                ->only('index');
+
                             $server->resource('events', EventController::class)
                                 ->only('index', 'show')
                                 ->readOnly();
@@ -134,6 +138,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
+                                    $relationships->hasMany('achievementSetVersions')->readOnly();
                                     $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('hashes')->readOnly();
                                 });

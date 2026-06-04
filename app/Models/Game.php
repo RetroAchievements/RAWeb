@@ -837,6 +837,11 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
     }
 
+    public function achievementSetVersions(): HasManyThrough
+    {
+        return $this->hasManyThrough(AchievementSetVersion::class, AchievementSet::class);
+    }
+
     /**
      * @return BelongsTo<Game, $this>
      */

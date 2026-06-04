@@ -14,6 +14,7 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
@@ -77,6 +78,7 @@ class GameSchema extends Schema
             BelongsTo::make('system')->readOnly(),
 
             BelongsToMany::make('achievementSets')->readOnly(),
+            HasManyThrough::make('achievementSetVersions')->type('achievmeent-set-versions')->cannotEagerLoad(),
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
             HasMany::make('comments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('hashes')->type('game-hashes')->readOnly(),
