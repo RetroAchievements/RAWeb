@@ -40,10 +40,11 @@ trait CanBeDelegated
 
     private function applyDelegation(Request $request, callable $canDelegateFunction): ?array
     {
-        $delegateTo = request()->input('k');
-        if (!$delegateTo) {
+        if (!$request->has('k')) {
             return null;
         }
+
+        $delegateTo = $request->input('k');
 
         if ($request->method() !== 'POST') {
             return [
