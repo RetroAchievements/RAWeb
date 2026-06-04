@@ -92,7 +92,6 @@ class RouteServiceProvider extends ServiceProvider
              * user & permalinks
              */
             // Route::resource('user', UserController::class)->only('show');
-            // Route::resource('users', UserController::class)->only('index')->names(['index' => 'user.index']);
             Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
 
             Route::group([

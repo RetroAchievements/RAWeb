@@ -10,6 +10,7 @@ use App\Models\System;
 use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\GameBadgeAttribution;
 use Carbon\CarbonInterface;
+use FilesystemIterator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,7 +35,19 @@ class GameBadgeBackfillService
     {
         $entries = [];
 
-        foreach (Storage::disk('media')->allFiles('Images') as $relativePath) {
+        $imagesDirectory = Storage::disk('media')->path('Images');
+        if (!is_dir($imagesDirectory)) {
+            $this->fileIndex = [];
+
+            return;
+        }
+
+        foreach (new FilesystemIterator($imagesDirectory, FilesystemIterator::SKIP_DOTS) as $file) {
+            if ($file->isLink() || !$file->isFile()) {
+                continue;
+            }
+
+            $relativePath = 'Images/' . $file->getFilename();
             if (!preg_match('/^Images\/\d+\.png$/', $relativePath)) {
                 continue;
             }

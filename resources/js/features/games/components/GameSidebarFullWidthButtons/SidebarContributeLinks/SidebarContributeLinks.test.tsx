@@ -194,6 +194,11 @@ describe('Component: SidebarContributeLinks', () => {
           auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
           backingGame: createGame(),
           can: {},
+          config: {
+            app: { url: 'https://retroachievements.org' },
+            screenshots: { maxPendingSubmissions: 200 },
+            services: { patreon: {} },
+          },
           game: createGame({ gameAchievementSets: [] }),
           isOnWantToDevList: false,
           isSubscribedToAchievementComments: false,

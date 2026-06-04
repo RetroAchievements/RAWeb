@@ -45,7 +45,7 @@ class UserAwardPresenter
             AwardType::Mastery, AwardType::GameBeaten => $this->award->gameIfApplicable?->badge_url,
 
             AwardType::Event => $this->award->eventIfApplicable?->awards
-                ?->firstWhere('tier_index', $this->award->award_tier)
+                ?->firstWhere('tier_index', $this->award->display_award_tier ?? $this->award->award_tier)
                 ?->badge_url ?? $this->award->eventIfApplicable?->badge_url,
 
             AwardType::Playtest => $this->award->siteAwardIfApplicable?->badge_url,

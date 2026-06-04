@@ -642,15 +642,3 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
 
     return true;
 }
-
-function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
-{
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $dataOut = $game->trigger_definition;
-
-    return true;
-}
