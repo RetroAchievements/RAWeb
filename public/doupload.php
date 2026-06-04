@@ -12,7 +12,7 @@ $requestType = request()->input('r');
 // file. If an explicit request type wasn't provided, attempt to extract one.
 if (empty($requestType)) {
     $file = request()->file('file');
-    $requestType = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    $requestType = $file ? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) : '[null]';
 }
 
 // Tag the request type so Sentry can group dorequest.php calls by routine.
