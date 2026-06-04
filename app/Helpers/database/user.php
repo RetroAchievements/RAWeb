@@ -102,53 +102,6 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     return $libraryOut;
 }
 
-function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
-{
-    $whereQuery = null;
-    $permsFilter = null;
-
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
-        $permsFilter = "ua.Permissions = $perms ";
-    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Moderator) {
-        $permsFilter = "ua.Permissions >= $perms ";
-    } elseif ($showUntracked) {
-        $whereQuery = "WHERE ua.unranked_at IS NOT NULL ";
-    } else {
-        return 0;
-    }
-
-    if ($showUntracked) {
-        if ($whereQuery == null) {
-            $whereQuery = "WHERE $permsFilter ";
-        }
-    } else {
-        $whereQuery = "WHERE ( ua.unranked_at IS NULL OR ua.username = \"$requestedBy\" OR ua.display_name = \"$requestedBy\" ) AND $permsFilter";
-    }
-
-    $orderBy = match ($sortBy) {
-        1 => "COALESCE(ua.display_name, ua.username) ASC ",
-        11 => "COALESCE(ua.display_name, ua.username) DESC ",
-        2 => "ua.points_hardcore DESC ",
-        12 => "ua.points_hardcore ASC ",
-        3 => "NumAwarded DESC ",
-        13 => "NumAwarded ASC ",
-        4 => "ua.last_activity_at DESC ",
-        14 => "ua.last_activity_at ASC ",
-        default => "COALESCE(ua.display_name, ua.username) ASC ",
-    };
-
-   $query = "SELECT ua.id, COALESCE(ua.display_name, ua.username) AS User, ua.points_hardcore AS points, ua.points_weighted, ua.last_activity_at,
-                ua.achievements_unlocked NumAwarded
-                FROM users AS ua
-                $whereQuery
-                ORDER BY $orderBy
-                LIMIT $offset, $count";
-
-    $dataOut = legacyDbFetchAll($query)->toArray();
-
-    return count($dataOut);
-}
-
 // TODO: Used in developerstats.blade.php. Migrate to a controller.
 function getDeveloperStatsTotalCount(int $devFilter = 7): int
 {

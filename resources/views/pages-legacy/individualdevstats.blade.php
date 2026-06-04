@@ -455,7 +455,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 </script>
     <div class="navpath">
         <?php
-        echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
+        echo "<b><a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
         ?>
     </div>
 
