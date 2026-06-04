@@ -113,6 +113,7 @@ return [
             'inappropriate_game_screenshot' => env('DISCORD_WEBHOOK_ALERT_INAPPROPRIATE_GAME_SCREENSHOT'),
             'muted_user_message' => env('DISCORD_WEBHOOK_ALERT_MUTED_USER_MESSAGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
+            'suspicious_connect_warning' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_CONNECT_WARNING'),
         ],
     ],
 

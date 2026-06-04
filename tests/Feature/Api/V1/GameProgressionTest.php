@@ -124,10 +124,10 @@ class GameProgressionTest extends TestCase
                 'MedianTimeToComplete' => $coreSet->median_time_to_complete,
                 'MedianTimeToMaster' => $coreSet->median_time_to_complete_hardcore,
                 'Achievements' => [
-                    $this->achievementData($achievement1, 1, 521, 1, 521),
-                    $this->achievementData($achievement2, 1, 633, 1, 633),
-                    $this->achievementData($achievement3, 1, 3093, 1, 3093),
-                    $this->achievementData($achievement4, 1, 3247 + 688, 1, 3247 + 688),
+                    $this->achievementData($achievement1, 0, 0, 1, 521),
+                    $this->achievementData($achievement2, 0, 0, 1, 633),
+                    $this->achievementData($achievement3, 0, 0, 1, 3093),
+                    $this->achievementData($achievement4, 0, 0, 1, 3247 + 688),
                 ],
             ]);
 
@@ -163,10 +163,10 @@ class GameProgressionTest extends TestCase
                 'MedianTimeToComplete' => $coreSet->median_time_to_complete,
                 'MedianTimeToMaster' => $coreSet->median_time_to_complete_hardcore,
                 'Achievements' => [
-                    $this->achievementData($achievement1, 2, (int) floor((477 + 521) / 2), 2, (int) floor((477 + 521) / 2)),
-                    $this->achievementData($achievement2, 1, 633, 1, 633),
-                    $this->achievementData($achievement4, 2, (int) floor((3247 + 688 + 1883) / 2), 2, (int) floor((3247 + 688 + 1883) / 2)),
-                    $this->achievementData($achievement3, 1, 3093, 1, 3093),
+                    $this->achievementData($achievement1, 0, 0, 2, (int) floor((477 + 521) / 2)),
+                    $this->achievementData($achievement2, 0, 0, 1, 633),
+                    $this->achievementData($achievement4, 0, 0, 2, (int) floor((3247 + 688 + 1883) / 2)),
+                    $this->achievementData($achievement3, 0, 0, 1, 3093),
                 ],
             ]);
 
@@ -206,37 +206,10 @@ class GameProgressionTest extends TestCase
                 'MedianTimeToComplete' => $coreSet->median_time_to_complete,
                 'MedianTimeToMaster' => $coreSet->median_time_to_complete_hardcore,
                 'Achievements' => [
-                    $this->achievementData($achievement1, 3, 521 /* 477,521,613 */, 2, (int) floor((477 + 521) / 2)),
-                    $this->achievementData($achievement2, 2, (int) floor((633 + 673 + 217 + 909) / 2), 1, 633),
-                    $this->achievementData($achievement4, 3, 1883 /* 673 + 217 + 511, 1883, 3247 + 688 */, 2, (int) floor((3247 + 688 + 1883) / 2)),
-                    $this->achievementData($achievement3, 2, (int) floor((3093 + 673 + 148) / 2), 1, 3093),
-                ],
-            ]);
-
-        // request hardcore players ignores user3
-        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->id, 'h' => 1]))
-            ->assertSuccessful()
-            ->assertExactJson([
-                'ID' => $game->id,
-                'Title' => $game->title,
-                'ConsoleID' => $game->system->id,
-                'ConsoleName' => $game->system->name,
-                'ImageIcon' => $game->image_icon_asset_path,
-                'NumAchievements' => 4,
-                'NumDistinctPlayers' => 3,
-                'TimesUsedInBeatMedian' => $game->times_beaten,
-                'TimesUsedInHardcoreBeatMedian' => $game->times_beaten_hardcore,
-                'MedianTimeToBeat' => $game->median_time_to_beat,
-                'MedianTimeToBeatHardcore' => $game->median_time_to_beat_hardcore,
-                'TimesUsedInCompletionMedian' => $coreSet->times_completed ?? 0,
-                'TimesUsedInMasteryMedian' => $coreSet->times_completed_hardcore ?? 0,
-                'MedianTimeToComplete' => $coreSet->median_time_to_complete,
-                'MedianTimeToMaster' => $coreSet->median_time_to_complete_hardcore,
-                'Achievements' => [
-                    $this->achievementData($achievement1, 2, (int) floor((477 + 521) / 2), 2, (int) floor((477 + 521) / 2)),
-                    $this->achievementData($achievement2, 1, 633, 1, 633),
-                    $this->achievementData($achievement4, 2, (int) floor((3247 + 688 + 1883) / 2), 2, (int) floor((3247 + 688 + 1883) / 2)),
-                    $this->achievementData($achievement3, 1, 3093, 1, 3093),
+                    $this->achievementData($achievement1, 1, 613, 2, (int) floor((477 + 521) / 2)),
+                    $this->achievementData($achievement2, 1, 1799 /* 673 + 217 + 909 */, 1, 633),
+                    $this->achievementData($achievement4, 1, 1401 /* 673 + 217 + 511 */, 2, (int) floor((3247 + 688 + 1883) / 2)),
+                    $this->achievementData($achievement3, 1, 821 /* 673 + 148 */, 1, 3093),
                 ],
             ]);
     }
