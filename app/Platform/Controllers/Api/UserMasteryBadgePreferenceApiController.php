@@ -25,6 +25,7 @@ class UserMasteryBadgePreferenceApiController extends Controller
         abort_unless($user->hasMasteredGame($game->id), 403, 'You have not mastered this game.');
 
         $badges = $game->badges()
+            ->orderByRaw('replaced_at IS NOT NULL')
             ->orderByDesc('became_current_at')
             ->get();
 
