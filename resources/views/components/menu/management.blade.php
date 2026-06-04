@@ -38,6 +38,8 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
         @endif
 
         <div class="dropdown-column">
+            <x-dropdown-header>{{ __('Manage') }}</x-dropdown-header>
+            <x-dropdown-item :href="route('filament.admin.pages.dashboard')">Dashboard</x-dropdown-item>
             @can('develop')
                 @can('manage', App\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
