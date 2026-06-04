@@ -878,4 +878,52 @@ describe('validation', function () {
             'game_id' => $game->id,
         ]);
     });
+
+    test('empty delegate target is rejected', function () {
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+
+        $params = [
+            'u' => $this->user->username,
+            't' => $this->user->connect_token,
+            'r' => 'awardachievements',
+            'k' => '',
+        ];
+        $payload = [
+            'a' => $achievement1->id,
+            'h' => 1,
+            'v' => md5($achievement1->id . '1'),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+        $this->user->refresh();
+
+        // points shouldn't change
+        $this->assertEquals($scoreBefore, $this->user->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $this->user->points);
+
+        // no achievement unlock should have been recorded
+        $this->assertDatabaseMissing((new PlayerAchievement())->getTable(), [
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement1->id,
+        ]);
+
+        // no session should have been created
+        $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ]);
+    });
 });
