@@ -10,7 +10,7 @@ use App\Models\PlayerGame;
 // Recalculates the number of players for a game.
 class UpdateGamePlayerCountAction
 {
-    public function execute(Game $game): void
+    public function execute(Game $game, bool $shouldRecalculateAchievementUnlockCounts = true): void
     {
         $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
 
@@ -43,7 +43,7 @@ class UpdateGamePlayerCountAction
 
             // if the player count changed, update unlock percentages and weighted points for all achievements in the set
             app()->make(UpdateGameAchievementsMetricsAction::class)
-                ->execute($game);
+                ->execute($game, $shouldRecalculateAchievementUnlockCounts);
         }
     }
 }

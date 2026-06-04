@@ -52,9 +52,10 @@ class ApproveGameScreenshotAction
                 ->approved()
                 ->count();
 
-            if ($approvedCount >= 20) {
+            $cap = ScreenshotType::Ingame->approvedCap();
+            if ($approvedCount >= $cap) {
                 throw ValidationException::withMessages([
-                    'screenshot' => 'This game has reached the maximum of 20 approved in-game screenshots.',
+                    'screenshot' => "This game has reached the maximum of {$cap} approved in-game screenshots.",
                 ]);
             }
 

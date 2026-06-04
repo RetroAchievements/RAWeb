@@ -9,6 +9,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
@@ -124,6 +125,10 @@ class Handler extends ExceptionHandler
 
         if ($request->is('api/v2/*')) {
             return $this->renderWebApiV2Exception($e);
+        }
+
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
         }
 
         if ($request->expectsJson()) {

@@ -5,41 +5,48 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\GameAchievementSet;
-use App\Support\Cache\GameParentCacheInvalidator;
-
-// TODO this was added in a hotfix - long-term we should denormalize this value!!
+use App\Platform\Actions\SyncGameParentGameIdAction;
 
 /**
- * Best-effort safety net for Game::parentGameId cache invalidation. Pivot
+ * Best-effort safety net for keeping games.parent_game_id synchronized. Pivot
  * operations like attach()/updateExistingPivot()/detach() don't reliably fire
- * Eloquent model events, so explicit invalidation at known mutation sites is
- * the primary mechanism; this observer just covers direct create/save/delete
+ * Eloquent model events, so explicit synchronization at known mutation sites is
+ * the primary mechanism. This observer just covers direct create/save/delete
  * paths against GameAchievementSet.
  */
 class GameAchievementSetObserver
 {
     public function created(GameAchievementSet $model): void
     {
-        GameParentCacheInvalidator::invalidate($model->game_id, $model->achievement_set_id);
+        $this->syncAffected($model->game_id, $model->achievement_set_id);
     }
 
     public function updated(GameAchievementSet $model): void
     {
-        // If achievement_set_id or game_id changed, the original side could still hold a stale
-        // result for the *other* game in the old relationship, so flush both old and new.
-        $originalGameId = $model->getOriginal('game_id');
-        $originalAchievementSetId = $model->getOriginal('achievement_set_id');
+        $this->syncAffected($model->game_id, $model->achievement_set_id);
 
-        GameParentCacheInvalidator::invalidate(
-            $originalGameId !== null ? (int) $originalGameId : null,
-            $originalAchievementSetId !== null ? (int) $originalAchievementSetId : null,
-        );
+        if ($model->wasChanged(['game_id', 'achievement_set_id'])) {
+            $originalGameId = $model->getOriginal('game_id');
+            $originalAchievementSetId = $model->getOriginal('achievement_set_id');
 
-        GameParentCacheInvalidator::invalidate($model->game_id, $model->achievement_set_id);
+            $this->syncAffected(
+                $originalGameId !== null ? (int) $originalGameId : null,
+                $originalAchievementSetId !== null ? (int) $originalAchievementSetId : null,
+            );
+        }
     }
 
     public function deleted(GameAchievementSet $model): void
     {
-        GameParentCacheInvalidator::invalidate($model->game_id, $model->achievement_set_id);
+        $this->syncAffected($model->game_id, $model->achievement_set_id);
+    }
+
+    private function syncAffected(?int $gameId, ?int $achievementSetId): void
+    {
+        $syncAction = new SyncGameParentGameIdAction();
+
+        foreach (GameAchievementSet::gameIdsAffectedBy($gameId, $achievementSetId) as $affectedGameId) {
+            $syncAction->execute($affectedGameId);
+        }
     }
 }

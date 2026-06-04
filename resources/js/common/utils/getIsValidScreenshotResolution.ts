@@ -1,12 +1,5 @@
 import { getIsSameScreenshotResolution } from './getIsSameScreenshotResolution';
-
-const SMPTE_601_RESOLUTIONS = [
-  { width: 704, height: 480 },
-  { width: 720, height: 480 },
-  { width: 720, height: 486 },
-  { width: 704, height: 576 },
-  { width: 720, height: 576 },
-];
+import { SCREENSHOT_SMPTE_RESOLUTIONS } from './screenshotSmpteResolutions';
 
 export function getIsValidScreenshotResolution(
   width: number,
@@ -35,7 +28,7 @@ export function getIsValidScreenshotResolution(
 
   // SMPTE 601 analog capture resolutions are an exact-match check.
   if (hasAnalogTvOutput) {
-    for (const smpte of SMPTE_601_RESOLUTIONS) {
+    for (const smpte of SCREENSHOT_SMPTE_RESOLUTIONS) {
       if (width === smpte.width && height === smpte.height) {
         return true;
       }

@@ -22,11 +22,13 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\ActivityLogger;
 
@@ -152,6 +154,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalHeading("Clear this game's screenshots?")
                         ->modalDescription('Published and pending screenshots will be moved to Rejected and the game will use placeholder images. You can restore them individually from the Rejected filter.')
                         ->modalSubmitActionLabel('Clear Screenshots')
+                        ->authorize(fn (): bool => $user->can('clearScreenshots', $game))
                         ->action(function () use ($game): void {
                             $clearedCount = (new ClearGameScreenshotsFromGamePageAction())->execute($game);
 
@@ -375,6 +378,7 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalHeading('Permanently delete screenshot?')
                         ->modalDescription('This cannot be undone. The image and its history will be removed.')
                         ->visible(fn (GameScreenshot $record): bool => $record->status === GameScreenshotStatus::Rejected)
+                        ->authorize(fn (GameScreenshot $record): bool => $user->can('forceDelete', $record))
                         ->action(function (GameScreenshot $record) use ($game): void {
                             $screenshotUrl = $record->media?->getUrl();
                             $type = $record->type->label();
@@ -470,7 +474,7 @@ class GameScreenshotsRelationManager extends RelationManager
         ]);
     }
 
-    private function getScreenshotHelperText(): ?string
+    private function getScreenshotHelperText(): ?Htmlable
     {
         $system = $this->getOwnerRecord()?->system;
         $resolutions = $system?->screenshot_resolutions;
@@ -478,23 +482,32 @@ class GameScreenshotsRelationManager extends RelationManager
             return null;
         }
 
-        $formatted = collect($resolutions)
-            ->map(fn (array $r) => "{$r['width']}x{$r['height']}")
+        $supportsUpscaling = (bool) $system->supports_upscaled_screenshots;
+        $isSingleResolution = count($resolutions) === 1;
+
+        $natives = collect($resolutions)
+            ->map(fn (array $r) => "{$r['width']}×{$r['height']}")
             ->join(', ');
 
-        $label = count($resolutions) > 1 ? 'Accepted resolutions' : 'Expected resolution';
+        $lines = [];
 
-        $multiplesNote = $system->supports_upscaled_screenshots
-            ? ' (or 2x/3x integer multiples)'
-            : '';
-
-        $text = "{$label} for {$system->name}: {$formatted}{$multiplesNote}";
-
-        if ($system->has_analog_tv_output) {
-            $text .= '. SMPTE 601 capture resolutions (704x480, 720x480, 720x486, 704x576, 720x576) are also accepted.';
+        if ($supportsUpscaling) {
+            $lines[] = ['label' => 'Recommended', 'value' => "2× or 3× native, captured at your emulator's internal resolution"];
+            $lines[] = ['label' => 'Native', 'value' => $natives];
+        } else {
+            $label = $isSingleResolution ? 'Expected resolution' : 'Accepted resolutions';
+            $lines[] = ['label' => $label, 'value' => $natives];
         }
 
-        return $text;
+        if ($system->has_analog_tv_output) {
+            $lines[] = ['label' => 'Also accepted', 'value' => 'SMPTE 601 capture sizes'];
+        }
+
+        $html = collect($lines)
+            ->map(fn (array $line) => '<span class="font-medium">' . e($line['label']) . ':</span> ' . e($line['value']))
+            ->join('<br>');
+
+        return new HtmlString($html);
     }
 
     private function shouldShowArchivedScreenshots(): bool

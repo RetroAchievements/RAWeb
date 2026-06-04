@@ -21,7 +21,6 @@ use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Platform\Enums\ScreenshotType;
-use App\Support\Cache\CacheKey;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
@@ -38,7 +37,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -81,6 +79,8 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     public const PLACEHOLDER_BADGE_PATH = '/Images/000001.png';
     public const PLACEHOLDER_IMAGE_PATH = '/Images/000002.png';
 
+    private const GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT = 240;
+
     // TODO migrate forum_topic_id to forumable morph
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     protected $table = 'games';
@@ -109,6 +109,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'comments_locked_at' => 'datetime',
         'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
+        'parent_game_id' => 'integer',
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',
     ];
@@ -395,7 +396,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                 // height is the binding dimension, preserving the original aspect ratio.
                 $this->addMediaConversion('thumbnail')
                     ->format('png')
-                    ->fit(Fit::Max, 10000, 240)
+                    ->fit(Fit::Max, 10000, self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT)
                     ->performOnCollections('screenshots');
 
                 $this->addMediaConversion('placeholder')
@@ -578,9 +579,25 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return media_asset($this->image_box_art_asset_path);
     }
 
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    public function getImageTitleDimensionsAttribute(): ?array
+    {
+        return $this->resolveScreenshotDimensions(ScreenshotType::Title);
+    }
+
     public function getImageTitleUrlAttribute(): string
     {
         return $this->resolveScreenshotUrl(ScreenshotType::Title, $this->image_title_asset_path);
+    }
+
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    public function getImageIngameDimensionsAttribute(): ?array
+    {
+        return $this->resolveScreenshotDimensions(ScreenshotType::Ingame);
     }
 
     public function getImageIngameUrlAttribute(): string
@@ -608,6 +625,48 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         }
 
         return media_asset($fallbackAssetPath);
+    }
+
+    /**
+     * @return array{width: int, height: int}|null
+     */
+    private function resolveScreenshotDimensions(ScreenshotType $type): ?array
+    {
+        if ($this->is_media_restricted || !$this->relationLoaded('gameScreenshots')) {
+            return null;
+        }
+
+        $primary = $this->getPrimaryScreenshot($type);
+        if (!$primary) {
+            return null;
+        }
+
+        // defense in depth just in case there's a race with the media queue
+        if (!$primary->media?->hasGeneratedConversion('thumbnail')) {
+            return ['width' => $primary->width, 'height' => $primary->height];
+        }
+
+        return $this->scaleScreenshotDimensionsToThumbnail($primary);
+    }
+
+    /**
+     * Calculate the dimensions of the thumbnail without doing a read
+     * of the thumbnail.
+     *
+     * @return array{width: int, height: int}
+     */
+    private function scaleScreenshotDimensionsToThumbnail(GameScreenshot $screenshot): array
+    {
+        if ($screenshot->height <= self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT) {
+            return ['width' => $screenshot->width, 'height' => $screenshot->height];
+        }
+
+        $scale = self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT / $screenshot->height;
+
+        return [
+            'width' => (int) round($screenshot->width * $scale),
+            'height' => self::GAME_PAGE_SCREENSHOT_THUMBNAIL_MAX_HEIGHT,
+        ];
     }
 
     /**
@@ -660,60 +719,6 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         );
     }
 
-    public function getParentGameIdAttribute(): ?int
-    {
-        return once(function () {
-            // Null results have to be stored as 0 because Laravel's Cache::remember
-            // treats a cached null as a miss and would re-execute the resolver every call.
-            $cached = (int) Cache::remember(
-                CacheKey::buildGameParentIdCacheKey($this->id),
-                Carbon::now()->addHour(),
-                fn (): int => $this->resolveParentGameId() ?? 0,
-            );
-
-            return $cached === 0 ? null : $cached;
-        });
-    }
-
-    private function resolveParentGameId(): ?int
-    {
-        // Get this game's core achievement set(s).
-        $coreAchievementSets = GameAchievementSet::where('game_id', $this->id)
-            ->where('type', AchievementSetType::Core)
-            ->pluck('achievement_set_id');
-
-        if ($coreAchievementSets->isEmpty()) {
-            return null;
-        }
-
-        // Check if another game uses any of this game's core achievement sets as a non-core type.
-        // This would indicate that the other game is the parent.
-        $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $coreAchievementSets)
-            ->where('game_id', '!=', $this->id)
-            ->where('type', '!=', AchievementSetType::Core)
-            ->orderBy('created_at') // if more than one parent exists, take the first associated
-            ->select('game_id')
-            ->first();
-
-        if ($nonCoreUsage) {
-            return $nonCoreUsage->game_id;
-        }
-
-        // If no mapping exists, but title includes "[Subset", try to find the parent by name
-        $index = strpos($this->title, '[Subset - ');
-        if ($index !== false) {
-            // Trim to ensure no leading/trailing spaces.
-            $baseSetTitle = trim(substr($this->title, 0, $index));
-
-            // Attempt to find a game with the base title and the same system ID.
-            return Game::where('title', $baseSetTitle)
-                ->where('system_id', $this->system_id)
-                ->value('id');
-        }
-
-        return null;
-    }
-
     public function getHasActiveOrInReviewClaimsAttribute(): bool
     {
         // BuildsGameListQueries injects this as a virtual field.
@@ -733,12 +738,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     public function getIsSubsetGameAttribute(): bool
     {
-        // See if we can short circut the queries to build parentGameId first.
-        if (str_contains($this->title, '[Subset')) {
-            return true;
-        }
-
-        return $this->parentGameId !== null;
+        return $this->parent_game_id !== null;
     }
 
     public function getCanHaveBeatenTypes(): bool
@@ -837,11 +837,12 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
     }
 
-    public function parentGame(): ?Game
+    /**
+     * @return BelongsTo<Game, $this>
+     */
+    public function parentGame(): BelongsTo
     {
-        return once(function (): ?Game {
-            return $this->parentGameId ? Game::find($this->parentGameId) : null;
-        });
+        return $this->belongsTo(Game::class, 'parent_game_id');
     }
 
     /**
@@ -1040,6 +1041,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     public function gameScreenshots(): HasMany
     {
         return $this->hasMany(GameScreenshot::class);
+    }
+
+    /**
+     * @return HasMany<GameBadge, $this>
+     */
+    public function badges(): HasMany
+    {
+        return $this->hasMany(GameBadge::class);
     }
 
     /**

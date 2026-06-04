@@ -202,7 +202,7 @@ export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopic
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
-export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
+export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' | 'did_not_trigger' | 'submitted_wrong_value' | 'triggered_at_wrong_time';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
 export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
@@ -344,6 +344,7 @@ isSubscribed: boolean;
 paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
 metaDescription: string;
 accessibleTeamAccounts: Array<App.Data.User> | null;
+replyableTeamAccounts: Array<App.Data.User> | null;
 };
 export type StaticData = {
 numGames: number;
@@ -737,7 +738,9 @@ developer?: string;
 genre?: string;
 guideUrl?: string;
 imageBoxArtUrl?: string;
+imageIngameDimensions?: { width: number; height: number } | null;
 imageIngameUrl?: string;
+imageTitleDimensions?: { width: number; height: number } | null;
 imageTitleUrl?: string;
 publisher?: string;
 system?: App.Platform.Data.System;
@@ -829,6 +832,7 @@ originalUrl: string;
 smWebpUrl: string;
 mdWebpUrl: string;
 lgWebpUrl: string;
+placeholderUrl: string;
 thumbnailUrl: string;
 };
 export type GameSet = {

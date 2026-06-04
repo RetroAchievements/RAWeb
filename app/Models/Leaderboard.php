@@ -8,9 +8,12 @@ use App\Community\Enums\CommentableType;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
+use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\LeaderboardState;
+use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
+use Carbon\CarbonInterface;
 use Database\Factories\LeaderboardFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,7 +33,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 /**
  * @implements HasVersionedTrigger<Leaderboard>
  */
-class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
+class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger, Ticketable
 {
     /*
      * Shared Traits
@@ -103,6 +106,39 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == ticketable
+
+    public function getTicketableType(): TicketableType
+    {
+        return TicketableType::Leaderboard;
+    }
+
+    public function getTicketableGame(): Game
+    {
+        return $this->game;
+    }
+
+    public function getTicketableAssignee(?CarbonInterface $at = null): ?User
+    {
+        // leaderboards don't have a "maintainer" concept - the assignee is always the author.
+        return $this->developer;
+    }
+
+    public function getTicketableTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getTicketableUrl(): string
+    {
+        return $this->getCanonicalUrlAttribute();
+    }
+
+    public function getTicketableBadgeUrl(): ?string
+    {
+        return null;
     }
 
     // == accessors
@@ -245,6 +281,14 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
             ->orderBy('version');
     }
 
+    /**
+     * @return MorphMany<Ticket, $this>
+     */
+    public function tickets(): MorphMany
+    {
+        return $this->morphMany(Ticket::class, 'ticketable');
+    }
+
     // == scopes
 
     /**
@@ -254,6 +298,24 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function scopeVisible(Builder $query): Builder
     {
         return $query->where('order_column', '>=', 0);
+    }
+
+    /**
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopePromoted(Builder $query): Builder
+    {
+        return $query->where('state', '!=', LeaderboardState::Unpromoted->value);
+    }
+
+    /**
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopeUnpromoted(Builder $query): Builder
+    {
+        return $query->where('state', LeaderboardState::Unpromoted->value);
     }
 
     /**

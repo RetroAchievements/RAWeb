@@ -6,13 +6,19 @@ use App\Models\Achievement;
 use App\Models\AchievementGroup;
 use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Models\GameBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
+use App\Platform\Enums\GameBadgeAttribution;
+use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -108,7 +114,7 @@ it('keeps restored achievements attached to their set with existing metadata', f
         ->and($visibleAchievementIds)->toContain($restoredAchievement->id);
 });
 
-it('queues player and beaten metrics when achievement set version changes', function () {
+it('queues outdated player games when achievement set version changes', function () {
     // ARRANGE
     Queue::fake();
 
@@ -125,5 +131,84 @@ it('queues player and beaten metrics when achievement set version changes', func
 
     // ASSERT
     Queue::assertPushedOn('game-player-games', UpdateGamePlayerGamesJob::class);
-    Queue::assertPushedOn('game-beaten-metrics', UpdateGameBeatenMetricsJob::class);
+});
+
+it('dispatches GameBecamePlayable when a set crosses into playable', function () {
+    // ARRANGE
+    Queue::fake();
+    Event::fake([GameBecamePlayable::class]);
+    $game = Game::factory()->create(['achievements_published' => 0]);
+    Achievement::factory()->promoted()->for($game)->create(['points' => 5]);
+
+    // ACT
+    (new UpdateGameMetricsAction())->execute($game);
+
+    // ASSERT
+    Event::assertDispatched(GameBecamePlayable::class);
+});
+
+it('does not dispatch GameBecamePlayable when the set is already playable', function () {
+    // ARRANGE
+    Queue::fake();
+    Event::fake([GameBecamePlayable::class]);
+    $game = Game::factory()->create(['achievements_published' => 3]);
+    Achievement::factory()->promoted()->for($game)->create(['points' => 5]);
+
+    // ACT
+    (new UpdateGameMetricsAction())->execute($game);
+
+    // ASSERT
+    Event::assertNotDispatched(GameBecamePlayable::class);
+});
+
+it('does not dispatch GameBecamePlayable when the set stays WIP', function () {
+    // ARRANGE
+    Queue::fake();
+    Event::fake([GameBecamePlayable::class]);
+    $game = Game::factory()->create(['achievements_published' => 0]);
+    Achievement::factory()->for($game)->create(['points' => 5]); // unpromoted
+
+    // ACT
+    (new UpdateGameMetricsAction())->execute($game);
+
+    // ASSERT
+    Event::assertNotDispatched(GameBecamePlayable::class);
+});
+
+it('captures the WIP icon as the current badge when the set is re-promoted', function () {
+    // ARRANGE
+    // 1- Badge X was the current badge while the set was playable.
+    // 2- The set was demoted.
+    // 3- The badge was changed to Badge Y while everything was demoted.
+    // 4- Stuff is promoted and the set is playable again.
+
+    Queue::fake();
+    Storage::fake('media');
+
+    $pathY = '/Images/410001.png';
+    Storage::disk('media')->put('Images/410001.png', 'badge-content-Y');
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'achievements_published' => 0, // currently WIP (mid-demote)
+        'image_icon_asset_path' => $pathY,
+    ]);
+    $x = GameBadge::factory()->create([
+        'game_id' => $game->id,
+        'sha1' => 'x-sha-e2e',
+        'image_asset_path' => '/Images/409999.png',
+        'attribution_source' => GameBadgeAttribution::Live,
+        'became_current_at' => Carbon::parse('2024-01-01 00:00:00'),
+        'replaced_at' => null,
+    ]);
+    Achievement::factory()->promoted()->for($game)->create(['points' => 5]);
+
+    // ACT
+    (new UpdateGameMetricsAction())->execute($game);
+
+    // ASSERT
+    $badges = GameBadge::where('game_id', $game->id)->get();
+    expect($badges)->toHaveCount(2);
+    expect($badges->firstWhere('image_asset_path', $pathY)->replaced_at)->toBeNull();
+    expect($badges->firstWhere('id', $x->id)->replaced_at)->not->toBeNull();
 });

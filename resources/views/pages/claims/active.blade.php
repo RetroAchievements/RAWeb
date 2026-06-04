@@ -29,7 +29,7 @@ render(function (View $view) {
     $sorts = $claimsService->getSorts(withExpiring: false);
 
     $filterOptions = $claimsService->getFilterOptions(request());
-    $claims = $claimsService->getClaims($filterOptions);
+    $claims = $claimsService->getClaims($filterOptions, AchievementSetClaim::primaryClaim());
 
     $activeClaimsCount = AchievementSetClaim::primaryClaim()->activeOrInReview()->count();
 

@@ -390,7 +390,7 @@ class AchievementController extends Controller
     {
         $game = $achievement->game;
 
-        $backingGame = $game->parentGame();
+        $backingGame = $game->parentGame;
         if (!$backingGame) {
             return [null, null];
         }

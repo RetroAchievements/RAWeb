@@ -331,6 +331,20 @@ class UserAgentService
             return [ClientSupportLevel::Unknown, null];
         }
 
+        [$supportLevel, $coreRestriction] = $this->resolveBaseSupportLevel($emulatorUserAgent, $data, $userAgent);
+
+        if ($supportLevel->allowsHardcoreUnlocks() && $this->hasOfflineSubmissionClient($data)) {
+            return [ClientSupportLevel::SoftcoreOnly, $coreRestriction];
+        }
+
+        return [$supportLevel, $coreRestriction];
+    }
+
+    /**
+     * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction}
+     */
+    private function resolveBaseSupportLevel(EmulatorUserAgent $emulatorUserAgent, array $data, string|array $userAgent): array
+    {
         $isSoftcoreOnly = $emulatorUserAgent->emulator->softcore_only;
 
         if ($emulatorUserAgent->minimum_allowed_version
@@ -342,7 +356,7 @@ class UserAgentService
         // Ordering matters: minimum_allowed_version still blocks ancient
         // clients above, and core restrictions below are intentionally
         // bypassed because softcore_only is a blanket emulator-wide flag.
-        if ($isSoftcoreOnly || $this->hasOfflineSubmissionClient($data)) {
+        if ($isSoftcoreOnly) {
             return [ClientSupportLevel::SoftcoreOnly, null];
         }
 

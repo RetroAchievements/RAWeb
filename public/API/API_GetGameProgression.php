@@ -3,7 +3,6 @@
 /*
  *  API_GetGameProgression - returns information about the average time to unlock achievements in a game
  *    i : game id
- *    h : 1=prefer players with more hardcore unlocks than non-hardcore unlocks
  *
  *  int        ID                                unique identifier of the game
  *  string     Title                             name of the game
@@ -38,14 +37,8 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\PlayerAchievement;
-use App\Models\PlayerGame;
-use App\Models\PlayerProgressReset;
-use App\Models\PlayerSession;
-use App\Platform\Enums\PlayerProgressResetType;
 
 $gameId = (int) request()->query('i');
-$preferHardcore = (int) request()->query('h');
 
 $game = Game::with('system')->find($gameId);
 if (!$game) {
@@ -54,7 +47,6 @@ if (!$game) {
 
 // ===== basic game information =====
 $coreSet = $game->gameAchievementSets()->core()->first()?->achievementSet;
-$achievementsFirstPublishedAt = $coreSet?->achievements_first_published_at;
 
 $response = [
     'ID' => $game->id,
@@ -76,191 +68,6 @@ $response = [
 ];
 
 $achievements = $game->achievements()->promoted()->get();
-$achievementIds = $achievements->pluck('id');
-$unlock_times = [];
-$unlock_hardcore_times = [];
-foreach ($achievementIds as $achievementId) {
-    $unlock_times[$achievementId] = [];
-    $unlock_hardcore_times[$achievementId] = [];
-}
-
-// ===== process recent players in the set =====
-// if the set has more than 500 players, only look at players who have earned at least half the achievements.
-// if the set has between 200 and 500 players, only look at players who have earned at least 25% of the achievements.
-// otherwise, only look at players who have earned at least two achievements.
-$unlockThresholds = [
-    (int) floor($game->achievements_published / 2),
-    (int) floor($game->achievements_published / 4),
-    2,
-];
-
-$recentPlayerIds = [];
-
-$unlockThreshold = ($game->players_total > 500) ? 0 : (($game->players_total > 200) ? 1 : 2);
-while (true) {
-    $playerIds = PlayerGame::query()
-        ->where('game_id', $game->id)
-        ->where($preferHardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked', '>=', $unlockThresholds[$unlockThreshold])
-        ->orderByDesc('last_unlock_at')
-        ->limit(100)
-        ->pluck('user_id')
-        ->toArray();
-
-    // previous thresholds contain more interesting data, merge in new results.
-    $recentPlayerIds = array_unique(array_merge($recentPlayerIds, $playerIds));
-
-    if ($unlockThreshold === 2 || count($recentPlayerIds) > 60) {
-        break;
-    }
-
-    // threshold eliminated too many results. try again at next threshold.
-    $unlockThreshold++;
-}
-
-$resets = PlayerProgressReset::query()
-    ->where('type', PlayerProgressResetType::Game)
-    ->where('type_id', $game->id)
-    ->whereIn('user_id', $recentPlayerIds)
-    ->pluck('created_at', 'user_id')
-    ->map(fn ($createdAt): int => $createdAt->getTimestamp());
-
-// ===== build unlock lists grouped by user (in reverse order so we can use array_pop) =====
-$unlocks = [];
-$achievementsFirstPublishedAtTimestamp = $achievementsFirstPublishedAt?->getTimestamp();
-$achievementUnlocks = PlayerAchievement::query()
-    ->forceIndex('player_achievements_achievement_id_user_id_unlocked_hardcore_at')
-    ->whereIn('user_id', $recentPlayerIds)
-    ->whereIn('achievement_id', $achievementIds)
-    ->whereNull('unlocker_id')
-    ->select(['user_id', 'achievement_id'])
-    ->selectRaw(unixTimestampStatement('unlocked_at', 'unlocked_at_timestamp'))
-    ->selectRaw(unixTimestampStatement('unlocked_hardcore_at', 'unlocked_hardcore_at_timestamp'))
-    ->toBase()
-    ->get();
-$latestUnlockAt = null;
-foreach ($achievementUnlocks as $unlock) {
-    $unlockedAt = $unlock->unlocked_at_timestamp ? (int) $unlock->unlocked_at_timestamp : null;
-    $unlockedHardcoreAt = $unlock->unlocked_hardcore_at_timestamp ? (int) $unlock->unlocked_hardcore_at_timestamp : null;
-    $unlockedEffectiveAt = $unlockedHardcoreAt ?? $unlockedAt;
-
-    if (!array_key_exists($unlock->user_id, $unlocks)) {
-        $unlocks[$unlock->user_id] = [];
-
-        // if the first published at timestamp hasn't been calculated yet, use the first unlock we found
-        if (!$achievementsFirstPublishedAtTimestamp && $unlockedAt) {
-            $achievementsFirstPublishedAtTimestamp = $unlockedAt - 600;
-            $achievementsFirstPublishedAt = date('Y-m-d H:i:s', $achievementsFirstPublishedAtTimestamp);
-        }
-    }
-
-    foreach ([$unlockedAt, $unlockedHardcoreAt] as $candidateUnlockedAt) {
-        if ($candidateUnlockedAt && (!$latestUnlockAt || $candidateUnlockedAt > $latestUnlockAt)) {
-            $latestUnlockAt = $candidateUnlockedAt;
-        }
-    }
-
-    $unlocks[$unlock->user_id][] = [
-        'achievement_id' => $unlock->achievement_id,
-        'unlocked_at' => $unlockedAt,
-        'unlocked_hardcore_at' => $unlockedHardcoreAt,
-        'unlocked_effective_at' => $unlockedEffectiveAt,
-    ];
-}
-
-foreach ($unlocks as &$userUnlocks) {
-    usort(
-        $userUnlocks,
-        fn (array $a, array $b): int => ($b['unlocked_effective_at'] ?? 0) <=> ($a['unlocked_effective_at'] ?? 0),
-    );
-}
-unset($userUnlocks);
-
-// ===== process all sessions for users in above list =====
-$totalSessionTime = [];
-$sessions = PlayerSession::query()
-    ->where('game_id', $game->id)
-    ->whereIn('user_id', array_keys($unlocks))
-    ->when($achievementsFirstPublishedAt, fn ($q) => $q->where('rich_presence_updated_at', '>', $achievementsFirstPublishedAt))
-    ->when($latestUnlockAt, fn ($q) => $q->where('created_at', '<=', date('Y-m-d H:i:s', $latestUnlockAt)))
-    ->select(['user_id', 'duration'])
-    ->selectRaw(unixTimestampStatement('created_at', 'created_at_timestamp'))
-    ->selectRaw(unixTimestampStatement('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
-    ->orderBy('created_at')
-    ->toBase()
-    ->get();
-foreach ($sessions as $session) {
-    $userUnlocks = $unlocks[$session->user_id];
-    if (empty($userUnlocks)) {
-        // already processed all achievements for this user
-        continue;
-    }
-
-    $sessionCreatedAt = (int) $session->created_at_timestamp;
-    $sessionStartBoundary = $resets[$session->user_id] ?? $achievementsFirstPublishedAtTimestamp;
-    $sessionStart = $sessionStartBoundary ? max($sessionStartBoundary, $sessionCreatedAt) : $sessionCreatedAt;
-    $sessionEnd = max((int) $session->rich_presence_updated_at_timestamp, $sessionCreatedAt + ((int) $session->duration * 60));
-
-    if ($sessionStartBoundary && $sessionEnd < $sessionStartBoundary) {
-        // ignore sessions prior to the achievements being published or the player's last full reset
-        continue;
-    }
-
-    // get time from previous sessions for user
-    $elapsed = $totalSessionTime[$session->user_id] ?? 0;
-    do {
-        // unlocks are sorted by date desc, so the last element will be the earliest
-        $unlock = end($userUnlocks);
-
-        if ($unlock['unlocked_hardcore_at']) {
-            if ($unlock['unlocked_hardcore_at'] < $sessionStart || $unlock['unlocked_hardcore_at'] > $sessionEnd) {
-                break;
-            }
-
-            $unlock_hardcore_times[$unlock['achievement_id']][] = $elapsed +
-                ($unlock['unlocked_hardcore_at'] - $sessionStart);
-
-            if ($unlock['unlocked_at'] && $unlock['unlocked_at'] >= $sessionStart && $unlock['unlocked_at'] <= $sessionEnd) {
-                $unlock_times[$unlock['achievement_id']][] = $elapsed +
-                    ($unlock['unlocked_at'] - $sessionStart);
-            }
-        } elseif ($unlock['unlocked_at']) {
-            if ($unlock['unlocked_at'] < $sessionStart || $unlock['unlocked_at'] > $sessionEnd) {
-                break;
-            }
-
-            $unlock_times[$unlock['achievement_id']][] = $elapsed +
-                ($unlock['unlocked_at'] - $sessionStart);
-        }
-
-        // remove processed element so we don't try to process it again.
-        // this also allows us to avoid processing the user in the future once
-        // all of their achievements have been processed.
-        array_pop($userUnlocks);
-    } while (!empty($userUnlocks));
-
-    // update state for next session
-    $unlocks[$session->user_id] = $userUnlocks;
-    $totalSessionTime[$session->user_id] = $elapsed + ($sessionEnd - $sessionStart);
-}
-
-// ===== summarize achievement metrics =====
-$get_median = function (array $a): int {
-    $length = count($a);
-    if ($length === 0) {
-        return 0;
-    }
-
-    $values = array_values($a);
-    sort($values);
-
-    $index = (int) floor($length / 2);
-    if (($length % 2) == 1) {
-        return $values[$index];
-    }
-
-    return (int) round(($values[$index - 1] + $values[$index]) / 2);
-};
-
 foreach ($achievements as $achievement) {
     $response['Achievements'][] = [
         'ID' => $achievement->id,
@@ -272,10 +79,10 @@ foreach ($achievements as $achievement) {
         'BadgeName' => $achievement->image_name,
         'NumAwarded' => $achievement->unlocks_total,
         'NumAwardedHardcore' => $achievement->unlocks_hardcore,
-        'TimesUsedInUnlockMedian' => count($unlock_times[$achievement->id]),
-        'TimesUsedInHardcoreUnlockMedian' => count($unlock_hardcore_times[$achievement->id]),
-        'MedianTimeToUnlock' => $get_median($unlock_times[$achievement->id]),
-        'MedianTimeToUnlockHardcore' => $get_median($unlock_hardcore_times[$achievement->id]),
+        'TimesUsedInUnlockMedian' => $achievement->median_time_to_unlock_samples,
+        'TimesUsedInHardcoreUnlockMedian' => $achievement->median_time_to_unlock_hardcore_samples,
+        'MedianTimeToUnlock' => $achievement->median_time_to_unlock,
+        'MedianTimeToUnlockHardcore' => $achievement->median_time_to_unlock_hardcore,
     ];
 }
 

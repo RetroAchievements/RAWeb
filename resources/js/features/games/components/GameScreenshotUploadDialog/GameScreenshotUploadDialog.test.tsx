@@ -247,7 +247,10 @@ describe('Component: GameScreenshotUploadDialog', () => {
       pageProps: {
         config: baseConfig,
         game: createGame({
-          system: createSystem({ screenshotResolutions: [{ width: 320, height: 240 }] }),
+          system: createSystem({
+            screenshotResolutions: [{ width: 320, height: 240 }],
+            supportsUpscaledScreenshots: false,
+          }),
         }),
         screenshotUploadConsistency: {
           existingResolutions: [{ width: 256, height: 224 }],

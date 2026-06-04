@@ -470,6 +470,88 @@ class UserAwardsTest extends TestCase
         ));
     }
 
+    public function testItUsesTheDisplayTierBadgeUrlForEventAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $legacyGame = Game::factory()->create(['title' => 'Tiered Event']);
+
+        // ... create the highest tier first so we can attach a second tier to the same event ...
+        $highTierAward = EventAward::factory()->create([
+            'tier_index' => 2,
+            'image_asset_path' => '/Images/event-tier-2.png',
+        ]);
+        $event = $highTierAward->event()->first();
+        $event->legacy_game_id = $legacyGame->id;
+        $event->image_asset_path = '/Images/event.png';
+        $event->save();
+
+        EventAward::factory()->create([
+            'event_id' => $event->id,
+            'tier_index' => 1,
+            'image_asset_path' => '/Images/event-tier-1.png',
+        ]);
+
+        // ... the user earned tier 2 but prefers to display tier 1 ...
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Event,
+            'award_key' => $event->id,
+            'award_tier' => 2,
+            'display_award_tier' => 1,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/Images/event-tier-1.png', $response->json('data.0.attributes.badgeUrl'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.tierIndex'));
+        $this->assertEquals(1, $response->json('data.0.attributes.context.displayTierIndex'));
+    }
+
+    public function testItFallsBackToTheEarnedTierBadgeUrlForEventAwardsWithNoDisplayPreference(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $legacyGame = Game::factory()->create(['title' => 'Tiered Event']);
+
+        $eventAward = EventAward::factory()->create([
+            'tier_index' => 2,
+            'image_asset_path' => '/Images/event-tier-2.png',
+        ]);
+        $event = $eventAward->event()->first();
+        $event->legacy_game_id = $legacyGame->id;
+        $event->image_asset_path = '/Images/event.png';
+        $event->save();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Event,
+            'award_key' => $event->id,
+            'award_tier' => 2,
+            'display_award_tier' => null,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/Images/event-tier-2.png', $response->json('data.0.attributes.badgeUrl'));
+    }
+
     public function testItUsesTheSiteAwardLabelAsThePlaytestTitle(): void
     {
         // Arrange

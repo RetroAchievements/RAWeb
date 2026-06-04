@@ -144,11 +144,11 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
             <PlayableMainMedia
-              expectedHeight={game.system?.screenshotResolutions?.[0]?.height}
-              expectedWidth={game.system?.screenshotResolutions?.[0]?.width}
               hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
               hasBeatenGame={hasBeatenGame}
+              imageIngameDimensions={game.imageIngameDimensions}
               imageIngameUrl={game.imageIngameUrl!}
+              imageTitleDimensions={game.imageTitleDimensions}
               imageTitleUrl={game.imageTitleUrl!}
               isPixelated={!game.system!.supportsUpscaledScreenshots}
               numScreenshots={numScreenshots}

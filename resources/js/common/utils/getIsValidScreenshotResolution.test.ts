@@ -90,4 +90,12 @@ describe('Util: getIsValidScreenshotResolution', () => {
     // ASSERT
     expect(result).toEqual(true);
   });
+
+  it('given a 1px deviation from an SMPTE 601 resolution with analog output enabled, returns false', () => {
+    // ACT
+    const result = getIsValidScreenshotResolution(720, 481, baseResolutions, true);
+
+    // ASSERT
+    expect(result).toEqual(false);
+  });
 });

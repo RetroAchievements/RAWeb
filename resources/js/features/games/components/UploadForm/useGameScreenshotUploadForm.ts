@@ -5,9 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { getIsValidScreenshotResolution } from '@/common/utils/getIsValidScreenshotResolution';
-import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 
 import { useSubmitGameScreenshotMutation } from '../../hooks/mutations/useSubmitGameScreenshotMutation';
 
@@ -31,10 +29,7 @@ export function useGameScreenshotUploadForm({
   screenshotResolutions,
   supportsUpscaledScreenshots,
 }: UseGameScreenshotUploadFormOptions) {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
-
-  const locale = getUserIntlLocale(auth?.user);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,22 +57,9 @@ export function useGameScreenshotUploadForm({
         supportsUpscaledScreenshots,
       )
     ) {
-      const formatted = new Intl.ListFormat(locale, {
-        style: 'narrow',
-        type: 'conjunction',
-      }).format(screenshotResolutions.map((r) => `${r.width}x${r.height}`));
-
-      const errorMessage = supportsUpscaledScreenshots
-        ? t(
-            "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}} (or 2x/3x multiples).",
-            { width, height, resolutions: formatted },
-          )
-        : t(
-            "This screenshot's dimensions ({{width}}x{{height}}) don't match the expected resolutions: {{resolutions}}.",
-            { width, height, resolutions: formatted },
-          );
-
-      form.setError('imageData', { message: errorMessage });
+      form.setError('imageData', {
+        message: t("Resolution doesn't match. See the preview above."),
+      });
 
       return;
     }

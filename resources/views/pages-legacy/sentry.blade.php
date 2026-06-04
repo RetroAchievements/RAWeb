@@ -14,7 +14,7 @@ function RenderFilterButton(string $text, string $filter, int $count): void
 {
     if ($count > 0) {
         echo "<button class='btn' type='button' data-filter='$filter'>";
-        echo "$text ($count)";
+        echo e($text) . " ($count)";
         echo '</button>';
     }
 }
@@ -25,7 +25,7 @@ function key_to_class(?string $key): string
         return '_null_';
     }
 
-    return str_replace([' ', '.'], '-', str_replace('%', '_pct_', $key));
+    return preg_replace('/[^A-Za-z0-9_-]/', '-', str_replace('%', '_pct_', $key)) ?? '';
 }
 
 // render
@@ -52,21 +52,26 @@ $selected = requestInputSanitized('file');
 if ($selected) {
     $date = Carbon::parse(substr($selected, 7));
     $sniffs = (new BuildConnectSniffsAction())->execute($date, $clients);
-
-    foreach ($sniffs as $sniff) {
-        $user_counts[$sniff['user']] = ($user_counts[$sniff['user']] ?? 0) + 1;
-        $method_counts[$sniff['method']] = ($method_counts[$sniff['method']] ?? 0) + 1;
-
-        foreach ($sniff['smells'] as $smell) {
-            $smell_counts[$smell] = ($smell_counts[$smell] ?? 0) + 1;
-        }
+} else {
+    $selected = requestInputSanitized('user');
+    if ($selected) {
+        $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, $selected);
     }
-
-    ksort($user_counts);
-    ksort($method_counts);
-    ksort($smell_counts);
-    sort($clients);
 }
+
+foreach ($sniffs as $sniff) {
+    $user_counts[$sniff['user']] = ($user_counts[$sniff['user']] ?? 0) + 1;
+    $method_counts[$sniff['method']] = ($method_counts[$sniff['method']] ?? 0) + 1;
+
+    foreach ($sniff['smells'] as $smell) {
+        $smell_counts[$smell] = ($smell_counts[$smell] ?? 0) + 1;
+    }
+}
+
+ksort($user_counts);
+ksort($method_counts);
+ksort($smell_counts);
+sort($clients);
 
 $colors = [
     'bad_validation' => [ // validation hash did not match expected values
@@ -226,7 +231,7 @@ foreach ($clients as $client) {
                 $classes = [
                     'smell',
                     'user-' . key_to_class($sniff['user']),
-                    'method-' . $sniff['method'],
+                    'method-' . key_to_class($sniff['method']),
                     ...array_map(fn ($class) => 'smell-' . key_to_class($class), $sniff['smells'] ?? []),
                 ];
                 if (empty($sniff['userAgent'])) {
@@ -238,40 +243,40 @@ foreach ($clients as $client) {
                         <code><?= $sniff['date'] ?></code>
                         <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= $sniff['method'] ?></code>
                         <?php foreach ($sniff['smells'] ?? [] as $smell): ?>
-                            <code style="padding:1px 5px;border:1px solid <?= $colors[$smell]['border'] ?? 'gray' ?>;background:<?= $colors[$smell]['background'] ?? 'gray' ?>;color:white"><?= $smell ?></code>
+                            <code style="padding:1px 5px;border:1px solid <?= $colors[$smell]['border'] ?? 'gray' ?>;background:<?= $colors[$smell]['background'] ?? 'gray' ?>;color:white"><?= e($smell) ?></code>
                         <?php endforeach ?>
                         <?php
                             if ($sniff['user']) {
-                                echo "&middot; <a href='" . $sniff['link'] . "'>" . $sniff['user'] . '</a>';
+                                echo "&middot; <a href='" . e($sniff['link']) . "'>" . e($sniff['user']) . '</a>';
                                 if (!array_key_exists('userinfo', $sniff)) {
                                     echo ' (non-existant)';
-                                } elseif ($sniff['userinfo']['deleted_at'] ?? false) {
+                                } elseif ($sniff['userinfo']->deleted_at ?? false) {
                                     echo ' (deleted)';
-                                } elseif ($sniff['userinfo']['Permissions'] == Permissions::Banned) {
+                                } elseif ($sniff['userinfo']->Permissions == Permissions::Banned) {
                                     echo ' (banned)';
-                                } elseif ($sniff['userinfo']['unranked_at'] ?? false) {
+                                } elseif ($sniff['userinfo']->unranked_at ?? false) {
                                     echo ' (untracked)';
                                 }
                             }
                         ?>
                         <?php if ($sniff['achievement'] ?? null): ?>
-                            &middot; <a href="/achievement/<?= $sniff['achievement']['id'] ?>"><?= $sniff['achievement']['title'] ?></a>
+                            &middot; <a href="/achievement/<?= $sniff['achievement']->id ?>"><?= $sniff['achievement']->title ?></a>
                             <?php if ($sniff['hardcore']): ?>
                                 (hardcore)
                             <?php endif ?>
                         <?php endif ?>
+                        <?php // remove the additional data we added for the UI before dumping the record
+                        unset($sniff['achievement']);
+                        unset($sniff['game']);
+                        unset($sniff['leaderboard']);
+                        unset($sniff['link']);
+                        unset($sniff['userinfo']);
+                        ?>
                         <?php if ($sniff['leaderboard'] ?? null): ?>
-                            &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']['id'] ?>"><?= $sniff['leaderboard']['title'] ?></a>
+                            &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']->id ?>"><?= $sniff['leaderboard']->title ?></a>
                             &middot; <code><?= $sniff['score'] ?></code>
                         <?php endif ?>
                     </summary>
-                    <?php
-                    unset($sniff['achievement']);
-                    unset($sniff['game']);
-                    unset($sniff['leaderboard']);
-                    unset($sniff['link']);
-                    unset($sniff['userinfo']);
-                    ?>
                     <pre><?= e(json_encode($sniff, JSON_PRETTY_PRINT)) ?></pre>
                 </details>
             <?php endforeach ?>

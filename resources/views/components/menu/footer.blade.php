@@ -35,7 +35,6 @@ $menu = collect([
                 'active' => Route::is('ranking*'),
                 'label' => __res('ranking'),
                 'url' => url('globalRanking.php'),
-                // 'url' => route('user.index'),
                 'visible' => true,
             ],
             [
@@ -48,13 +47,6 @@ $menu = collect([
                 'label' => __res('forum'),
                 'url' => url('forum.php'),
                 // 'url' => route('forum-category.show', 1),
-                'visible' => true,
-            ],
-            [
-                'active' => Route::is('user*'),
-                'label' => __res('user'),
-                'url' => url('userList.php'),
-                // 'url' => route('user.index'),
                 'visible' => true,
             ],
             // [
