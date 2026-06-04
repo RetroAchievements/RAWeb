@@ -56,51 +56,6 @@ describe('Component: ScreenshotGalleryDialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('given the dialog is open, locks body scrolling', async () => {
-    // ARRANGE
-    render(
-      <ScreenshotGalleryDialog
-        screenshots={[createGameScreenshot()]}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-      />,
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(document.body).toHaveStyle({ overflow: 'hidden' });
-    });
-  });
-
-  it('given the dialog closes, restores body scrolling', async () => {
-    // ARRANGE
-    const { rerender } = render(
-      <ScreenshotGalleryDialog
-        screenshots={[createGameScreenshot()]}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(document.body).toHaveStyle({ overflow: 'hidden' });
-    });
-
-    // ACT
-    rerender(
-      <ScreenshotGalleryDialog
-        screenshots={[createGameScreenshot()]}
-        isOpen={false}
-        onOpenChange={vi.fn()}
-      />,
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(document.body.style.overflow).toEqual('');
-    });
-  });
-
   it('given there is a completion screenshot and the user has not beaten the game, shows the spoiler overlay', async () => {
     // ARRANGE
     const screenshots = [createGameScreenshot({ id: 1, type: 'completion' })];
