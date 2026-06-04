@@ -47,13 +47,17 @@ class ProcessUploadedImageAction
                 $imagePath = UploadNewsImage($dataUrl);
             } elseif ($imageUploadType === ImageUploadType::AchievementBadge) {
                 $file = new UploadedFile(
-                    $tempImagePath,
+                    $disk->path($tempImagePath),
                     str_replace('image/', 'data-url.', $mimeType),
                     $mimeType,
                     test: true, // prevent HTTP validation
                 );
 
-                $imagePath = new UploadBadgeImageAction()->execute($file);
+                $result = new UploadBadgeImageAction()->execute(auth()->user(), $file);
+                if (!$result['Success']) {
+                    throw new Exception($result['Error']);
+                }
+                $imagePath = $result['Response']['BadgeIter'];
             } else {
                 $imageType = match ($imageUploadType) {
                     ImageUploadType::HubBadge => ImageType::GameIcon,

@@ -19,8 +19,9 @@ class UploadBadgeImageAction extends BaseAuthenticatedApiAction
 
     protected UploadedFile $file;
 
-    public function execute(UploadedFile $file): array
+    public function execute(User $user, UploadedFile $file): array
     {
+        $this->user = $user;
         $this->file = $file;
 
         return $this->process();
