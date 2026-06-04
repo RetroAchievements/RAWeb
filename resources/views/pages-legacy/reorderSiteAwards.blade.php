@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\GameBadge;
 use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
@@ -11,7 +12,7 @@ $prefersSeeingSavedHiddenRows = request()->cookie('prefers_seeing_saved_hidden_r
 
 $targetUser = User::whereName($user)->first();
 
-$userAwards = getUsersSiteAwards($targetUser, true);
+$userAwards = getUsersSiteAwards($targetUser, applyBadgePreferences: true);
 [$gameAwards, $eventAwards, $siteAwards, $eventData, $eventAwardData] = SeparateAwards($userAwards);
 
 $hasSomeAwards = !empty($gameAwards) || !empty($eventAwards) || !empty($siteAwards);
@@ -24,6 +25,14 @@ $renderedSectionCount += (!empty($eventAwards)) ? 1 : 0;
 $renderedSectionCount += (!empty($siteAwards)) ? 1 : 0;
 
 $initialSectionOrders = getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards);
+
+$gameAwardGameIds = array_map(fn ($award) => (int) $award['AwardData'], $gameAwards);
+$badgeCounts = empty($gameAwardGameIds) ? [] : GameBadge::query()
+    ->whereIn('game_id', $gameAwardGameIds)
+    ->selectRaw('game_id, COUNT(*) as aggregate')
+    ->groupBy('game_id')
+    ->pluck('aggregate', 'game_id')
+    ->all();
 ?>
 <x-app-layout pageTitle="Reorder Site Awards">
 <script>
@@ -113,6 +122,7 @@ function postAllAwardsDisplayOrder(awards) {
             $initialSectionOrders[0],
             $eventData,
             $eventAwardData,
+            $badgeCounts,
         );
     }
 
@@ -147,7 +157,7 @@ function postAllAwardsDisplayOrder(awards) {
     @if ($hasSomeAwards)
         <x-slot name="sidebar">
             <?php
-                RenderSiteAwards(getUsersSiteAwards($targetUser), $user);
+                RenderSiteAwards(getUsersSiteAwards($targetUser, applyBadgePreferences: true), $user);
             ?>
         </x-slot>
     @endif
