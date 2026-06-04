@@ -1,3 +1,4 @@
+export * from './reorderSiteAwards/badgePicker';
 export * from './reorderSiteAwards/collectMappedTableRows';
 export * from './reorderSiteAwards/handleResetOrder';
 export * from './reorderSiteAwards/handleRowDragOver';
