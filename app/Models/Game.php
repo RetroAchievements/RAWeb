@@ -1044,6 +1044,14 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     }
 
     /**
+     * @return HasMany<GameBadge, $this>
+     */
+    public function badges(): HasMany
+    {
+        return $this->hasMany(GameBadge::class);
+    }
+
+    /**
      * @return HasMany<GameAchievementSet, $this>
      */
     public function selectableGameAchievementSets(): HasMany

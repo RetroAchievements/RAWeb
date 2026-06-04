@@ -49,6 +49,7 @@ class DeveloperSetsService
             ->toArray();
 
         $gameAuthoredLeaderboardsList = $user->authoredLeaderboards()
+            ->promoted()
             ->select(['game_id',
                 DB::raw('COUNT(leaderboards.id) AS NumAuthoredLeaderboards'),
             ])
@@ -59,8 +60,10 @@ class DeveloperSetsService
             })
             ->toArray();
 
-        $gameIDs = array_keys($gameAuthoredAchievementsList) +
-            array_keys($gameAuthoredLeaderboardsList);
+        $gameIDs = array_unique(array_merge(
+            array_keys($gameAuthoredAchievementsList),
+            array_keys($gameAuthoredLeaderboardsList),
+        ));
 
         $gameAuthoredTicketsList = Ticket::whereIn('state', [TicketState::Open, TicketState::Request])
             ->where('ticketable_type', 'achievement')
