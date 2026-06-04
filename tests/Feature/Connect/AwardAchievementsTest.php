@@ -901,12 +901,12 @@ describe('validation', function () {
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl, $payload)
-            ->assertStatus(422)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Status' => 422,
-                'Code' => 'missing_parameter',
-                'Error' => 'One or more required parameters is missing.',
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown target user.',
             ]);
         $this->user->refresh();
 

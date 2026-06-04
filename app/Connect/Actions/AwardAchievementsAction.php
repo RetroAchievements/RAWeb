@@ -56,7 +56,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
     protected function initialize(Request $request): ?array
     {
-        if (!$request->filled(['a', 'v', 'k'])) {
+        if (!$request->has(['a', 'v', 'k'])) {
             return $this->missingParameters();
         }
 
