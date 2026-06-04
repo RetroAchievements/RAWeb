@@ -30,7 +30,6 @@ class AchievementSetVersionFactory extends Factory
             'achievements_published' => $achievementSet->achievements_published,
             'achievements_unpublished' => $achievementSet->achievements_unpublished,
             'points_total' => $achievementSet->points_total,
-            'points_weighted' => $achievementSet->points_weighted,
         ];
     }
 }
