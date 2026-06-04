@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Connect\Actions;
 
 use App\Connect\Support\BaseAuthenticatedApiAction;
-use App\Connect\Support\HasUploadedFile;
+use App\Connect\Support\ValidateUploadedFile;
 use App\Models\Achievement;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadBadgeImageAction extends BaseAuthenticatedApiAction
 {
-    use HasUploadedFile;
+    use ValidateUploadedFile;
 
     protected UploadedFile $file;
 

@@ -6,7 +6,7 @@ namespace App\Connect\Support;
 
 use Illuminate\Http\UploadedFile;
 
-trait HasUploadedFile
+trait ValidateUploadedFile
 {
     protected function validateFile(UploadedFile $file, ?array $supportedExtensions, int $maximumSize): ?array
     {
