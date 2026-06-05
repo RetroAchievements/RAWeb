@@ -65,7 +65,11 @@ class ApproveGameScreenshotAction
                 ->primary()
                 ->first();
 
-            if ($existingPrimary) {
+            if (!$existingPrimary) {
+                // No primary exists yet, so promote this submission to fill the slot.
+                $this->ensureLegacyPng($screenshot);
+                $screenshot->update(['is_primary' => true]);
+            } else {
                 $system = $game->system;
                 $resolutionService = new ScreenshotResolutionService();
 

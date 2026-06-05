@@ -202,6 +202,70 @@ it('replaces the existing approved title screenshot when a new one is approved',
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
 });
 
+it('promotes the first approved ingame screenshot to primary when the game has none yet', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $pending = createPendingScreenshotForApprovalTest(
+        $game,
+        $submitter,
+        ScreenshotType::Ingame,
+        withLegacyPath: true,
+    );
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer);
+
+    $fresh = $pending->fresh();
+
+    // ASSERT
+    expect($fresh->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($fresh->is_primary)->toBeTrue();
+});
+
+it('does not promote a newly approved ingame screenshot when a valid primary already exists', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $existingPrimary = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'width' => 256,
+        'height' => 224,
+        'order_column' => 1,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest(
+        $game,
+        $submitter,
+        ScreenshotType::Ingame,
+        width: 256,
+        height: 224,
+    );
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer);
+
+    $fresh = $pending->fresh();
+
+    // ASSERT
+    expect($fresh->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($fresh->is_primary)->toBeFalse();
+    expect($existingPrimary->fresh()->is_primary)->toBeTrue();
+});
+
 it('promotes a newly approved ingame screenshot when the current primary has an invalid resolution', function () {
     // ARRANGE
     $system = System::factory()->create([
