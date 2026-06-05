@@ -115,10 +115,9 @@ class BuildShowForumTopicPagePropsAction
             }
         )->all();
 
-        $comments = $paginatedForumTopicComments->getCollection();
+        $comments = collect($forumTopicComments);
+        /** @var ForumTopicComment $selectedComment */
         $selectedComment = $comments->firstWhere('id', $selectedCommentId) ?? $comments->first();
-        $selectedCommentIndex = $comments->search($selectedComment);
-        $selectedCommentMetaBody = $updatedBodies[$selectedCommentIndex] ?? $updatedBodies[0];
 
         $props = new ShowForumTopicPagePropsData(
             accessibleTeamAccounts: $accessibleTeamAccounts,
@@ -146,7 +145,7 @@ class BuildShowForumTopicPagePropsAction
                 total: $paginatedForumTopicComments->total(),
                 items: $forumTopicComments
             ),
-            metaDescription: Shortcode::stripAndClamp($selectedCommentMetaBody, 220),
+            metaDescription: Shortcode::stripAndClamp($selectedComment->body, 220),
         );
 
         return ['props' => $props, 'redirectToPage' => null];
