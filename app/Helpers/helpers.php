@@ -9,7 +9,6 @@ require_once __DIR__ . '/database/achievement-creator.php';
 require_once __DIR__ . '/database/code-note.php';
 require_once __DIR__ . '/database/forum.php';
 require_once __DIR__ . '/database/game.php';
-require_once __DIR__ . '/database/hash.php';
 require_once __DIR__ . '/database/player-achievement.php';
 require_once __DIR__ . '/database/player-game.php';
 require_once __DIR__ . '/database/player-history.php';
@@ -45,7 +44,6 @@ require_once __DIR__ . '/util/database.php'; // TODO refactor
 require_once __DIR__ . '/util/date.php'; // TODO refactor
 require_once __DIR__ . '/util/mail.php'; // TODO refactor
 require_once __DIR__ . '/util/media.php'; // TODO refactor
-require_once __DIR__ . '/util/recaptcha.php'; // TODO refactor
 require_once __DIR__ . '/util/request.php'; // TODO refactor
 require_once __DIR__ . '/util/string.php';
 

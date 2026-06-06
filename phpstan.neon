@@ -114,6 +114,3 @@ parameters:
 
         # disabled features
         - public/API/API_GetFeed.php
-
-        # third party
-        - app/Helpers/util/recaptcha.php
