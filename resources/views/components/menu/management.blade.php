@@ -9,6 +9,18 @@ $user = request()->user();
 $tools = $settings['tools'] ?? [];
 $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilities']));
 
+$anyDropdownItems =
+    $visibleTools->isNotEmpty() ||
+    $user?->can('develop') ||
+    $user?->can('manage', App\Models\Ticket::class) ||
+    $user?->can('manage', App\Models\AchievementSetClaim::class) ||
+    $user?->can('manage', App\Models\GameHash::class) ||
+    $user->Permissions >= Permissions::Developer ||
+    $user?->can('manage', App\Models\News::class) ||
+    $user->can('manage', User::class) ||
+    $user->Permissions === Permissions::Moderator ||
+    $user->can('tool');
+
 ?>
 
 <x-nav-dropdown
@@ -16,6 +28,7 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
     dropdown-class="dropdown-menu-right"
     :title="__('Manage')"
     :desktopHref="route('filament.admin.pages.dashboard')"
+    :force-href="!$anyDropdownItems"
 >
     <x-slot name="trigger">
         <x-fas-toolbox />
@@ -38,8 +51,6 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
         @endif
 
         <div class="dropdown-column">
-            <x-dropdown-header>{{ __('Manage') }}</x-dropdown-header>
-            <x-dropdown-item :href="route('filament.admin.pages.dashboard')">Dashboard</x-dropdown-item>
             @can('develop')
                 @can('manage', App\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
