@@ -352,7 +352,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false, bool $applyBadgePreferences = false): array
 {
     if (!isValidUsername($user)) {
         return [];
@@ -363,13 +363,16 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
     $mostRecentDate = 'COALESCE(' . greatestStatement(['pg.last_unlock_at', 'pg.last_unlock_hardcore_at']) . ', pg.last_unlock_at, pg.last_unlock_hardcore_at)';
     $pctWon = floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published');
     $pctWonHc = floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published');
+    $gameBadgeImageIcon = $applyBadgePreferences
+        ? 'COALESCE(gb.image_asset_path, gd.image_icon_asset_path)'
+        : 'gd.image_icon_asset_path';
 
     $query = DB::table('player_games as pg')
         ->select([
             'gd.id as GameID',
             's.name as ConsoleName',
             's.id as ConsoleID',
-            'gd.image_icon_asset_path as ImageIcon',
+            DB::raw("$gameBadgeImageIcon AS ImageIcon"),
             'gd.title as Title',
             'gd.sort_title as SortTitle',
             'gd.achievements_published as MaxPossible',
@@ -383,6 +386,17 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         ->leftJoin('games as gd', 'gd.id', '=', 'pg.game_id')
         ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
         ->leftJoin('users as ua', 'ua.id', '=', 'pg.user_id')
+        ->when($applyBadgePreferences, function ($q) {
+            $q->leftJoin('user_game_badge_preferences as ugbp', function ($join) {
+                $join->on('ugbp.user_id', '=', 'pg.user_id')
+                    ->on('ugbp.game_id', '=', 'pg.game_id');
+            })
+                ->leftJoin('game_badges as gb', function ($join) {
+                    $join->on('gb.game_id', '=', 'ugbp.game_id')
+                        ->on('gb.sha1', '=', 'ugbp.sha1')
+                        ->whereNull('gb.deleted_at');
+                });
+        })
         ->where(function ($q) use ($user) {
             $q->where('ua.username', $user)
                 ->orWhere('ua.display_name', $user);

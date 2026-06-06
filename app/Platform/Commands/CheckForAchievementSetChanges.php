@@ -43,23 +43,28 @@ class CheckForAchievementSetChanges extends Command
             }
         } else {
             if ($this->option('full')) {
-                $achievementSets = AchievementSet::query()
-                    ->where('achievements_published', '>', 0)
-                    ->orWhereHas('versions')
-                    ->get();
+                $query = AchievementSet::query()
+                    ->where(function ($query) {
+                        $query->where('achievements_published', '>', 0)
+                            ->orWhereHas('versions');
+                    });
             } else {
-                $achievementSets = AchievementSet::where('updated_at', '>', Carbon::now()->subHours(25))->get();
+                $query = AchievementSet::query()
+                    ->where('updated_at', '>', Carbon::now()->subHours(25));
             }
 
-            $this->info("Processing {$achievementSets->count()} achievement sets...");
+            $total = (clone $query)->count();
+            $this->info("Processing {$total} achievement sets...");
 
-            $bar = $this->output->createProgressBar($achievementSets->count());
+            $bar = $this->output->createProgressBar($total);
             $bar->start();
 
-            foreach ($achievementSets as $achievementSet) {
-                $this->checkForChangesAction->execute($achievementSet);
-                $bar->advance();
-            }
+            $query->with('achievements')->chunkById(100, function ($achievementSets) use ($bar) {
+                foreach ($achievementSets as $achievementSet) {
+                    $this->checkForChangesAction->execute($achievementSet);
+                    $bar->advance();
+                }
+            });
 
             $bar->finish();
             $this->newLine();

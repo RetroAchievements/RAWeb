@@ -25,12 +25,26 @@ trait CanBeDelegated
         });
     }
 
+    protected function applyDelegationForUnlocks(Request $request, array $achievements): ?array
+    {
+        return $this->applyDelegation($request, function () use ($achievements) {
+            foreach ($achievements as $achievement) {
+                if (!$achievement->getCanDelegateUnlocks($this->user)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
     private function applyDelegation(Request $request, callable $canDelegateFunction): ?array
     {
-        $delegateTo = request()->input('k');
-        if (!$delegateTo) {
+        if (!$request->has('k')) {
             return null;
         }
+
+        $delegateTo = $request->input('k');
 
         if ($request->method() !== 'POST') {
             return [

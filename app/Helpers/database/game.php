@@ -355,15 +355,3 @@ function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 
     return (int) ($gameId ?? 0);
 }
-
-function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
-{
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $dataOut = $game->trigger_definition;
-
-    return true;
-}

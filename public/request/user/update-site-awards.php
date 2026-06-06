@@ -77,7 +77,7 @@ foreach ($awards as $award) {
 }
 
 $userModel = User::whereName($user)->first();
-$userAwards = getUsersSiteAwards($userModel);
+$userAwards = getUsersSiteAwards($userModel, applyBadgePreferences: true);
 $updatedAwardsHTML = '';
 ob_start();
 RenderSiteAwards($userAwards, $user);

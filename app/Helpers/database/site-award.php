@@ -4,6 +4,7 @@ use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
@@ -48,13 +49,17 @@ function AddSiteAward(
         ->first();
 }
 
-function getUsersSiteAwards(?User $user): array
+function getUsersSiteAwards(?User $user, bool $applyBadgePreferences = false): array
 {
     $dbResult = [];
 
     if (!$user) {
         return $dbResult;
     }
+
+    // On the user's own profile, show the badge the user chose for each game (if any).
+    // Everywhere else, including the public APIs that also call this, show the canonical badge.
+    [$gameBadgeJoin, $gameBadgeImageIcon] = UserGameBadgePreference::imageIconJoin($applyBadgePreferences, 'saw.user_id', 'saw.award_key');
 
     $bindings = [
         'userId' => $user->id,
@@ -67,10 +72,10 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon, NULL AS display_award_tier
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, {$gameBadgeImageIcon} AS ImageIcon, NULL AS display_award_tier
             FROM user_awards AS saw
             LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
-            LEFT JOIN systems AS s ON s.id = gd.system_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id{$gameBadgeJoin}
             WHERE
                 saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId

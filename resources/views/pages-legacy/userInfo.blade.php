@@ -51,8 +51,8 @@ $averageCompletionPercentage = sprintf("%01.2f", $progressionCounts['avgCompleti
 $totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
 $totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
 
-$userAllGamesList = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPageModel);
+$userAllGamesList = getUsersCompletedGamesAndMax($userPage, applyBadgePreferences: true);
+$userAwards = getUsersSiteAwards($userPageModel, applyBadgePreferences: true);
 
 $maxDisplayedGames = 200;
 $isIncomplete = fn ($game) => ($game['NumAwarded'] ?? 0) < ($game['MaxPossible'] ?? 0);
