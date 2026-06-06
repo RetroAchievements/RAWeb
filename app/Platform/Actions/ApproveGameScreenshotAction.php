@@ -114,12 +114,18 @@ class ApproveGameScreenshotAction
             app(FileManipulator::class)->createDerivedFiles($media);
         }
 
-        $maxOrder = $game->gameScreenshots()
-            ->ofType($type)
-            ->approved()
-            ->max('order_column') ?? 0;
+        // Only assign a tail order for gallery additions. Primary screenshots are anchored
+        // to the top of their type group by GameScreenshotObserver::moveToTopOfTypeGroup,
+        // so overwriting their order_column here would push the primary behind its siblings.
+        if (!$screenshot->is_primary) {
+            $maxOrder = $game->gameScreenshots()
+                ->ofType($type)
+                ->approved()
+                ->max('order_column') ?? 0;
 
-        $screenshot->order_column = $maxOrder + 1;
+            $screenshot->order_column = $maxOrder + 1;
+        }
+
         $screenshot->status = GameScreenshotStatus::Approved;
         $screenshot->reviewed_by_user_id = $reviewer->id;
         $screenshot->reviewed_at = now();

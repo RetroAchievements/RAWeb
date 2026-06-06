@@ -228,6 +228,52 @@ it('promotes the first approved ingame screenshot to primary when the game has n
     expect($fresh->is_primary)->toBeTrue();
 });
 
+it('orders a newly promoted ingame primary ahead of pre-existing approved gallery screenshots that lack a primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    // Three pre-existing approved in-game screenshots, none marked primary
+    // (the data shape left behind by the original is_primary regression).
+    $sibling1 = GameScreenshot::factory()->for($game)->ingame()->create([
+        'status' => GameScreenshotStatus::Approved,
+        'is_primary' => false,
+        'order_column' => 1,
+    ]);
+    $sibling2 = GameScreenshot::factory()->for($game)->ingame()->create([
+        'status' => GameScreenshotStatus::Approved,
+        'is_primary' => false,
+        'order_column' => 2,
+    ]);
+    $sibling3 = GameScreenshot::factory()->for($game)->ingame()->create([
+        'status' => GameScreenshotStatus::Approved,
+        'is_primary' => false,
+        'order_column' => 3,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest(
+        $game,
+        $submitter,
+        ScreenshotType::Ingame,
+        withLegacyPath: true,
+    );
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer);
+
+    $fresh = $pending->fresh();
+
+    // ASSERT
+    expect($fresh->is_primary)->toBeTrue();
+    expect($fresh->order_column)->toBeLessThan($sibling1->fresh()->order_column);
+    expect($fresh->order_column)->toBeLessThan($sibling2->fresh()->order_column);
+    expect($fresh->order_column)->toBeLessThan($sibling3->fresh()->order_column);
+});
+
 it('does not promote a newly approved ingame screenshot when a valid primary already exists', function () {
     // ARRANGE
     $system = System::factory()->create([
