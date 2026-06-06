@@ -446,6 +446,88 @@ describe('Component: SearchResults', () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
+  it('given the user ctrl+clicks a result, does not navigate the current tab', async () => {
+    // ARRANGE
+    const mockOnClose = vi.fn();
+    const assignSpy = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
+    const mockSearchResults = {
+      results: {
+        users: [createUser({ displayName: 'JohnDoe' })],
+        games: [],
+        hubs: [],
+        events: [],
+        achievements: [],
+      },
+      query: 'john',
+      scopes: ['users'],
+      scopeRelevance: { users: 0.5, games: 0, hubs: 0, achievements: 0 },
+    };
+
+    const user = userEvent.setup(); // need a stateful keyboard
+
+    render(
+      <BaseCommand>
+        <SearchResults
+          currentSearchMode="all"
+          searchResults={mockSearchResults as any}
+          onClose={mockOnClose}
+        />
+      </BaseCommand>,
+    );
+
+    // ACT
+    await user.keyboard('{Control>}');
+    await user.click(screen.getByText('JohnDoe'));
+    await user.keyboard('{/Control}');
+
+    // ASSERT
+    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(assignSpy).not.toHaveBeenCalled();
+
+    assignSpy.mockRestore();
+  });
+
+  it('given the user cmd+clicks a result, does not navigate the current tab', async () => {
+    // ARRANGE
+    const mockOnClose = vi.fn();
+    const assignSpy = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
+    const mockSearchResults = {
+      results: {
+        users: [createUser({ displayName: 'JohnDoe' })],
+        games: [],
+        hubs: [],
+        events: [],
+        achievements: [],
+      },
+      query: 'john',
+      scopes: ['users'],
+      scopeRelevance: { users: 0.5, games: 0, hubs: 0, achievements: 0 },
+    };
+
+    const user = userEvent.setup(); // need a stateful keyboard
+
+    render(
+      <BaseCommand>
+        <SearchResults
+          currentSearchMode="all"
+          searchResults={mockSearchResults as any}
+          onClose={mockOnClose}
+        />
+      </BaseCommand>,
+    );
+
+    // ACT
+    await user.keyboard('{Meta>}');
+    await user.click(screen.getByText('JohnDoe'));
+    await user.keyboard('{/Meta}');
+
+    // ASSERT
+    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(assignSpy).not.toHaveBeenCalled();
+
+    assignSpy.mockRestore();
+  });
+
   it('given the user clicks on an event result, navigates to event page and closes', async () => {
     // ARRANGE
     const mockOnClose = vi.fn();

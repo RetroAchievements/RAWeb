@@ -32,8 +32,9 @@ $followersList = $userModel->followerUsers()->pluck('users.display_name')->toArr
     <h2>Following</h2>
     <?php
     if (empty($followingList)) {
-        echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
+        echo "You don't appear to be following anyone yet.<br>";
     } else {
+        echo "<div class='table-wrapper'>";
         echo "<table class='table-highlight'><tbody>";
         foreach ($followingList as $entry) {
             echo "<tr>";
@@ -93,6 +94,7 @@ $followersList = $userModel->followerUsers()->pluck('users.display_name')->toArr
             echo "</tr>";
         }
         echo "</tbody></table>";
+        echo "</div>";
     }
 
     RenderUserList('Followers', $followersList, UserRelationStatus::Following, $followingList);

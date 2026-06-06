@@ -81,24 +81,6 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
-  it('given the user has 2 or more unresolved tickets, shows a fake disabled claim button', () => {
-    // ARRANGE
-    render(<ClaimActionButton />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        backingGame: createGame(),
-        claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
-          numUnresolvedTickets: 2, // !!
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/claim/i)).toBeVisible();
-    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
-  });
-
   it('given the user is a junior developer and the game has no forum topic, shows a fake disabled claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
@@ -137,6 +119,25 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /collaborate/i })).toBeVisible();
+  });
+
+  it('given the user has no claims remaining but can collaborate, shows the collaboration claim button', () => {
+    // ARRANGE
+    render(<ClaimActionButton />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame({ forumTopicId: 12345 }),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 0,
+          numUnresolvedTickets: 0,
+          wouldBeCollaboration: true,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /collaborate/i })).toBeVisible();
+    expect(screen.queryByText(/used all your achievement set claims/i)).not.toBeInTheDocument();
   });
 
   it('given the user can make a new claim and all conditions are met, shows the real claim button', () => {

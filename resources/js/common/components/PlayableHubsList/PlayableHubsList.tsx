@@ -18,7 +18,7 @@ interface PlayableHubsListProps {
 }
 
 export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubIds, variant }) => {
-  const { can } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { auth } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -27,7 +27,7 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubId
   }
 
   const filteredHubs = filterHubs(hubs, {
-    canManageGames: can.manageGames,
+    hasVisibleRole: !!auth?.user?.visibleRole,
     excludeIds: excludeHubIds,
   });
 
@@ -89,9 +89,9 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubId
 
 function filterHubs(
   allHubs: App.Platform.Data.GameSet[],
-  options: Partial<{ canManageGames: boolean; excludeIds: number[] }>,
+  options: Partial<{ hasVisibleRole: boolean; excludeIds: number[] }>,
 ): App.Platform.Data.GameSet[] {
-  const { canManageGames, excludeIds } = options;
+  const { hasVisibleRole, excludeIds } = options;
 
   return allHubs.filter((hub) => {
     const isMetaHub = hub.title?.includes('Meta -') || hub.title?.includes('Meta|');
@@ -105,9 +105,9 @@ function filterHubs(
       return false; // Everything else goes to metadata table.
     }
 
-    // Only users who can manage games can see team meta hubs on the list.
+    // Only users with a publicly-visible role can see contributor meta hubs on the list.
     // Exception: Meta|Art hubs are publicly visible.
-    if (hub.title?.includes('Meta|') && !hub.title?.includes('Meta|Art') && !canManageGames) {
+    if (hub.title?.includes('Meta|') && !hub.title?.includes('Meta|Art') && !hasVisibleRole) {
       return false;
     }
 

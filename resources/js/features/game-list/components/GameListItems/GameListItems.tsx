@@ -7,8 +7,7 @@ import type {
   PaginationState,
   SortingState,
 } from '@tanstack/react-table';
-import { type FC, useEffect, useState } from 'react';
-import { Fragment } from 'react';
+import { type FC, Fragment, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
@@ -87,17 +86,16 @@ const GameListItems: FC<GameListItemsProps> = ({
     visiblePageNumbers[visiblePageNumbers.length - 1] === lastPageNumber;
 
   const handleLoadMore = async () => {
-    if (dataInfiniteQuery.hasNextPage && !dataInfiniteQuery.isFetchingNextPage) {
-      const nextPageNumber = Math.max(...visiblePageNumbers) + 1;
+    const nextPageNumber = Math.max(...visiblePageNumbers) + 1;
 
-      // Don't prefetch the next page if it has already been prefetched.
-      if (prefetchedPageNumbers.includes(nextPageNumber)) {
-        return;
-      }
-
-      await dataInfiniteQuery.fetchNextPage();
-      setPrefetchedPageNumbers([...prefetchedPageNumbers, nextPageNumber]);
+    // Don't prefetch the next page if it has already been prefetched.
+    if (prefetchedPageNumbers.includes(nextPageNumber)) {
+      return;
     }
+
+    // fetchNextPage is a no-op if there's no next page or a fetch is already in progress.
+    await dataInfiniteQuery.fetchNextPage();
+    setPrefetchedPageNumbers([...prefetchedPageNumbers, nextPageNumber]);
   };
 
   const handleShowNextPageClick = () => {
@@ -117,11 +115,9 @@ const GameListItems: FC<GameListItemsProps> = ({
       setIsLoadingMore(true);
 
       // Something may have gone wrong with the fetch, including the user just having
-      // IntersectionObserver disabled for some reason. If we're not already fetching,
-      // manually begin a fetch.
-      if (!dataInfiniteQuery.isFetchingNextPage) {
-        dataInfiniteQuery.fetchNextPage();
-      }
+      // IntersectionObserver disabled for some reason. fetchNextPage is a no-op
+      // if a fetch is already in progress.
+      dataInfiniteQuery.fetchNextPage();
     }
   };
 

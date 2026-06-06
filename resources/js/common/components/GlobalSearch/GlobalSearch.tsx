@@ -26,7 +26,6 @@ import { SearchModeSelector } from './components/SearchModeSelector';
 import { SearchResults } from './components/SearchResults';
 import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
 import { useGlobalSearchDebounce } from './hooks/useGlobalSearchDebounce';
-import { useGlobalSearchHotkey } from './hooks/useGlobalSearchHotkey';
 import { useScrollToTopOnSearchResults } from './hooks/useScrollToTopOnSearchResults';
 import { buildSearchUrl } from './utils/buildSearchUrl';
 
@@ -54,7 +53,6 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
   });
 
   useGlobalSearchDebounce({ rawQuery, setSearchTerm });
-  useGlobalSearchHotkey({ onOpenChange });
   const scrollContainerRef = useScrollToTopOnSearchResults({ searchResults, isLoading });
 
   /**
@@ -94,18 +92,17 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
     }
   }, [isLoading, setShouldUsePlaceholderData]);
 
-  const handleOnOpenChange = (open: boolean) => {
-    onOpenChange(open);
-
-    if (!open) {
+  // Reset search state whenever the dialog closes.
+  useEffect(() => {
+    if (!isOpen) {
       setRawQuery('');
       setSearchTerm('');
 
-      // If we don't do this, if the user reopens the dialog on the same
-      // page and makes a new search, they'll see a flash of previous results.
+      // Without this, reopening the dialog on the same page and making a
+      // new search would show a flash of previous results.
       setShouldUsePlaceholderData(false);
     }
-  };
+  }, [isOpen, setSearchTerm, setShouldUsePlaceholderData]);
 
   const areNoResultsFound =
     !isLoading &&
@@ -117,7 +114,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
     !searchResults.results?.achievements?.length;
 
   return (
-    <BaseDialog open={isOpen} onOpenChange={handleOnOpenChange}>
+    <BaseDialog open={isOpen} onOpenChange={onOpenChange}>
       {/* These are just to prevent a11y issues. */}
       <BaseDialogTitle className="sr-only">{t('Search')}</BaseDialogTitle>
       <BaseDialogDescription className="sr-only">{t('Search')}</BaseDialogDescription>

@@ -95,11 +95,14 @@ class AuthServiceProvider extends ServiceProvider
             Role::NEWS_MANAGER,
             Role::RELEASE_MANAGER,
             Role::TICKET_MANAGER,
+            Role::MANUAL_UNLOCKER,
+            Role::PLAYTEST_MANAGER,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
             Role::ARTIST,
             Role::WRITER,
             Role::GAME_EDITOR,
+            Role::MEDIA_EDITOR,
         ]));
 
         /*

@@ -7,12 +7,15 @@ namespace App\Platform;
 use App\Models\GameHash;
 use App\Models\System;
 use App\Platform\Controllers\AchievementController;
+use App\Platform\Controllers\Api\AchievementApiController;
 use App\Platform\Controllers\Api\GameApiController;
+use App\Platform\Controllers\Api\GameScreenshotApiController;
 use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
+use App\Platform\Controllers\Api\UserMasteryBadgePreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -68,8 +71,8 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('system/{systemId}/games/random', [SystemApiController::class, 'random'])->name('api.system.game.random');
             });
 
-            Route::middleware(['web', 'inertia'])->group(function () {
-                Route::get('achievement2/{achievement}', [AchievementController::class, 'show'])->name('achievement2.show');
+            Route::middleware(['cacheResponse', 'inertia'])->group(function () {
+                Route::get('achievement/{achievement}', [AchievementController::class, 'show'])->name('achievement.show');
 
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
                 Route::get('event/{event}/award-earners', [EventAwardEarnersController::class, 'index'])->name('event.award-earners.index');
@@ -138,6 +141,9 @@ class RouteServiceProvider extends ServiceProvider
                 Route::group([
                     'prefix' => 'internal-api',
                 ], function () {
+                    Route::patch('achievement/{achievement}', [AchievementApiController::class, 'update'])
+                        ->name('api.achievement.update');
+
                     Route::post('game/{game}/set-request', [GameSetRequestApiController::class, 'store'])->name('api.game.set-request.store');
                     Route::delete('game/{game}/set-request', [GameSetRequestApiController::class, 'destroy'])->name('api.game.set-request.destroy');
                     Route::post('game/{game}/topic', [GameApiController::class, 'generateOfficialForumTopic'])->name('api.game.forum-topic.create');
@@ -152,7 +158,20 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/event-award-tier-preference', [UserEventAwardTierPreferenceApiController::class, 'update'])
                         ->name('api.user.event-award-tier-preference.update');
 
+                    Route::get('user/games/{game}/selectable-badges', [UserMasteryBadgePreferenceApiController::class, 'index'])
+                        ->name('api.user.mastery-badge-preference.index');
+                    Route::post('user/mastery-badge-preference', [UserMasteryBadgePreferenceApiController::class, 'update'])
+                        ->name('api.user.mastery-badge-preference.update');
+
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
+
+                    Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.store');
+
+                    Route::delete('game/{game}/screenshots/{gameScreenshot}', [GameScreenshotApiController::class, 'destroy'])
+                        ->middleware('throttle:10,1')
+                        ->name('api.game-screenshot.destroy');
                 });
 
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');

@@ -8,6 +8,7 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Emulator;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -21,6 +22,11 @@ class TicketListService
     public int $pageNumber = 0;
     public int $totalPages = 0;
 
+    public static function shouldShowResolverColumn(array $filterOptions): bool
+    {
+        return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved'], true);
+    }
+
     public function getFilterOptions(Request $request): array
     {
         if ($this->perPage !== 0) {
@@ -31,7 +37,7 @@ class TicketListService
         }
 
         $validatedData = $request->validate([
-            'filter.status' => 'sometimes|string|in:all,unresolved,resolved',
+            'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
             'filter.type' => 'sometimes|integer|min:0|max:2',
             'filter.achievement' => 'sometimes|string|in:all,core,unofficial',
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
@@ -68,9 +74,10 @@ class TicketListService
                 'kind' => 'status',
                 'label' => 'Ticket Status',
                 'options' => [
-                    'all' => 'All tickets',
-                    'unresolved' => 'Open tickets',
-                    'resolved' => 'Resolved tickets',
+                    'all' => 'All',
+                    'unresolved' => 'Open',
+                    'resolved' => 'Resolved',
+                    'quarantined' => 'Quarantined',
                 ],
             ];
         }
@@ -172,7 +179,7 @@ class TicketListService
      */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
-        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'DESC')->get();
+        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'desc')->get();
     }
 
     /**
@@ -192,11 +199,15 @@ class TicketListService
 
         switch ($filterOptions['status']) {
             case 'unresolved':
-                $tickets->unresolved();
+                $tickets->open();
                 break;
 
             case 'resolved':
                 $tickets->resolved();
+                break;
+
+            case 'quarantined':
+                $tickets->quarantined();
                 break;
         }
 
@@ -207,11 +218,11 @@ class TicketListService
 
         switch ($filterOptions['achievement']) {
             case 'core':
-                $tickets->officialCore();
+                $tickets->forTicketableType(TicketableType::Achievement)->promoted();
                 break;
 
             case 'unofficial':
-                $tickets->unofficial();
+                $tickets->forTicketableType(TicketableType::Achievement)->unpromoted();
                 break;
         }
 

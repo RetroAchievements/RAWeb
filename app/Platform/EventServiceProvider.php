@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Events\UserDeleted;
+use App\Models\GameScreenshot;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
+use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -30,6 +33,7 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchIncrementDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameAchievementUnlockMediansJob;
 use App\Platform\Listeners\DispatchUpdateGameBeatenMetricsJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsForGamesPlayedByUserJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
@@ -40,10 +44,13 @@ use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
 use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
+use App\Platform\Listeners\RecordGameBadgeOnGameBecamePlayable;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\RevalidateMediaContributionBadgeEligibility;
 use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Platform\Observers\GameScreenshotObserver;
 use App\Platform\Observers\MediaObserver;
 use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -54,18 +61,24 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         AchievementCreated::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            RevalidateMediaContributionBadgeEligibility::class,
         ],
         AchievementDeleted::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
+        AchievementRestored::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            RevalidateMediaContributionBadgeEligibility::class,
         ],
         AchievementPromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            RevalidateMediaContributionBadgeEligibility::class,
             EnsureTriggerVersionedOnPromotion::class,
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
@@ -85,15 +98,20 @@ class EventServiceProvider extends ServiceProvider
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
         ],
+        GameBecamePlayable::class => [
+            RecordGameBadgeOnGameBecamePlayable::class,
+        ],
         GameMetricsUpdated::class => [
         ],
         GamePlayerGameMetricsUpdated::class => [
             DispatchUpdateGamePlayerCountJob::class,
+            DispatchUpdateGameBeatenMetricsJob::class,
         ],
         PlayerAchievementLocked::class => [
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
+            DispatchUpdateGameAchievementUnlockMediansJob::class,
         ],
         PlayerAchievementUnlocked::class => [
             // dispatches PlayerGameAttached
@@ -101,6 +119,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
+            DispatchUpdateGameAchievementUnlockMediansJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
@@ -152,6 +171,7 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        GameScreenshot::observe(GameScreenshotObserver::class);
         Media::observe(MediaObserver::class);
     }
 }

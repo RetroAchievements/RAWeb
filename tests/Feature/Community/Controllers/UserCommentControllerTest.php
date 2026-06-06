@@ -53,6 +53,61 @@ class UserCommentControllerTest extends TestCase
         );
     }
 
+    public function testIndexShowsCanDeleteForWallOwnerOnOtherUsersComment(): void
+    {
+        // Arrange
+        /** @var User $wallOwner */
+        $wallOwner = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0, 'created_at' => now()->subWeeks(3)]);
+        $this->actingAs($wallOwner);
+
+        /** @var User $commenter */
+        $commenter = User::factory()->create();
+
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $wallOwner->id,
+            'user_id' => $commenter->id,
+        ]);
+
+        // Act
+        $response = $this->get(route('user.comment.index', ['user' => $wallOwner]));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('paginatedComments.items', 1)
+            ->where('paginatedComments.items.0.canDelete', true)
+        );
+    }
+
+    public function testIndexShowsCanDeleteFalseForNonOwnerNonAuthor(): void
+    {
+        // Arrange
+        /** @var User $viewer */
+        $viewer = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0, 'created_at' => now()->subWeeks(3)]);
+        $this->actingAs($viewer);
+
+        /** @var User $wallOwner */
+        $wallOwner = User::factory()->create();
+
+        /** @var User $commenter */
+        $commenter = User::factory()->create();
+
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $wallOwner->id,
+            'user_id' => $commenter->id,
+        ]);
+
+        // Act
+        $response = $this->get(route('user.comment.index', ['user' => $wallOwner]));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('paginatedComments.items', 1)
+            ->where('paginatedComments.items.0.canDelete', false)
+        );
+    }
+
     public function testDestroyAllUnauthorized(): void
     {
         // Arrange

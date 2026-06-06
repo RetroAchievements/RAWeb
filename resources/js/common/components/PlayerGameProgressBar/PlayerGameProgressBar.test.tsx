@@ -246,6 +246,28 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
 
+  it('given the user has unlocked all the achievements but no award metadata is available, does not show an empty tooltip', async () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: game.achievementsPublished,
+      achievementsUnlockedHardcore: 0,
+      achievementsUnlockedSoftcore: game.achievementsPublished,
+      points: 400,
+      pointsHardcore: 0,
+      highestAward: null,
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('progressbar'));
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   it('passes along the given variant to the badge label', () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
@@ -313,5 +335,46 @@ describe('Component: PlayerGameProgressBar', () => {
 
     // ASSERT
     expect(screen.getByText(/none/i)).toBeVisible();
+  });
+
+  it('given a custom ariaLabel prop is provided, uses it instead of the default', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, title: 'Test Game Title' });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+    });
+
+    render(
+      <PlayerGameProgressBar
+        game={game}
+        playerGame={playerGame}
+        ariaLabel={'Custom label' as any}
+      />,
+    );
+
+    // ASSERT
+    const linkEl = screen.getByRole('link');
+    expect(linkEl).toHaveAttribute('aria-label', 'Custom label');
+  });
+
+  it('given no ariaLabel prop is provided, generates a default ariaLabel from the game title', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, title: 'Test Game Title' });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link');
+
+    expect(linkEl).toHaveAttribute('aria-label', 'Navigate to Test Game Title');
   });
 });

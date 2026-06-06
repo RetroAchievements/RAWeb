@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
@@ -10,6 +9,8 @@ import { buildBeatRatioColumnDef } from '../../utils/column-definitions/buildBea
 import { buildBeatTimeColumnDef } from '../../utils/column-definitions/buildBeatTimeColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
+import { buildMasteryRatioColumnDef } from '../../utils/column-definitions/buildMasteryRatioColumnDef';
+import { buildMasteryTimeColumnDef } from '../../utils/column-definitions/buildMasteryTimeColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
 import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
 import { buildPlayerGameProgressColumnDef } from '../../utils/column-definitions/buildPlayerGameProgressColumnDef';
@@ -29,98 +30,89 @@ export function useColumnDefinitions(options: {
   const { auth, system } = usePageProps<App.Platform.Data.SystemGameListPageProps>();
   const { t, i18n } = useTranslation();
 
-  const columnDefinitions = useMemo(() => {
-    const tableApiRouteParams = { systemId: system.id };
+  const tableApiRouteParams = { systemId: system.id };
 
-    const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
-      buildTitleColumnDef({
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('Title'),
-        forUsername: options.forUsername,
-      }),
-      buildAchievementsPublishedColumnDef({
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('Achievements'),
-      }),
-      buildPointsTotalColumnDef({ tableApiRouteName, tableApiRouteParams, t_label: t('Points') }),
-      buildRetroRatioColumnDef({
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('RetroRatio'),
-        strings: { t_none: t('none') },
-      }),
-      buildBeatRatioColumnDef({ t_label: t('Beat %') }),
-      buildBeatTimeColumnDef({
-        t_label: t('Time to Beat'),
-        strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
-      }),
-      buildLastUpdatedColumnDef({
-        locale: i18n.language,
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('Last Updated'),
-      }),
-      buildReleasedAtColumnDef({
-        locale: i18n.language,
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('Release Date'),
-        strings: { t_unknown: t('unknown') },
-      }),
-      buildPlayersTotalColumnDef({ tableApiRouteName, tableApiRouteParams, t_label: t('Players') }),
-      buildNumVisibleLeaderboardsColumnDef({
-        tableApiRouteName,
-        tableApiRouteParams,
-        t_label: t('Leaderboards'),
-      }),
-    ];
+  const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
+    buildTitleColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Title'),
+      forUsername: options.forUsername,
+    }),
+    buildAchievementsPublishedColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Achievements'),
+    }),
+    buildPointsTotalColumnDef({ tableApiRouteName, tableApiRouteParams, t_label: t('Points') }),
+    buildRetroRatioColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('RetroRatio'),
+      strings: { t_none: t('none') },
+    }),
+    buildBeatRatioColumnDef({ t_label: t('Beat %') }),
+    buildBeatTimeColumnDef({
+      t_label: t('Time to Beat'),
+      strings: { t_none: t('None'), t_not_enough_data: t('Not enough data') },
+    }),
+    buildMasteryRatioColumnDef({ t_label: t('Mastery %') }),
+    buildMasteryTimeColumnDef({ t_label: t('Time to Master') }),
+    buildLastUpdatedColumnDef({
+      locale: i18n.language,
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Last Updated'),
+    }),
+    buildReleasedAtColumnDef({
+      locale: i18n.language,
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Release Date'),
+      strings: { t_unknown: t('unknown') },
+    }),
+    buildPlayersTotalColumnDef({ tableApiRouteName, tableApiRouteParams, t_label: t('Players') }),
+    buildNumVisibleLeaderboardsColumnDef({
+      tableApiRouteName,
+      tableApiRouteParams,
+      t_label: t('Leaderboards'),
+    }),
+  ];
 
-    if (options.canSeeOpenTicketsColumn) {
-      columns.push(
-        buildNumUnresolvedTicketsColumnDef({
-          tableApiRouteName,
-          tableApiRouteParams,
-          t_label: t('Tickets'),
-        }),
-      );
-    }
-
-    if (auth?.user) {
-      columns.push(
-        buildPlayerGameProgressColumnDef({
-          tableApiRouteName,
-          tableApiRouteParams,
-          t_label: t('Progress'),
-        }),
-      );
-    }
-
+  if (options.canSeeOpenTicketsColumn) {
     columns.push(
-      ...([
-        buildHasActiveOrInReviewClaimsColumnDef({
-          tableApiRouteName,
-          tableApiRouteParams,
-          t_label: t('Claimed'),
-          strings: {
-            t_no: t('No'),
-            t_yes: t('Yes'),
-          },
-        }),
-        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
-      ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
+      buildNumUnresolvedTicketsColumnDef({
+        tableApiRouteName,
+        tableApiRouteParams,
+        t_label: t('Tickets'),
+      }),
     );
+  }
 
-    return columns;
-  }, [
-    auth?.user,
-    i18n.language,
-    options.canSeeOpenTicketsColumn,
-    options.forUsername,
-    system.id,
-    t,
-  ]);
+  if (auth?.user) {
+    columns.push(
+      buildPlayerGameProgressColumnDef({
+        tableApiRouteName,
+        tableApiRouteParams,
+        t_label: t('Progress'),
+      }),
+    );
+  }
 
-  return columnDefinitions;
+  columns.push(
+    ...([
+      buildHasActiveOrInReviewClaimsColumnDef({
+        tableApiRouteName,
+        tableApiRouteParams,
+        t_label: t('Claimed'),
+        strings: {
+          t_no: t('No'),
+          t_yes: t('Yes'),
+        },
+      }),
+      buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
+    ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
+  );
+
+  return columns;
 }

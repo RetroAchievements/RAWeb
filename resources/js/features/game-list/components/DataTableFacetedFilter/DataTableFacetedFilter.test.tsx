@@ -260,7 +260,7 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(setFilterValueSpy).toHaveBeenCalledWith(undefined);
   });
 
-  it('given a default option is selected in single select mode, clears the filter', async () => {
+  it('given a default option with clearsFilterOnSelect in single select mode, clears the filter', async () => {
     // ARRANGE
     const setFilterValueSpy = vi.fn();
     const customColumn = {
@@ -269,7 +269,7 @@ describe('Component: DataTableFacetedFilter', () => {
     } as unknown as Column<any, any>;
 
     const optionsWithDefault = [
-      { t_label: 'All' as TranslatedString, value: 'all', isDefaultOption: true },
+      { t_label: 'All' as TranslatedString, value: 'all', clearsFilterOnSelect: true },
       ...mockOptions,
     ];
 
@@ -353,7 +353,7 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(screen.getByText(/description 4/i)).toBeVisible();
   });
 
-  it('given grouped options with a default option, shows default as selected when no values are selected', async () => {
+  it('given grouped options with a default option and selectedWhenEmpty, shows default as selected when no values are selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -367,7 +367,7 @@ describe('Component: DataTableFacetedFilter', () => {
           {
             t_label: 'Default Option' as TranslatedString,
             value: 'default',
-            isDefaultOption: true,
+            selectedWhenEmpty: true,
           },
           { t_label: 'Option 2' as TranslatedString, value: 'opt2' },
         ],
@@ -401,7 +401,7 @@ describe('Component: DataTableFacetedFilter', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('given a default option and the filter value matches its value, shows the default as selected', async () => {
+  it('given a default option with selectedWhenEmpty and the filter value matches its value, shows the default as selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -409,7 +409,7 @@ describe('Component: DataTableFacetedFilter', () => {
     } as unknown as Column<any, any>;
 
     const optionsWithDefault = [
-      { t_label: 'All' as TranslatedString, value: 'all', isDefaultOption: true }, // !!
+      { t_label: 'All' as TranslatedString, value: 'all', selectedWhenEmpty: true }, // !!
       ...mockOptions,
     ];
 
@@ -436,7 +436,7 @@ describe('Component: DataTableFacetedFilter', () => {
     );
   });
 
-  it('given grouped options with a default option and the filter value matches its value, shows the default as selected', async () => {
+  it('given grouped options with a default option with selectedWhenEmpty and the filter value matches its value, shows the default as selected', async () => {
     // ARRANGE
     const customColumn = {
       ...mockColumn,
@@ -450,7 +450,7 @@ describe('Component: DataTableFacetedFilter', () => {
           {
             t_label: 'Default Option' as TranslatedString,
             value: 'default',
-            isDefaultOption: true, // !!
+            selectedWhenEmpty: true, // !!
           },
           { t_label: 'Option 2' as TranslatedString, value: 'opt2' },
         ],
@@ -602,5 +602,63 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(commandContainer).toHaveClass('border');
     expect(commandContainer).toHaveClass('border-neutral-800');
     expect(commandContainer).toHaveClass('light:border-neutral-200');
+  });
+
+  it('given checkbox multi-select mode and an option is already selected, clicking it again removes it from the filter', async () => {
+    // ARRANGE
+    const setFilterValueSpy = vi.fn();
+    const customColumn = {
+      ...mockColumn,
+      getFilterValue: () => ['opt1', 'opt2'],
+      setFilterValue: setFilterValueSpy,
+    } as unknown as Column<any, any>;
+
+    render(
+      <DataTableFacetedFilter
+        options={mockOptions}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={false}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+    const popoverContent = screen.getByRole('listbox');
+    const opt1 = within(popoverContent).getByRole('option', { name: /option 1/i });
+    await userEvent.click(opt1);
+
+    // ASSERT
+    expect(setFilterValueSpy).toHaveBeenCalledWith(['opt2']);
+  });
+
+  it('given multiselect mode and an option has a falsy value, does not toggle the filter when clicked', async () => {
+    // ARRANGE
+    const setFilterValueSpy = vi.fn();
+    const customColumn = {
+      ...mockColumn,
+      setFilterValue: setFilterValueSpy,
+    } as unknown as Column<any, any>;
+
+    const optionsWithFalsyValue = [
+      { t_label: 'Empty Value' as TranslatedString, value: '' },
+      { t_label: 'Option 1' as TranslatedString, value: 'opt1' },
+    ];
+
+    render(
+      <DataTableFacetedFilter
+        options={optionsWithFalsyValue}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={false}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+    await userEvent.click(screen.getByText(/empty value/i));
+
+    // ASSERT
+    expect(setFilterValueSpy).not.toHaveBeenCalled();
   });
 });

@@ -180,7 +180,8 @@ describe('Component: GlobalSearch', () => {
     await userEvent.click(closeButton);
 
     // ACT
-    // ... simulate reopening the dialog ...
+    // ... simulate the dialog actually closing, then reopening ...
+    rerender(<GlobalSearch isOpen={false} onOpenChange={mockOnOpenChange} />);
     rerender(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
 
     // ASSERT
@@ -303,5 +304,34 @@ describe('Component: GlobalSearch', () => {
 
     // ASSERT
     expect(searchInput).toHaveValue('hello world');
+  });
+
+  it('given the dialog closes via the close button, clears the query and search term', async () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    const { rerender } = render(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
+
+    // ... populate the search field ...
+    const searchInput = screen.getAllByPlaceholderText(/search/i)[0];
+    await userEvent.type(searchInput, 'zelda');
+
+    expect(searchInput).toHaveValue('zelda');
+
+    // ACT
+    // ... click the close button to trigger the handleOnOpenChange handle ...
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    await userEvent.click(closeButton);
+
+    // ... verify the handler was called with false ...
+    expect(mockOnOpenChange).toHaveBeenCalledWith(false);
+
+    // ... simulate the dialog actually closing, then reopen it ...
+    rerender(<GlobalSearch isOpen={false} onOpenChange={mockOnOpenChange} />);
+    rerender(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
+
+    // ASSERT
+    // ... the query should be cleared ...
+    const reopenedInput = screen.getAllByPlaceholderText(/search/i)[0];
+    expect(reopenedInput).toHaveValue('');
   });
 });

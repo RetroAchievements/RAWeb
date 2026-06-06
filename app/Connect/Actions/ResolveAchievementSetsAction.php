@@ -57,12 +57,15 @@ class ResolveAchievementSetsAction
      */
     private function buildResolutionContext(GameAchievementSet $initialSet, int $defaultGameId): array
     {
+        $loadWithCoreSubsetTypes = [AchievementSetType::Bonus, AchievementSetType::Challenge];
+        $coreAndLoadedSubsetTypes = array_merge([AchievementSetType::Core], $loadWithCoreSubsetTypes);
+
         $links = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)->get();
 
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
         if ($exclusiveLink !== null) {
-            // Exclusive set: only load the exclusive set.
-            return [$exclusiveLink->game_id, [AchievementSetType::Exclusive], null];
+            // Exclusive set: only load this specific exclusive set.
+            return [$exclusiveLink->game_id, [], $initialSet->achievement_set_id];
         }
 
         $specialtyLink = $links->firstWhere('type', AchievementSetType::Specialty);
@@ -71,29 +74,29 @@ class ResolveAchievementSetsAction
             // Only load _this_ specialty set.
             return [
                 $specialtyLink->game_id,
-                [AchievementSetType::Core, AchievementSetType::Bonus],
+                $coreAndLoadedSubsetTypes,
                 $initialSet->achievement_set_id,
             ];
         }
 
-        $bonusLinks = $links->where('type', AchievementSetType::Bonus);
-        if ($bonusLinks->isNotEmpty()) {
+        $parentLinks = $links->whereIn('type', $loadWithCoreSubsetTypes);
+        if ($parentLinks->isNotEmpty()) {
             // If the bonus set is linked to multiple games, only load the bonus set itself.
             // We can't determine which parent's core set to use, so we don't include one.
             // This happens for situations like Pokemon Red & Blue, where a single bonus
             // set is linked to both games.
-            if ($bonusLinks->count() > 1) {
+            if ($parentLinks->count() > 1) {
                 return [$defaultGameId, [AchievementSetType::Core], null];
             }
 
-            // One parent game - load core and bonus sets from the linked game.
-            $bonusLink = $bonusLinks->first();
+            // One parent game - load core, bonus and challenge sets from the linked game.
+            $parentLink = $parentLinks->first();
 
-            return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus], null];
+            return [$parentLink->game_id, $coreAndLoadedSubsetTypes, null];
         }
 
-        // Core set: load core and bonus sets.
-        return [$defaultGameId, [AchievementSetType::Core, AchievementSetType::Bonus], null];
+        // Core set: load core, bonus and challenge sets.
+        return [$defaultGameId, $coreAndLoadedSubsetTypes, null];
     }
 
     /**
@@ -179,13 +182,19 @@ class ResolveAchievementSetsAction
                 return false;
             }
 
-            // Apply global preference for non-core sets.
-            if ($set->type !== AchievementSetType::Core) {
-                return !$user->is_globally_opted_out_of_subsets;
-            }
+            switch ($set->type) {
+                case AchievementSetType::Core:
+                    // Include core sets by default.
+                    return true;
 
-            // Include core sets by default.
-            return true;
+                case AchievementSetType::Challenge:
+                    // Don't include challenge sets by default.
+                    return false;
+
+                default:
+                    // Apply global preference for everything else.
+                    return !$user->is_globally_opted_out_of_subsets;
+            }
         });
     }
 
@@ -202,8 +211,9 @@ class ResolveAchievementSetsAction
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
                 AchievementSetType::Specialty => 2,
-                AchievementSetType::Bonus => 3,
-                default => 4,
+                AchievementSetType::Challenge => 3,
+                AchievementSetType::Bonus => 4,
+                default => 5,
             };
 
             // Sort primarily by type priority, then by order_column.

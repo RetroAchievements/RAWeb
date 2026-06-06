@@ -6,11 +6,16 @@ import { WeightedPointsContainer } from '@/common/components/WeightedPointsConta
 interface PointsLabelsProps {
   points?: number;
   pointsWeighted?: number;
+  showRetroPoints?: boolean;
 }
 
-export const PointsLabels: FC<PointsLabelsProps> = ({ points, pointsWeighted }) => {
+export const PointsLabels: FC<PointsLabelsProps> = ({
+  points,
+  pointsWeighted,
+  showRetroPoints = true,
+}) => {
   return (
-    <div className="flex gap-3 text-xs">
+    <div className="flex items-center gap-3 text-xs">
       <p className="light:text-neutral-900">
         <Trans
           i18nKey="<1>{{val, number}}</1> points"
@@ -20,16 +25,22 @@ export const PointsLabels: FC<PointsLabelsProps> = ({ points, pointsWeighted }) 
         />
       </p>
 
-      <WeightedPointsContainer>
-        <p className="text-neutral-400">
-          <Trans
-            i18nKey="<1>{{val, number}}</1> RetroPoints"
-            count={pointsWeighted}
-            values={{ val: pointsWeighted }}
-            components={{ 1: <span className="font-semibold" /> }}
-          />
-        </p>
-      </WeightedPointsContainer>
+      {showRetroPoints ? (
+        <>
+          <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
+
+          <WeightedPointsContainer>
+            <p className="text-neutral-400">
+              <Trans
+                i18nKey="<1>{{val, number}}</1> RetroPoints"
+                count={pointsWeighted}
+                values={{ val: pointsWeighted }}
+                components={{ 1: <span className="font-semibold" /> }}
+              />
+            </p>
+          </WeightedPointsContainer>
+        </>
+      ) : null}
     </div>
   );
 };

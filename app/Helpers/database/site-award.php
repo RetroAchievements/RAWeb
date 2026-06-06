@@ -4,6 +4,7 @@ use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
@@ -47,7 +48,7 @@ function AddSiteAward(
         ->first();
 }
 
-function getUsersSiteAwards(?User $user): array
+function getUsersSiteAwards(?User $user, bool $applyBadgePreferences = false): array
 {
     $dbResult = [];
 
@@ -55,20 +56,25 @@ function getUsersSiteAwards(?User $user): array
         return $dbResult;
     }
 
+    // On the user's own profile, show the badge the user chose for each game (if any).
+    // Everywhere else, including the public APIs that also call this, show the canonical badge.
+    [$gameBadgeJoin, $gameBadgeImageIcon] = UserGameBadgePreference::imageIconJoin($applyBadgePreferences, 'saw.user_id', 'saw.award_key');
+
     $bindings = [
         'userId' => $user->id,
         'userId2' => $user->id,
         'userId3' => $user->id,
+        'userId4' => $user->id,
     ];
 
     $gameAwardValues = implode("','", AwardType::gameValues());
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon, NULL AS display_award_tier
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, {$gameBadgeImageIcon} AS ImageIcon, NULL AS display_award_tier
             FROM user_awards AS saw
             LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
-            LEFT JOIN systems AS s ON s.id = gd.system_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id{$gameBadgeJoin}
             WHERE
                 saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId
@@ -94,11 +100,19 @@ function getUsersSiteAwards(?User $user): array
                 saw.award_type = '" . AwardType::Event->value . "'
                 AND saw.user_id = :userId3
         UNION
+        -- playtest awards
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, sa.label AS Title, NULL, NULL, NULL, sa.image_asset_path AS ImageIcon, NULL AS display_award_tier
+            FROM user_awards AS saw
+            LEFT JOIN site_awards AS sa ON sa.id = saw.award_key AND sa.award_type = saw.award_type
+            WHERE
+                saw.award_type = '" . AwardType::Playtest->value . "'
+                AND saw.user_id = :userId4
+        UNION
         -- non-game awards (developer contribution, ...)
         SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, NULL
             FROM user_awards AS saw
             WHERE
-                saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "')
+                saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "','" . AwardType::Playtest->value . "')
                 AND saw.user_id = :userId2
             GROUP BY saw.award_type
         ORDER BY order_column, AwardedAt, award_type, award_tier ASC";

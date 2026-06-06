@@ -14,8 +14,8 @@ use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameScreenshot;
 use App\Models\GameSet;
-use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -25,21 +25,27 @@ use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
+use App\Platform\Data\GameScreenshotData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Data\ScreenshotUploadConsistencyData;
+use App\Platform\Data\ScreenshotUploadTypeStatusData;
 use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameBannerPreference;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\GameLeaderboardService;
+use App\Platform\Services\ScreenshotResolutionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
+use Spatie\LaravelData\Optional;
 
 class BuildGameShowPagePropsAction
 {
@@ -219,8 +225,8 @@ class BuildGameShowPagePropsAction
         $targetAchievementSetPlayersTotal = null;
         $targetAchievementSetPlayersHardcore = null;
         if ($targetAchievementSet !== null && $targetAchievementSet->type !== AchievementSetType::Core) {
-            [$targetAchievementSetPlayersTotal, $targetAchievementSetPlayersHardcore] =
-                $this->getAchievementSetPlayerCounts($targetAchievementSet->achievement_set_id);
+            $targetAchievementSetPlayersTotal = $targetAchievementSet->achievementSet->players_total;
+            $targetAchievementSetPlayersHardcore = $targetAchievementSet->achievementSet->players_hardcore;
         }
 
         $subscriptionService = new SubscriptionService();
@@ -239,6 +245,7 @@ class BuildGameShowPagePropsAction
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',
+                'createGameScreenshot',
                 'manageAchievementSetClaims',
                 'manageGameHashes',
                 'manageGames',
@@ -277,7 +284,9 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
                 'imageBoxArtUrl',
+                'imageIngameDimensions',
                 'imageIngameUrl',
+                'imageTitleDimensions',
                 'imageTitleUrl',
                 'medianTimeToBeat',
                 'medianTimeToBeatHardcore',
@@ -289,6 +298,9 @@ class BuildGameShowPagePropsAction
                 'system.active',
                 'system.iconUrl',
                 'system.nameShort',
+                'system.hasAnalogTvOutput',
+                'system.screenshotResolutions',
+                'system.supportsUpscaledScreenshots',
                 'system',
                 'timesBeaten',
                 'timesBeatenHardcore',
@@ -325,6 +337,7 @@ class BuildGameShowPagePropsAction
             isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
+            isRichPresenceExpanded: Cookie::get('prefers_expanded_rich_presence') === 'true',
             isViewingPublishedAchievements: $isPromoted,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
@@ -340,10 +353,20 @@ class BuildGameShowPagePropsAction
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
-
             numOpenTickets: $isPromoted
-                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
-                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+                ? Ticket::forGame($backingGame)->open()->promoted()->count()
+                : Ticket::forGame($backingGame)->open()->unpromoted()->count(),
+
+            numScreenshots: $game->gameScreenshots()->approved()->count(),
+            screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()
+                ->approved()
+                ->with('media')
+                ->orderByType()
+                ->orderBy('order_column')
+                ->get()
+                ->map(GameScreenshotData::fromGameScreenshot(...))
+                ->values()
+            ),
 
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
@@ -358,13 +381,15 @@ class BuildGameShowPagePropsAction
             bannerPreference: GameBannerPreference::tryFrom(Cookie::get('banner_state') ?? '') ?? GameBannerPreference::Normal,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
-            banner: $game->banner,
+            banner: $game->is_media_restricted ? null : $game->banner,
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
             targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
             targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
 
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
+                    $gas->order_column ??= 0;
+
                     $gas->achievementSet->setRelation('achievements', collect());
 
                     $gas->achievementSet->median_time_to_complete ??= 0;
@@ -388,11 +413,42 @@ class BuildGameShowPagePropsAction
                 ->all(),
 
             userGameAchievementSetPreferences: $this->buildUserAchievementSetPreferences($game, $user),
+            screenshotUploadStatuses: Lazy::create(fn () => $this->buildScreenshotUploadStatuses($game)),
+            screenshotUploadConsistency: Lazy::create(fn () => $this->buildScreenshotUploadConsistency($game)),
+
+            screenshotUploadPendingCount: Lazy::create(fn () => $user
+                ? GameScreenshot::where('captured_by_user_id', $user->id)
+                    ->where('status', GameScreenshotStatus::Pending)
+                    ->count()
+                : 0
+            ),
+
+            screenshotUploadUserSubmissions: Lazy::create(fn () => $user
+                ? $game->gameScreenshots()
+                    ->where('captured_by_user_id', $user->id)
+                    ->where('status', GameScreenshotStatus::Pending)
+                    ->with('media')
+                    ->orderByDesc('created_at')
+                    ->get()
+                    ->map(fn (GameScreenshot $screenshot) => GameScreenshotData::fromGameScreenshot($screenshot))
+                    ->values()
+                : collect()
+            ),
         );
 
         // Only include featured leaderboards for non-mobile devices.
         if (!$isMobile) {
             $propsData = $propsData->include('featuredLeaderboards');
+        }
+
+        // Only include screenshot upload data when the user can create screenshots.
+        if ($user && $user->can('create', [GameScreenshot::class, $backingGame])) {
+            $propsData = $propsData->include(
+                'screenshotUploadStatuses',
+                'screenshotUploadConsistency',
+                'screenshotUploadPendingCount',
+                'screenshotUploadUserSubmissions',
+            );
         }
 
         return $propsData;
@@ -470,7 +526,7 @@ class BuildGameShowPagePropsAction
 
     private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Reuse the Supported Game Files page logic to ensure consistent counts.
+        // Reuse the Supported Game Hashes page logic to ensure consistent counts.
         return $this->resolveHashesForAchievementSetAction
             ->execute($game, $targetAchievementSet)
             ->count();
@@ -538,26 +594,82 @@ class BuildGameShowPagePropsAction
     }
 
     /**
-     * Get actual player counts for a specific achievement set from player_achievement_sets.
+     * Builds the upload consistency baseline from the game's valid approved
+     * primary screenshots. Returns null when there is no valid baseline, and
+     * omits canonicalResolution when multiple valid sizes already exist.
      *
-     * @return array{int, int} [$playersTotal, $playersHardcore]
+     * This is used to tell a user if what they're uploading has an inconsistent
+     * resolution from other primary screenshots associated with the game.
      */
-    private function getAchievementSetPlayerCounts(int $achievementSetId): array
+    private function buildScreenshotUploadConsistency(Game $game): ?ScreenshotUploadConsistencyData
     {
-        $playersTotal = PlayerAchievementSet::query()
-            ->where('achievement_set_id', $achievementSetId)
-            ->where('achievements_unlocked', '>', 0)
-            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->count();
+        $system = $game->system;
+        $resolutionService = new ScreenshotResolutionService();
 
-        $playersHardcore = PlayerAchievementSet::query()
-            ->where('achievement_set_id', $achievementSetId)
-            ->where('achievements_unlocked_hardcore', '>', 0)
-            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->count();
+        $existingResolutions = $game->gameScreenshots()
+            ->approved()
+            ->where('is_primary', true)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->get(['width', 'height'])
+            ->map(fn (GameScreenshot $screenshot) => $system
+                ? $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system)
+                : ['width' => $screenshot->width, 'height' => $screenshot->height]
+            )
+            ->filter()
+            ->unique(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
+            ->sortBy(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
+            ->values()
+            ->all();
 
-        return [$playersTotal, $playersHardcore];
+        if ($existingResolutions === []) {
+            return null;
+        }
+
+        $canonicalResolution = count($existingResolutions) === 1
+            ? "{$existingResolutions[0]['width']}x{$existingResolutions[0]['height']}"
+            : new Optional();
+
+        return new ScreenshotUploadConsistencyData(
+            existingResolutions: $existingResolutions,
+            canonicalResolution: $canonicalResolution,
+        );
+    }
+
+    /**
+     * This is used to tell the screenshot upload dialog "here's what
+     * the game already has and where the gaps/problems are".
+     *
+     * @return array<string, ScreenshotUploadTypeStatusData>
+     */
+    private function buildScreenshotUploadStatuses(Game $game): array
+    {
+        $screenshots = $game->gameScreenshots()
+            ->approved()
+            ->where('is_primary', true)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->get(['type', 'width', 'height']);
+
+        $system = $game->system;
+        $resolutionService = new ScreenshotResolutionService();
+        $hasDefinedResolutions = !empty($system->screenshot_resolutions);
+
+        $statuses = [];
+        foreach ($screenshots->groupBy('type') as $type => $typeScreenshots) {
+            $hasResolutionIssues = false;
+            if ($hasDefinedResolutions) {
+                $hasResolutionIssues = $typeScreenshots->contains(
+                    fn (GameScreenshot $ss) => !$resolutionService->isValidResolution($ss->width, $ss->height, $system)
+                );
+            }
+
+            $statuses[$type] = new ScreenshotUploadTypeStatusData(
+                count: $typeScreenshots->count(),
+                hasResolutionIssues: $hasResolutionIssues,
+            );
+        }
+
+        return $statuses;
     }
 }

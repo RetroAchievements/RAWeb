@@ -58,7 +58,8 @@ export function DataTableSearchInput<TData>({
   useEffect(() => {
     const filterValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
     setRawInputValue(filterValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- this is a valid dependency array
+    /* eslint-disable react-compiler/react-compiler -- exhaustive-deps is intentionally constrained */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps -- this is a valid dependency array */
   }, [table.getState().columnFilters]);
 
   /**

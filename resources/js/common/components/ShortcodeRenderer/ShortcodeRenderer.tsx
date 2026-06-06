@@ -4,6 +4,7 @@ import type { FC } from 'react';
 
 import { bbobLineBreakPlugin } from '../../utils/+vendor/bbobLineBreakPlugin';
 import { postProcessShortcodesInBody } from '../../utils/shortcodes/postProcessShortcodesInBody';
+import { VideoEmbed } from '../VideoEmbed';
 import { ShortcodeAch } from './ShortcodeAch';
 import { ShortcodeCode } from './ShortcodeCode';
 import { ShortcodeEvent } from './ShortcodeEvent';
@@ -16,7 +17,6 @@ import { ShortcodeText } from './ShortcodeText';
 import { ShortcodeTicket } from './ShortcodeTicket';
 import { ShortcodeUrl } from './ShortcodeUrl';
 import { ShortcodeUser } from './ShortcodeUser';
-import { ShortcodeVideo } from './ShortcodeVideo';
 
 const retroachievementsPreset = presetReact.extend((tags) => ({
   ...tags,
@@ -107,7 +107,7 @@ const retroachievementsPreset = presetReact.extend((tags) => ({
 
   video: (node) => {
     return {
-      tag: ShortcodeVideo,
+      tag: VideoEmbed,
       attrs: {
         src: (node.content as string[]).join(),
       },

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\LogGameAchievementSetActivityAction;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
+use App\Platform\Actions\SyncGameParentGameIdAction;
 use App\Platform\Enums\AchievementSetType;
 use BackedEnum;
 use Filament\Actions;
@@ -43,6 +44,7 @@ class AchievementSetsRelationManager extends RelationManager
      */
     private const WILL_BE_TO_FINAL_TYPE_MAP = [
         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->value,
+        AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->value,
         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->value,
     ];
 
@@ -91,15 +93,12 @@ class AchievementSetsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn ($state): ?string => AchievementSetType::tryFrom($state)?->label())
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-
-                        if ($state === AchievementSetType::WillBeBonus->value) {
-                            return 'Will be Bonus when multiset is enabled';
-                        } elseif ($state === AchievementSetType::WillBeSpecialty->value) {
-                            return 'Will be Specialty when multiset is enabled';
-                        }
-
-                        return null;
+                        return match ($column->getState()) {
+                            AchievementSetType::WillBeBonus->value => 'Will be Bonus when multiset is enabled',
+                            AchievementSetType::WillBeChallenge->value => 'Will be Challenge when multiset is enabled',
+                            AchievementSetType::WillBeSpecialty->value => 'Will be Specialty when multiset is enabled',
+                            default => null,
+                        };
                     }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
@@ -143,6 +142,8 @@ class AchievementSetsRelationManager extends RelationManager
                         && $game->gameAchievementSets()->whereIn('type', [
                             AchievementSetType::Bonus->value,
                             AchievementSetType::WillBeBonus->value,
+                            AchievementSetType::Challenge->value,
+                            AchievementSetType::WillBeChallenge->value,
                             AchievementSetType::Specialty->value,
                             AchievementSetType::WillBeSpecialty->value,
                         ])->exists())
@@ -237,11 +238,13 @@ class AchievementSetsRelationManager extends RelationManager
                                 Forms\Components\Select::make('type')
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
+                                        AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->label(),
                                         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
                                         AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                                     ])
                                     ->helperText("
                                         Bonus loads with any hashes supported by Core.
+                                        Challenge also loads with any hashes supported by Core, but must be opted into.
                                         Specialty requires a unique hash, but also loads Core and Bonus.
                                         Exclusive requires a unique hash, but does not load Core or Bonus.
                                         When in doubt, please ask for help.
@@ -301,16 +304,23 @@ class AchievementSetsRelationManager extends RelationManager
                             ->label('Set Type')
                             ->options([
                                 AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
+                                AchievementSetType::WillBeChallenge->value => AchievementSetType::Challenge->label(),
                                 AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
                                 AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                             ])
                             ->required()
-                            ->helperText('Bonus loads with any hashes supported by Core. Specialty requires a unique hash, but also loads Core and Bonus. Exclusive requires a unique hash, but does not load Core or Bonus.'),
+                            ->helperText("
+                                Bonus loads with any hashes supported by Core.
+                                Challenge also loads with any hashes supported by Core, but must be opted into.
+                                Specialty requires a unique hash, but also loads Core and Bonus.
+                                Exclusive requires a unique hash, but does not load Core or Bonus.
+                            "),
                     ])
                     ->fillForm(function (AchievementSet $record): array {
                         $currentType = $record->pivot->type;
                         $typeMapping = [
                             AchievementSetType::Bonus->value => AchievementSetType::WillBeBonus->value,
+                            AchievementSetType::Challenge->value => AchievementSetType::WillBeChallenge->value,
                             AchievementSetType::Specialty->value => AchievementSetType::WillBeSpecialty->value,
                             AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->value,
                         ];
@@ -362,6 +372,13 @@ class AchievementSetsRelationManager extends RelationManager
                             ]
                         );
 
+                        // updateExistingPivot is a pivot-level write and skips the
+                        // GameAchievementSet observer, so sync explicitly.
+                        $syncAction = new SyncGameParentGameIdAction();
+                        foreach (GameAchievementSet::gameIdsAffectedBy($currentGame->id, $record->id) as $affectedGameId) {
+                            $syncAction->execute($affectedGameId);
+                        }
+
                         $gameAchievementSet = GameAchievementSet::where('game_id', $currentGame->id)
                             ->where('achievement_set_id', $record->id)
                             ->first();
@@ -402,7 +419,15 @@ class AchievementSetsRelationManager extends RelationManager
 
                 DetachAction::make()
                     ->visible(fn () => $user->can('delete', [GameAchievementSet::class, null]))
-                    ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value),
+                    ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value)
+                    ->after(function (AchievementSet $record) use ($game) {
+                        // Detach is a pivot-level write and skips the GameAchievementSet
+                        // observer, so sync the denormalized parent_game_id for both sides.
+                        $syncAction = new SyncGameParentGameIdAction();
+                        foreach (GameAchievementSet::gameIdsAffectedBy($game->id, $record->id) as $affectedGameId) {
+                            $syncAction->execute($affectedGameId);
+                        }
+                    }),
             ])
             ->toolbarActions([
 
@@ -419,6 +444,7 @@ class AchievementSetsRelationManager extends RelationManager
         return $game->gameAchievementSets()
             ->whereIn('type', [
                 AchievementSetType::WillBeBonus->value,
+                AchievementSetType::WillBeChallenge->value,
                 AchievementSetType::WillBeSpecialty->value,
             ])
             ->exists();
@@ -431,10 +457,27 @@ class AchievementSetsRelationManager extends RelationManager
             ? self::WILL_BE_TO_FINAL_TYPE_MAP
             : array_flip(self::WILL_BE_TO_FINAL_TYPE_MAP);
 
+        // Capture which sets we touched so we can sync the denormalized parent_game_id
+        // for both this game and every other game sharing those sets. The bulk
+        // update below uses query-builder ->update which skips model events.
+        $affectedSetIds = $game->gameAchievementSets()
+            ->whereIn('type', array_keys($mapping))
+            ->pluck('achievement_set_id');
+
         foreach ($mapping as $from => $to) {
             $game->gameAchievementSets()
                 ->where('type', $from)
                 ->update(['type' => $to, 'updated_at' => now()]);
+        }
+
+        $gameIdsToSync = GameAchievementSet::query()
+            ->whereIn('achievement_set_id', $affectedSetIds)
+            ->pluck('game_id')
+            ->push($game->id)
+            ->unique();
+        $syncAction = new SyncGameParentGameIdAction();
+        foreach ($gameIdsToSync as $gameId) {
+            $syncAction->execute((int) $gameId);
         }
 
         /** @var User $user */

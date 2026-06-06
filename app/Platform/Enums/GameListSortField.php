@@ -13,7 +13,9 @@ enum GameListSortField: string
     case BeatRatio = 'beatRatio';
     case HasActiveOrInReviewClaims = 'hasActiveOrInReviewClaims';
     case LastUpdated = 'lastUpdated';
+    case MasteryRatio = 'masteryRatio';
     case MedianTimeToBeatHardcore = 'medianTimeToBeatHardcore';
+    case MedianTimeToMasterHardcore = 'medianTimeToMasterHardcore';
     case NumRequests = 'numRequests';
     case NumUnresolvedTickets = 'numUnresolvedTickets';
     case NumVisibleLeaderboards = 'numVisibleLeaderboards';

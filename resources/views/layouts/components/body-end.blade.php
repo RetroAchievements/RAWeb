@@ -6,7 +6,7 @@
         }
     </script>
 
-    <style nonce="{{ csp_nonce() }}">
+    <style nonce="{{ app('csp-nonce') }}">
         pre.xdebug-var-dump {
             background: #FFFFFF;
         }

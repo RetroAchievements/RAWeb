@@ -27,6 +27,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
+        public Lazy|bool $createGameScreenshot,
         public Lazy|bool $createMessageThreads,
         public Lazy|bool $createModerationReports,
         public Lazy|bool $createTicket,
@@ -35,6 +36,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $deleteForumTopic,
         public Lazy|bool $develop,
         public Lazy|bool $lockForumTopic,
+        public Lazy|bool $manageAchievements,
         public Lazy|bool $manageAchievementSetClaims,
         public Lazy|bool $manageEmulators,
         public Lazy|bool $manageEvents,
@@ -44,14 +46,21 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $quickEditAchievement,
         public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
+        public Lazy|bool $updateAchievementDescription,
+        public Lazy|bool $updateAchievementIsPromoted,
+        public Lazy|bool $updateAchievementPoints,
+        public Lazy|bool $updateAchievementTitle,
+        public Lazy|bool $updateAchievementType,
         public Lazy|bool $updateAnyAchievementSetClaim,
         public Lazy|bool $updateAvatar,
         public Lazy|bool $updateGame,
         public Lazy|bool $updateGameSet,
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
+        public Lazy|bool $viewAchievementLogic,
         public Lazy|bool $viewAnyAchievementSetClaim,
         public Lazy|bool $viewDeveloperInterest,
     ) {
@@ -88,6 +97,10 @@ class UserPermissionsData extends Data
                 ? $user->can('createForumTopic', $game)
                 : false
             ),
+            createGameScreenshot: Lazy::create(fn () => $user && $game
+                ? $user->can('create', [\App\Models\GameScreenshot::class, $game])
+                : false
+            ),
             createMessageThreads: Lazy::create(fn () => $user ? $user->can('create', \App\Models\MessageThread::class) : false),
             createModerationReports: Lazy::create(fn () => $user ? $user->can('createModerationReports', User::class) : false),
             createTicket: Lazy::create(fn () => $user && $triggerable
@@ -99,6 +112,7 @@ class UserPermissionsData extends Data
             deleteForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('delete', $forumTopic) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             lockForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('lock', $forumTopic) : false),
+            manageAchievements: Lazy::create(fn () => $user ? $user->can('manage', Achievement::class) : false),
             manageAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('manage', AchievementSetClaim::class) : false),
             manageEmulators: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Emulator::class) : false),
             manageForumTopicComments: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\ForumTopicComment::class) : false),
@@ -113,12 +127,40 @@ class UserPermissionsData extends Data
                 ? $user->can('review', $claim)
                 : false
             ),
+            updateAchievementDescription: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'description'])
+                : false
+            ),
+            updateAchievementIsPromoted: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'is_promoted'])
+                : false
+            ),
+            updateAchievementPoints: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'points'])
+                : false
+            ),
+            updateAchievementTitle: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'title'])
+                : false
+            ),
+            updateAchievementType: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('updateField', [$triggerable, 'type'])
+                : false
+            ),
+            quickEditAchievement: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('quickEdit', $triggerable)
+                : false
+            ),
             updateAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('updateAny', AchievementSetClaim::class) : false),
             updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
             updateForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('update', $forumTopic) : false),
             updateGame: Lazy::create(fn () => $user && $game ? $user->can('update', $game) : false),
             updateGameSet: Lazy::create(fn () => $user && $gameSet ? $user->can('update', $gameSet) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
+            viewAchievementLogic: Lazy::create(fn () => $user && $triggerable instanceof Achievement
+                ? $user->can('viewLogic', $triggerable)
+                : false
+            ),
             viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
             viewDeveloperInterest: Lazy::create(fn () => $user && $game
                 ? $user->can('viewDeveloperInterest', $game)

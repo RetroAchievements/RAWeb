@@ -106,6 +106,7 @@ class AchievementSetsTestHelpers
         return AchievementSetsTestHelpers::getWarningAchievementPatchData(
             title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -253,6 +254,12 @@ class AchievementSetsTestHelpers
             'image_icon_asset_path' => '/Images/000012.png',
             'trigger_definition' => 'Display:\nBonus Test',
         ]);
+        /** @var Game $challengeGame */
+        $challengeGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000015.png',
+            'trigger_definition' => 'Display:\nChallenge Test',
+        ]);
         /** @var Game $specialtyGame */
         $specialtyGame = Game::factory()->create([
             'system_id' => $system->id,
@@ -288,6 +295,8 @@ class AchievementSetsTestHelpers
         $achievement10 = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id, 'image_name' => '54321', 'order_column' => 10]);
         /** @var Achievement $achievement11 */
         $achievement11 = Achievement::factory()->promoted()->create(['game_id' => $exclusiveGame->id, 'image_name' => '43210', 'order_column' => 11]);
+        /** @var Achievement $achievement12 */
+        $achievement12 = Achievement::factory()->promoted()->create(['game_id' => $challengeGame->id, 'image_name' => '43434', 'order_column' => 12]);
 
         /** @var Leaderboard $leaderboard1 */
         $leaderboard1 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 2]);
@@ -296,20 +305,23 @@ class AchievementSetsTestHelpers
         /** @var Leaderboard $leaderboard3 */
         $leaderboard3 = Leaderboard::factory()->create(['game_id' => $bonusGame->id, 'order_column' => -1, 'format' => 'SECS']);
 
-        $buildAchievementSetaction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
-        $buildAchievementSetaction->execute($game);
-        $buildAchievementSetaction->execute($bonusGame);
-        $buildAchievementSetaction->execute($specialtyGame);
-        $buildAchievementSetaction->execute($exclusiveGame);
+        $buildAchievementSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $buildAchievementSetAction->execute($game);
+        $buildAchievementSetAction->execute($bonusGame);
+        $buildAchievementSetAction->execute($challengeGame);
+        $buildAchievementSetAction->execute($specialtyGame);
+        $buildAchievementSetAction->execute($exclusiveGame);
 
         $associateSetAction = new AssociateAchievementSetToGameAction();
         $associateSetAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus Title');
+        $associateSetAction->execute($game, $challengeGame, AchievementSetType::Challenge, 'Challenge Title');
         $associateSetAction->execute($game, $specialtyGame, AchievementSetType::Specialty, 'Specialty Title');
         $associateSetAction->execute($game, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive Title');
 
         return [
             'game' => $game,
             'bonusGame' => $bonusGame,
+            'challengeGame' => $challengeGame,
             'specialtyGame' => $specialtyGame,
             'exclusiveGame' => $exclusiveGame,
             'achievements' => [
@@ -331,6 +343,9 @@ class AchievementSetsTestHelpers
             'exclusiveAchievements' => [
                 $achievement11,
             ],
+            'challengeAchievements' => [
+                $achievement12,
+            ],
             'leaderboards' => [
                 $leaderboard1,
                 $leaderboard2,
@@ -340,6 +355,7 @@ class AchievementSetsTestHelpers
             ],
             'gameHash' => AchievementSetsTestHelpers::createGameHash($game),
             'bonusHash' => AchievementSetsTestHelpers::createGameHash($bonusGame),
+            'challengeHash' => AchievementSetsTestHelpers::createGameHash($challengeGame),
             'specialtyHash' => AchievementSetsTestHelpers::createGameHash($specialtyGame),
             'exclusiveHash' => AchievementSetsTestHelpers::createGameHash($exclusiveGame),
         ];
@@ -351,7 +367,7 @@ class AchievementSetsTestHelpers
             'game_id' => $game->id,
             'system_id' => $game->system_id,
             'compatibility' => $compatibility,
-            'md5' => fake()->md5,
+            'md5' => fake()->md5(),
             'name' => 'hash_' . $game->id,
             'description' => 'hash_' . $game->id,
         ]);
@@ -704,6 +720,83 @@ describe('Multi-set', function () {
                         'Leaderboards' => [
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['bonusLeaderboards'][0]), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns core, bonus, and challenge data for core hash when opted in to challenge set', function () {
+        $data = AchievementSetsTestHelpers::createMultiSetGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+        $bonusGame = $data['bonusGame'];
+        $bonusAchievementSet = $bonusGame->achievementSets()->first();
+        $challengeGame = $data['challengeGame'];
+        $challengeAchievementSet = $challengeGame->achievementSets()->first();
+
+        $challengeGameAchievementSet = GameAchievementSet::whereGameId($game->id)->whereType(AchievementSetType::Challenge)->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $this->user->id,
+            'game_achievement_set_id' => $challengeGameAchievementSet->id,
+            'opted_in' => true,
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $data['gameHash']->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $challengeAchievementSet->id,
+                        'Title' => 'Challenge Title',
+                        'Type' => 'challenge',
+                        'GameId' => $challengeGame->id,
+                        'ImageIconUrl' => media_asset($challengeGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['challengeAchievements'][0]), // DisplayOrder: 12
+                        ],
+                        'Leaderboards' => [
                         ],
                     ],
                     [
@@ -1794,6 +1887,53 @@ describe('User Agent', function () {
             ]);
     });
 
+    test('softcore-only user agent receives softcore-only warning instead of please update', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulator = Emulator::create([
+            'name' => 'Softcore Client',
+            'active' => true,
+            'softcore_only' => true,
+        ]);
+        EmulatorUserAgent::create([
+            'emulator_id' => $emulator->id,
+            'client' => 'SoftcoreClient',
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'SoftcoreClient/1.1.16'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getClientWarningAchievementPatchData(
+                                ClientSupportLevel::SoftcoreOnly,
+                            ),
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
     test('blocked user agent receives error', function () {
         $data = AchievementSetsTestHelpers::createSimpleGame();
         $game = $data['game'];
@@ -2032,7 +2172,7 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
                         ],
                         'Leaderboards' => [],
@@ -2067,7 +2207,7 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
                         ],
                         'Leaderboards' => [],
@@ -2102,7 +2242,7 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
                         ],
                         'Leaderboards' => [],
@@ -2137,7 +2277,7 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
                         ],
                         'Leaderboards' => [],
@@ -2406,7 +2546,7 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game requires a patch to support achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
                         ],
                         'Leaderboards' => [],
@@ -2441,8 +2581,110 @@ describe('Unsupported Hash', function () {
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
                                 title: 'Unsupported Game Version',
-                                description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                                description: 'This version of the game requires a patch to support achievements. See the Supported Game Hashes page for this game to find a compatible version.',
                             ),
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('given a game with two exclusive subsets, only returns the exclusive set matching the loaded hash', function () {
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $baseGame */
+        $baseGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'trigger_definition' => 'Display:\nBase Game',
+        ]);
+
+        /** @var Game $exclusiveGameA */
+        $exclusiveGameA = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000012.png',
+            'trigger_definition' => 'Display:\nExclusive A',
+        ]);
+
+        /** @var Game $exclusiveGameB */
+        $exclusiveGameB = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000013.png',
+            'trigger_definition' => 'Display:\nExclusive B',
+        ]);
+
+        $achievementA = Achievement::factory()->promoted()->create([
+            'game_id' => $exclusiveGameA->id,
+            'image_name' => '11111',
+            'order_column' => 1,
+        ]);
+        $achievementB = Achievement::factory()->promoted()->create([
+            'game_id' => $exclusiveGameB->id,
+            'image_name' => '22222',
+            'order_column' => 1,
+        ]);
+
+        $buildSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $buildSetAction->execute($baseGame);
+        $buildSetAction->execute($exclusiveGameA);
+        $buildSetAction->execute($exclusiveGameB);
+
+        $associateSetAction = new AssociateAchievementSetToGameAction();
+        $associateSetAction->execute($baseGame, $exclusiveGameA, AchievementSetType::Exclusive, 'Sub-5');
+        $associateSetAction->execute($baseGame, $exclusiveGameB, AchievementSetType::Exclusive, 'Sub-20');
+
+        $hashA = AchievementSetsTestHelpers::createGameHash($exclusiveGameA);
+        $hashB = AchievementSetsTestHelpers::createGameHash($exclusiveGameB);
+
+        $exclusiveSetA = $exclusiveGameA->achievementSets()->first();
+        $exclusiveSetB = $exclusiveGameB->achievementSets()->first();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $hashA->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $baseGame->id,
+                'Title' => $baseGame->title,
+                'ImageIconUrl' => media_asset($baseGame->image_icon_asset_path),
+                'ConsoleId' => $baseGame->system_id,
+                'RichPresenceGameId' => $exclusiveGameA->id,
+                'RichPresencePatch' => $exclusiveGameA->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $exclusiveSetA->id,
+                        'Title' => 'Sub-5',
+                        'Type' => 'exclusive',
+                        'GameId' => $exclusiveGameA->id,
+                        'ImageIconUrl' => media_asset($exclusiveGameA->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($achievementA),
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $hashB->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $baseGame->id,
+                'Title' => $baseGame->title,
+                'ImageIconUrl' => media_asset($baseGame->image_icon_asset_path),
+                'ConsoleId' => $baseGame->system_id,
+                'RichPresenceGameId' => $exclusiveGameB->id,
+                'RichPresencePatch' => $exclusiveGameB->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $exclusiveSetB->id,
+                        'Title' => 'Sub-20',
+                        'Type' => 'exclusive',
+                        'GameId' => $exclusiveGameB->id,
+                        'ImageIconUrl' => media_asset($exclusiveGameB->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($achievementB),
                         ],
                         'Leaderboards' => [],
                     ],

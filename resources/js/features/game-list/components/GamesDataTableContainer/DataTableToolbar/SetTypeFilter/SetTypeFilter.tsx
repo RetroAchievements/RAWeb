@@ -19,7 +19,7 @@ export function SetTypeFilter<TData>({ table }: SetTypeFilterProps<TData>) {
 
     setFilterValue: (value) => {
       if (value === undefined) {
-        table.setColumnFilters((prev) => [...prev.filter((f) => f.id !== 'subsets')]);
+        table.setColumnFilters((prev) => prev.filter((f) => f.id !== 'subsets'));
 
         return;
       }
@@ -37,7 +37,7 @@ export function SetTypeFilter<TData>({ table }: SetTypeFilterProps<TData>) {
       options={[
         {
           options: [
-            { t_label: t('All Sets'), isDefaultOption: true },
+            { t_label: t('All Sets'), selectedWhenEmpty: true, clearsFilterOnSelect: true },
             { t_label: t('Base Sets Only'), value: 'only-games' },
             { t_label: t('Subsets Only'), value: 'only-subsets' },
           ],

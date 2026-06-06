@@ -122,4 +122,44 @@ describe('Component: MobileSetTypeFilterSelect', () => {
     // ASSERT
     expect(setColumnFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
   });
+
+  it('given there is already a subsets filter active, renders with the active filter value', async () => {
+    // ARRANGE
+    const mockTable = createMockTable({
+      getState: vi.fn().mockReturnValue({
+        columnFilters: [{ id: 'subsets', value: ['only-subsets'] }],
+      }),
+    });
+
+    const { container } = render(<MobileSetTypeFilterSelect table={mockTable as Table<any>} />);
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
+  it('given the user clears the filter, removes only the subsets entry from column filters', async () => {
+    // ARRANGE
+    const setColumnFiltersSpy = vi.fn();
+    const mockTable = createMockTable({
+      getState: vi.fn().mockReturnValue({
+        columnFilters: [{ id: 'subsets', value: ['only-games'] }],
+      }),
+      setColumnFilters: setColumnFiltersSpy,
+    });
+
+    render(<MobileSetTypeFilterSelect table={mockTable as Table<any>} />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByTestId('all-sets-option'));
+
+    // ASSERT
+    expect(setColumnFiltersSpy).toHaveBeenCalled();
+    const clearFn = setColumnFiltersSpy.mock.calls[0][0];
+    const result = clearFn([
+      { id: 'subsets', value: ['only-games'] },
+      { id: 'other', value: 'x' },
+    ]);
+    expect(result).toEqual([{ id: 'other', value: 'x' }]);
+  });
 });

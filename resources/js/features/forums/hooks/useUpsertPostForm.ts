@@ -7,6 +7,8 @@ import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicCommentMutation';
 import { useUpdateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useUpdateForumTopicCommentMutation';
@@ -22,13 +24,20 @@ export function useUpsertPostForm(
   initialValues: FormValues,
 ) {
   const { targetComment, targetTopic } = props;
+  const isCreating = !targetComment;
 
   const { t } = useTranslation();
 
+  // Only persist drafts for new replies, not edits.
+  const draftKey = isCreating && targetTopic ? `reply-topic-${targetTopic.id}` : null;
+  const draft = draftKey ? loadDraft<FormValues>(draftKey) : {};
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues,
+    defaultValues: { ...initialValues, ...draft },
   });
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const updateMutation = useUpdateForumTopicCommentMutation();
   const createMutation = useCreateForumTopicCommentMutation();
@@ -46,6 +55,8 @@ export function useUpsertPostForm(
     toastMessage.promise(mutationPromise, {
       loading: targetComment ? t('Updating...') : t('Submitting...'),
       success: ({ data }: AxiosResponse<{ commentId: number }>) => {
+        clearDraft();
+
         if (targetComment) {
           router.visit(
             route('forum-topic.show', {

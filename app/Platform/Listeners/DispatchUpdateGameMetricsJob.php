@@ -8,6 +8,7 @@ use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Jobs\UpdateGameMetricsJob;
@@ -43,6 +44,10 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
                 $game = $achievement->game;
                 break;
             case AchievementDeleted::class:
+                $achievement = $event->achievement;
+                $game = $achievement->game;
+                break;
+            case AchievementRestored::class:
                 $achievement = $event->achievement;
                 $game = $achievement->game;
                 break;

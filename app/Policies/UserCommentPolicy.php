@@ -92,6 +92,11 @@ class UserCommentPolicy
             return true;
         }
 
+        // users can delete any comment off of their wall
+        if ($user->id === $comment->commentable_id) {
+            return true;
+        }
+
         /*
          * it's the user's own comment
          */

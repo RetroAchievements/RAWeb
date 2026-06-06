@@ -155,6 +155,25 @@ describe('Component: GameAchievementSetHeader', () => {
     expect(screen.getByText(/unpublished achievements/i)).toBeVisible();
   });
 
+  it('given the user is viewing unpublished achievements, does not show weighted points', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [
+          createAchievement({ points: 10, pointsWeighted: 15 }),
+          createAchievement({ points: 20, pointsWeighted: 25 }),
+        ],
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: false }, // !!
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('ratio-container')).not.toBeInTheDocument();
+  });
+
   it('given the user is viewing unpublished achievements and there are not any achievements, shows the correct label', () => {
     // ARRANGE
     const gameAchievementSet = createGameAchievementSet({

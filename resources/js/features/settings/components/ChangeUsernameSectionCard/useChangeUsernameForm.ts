@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom } from 'jotai';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -18,31 +17,27 @@ export function useChangeUsernameForm() {
 
   const [requestedUsername, setRequestedUsername] = useAtom(requestedUsernameAtom);
 
-  const usernameChangeFormSchema = useMemo(
-    () =>
-      z
-        .object({
-          newUsername: z
-            .string()
-            .min(4)
-            .max(20)
-            .regex(/^[a-zA-Z0-9]+$/, t('Must only contain unaccented letters and numbers.')),
-          confirmUsername: z
-            .string()
-            .min(4)
-            .max(20)
-            .regex(/^[a-zA-Z0-9]+$/, t('Must only contain unaccented letters and numbers.')),
-        })
-        .refine((data) => data.newUsername === data.confirmUsername, {
-          message: t('New usernames must match.'),
-          path: ['confirmUsername'],
-        })
-        .refine((data) => data.newUsername !== auth!.user.displayName, {
-          message: t('New username must be different from current username.'),
-          path: ['newUsername'],
-        }),
-    [auth, t],
-  );
+  const usernameChangeFormSchema = z
+    .object({
+      newUsername: z
+        .string()
+        .min(4)
+        .max(20)
+        .regex(/^[a-zA-Z0-9]+$/, t('Must only contain unaccented letters and numbers.')),
+      confirmUsername: z
+        .string()
+        .min(4)
+        .max(20)
+        .regex(/^[a-zA-Z0-9]+$/, t('Must only contain unaccented letters and numbers.')),
+    })
+    .refine((data) => data.newUsername === data.confirmUsername, {
+      message: t('New usernames must match.'),
+      path: ['confirmUsername'],
+    })
+    .refine((data) => data.newUsername !== auth!.user.displayName, {
+      message: t('New username must be different from current username.'),
+      path: ['newUsername'],
+    });
 
   type FormValues = z.infer<typeof usernameChangeFormSchema>;
 

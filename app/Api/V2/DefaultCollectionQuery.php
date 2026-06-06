@@ -27,6 +27,10 @@ class DefaultCollectionQuery extends ResourceQuery
                 JsonApiRule::filter(),
             ],
 
+            // Prevent child classes from accidentally stripping undeclared
+            // filter sub-keys when they add specific filter.* rules.
+            'filter.*' => ['sometimes'],
+
             'include' => [
                 'nullable',
                 'string',

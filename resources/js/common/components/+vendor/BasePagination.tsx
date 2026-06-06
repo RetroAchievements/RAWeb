@@ -8,12 +8,7 @@ import { InertiaLink, type InertiaLinkProps } from '../InertiaLink';
 import { type BaseButtonProps, baseButtonVariants } from './BaseButton';
 
 const BasePagination = ({ className, ...props }: ComponentProps<'nav'>) => (
-  <nav
-    role="navigation"
-    aria-label="pagination"
-    className={cn('bg-transparent', className)}
-    {...props}
-  />
+  <nav aria-label="pagination" className={cn('bg-transparent', className)} {...props} />
 );
 BasePagination.displayName = 'BasePagination';
 

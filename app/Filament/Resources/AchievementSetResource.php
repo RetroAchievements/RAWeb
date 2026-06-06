@@ -247,8 +247,11 @@ class AchievementSetResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<AchievementSet> $query */
+        $query = parent::getEloquentQuery()
             ->withCount('gameAchievementSets')
             ->with(['gameAchievementSets.game.system']);
+
+        return $query;
     }
 }

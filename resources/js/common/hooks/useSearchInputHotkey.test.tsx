@@ -66,4 +66,19 @@ describe('Hook: useSearchInputHotkey', () => {
     expect(searchInput).not.toHaveFocus();
     expect(button).toHaveFocus();
   });
+
+  it('given the input is already focused and the hotkey is pressed, does not change focus', async () => {
+    // ARRANGE
+    render(<TestComponent isEnabled={true} hotkey="/" />);
+
+    const searchInput = screen.getByRole('textbox');
+    searchInput.focus();
+    expect(searchInput).toHaveFocus();
+
+    // ACT
+    await userEvent.keyboard('/');
+
+    // ASSERT
+    expect(searchInput).toHaveFocus();
+  });
 });

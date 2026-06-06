@@ -1,5 +1,5 @@
 import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
-import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGameAchievementSet } from '@/test/factories';
 
@@ -62,7 +62,7 @@ describe('Component: SubsetConfigurationDialogContent', () => {
     ).toBeVisible();
   });
 
-  it('given the user is globally opted out, shows the opted out message', () => {
+  it('displays the instruction message', () => {
     // ARRANGE
     render(
       <BaseDialog open={true}>
@@ -70,53 +70,15 @@ describe('Component: SubsetConfigurationDialogContent', () => {
       </BaseDialog>,
       {
         pageProps: {
-          auth: {
-            user: createAuthenticatedUser({
-              preferences: createAuthenticatedUserPreferences({
-                isGloballyOptedOutOfSubsets: true, // !!
-                prefersAbsoluteDates: false,
-                shouldAlwaysBypassContentWarnings: false,
-              }),
-            }),
-          },
+          auth: { user: createAuthenticatedUser() },
           userGameAchievementSetPreferences: {},
         },
       },
     );
 
     // ASSERT
-    expect(screen.getByText(/globally opted out of all subsets/i)).toBeVisible();
     expect(
-      screen.getByText(/use the toggles below to opt in to specific sets for this game/i),
-    ).toBeVisible();
-  });
-
-  it('given the user is globally opted in, shows the opted in message', () => {
-    // ARRANGE
-    render(
-      <BaseDialog open={true}>
-        <SubsetConfigurationDialogContent configurableSets={[]} onSubmitSuccess={vi.fn()} />
-      </BaseDialog>,
-      {
-        pageProps: {
-          auth: {
-            user: createAuthenticatedUser({
-              preferences: createAuthenticatedUserPreferences({
-                isGloballyOptedOutOfSubsets: false, // !!
-                prefersAbsoluteDates: false,
-                shouldAlwaysBypassContentWarnings: false,
-              }),
-            }),
-          },
-          userGameAchievementSetPreferences: {},
-        },
-      },
-    );
-
-    // ASSERT
-    expect(screen.getByText(/globally opted in to all subsets/i)).toBeVisible();
-    expect(
-      screen.getByText(/use the toggles below to opt out of specific sets for this game/i),
+      screen.getByText(/select which sets will be active when you play the game/i),
     ).toBeVisible();
   });
 
@@ -164,6 +126,6 @@ describe('Component: SubsetConfigurationDialogContent', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
-    expect(screen.getByText(/globally opted in to all subsets/i)).toBeVisible();
+    expect(screen.getByText(/select which sets/i)).toBeVisible();
   });
 });

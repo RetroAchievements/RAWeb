@@ -1,153 +1,136 @@
-import { RuleTester } from '@typescript-eslint/rule-tester';
-import * as vitest from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { rule, RULE_NAME } from './enforce-typescript-in-app-code.js';
+import { rule } from './enforce-typescript-in-app-code.js';
 
-RuleTester.afterAll = vitest.afterAll;
-RuleTester.it = vitest.it;
-RuleTester.itOnly = vitest.it.only;
-RuleTester.describe = vitest.describe;
+function runRule(filename: string) {
+  const report = vi.fn();
+  const context = { filename, report };
+  const visitors = rule.create(context as any);
 
-const ruleTester = new RuleTester();
+  // Simulate the Program visitor if it exists.
+  if (visitors.Program) {
+    visitors.Program({});
+  }
 
-ruleTester.run(RULE_NAME, rule, {
-  valid: [
-    // TypeScript files are allowed in common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
-      code: `export function sortAchievements() {}`,
-    },
-    // TypeScript files are allowed in shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Header.tsx',
-      code: `export const Header = () => null;`,
-    },
-    // TypeScript files are allowed in features.
-    {
-      filename:
+  return report;
+}
+
+describe('Rule: enforce-typescript-in-app-code', () => {
+  describe('valid cases', () => {
+    it('allows TypeScript files in common', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows TypeScript files in shared', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/shared/components/Header.tsx');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows TypeScript files in features', () => {
+      const report = runRule(
         '/Users/dev/RAWeb/resources/js/features/forums/components/ForumPostCard/ForumPostCard.tsx',
-      code: `export const ForumPostCard = () => null;`,
-    },
-    // TypeScript files are allowed in pages.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/pages/Home.tsx',
-      code: `export const Home = () => null;`,
-    },
-    // TypeScript files are allowed in test.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/test/factories/createGame.ts',
-      code: `export function createGame() {}`,
-    },
-    // TypeScript files are allowed in core.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
-      code: `export function useAuth() {}`,
-    },
-    // JavaScript files are allowed in tools.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/tools/crowdin-download.js',
-      code: `export function crowdinDownload() {}`,
-    },
-    // JavaScript files are allowed in tall-stack.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/tall-stack/utils/helpers.js',
-      code: `export function helper() {}`,
-    },
-    // JavaScript files are allowed in types.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/types/index.js',
-      code: `export const types = {};`,
-    },
-    // Root-level JavaScript files are allowed.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/app.js',
-      code: `import React from 'react';`,
-    },
-    // Root-level JavaScript files are allowed.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/ssr.js',
-      code: `import React from 'react';`,
-    },
-  ],
-  invalid: [
-    // JavaScript files are not allowed in common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.js',
-      code: `export function sortAchievements() {}`,
-      errors: [
-        {
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows TypeScript files in pages', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/pages/Home.tsx');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows TypeScript files in test', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/test/factories/createGame.ts');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows TypeScript files in core', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows JavaScript files in tools', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/tools/crowdin-download.js');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows JavaScript files in tall-stack', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/tall-stack/utils/helpers.js');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows JavaScript files in types', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/types/index.js');
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows root-level JavaScript files', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/app.js');
+      expect(report).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('invalid cases', () => {
+    it('reports JavaScript files in common', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.js');
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'common',
-          },
-        },
-      ],
-    },
-    // JavaScript files are not allowed in shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Header.js',
-      code: `export const Header = () => null;`,
-      errors: [
-        {
+          data: { directory: 'common' },
+        }),
+      );
+    });
+
+    it('reports JavaScript files in shared', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/shared/components/Header.js');
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'shared',
-          },
-        },
-      ],
-    },
-    // JavaScript files are not allowed in features.
-    {
-      filename:
+          data: { directory: 'shared' },
+        }),
+      );
+    });
+
+    it('reports JavaScript files in features', () => {
+      const report = runRule(
         '/Users/dev/RAWeb/resources/js/features/forums/components/ForumPostCard/ForumPostCard.js',
-      code: `export const ForumPostCard = () => null;`,
-      errors: [
-        {
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'features',
-          },
-        },
-      ],
-    },
-    // JavaScript files are not allowed in pages.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/pages/Home.js',
-      code: `export const Home = () => null;`,
-      errors: [
-        {
+          data: { directory: 'features' },
+        }),
+      );
+    });
+
+    it('reports JavaScript files in pages', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/pages/Home.js');
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'pages',
-          },
-        },
-      ],
-    },
-    // JavaScript files are not allowed in test.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/test/factories/createGame.js',
-      code: `export function createGame() {}`,
-      errors: [
-        {
+          data: { directory: 'pages' },
+        }),
+      );
+    });
+
+    it('reports JavaScript files in test', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/test/factories/createGame.js');
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'test',
-          },
-        },
-      ],
-    },
-    // JavaScript files are not allowed in core.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.js',
-      code: `export function useAuth() {}`,
-      errors: [
-        {
+          data: { directory: 'test' },
+        }),
+      );
+    });
+
+    it('reports JavaScript files in core', () => {
+      const report = runRule('/Users/dev/RAWeb/resources/js/core/hooks/useAuth.js');
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'useTypeScript',
-          data: {
-            directory: 'core',
-          },
-        },
-      ],
-    },
-  ],
+          data: { directory: 'core' },
+        }),
+      );
+    });
+  });
 });

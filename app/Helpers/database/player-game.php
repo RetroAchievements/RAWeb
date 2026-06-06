@@ -5,6 +5,7 @@ use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Support\Facades\DB;
 
@@ -269,6 +270,7 @@ function getUserAchievementUnlocksForGame(
         )
 
         ->where('is_promoted', $isPromoted)
+        ->whereNull('achievements.deleted_at')
         ->orderBy('player_achievements.achievement_id')
         ->get([
             DB::raw('player_achievements.achievement_id'),
@@ -335,11 +337,15 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false, bool $applyBadgePreferences = false): array
 {
     if (!isValidUsername($user)) {
         return [];
     }
+
+    // On the user's own profile, show the badge the user chose for each game (if any).
+    // Everywhere else, including the public APIs that also call this, show the canonical badge.
+    [$gameBadgeJoin, $gameBadgeImageIcon] = UserGameBadgePreference::imageIconJoin($applyBadgePreferences, 'pg.user_id', 'pg.game_id');
 
     $minAchievementsForCompletion = 5;
     $limitClause = $limit !== null ? "LIMIT $limit" : "";
@@ -349,16 +355,19 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         ? "AND pg.achievements_unlocked < gd.achievements_published"
         : "";
 
+    $mostRecentDate = 'COALESCE(' . greatestStatement(['pg.last_unlock_at', 'pg.last_unlock_hardcore_at']) . ', pg.last_unlock_at, pg.last_unlock_hardcore_at)';
+
     $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
-            gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
-            pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
+            {$gameBadgeImageIcon} AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
+            pg.first_unlock_at AS FirstWonDate,
+            $mostRecentDate AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
             FROM player_games AS pg
             LEFT JOIN games AS gd ON gd.id = pg.game_id
             LEFT JOIN systems AS s ON s.id = gd.system_id
-            LEFT JOIN users ua ON ua.id = pg.user_id
+            LEFT JOIN users ua ON ua.id = pg.user_id{$gameBadgeJoin}
             WHERE (ua.username = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
             $excludeCompletedClause

@@ -1,11 +1,4 @@
-import {
-  type CSSProperties,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type CSSProperties, type RefObject, useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 
 // BaseTabsList uses h-10 (40px), matching the trigger's offsetHeight.
@@ -41,9 +34,13 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
   const hoverLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { width: windowWidth } = useWindowSize();
 
+  useEffect(() => {
+    setActiveIndex(safeIndex);
+  }, [safeIndex]);
+
   // Debounce null values so moving between tabs doesn't
   // briefly reset the hover state and break the slide animation.
-  const setHoveredIndexDebounced = useCallback((index: number | null) => {
+  const setHoveredIndexDebounced = (index: number | null) => {
     if (hoverLeaveTimerRef.current) {
       clearTimeout(hoverLeaveTimerRef.current);
       hoverLeaveTimerRef.current = null;
@@ -56,7 +53,7 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
         setHoveredIndex(null);
       }, 75);
     }
-  }, []);
+  };
 
   // Clean up the debounce timer on unmount.
   useEffect(() => {
@@ -97,17 +94,16 @@ export function useAnimatedTabIndicator(initialIndex: number = 0) {
     }
 
     if (hoveredIndex !== null) {
-      const tabEl = tabRefs.current[hoveredIndex];
-      if (tabEl) {
-        // Only animate position when sliding between tabs, not when first appearing.
-        const isSliding = prevHoveredRef.current !== null;
+      const tabEl = tabRefs.current[hoveredIndex]!;
 
-        hoverEl.style.transition = isSliding ? SLIDE_TRANSITION : FADE_TRANSITION;
-        hoverEl.style.transform = `translateX(${tabEl.offsetLeft}px) translateY(${tabEl.offsetTop}px)`;
-        hoverEl.style.width = `${tabEl.offsetWidth}px`;
-        hoverEl.style.height = `${tabEl.offsetHeight}px`;
-        hoverEl.style.opacity = '1';
-      }
+      // Only animate position when sliding between tabs, not when first appearing.
+      const isSliding = prevHoveredRef.current !== null;
+
+      hoverEl.style.transition = isSliding ? SLIDE_TRANSITION : FADE_TRANSITION;
+      hoverEl.style.transform = `translateX(${tabEl.offsetLeft}px) translateY(${tabEl.offsetTop}px)`;
+      hoverEl.style.width = `${tabEl.offsetWidth}px`;
+      hoverEl.style.height = `${tabEl.offsetHeight}px`;
+      hoverEl.style.opacity = '1';
     } else {
       hoverEl.style.transition = FADE_TRANSITION;
       hoverEl.style.opacity = '0';

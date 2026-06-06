@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -10,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { EventBreadcrumbs } from '@/features/events/components/EventBreadcrumbs';
 import { cleanEventAwardLabel } from '@/features/events/utils/cleanEventAwardLabel';
 
-export const EventAwardEarnersMainRoot: FC = memo(() => {
+export const EventAwardEarnersMainRoot: FC = () => {
   const { event, eventAward, paginatedUsers } =
     usePageProps<App.Platform.Data.EventAwardEarnersPageProps>();
 
@@ -65,4 +65,4 @@ export const EventAwardEarnersMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

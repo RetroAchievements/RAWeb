@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -49,9 +50,8 @@ export const CreateAchievementTicketForm: FC = () => {
     description: '',
   });
 
-  const [issue] = form.watch(['issue']);
-
-  const descriptionFieldState = form.getFieldState('description');
+  const issue = useWatch({ name: 'issue', control: form.control });
+  const description = useWatch({ name: 'description', control: form.control });
 
   return (
     <BaseForm {...form}>
@@ -83,10 +83,7 @@ export const CreateAchievementTicketForm: FC = () => {
           <BaseButton
             type="submit"
             disabled={
-              !descriptionFieldState.isDirty ||
-              issue === 'NetworkIssue' ||
-              mutation.isPending ||
-              mutation.isSuccess
+              !description || issue === 'NetworkIssue' || mutation.isPending || mutation.isSuccess
             }
           >
             {t('Submit')}

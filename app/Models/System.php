@@ -78,6 +78,9 @@ class System extends BaseModel implements HasMedia
         'name',
         'name_full',
         'name_short',
+        'screenshot_resolutions',
+        'has_analog_tv_output',
+        'supports_upscaled_screenshots',
         'manufacturer',
         'order_column',
         'active',
@@ -88,16 +91,23 @@ class System extends BaseModel implements HasMedia
         'name',
         'name_full',
         'name_short',
+        'screenshot_resolutions',
+        'has_analog_tv_output',
+        'supports_upscaled_screenshots',
         'manufacturer',
         'active',
     ];
 
     protected $casts = [
         'active' => 'boolean',
+        'screenshot_resolutions' => 'array',
+        'has_analog_tv_output' => 'boolean',
+        'supports_upscaled_screenshots' => 'boolean',
     ];
 
     // == constants
 
+    public const Atari2600 = 25;
     public const Arduboy = 71;
     public const WASM4 = 72;
     public const Uzebox = 80;
@@ -138,6 +148,9 @@ class System extends BaseModel implements HasMedia
                 'name',
                 'name_full',
                 'name_short',
+                'screenshot_resolutions',
+                'has_analog_tv_output',
+                'supports_upscaled_screenshots',
                 'manufacturer',
                 'active',
             ])

@@ -9,9 +9,13 @@ use App\Community\Actions\RemoveUserDiscordRolesAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationActionType;
 use App\Models\Comment;
+use App\Models\GameScreenshot;
 use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Models\UserModerationAction;
+use App\Platform\Actions\RejectGameScreenshotAction;
+use App\Platform\Enums\GameScreenshotRejectionReason;
+use App\Platform\Enums\GameScreenshotStatus;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Auth;
@@ -116,6 +120,20 @@ class UserObserver
      */
     public function updated(User $user): void
     {
+        // If the user was just muted, reject any pending screenshots they may have.
+        if ($user->wasChanged('muted_until') && $user->isMuted()) {
+            GameScreenshot::query()
+                ->where('captured_by_user_id', $user->id)
+                ->where('status', GameScreenshotStatus::Pending)
+                ->get()
+                ->each(fn (GameScreenshot $screenshot) => (new RejectGameScreenshotAction())->execute(
+                    screenshot: $screenshot,
+                    reviewer: Auth::user(),
+                    reason: GameScreenshotRejectionReason::Other,
+                    notes: 'User was muted',
+                ));
+        }
+
         if ($user->wasChanged('banned_at')) {
             $this->syncSearchIndex($user, shouldIndex: $user->banned_at === null);
         }

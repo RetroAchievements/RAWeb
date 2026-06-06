@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import type { FC } from 'react';
+import { type FC, type MouseEvent as ReactMouseEvent, type ReactNode, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaGamepad } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
@@ -33,7 +33,7 @@ interface SearchSection {
   relevance: number;
   limit: number;
   icon: IconType;
-  render: (item: SearchResult) => React.ReactNode;
+  render: (item: SearchResult) => ReactNode;
 }
 
 interface SearchResultsProps {
@@ -49,11 +49,30 @@ export const SearchResults: FC<SearchResultsProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // cmdk's onSelect doesn't pass the mouse event, so we track modifier
+  // key state to know if the user intended to open in a new tab.
+  const lastMouseEventRef = useRef<MouseEvent | null>(null);
+
   if (!searchResults) {
     return null;
   }
 
+  const captureMouseEvent = (e: ReactMouseEvent) => {
+    lastMouseEventRef.current = e.nativeEvent;
+  };
+
   const handleCommandItemSelect = (destinationHref: string) => {
+    const event = lastMouseEventRef.current;
+    lastMouseEventRef.current = null;
+
+    const isNewTabIntent = event?.ctrlKey || event?.metaKey || event?.button === 1;
+
+    // When ctrl/cmd+clicking, let the browser's native <a> behavior handle
+    // opening in a new tab. Don't also navigate the current tab.
+    if (isNewTabIntent) {
+      return;
+    }
+
     onClose();
 
     /**
@@ -82,7 +101,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
             asChild={true}
             onSelect={() => handleCommandItemSelect(destinationHref)}
           >
-            <a href={destinationHref}>
+            <a href={destinationHref} onMouseDown={captureMouseEvent}>
               <UserResultDisplay user={safeUser} />
             </a>
           </BaseCommandItem>
@@ -108,7 +127,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
             className="group"
             onSelect={() => handleCommandItemSelect(destinationHref)}
           >
-            <a href={destinationHref}>
+            <a href={destinationHref} onMouseDown={captureMouseEvent}>
               <GameResultDisplay game={game as App.Platform.Data.Game} />
             </a>
           </BaseCommandItem>
@@ -133,7 +152,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
             asChild={true}
             onSelect={() => handleCommandItemSelect(destinationHref)}
           >
-            <a href={destinationHref}>
+            <a href={destinationHref} onMouseDown={captureMouseEvent}>
               <HubResultDisplay hub={hub as App.Platform.Data.GameSet} />
             </a>
           </BaseCommandItem>
@@ -158,7 +177,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
             asChild={true}
             onSelect={() => handleCommandItemSelect(destinationHref)}
           >
-            <a href={destinationHref}>
+            <a href={destinationHref} onMouseDown={captureMouseEvent}>
               <AchievementResultDisplay
                 achievement={achievement as App.Platform.Data.Achievement}
               />
@@ -185,7 +204,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
             asChild={true}
             onSelect={() => handleCommandItemSelect(destinationHref)}
           >
-            <a href={destinationHref}>
+            <a href={destinationHref} onMouseDown={captureMouseEvent}>
               <EventResultDisplay event={event as App.Platform.Data.Event} />
             </a>
           </BaseCommandItem>

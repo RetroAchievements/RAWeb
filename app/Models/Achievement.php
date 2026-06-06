@@ -9,6 +9,7 @@ use App\Community\Contracts\HasComments;
 use App\Community\Enums\CommentableType;
 use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
+use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
@@ -18,9 +19,11 @@ use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use App\Support\Database\Eloquent\BaseModel;
+use Carbon\CarbonInterface;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -50,7 +53,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 /**
  * @implements HasVersionedTrigger<Achievement>
  */
-class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
+class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger, Ticketable
 {
     /*
      * Community Traits
@@ -179,6 +182,10 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             $achievement->tickets()->restore();
         });
 
+        static::restored(function (Achievement $achievement) {
+            AchievementRestored::dispatch($achievement);
+        });
+
         // When an achievement is deleted, dispatch an event so game metrics can be recalculated.
         // Otherwise, the denormalized unpublished achievement count will be wrong.
         static::deleted(function (Achievement $achievement) {
@@ -255,6 +262,38 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->is_promoted;
     }
 
+    // == ticketable
+
+    public function getTicketableType(): TicketableType
+    {
+        return TicketableType::Achievement;
+    }
+
+    public function getTicketableGame(): Game
+    {
+        return $this->game;
+    }
+
+    public function getTicketableAssignee(?CarbonInterface $at = null): ?User
+    {
+        return $this->getMaintainerAt($at ?? now());
+    }
+
+    public function getTicketableTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getTicketableUrl(): string
+    {
+        return $this->getCanonicalUrlAttribute();
+    }
+
+    public function getTicketableBadgeUrl(): ?string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
     // == helpers
 
     public function ensureAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
@@ -265,7 +304,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         );
     }
 
-    public function getMaintainerAt(Carbon $timestamp): ?User
+    public function getMaintainerAt(CarbonInterface $timestamp): ?User
     {
         $maintainer = $this->maintainers()
             ->where('effective_from', '<=', $timestamp)
@@ -276,16 +315,6 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             ->first();
 
         return $maintainer ? $maintainer->user : $this->developer;
-    }
-
-    public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
-    {
-        $data = $this->id . $user->username . $hardcore . $this->id;
-        if ($offset > 0) {
-            $data .= $offset;
-        }
-
-        return md5($data);
     }
 
     /**
@@ -336,7 +365,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
 
     public function getCanonicalUrlAttribute(): string
     {
-        return route('achievement.show', [$this, $this->getSlugAttribute()]);
+        return route('achievement.show', $this);
     }
 
     public function getCanDelegateUnlocks(User $user): bool

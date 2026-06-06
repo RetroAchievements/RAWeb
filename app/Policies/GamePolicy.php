@@ -17,14 +17,27 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
 
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
 
             Role::ARTIST,
+            Role::MEDIA_EDITOR,
 
-            // needs to view leaderboards for games
             Role::EVENT_MANAGER,
+            Role::PLAYTEST_MANAGER,
+
+            Role::MANUAL_UNLOCKER,
+        ]);
+    }
+
+    public function manageContributionCredit(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::ARTIST,
+            Role::PLAYTEST_MANAGER,
         ]);
     }
 
@@ -35,8 +48,83 @@ class GamePolicy
 
     public function view(?User $user, Game $game): bool
     {
-        // Age gates are handled at the UI level.
+        return true;
+    }
 
+    public function viewContributionCredit(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+
+            Role::ARTIST,
+            Role::EVENT_MANAGER,
+            Role::PLAYTEST_MANAGER,
+        ]);
+    }
+
+    public function viewDetails(User $user, ?Game $game = null): bool
+    {
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+
+            Role::ARTIST,
+
+            Role::EVENT_MANAGER,
+            Role::RELEASE_MANAGER,
+        ]);
+    }
+
+    public function viewDeveloperInterest(User $user, Game $game): bool
+    {
+        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
+            ->achievementSetClaims()
+            ->whereGameId($game->id)
+            ->primaryClaim()
+            ->active()
+            ->exists();
+
+        // Devs and JrDevs can see the page, but they need to have an
+        // active primary claim first. Collaborators for the game
+        // cannot open the page.
+        if ($hasActivePrimaryClaim) {
+            return true;
+        }
+
+        // Mods and admins can see everything.
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+        ]);
+    }
+
+    public function viewModifications(User $user): bool
+    {
+        return $this->manage($user);
+    }
+
+    public function viewAchievementSetClaims(?User $user, Game $game): bool
+    {
+        return true;
+    }
+
+    public function viewComments(?User $user, Game $game): bool
+    {
+        return true;
+    }
+
+    public function viewHashes(?User $user, Game $game): bool
+    {
         return true;
     }
 
@@ -48,12 +136,27 @@ class GamePolicy
         ]);
     }
 
+    public function createForumTopic(User $user, Game $game): bool
+    {
+        if ($game->forum_topic_id) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::FORUM_MANAGER,
+            Role::MODERATOR,
+        ]);
+    }
+
     public function update(User $user, Game $game): bool
     {
         $canAlwaysUpdate = $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
             Role::DEVELOPER,
             Role::ARTIST,
+            Role::MEDIA_EDITOR,
         ]);
 
         if ($canAlwaysUpdate) {
@@ -87,11 +190,6 @@ class GamePolicy
 
     public function updateField(User $user, Game $game, string $fieldName): bool
     {
-        // Some roles can edit everything.
-        if ($user->hasAnyRole([Role::ROOT, Role::GAME_HASH_MANAGER, Role::MODERATOR])) {
-            return true;
-        }
-
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [
@@ -104,6 +202,7 @@ class GamePolicy
                 'image_box_art_asset_path',
                 'image_title_asset_path',
                 'image_ingame_asset_path',
+                'screenshots',
                 'released_at',
                 'released_at_granularity',
                 'trigger_definition',
@@ -120,9 +219,18 @@ class GamePolicy
                 'image_box_art_asset_path',
                 'image_title_asset_path',
                 'image_ingame_asset_path',
+                'screenshots',
                 'released_at',
                 'released_at_granularity',
                 'trigger_definition',
+            ],
+
+            Role::GAME_EDITOR => [
+                'screenshots',
+            ],
+
+            Role::MEDIA_EDITOR => [
+                'screenshots',
             ],
 
             Role::ARTIST => [
@@ -131,73 +239,43 @@ class GamePolicy
             ],
         ];
 
+        // Some roles can edit everything.
+        if ($user->hasAnyRole([Role::ROOT, Role::GAME_HASH_MANAGER, Role::MODERATOR])) {
+            return true;
+        }
+
         $userRoles = $user->getRoleNames();
 
         // Aggregate the allowed fields for all roles the user has.
         $allowedFieldsForUser = collect($roleFieldPermissions)
-            ->filter(function ($fields, $role) use ($userRoles) {
-                return $userRoles->contains($role);
+            ->filter(function ($fields, $role) use ($userRoles, $user, $game) {
+                if (!$userRoles->contains($role)) {
+                    return false;
+                }
+
+                // Junior Developers have additional specific criteria that must be satisfied
+                // before they are allowed to edit game fields.
+                if ($role === Role::DEVELOPER_JUNIOR) {
+                    return $this->canDeveloperJuniorUpdateGame($user, $game);
+                }
+
+                return true;
             })
             ->collapse()
             ->unique()
             ->all();
-
-        // Junior Developers need to have a claim on the game if they want to edit game fields.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$this->canDeveloperJuniorUpdateGame($user, $game)) {
-            return false;
-        }
 
         // If any of the user's roles allow updating the specified field, return true.
         // Otherwise, they can't edit the field.
         return in_array($fieldName, $allowedFieldsForUser, true);
     }
 
-    public function createForumTopic(User $user, Game $game): bool
+    public function clearScreenshots(User $user, Game $game): bool
     {
-        if ($game->forum_topic_id) {
-            return false;
-        }
-
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::FORUM_MANAGER,
-            Role::MODERATOR,
-        ]);
-    }
-
-    public function viewModifications(User $user): bool
-    {
-        return $this->manage($user);
-    }
-
-    public function manageContributionCredit(User $user, Game $game): bool
-    {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::ARTIST,
-        ]);
-    }
-
-    public function viewDeveloperInterest(User $user, Game $game): bool
-    {
-        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
-            ->achievementSetClaims()
-            ->whereGameId($game->id)
-            ->primaryClaim()
-            ->active()
-            ->exists();
-
-        // Devs and JrDevs can see the page, but they need to have an
-        // active primary claim first. Collaborators for the game
-        // cannot open the page.
-        if ($hasActivePrimaryClaim) {
-            return true;
-        }
-
-        // Mods and admins can see everything.
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::MODERATOR,
+            Role::GAME_EDITOR,
+            Role::MEDIA_EDITOR,
         ]);
     }
 

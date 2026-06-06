@@ -201,6 +201,30 @@ describe('Component: AchievementsListItem', () => {
     });
   });
 
+  it('given shouldShowWeightedPoints is false, does not display weighted points', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      points: 50,
+      pointsWeighted: 100,
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldShowWeightedPoints={false}
+        playersTotal={null}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/50/i)).toBeVisible();
+    });
+    expect(screen.queryByText(/100/i)).not.toBeInTheDocument();
+  });
+
   it('given shouldShowAuthor is truthy and there is developer data for the achievement, shows the author', async () => {
     // ARRANGE
     const achievement = createAchievement({

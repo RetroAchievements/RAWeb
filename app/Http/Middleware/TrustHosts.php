@@ -18,6 +18,7 @@ class TrustHosts extends Middleware
         return [
             $this->allSubdomainsOfApplicationUrl(),
             '^(.+\.)?retroachievements\.org$',
+            '^10\.0\.0\.\d+(:\d+)?$', // private network hosts for server-to-server requests
         ];
     }
 }

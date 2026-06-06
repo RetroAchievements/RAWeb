@@ -9,7 +9,6 @@ enum AchievementAuthorTask: string
     case Artwork = "artwork";
     case Design = "design";
     case Logic = "logic";
-    case Testing = "testing";
     case Writing = "writing";
 
     public function label(): string
@@ -18,7 +17,6 @@ enum AchievementAuthorTask: string
             self::Artwork => 'Badge Artwork',
             self::Design => 'Design',
             self::Logic => 'Logic',
-            self::Testing => 'Testing',
             self::Writing => 'Writing',
         };
     }

@@ -401,6 +401,36 @@ describe('Hook: useGameListState', () => {
     ]);
   });
 
+  it('given a descending sort param with a different field name, correctly detects the minus prefix', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: { sort: '-system' } }),
+      },
+    });
+
+    // ASSERT
+    expect(result.current.sorting).toEqual([{ id: 'system', desc: true }]);
+  });
+
+  it('given a non-string, non-function sort query param, returns an empty sorting state', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: { sort: { nested: true } as any } }),
+      },
+    });
+
+    // ASSERT
+    expect(result.current.sorting).toEqual([]);
+  });
+
   it('given a defaultColumnSort option, uses it when no other sort preferences exist', () => {
     // ARRANGE
     const defaultSort = { id: 'lastUpdated', desc: true };

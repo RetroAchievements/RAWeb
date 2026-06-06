@@ -49,13 +49,36 @@ class UserPolicy
         return true;
     }
 
-    public function viewPlayerGames(?User $user, User $model): bool
+    public function viewAchievementSetClaims(?User $user, User $model): bool
+    {
+        return true;
+    }
+
+    public function viewAwards(?User $user, User $model): bool
+    {
+        return true;
+    }
+
+    public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;
     }
 
     public function viewPlayerAchievementSets(?User $user, User $model): bool
     {
+        return true;
+    }
+
+    public function viewPlayerGames(?User $user, User $model): bool
+    {
+        return true;
+    }
+
+    public function viewWallComments(?User $user, User $model): bool
+    {
+        // This is only to facilitate the V2 Web API.
+        // Disabled or banned walls are hidden by the V2 controller hooks so both
+        // related-resource and relationship-linkage routes return JSON:API 404s.
         return true;
     }
 

@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace App\Connect\Actions;
 
 use App\Connect\Support\BaseAuthenticatedApiAction;
+use App\Connect\Support\GeneratesConnectWarnings;
 use App\Enums\ClientSupportLevel;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
-use App\Platform\Services\UserAgentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
 {
+    use GeneratesConnectWarnings;
+
     protected Leaderboard $leaderboard;
     protected int $score;
     protected ?GameHash $gameHash = null;
     protected Carbon $when;
-    protected ClientSupportLevel $clientSupportLevel;
 
     public function execute(User $user, Leaderboard $leaderboard, int $score, ?GameHash $gameHash = null, ?Carbon $when = null): array
     {
@@ -41,21 +42,20 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
-        $leaderboard = Leaderboard::where('id', request()->integer('i', 0))->first();
+        $leaderboard = Leaderboard::query()
+            ->where('id', $request->integer('i', 0))
+            ->with('game')
+            ->first();
         if (!$leaderboard) {
             return $this->resourceNotFound('leaderboard');
         }
         $this->leaderboard = $leaderboard;
 
-        $this->userAgentService = new UserAgentService();
-        $this->clientSupportLevel = $this->userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
-            return $this->unsupportedClient();
-        }
+        $this->validateClient($request, $leaderboard->game);
 
-        $this->score = request()->integer('s', 0);
+        $this->score = $request->integer('s', 0);
 
-        $gameHashMD5 = request()->input('m', '');
+        $gameHashMD5 = $request->input('m', '');
         if ($gameHashMD5) {
             $this->gameHash = GameHash::whereMd5($gameHashMD5)->first();
         }
@@ -63,15 +63,37 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
         // ignore negative values and offsets greater than max.
         // clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
-        $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
+        $offset = min(max((int) $request->input('o', 0), 0), $maxOffset);
 
-        $validationHash = request()->input('v', '');
-        if ($offset > 0
-            && strcasecmp($validationHash,
-                          $this->leaderboard->submitValidationHash($this->user, $this->score, $offset)) !== 0) {
+        // NOTE: use u parameter for building hash - the casing might differ from the model
+        $validationStr = $this->leaderboard->id . $request->input('u', '') . $this->score;
+        $validationHash = strtolower($request->input('v', ''));
+        if (empty($validationHash)) {
+            $this->addSmell($request, 'no_validation');
+        } elseif ($offset !== 0) {
+            $validationStr .= $offset;
+            if ($validationHash !== md5($validationStr)) {
+                $this->addSmell($request, 'bad_validation');
 
-            // hash failed - ignore offset
-            $offset = 0;
+                // hash failed - ignore offset
+                $offset = 0;
+            }
+        } else {
+            // an offset of 0 is expected to not be included in the hash, but if the first
+            // check fails, also check to see if an offset of 0 was included and ignore it.
+            if ($validationHash !== md5($validationStr)
+                && $validationHash !== md5($validationStr . '0')) {
+                $this->addSmell($request, 'bad_validation');
+            }
+        }
+
+        if ($this->connectWarning) {
+            $this->connectWarning->related_type = 'leaderboard';
+            $this->connectWarning->related_id = $this->leaderboard->id;
+            $this->connectWarning->hardcore = 1; // leaderboard submissions are only allowed in hardcore
+            $this->connectWarning->offset = $request->has('o') ? (int) $request->input('o') : null;
+            $this->connectWarning->extra = $this->score;
+            $this->connectWarning->validation_hash = mb_strimwidth($request->input('v', ''), 0, 40, "..."); // capture unnormalized parameter
         }
 
         $this->when = Carbon::now()->subSeconds($offset);
@@ -81,6 +103,10 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
+        if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
+            return $this->unsupportedClient();
+        }
+
         $this->leaderboard->loadMissing('game');
         if (!isValidConsoleId($this->leaderboard->game->system_id)) {
             return $this->unsupportedSystem('Cannot submit leaderboard entries for unsupported console.');
@@ -109,7 +135,13 @@ class SubmitLeaderboardEntryAction extends BaseAuthenticatedApiAction
             $this->leaderboard->game,
             ($this->gameHash && !$this->gameHash->isMultiDiscGameHash()) ? $this->gameHash : null,
             timestamp: $this->when,
+            userAgent: $this->userAgent,
+            ipAddress: $this->ipAddress,
         );
+
+        if ($this->connectWarning) {
+            $this->connectWarning->player_session_id = $playerSession->id;
+        }
 
         // First check if there's an existing entry (including soft-deleted)
         $existingLeaderboardEntry = LeaderboardEntry::withTrashed()

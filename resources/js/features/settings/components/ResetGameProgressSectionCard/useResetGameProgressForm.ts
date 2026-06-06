@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -50,32 +50,21 @@ export function useResetGameProgressForm() {
   const [alreadyResetGameIds, setAlreadyResetGameIds] = useState<number[]>([]);
   const [alreadyResetAchievementIds, setAlreadyResetAchievementIds] = useState<number[]>([]);
 
-  const filteredGames = useMemo(() => {
-    if (!resettableGamesQuery.data) {
-      return [];
-    }
+  const filteredGames = resettableGamesQuery.data
+    ? resettableGamesQuery.data.filter((game) => !alreadyResetGameIds.includes(game.id))
+    : [];
 
-    return resettableGamesQuery.data.filter((game) => !alreadyResetGameIds.includes(game.id));
-  }, [resettableGamesQuery.data, alreadyResetGameIds]);
-
-  const filteredAchievements = useMemo(() => {
-    if (!resettableGameAchievementsQuery.data) {
-      return [];
-    }
-
-    return resettableGameAchievementsQuery.data.filter(
-      (achievement) => !alreadyResetAchievementIds.includes(achievement.id),
-    );
-  }, [resettableGameAchievementsQuery.data, alreadyResetAchievementIds]);
+  const filteredAchievements = resettableGameAchievementsQuery.data
+    ? resettableGameAchievementsQuery.data.filter(
+        (achievement) => !alreadyResetAchievementIds.includes(achievement.id),
+      )
+    : [];
 
   const mutation = useMutation({
     mutationFn: (payload: Partial<FormValues>) => {
-      let url = '';
-      if (payload.gameId) {
-        url = route('api.user.game.destroy', payload.gameId);
-      } else if (payload.achievementId) {
-        url = route('api.user.achievement.destroy', payload.achievementId);
-      }
+      const url = payload.gameId
+        ? route('api.user.game.destroy', payload.gameId)
+        : route('api.user.achievement.destroy', payload.achievementId!);
 
       return axios.delete(url);
     },

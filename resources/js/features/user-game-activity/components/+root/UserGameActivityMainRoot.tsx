@@ -1,4 +1,4 @@
-import { type FC, memo, useState } from 'react';
+import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
@@ -12,10 +12,9 @@ import { UserGameActivityClientBreakdown } from '../UserGameActivityClientBreakd
 import { UserGameActivityTimeline } from '../UserGameActivityTimeline';
 import { UserGameSummarizedActivity } from '../UserGameSummarizedActivity';
 
-export const UserGameActivityMainRoot: FC = memo(() => {
+export const UserGameActivityMainRoot: FC = () => {
   const { game, player, playerGame } =
     usePageProps<App.Platform.Data.PlayerGameActivityPageProps>();
-
   const { t } = useTranslation();
 
   const [isOnlyShowingAchievementSessions, setIsOnlyShowingAchievementSessions] = useState(false);
@@ -66,4 +65,4 @@ export const UserGameActivityMainRoot: FC = memo(() => {
       )}
     </div>
   );
-});
+};

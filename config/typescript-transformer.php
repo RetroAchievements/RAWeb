@@ -1,7 +1,7 @@
 <?php
 
 use App\Data\Transformers\SiteEnumTransformer;
-use Spatie\TypeScriptTransformer\Formatters\EslintFormatter;
+use Spatie\TypeScriptTransformer\Formatters\PrettierFormatter;
 
 return [
     /*
@@ -73,7 +73,7 @@ return [
      * The generated TypeScript will not be formatted when no formatter was set.
      */
 
-    'formatter' => EslintFormatter::class,
+    'formatter' => PrettierFormatter::class,
 
     /*
      * Enums can be transformed into types or native TypeScript enums, by default

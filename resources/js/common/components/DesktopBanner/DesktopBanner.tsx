@@ -33,7 +33,7 @@ export const DesktopBanner: FC<DesktopBannerProps> = ({
     <div
       data-testid="desktop-banner"
       className={cn(
-        'relative overflow-hidden',
+        'relative isolate overflow-hidden',
         'h-[13.25rem] md:-mt-[44px]',
         'border-b border-neutral-700',
         'transition-[height,border-color] duration-200',

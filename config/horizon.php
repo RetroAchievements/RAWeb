@@ -174,7 +174,7 @@ return [
     |
     */
 
-    'memory_limit' => 64,
+    'memory_limit' => 128,
 
     /*
     |--------------------------------------------------------------------------
@@ -237,6 +237,9 @@ return [
 
                     // supervisor-6: email dispatching
                     'summary-emails',
+
+                    // supervisor-7: media conversions
+                    'media',
                 ],
             ],
         ],
@@ -251,13 +254,14 @@ return [
              * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
              * high-volume and slow queues to prevent them from monopolizing shared workers.
              *
-             * Total Workers: 45 (19+10+2+8+4+2)
+             * Total Workers: 49 (19+10+2+8+4+2+4)
              * - supervisor-1: General queues (fast, medium volume)
              * - supervisor-2: Batch processing (slower, larger timeout)
              * - supervisor-3: Search indexing (very fast, isolated)
              * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
              * - supervisor-5: Game player count (very slow - 351ms avg)
              * - supervisor-6: Email dispatching (low priority)
+             * - supervisor-7: Media conversions (CPU-intensive, isolated)
              */
 
             /**
@@ -394,6 +398,28 @@ return [
                 'memory' => 128,
                 'tries' => 1,
                 'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+                'nice' => 5, // low priority - don't starve other processes
+            ],
+
+            /**
+             * Media supervisor - handles screenshot conversions and responsive image generation.
+             * Isolated to prevent CPU-heavy image work from blocking the default queue.
+             */
+            'supervisor-7' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'media',
+                ],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'size',
+                'maxProcesses' => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 256,
+                'tries' => 1,
+                'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
                 'nice' => 5, // low priority - don't starve other processes
             ],
         ],

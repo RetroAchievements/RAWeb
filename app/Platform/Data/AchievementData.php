@@ -26,6 +26,7 @@ class AchievementData extends Data
         public Lazy|string $description,
         public Lazy|string|null $decorator,
         public Lazy|UserData $developer,
+        public Lazy|string|null $embedUrl,
         public Lazy|bool $isPromoted,
         public Lazy|GameData $game,
         public Lazy|int|null $groupId,
@@ -63,10 +64,11 @@ class AchievementData extends Data
             description: Lazy::create(fn () => $achievement->description),
             decorator: Lazy::create(fn () => null),
             developer: Lazy::create(fn () => UserData::fromUser($achievement->developer)),
+            embedUrl: Lazy::create(fn () => $achievement->embed_url),
             isPromoted: Lazy::create(fn () => $achievement->is_promoted),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => $achievement->pivot?->achievement_group_id),
-            numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->unresolved()->count()),
+            numUnresolvedTickets: Lazy::create(fn () => $achievement->tickets()->open()->count()),
             orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),
             pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
@@ -75,14 +77,50 @@ class AchievementData extends Data
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at ?? $achievement->player_unlocked_hardcore_at ?? null),
             unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
             unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
-            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
-            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore ?? 0),
+            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total ?? 0),
 
             activeMaintainer: Lazy::create(fn () => $achievement->activeMaintainer?->user
                 ? UserData::fromUser($achievement->activeMaintainer->user)
                 : null
             ),
             modifiedAt: Lazy::create(fn () => $achievement->modified_at),
+        );
+    }
+
+    /**
+     * Build a scrubbed DTO that hides the real details of an upcoming event achievement.
+     * We can't just hide this in the UI - it leaks into page props.
+     */
+    public static function fromObfuscated(
+        Achievement $achievement,
+        ?PlayerAchievement $playerAchievement = null,
+    ): self {
+        return new self(
+            badgeLockedUrl: media_asset('Badge/00000_lock.png'),
+            badgeUnlockedUrl: media_asset('Badge/00000.png'),
+            id: $achievement->id,
+            title: 'Upcoming Challenge',
+
+            createdAt: Lazy::create(fn () => $achievement->created_at),
+            description: Lazy::create(fn () => '?????'),
+            decorator: Lazy::create(fn () => null),
+            developer: Lazy::create(fn () => null),
+            embedUrl: Lazy::create(fn () => null),
+            isPromoted: Lazy::create(fn () => $achievement->is_promoted),
+            game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
+            groupId: Lazy::create(fn () => null),
+            numUnresolvedTickets: Lazy::create(fn () => 0),
+            orderColumn: Lazy::create(fn () => $achievement->order_column),
+            points: Lazy::create(fn () => $achievement->points),
+            pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
+            type: Lazy::create(fn () => null),
+            unlockedAt: Lazy::create(fn () => $playerAchievement?->unlocked_at),
+            unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at),
+            unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
+            unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore ?? 0),
+            unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total ?? 0),
         );
     }
 }

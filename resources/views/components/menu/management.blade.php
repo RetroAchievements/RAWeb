@@ -43,7 +43,6 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     <x-dropdown-item :href="route('tickets.index')">{{ __res('ticket') }}</x-dropdown-item>
                     <x-dropdown-item :href="route('filament.admin.pages.most-reported-games')">Most Reported Games</x-dropdown-item>
-                    <x-dropdown-item :href="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
 
                 @can('manage', App\Models\AchievementSetClaim::class)

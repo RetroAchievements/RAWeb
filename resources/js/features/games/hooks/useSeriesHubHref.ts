@@ -26,7 +26,8 @@ export function useSeriesHubHref(gameSetId: number) {
       setHref(route('hub.show', { gameSet: gameSetId }));
     }
     // If no preferences, keep the default params.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+    /* eslint-disable react-compiler/react-compiler -- exhaustive-deps is intentionally constrained */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps -- intentional */
   }, [gameSetId]);
 
   return { href };

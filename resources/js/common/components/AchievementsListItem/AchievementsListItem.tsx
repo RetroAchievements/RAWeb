@@ -7,11 +7,12 @@ import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
+import { AchievementTypeIndicator } from '../AchievementTypeIndicator';
+import { InertiaLink } from '../InertiaLink';
 import { UserAvatar } from '../UserAvatar';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
 import { AchievementPoints } from './AchievementPoints';
-import { AchievementTypeIndicator } from './AchievementTypeIndicator';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
@@ -36,6 +37,12 @@ interface AchievementsListItemProps {
    * authors via the AchievementSetCredits component.
    */
   shouldShowAuthor?: boolean;
+
+  /**
+   * Weighted points don't dynamically recalculate for unpublished achievements,
+   * so the values are misleading and should be hidden.
+   */
+  shouldShowWeightedPoints?: boolean;
 }
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({
@@ -46,6 +53,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   isLargeList,
   playersTotal,
   shouldShowAuthor = false,
+  shouldShowWeightedPoints = true,
 }) => {
   const { t } = useTranslation();
 
@@ -86,13 +94,14 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {/* Title */}
             <div className="-mt-1 mb-0.5 md:mt-0">
               <span className="mr-2">
-                <a
-                  href={route('achievement.show', { achievementId: achievement.id })}
+                <InertiaLink
+                  href={route('achievement.show', { achievement: achievement.id })}
+                  prefetch="desktop-hover-only"
                   className="font-medium"
                 >
                   {title}
                   {game?.title ? ' ' : null}
-                </a>
+                </InertiaLink>
 
                 {game?.title ? (
                   <Trans
@@ -108,7 +117,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
               <AchievementPoints
                 isEvent={!!eventAchievement}
                 points={achievement.points ?? 0}
-                pointsWeighted={achievement.pointsWeighted}
+                pointsWeighted={shouldShowWeightedPoints ? achievement.pointsWeighted : undefined}
               />
             </div>
 

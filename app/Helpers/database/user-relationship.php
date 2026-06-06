@@ -78,7 +78,7 @@ function GetExtendedFriendsList(User $user): array
     $friendList = $user->followedUsers()
         ->where('Permissions', '>=', Permissions::Unregistered)
         ->whereNull('deleted_at')
-        ->orderBy('rich_presence_updated_at', 'DESC')
+        ->orderBy('rich_presence_updated_at', 'desc')
         ->get()
         ->map(function ($friend) {
             return [

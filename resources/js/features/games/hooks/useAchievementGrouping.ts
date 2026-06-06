@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { bucketAchievementsByGroup } from '@/features/games/utils/bucketAchievementsByGroup';
 
 interface UseAchievementGroupingProps {
@@ -14,35 +12,28 @@ export function useAchievementGrouping({
   ssrLimitedAchievements,
   rawAchievementGroups,
 }: UseAchievementGroupingProps) {
-  const achievementGroups = useMemo(() => rawAchievementGroups ?? [], [rawAchievementGroups]);
+  const achievementGroups = rawAchievementGroups ?? [];
 
   const hasGroups = achievementGroups.length > 0;
 
-  const bucketedAchievements = useMemo(() => {
-    if (!hasGroups) {
-      return null;
-    }
-
-    return bucketAchievementsByGroup(ssrLimitedAchievements, achievementGroups);
-  }, [ssrLimitedAchievements, achievementGroups, hasGroups]);
+  const bucketedAchievements = hasGroups
+    ? bucketAchievementsByGroup(ssrLimitedAchievements, achievementGroups)
+    : null;
 
   /**
    * Compute the count of ungrouped achievements by subtracting the sum
    * of all group counts from the total. This ensures correct counts
    * even during SSR when we're only rendering a subset of achievements.
    */
-  const ungroupedAchievementCount = useMemo(() => {
-    if (!hasGroups) {
-      return 0;
-    }
-
+  let ungroupedAchievementCount = 0;
+  if (hasGroups) {
     let totalInGroups = 0;
     for (const group of achievementGroups) {
       totalInGroups += group.achievementCount;
     }
 
-    return allAchievements.length - totalInGroups;
-  }, [allAchievements.length, achievementGroups, hasGroups]);
+    ungroupedAchievementCount = allAchievements.length - totalInGroups;
+  }
 
   return {
     achievementGroups,

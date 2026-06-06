@@ -78,7 +78,10 @@ class LeaderboardResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+        /** @var Builder<Leaderboard> $query */
+        $query = parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+
+        return $query;
     }
 
     public static function infolist(Schema $schema): Schema
@@ -342,8 +345,11 @@ class LeaderboardResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Leaderboard> $query */
+        $query = parent::getEloquentQuery()
             ->with(['game', 'developer']);
+
+        return $query;
     }
 
     // Do not allow on-site leaderboard creation.

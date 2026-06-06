@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useActivePlayersInfiniteQuery } from './useActivePlayersInfiniteQuery';
 
 interface UseActivePlayerDataProps {
@@ -20,22 +18,10 @@ export function useActivePlayerData({
     perPage: isInfiniteQueryEnabled ? 100 : 20,
   });
 
-  const players = useMemo(() => {
-    if (!isInfiniteQueryEnabled) {
-      return initialActivePlayers.items;
-    }
-
-    if (infiniteQuery.isLoading && !infiniteQuery.data) {
-      return initialActivePlayers.items;
-    }
-
-    return infiniteQuery.data?.pages.flatMap((page) => page.items) ?? initialActivePlayers.items;
-  }, [
-    initialActivePlayers.items,
-    infiniteQuery.data,
-    infiniteQuery.isLoading,
-    isInfiniteQueryEnabled,
-  ]);
+  const canUseInfiniteData = isInfiniteQueryEnabled && !infiniteQuery.isLoading;
+  const players = canUseInfiniteData
+    ? (infiniteQuery.data?.pages.flatMap((page) => page.items) ?? initialActivePlayers.items)
+    : initialActivePlayers.items;
 
   return { players, loadMore: () => infiniteQuery.fetchNextPage() };
 }

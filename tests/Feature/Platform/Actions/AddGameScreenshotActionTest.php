@@ -1,0 +1,459 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\Game;
+use App\Models\GameScreenshot;
+use App\Models\System;
+use App\Platform\Actions\AddGameScreenshotAction;
+use App\Platform\Enums\GameScreenshotStatus;
+use App\Platform\Enums\ScreenshotType;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Storage::fake('s3');
+    Storage::fake('media');
+});
+
+it('creates a primary game screenshot with media on first upload', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+    expect($screenshot->game_id)->toEqual($game->id);
+    expect($screenshot->type)->toEqual(ScreenshotType::Ingame);
+    expect($screenshot->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($screenshot->is_primary)->toBeTrue();
+    expect($screenshot->media_id)->not->toBeNull();
+    expect($screenshot->width)->toEqual(256);
+    expect($screenshot->height)->toEqual(224);
+
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    expect($media->getCustomProperty('sha1'))->not->toBeNull();
+});
+
+it('does not set subsequent screenshots as primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $action->execute($game, UploadedFile::fake()->image('first.png', 256, 224), ScreenshotType::Ingame);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('second.png', 320, 240), ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($second->is_primary)->toBeFalse();
+});
+
+it('demotes existing primary image when a new screenshot is forced as primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('first.png', 256, 224), ScreenshotType::Ingame);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('second.png', 320, 240), ScreenshotType::Ingame, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+});
+
+it('archives the prior completion image as replaced when a new completion is uploaded', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('completion-1.png', 256, 224), ScreenshotType::Completion);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('completion-2.png', 320, 240), ScreenshotType::Completion, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
+});
+
+it('rejects duplicate images for the same game', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+
+    // ... both files need identical bytes so the SHA1 hash collides ...
+    $source = UploadedFile::fake()->image('screenshot.png', 256, 224);
+    $sourceContent = file_get_contents($source->getRealPath());
+
+    $action->execute($game, $source, ScreenshotType::Ingame);
+
+    $duplicate = UploadedFile::fake()->image('duplicate.png', 256, 224);
+    file_put_contents($duplicate->getRealPath(), $sourceContent);
+
+    // ASSERT
+    $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('rejects re-uploading an image that matches a previously rejected screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+
+    $source = UploadedFile::fake()->image('screenshot.png', 256, 224);
+    $sourceContent = file_get_contents($source->getRealPath());
+
+    $original = $action->execute($game, $source, ScreenshotType::Ingame);
+    $original->update([
+        'is_primary' => false,
+        'status' => GameScreenshotStatus::Rejected,
+    ]);
+
+    $duplicate = UploadedFile::fake()->image('duplicate.png', 256, 224);
+    file_put_contents($duplicate->getRealPath(), $sourceContent);
+
+    // ASSERT
+    $action->execute($game->fresh(), $duplicate, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('enforces a cap of 10 approved ingame screenshots', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    GameScreenshot::factory()->count(10)->for($game)->ingame()->create();
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('does not enforce the ingame cap for title screenshots', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    GameScreenshot::factory()->count(10)->for($game)->ingame()->create();
+    $file = UploadedFile::fake()->image('title.png', 256, 224);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Title);
+
+    // ASSERT
+    expect($screenshot->type)->toEqual(ScreenshotType::Title);
+});
+
+it('enforces a cap of 1 approved screenshot for title and completion types', function (ScreenshotType $type) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    GameScreenshot::factory()->for($game)->state(['type' => $type])->create();
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, $type);
+})->throws(ValidationException::class)->with([
+    'title' => [ScreenshotType::Title],
+    'completion' => [ScreenshotType::Completion],
+]);
+
+it('demotes the existing title primary image when a new title screenshot is forced as primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $first = $action->execute($game, UploadedFile::fake()->image('title1.png', 256, 224), ScreenshotType::Title);
+
+    // ACT
+    $second = $action->execute($game, UploadedFile::fake()->image('title2.png', 320, 240), ScreenshotType::Title, isPrimary: true);
+
+    // ASSERT
+    expect($second->is_primary)->toBeTrue();
+    expect($second->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($first->fresh()->is_primary)->toBeFalse();
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
+});
+
+it('rejects a file smaller than 64x64', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $file = UploadedFile::fake()->image('tiny.png', 32, 32);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('rejects a file larger than 3840x2160', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $file = UploadedFile::fake()->image('huge.png', 4096, 2304);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('stores the description', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute(
+        $game,
+        $file,
+        ScreenshotType::Ingame,
+        description: 'Boss fight in stage 3',
+    );
+
+    // ASSERT
+    expect($screenshot->description)->toEqual('Boss fight in stage 3');
+});
+
+it('accepts a screenshot matching an exact base resolution', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 256, 224);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('rejects a screenshot with wrong dimensions for the system', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 320, 240);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('accepts a 2x scaled screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 640, 480);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('accepts a 3x scaled screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 320, 'height' => 240]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 960, 720);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('rejects a 4x scaled screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 160, 'height' => 144]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 640, 576);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('allows any dimensions when the system has null resolutions', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => null,
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 800, 600);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('treats different screenshot types independently for primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+
+    // ACT
+    $ingame = $action->execute($game, UploadedFile::fake()->image('ingame.png', 256, 224), ScreenshotType::Ingame);
+    $title = $action->execute($game, UploadedFile::fake()->image('title.png', 320, 240), ScreenshotType::Title);
+
+    // ASSERT
+    expect($ingame->is_primary)->toBeTrue();
+    expect($title->is_primary)->toBeTrue();
+});
+
+it('accepts an SMPTE 601 NTSC resolution for a system with analog TV output', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 320, 'height' => 224]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 720, 480);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('accepts an SMPTE 601 PAL resolution for a system with analog TV output', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 320, 'height' => 224]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 720, 576);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot)->toBeInstanceOf(GameScreenshot::class);
+});
+
+it('rejects a 3x multiple that exceeds the 3840x2160 hard cap', function () {
+    // ARRANGE
+    // ... 1280x720 * 3 = 3840x2160 fits, but 1400x800 * 3 = 4200x2400 exceeds the cap ...
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 1400, 'height' => 800]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 4200, 2400);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('rejects an SMPTE 601 resolution for a handheld system', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 160, 'height' => 144]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 720, 480);
+
+    // ASSERT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+})->throws(ValidationException::class);
+
+it('doubles the width for an Atari 2600 screenshot at native capture resolution', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 228);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(320);
+    expect($screenshot->height)->toEqual(228);
+
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    expect($media->getCustomProperty('original_capture_path'))->not->toBeNull();
+});
+
+it('preserves the original capture to S3 when doubling an Atari 2600 screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 228);
+
+    // ACT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    $preservationPath = $media->getCustomProperty('original_capture_path');
+
+    Storage::disk('s3')->assertExists($preservationPath);
+});
+
+it('does not double the width for a non-Atari system', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'screenshot_resolutions' => [['width' => 160, 'height' => 144]],
+        'has_analog_tv_output' => false,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 144);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(160);
+    expect($screenshot->height)->toEqual(144);
+
+    $media = $game->fresh()->getMedia('screenshots')->first();
+    expect($media->getCustomProperty('original_capture_path'))->toBeNull();
+});
+
+it('doubles the width for a PAL Atari 2600 screenshot', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [
+            ['width' => 160, 'height' => 228],
+            ['width' => 160, 'height' => 274],
+        ],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $file = UploadedFile::fake()->image('screenshot.png', 160, 274);
+
+    // ACT
+    $screenshot = (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    expect($screenshot->width)->toEqual(320);
+    expect($screenshot->height)->toEqual(274);
+});

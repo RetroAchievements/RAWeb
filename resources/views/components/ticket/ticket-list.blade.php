@@ -9,7 +9,6 @@
 
 @php
 
-use App\Community\Enums\TicketState;
 use App\Models\Game;
 
 $gameCache = [];
@@ -78,7 +77,7 @@ $gameCache = [];
                             <td class="smalldate">{{ getNiceDate($ticket->created_at->unix()) }}</td>
                             @if ($showResolver)
                                 <td>
-                                    @if (!$ticket->state->isOpen())
+                                    @if ($ticket->state->isResolved())
                                         {!! userAvatar($ticket->resolver ?? 'Deleted User') !!}
                                     @endif
                                 </td>

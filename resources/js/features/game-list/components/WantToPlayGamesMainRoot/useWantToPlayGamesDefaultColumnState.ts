@@ -1,5 +1,4 @@
 import type { ColumnFiltersState, ColumnSort } from '@tanstack/react-table';
-import { useMemo } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -9,20 +8,17 @@ import { buildInitialDefaultColumnVisibility } from '../../utils/buildInitialDef
 export function useWantToPlayGamesDefaultColumnState(): DefaultColumnState {
   const { auth } = usePageProps();
 
-  return useMemo(() => {
-    const defaultColumnFilters: ColumnFiltersState = [
-      { id: 'achievementsPublished', value: ['has'] },
-    ];
+  const defaultColumnFilters: ColumnFiltersState = [
+    { id: 'achievementsPublished', value: ['has'] },
+  ];
 
-    const defaultColumnSort: ColumnSort = { id: 'title', desc: false };
+  const defaultColumnSort: ColumnSort = { id: 'title', desc: false };
 
-    const defaultColumnVisibility: Partial<Record<App.Platform.Enums.GameListSortField, boolean>> =
-      {
-        ...buildInitialDefaultColumnVisibility(!!auth?.user),
-        progress: true,
-        playersTotal: false,
-      };
+  const defaultColumnVisibility: Partial<Record<App.Platform.Enums.GameListSortField, boolean>> = {
+    ...buildInitialDefaultColumnVisibility(!!auth?.user),
+    progress: true,
+    playersTotal: false,
+  };
 
-    return { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility };
-  }, [auth?.user]);
+  return { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility };
 }

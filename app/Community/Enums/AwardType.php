@@ -25,6 +25,10 @@ enum AwardType: string
 
     case Event = 'event';
 
+    case Playtest = 'playtest';
+
+    case MediaContribution = 'media_contribution';
+
     /**
      * Returns all standard award type cases, excluding Event.
      * Event is excluded because it's handled specially and shouldn't
@@ -39,6 +43,7 @@ enum AwardType: string
             self::PatreonSupporter,
             self::CertifiedLegend,
             self::GameBeaten,
+            self::MediaContribution,
         ];
     }
 
@@ -65,6 +70,8 @@ enum AwardType: string
             self::CertifiedLegend => 'Certified Legend',
             self::GameBeaten => 'Game Beaten',
             self::Event => 'Event',
+            self::Playtest => 'Playtest',
+            self::MediaContribution => 'Media Contribution',
         };
     }
 
@@ -83,6 +90,8 @@ enum AwardType: string
             self::CertifiedLegend => 7,
             self::GameBeaten => 8,
             self::Event => 9,
+            self::Playtest => 10,
+            self::MediaContribution => 11,
         };
     }
 
@@ -100,6 +109,8 @@ enum AwardType: string
             7 => self::CertifiedLegend,
             8 => self::GameBeaten,
             9 => self::Event,
+            10 => self::Playtest,
+            11 => self::MediaContribution,
             default => throw new InvalidArgumentException("Invalid legacy AwardType value: {$value}"),
         };
     }

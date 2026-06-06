@@ -54,7 +54,7 @@ return [
          * achievements
          */
         '/achievementInfo.php' => '/achievement/{ID}',
-        '/achievementinspector.php' => '/game/{g}/achievements',
+        '/achievementinspector.php' => '/manage/games/{g}',
         '/achievementList.php' => '/achievements',
         '/awardedList.php' => '/achievements',
 
@@ -110,7 +110,6 @@ return [
          * user
          */
         '/userInfo.php' => '/user/{ID}',
-        '/userList.php' => '/users',
         '/history.php' => '/user/{u}/history',
         '/historyexamine.php' => '/user/{u}/history/{d}',
         // '/usergameactivity.php' => '/user/{f}/game/{ID}',

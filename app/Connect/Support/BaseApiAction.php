@@ -9,12 +9,18 @@ use Illuminate\Http\Request;
 
 abstract class BaseApiAction
 {
+    protected ?string $userAgent = null;
+    protected ?string $ipAddress = null;
+
     abstract protected function initialize(Request $request): ?array;
 
     abstract protected function process(): array;
 
     public function handleRequest(Request $request): JsonResponse
     {
+        $this->userAgent = $request->header('User-Agent');
+        $this->ipAddress = $request->ip();
+
         $result = $this->initialize($request);
 
         if (!$result) {
@@ -27,9 +33,17 @@ abstract class BaseApiAction
     protected function buildResponse(array $result): JsonResponse
     {
         $status = $result['Status'] ?? 200;
+
+        // Convert the response to a JSON string in order to calculate the exact Content-Length.
+        // This also sets the Content-Type header to application/json.
         $response = response()->json($result, $status);
 
+        // Cloudflare is manipulating the headers of dorequest.php responses, and some clients
+        // are unable to gracefully handle this (ie: RetroArch 1.20.0 and below). By adding
+        // explicit Content-Type, Content-Length, and Cache-Control headers, we inform Cloudflare
+        // that these responses are immutable and should be passed straight through.
         $response->header('Content-Length', (string) strlen($response->getContent()));
+        $response->header('Cache-Control', 'no-transform, private, must-revalidate');
 
         if ($status === 401) {
             $response->header('WWW-Authenticate', 'Bearer');

@@ -63,8 +63,6 @@ const BaseBreadcrumbPage = forwardRef<HTMLSpanElement, ComponentPropsWithoutRef<
   ({ className, ...props }, ref) => (
     <span
       ref={ref}
-      role="link"
-      aria-disabled="true"
       aria-current="page"
       className={cn('font-normal text-neutral-200 light:text-neutral-950', className)}
       {...props}

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -26,7 +26,7 @@ export const EmulatorSelectField: FC = () => {
   const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
-  const [emulator] = form.watch(['emulator']);
+  const emulator = useWatch({ name: 'emulator', control: form.control });
 
   const sortedEmulators = emulators.sort((a, b) =>
     a.name.startsWith('Other') ? 1 : b.name.startsWith('Other') ? -1 : a.name.localeCompare(b.name),

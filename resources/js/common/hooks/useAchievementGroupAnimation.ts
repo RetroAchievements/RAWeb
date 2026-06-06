@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 export function useAchievementGroupAnimation(options: { isInitiallyOpened: boolean }) {
+  // eslint-disable-next-line react-compiler/react-compiler -- Imperative DOM manipulation through refs is incompatible with automatic memoization.
+  'use no memo';
+
   const [isOpen, setIsOpen] = useState(options.isInitiallyOpened);
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -36,9 +39,7 @@ export function useAchievementGroupAnimation(options: { isInitiallyOpened: boole
     }
 
     const cleanup = () => {
-      if (contentElement) {
-        contentElement.removeEventListener('transitionend', handleTransitionEnd);
-      }
+      contentElement.removeEventListener('transitionend', handleTransitionEnd);
     };
 
     // This is a Material Design like easing curve.

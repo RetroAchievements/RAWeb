@@ -4,6 +4,7 @@ namespace App\Platform\Listeners;
 
 use App\Community\Enums\AwardType;
 use App\Models\Game;
+use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
@@ -35,6 +36,10 @@ class DispatchUpdateGameBeatenMetricsJob implements ShouldQueue
                         $game = Game::find($event->awardData);
                         break;
                 }
+                break;
+
+            case GamePlayerGameMetricsUpdated::class:
+                $game = $event->game;
                 break;
         }
 

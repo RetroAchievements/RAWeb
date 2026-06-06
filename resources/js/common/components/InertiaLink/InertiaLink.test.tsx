@@ -131,7 +131,69 @@ describe('Component: InertiaLink', () => {
     mockAllIsIntersecting(true);
 
     // ASSERT
-    expect(prefetchSpy).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(prefetchSpy).toHaveBeenCalledWith('/test', { method: 'get' }, { cacheFor: '30s' });
+    });
+  });
+
+  it('given a visible mobile link rerenders, does not prefetch the same route again', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    const { rerender } = render(
+      <InertiaLink href="/test" prefetch="desktop-hover-and-mobile-intersect">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      },
+    );
+
+    mockAllIsIntersecting(true);
+
+    await waitFor(() => {
+      expect(prefetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    // ACT
+    rerender(
+      <InertiaLink href="/test" prefetch="desktop-hover-and-mobile-intersect">
+        Link Text
+      </InertiaLink>,
+    );
+
+    // ASSERT
+    expect(prefetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('given a visible mobile link receives new navigation options for the same route, does not prefetch the same route again', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    const { rerender } = render(
+      <InertiaLink href="/test" prefetch="desktop-hover-and-mobile-intersect">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      },
+    );
+
+    mockAllIsIntersecting(true);
+
+    await waitFor(() => {
+      expect(prefetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    // ACT
+    rerender(
+      <InertiaLink href="/test" data={{ page: 2 }} prefetch="desktop-hover-and-mobile-intersect">
+        Link Text
+      </InertiaLink>,
+    );
+
+    // ASSERT
+    expect(prefetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it('given navigation options are provided, includes them in the prefetch call', async () => {
@@ -204,5 +266,51 @@ describe('Component: InertiaLink', () => {
     // ASSERT
     const linkEl = screen.getByText('Link Text');
     expect(linkEl).toHaveAttribute('href', '/');
+  });
+
+  it('given the browser fires an unhover event without having hovered first, does not throw', async () => {
+    // ARRANGE
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    const linkEl = screen.getByRole('link', { name: /link text/i });
+    await userEvent.unhover(linkEl);
+
+    // ASSERT
+    expect(linkEl).toBeVisible();
+  });
+
+  it('given the user hovers and immediately leaves before the prefetch timeout fires, clears the timeout', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    const linkEl = screen.getByRole('link', { name: /link text/i });
+    await userEvent.hover(linkEl);
+    await userEvent.unhover(linkEl);
+
+    // ASSERT
+    await waitFor(
+      () => {
+        expect(prefetchSpy).not.toHaveBeenCalled();
+      },
+      { timeout: 150 },
+    );
   });
 });

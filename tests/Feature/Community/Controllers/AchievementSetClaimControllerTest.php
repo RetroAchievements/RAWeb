@@ -15,16 +15,60 @@ use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\Subscription;
+use App\Models\Ticket;
 use App\Models\User;
+use App\Support\Alerts\ClaimWithUnresolvedTicketsAlert;
+use App\Support\Alerts\Jobs\SendAlertWebhookJob;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class AchievementSetClaimControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const CLAIM_ALERT_WEBHOOK_URL = 'https://discord.com/api/webhooks/test';
+
+    private function createOpenTicketsForDeveloper(User $developer, int $count): void
+    {
+        $reporters = User::factory()->count($count)->create();
+
+        for ($i = 0; $i < $count; $i++) {
+            $achievement = Achievement::factory()->create(['user_id' => $developer->id]);
+
+            Ticket::factory()->create([
+                'ticketable_id' => $achievement->id,
+                'reporter_id' => $reporters[$i]->id,
+                'ticketable_author_id' => $developer->id,
+            ]);
+        }
+    }
+
+    /**
+     * @return array{User, Game}
+     */
+    private function createDeveloperAndClaimableGame(): array
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
+        $game = $this->seedGame(withHash: false);
+
+        return [$user, $game];
+    }
+
+    private function fakeClaimAlertQueue(): void
+    {
+        Queue::fake();
+        config(['services.discord.alerts_webhook.claim_with_unresolved_tickets' => self::CLAIM_ALERT_WEBHOOK_URL]);
+    }
 
     public function testPrimaryClaimAndComplete(): void
     {
@@ -444,6 +488,72 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals($collabDate, $collabClaim->created_at);
         $this->assertEquals($dropDate, $collabClaim->updated_at);
         $this->assertEquals(0, $collabClaim->extensions_count);
+    }
+
+    public function testCollaborationClaimCanBeCreatedWhenDeveloperHasMaxPrimaryClaims(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $primaryDeveloper */
+        $primaryDeveloper = User::factory()->create();
+        $primaryDeveloper->assignRole(Role::DEVELOPER);
+
+        /** @var User $collaborator */
+        $collaborator = User::factory()->create();
+        $collaborator->assignRole(Role::DEVELOPER);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
+        /** @var Game $targetGame */
+        $targetGame = $this->seedGame(withHash: false);
+
+        // another developer already owns the active primary claim on the target game
+        $primaryClaimDate = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($primaryClaimDate);
+
+        $this->actingAs($primaryDeveloper)->postJson(route('achievement-set-claim.create', $targetGame->id));
+        $targetGame->refresh();
+
+        // fill the collaborator's four primary claim slots
+        for ($i = 0; $i < 4; $i++) {
+            /** @var Game $claimedGame */
+            $claimedGame = $this->seedGame(withHash: false);
+            $claimedGame->forum_topic_id = $targetGame->forum_topic_id;
+            $claimedGame->save();
+
+            Carbon::setTestNow($primaryClaimDate->clone()->addHours($i + 1));
+            Session::flush();
+
+            $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $claimedGame->id));
+        }
+
+        // with no primary slots remaining, the collaborator can still join this claimed game
+        $collaborationDate = $primaryClaimDate->clone()->addHours(5);
+        Carbon::setTestNow($collaborationDate);
+        Session::flush();
+
+        $response = $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $targetGame->id));
+
+        $response->assertStatus(302);
+        $response->assertRedirect('/');
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $collabClaim = $targetGame->achievementSetClaims()->where('user_id', $collaborator->id)->first();
+        $this->assertNotNull($collabClaim);
+        $this->assertEquals($collaborator->id, $collabClaim->user_id);
+        $this->assertEquals($targetGame->id, $collabClaim->game_id);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collaborationDate->clone()->addMonths(3), $collabClaim->finished_at);
+
+        $activePrimaryClaims = $collaborator->achievementSetClaims()
+            ->active()
+            ->primaryClaim()
+            ->count();
+
+        $this->assertEquals(4, $activePrimaryClaims);
     }
 
     public function testCollaborationClaimAndPrimaryComplete(): void
@@ -1089,5 +1199,94 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals(ClaimStatus::Complete, $claim->status);
         $this->assertEquals($recompleteDate, $claim->updated_at);
+    }
+
+    public function testClaimCreationQueuesDevComplianceAlertWhenDeveloperHasMultipleOpenTickets(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$user, $game] = $this->createDeveloperAndClaimableGame();
+        $this->createOpenTicketsForDeveloper($user, 2);
+
+        // Act
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) use ($game, $user) {
+            return $job->alert instanceof ClaimWithUnresolvedTicketsAlert
+                && $job->alert->user->is($user)
+                && $job->alert->game->is($game)
+                && $job->alert->ticketCount === 2;
+        });
+    }
+
+    public function testClaimCreationDoesNotQueueDevComplianceAlertWhenDeveloperHasOneOpenTicket(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$user, $game] = $this->createDeveloperAndClaimableGame();
+        $this->createOpenTicketsForDeveloper($user, 1);
+
+        // Act
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
+
+    public function testClaimRenewalDoesNotQueueDevComplianceAlertWhenDeveloperHasMultipleOpenTickets(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$user, $game] = $this->createDeveloperAndClaimableGame();
+
+        // Act
+        $initialResponse = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $initialResponse->assertSessionHas('success', 'Claim created successfully');
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
+
+        $this->createOpenTicketsForDeveloper($user, 2);
+
+        Carbon::setTestNow(now()->addDay());
+        Session::flush();
+        $renewalResponse = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        $renewalResponse->assertSessionHas('success', 'Claim updated successfully');
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
+
+    public function testCollaborationClaimDoesNotQueueDevComplianceAlertWhenDeveloperHasMultipleOpenTickets(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$primaryDeveloper, $game] = $this->createDeveloperAndClaimableGame();
+
+        $collaborator = User::factory()->create();
+        $collaborator->assignRole(Role::DEVELOPER);
+        $this->createOpenTicketsForDeveloper($collaborator, 3);
+
+        // ... primary developer claims the game first ...
+        $this->actingAs($primaryDeveloper)->postJson(route('achievement-set-claim.create', $game->id));
+        Session::flush();
+
+        // Act
+        // ... collaborator joins ...
+        $response = $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $collabClaim = $game->achievementSetClaims()->where('user_id', $collaborator->id)->first();
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
     }
 }

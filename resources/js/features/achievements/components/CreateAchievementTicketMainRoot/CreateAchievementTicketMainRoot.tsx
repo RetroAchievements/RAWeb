@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
@@ -7,7 +7,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { CreateAchievementTicketForm } from './CreateAchievementTicketForm';
 
-export const CreateAchievementTicketMainRoot: FC = memo(() => {
+export const CreateAchievementTicketMainRoot: FC = () => {
   const { achievement } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
 
   const { t } = useTranslation();
@@ -27,4 +27,4 @@ export const CreateAchievementTicketMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

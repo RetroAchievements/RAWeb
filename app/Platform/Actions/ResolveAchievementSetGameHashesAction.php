@@ -78,9 +78,10 @@ class ResolveAchievementSetGameHashesAction
         // Core and Bonus sets: find the base game and all games that link to it.
         // When loading a base game hash, core + bonus loaded.
         // When loading a bonus game hash, redirect to base game, core + bonus loaded.
-        // When loading specialty game hash, redirect to base game, core + bonus + specialty loaded.
-        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
-        $baseGameId = $bonusLink?->game_id ?? $coreLink?->game_id;
+        // When loading a challenge game hash, redirect to base game, core + bonus + challenge loaded.
+        // When loading a specialty game hash, redirect to base game, core + bonus + specialty loaded.
+        $parentLink = $links->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge])->first();
+        $baseGameId = $parentLink?->game_id ?? $coreLink?->game_id;
 
         if (!$baseGameId) {
             return [];
@@ -89,7 +90,7 @@ class ResolveAchievementSetGameHashesAction
         $gameIds = [$baseGameId];
 
         $linkedSetIds = GameAchievementSet::where('game_id', $baseGameId)
-            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Specialty])
+            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge, AchievementSetType::Specialty])
             ->pluck('achievement_set_id');
 
         $linkedGameIds = GameAchievementSet::whereIn('achievement_set_id', $linkedSetIds)

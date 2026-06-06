@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
 
 function GetUserData(string $username): ?array
 {
@@ -99,53 +100,6 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     }
 
     return $libraryOut;
-}
-
-function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
-{
-    $whereQuery = null;
-    $permsFilter = null;
-
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
-        $permsFilter = "ua.Permissions = $perms ";
-    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Moderator) {
-        $permsFilter = "ua.Permissions >= $perms ";
-    } elseif ($showUntracked) {
-        $whereQuery = "WHERE ua.unranked_at IS NOT NULL ";
-    } else {
-        return 0;
-    }
-
-    if ($showUntracked) {
-        if ($whereQuery == null) {
-            $whereQuery = "WHERE $permsFilter ";
-        }
-    } else {
-        $whereQuery = "WHERE ( ua.unranked_at IS NULL OR ua.username = \"$requestedBy\" OR ua.display_name = \"$requestedBy\" ) AND $permsFilter";
-    }
-
-    $orderBy = match ($sortBy) {
-        1 => "COALESCE(ua.display_name, ua.username) ASC ",
-        11 => "COALESCE(ua.display_name, ua.username) DESC ",
-        2 => "ua.points_hardcore DESC ",
-        12 => "ua.points_hardcore ASC ",
-        3 => "NumAwarded DESC ",
-        13 => "NumAwarded ASC ",
-        4 => "ua.last_activity_at DESC ",
-        14 => "ua.last_activity_at ASC ",
-        default => "COALESCE(ua.display_name, ua.username) ASC ",
-    };
-
-   $query = "SELECT ua.id, COALESCE(ua.display_name, ua.username) AS User, ua.points_hardcore AS points, ua.points_weighted, ua.last_activity_at,
-                ua.achievements_unlocked NumAwarded
-                FROM users AS ua
-                $whereQuery
-                ORDER BY $orderBy
-                LIMIT $offset, $count";
-
-    $dataOut = legacyDbFetchAll($query)->toArray();
-
-    return count($dataOut);
 }
 
 // TODO: Used in developerstats.blade.php. Migrate to a controller.
@@ -250,7 +204,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.id, SUM(!ISNULL(tick.id)) AS OpenTickets
                   FROM users ua
                   LEFT JOIN achievements ach ON ach.user_id = ua.id
-                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
+                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='" . TicketableType::Achievement->value . "' AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY OpenTickets DESC, ua.display_name";
@@ -258,7 +212,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.id, SUM(!ISNULL(ach.id)) as total
                   FROM users as ua
-                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = 'resolved' AND tick.resolver_id != tick.reporter_id
+                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = '" . TicketState::Resolved->value . "' AND tick.resolver_id != tick.reporter_id AND tick.ticketable_type = '" . TicketableType::Achievement->value . "'
                   LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND ach.user_id != ua.id
                   WHERE $stateCond
                   GROUP BY ua.id
@@ -305,9 +259,9 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $query = "SELECT ach.user_id as id, COUNT(*) AS OpenTickets
               FROM tickets tick
               INNER JOIN achievements ach ON ach.id=tick.ticketable_id
-              WHERE tick.ticketable_type = 'achievement'
+              WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
               AND ach.user_id IN ($devList)
-              AND tick.state IN ('open','request')
+              AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
               GROUP BY ach.user_id";
     foreach (legacyDbFetchAll($query) as $row) {
         $data[$row['id']]['OpenTickets'] = $row['OpenTickets'];
@@ -317,7 +271,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $query = "SELECT tick.resolver_id AS id, COUNT(*) as total
               FROM tickets AS tick
               INNER JOIN achievements as ach ON ach.id = tick.ticketable_id
-              WHERE tick.ticketable_type = 'achievement'
+              WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
               AND tick.resolver_id != tick.reporter_id
               AND ach.user_id != tick.resolver_id
               AND ach.is_promoted = 1
@@ -346,22 +300,6 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     }
 
     return $results;
-}
-
-function GetUserFields(string $username, array $fields): ?array
-{
-    sanitize_sql_inputs($username);
-
-    $fieldsCSV = implode(",", $fields);
-    $query = "SELECT $fieldsCSV FROM users AS ua
-              WHERE ua.username = '$username'";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return null;
-    }
-
-    return mysqli_fetch_assoc($dbResult);
 }
 
 /**

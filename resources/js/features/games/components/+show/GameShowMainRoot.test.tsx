@@ -16,16 +16,6 @@ import { currentListViewAtom } from '../../state/games.atoms';
 import { GameShowMainRoot } from './GameShowMainRoot';
 
 describe('Component: GameShowMainRoot', () => {
-  beforeEach(() => {
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
-  });
-
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame({
@@ -87,6 +77,48 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
+  });
+
+  it('given the game has screenshot dimensions, passes reserved frame dimensions to the media component', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageIngameDimensions: { width: 256, height: 224 },
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      imageIngameUrl: 'ingame.jpg',
+      imageTitleUrl: 'title.jpg',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        numScreenshots: 1,
+        recentPlayers: [],
+        recentVisibleComments: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+    const ingameFrame = ingameImage.closest('button');
+
+    expect(ingameFrame).not.toBeNull();
+    expect(ingameFrame).toHaveStyle({
+      aspectRatio: '256 / 224',
+      maxWidth: '100%',
+      width: '256px',
+    });
   });
 
   it('given the game has media URLs, shows them in the desktop media viewer', () => {

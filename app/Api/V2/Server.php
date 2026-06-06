@@ -33,13 +33,20 @@ class Server extends BaseServer
         return [
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
+            AchievementSetClaims\AchievementSetClaimSchema::class,
+            Comments\CommentSchema::class,
+            EventAwards\EventAwardSchema::class,
+            Events\EventSchema::class,
+            GameHashes\GameHashSchema::class,
             Games\GameSchema::class,
             Hubs\HubSchema::class,
             LeaderboardEntries\LeaderboardEntrySchema::class,
             Leaderboards\LeaderboardSchema::class,
+            PlayerAchievements\PlayerAchievementSchema::class,
             PlayerAchievementSets\PlayerAchievementSetSchema::class,
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
+            UserAwards\UserAwardSchema::class,
             Users\UserSchema::class,
         ];
     }

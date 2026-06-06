@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Support\MediaLibrary\Actions\ExtractBannerEdgeColorsAction;
 use Illuminate\Console\Command;
+use Imagick;
 use Spatie\Image\Enums\Fit;
 use Spatie\Image\Image;
 
@@ -26,21 +27,20 @@ class ProcessFallbackBanner extends Command
 
         $outputDir = public_path('assets/images/banner');
         $bannerSizes = ['mobile-sm', 'mobile-md', 'desktop-md', 'desktop-lg', 'desktop-xl'];
-        $formats = ['webp', 'avif'];
-
         foreach ($bannerSizes as $size) {
             $width = config("media.game.banner.{$size}.width");
             $height = config("media.game.banner.{$size}.height");
 
-            foreach ($formats as $format) {
-                Image::load($sourcePath)
-                    ->format($format)
-                    ->fit(Fit::Crop, $width, $height)
-                    ->optimize()
-                    ->save("{$outputDir}/fallback-{$size}.{$format}");
+            // AVIF doesn't handle this mosaic of tiny sharp-edged icons well,
+            // so we only generate WebP for the fallback banner.
+            $imagick = new Imagick($sourcePath);
+            $imagick->cropThumbnailImage($width, $height);
+            $imagick->setImageFormat('webp');
+            $imagick->setCompressionQuality(80);
+            $imagick->writeImage("{$outputDir}/fallback-{$size}.webp");
+            $imagick->clear();
 
-                $this->info("Generated: fallback-{$size}.{$format} ({$width}x{$height})");
-            }
+            $this->info("Generated: fallback-{$size}.webp ({$width}x{$height})");
         }
 
         // Tiny blurred placeholders load instantly for better LCP scores.

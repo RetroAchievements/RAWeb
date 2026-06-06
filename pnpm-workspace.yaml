@@ -1,8 +1,11 @@
 packages: []
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
-  - '@inertiajs/core'
-  - '@inertiajs/react'
+  - '@inertiajs/*'
+  - '@vitest/*'
+  - '@rolldown/plugin-babel'
+  - '@vitejs/plugin-react'
   - react
   - react-dom
   - vite
+  - vitest

@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGameSet } from '@/test/factories';
 
@@ -27,13 +28,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: 'Meta - BBBBB' }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} />);
 
     // ASSERT
     expect(screen.getByTestId('hubs-list')).toBeVisible();
@@ -50,13 +45,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: '[Events - Achievement of the Week]', isEventHub: true }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} />);
 
     // ASSERT
     expect(screen.queryByText(/\[/i)).not.toBeInTheDocument();
@@ -73,13 +62,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: 'Meta - BBB' }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} />);
 
     // ASSERT
     const links = screen.getAllByRole('link');
@@ -90,15 +73,26 @@ describe('Component: HubsList', () => {
     expect(links[3]).toHaveTextContent(/zzz/i);
   });
 
-  it('given the user cannot manage games, does not display meta team hubs', () => {
+  it('given the user is a guest, does not display meta team hubs', () => {
+    // ARRANGE
+    const mockHubs = [createGameSet({ title: 'Meta|QA - Noncompliant Writing' })];
+
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: { auth: null }, // !!
+    });
+
+    // ASSERT
+    const links = screen.queryAllByRole('link');
+    expect(links.length).toEqual(0);
+  });
+
+  it('given the user has no publicly visible role, does not display meta team hubs', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: 'Meta|QA - Noncompliant Writing' })];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
       pageProps: {
-        can: {
-          manageGames: false, // !!
-        },
+        auth: { user: createAuthenticatedUser({ visibleRole: null }) }, // !!
       },
     });
 
@@ -107,14 +101,14 @@ describe('Component: HubsList', () => {
     expect(links.length).toEqual(0);
   });
 
-  it('given the user can manage games, displays meta team hubs', () => {
+  it('given the user has a publicly visible role, displays meta team hubs', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: 'Meta|QA - Noncompliant Writing' })];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
       pageProps: {
-        can: {
-          manageGames: true, // !!
+        auth: {
+          user: createAuthenticatedUser({ visibleRole: { id: 1, name: 'writer' } }), // !!
         },
       },
     });
@@ -132,13 +126,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: 'Meta - BBB', id: 4 }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[1, 3, 4]} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[1, 3, 4]} />);
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /zzz/i })).not.toBeInTheDocument();
@@ -148,7 +136,7 @@ describe('Component: HubsList', () => {
     expect(screen.getByRole('link', { name: /aaa/i })).toBeVisible();
   });
 
-  it('given the user cannot manage games but the hub is Meta|Art, displays the Meta|Art hub', () => {
+  it('given the user has no visible role but the hub is Meta|Art, displays the Meta|Art hub', () => {
     // ARRANGE
     const mockHubs = [
       createGameSet({ title: 'Meta|Art - Stock/Recycled Badges' }),
@@ -156,11 +144,7 @@ describe('Component: HubsList', () => {
     ];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
-      pageProps: {
-        can: {
-          manageGames: false, // !!
-        },
-      },
+      pageProps: { auth: null }, // !!
     });
 
     // ASSERT
@@ -179,13 +163,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: '[Subseries - Wario]', isEventHub: false }), // Subseries hub
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} />);
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /nintendo/i })).not.toBeInTheDocument(); // License hub hidden
@@ -204,13 +182,7 @@ describe('Component: HubsList', () => {
       createGameSet({ title: 'Meta - Test Hub', id: 3 }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[2]} />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[2]} />);
 
     // ASSERT
     expect(screen.getByRole('link', { name: /mario/i })).toBeVisible(); // Non-prioritized series hub visible
@@ -222,13 +194,7 @@ describe('Component: HubsList', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: 'Meta - Test Hub' })];
 
-    render(<PlayableHubsList hubs={mockHubs} variant="game" />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} variant="game" />);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /additional hubs/i })).toBeVisible();
@@ -238,13 +204,7 @@ describe('Component: HubsList', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: 'Meta - Test Hub' })];
 
-    render(<PlayableHubsList hubs={mockHubs} variant="event" />, {
-      pageProps: {
-        can: {
-          manageGames: false,
-        },
-      },
-    });
+    render(<PlayableHubsList hubs={mockHubs} variant="event" />);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: 'Hubs' })).toBeVisible();

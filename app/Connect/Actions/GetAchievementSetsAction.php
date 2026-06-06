@@ -54,7 +54,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $this->isPromoted = Achievement::isPromotedFromLegacyFlags($flag);
 
         $userAgentService = new UserAgentService();
-        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction(request()->header('User-Agent'));
+        [$this->clientSupportLevel, $this->coreRestriction] = $userAgentService->getSupportLevelAndCoreRestriction($this->userAgent);
 
         // Core-specific blocks show warnings but still allow game loading.
         // Only emulator-level blocks should fully reject the request.
@@ -385,7 +385,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         Game $game,
         GameHashCompatibility $gameHashCompatibility,
     ): array {
-        $seeSupportedGameFiles = 'See the Supported Game Files page for this game to find a compatible version.';
+        $seeSupportedGameFiles = 'See the Supported Game Hashes page for this game to find a compatible version.';
 
         $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
             ->core()
@@ -491,6 +491,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                    ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
                     ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
                 };

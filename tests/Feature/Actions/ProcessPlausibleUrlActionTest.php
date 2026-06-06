@@ -305,6 +305,21 @@ class ProcessPlausibleUrlActionTest extends TestCase
         ], $result['props']);
     }
 
+    public function testItCorrectlyHandlesForumTopicUrls(): void
+    {
+        // Act
+        $result = $this->action->execute('forums/topic/34731', [], $this->defaultProps);
+
+        // Assert
+        $this->assertEquals('/forums/topic/_PARAM_', $result['redactedUrl']);
+        $this->assertEquals([
+            'id' => 34731,
+            'isAuthenticated' => true,
+            'scheme' => 'dark',
+            'theme' => 'default',
+        ], $result['props']);
+    }
+
     public function testItCorrectlyHandlesSelfHealingEventUrls(): void
     {
         // Arrange

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -21,7 +21,7 @@ export const DescriptionField: FC = () => {
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 
-  const [description] = form.watch(['description']);
+  const description = useWatch({ name: 'description', control: form.control });
 
   const showTriggerWarning =
     (description.length < 25 && /(n'?t|not?).*(work|trigger)/gi.test(description)) ||

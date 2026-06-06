@@ -1,13 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/utils';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-
 export const RULE_NAME = 'enforce-typescript-in-app-code';
 
-export const rule = ESLintUtils.RuleCreator(() => __filename)({
-  name: RULE_NAME,
-
+export const rule = {
   meta: {
     type: 'problem',
     docs: {
@@ -20,8 +13,6 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
         'JavaScript files are not allowed in {{directory}}. Please use TypeScript (.ts or .tsx) instead. JavaScript is only permitted in tools/, tall-stack/, and root-level config files.',
     },
   },
-
-  defaultOptions: [],
 
   create(context) {
     // Only run on .js files (not .ts, .tsx, .d.ts).
@@ -66,4 +57,4 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
 
     return {};
   },
-});
+};

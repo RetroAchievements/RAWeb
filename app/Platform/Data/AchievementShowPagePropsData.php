@@ -18,8 +18,10 @@ class AchievementShowPagePropsData extends Data
 {
     /**
      * @param Collection<int, CommentData> $recentVisibleComments
+     * @param AchievementChangelogEntryData[] $changelog
      * @param AchievementData[]|null $proximityAchievements
      * @param Collection<int, AchievementRecentUnlockData> $recentUnlocks
+     * @param bool $areAllAchievementsOnePoint when true and it's an event game, points can be hidden from the UI
      */
     public function __construct(
         public AchievementData $achievement,
@@ -29,11 +31,15 @@ class AchievementShowPagePropsData extends Data
         public Collection $recentVisibleComments,
         public ?GameData $backingGame = null,
         public ?GameAchievementSetData $gameAchievementSet = null,
+        public array $changelog = [],
         public ?array $proximityAchievements = null,
         public int $promotedAchievementCount = 0,
         #[AutoInertiaDeferred]
         public Lazy|Collection $recentUnlocks = new Collection(),
         public AchievementPageTab $initialTab = AchievementPageTab::Comments,
+        public ?EventAchievementData $eventAchievement = null,
+        public bool $isEventGame = false,
+        public bool $areAllAchievementsOnePoint = false,
     ) {
     }
 }

@@ -43,41 +43,31 @@ $userSetRequestInformation = getUserRequestsInformation($userPageModel);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
-$recentlyPlayedSystemId = collect($userMassData['RecentlyPlayed'] ?? [])
-    ->filter(fn ($game) => System::isGameSystem($game['ConsoleID'] ?? 0) && ($game['AchievementsTotal'] ?? 0) > 0)
-    ->sortByDesc('LastPlayed')
-    ->pluck('ConsoleID')
-    ->first();
-
 $progressionCounts = (new GetUserProgressionStatusCountsAction())->execute(
-    $userPageModel,
-    $recentlyPlayedSystemId
+    $userPageModel
 );
 
 $averageCompletionPercentage = sprintf("%01.2f", $progressionCounts['avgCompletionPercentage']);
 $totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
 $totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
 
-$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200);
-$userIncompleteGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200, isExcludingCompleted: true);
-$userCompletedGamesListFull = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPageModel);
+$userAllGamesList = getUsersCompletedGamesAndMax($userPage, applyBadgePreferences: true);
+$userAwards = getUsersSiteAwards($userPageModel, applyBadgePreferences: true);
+
+$maxDisplayedGames = 200;
+$isIncomplete = fn ($game) => ($game['NumAwarded'] ?? 0) < ($game['MaxPossible'] ?? 0);
 
 $playerProgressionService = new PlayerProgressionService();
-$userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
-    $userCompletedGamesList,
-    $userAwards,
-    $userPageID,
-);
-$userJoinedIncompleteGames = $playerProgressionService->filterAndJoinGames(
-    $userIncompleteGamesList,
-    $userAwards,
-    $userPageID,
-);
 $userJoinedGamesAndAwardsFull = $playerProgressionService->filterAndJoinGames(
-    $userCompletedGamesListFull,
+    $userAllGamesList,
     $userAwards,
     $userPageID,
+);
+$userJoinedGamesAndAwards = array_slice($userJoinedGamesAndAwardsFull, 0, $maxDisplayedGames);
+$userJoinedIncompleteGames = array_slice(
+    array_values(array_filter($userJoinedGamesAndAwardsFull, $isIncomplete)),
+    0,
+    $maxDisplayedGames,
 );
 
 sanitize_outputs(
@@ -185,7 +175,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         RenderSiteAwards($userAwards, $userPage);
         ?>
 
-        @if (count($userCompletedGamesList) >= 1 || count($userIncompleteGamesList) >= 1)
+        @if (count($userJoinedGamesAndAwards) >= 1 || count($userJoinedIncompleteGames) >= 1)
             <x-user.completion-progress
                 :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
                 :userJoinedIncompleteGames="$userJoinedIncompleteGames"

@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Enums\GameHashCompatibility;
 use App\Models\AchievementAuthor;
 use App\Models\AchievementMaintainer;
+use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\UserCreditsData;
@@ -24,12 +25,16 @@ class BuildGameAggregateCreditsAction
 
         $achievementSetArtworkCredits = collect();
         $achievementSetBannerCredits = collect();
+        $achievementSetTestingCredits = collect();
 
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
-            $this->accumulateSetAuthorCredit($achievementSet, AchievementSetAuthorTask::Artwork, $achievementSetArtworkCredits);
-            $this->accumulateSetAuthorCredit($achievementSet, AchievementSetAuthorTask::Banner, $achievementSetBannerCredits);
+            $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Artwork, $achievementSetArtworkCredits);
+            if (!$game->is_media_restricted) {
+                $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Banner, $achievementSetBannerCredits);
+            }
+            $this->accumulateSetAuthorCredits($achievementSet, AchievementSetAuthorTask::Testing, $achievementSetTestingCredits, allAuthors: true);
         }
 
         $hashCompatibilityTestingCredits = $this->buildHashCompatibilityTestingCredits($game);
@@ -45,7 +50,7 @@ class BuildGameAggregateCreditsAction
             achievementSetArtwork: $this->toSortedUserCredits($achievementSetArtworkCredits),
             achievementSetBanner: $this->toSortedUserCredits($achievementSetBannerCredits),
             achievementsLogic: $this->toSortedUserCredits($authorshipByTask[AchievementAuthorTask::Logic->value] ?? collect()),
-            achievementsTesting: $this->toSortedUserCredits($authorshipByTask[AchievementAuthorTask::Testing->value] ?? collect()),
+            achievementsTesting: $this->toSortedUserCredits($achievementSetTestingCredits),
             achievementsWriting: $this->toSortedUserCredits($authorshipByTask[AchievementAuthorTask::Writing->value] ?? collect()),
             hashCompatibilityTesting: $this->toSortedUserCredits($hashCompatibilityTestingCredits),
         );
@@ -65,32 +70,31 @@ class BuildGameAggregateCreditsAction
     }
 
     /**
-     * Only the most recent author per task type receives credit for each achievement set.
-     *
      * @param Collection<int, array<string, mixed>> $credits
      */
-    private function accumulateSetAuthorCredit(
-        mixed $achievementSet,
+    private function accumulateSetAuthorCredits(
+        AchievementSet $achievementSet,
         AchievementSetAuthorTask $task,
         Collection $credits,
+        bool $allAuthors = false,
     ): void {
-        $mostRecentAuthor = $achievementSet->achievementSetAuthors
-            ->filter(fn ($author) => $author->task === $task)
-            ->sortByDesc('created_at')
-            ->first();
+        $authors = $achievementSet->achievementSetAuthors
+            ->filter(fn ($author) => $author->task === $task);
 
-        if (!$mostRecentAuthor) {
-            return;
+        if (!$allAuthors) {
+            $authors = $authors->sortByDesc('created_at')->take(1);
         }
 
-        $userId = $mostRecentAuthor->user_id;
-        $existing = $credits->get($userId);
+        foreach ($authors as $author) {
+            $userId = $author->user_id;
+            $existing = $credits->get($userId);
 
-        $credits->put($userId, [
-            'user' => $mostRecentAuthor->user,
-            'count' => ($existing['count'] ?? 0) + 1,
-            'created_at' => $mostRecentAuthor->created_at,
-        ]);
+            $credits->put($userId, [
+                'user' => $author->user,
+                'count' => ($existing['count'] ?? 0) + 1,
+                'created_at' => $author->created_at,
+            ]);
+        }
     }
 
     /**
@@ -186,7 +190,7 @@ class BuildGameAggregateCreditsAction
     }
 
     /**
-     * Build per-task authorship credits (artwork, design, logic, testing, writing)
+     * Build per-task authorship credits (artwork, design, logic, writing)
      * grouped by task type for easy lookup.
      *
      * @param Collection<int, int> $achievementIds

@@ -1,5 +1,4 @@
 import { router } from '@inertiajs/react';
-import { useCallback } from 'react';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
 
@@ -38,7 +37,7 @@ export function useCommentPagination({
 }: UseCommentPaginationProps) {
   const routeParamName = commentableTypeToRouteParam[commentableType];
 
-  const handleCommentDeleteSuccess = useCallback(() => {
+  const handleCommentDeleteSuccess = () => {
     // If there are no comments left on the current page and we're not on
     // the 1st page, go back one page.
     router.visit(
@@ -48,9 +47,9 @@ export function useCommentPagination({
       }),
       { preserveScroll: true },
     );
-  }, [displayName, entityId, paginatedComments, routeName, routeParamName]);
+  };
 
-  const handleCommentSubmitSuccess = useCallback(() => {
+  const handleCommentSubmitSuccess = () => {
     router.visit(
       route(routeName, {
         [routeParamName]: displayName ?? entityId,
@@ -58,19 +57,16 @@ export function useCommentPagination({
       }),
       { preserveScroll: true },
     );
-  }, [displayName, entityId, paginatedComments, routeName, routeParamName]);
+  };
 
-  const handlePageSelectValueChange = useCallback(
-    (newPageValue: number) => {
-      router.visit(
-        route(routeName, {
-          [routeParamName]: displayName ?? entityId,
-          _query: { page: newPageValue },
-        }),
-      );
-    },
-    [displayName, entityId, routeName, routeParamName],
-  );
+  const handlePageSelectValueChange = (newPageValue: number) => {
+    router.visit(
+      route(routeName, {
+        [routeParamName]: displayName ?? entityId,
+        _query: { page: newPageValue },
+      }),
+    );
+  };
 
   return { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange };
 }

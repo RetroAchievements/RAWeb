@@ -4,7 +4,6 @@ import type { FC } from 'react';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -15,8 +14,18 @@ import { GameRecentPlayers } from '../GameRecentPlayers';
 import { ResetAllProgressDialog } from '../ResetAllProgressDialog';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    game,
+    hasMatureContent,
+    isViewingPublishedAchievements,
+    numScreenshots,
+    playerGameProgressionAwards,
+    screenshots,
+    targetAchievementSetId,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
+  const hasBeatenGame =
+    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
 
   const currentListView = useAtomValue(currentListViewAtom);
 
@@ -35,9 +44,15 @@ export const GameShowMainRoot: FC = () => {
       {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
 
       <PlayableMainMedia
+        hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
+        hasBeatenGame={hasBeatenGame}
+        imageIngameDimensions={game.imageIngameDimensions}
         imageIngameUrl={game.imageIngameUrl!}
+        imageTitleDimensions={game.imageTitleDimensions}
         imageTitleUrl={game.imageTitleUrl!}
-        isPixelated={getIsSystemPixelated(game.system!.id)}
+        isPixelated={!game.system!.supportsUpscaledScreenshots}
+        numScreenshots={numScreenshots}
+        screenshots={screenshots}
       />
 
       <div className="flex flex-col gap-6">

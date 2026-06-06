@@ -12,27 +12,17 @@ class PlayerBadgePolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(?User $user, User $player): bool
+    public function viewAny(?User $user, ?User $player = null): bool
     {
-        if ($user && $user->is($player)) {
+        if ($user && $player && $user->is($player)) {
             return true;
         }
-
-        /*
-         * TODO: check user privacy settings
-         */
-        // $player->settings->badges->public
-        // return false;
 
         return true;
     }
 
-    public function view(?User $user, PlayerBadge $userBadge): bool
+    public function view(?User $user, PlayerBadge $playerBadge): bool
     {
-        if (!$user) {
-            return false;
-        }
-
         return true;
     }
 
@@ -41,22 +31,22 @@ class PlayerBadgePolicy
         return false;
     }
 
-    public function update(User $user, PlayerBadge $userBadge): bool
+    public function update(User $user, PlayerBadge $playerBadge): bool
     {
         return false;
     }
 
-    public function delete(User $user, PlayerBadge $userBadge): bool
+    public function delete(User $user, PlayerBadge $playerBadge): bool
     {
         return false;
     }
 
-    public function restore(User $user, PlayerBadge $userBadge): bool
+    public function restore(User $user, PlayerBadge $playerBadge): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, PlayerBadge $userBadge): bool
+    public function forceDelete(User $user, PlayerBadge $playerBadge): bool
     {
         return false;
     }

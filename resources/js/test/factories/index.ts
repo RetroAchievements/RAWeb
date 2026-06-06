@@ -1,4 +1,5 @@
 export * from './createAchievement';
+export * from './createAchievementChangelogEntry';
 export * from './createAchievementChecklistGroup';
 export * from './createAchievementRecentUnlock';
 export * from './createAchievementSet';
@@ -26,9 +27,11 @@ export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createGameListEntryStats';
 export * from './createGamePageClaimData';
 export * from './createGameRecentPlayer';
 export * from './createGameRelease';
+export * from './createGameScreenshot';
 export * from './createGameSet';
 export * from './createGameSetRequestData';
 export * from './createGameSuggestionEntry';

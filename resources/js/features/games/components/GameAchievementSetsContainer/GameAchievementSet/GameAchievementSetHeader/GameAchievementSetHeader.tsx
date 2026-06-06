@@ -1,4 +1,4 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { SubsetTag } from '@/common/components/SubsetTag';
@@ -24,10 +24,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   const { achievementSet, title, type } = gameAchievementSet;
   const { achievements } = achievementSet;
 
-  const { pointsTotal, pointsWeighted } = useMemo(
-    () => getAchievementSetPointsStats(achievements),
-    [achievements],
-  );
+  const { pointsTotal, pointsWeighted } = getAchievementSetPointsStats(achievements);
 
   return (
     <div className="relative flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">
@@ -97,16 +94,14 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
               <span className="text-xs text-text">
                 {achievements.length ? (
                   <Trans
-                    i18nKey="<1>{{achievementsCount, number}}</1> unpublished $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> $t(playerGameProgressPoints, {'count': {{pointsCount}} })"
+                    i18nKey="<1>{{achievementsCount, number}}</1> unpublished $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} })"
                     values={{
                       achievementsCount: achievements.length,
                       pointsCount: pointsTotal,
-                      retroPointsCount: pointsWeighted,
                     }}
                     components={{
                       1: <span className="font-bold" />,
                       2: <span className="font-bold" />,
-                      3: <WeightedPointsContainer />,
                     }}
                   />
                 ) : (

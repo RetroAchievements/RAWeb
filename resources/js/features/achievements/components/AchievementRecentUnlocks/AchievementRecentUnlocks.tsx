@@ -14,12 +14,15 @@ import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useReloadDeferredOnBackForward } from '@/common/hooks/useReloadDeferredOnBackForward';
 
 export const AchievementRecentUnlocks: FC = () => {
   const { achievement, recentUnlocks } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
 
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
+
+  useReloadDeferredOnBackForward({ recentUnlocks });
 
   const placeholderRowCount = Math.min(achievement.unlocksTotal ?? 0, 50);
 

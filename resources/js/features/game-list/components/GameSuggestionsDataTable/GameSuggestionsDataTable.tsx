@@ -14,17 +14,20 @@ interface GameSuggestionsDataTableProps {
 export const GameSuggestionsDataTable: FC<GameSuggestionsDataTableProps> = ({
   showSourceGame = true,
 }) => {
-  'use no memo'; // useReactTable does not support React Compiler
-
   const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
-  const table = useReactTable({
+  const tableInstance = useReactTable({
     columns: useColumnDefinitions({ showSourceGame }),
     data: paginatedGameListEntries.items,
 
     getCoreRowModel: getCoreRowModel(),
   });
+
+  // Spread to break the stable reference. useReactTable returns the same
+  // object identity across renders, which causes React Compiler to skip
+  // re-evaluating table.get*() calls in child components.
+  const table = { ...tableInstance } as typeof tableInstance;
 
   return (
     <div className="flex flex-col gap-3">

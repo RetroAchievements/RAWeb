@@ -18,7 +18,6 @@ import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOf
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { getIsSystemPixelated } from '@/common/utils/getIsSystemPixelated';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
@@ -50,8 +49,11 @@ export const GameShowMobileRoot: FC = () => {
     hubs,
     isViewingPublishedAchievements,
     numMasters,
+    numScreenshots,
     playerAchievementChartBuckets,
     playerGame,
+    playerGameProgressionAwards,
+    screenshots,
     seriesHub,
     similarGames,
     targetAchievementSetId,
@@ -64,6 +66,9 @@ export const GameShowMobileRoot: FC = () => {
   const { currentTab, setCurrentTab } = useGameShowTabs();
 
   const currentListView = useAtomValue(currentListViewAtom);
+
+  const hasBeatenGame =
+    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -139,9 +144,15 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
             <PlayableMainMedia
+              hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
+              hasBeatenGame={hasBeatenGame}
+              imageIngameDimensions={game.imageIngameDimensions}
               imageIngameUrl={game.imageIngameUrl!}
+              imageTitleDimensions={game.imageTitleDimensions}
               imageTitleUrl={game.imageTitleUrl!}
-              isPixelated={getIsSystemPixelated(game.system!.id)}
+              isPixelated={!game.system!.supportsUpscaledScreenshots}
+              numScreenshots={numScreenshots}
+              screenshots={screenshots}
             />
           </div>
 

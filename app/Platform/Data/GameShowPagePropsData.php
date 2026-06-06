@@ -30,6 +30,7 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      * @param Collection<int, LeaderboardData> $featuredLeaderboards
      * @param Collection<int, LeaderboardData> $allLeaderboards
+     * @param Collection<int, GameScreenshotData> $screenshots
      */
     public function __construct(
         public AggregateAchievementSetCreditsData $aggregateCredits,
@@ -48,6 +49,7 @@ class GameShowPagePropsData extends Data
         public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
+        public bool $isRichPresenceExpanded,
         public bool $isSubscribedToAchievementComments,
         public bool $isSubscribedToComments,
         public bool $isSubscribedToTickets,
@@ -66,6 +68,10 @@ class GameShowPagePropsData extends Data
         public int $numLeaderboards,
         public int $numMasters,
         public int $numOpenTickets,
+        public int $numScreenshots,
+        /** @var Lazy|Collection<int, GameScreenshotData> */
+        #[AutoInertiaDeferred]
+        public Lazy|Collection $screenshots,
         public Collection $recentPlayers,
         public Collection $recentVisibleComments,
         /** @var GameData[] */
@@ -89,6 +95,15 @@ class GameShowPagePropsData extends Data
         /** @var Collection<int, UserGameAchievementSetPreferenceData> */
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.UserGameAchievementSetPreference>')]
         public Collection $userGameAchievementSetPreferences,
+
+        /** @var array<string, ScreenshotUploadTypeStatusData> */
+        public Lazy|array $screenshotUploadStatuses = [],
+
+        public Lazy|ScreenshotUploadConsistencyData|null $screenshotUploadConsistency = null,
+        public Lazy|int $screenshotUploadPendingCount = 0,
+
+        /** @var Lazy|Collection<int, GameScreenshotData> */
+        public Lazy|Collection|null $screenshotUploadUserSubmissions = null,
     ) {
     }
 }

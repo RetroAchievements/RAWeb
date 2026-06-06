@@ -107,4 +107,48 @@ describe('Component: DownloadLinks', () => {
     // ASSERT
     expect(screen.getByText(/^download$/i)).toBeVisible();
   });
+
+  it('given an emulator with only a downloadX64Url and no downloadUrl or platform-specific download, renders the x64 link', () => {
+    // ARRANGE
+    const windowsPlatform = createPlatform({ id: 1, name: 'Windows' });
+    const emulator = createEmulator({
+      downloadUrl: '',
+      downloadX64Url: 'https://example.com/download-64bit',
+      downloads: [],
+    });
+    const platforms = [windowsPlatform];
+
+    render(<DownloadLinks emulator={emulator} />, {
+      pageProps: { allPlatforms: platforms },
+      jotaiAtoms: [
+        [selectedPlatformIdAtom, windowsPlatform.id],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByText(/download \(x64\)/i)).toBeVisible();
+  });
+
+  it('given Windows is selected and the emulator has a downloadX64Url, renders the x64 download with the correct href', () => {
+    // ARRANGE
+    const windowsPlatform = createPlatform({ id: 1, name: 'Windows' });
+    const emulator = createEmulator({
+      downloadUrl: 'https://example.com/download-32bit',
+      downloadX64Url: 'https://example.com/download-64bit',
+    });
+    const platforms = [windowsPlatform];
+
+    render(<DownloadLinks emulator={emulator} />, {
+      pageProps: { allPlatforms: platforms },
+      jotaiAtoms: [
+        [selectedPlatformIdAtom, windowsPlatform.id],
+        //
+      ],
+    });
+
+    // ASSERT
+    const x64Link = screen.getByText(/download \(x64\)/i).closest('a');
+    expect(x64Link).toHaveAttribute('href', 'https://example.com/download-64bit');
+  });
 });

@@ -1,14 +1,8 @@
-import { ESLintUtils } from '@typescript-eslint/utils';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
 
 export const RULE_NAME = 'no-cross-boundary-imports';
 
-export const rule = ESLintUtils.RuleCreator(() => __filename)({
-  name: RULE_NAME,
-
+export const rule = {
   meta: {
     type: 'problem',
     docs: {
@@ -44,8 +38,6 @@ Import rules:
         'Move this code to {{suggestedLocation}} to resolve the architectural violation.',
     },
   },
-
-  defaultOptions: [],
 
   create(context) {
     /**
@@ -259,4 +251,4 @@ Import rules:
       },
     };
   },
-});
+};

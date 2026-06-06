@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Concerns;
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -16,6 +17,7 @@ use App\Models\PlayerSession;
 use App\Models\PlayerStat;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\PlayerPreferredMode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +33,14 @@ trait ActsAsPlayer
     }
 
     // == instance methods
+
+    public function hasMasteredGame(int $gameId): bool
+    {
+        return $this->playerBadges()
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_key', $gameId)
+            ->exists();
+    }
 
     public function hasPlayedGame(Game $game): bool
     {
@@ -131,6 +141,16 @@ trait ActsAsPlayer
     public function playerBadges(): HasMany
     {
         return $this->hasMany(PlayerBadge::class, 'user_id', 'id');
+    }
+
+    /**
+     * Return the user's per-game chosen display badges.
+     *
+     * @return HasMany<UserGameBadgePreference, $this>
+     */
+    public function badgePreferences(): HasMany
+    {
+        return $this->hasMany(UserGameBadgePreference::class, 'user_id');
     }
 
     /**

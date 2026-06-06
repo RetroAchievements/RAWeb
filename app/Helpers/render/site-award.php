@@ -3,9 +3,13 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
+use App\Models\GameScreenshot;
 use App\Models\PlayerBadge;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Str;
 
 function SeparateAwards(array $userAwards): array
 {
@@ -53,6 +57,8 @@ function SeparateAwards(array $userAwards): array
             } else {
                 $eventAwards[] = $award;
             }
+        } elseif ($type === AwardType::Playtest->toLegacyInteger()) {
+            $siteAwards[] = $award;
         } elseif (AwardType::isActive($type)) {
             $siteAwards[] = $award;
         }
@@ -61,7 +67,7 @@ function SeparateAwards(array $userAwards): array
     return [$gameAwards, $eventAwards, $siteAwards, $eventData, $eventAwardData];
 }
 
-function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
+function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername, int $maxGameAwards = 800): void
 {
     [$gameAwards, $eventAwards, $siteAwards, $eventData, $eventAwardData] = SeparateAwards($userAwards);
 
@@ -80,32 +86,32 @@ function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
     if (!empty($gameAwards)) {
         $firstGameAward = $firstVisibleIndex($gameAwards);
         if ($firstGameAward >= 0) {
-            $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
+            $groups[] = [$firstGameAward, $gameAwards, "Game Awards", $maxGameAwards];
         }
     }
 
     if (!empty($eventAwards)) {
         $firstEventAward = $firstVisibleIndex($eventAwards);
         if ($firstEventAward >= 0) {
-            $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
+            $groups[] = [$firstEventAward, $eventAwards, "Event Awards", null];
         }
     }
 
     if (!empty($siteAwards)) {
         $firstSiteAward = $firstVisibleIndex($siteAwards);
         if ($firstSiteAward >= 0) {
-            $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+            $groups[] = [$firstSiteAward, $siteAwards, "Site Awards", null];
         }
     }
 
     if (empty($groups)) {
-        $groups[] = [0, $gameAwards, "Game Awards"];
+        $groups[] = [0, $gameAwards, "Game Awards", $maxGameAwards];
     }
 
     usort($groups, fn ($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
-        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername, $eventData, $eventAwardData);
+        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername, $eventData, $eventAwardData, $group[3]);
     }
 }
 
@@ -119,6 +125,7 @@ function RenderAwardGroup(
     string $awardsOwnerUsername,
     Collection $eventData,
     SupportCollection $eventAwardData,
+    ?int $maxToRender = null,
 ): void {
     $numItems = count($awards);
     $numHidden = 0;
@@ -128,7 +135,6 @@ function RenderAwardGroup(
         }
     }
     if ($numItems === $numHidden) {
-        // No items to show
         return;
     }
 
@@ -176,12 +182,18 @@ function RenderAwardGroup(
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='component w-full place-content-center bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,52px))] xl:rounded xl:py-2'>";
     $imageSize = 48;
+    $rendered = 0;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
+            if ($maxToRender !== null && $rendered >= $maxToRender) {
+                break;
+            }
             RenderAward($award, $imageSize, $awardsOwnerUsername, $eventData, $eventAwardData);
+            $rendered++;
         }
     }
     echo "</div>";
+
     echo "</div>";
 }
 
@@ -280,8 +292,12 @@ function RenderAward(
                     $tooltipTitle = "{$event->title} - {$tierLabel}";
                 }
 
-                $tooltipDescription = "Awarded for earning at least {$actualEventAward->points_required} points";
+                $pointsLabel = Str::plural('point', $actualEventAward->points_required);
+                $tooltipDescription = "Awarded for earning at least {$actualEventAward->points_required} {$pointsLabel}";
             }
+
+            $tooltipTitle = e($tooltipTitle);
+            $tooltipDescription = e($tooltipDescription);
 
             echo avatar('event', $event->id,
                 link: route('event.show', $event->id),
@@ -292,6 +308,25 @@ function RenderAward(
                 context: $ownerUsername,
             );
         }
+
+        return;
+    }
+
+    if ($awardType === AwardType::Playtest->toLegacyInteger()) {
+        if (!$awardGameImage) {
+            return;
+        }
+
+        $tierLine = $awardGameTitle ? '<span>' . e($awardGameTitle) . '</span>' : '';
+
+        echo avatar('playtestAward', $awardData,
+            tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Playtester Award</p>{$tierLine}<p class='italic'>{$awardDate}</p></div>",
+            iconUrl: media_asset($awardGameImage),
+            iconSize: $imageSize,
+            iconClass: 'goldimage',
+            context: $ownerUsername,
+            hasLink: false,
+        );
 
         return;
     }
@@ -320,6 +355,19 @@ function RenderAward(
         $imagepath = asset('/assets/images/badge/patreon.png');
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
+    } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+        $description = getMediaContributionDescription($ownerUsername, (int) $awardData);
+        echo avatar("mediaContributionAward", $awardData,
+            tooltip: "<div class='p-2 w-fit max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
+            iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
+            iconSize: $imageSize,
+            iconClass: 'goldimage',
+            context: $ownerUsername,
+            altText: 'Media Contribution',
+            hasLink: false,
+        );
+
+        return;
     } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
@@ -344,6 +392,30 @@ function RenderAward(
 }
 
 /**
+ * Render the Badge cell for an award-reorder row: the badge itself, optionally paired with the
+ * "change displayed badge" affordance. Buffers the (echoing) award renderer so the picker wrapper
+ * doesn't have to straddle it inside the row loop.
+ *
+ * @param callable(): void $renderAward
+ */
+function renderBadgeCellContents(callable $renderAward, bool $showBadgePicker, int $gameId, string $iconHtml): string
+{
+    ob_start();
+    $renderAward();
+    $awardHtml = ob_get_clean();
+
+    if (!$showBadgePicker) {
+        return $awardHtml;
+    }
+
+    return
+        "<div class='flex items-center gap-2'>{$awardHtml}"
+        . "<button type='button' class='btn p-1 leading-none' "
+        . "title='Change displayed badge' aria-label='Change displayed badge' "
+        . "onclick='reorderSiteAwards.openBadgePicker({$gameId})'>{$iconHtml}</button></div>";
+}
+
+/**
  * @param Collection<int, Event> $eventData
  * @param SupportCollection<int, Collection<int, EventAward>> $eventAwardData
  */
@@ -357,6 +429,7 @@ function RenderAwardOrderTable(
     int $initialSectionOrder,
     Collection $eventData,
     SupportCollection $eventAwardData,
+    array $badgeCounts = [],
 ): void {
     // "Game Awards" -> "game"
     $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -386,6 +459,8 @@ function RenderAwardOrderTable(
     echo "</thead>";
     echo "<tbody>";
 
+    $changeBadgeIconHtml = Blade::render('<x-fas-right-left class="w-3.5 h-3.5" />');
+
     foreach ($awards as $award) {
         $awardType = $award['AwardType'];
         $awardData = $award['AwardData'];
@@ -411,6 +486,8 @@ function RenderAwardOrderTable(
             $awardTitle = "Achievement Points Earned by Others";
         } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
             $awardTitle = "Patreon Supporter";
+        } elseif ($awardTypeEnum === AwardType::MediaContribution) {
+            $awardTitle = "Media Contribution";
         } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
             $awardTitle = "Certified Legend";
         }
@@ -441,8 +518,16 @@ function RenderAwardOrderTable(
             >
         HTML;
 
+        // offer to change the displayed badge only when the game has an alternative to pick
+        $showBadgePicker = $awardTypeEnum === AwardType::Mastery && ($badgeCounts[(int) $awardData] ?? 0) >= 2;
+
         echo "<td class='$subduedOpacityClassName transition'>";
-        RenderAward($award, 32, $awardOwnerUsername, $eventData, $eventAwardData, false);
+        echo renderBadgeCellContents(
+            fn () => RenderAward($award, 32, $awardOwnerUsername, $eventData, $eventAwardData, false),
+            $showBadgePicker,
+            (int) $awardData,
+            $changeBadgeIconHtml,
+        );
         echo "</td>";
         echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
         echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
@@ -517,6 +602,33 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
         $firstDisplayOrders['eventAwards'],
         $firstDisplayOrders['siteAwards'],
     ];
+}
+
+function getMediaContributionDescription(string $username, int $currentTier): string
+{
+    $currentThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier);
+    $nextThreshold = PlayerBadge::getBadgeThreshold(AwardType::MediaContribution, $currentTier + 1);
+
+    $formattedCurrent = number_format($currentThreshold);
+    $achievement = "<p class='text-balance'>Awarded for contributing <span class='font-semibold'>{$formattedCurrent}</span> approved screenshots to game galleries.</p>";
+
+    if ($nextThreshold === 0) {
+        return $achievement;
+    }
+
+    $user = User::whereName($username)->first();
+    $eligibleCount = $user
+        ? GameScreenshot::query()->eligibleForMediaContributionBy($user)->count()
+        : 0;
+
+    $remaining = $nextThreshold - $eligibleCount;
+    if ($remaining <= 0) {
+        return $achievement;
+    }
+
+    $formattedRemaining = number_format($remaining);
+
+    return $achievement . "<p class='opacity-70'>{$formattedRemaining} more to next tier.</p>";
 }
 
 function generateManualMoveButtons(

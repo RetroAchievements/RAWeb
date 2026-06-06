@@ -49,7 +49,7 @@ $id = $id ?: 'input_' . Str::random();
                 {{ ($required || $requiredSilent) ? 'required' : '' }}
             >
             <span>
-                {!! trim($slot) ?: $label ?? __('validation.attributes.'.$name) !!} {{ $required && !$requiredSilent ? '*' : '' }}
+                {!! trim((string) $slot) ?: $label ?? __('validation.attributes.'.$name) !!} {{ $required && !$requiredSilent ? '*' : '' }}
             </span>
         </label>
     </div>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Community\Enums\UserRelationStatus;
+use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
@@ -20,6 +21,46 @@ class AchievementWonDataTest extends TestCase
     use BootstrapsConnect;
     use RefreshDatabase;
     use TestsPlayerAchievements;
+
+    public function testCountIsClampedToUpperBound(): void
+    {
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $this->get($this->apiUrl('achievementwondata', [
+            'a' => $achievement->id,
+            'c' => GetAchievementUnlocksAction::MAX_COUNT + 1,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['Count' => GetAchievementUnlocksAction::MAX_COUNT]);
+    }
+
+    public function testSoftDeletedUserIsExcludedFromRecentWinners(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        /** @var User $activeUser */
+        $activeUser = User::factory()->create(['display_name' => 'ActiveUser']);
+        /** @var User $deletedUser */
+        $deletedUser = User::factory()->create(['display_name' => 'DeletedUser']);
+
+        $this->addHardcoreUnlock($deletedUser, $achievement, Carbon::now()->subMinutes(10));
+        $this->addHardcoreUnlock($activeUser, $achievement, Carbon::now()->subMinutes(5));
+
+        $deletedUser->delete();
+
+        $response = $this->get($this->apiUrl('achievementwondata', ['a' => $achievement->id]))
+            ->assertStatus(200);
+
+        $winners = $response->json('Response.RecentWinner');
+        $this->assertCount(1, $winners);
+        $this->assertEquals('ActiveUser', $winners[0]['User']);
+    }
 
     public function testRecentWinners(): void
     {

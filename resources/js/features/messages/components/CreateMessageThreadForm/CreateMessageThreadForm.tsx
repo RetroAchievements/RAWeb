@@ -1,5 +1,6 @@
 import { type FC } from 'react';
 import { useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
 
@@ -58,7 +59,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
     reportableType,
     reportableId,
   );
-  const [body] = form.watch(['body']);
+  const body = useWatch({ name: 'body', control: form.control });
 
   const query = useUserSearchQuery({ initialSearchTerm: toUser?.displayName ?? '' });
 

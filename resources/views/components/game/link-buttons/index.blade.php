@@ -25,11 +25,11 @@ $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $gameTickets = Ticket::forGame($game)->unresolved();
+    $gameTickets = Ticket::forGame($game)->open();
     if ($isViewingOfficial) {
-        $gameTickets->officialCore();
+        $gameTickets->promoted();
     } else {
-        $gameTickets->unofficial();
+        $gameTickets->unpromoted();
     }
     $numOpenTickets = $gameTickets->count();
 }
@@ -67,7 +67,7 @@ if ($canSeeOpenTickets) {
                 icon="💾"
                 :href="route('game.hashes.index', ['game' => $game])"
             >
-                Supported Game Files
+                Supported Game Hashes
             </x-game.link-buttons.game-link-button>
         @endcan
     @endif

@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
@@ -9,7 +9,7 @@ import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-export const UserPostsMainRoot: FC = memo(() => {
+export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =
     usePageProps<App.Community.Data.UserRecentPostsPageProps>();
 
@@ -47,4 +47,4 @@ export const UserPostsMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

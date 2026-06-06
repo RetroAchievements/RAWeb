@@ -11,6 +11,7 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\User;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 
@@ -205,20 +206,25 @@ function submitTopicComment(
         return $latestPost;
     }
 
+    $topic = ForumTopic::findOrFail($topicId);
+
+    // Comments by an effective author who satisfies the topic's role
+    // whitelist are trusted & auto-authorized.
+    $isAuthorized = ($user->ManuallyVerified ?? false)
+        || (new ForumTopicCommentPolicy())->matchesCommentRoleAllowlist($user, $topic);
+
     $newComment = new ForumTopicComment([
         'forum_topic_id' => $topicId,
         'body' => $commentPayload,
         'author_id' => $user->id,
         'sent_by_id' => $sentByUser?->id,
-        'is_authorized' => $user->ManuallyVerified ?? false,
+        'is_authorized' => $isAuthorized,
     ]);
     $newComment->save();
 
-    $topic = ForumTopic::find($topicId);
-
     setLatestCommentInForumTopic($topic, $newComment->id);
 
-    if ($user->ManuallyVerified ?? false) {
+    if ($isAuthorized) {
         // if user has any notifications pending for this post, assume they're no longer needed
         $notificationService = new SubscriptionNotificationService();
         $notificationService->resetNotification($user->id, SubscriptionSubjectType::ForumTopic, $topic->id);
@@ -306,7 +312,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->display_name}]\n\n" .
-        "[b][url=$hashesURL]Supported Game Files[/url][/b]\n\n" .
+        "[b][url=$hashesURL]Supported Game Hashes[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
         // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .

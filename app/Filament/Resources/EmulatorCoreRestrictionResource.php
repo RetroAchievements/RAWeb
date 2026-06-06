@@ -51,6 +51,11 @@ class EmulatorCoreRestrictionResource extends Resource
                     ])
                     ->helperText('Use Warned for minor issues, Unsupported for cores that should not earn hardcore, and Blocked for cores with major debilitating issues.'),
 
+                Forms\Components\TextInput::make('minimum_version')
+                    ->label('Minimum Version')
+                    ->placeholder('1.0.0')
+                    ->helperText('If the core reports a version at or above this value, the restriction is bypassed entirely. Cores reporting commit hashes will not bypass. Leave empty to always apply the restriction.'),
+
                 Forms\Components\TextInput::make('recommendation')
                     ->label('Recommendation')
                     ->maxLength(255)
@@ -89,6 +94,10 @@ class EmulatorCoreRestrictionResource extends Resource
                         ClientSupportLevel::Warned => 'info',
                         default => 'gray',
                     }),
+
+                Tables\Columns\TextColumn::make('minimum_version')
+                    ->label('Min Version')
+                    ->placeholder('—'),
 
                 Tables\Columns\TextColumn::make('recommendation')
                     ->label('Recommendation')

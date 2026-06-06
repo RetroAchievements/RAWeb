@@ -10,7 +10,7 @@
     <x-filament::input.wrapper class="w-24">
         <x-filament::input
             type="number"
-            wire:model.blur="pendingDisplayOrders.{{ $recordId }}"
+            wire:model.change="pendingDisplayOrders.{{ $recordId }}"
             min="0"
             max="10000"
         />

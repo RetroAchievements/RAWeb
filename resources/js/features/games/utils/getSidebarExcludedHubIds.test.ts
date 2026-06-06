@@ -31,7 +31,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, null, []);
 
     // ASSERT
-    expect(result).toEqual([...Object.values(hubIds)]);
+    expect(result).toEqual(Object.values(hubIds));
   });
 
   it('excludes series hubs but not event hubs', () => {
@@ -86,7 +86,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, null, []);
 
     // ASSERT
-    expect(result).toEqual([...Object.values(hubIds)]);
+    expect(result).toEqual(Object.values(hubIds));
   });
 
   it('combines all exclusions correctly', () => {

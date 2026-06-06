@@ -11,6 +11,7 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
+import { getCanCreateClaim } from '@/features/games/utils/getCanCreateClaim';
 
 export const ClaimActionButton: FC = () => {
   const { auth, backingGame, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -42,7 +43,7 @@ export const ClaimActionButton: FC = () => {
     return null;
   }
 
-  if (!claimData?.numClaimsRemaining && !claimData?.isSoleAuthor) {
+  if (!getCanCreateClaim(claimData)) {
     return (
       <BaseTooltip>
         <BaseTooltipTrigger>
@@ -50,20 +51,6 @@ export const ClaimActionButton: FC = () => {
         </BaseTooltipTrigger>
 
         <BaseTooltipContent>{t("You've used all your achievement set claims.")}</BaseTooltipContent>
-      </BaseTooltip>
-    );
-  }
-
-  if (claimData.numUnresolvedTickets >= 2) {
-    return (
-      <BaseTooltip>
-        <BaseTooltipTrigger>
-          <DisabledButton />
-        </BaseTooltipTrigger>
-
-        <BaseTooltipContent>
-          {t('You need to resolve your tickets before making any new claims.')}
-        </BaseTooltipContent>
       </BaseTooltip>
     );
   }
@@ -82,7 +69,7 @@ export const ClaimActionButton: FC = () => {
     );
   }
 
-  if (claimData.wouldBeCollaboration) {
+  if (claimData?.wouldBeCollaboration) {
     return (
       <ClaimConfirmationDialog
         data-testid="claim-button"
@@ -121,6 +108,7 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children, className }) => {
 
   return (
     <span
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- intentionally not a <button> because this represents a permanently disabled state.
       role="button"
       aria-disabled={true}
       className={baseButtonVariants({

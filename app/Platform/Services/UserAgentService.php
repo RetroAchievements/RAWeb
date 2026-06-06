@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Enums\ClientSupportLevel;
+use App\Models\ConnectOfflineSubmissionClient;
 use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
 
@@ -239,9 +240,9 @@ class UserAgentService
                             return -1;
                         } elseif ($versionOneNumber > $versionTwoNumber) {
                             return 1;
-                        } else {
-                            return 0;
                         }
+
+                        return 0;
                     }
 
                     // 1.0.1 > 1.0-dirty
@@ -261,7 +262,7 @@ class UserAgentService
 
     private static function splitVersion(string $version): array
     {
-        $parts = explode('.', str_replace('-', '.', $version));
+        $parts = explode('.', str_replace(['-', '_', '+'], '.', $version));
         $count = count($parts);
 
         // ignore any chunks preceding the numeric part
@@ -325,23 +326,38 @@ class UserAgentService
 
         $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
 
-        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
+        $emulatorUserAgent = $this->getEmulatorUserAgent($data);
         if (!$emulatorUserAgent) {
             return [ClientSupportLevel::Unknown, null];
         }
 
+        [$supportLevel, $coreRestriction] = $this->resolveBaseSupportLevel($emulatorUserAgent, $data, $userAgent);
+
+        if ($supportLevel->allowsHardcoreUnlocks() && $this->hasOfflineSubmissionClient($data)) {
+            return [ClientSupportLevel::SoftcoreOnly, $coreRestriction];
+        }
+
+        return [$supportLevel, $coreRestriction];
+    }
+
+    /**
+     * @return array{0: ClientSupportLevel, 1: ?EmulatorCoreRestriction}
+     */
+    private function resolveBaseSupportLevel(EmulatorUserAgent $emulatorUserAgent, array $data, string|array $userAgent): array
+    {
+        $isSoftcoreOnly = $emulatorUserAgent->emulator->softcore_only;
+
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
-
-            // TODO allow Filament to support this special case
-            /**
-             * special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
-             */
-            if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
-                return [ClientSupportLevel::Outdated, null];
-            }
-
             return [ClientSupportLevel::Blocked, null];
+        }
+
+        // softcore_only wins over a stale minimum_hardcore_version.
+        // Ordering matters: minimum_allowed_version still blocks ancient
+        // clients above, and core restrictions below are intentionally
+        // bypassed because softcore_only is a blanket emulator-wide flag.
+        if ($isSoftcoreOnly) {
+            return [ClientSupportLevel::SoftcoreOnly, null];
         }
 
         if ($emulatorUserAgent->minimum_hardcore_version) {
@@ -354,6 +370,20 @@ class UserAgentService
                 return [ClientSupportLevel::Full, null];
             }
 
+            // TODO allow Filament to support this special case
+            /**
+             * special case: Dolphin dev builds use a digits-digits format (eg: "2603-78")
+             * which doesn't compare correctly against the release minimum "2603a".
+             * dev builds >= 2603-78 contain the required stability fixes.
+             */
+            if ($data['client'] === 'Dolphin' && preg_match('/^\d+-\d+$/', $data['clientVersion'])) {
+                if (UserAgentService::versionCompare($data['clientVersion'], '2603-78') < 0) {
+                    return [ClientSupportLevel::Outdated, null];
+                }
+
+                return [ClientSupportLevel::Full, null];
+            }
+
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
                 return [ClientSupportLevel::Outdated, null];
             }
@@ -363,15 +393,37 @@ class UserAgentService
 
         // Core-specific restrictions can override the emulator-level result.
         $coreIdentifier = $this->extractCoreIdentifier($data);
-        if ($coreIdentifier) {
-            $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
-
-            if ($coreRestriction) {
-                return [$coreRestriction->support_level, $coreRestriction];
-            }
+        if (!$coreIdentifier) {
+            return [ClientSupportLevel::Full, null];
         }
 
-        return [ClientSupportLevel::Full, null];
+        $coreRestriction = EmulatorCoreRestriction::forCore($coreIdentifier)->first();
+        if (!$coreRestriction) {
+            return [ClientSupportLevel::Full, null];
+        }
+
+        // If the core meets the minimum version threshold, ignore the restriction entirely.
+        $coreVersion = $data['extra'][$coreIdentifier] ?? null;
+        if (
+            $coreRestriction->minimum_version
+            && $coreVersion !== null
+            && UserAgentService::versionCompare($coreVersion, $coreRestriction->minimum_version) >= 0
+        ) {
+            return [ClientSupportLevel::Full, null];
+        }
+
+        return [$coreRestriction->support_level, $coreRestriction];
+    }
+
+    public function getEmulatorUserAgent(string|array|null $userAgent): ?EmulatorUserAgent
+    {
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return null;
+        }
+
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
+
+        return EmulatorUserAgent::with('emulator')->firstWhere('client', $data['client']);
     }
 
     /**
@@ -398,5 +450,10 @@ class UserAgentService
         }
 
         return null;
+    }
+
+    private function hasOfflineSubmissionClient(array $data): bool
+    {
+        return ConnectOfflineSubmissionClient::whereIn('client', array_keys($data['extra'] ?? []))->exists();
     }
 }

@@ -4,16 +4,6 @@ import { createGame, createRaEvent, createZiggyProps } from '@/test/factories';
 import { EventShowMainRoot } from './EventShowMainRoot';
 
 describe('Component: EventShowMainRoot', () => {
-  beforeEach(() => {
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
-  });
-
   it('renders without crashing', () => {
     // ARRANGE
     const event = createRaEvent({

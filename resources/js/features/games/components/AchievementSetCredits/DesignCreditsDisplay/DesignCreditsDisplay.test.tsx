@@ -48,11 +48,11 @@ describe('Component: DesignCreditsDisplay', () => {
     expect(screen.getAllByText('Bob')[0]).toBeVisible();
   });
 
-  it('given testing credits exist, shows them in the tooltip', async () => {
+  it('given testing credits exist, shows them in the tooltip with credit dates', async () => {
     // ARRANGE
     const testingCredits = [
-      createUserCredits({ displayName: 'Charlie' }),
-      createUserCredits({ displayName: 'David' }),
+      createUserCredits({ displayName: 'Charlie', dateCredited: '2024-03-10T00:00:00Z' }),
+      createUserCredits({ displayName: 'David', dateCredited: '2024-05-20T00:00:00Z' }),
     ];
 
     render(
@@ -73,6 +73,8 @@ describe('Component: DesignCreditsDisplay', () => {
     });
     expect(screen.getAllByText('Charlie')[0]).toBeVisible();
     expect(screen.getAllByText('David')[0]).toBeVisible();
+    expect(screen.getAllByText(/3\/10\/2024/)[0]).toBeVisible();
+    expect(screen.getAllByText(/5\/20\/2024/)[0]).toBeVisible();
   });
 
   it('given writing credits exist, shows them in the tooltip', async () => {

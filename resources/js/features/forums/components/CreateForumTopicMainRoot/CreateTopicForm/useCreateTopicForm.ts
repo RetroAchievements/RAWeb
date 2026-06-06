@@ -6,7 +6,9 @@ import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateForumTopicMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicMutation';
 
@@ -21,14 +23,19 @@ export function useCreateTopicForm() {
   const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
   const { t } = useTranslation();
 
+  const draftKey = `create-topic-${forum.id}`;
+  const draft = loadDraft<FormValues>(draftKey);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: '',
-      body: '',
-      postAsUserId: 'self',
+      title: draft.title ?? '',
+      body: draft.body ?? '',
+      postAsUserId: draft.postAsUserId ?? 'self',
     },
   });
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useCreateForumTopicMutation();
 
@@ -46,6 +53,7 @@ export function useCreateTopicForm() {
       {
         loading: t('Submitting...'),
         success: ({ data }) => {
+          clearDraft();
           router.visit(route('forum-topic.show', { topic: data.newTopicId }));
 
           return t('Submitted!');

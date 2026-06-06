@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuDices, LuUser } from 'react-icons/lu';
 import { route } from 'ziggy-js';
@@ -11,7 +11,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameSuggestionsDataTable } from '../GameSuggestionsDataTable';
 
-export const SimilarGameSuggestionsMainRoot: FC = memo(() => {
+export const SimilarGameSuggestionsMainRoot: FC = () => {
   const { sourceGame } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   const { t } = useTranslation();
@@ -48,4 +48,4 @@ export const SimilarGameSuggestionsMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

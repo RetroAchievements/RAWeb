@@ -6,7 +6,7 @@ namespace App\Support\Cache;
 
 class CacheKey
 {
-    public const SystemMenuList = 'ui:menu:systems';
+    public const SystemMenuList = 'ui:menu:systems:v3';
 
     public static function buildGameCardDataCacheKey(int $gameId): string
     {
@@ -16,6 +16,16 @@ class CacheKey
     public static function buildGameSetBreadcrumbsCacheKey(int $gameSetId): string
     {
         return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs2");
+    }
+
+    public static function buildSystemGamesListCacheKey(int $systemId): string
+    {
+        return self::buildNormalizedCacheKey("system", $systemId, "games-list");
+    }
+
+    public static function buildHomePageClaimsCacheKey(string $claimStatus, int $count): string
+    {
+        return self::buildNormalizedCacheKey("home-page", "claims", $claimStatus, [$count]);
     }
 
     public static function buildUserLastLoginCacheKey(string $username): string

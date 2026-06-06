@@ -1,15 +1,15 @@
-import type { ColumnDef, Table } from '@tanstack/react-table';
+import type { ColumnDef, ColumnFiltersState, Table } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import type { FC } from 'react';
+import { useState } from 'react';
 import type { RouteName } from 'ziggy-js';
 
 import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
 import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
-import { isCurrentlyPersistingViewAtom } from '../../../state/game-list.atoms';
 import { DataTableToolbar } from './DataTableToolbar';
 
 // Suppress "Column with id 'achievementsPublished' does not exist".
@@ -47,23 +47,34 @@ const mockData: Model[] = [
 interface DataTableToolbarHarnessProps {
   columns?: ColumnDef<Model>[];
   data?: Model[];
+  defaultColumnFilters?: ColumnFiltersState;
   tableApiRouteName?: RouteName;
   unfilteredTotal?: number;
+  initialSorting?: { id: string; desc: boolean }[];
 }
 
 const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   columns = mockColumns,
   data = mockData,
+  defaultColumnFilters = [],
+  initialSorting = [{ id: 'title', desc: false }],
   tableApiRouteName,
   unfilteredTotal,
 }) => {
+  const [columnFilters, setColumnFilters] = useState(defaultColumnFilters);
+  const [sorting, setSorting] = useState(initialSorting);
+
   // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     data,
     columns,
     state: {
+      columnFilters,
       pagination: { pageIndex: 0, pageSize: 25 },
+      sorting,
     },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     rowCount: data.length ?? 0,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -71,6 +82,8 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   return (
     <DataTableToolbar
       table={table as Table<unknown>}
+      defaultColumnFilters={defaultColumnFilters}
+      defaultColumnSort={{ id: 'title', desc: false }}
       tableApiRouteName={tableApiRouteName}
       unfilteredTotal={unfilteredTotal ?? data.length}
     />
@@ -143,7 +156,7 @@ describe('Component: DataTableToolbar', () => {
 
   it(
     'given more than three options are selected, shows the selected count',
-    { retry: 2, timeout: 15000 },
+    { retry: 3 },
     async () => {
       // ARRANGE
       render(<DataTableToolbarHarness />, {
@@ -160,7 +173,6 @@ describe('Component: DataTableToolbar', () => {
       // ACT
       await userEvent.click(screen.getByRole('button', { name: /system/i }));
 
-      // Ensure the options are visible before we start trying to click on them.
       await waitFor(() => {
         screen.getByRole('option', { name: /NES/i });
       });
@@ -170,12 +182,9 @@ describe('Component: DataTableToolbar', () => {
       await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
       // ASSERT
-      await waitFor(
-        () => {
-          expect(screen.getByText(/3 selected/i)).toBeVisible();
-        },
-        { timeout: 3000 },
-      );
+      await waitFor(() => {
+        expect(screen.getByText(/3 selected/i)).toBeVisible();
+      });
     },
   );
 
@@ -282,9 +291,22 @@ describe('Component: DataTableToolbar', () => {
       {
         'page[number]': 1,
         'page[size]': 25,
-        sort: null,
+        sort: 'title',
       },
     ]);
+  });
+
+  it('given the user changed the sort order, shows a Reset button', () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness initialSorting={[{ id: 'system', desc: false }]} />, {
+      pageProps: {
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /reset/i })).toBeVisible();
   });
 
   it('given the table has no achievements published column, does not show the "Has achievements" filter', () => {
@@ -310,66 +332,6 @@ describe('Component: DataTableToolbar', () => {
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /has achievements/i })).not.toBeInTheDocument();
-  });
-
-  it('given the user does not have view persistence enabled, does not initially check the checkbox', () => {
-    // ARRANGE
-    render(<DataTableToolbarHarness />, {
-      pageProps: {
-        ziggy: createZiggyProps({ device: 'desktop' }),
-        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
-      },
-      jotaiAtoms: [
-        [isCurrentlyPersistingViewAtom, false], // !!
-        //
-      ],
-    });
-
-    // ASSERT
-    const checkboxEl = screen.getByRole('checkbox', { name: /remember my view/i });
-
-    expect(checkboxEl).toBeVisible();
-    expect(checkboxEl).not.toBeChecked();
-  });
-
-  it('given the user does have view persistence enabled, initially checks the checkbox', () => {
-    // ARRANGE
-    render(<DataTableToolbarHarness />, {
-      pageProps: {
-        ziggy: createZiggyProps({ device: 'desktop' }),
-        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
-      },
-      jotaiAtoms: [
-        [isCurrentlyPersistingViewAtom, true], // !!
-        //
-      ],
-    });
-
-    // ASSERT
-    const checkboxEl = screen.getByRole('checkbox', { name: /remember my view/i });
-
-    expect(checkboxEl).toBeVisible();
-    expect(checkboxEl).toBeChecked();
-  });
-
-  it('allows the user to tick the checkbox to toggle view persistence', async () => {
-    // ARRANGE
-    render(<DataTableToolbarHarness />, {
-      pageProps: {
-        ziggy: createZiggyProps({ device: 'desktop' }),
-        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
-      },
-      jotaiAtoms: [
-        [isCurrentlyPersistingViewAtom, false], // !!
-        //
-      ],
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('checkbox', { name: /remember my view/i }));
-
-    // ASSERT
-    expect(screen.getByRole('checkbox', { name: /remember my view/i })).toBeChecked();
   });
 
   it('given the route is api.set-request.user, shows "All systems" as the default system filter label', async () => {

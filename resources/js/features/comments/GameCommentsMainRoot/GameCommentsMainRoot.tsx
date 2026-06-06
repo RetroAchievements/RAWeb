@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList/CommentList';
@@ -10,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
-export const GameCommentsMainRoot: FC = memo(() => {
+export const GameCommentsMainRoot: FC = () => {
   const { auth, canComment, game, isSubscribed, paginatedComments } =
     usePageProps<App.Community.Data.CommentPageProps>();
 
@@ -63,4 +63,4 @@ export const GameCommentsMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

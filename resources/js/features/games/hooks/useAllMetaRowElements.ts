@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { route } from 'ziggy-js';
 
 import { buildMiscRowElements } from '../utils/buildMiscRowElements';
@@ -9,175 +8,113 @@ export function useAllMetaRowElements(
   game: App.Platform.Data.Game,
   allGameHubs: App.Platform.Data.GameSet[],
 ) {
-  const filteredHubs = useMemo(
-    () =>
-      allGameHubs.filter((hub) => hub.id !== hubIds.mature && hub.id !== hubIds.epilepsyWarning),
-    [allGameHubs],
+  const filteredHubs = allGameHubs.filter(
+    (hub) => hub.id !== hubIds.mature && hub.id !== hubIds.epilepsyWarning,
   );
 
-  const developerRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Developer -', 'Hacker -'],
-        primaryLabel: 'Developer',
-        altLabels: ['Hacker'],
-        fallbackValue: game.developer,
-      }),
-    [filteredHubs, game.developer],
-  );
+  const developerRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Developer -', 'Hacker -'],
+    primaryLabel: 'Developer',
+    altLabels: ['Hacker'],
+    fallbackValue: game.developer,
+  });
 
-  const publisherRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Publisher - '],
-        primaryLabel: 'Publisher',
-        fallbackValue: game.publisher,
-      }),
-    [filteredHubs, game.publisher],
-  );
+  const publisherRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Publisher - '],
+    primaryLabel: 'Publisher',
+    fallbackValue: game.publisher,
+  });
 
-  const hackOfRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Hacks - '],
-        primaryLabel: 'Hacks',
-      }),
-    [filteredHubs],
-  );
+  const hackOfRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Hacks - '],
+    primaryLabel: 'Hacks',
+  });
 
-  const genreRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Genre -', 'Subgenre -'],
-        primaryLabel: 'Genre',
-        altLabels: ['Subgenre'],
-        fallbackValue: game.genre,
-      }),
-    [filteredHubs, game.genre],
-  );
+  const genreRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Genre -', 'Subgenre -'],
+    primaryLabel: 'Genre',
+    altLabels: ['Subgenre'],
+    fallbackValue: game.genre,
+  });
 
-  const languageRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Meta - Language -', 'Meta - Language Patch -'],
-        primaryLabel: 'Meta - Language',
-        altLabels: ['Meta - Language Patch'],
-        altLabelsLast: true,
-        markAltLabels: true,
-      }),
-    [filteredHubs],
-  );
+  const languageRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Meta - Language -', 'Meta - Language Patch -'],
+    primaryLabel: 'Meta - Language',
+    altLabels: ['Meta - Language Patch'],
+    altLabelsLast: true,
+    markAltLabels: true,
+  });
 
-  const themeRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Theme -'],
-        primaryLabel: 'Theme',
-      }),
-    [filteredHubs],
-  );
+  const themeRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Theme -'],
+    primaryLabel: 'Theme',
+  });
 
-  const perspectiveRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Perspective -'],
-        primaryLabel: 'Perspective',
-      }),
-    [filteredHubs],
-  );
+  const perspectiveRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Perspective -'],
+    primaryLabel: 'Perspective',
+  });
 
-  const featureRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Feature -', 'Game Mechanic -'],
-        primaryLabel: 'Feature',
-        altLabels: ['Game Mechanic'],
-        altLabelsLast: false,
-      }),
-    [filteredHubs],
-  );
+  const featureRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Feature -', 'Game Mechanic -'],
+    primaryLabel: 'Feature',
+    altLabels: ['Game Mechanic'],
+    altLabelsLast: false,
+  });
 
-  const creditRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Credits -'],
-        primaryLabel: 'Credits',
-      }),
-    [filteredHubs],
-  );
+  const creditRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Credits -'],
+    primaryLabel: 'Credits',
+  });
 
-  const technicalRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Technical -'],
-        primaryLabel: 'Technical',
-      }),
-    [filteredHubs],
-  );
+  const technicalRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Technical -'],
+    primaryLabel: 'Technical',
+  });
 
-  const protagonistRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Protagonist -'],
-        primaryLabel: 'Protagonist',
-      }),
-    [filteredHubs],
-  );
+  const protagonistRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Protagonist -'],
+    primaryLabel: 'Protagonist',
+  });
 
-  const settingRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Setting -'],
-        primaryLabel: 'Setting',
-      }),
-    [filteredHubs],
-  );
+  const settingRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Setting -'],
+    primaryLabel: 'Setting',
+  });
 
-  const regionalRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Regional -'],
-        primaryLabel: 'Regional',
-      }),
-    [filteredHubs],
-  );
+  const regionalRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Regional -'],
+    primaryLabel: 'Regional',
+  });
 
-  const formatRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Format -'],
-        primaryLabel: 'Format',
-      }),
-    [filteredHubs],
-  );
+  const formatRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['Format -'],
+    primaryLabel: 'Format',
+  });
 
-  const raFeatureRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['RANews -', 'Custom Awards -'],
-        primaryLabel: 'RANews',
-        altLabels: ['Custom Awards'],
-      }),
-    [filteredHubs],
-  );
+  const raFeatureRowElements = buildMetaRowElements({
+    hubs: filteredHubs,
+    hubTitleIncludes: ['RANews -', 'Custom Awards -'],
+    primaryLabel: 'RANews',
+    altLabels: ['Custom Awards'],
+  });
 
-  const usedHubIdsFromOtherCategories = useMemo(() => {
-    const allRows = [
+  const usedHubIdsFromOtherCategories = new Set(
+    [
       ...creditRowElements,
       ...developerRowElements,
       ...featureRowElements,
@@ -193,74 +130,40 @@ export function useAllMetaRowElements(
       ...settingRowElements,
       ...technicalRowElements,
       ...themeRowElements,
-    ];
-
-    return new Set(allRows.map((row) => row.hubId).filter((id): id is number => Boolean(id)));
-  }, [
-    creditRowElements,
-    developerRowElements,
-    featureRowElements,
-    formatRowElements,
-    genreRowElements,
-    hackOfRowElements,
-    languageRowElements,
-    perspectiveRowElements,
-    protagonistRowElements,
-    publisherRowElements,
-    raFeatureRowElements,
-    regionalRowElements,
-    settingRowElements,
-    technicalRowElements,
-    themeRowElements,
-  ]);
-
-  const miscRowElements = useMemo(
-    () =>
-      buildMiscRowElements(filteredHubs, usedHubIdsFromOtherCategories, {
-        keepPrefixFor: ['Clones', 'Fangames', 'Series Hacks', 'Unlicensed Games'],
-      }),
-    [filteredHubs, usedHubIdsFromOtherCategories],
+    ]
+      .map((row) => row.hubId)
+      .filter((id): id is number => Boolean(id)),
   );
 
-  const allUsedHubIds = useMemo(() => {
-    const allRows = [
-      ...creditRowElements,
-      ...developerRowElements,
-      ...featureRowElements,
-      ...formatRowElements,
-      ...genreRowElements,
-      ...hackOfRowElements,
-      ...languageRowElements,
-      ...miscRowElements,
-      ...perspectiveRowElements,
-      ...protagonistRowElements,
-      ...publisherRowElements,
-      ...regionalRowElements,
-      ...settingRowElements,
-      ...technicalRowElements,
-      ...themeRowElements,
+  const miscRowElements = buildMiscRowElements(filteredHubs, usedHubIdsFromOtherCategories, {
+    keepPrefixFor: ['Clones', 'Fangames', 'Series Hacks', 'Unlicensed Games'],
+  });
 
-      // Don't include raFeatureRowElements - those show in the sidebar Additional Hubs, not metadata.
-    ];
+  const allUsedHubIds = [
+    ...new Set(
+      [
+        ...creditRowElements,
+        ...developerRowElements,
+        ...featureRowElements,
+        ...formatRowElements,
+        ...genreRowElements,
+        ...hackOfRowElements,
+        ...languageRowElements,
+        ...miscRowElements,
+        ...perspectiveRowElements,
+        ...protagonistRowElements,
+        ...publisherRowElements,
+        ...regionalRowElements,
+        ...settingRowElements,
+        ...technicalRowElements,
+        ...themeRowElements,
 
-    return [...new Set(allRows.map((row) => row.hubId).filter(Boolean))] as number[];
-  }, [
-    creditRowElements,
-    developerRowElements,
-    featureRowElements,
-    formatRowElements,
-    genreRowElements,
-    hackOfRowElements,
-    languageRowElements,
-    miscRowElements,
-    perspectiveRowElements,
-    protagonistRowElements,
-    publisherRowElements,
-    regionalRowElements,
-    settingRowElements,
-    technicalRowElements,
-    themeRowElements,
-  ]);
+        // Don't include raFeatureRowElements - those show in the sidebar Additional Hubs, not metadata.
+      ]
+        .map((row) => row.hubId)
+        .filter(Boolean),
+    ),
+  ] as number[];
 
   return {
     allUsedHubIds,

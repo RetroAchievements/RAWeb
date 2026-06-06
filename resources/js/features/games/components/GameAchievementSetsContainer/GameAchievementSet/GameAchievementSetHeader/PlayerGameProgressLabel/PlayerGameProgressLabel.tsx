@@ -1,4 +1,4 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { Trans } from 'react-i18next';
 import { LuLockOpen } from 'react-icons/lu';
 
@@ -16,7 +16,7 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
     unlockedPointsSoftcore,
     unlockedPointsWeighted,
     unlockedSoftcoreAchievements,
-  } = useMemo(() => getProgressStats(achievements), [achievements]);
+  } = getProgressStats(achievements);
 
   if (!unlockedAchievementsCount) {
     return null;

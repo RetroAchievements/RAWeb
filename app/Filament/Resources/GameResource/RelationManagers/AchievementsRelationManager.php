@@ -63,7 +63,12 @@ class AchievementsRelationManager extends RelationManager
         $user = Auth::user();
 
         if ($ownerRecord instanceof Game) {
-            return $user->can('manage', $ownerRecord);
+            // Playtest managers can access games but don't interact with achievements.
+            if ($user->hasRole(Role::PLAYTEST_MANAGER) && !$user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::ARTIST])) {
+                return false;
+            }
+
+            return $user->can('viewDetails', $ownerRecord);
         }
 
         return false;
@@ -178,7 +183,7 @@ class AchievementsRelationManager extends RelationManager
                     ->placeholder('All')
                     ->trueLabel('Promoted')
                     ->falseLabel('Unpromoted')
-                    ->default(true),
+                    ->default(($this->getCoreAchievementSet()?->achievements_published ?? 0) > 0),
 
                 Tables\Filters\TernaryFilter::make('duplicate_badges')
                     ->label('Has duplicate badge')

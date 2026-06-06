@@ -31,7 +31,8 @@ jobs:
               - '**/*.tsx'
               - 'package.json'
               - 'pnpm-lock.yaml'
-              - '*eslint*'
+              - '.oxlintrc*'
+              - '.oxfmtrc*'
               - 'tailwind.config.json'
               - 'lang/**/*.json'
 
@@ -186,12 +187,14 @@ jobs:
     name: Node.js Checks
     strategy:
       matrix:
-        check: ['tsc', 'lint']
+        check: ['tsc', 'lint', 'format']
         include:
           - check: tsc
             command: pnpm tsc
           - check: lint
             command: pnpm lint
+          - check: format
+            command: pnpm format:check
     steps:
       - name: Skip if no Node changes
         if: ${{ needs.changes.outputs.node != 'true' }}

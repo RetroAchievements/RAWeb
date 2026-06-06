@@ -113,4 +113,28 @@ class GameTest extends TestCase
                 'ReleasedAtGranularity' => null,
             ]);
     }
+
+    public function testGetGameMediaRestricted(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'is_media_restricted' => true,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+        ]);
+
+        $this->get($this->apiUrl('GetGame', ['i' => $game->id]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ImageIcon' => '/Images/000011.png',
+                'ImageTitle' => Game::PLACEHOLDER_IMAGE_PATH,
+                'ImageIngame' => Game::PLACEHOLDER_IMAGE_PATH,
+                'ImageBoxArt' => Game::PLACEHOLDER_IMAGE_PATH,
+            ]);
+    }
 }

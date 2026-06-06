@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementSetType;
 use InvalidArgumentException;
 
@@ -62,6 +63,13 @@ class AssociateAchievementSetToGameAction
             'order_column' => ($game->achievementSets()->max('order_column') ?? 0) + 1,
             'title' => $title,
         ]);
+
+        // The attach is a pivot insert and doesn't fire the GameAchievementSet
+        // observer, so we have to sync explicitly here.
+        $syncAction = new SyncGameParentGameIdAction();
+        foreach (GameAchievementSet::gameIdsAffectedBy($game->id, $achievementSet->id) as $affectedGameId) {
+            $syncAction->execute($affectedGameId);
+        }
     }
 
     private function isSpecialtyType(AchievementSetType $type): bool

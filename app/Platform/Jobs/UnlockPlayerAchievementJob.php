@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platform\Jobs;
 
 use App\Models\Achievement;
@@ -30,6 +32,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue
         private ?Carbon $timestamp = null,
         private readonly ?int $unlockedByUserId = null,
         private readonly ?int $gameHashId = null,
+        private readonly ?string $userAgent = null,
     ) {
         $this->timestamp ??= Carbon::now();
     }
@@ -55,6 +58,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue
             $this->timestamp,
             $this->unlockedByUserId ? User::findOrFail($this->unlockedByUserId) : null,
             $this->gameHashId ? GameHash::find($this->gameHashId) : null,
+            $this->userAgent,
         );
     }
 }

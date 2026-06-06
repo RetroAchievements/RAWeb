@@ -347,4 +347,40 @@ describe('Hook: useShortcodeBodyPreview', () => {
       expect(result.current.previewContent).toEqual('Play [game=668] or [game=1?set=9534]');
     });
   });
+
+  it('given the response contains entities that already exist, does not duplicate them', async () => {
+    // ARRANGE
+    const existingGame = createGame({ id: 123, title: 'Existing Game' });
+
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [createGame({ id: 123, title: 'Existing Game Updated' })],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+        convertedBody: '[game=123]',
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview(), {
+      jotaiAtoms: [
+        [persistedGamesAtom, [existingGame]],
+        //
+      ],
+    });
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview('[game=123]');
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      const { persistedGames } = result.current.unsafe_getPersistedValues();
+      expect(persistedGames).toHaveLength(1);
+      expect(persistedGames![0].title).toEqual('Existing Game');
+    });
+  });
 });

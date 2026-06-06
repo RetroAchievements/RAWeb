@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { RaProgression } from '@/common/components/RaProgression';
 import { RaWinCondition } from '@/common/components/RaWinCondition';
 import { cn } from '@/common/utils/cn';
@@ -62,9 +63,13 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
             />
 
             <div className="flex flex-col">
-              <a href={route('achievement.show', { achievementId: achievement.id })}>
+              <InertiaLink
+                href={route('achievement.show', { achievement: achievement.id })}
+                prefetch="desktop-hover-only"
+              >
                 {achievement.title}
-              </a>
+              </InertiaLink>
+
               <p className={cn(achievement.unlockedAt ? 'text-text' : 'text-neutral-500')}>
                 {achievement.description}
               </p>

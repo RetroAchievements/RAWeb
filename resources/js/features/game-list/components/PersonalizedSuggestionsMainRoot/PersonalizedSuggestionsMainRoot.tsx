@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuDices } from 'react-icons/lu';
 
@@ -9,7 +9,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameSuggestionsDataTable } from '../GameSuggestionsDataTable';
 
-export const PersonalizedSuggestionsMainRoot: FC = memo(() => {
+export const PersonalizedSuggestionsMainRoot: FC = () => {
   const { auth } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   const { t } = useTranslation();
@@ -41,4 +41,4 @@ export const PersonalizedSuggestionsMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

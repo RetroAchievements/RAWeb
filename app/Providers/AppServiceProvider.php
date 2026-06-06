@@ -9,7 +9,6 @@ use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
-use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\GenerateTypeScript;
@@ -18,6 +17,7 @@ use App\Console\Commands\ProcessFallbackBanner;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Http\InertiaSsrGateway;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Message;
@@ -25,7 +25,6 @@ use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use App\Platform\Services\UserLastActivityService;
-use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,11 +34,13 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
+use Inertia\Ssr\Gateway;
+use Inertia\Ssr\HttpGateway;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
         // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
+        $this->app->singleton(HttpGateway::class, InertiaSsrGateway::class);
+        $this->app->bind(Gateway::class, HttpGateway::class);
 
         // Track user recent activity timestamps in Redis and flush them periodically to the DB.
         // This keeps the users table indexes from constantly rebalancing 24/7.
@@ -83,9 +86,6 @@ class AppServiceProvider extends ServiceProvider
                 ProcessFallbackBanner::class,
                 SquashMigrations::class,
 
-                // User Accounts
-                CleanupAvatars::class,
-
                 // Settings
                 SystemAlert::class,
             ]);
@@ -110,6 +110,21 @@ class AppServiceProvider extends ServiceProvider
             'avatar' => $user->avatarUrl,
         ]);
 
+        // Allow the main app server to fetch logs from remote hosts (worker, api, etc.) via bearer token.
+        LogViewer::auth(function ($request) {
+            $bearerToken = $request->bearerToken();
+            if ($bearerToken) {
+                foreach (config('log-viewer.hosts', []) as $host) {
+                    $hostToken = $host['auth']['token'] ?? null;
+                    if ($hostToken && hash_equals($hostToken, $bearerToken)) {
+                        return true;
+                    }
+                }
+            }
+
+            return $request->user()?->can('viewLogViewer') ?? false;
+        });
+
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
@@ -130,18 +145,7 @@ class AppServiceProvider extends ServiceProvider
          * We'll set it to "not_disposable_email", which is much more intuitive.
          */
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
-            $rule = new DisposableEmailRule();
-
-            $error = null;
-            $failCallback = function (string $message) use (&$error): PotentiallyTranslatedString {
-                $error = $message;
-
-                return new PotentiallyTranslatedString($message, app('translator'));
-            };
-
-            $rule->validate($attribute, $value, $failCallback);
-
-            return empty($error);
+            return app('disposable_email.domains')->isNotDisposable($value);
         }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components

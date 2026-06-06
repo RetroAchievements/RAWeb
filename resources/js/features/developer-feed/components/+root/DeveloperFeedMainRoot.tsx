@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ActivePlayerFeed } from '@/common/components/ActivePlayerFeed';
@@ -12,7 +12,7 @@ import { RecentAwardsTable } from '../RecentAwardsTable';
 import { RecentLeaderboardEntriesTable } from '../RecentLeaderboardEntriesTable';
 import { RecentUnlocksTable } from '../RecentUnlocksTable';
 
-export const DeveloperFeedMainRoot: FC = memo(() => {
+export const DeveloperFeedMainRoot: FC = () => {
   const {
     activePlayers,
     awardsContributed,
@@ -68,4 +68,4 @@ export const DeveloperFeedMainRoot: FC = memo(() => {
       </div>
     </div>
   );
-});
+};

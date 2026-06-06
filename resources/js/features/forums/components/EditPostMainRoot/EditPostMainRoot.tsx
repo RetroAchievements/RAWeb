@@ -1,4 +1,4 @@
-import { type FC, memo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ForumBreadcrumbs } from '@/common/components/ForumBreadcrumbs';
@@ -8,7 +8,7 @@ import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview'
 import { ForumPostCard } from '../ForumPostCard';
 import { EditPostForm } from './EditPostForm';
 
-export const EditPostMainRoot: FC = memo(() => {
+export const EditPostMainRoot: FC = () => {
   const { forumTopicComment } = usePageProps<App.Data.EditForumTopicCommentPageProps>();
 
   const { t } = useTranslation();
@@ -33,4 +33,4 @@ export const EditPostMainRoot: FC = memo(() => {
       ) : null}
     </div>
   );
-});
+};

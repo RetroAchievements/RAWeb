@@ -7,11 +7,15 @@ namespace App\Providers;
 use App\Events\UserDeleted;
 use App\Listeners\SendUserRegistrationNotification;
 use App\Models\EventAchievement;
+use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Observers\EventAchievementObserver;
+use App\Observers\GameAchievementSetObserver;
+use App\Observers\GameObserver;
 use App\Observers\GameSetLinkObserver;
 use App\Observers\GameSetObserver;
 use App\Observers\LeaderboardEntryObserver;
@@ -78,6 +82,8 @@ class EventServiceProvider extends ServiceProvider
 
         EventAchievement::observe(EventAchievementObserver::class);
 
+        Game::observe(GameObserver::class);
+        GameAchievementSet::observe(GameAchievementSetObserver::class);
         GameSetLink::observe(GameSetLinkObserver::class);
         GameSet::observe(GameSetObserver::class);
 

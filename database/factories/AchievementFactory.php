@@ -45,7 +45,7 @@ class AchievementFactory extends Factory
             'is_promoted' => false,
             'type' => null,
             'points' => fake()->randomElement($pointValues),
-            'points_weighted' => rand(1, 1000),
+            'points_weighted' => 0,
             'image_name' => '00000',
             'modified_at' => Carbon::now(),
             'order_column' => rand(0, 500),
@@ -56,6 +56,7 @@ class AchievementFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_promoted' => true,
+            'points_weighted' => rand(1, 1000),
         ]);
     }
 

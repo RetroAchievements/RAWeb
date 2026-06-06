@@ -10,6 +10,7 @@ use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
+use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('Game')]
@@ -40,7 +41,11 @@ class GameData extends Data
         public Lazy|string $genre,
         public Lazy|string $guideUrl,
         public Lazy|string $imageBoxArtUrl,
+        #[LiteralTypeScriptType('{ width: number; height: number } | null')]
+        public Lazy|array|null $imageIngameDimensions,
         public Lazy|string $imageIngameUrl,
+        #[LiteralTypeScriptType('{ width: number; height: number } | null')]
+        public Lazy|array|null $imageTitleDimensions,
         public Lazy|string $imageTitleUrl,
         public Lazy|string $publisher,
         public Lazy|SystemData $system,
@@ -69,9 +74,11 @@ class GameData extends Data
             forumTopicId: Lazy::create(fn () => $game->forum_topic_id),
             genre: Lazy::create(fn () => $game->genre),
             guideUrl: Lazy::create(fn () => $game->legacy_guide_url),
-            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
+            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims),
             imageBoxArtUrl: Lazy::create(fn () => $game->image_box_art_url),
+            imageIngameDimensions: Lazy::create(fn () => $game->image_ingame_dimensions),
             imageIngameUrl: Lazy::create(fn () => $game->image_ingame_url),
+            imageTitleDimensions: Lazy::create(fn () => $game->image_title_dimensions),
             imageTitleUrl: Lazy::create(fn () => $game->image_title_url),
             isSubsetGame: Lazy::create(fn () => $game->is_subset_game),
             lastUpdated: Lazy::create(fn () => $game->lastUpdated),
@@ -80,8 +87,8 @@ class GameData extends Data
             numRequests: Lazy::create(fn () => $game->num_requests ?? 0),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
-            playersHardcore: Lazy::create(fn () => $game->players_hardcore),
-            playersTotal: Lazy::create(fn () => $game->players_total),
+            playersHardcore: Lazy::create(fn () => $game->players_hardcore ?? 0),
+            playersTotal: Lazy::create(fn () => $game->players_total ?? 0),
             pointsTotal: Lazy::create(fn () => $game->points_total),
             pointsWeighted: Lazy::create(fn () => $game->points_weighted),
             publisher: Lazy::create(fn () => $game->publisher),

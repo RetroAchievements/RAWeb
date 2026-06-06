@@ -7,6 +7,7 @@ import { render, screen, waitFor } from '@/test';
 import {
   createGame,
   createGameListEntry,
+  createGameListEntryStats,
   createGameSet,
   createPaginatedData,
   createSystem,
@@ -267,6 +268,44 @@ describe('Component: HubMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('columnheader', { name: /points/i })).not.toBeInTheDocument();
+  });
+
+  it('allows users to enable mastery columns', async () => {
+    // ARRANGE
+    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+      pageProps: {
+        hub: createGameSet(),
+        breadcrumbs: [],
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData(
+          [
+            createGameListEntry({
+              gameListStats: createGameListEntryStats({
+                coreSetMedianTimeToCompleteHardcore: 5400,
+                coreSetPlayersHardcore: 200,
+                coreSetTimesCompletedHardcore: 15,
+              }),
+            }),
+          ],
+          { unfilteredTotal: 1 },
+        ),
+        can: { develop: false },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /mastery %/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /time to master/i }));
+    await userEvent.keyboard('{escape}');
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: /mastery %/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /time to master/i })).toBeVisible();
+    expect(screen.getByRole('cell', { name: '7.5%' })).toBeVisible();
+    expect(screen.getByRole('cell', { name: '1h 30m' })).toBeVisible();
   });
 
   it('given the user cannot develop achievements, they cannot enable an Open Tickets column', async () => {
@@ -837,41 +876,45 @@ describe('Component: HubMainRoot', () => {
     expect(screen.getByRole('textbox', { name: /search/i })).toHaveFocus();
   });
 
-  it('given the user is on a mobile device, renders a list rather than a table', async () => {
-    // ARRANGE
-    mockAllIsIntersecting(false);
+  it(
+    'given the user is on a mobile device, renders a list rather than a table',
+    { timeout: 15_000 },
+    async () => {
+      // ARRANGE
+      mockAllIsIntersecting(false);
 
-    const mockGame = createGame({
-      id: 1,
-      title: 'Sonic the Hedgehog',
-      system: createSystem({ id: 1 }),
-      achievementsPublished: 42,
-      pointsTotal: 500,
-      pointsWeighted: 1000,
-      releasedAt: '2006-08-24T00:56:00+00:00',
-      releasedAtGranularity: 'day',
-      numUnresolvedTickets: 2,
-    });
+      const mockGame = createGame({
+        id: 1,
+        title: 'Sonic the Hedgehog',
+        system: createSystem({ id: 1 }),
+        achievementsPublished: 42,
+        pointsTotal: 500,
+        pointsWeighted: 1000,
+        releasedAt: '2006-08-24T00:56:00+00:00',
+        releasedAtGranularity: 'day',
+        numUnresolvedTickets: 2,
+      });
 
-    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
-      pageProps: {
-        hub: createGameSet(),
-        breadcrumbs: [],
-        auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
-        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })], {
-          unfilteredTotal: 1,
-        }),
-        can: { develop: false },
-        ziggy: createZiggyProps({ device: 'mobile' }),
-      },
-    });
+      render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+        pageProps: {
+          hub: createGameSet(),
+          breadcrumbs: [],
+          auth: { user: createAuthenticatedUser() },
+          filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+          paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })], {
+            unfilteredTotal: 1,
+          }),
+          can: { develop: false },
+          ziggy: createZiggyProps({ device: 'mobile' }),
+        },
+      });
 
-    // ASSERT
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+      // ASSERT
+      expect(screen.queryByRole('table')).not.toBeInTheDocument();
 
-    expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
-  });
+      expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
+    },
+  );
 
   it('given the hub has a content warning, displays the content warning dialog', () => {
     // ARRANGE

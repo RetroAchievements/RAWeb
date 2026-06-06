@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createGame, createGameRecentPlayer } from '@/test/factories';
 
@@ -9,6 +11,7 @@ describe('Component: GameRecentPlayers', () => {
     const { container } = render(<GameRecentPlayers />, {
       pageProps: {
         game: createGame(),
+        isRichPresenceExpanded: false,
         recentPlayers: [],
       },
     });
@@ -22,6 +25,7 @@ describe('Component: GameRecentPlayers', () => {
     render(<GameRecentPlayers />, {
       pageProps: {
         game: createGame(),
+        isRichPresenceExpanded: false,
         recentPlayers: [],
       },
     });
@@ -38,6 +42,7 @@ describe('Component: GameRecentPlayers', () => {
       pageProps: {
         backingGame: createGame(),
         game: createGame(),
+        isRichPresenceExpanded: false,
         recentPlayers,
       },
     });
@@ -51,7 +56,12 @@ describe('Component: GameRecentPlayers', () => {
     const recentPlayers = [createGameRecentPlayer(), createGameRecentPlayer()];
 
     render(<GameRecentPlayers />, {
-      pageProps: { backingGame: createGame(), game: createGame(), recentPlayers },
+      pageProps: {
+        backingGame: createGame(),
+        game: createGame(),
+        isRichPresenceExpanded: false,
+        recentPlayers,
+      },
     });
 
     // ASSERT
@@ -63,5 +73,33 @@ describe('Component: GameRecentPlayers', () => {
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(3); // 1 header + 2 data rows
+  });
+
+  it('given an RP message is clicked, toggles its expansion state', async () => {
+    // ARRANGE
+    const recentPlayers = [createGameRecentPlayer({ richPresence: 'Playing a level' })];
+
+    render(<GameRecentPlayers />, {
+      pageProps: {
+        backingGame: createGame({ title: 'Super Mario World' }),
+        game: createGame(),
+        isRichPresenceExpanded: false,
+        recentPlayers,
+      },
+    });
+
+    // ACT
+    const rpButtons = screen.getAllByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    await userEvent.click(rpButtons[0]);
+
+    // ASSERT
+    const allRpButtons = screen.getAllByRole('button', {
+      name: /toggle rich presence details/i,
+    });
+    for (const button of allRpButtons) {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    }
   });
 });

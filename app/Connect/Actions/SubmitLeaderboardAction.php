@@ -70,20 +70,20 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
-        $this->leaderboardId = request()->integer('i', 0);
-        $this->gameId = request()->integer('g', 0);
-        $this->achievementSetId = request()->integer('p', 0);
+        $this->leaderboardId = $request->integer('i', 0);
+        $this->gameId = $request->integer('g', 0);
+        $this->achievementSetId = $request->integer('p', 0);
 
-        $this->title = request()->input('n') ?? '';
-        $this->description = request()->input('d') ?? '';
-        $this->startTrigger = request()->input('s') ?? '';
-        $this->submitTrigger = request()->input('b') ?? '';
-        $this->cancelTrigger = request()->input('c') ?? '';
-        $this->valueDefinition = request()->input('l') ?? '';
-        $this->lowerIsBetter = request()->boolean('w', false);
-        $this->format = request()->input('f') ?? '';
+        $this->title = $request->input('n') ?? '';
+        $this->description = $request->input('d') ?? '';
+        $this->startTrigger = $request->input('s') ?? '';
+        $this->submitTrigger = $request->input('b') ?? '';
+        $this->cancelTrigger = $request->input('c') ?? '';
+        $this->valueDefinition = $request->input('l') ?? '';
+        $this->lowerIsBetter = $request->boolean('w', false);
+        $this->format = $request->input('f') ?? '';
 
-        $checksum = request()->input('h') ?? '';
+        $checksum = $request->input('h') ?? '';
         if (!$this->checksumMatches($checksum, $this->user->display_name)) {
             if ($this->user->username === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->username)) {
                 return $this->accessDenied('Invalid checksum.');
@@ -126,41 +126,52 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
-        $fields = [];
-
-        if ($leaderboard->title !== $this->title) {
-            $leaderboard->title = $this->title;
-            $fields[] = 'title';
-        }
-
-        if ($leaderboard->description !== $this->description) {
-            $leaderboard->description = $this->description;
-            $fields[] = 'description';
-        }
-
         if (!ValueFormat::isValid($this->format)) {
             return $this->invalidParameter('Unknown format: ' . $this->format);
         }
+
+        $newMem = $this->buildMemString();
+
+        $changes = [];
+        if ($leaderboard->title !== $this->title) {
+            $changes['title'] = $this->title;
+        }
+
+        if ($leaderboard->description !== $this->description) {
+            $changes['description'] = $this->description;
+        }
+
         if ($leaderboard->format !== $this->format) {
-            $leaderboard->format = $this->format;
-            $fields[] = 'format';
+            $changes['format'] = $this->format;
         }
 
         if ($leaderboard->rank_asc != $this->lowerIsBetter) {
-            $leaderboard->rank_asc = $this->lowerIsBetter;
-            $fields[] = 'order';
+            $changes['rank_asc'] = $this->lowerIsBetter;
         }
 
-        $newMem = $this->buildMemString();
         if ($leaderboard->trigger_definition != $newMem) {
-            $leaderboard->trigger_definition = $newMem;
-            $fields[] = 'logic';
+            $changes['trigger_definition'] = $newMem;
+        }
+
+        $labels = [];
+        foreach ($changes as $field => $value) {
+            if (!$this->user->can('updateField', [$leaderboard, $field])) {
+                return $this->accessDenied();
+            }
+
+            $leaderboard->{$field} = $value;
+
+            $labels[] = match ($field) {
+                'rank_asc' => 'order',
+                'trigger_definition' => 'logic',
+                default => $field,
+            };
         }
 
         if ($leaderboard->isDirty()) {
             $leaderboard->save();
 
-            if (in_array('logic', $fields)) {
+            if (isset($changes['trigger_definition'])) {
                 (new UpsertTriggerVersionAction())->execute(
                     $leaderboard,
                     $newMem,
@@ -169,12 +180,9 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
                 );
             }
 
-            $editString = implode(', ', $fields);
-            if (!empty($editString)) {
-                $this->addLegacyAuditComment(CommentableType::Leaderboard, $leaderboard->id,
-                    "{$this->user->display_name} edited this leaderboard's $editString."
-                );
-            }
+            $this->addLegacyAuditComment(CommentableType::Leaderboard, $leaderboard->id,
+                "{$this->user->display_name} edited this leaderboard's " . implode(', ', $labels) . '.'
+            );
         }
 
         return [

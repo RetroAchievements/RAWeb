@@ -48,14 +48,6 @@ describe('Component: GameShowMobileRoot', () => {
       writable: true,
       configurable: true,
     });
-
-    const mockIntersectionObserver = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: () => null,
-      unobserve: () => null,
-      disconnect: () => null,
-    });
-    window.IntersectionObserver = mockIntersectionObserver;
   });
 
   afterEach(() => {
@@ -127,6 +119,57 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     expect(screen.queryByTestId('game-mobile')).not.toBeInTheDocument();
+  });
+
+  it('given the game has screenshot dimensions, passes reserved frame dimensions to the media component', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=info';
+    window.location.search = '?tab=info';
+
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageIngameDimensions: { width: 256, height: 224 },
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      imageIngameUrl: 'ingame.jpg',
+      imageTitleUrl: 'title.jpg',
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'info'],
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        numScreenshots: 1,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+    const ingameFrame = ingameImage.closest('button');
+
+    expect(ingameFrame).not.toBeNull();
+    expect(ingameFrame).toHaveStyle({
+      aspectRatio: '256 / 224',
+      maxWidth: '100%',
+      width: '256px',
+    });
   });
 
   it('given the game has all required fields, renders the view', () => {
@@ -727,7 +770,10 @@ describe('Component: GameShowMobileRoot', () => {
     });
 
     render(<GameShowMobileRoot />, {
-      jotaiAtoms: [[currentTabAtom, 'community']],
+      jotaiAtoms: [
+        [currentTabAtom, 'community'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -767,7 +813,10 @@ describe('Component: GameShowMobileRoot', () => {
     const backingGame = createGame({ forumTopicId: undefined }); // !!
 
     render(<GameShowMobileRoot />, {
-      jotaiAtoms: [[currentTabAtom, 'community']],
+      jotaiAtoms: [
+        [currentTabAtom, 'community'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],

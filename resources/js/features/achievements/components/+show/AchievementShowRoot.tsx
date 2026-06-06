@@ -1,63 +1,53 @@
-import { type FC, useMemo } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import {
-  BaseTabs,
-  BaseTabsContent,
-  BaseTabsList,
-  BaseTabsTrigger,
-} from '@/common/components/+vendor/BaseTabs';
+import { BaseTabsContent } from '@/common/components/+vendor/BaseTabs';
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { VideoEmbed } from '@/common/components/VideoEmbed';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-import { useAchievementShowTabs } from '../../hooks/useAchievementShowTabs';
 import type { TabConfig } from '../../models';
+import { AchievementChangelog } from '../AchievementChangelog';
 import { AchievementCommentList } from '../AchievementCommentList';
+import { AchievementEventInfo } from '../AchievementEventInfo';
 import { AchievementGamePanel } from '../AchievementGamePanel';
 import { AchievementHero } from '../AchievementHero';
 import { AchievementInlineActions } from '../AchievementInlineActions';
 import { AchievementRecentUnlocks } from '../AchievementRecentUnlocks';
+import { AchievementTabs } from '../AchievementTabsList';
+import { ResetProgressDialog } from '../ResetProgressDialog';
+import { UpdatePromotedStatusDialog } from '../UpdatePromotedStatusDialog';
 
 export const AchievementShowRoot: FC = () => {
-  const { achievement, backingGame, gameAchievementSet } =
+  const { achievement, backingGame, can, eventAchievement, gameAchievementSet, isEventGame } =
     usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
 
-  const {
-    currentTab,
-    handleValueChange,
-    activeIndex,
-    setHoveredIndex,
-    tabRefs,
-    hoverIndicatorRef,
-    activeIndicatorStyles,
-    isAnimationReady,
-  } = useAchievementShowTabs();
+  const sourceAchievement = eventAchievement?.sourceAchievement;
 
-  const tabConfigs: TabConfig[] = useMemo(
-    () => [
-      { value: 'comments', label: t('Comments') },
-      {
-        value: 'unlocks',
-        label: (
-          <>
-            <span className="md:hidden">{t('Unlocks')}</span>
-            <span className="hidden md:block">{t('Recent Unlocks')}</span>
-          </>
-        ),
-      },
-      { value: 'changelog', label: t('Changelog') },
-    ],
-    [t],
-  );
+  const isRevealedEventAchievement =
+    isEventGame && !eventAchievement?.isObfuscated && !!sourceAchievement;
+
+  const mediaUrl = isRevealedEventAchievement ? sourceAchievement.embedUrl : achievement.embedUrl;
+
+  const tabConfigs = buildTabConfigs(t, {
+    isEventGame,
+    isRevealedEvent: isRevealedEventAchievement,
+    mediaUrl,
+  });
 
   // When the achievement belongs to a subset game, use the backing game for breadcrumbs.
   const breadcrumbGame = backingGame ?? achievement.game;
 
   return (
     <div>
+      {can?.updateAchievementIsPromoted ? <UpdatePromotedStatusDialog /> : null}
+
+      {!isEventGame && (achievement.unlockedAt || achievement.unlockedHardcoreAt) ? (
+        <ResetProgressDialog />
+      ) : null}
+
       <AchievementBreadcrumbs
         t_currentPageLabel={achievement.title as TranslatedString}
         system={breadcrumbGame?.system}
@@ -72,87 +62,71 @@ export const AchievementShowRoot: FC = () => {
           <AchievementGamePanel />
         </div>
 
+        {isEventGame ? (
+          <div className="lg:hidden">
+            <AchievementEventInfo />
+          </div>
+        ) : null}
+
         <div className="flex flex-col gap-6">
           <AchievementInlineActions />
 
-          <BaseTabs value={currentTab} onValueChange={handleValueChange}>
-            <div className="-mx-2.5 overflow-x-auto md:mx-0">
-              <div className="relative">
-                <BaseTabsList
-                  className={cn(
-                    'relative mb-3 flex w-max min-w-full justify-between rounded-none py-0',
-                    'md:w-auto md:min-w-0 md:justify-start md:gap-1 md:px-0',
-                    'bg-neutral-900 light:bg-neutral-200/40 md:bg-transparent light:md:bg-transparent',
+          {tabConfigs.length === 0 ? (
+            <AchievementRecentUnlocks />
+          ) : (
+            <AchievementTabs tabConfigs={tabConfigs}>
+              <BaseTabsContent value="comments" className="md:-mt-1">
+                <AchievementCommentList />
+              </BaseTabsContent>
+
+              {mediaUrl ? (
+                <BaseTabsContent value="tips">
+                  {/\.(png|jpg|jpeg|gif|webp)$/i.test(mediaUrl) ? (
+                    <a href={mediaUrl} target="_blank" rel="noreferrer">
+                      <img src={mediaUrl} alt={t('Media')} className="max-w-full" />
+                    </a>
+                  ) : (
+                    <VideoEmbed src={mediaUrl} />
                   )}
-                >
-                  <div
-                    ref={hoverIndicatorRef}
-                    className={cn(
-                      'pointer-events-none absolute left-0 top-0 rounded-md opacity-0 will-change-transform',
-                      'bg-neutral-700/60 light:bg-neutral-300/60',
-                    )}
-                  />
+                </BaseTabsContent>
+              ) : null}
 
-                  {tabConfigs.map(({ value, label }, index) => (
-                    <BaseTabsTrigger
-                      key={value}
-                      ref={(el) => {
-                        tabRefs.current[index] = el;
-                      }}
-                      value={value}
-                      variant={null}
-                      onMouseEnter={() => setHoveredIndex(index)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      className={cn(
-                        'relative z-10 h-full whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium',
-                        'bg-transparent transition-colors duration-200',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
+              <BaseTabsContent value="unlocks">
+                <AchievementRecentUnlocks />
+              </BaseTabsContent>
 
-                        activeIndex === index
-                          ? 'text-link'
-                          : 'text-neutral-500 hover:text-neutral-200 light:text-neutral-700 light:hover:text-neutral-900',
-                      )}
-                    >
-                      {label}
-                    </BaseTabsTrigger>
-                  ))}
-                </BaseTabsList>
-
-                <div
-                  data-testid="full-width-separator-line"
-                  className="absolute bottom-0 left-0 h-px w-full bg-neutral-700 light:bg-neutral-300"
-                  style={{ contain: 'layout' }}
-                />
-
-                <div
-                  data-testid="tab-indicator"
-                  className={cn(
-                    'absolute left-0 top-0 h-[2px] will-change-transform',
-                    'bg-link',
-                    isAnimationReady ? 'transition-all duration-200' : null,
-                  )}
-                  style={{
-                    ...activeIndicatorStyles,
-                    transitionTimingFunction: isAnimationReady
-                      ? 'cubic-bezier(0.65, 0, 0.35, 1)'
-                      : undefined,
-                  }}
-                />
-              </div>
-            </div>
-
-            <BaseTabsContent value="comments" className="md:-mt-1">
-              <AchievementCommentList />
-            </BaseTabsContent>
-
-            <BaseTabsContent value="unlocks">
-              <AchievementRecentUnlocks />
-            </BaseTabsContent>
-
-            <BaseTabsContent value="changelog">{'AchievementChangelog'}</BaseTabsContent>
-          </BaseTabs>
+              <BaseTabsContent value="changelog">
+                <AchievementChangelog />
+              </BaseTabsContent>
+            </AchievementTabs>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+function buildTabConfigs(
+  t: ReturnType<typeof useTranslation>['t'],
+  options: { isEventGame: boolean; isRevealedEvent: boolean; mediaUrl?: string | null },
+): TabConfig[] {
+  const { isEventGame, isRevealedEvent, mediaUrl } = options;
+
+  // Obfuscated event achievements show only inline unlocks (no tabs).
+  if (isEventGame && !isRevealedEvent) {
+    return [];
+  }
+
+  const tabs: TabConfig[] = [
+    { value: 'comments', label: t('Comments') },
+    ...(mediaUrl ? [{ value: 'tips' as const, label: t('Media') }] : []),
+    { value: 'unlocks', label: t('Recent Unlocks'), mobileLabel: t('Unlocks') },
+  ];
+
+  // Event achievements don't show a changelog.
+  if (!isEventGame) {
+    tabs.push({ value: 'changelog', label: t('Changelog') });
+  }
+
+  return tabs;
+}

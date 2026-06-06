@@ -1,3 +1,5 @@
+import type { MouseEvent as ReactMouseEvent } from 'react';
+
 import { act, renderHook } from '@/test';
 
 import { useHoverCardClickSuppression } from './useHoverCardClickSuppression';
@@ -58,7 +60,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
 
     // ACT
     act(() => {
-      result.current.handleTabClick(0);
+      result.current.handleTabClick(0, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ASSERT
@@ -71,7 +77,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
 
     // ... click the tab to suppress it ...
     act(() => {
-      result.current.handleTabClick(1);
+      result.current.handleTabClick(1, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ACT
@@ -92,7 +102,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
 
     // ... click the tab to suppress it ...
     act(() => {
-      result.current.handleTabClick(2);
+      result.current.handleTabClick(2, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ... verify it's suppressed ...
@@ -138,7 +152,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
     // ACT
     // ... click the tab ...
     act(() => {
-      result.current.handleTabClick(1);
+      result.current.handleTabClick(1, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ... pointer leaves immediately ...
@@ -165,7 +183,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
 
     // ... click the tab ...
     act(() => {
-      result.current.handleTabClick(0);
+      result.current.handleTabClick(0, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ... pointer leaves (starts 500ms timeout) ...
@@ -176,7 +198,11 @@ describe('Hook: useHoverCardClickSuppression', () => {
     // ACT
     // ... click the same tab again before timeout completes ...
     act(() => {
-      result.current.handleTabClick(0);
+      result.current.handleTabClick(0, {
+        ctrlKey: false,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
     });
 
     // ... advance time past what would have been the original timeout ...
@@ -192,5 +218,48 @@ describe('Hook: useHoverCardClickSuppression', () => {
     expect(result.current.openHoverCard).toEqual(null); // !! still suppressed
 
     vi.useRealTimers();
+  });
+
+  it('given the user ctrl+clicks a tab, does not suppress the hover card or change tabs', () => {
+    // ARRANGE
+    const onTabChange = vi.fn();
+    const { result } = renderHook(() => useHoverCardClickSuppression({ onTabChange }));
+
+    // ... open a hover card first ...
+    act(() => {
+      result.current.handleHoverCardOpenChange(0, true);
+    });
+    expect(result.current.openHoverCard).toEqual(0);
+
+    // ACT
+    act(() => {
+      result.current.handleTabClick(1, {
+        ctrlKey: true,
+        metaKey: false,
+        button: 0,
+      } as ReactMouseEvent);
+    });
+
+    // ASSERT
+    expect(onTabChange).not.toHaveBeenCalled();
+    expect(result.current.openHoverCard).toEqual(0);
+  });
+
+  it('given the user meta+clicks a tab, does not suppress the hover card or change tabs', () => {
+    // ARRANGE
+    const onTabChange = vi.fn();
+    const { result } = renderHook(() => useHoverCardClickSuppression({ onTabChange }));
+
+    // ACT
+    act(() => {
+      result.current.handleTabClick(1, {
+        ctrlKey: false,
+        metaKey: true,
+        button: 0,
+      } as ReactMouseEvent);
+    });
+
+    // ASSERT
+    expect(onTabChange).not.toHaveBeenCalled();
   });
 });

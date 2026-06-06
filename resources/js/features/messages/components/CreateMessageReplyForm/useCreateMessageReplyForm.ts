@@ -7,7 +7,9 @@ import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useFormDraft } from '@/common/hooks/useFormDraft';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageReplyMutation } from '@/features/messages/hooks/mutations/useCreateMessageReplyMutation';
 
@@ -21,10 +23,15 @@ export function useCreateMessageReplyForm() {
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
   const { t } = useTranslation();
 
+  const draftKey = `reply-message-${messageThread.id}`;
+  const draft = loadDraft<FormValues>(draftKey);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { body: '' },
+    defaultValues: { body: draft.body ?? '' },
   });
+
+  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useCreateMessageReplyMutation();
 
@@ -38,6 +45,8 @@ export function useCreateMessageReplyForm() {
     await toastMessage.promise(mutation.mutateAsync({ payload: normalizedPayload }), {
       loading: t('Submitting...'),
       success: () => {
+        clearDraft();
+
         router.visit(
           route('message-thread.show', {
             messageThread: messageThread.id,
@@ -52,7 +61,7 @@ export function useCreateMessageReplyForm() {
       },
       error: ({ response }: AxiosError<{ error: string }>) => {
         if (response?.data.error === 'muted_user') {
-          return t('Muted users can only message team accounts.');
+          return t('Muted users can only message RAdmin.');
         }
 
         if (response?.data.error === 'cannot_message_user') {

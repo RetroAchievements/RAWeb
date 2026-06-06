@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
@@ -9,29 +9,24 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-export const GameRecentPlayersList: FC = () => {
+interface GameRecentPlayersListProps {
+  canToggleExpanded: boolean;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+}
+
+export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
+  canToggleExpanded,
+  isExpanded,
+  onToggleExpanded,
+}) => {
   const { backingGame, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-
-  const toggleExpanded = (playerKey: string) => {
-    setExpandedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(playerKey)) {
-        newSet.delete(playerKey);
-      } else {
-        newSet.add(playerKey);
-      }
-
-      return newSet;
-    });
-  };
+  const { t } = useTranslation();
 
   return (
     <ol className="zebra-list flex flex-col">
       {recentPlayers.map((recentPlayer) => {
         const playerKey = `mobile-recent-player-${recentPlayer.user.displayName}`;
-        const isExpanded = expandedItems.has(playerKey);
 
         return (
           <li
@@ -78,14 +73,15 @@ export const GameRecentPlayersList: FC = () => {
             <button
               type="button"
               className={cn(
-                'cursor-pointer text-left text-2xs',
+                'text-left text-2xs',
                 'rounded focus:outline-none focus:ring-1 focus:ring-text focus:ring-offset-0',
 
+                canToggleExpanded ? 'cursor-pointer' : null,
                 !isExpanded ? 'truncate' : null,
               )}
-              onClick={() => toggleExpanded(playerKey)}
+              onClick={onToggleExpanded}
               aria-expanded={isExpanded}
-              aria-label={`Toggle rich presence details for ${recentPlayer.user.displayName}`}
+              aria-label={t('Toggle rich presence details')}
             >
               <RichPresenceMessage
                 gameTitle={backingGame.title}

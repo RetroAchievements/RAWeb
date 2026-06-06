@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
 
@@ -32,7 +33,7 @@ export const PreferredTierForm: FC<PreferredTierFormProps> = ({
     onSubmitSuccess,
   });
 
-  const selectedTierIndex = form.watch('tierIndex');
+  const selectedTierIndex = useWatch({ name: 'tierIndex', control: form.control });
 
   // Only show tiers the user has earned (tierIndex <= earned tier).
   const earnedAwards = eventAwards

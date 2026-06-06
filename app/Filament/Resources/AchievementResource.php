@@ -69,7 +69,10 @@ class AchievementResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+        /** @var Builder<Achievement> $query */
+        $query = parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+
+        return $query;
     }
 
     /**
@@ -507,7 +510,8 @@ class AchievementResource extends Resource
 
                     Actions\Action::make('audit-log')
                         ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
-                        ->icon('fas-clock-rotate-left'),
+                        ->icon('fas-clock-rotate-left')
+                        ->visible(fn ($record): bool => Auth::user()->can('viewModifications', $record)),
                 ]),
             ])
             ->toolbarActions([
@@ -527,11 +531,21 @@ class AchievementResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        return $page->generateNavigationItems([
+        /** @var User $user */
+        $user = Auth::user();
+
+        $record = method_exists($page, 'getRecord') ? $page->getRecord() : null;
+
+        $items = [
             Pages\Details::class,
             Pages\Logic::class,
-            Pages\AuditLog::class,
-        ]);
+        ];
+
+        if ($record && $user->can('viewModifications', $record)) {
+            $items[] = Pages\AuditLog::class;
+        }
+
+        return $page->generateNavigationItems($items);
     }
 
     public static function getPages(): array
@@ -550,11 +564,14 @@ class AchievementResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var Builder<Achievement> $query */
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
             ->with(['activeMaintainer.user', 'game']);
+
+        return $query;
     }
 
     public static function buildMaintainerForm(?Achievement $record): array
@@ -616,7 +633,7 @@ class AchievementResource extends Resource
 
         // Reassign any open tickets for this achievement to the new maintainer.
         $record->tickets()
-            ->unresolved()
+            ->open()
             ->update([
                 'ticketable_author_id' => $newMaintainerId,
             ]);

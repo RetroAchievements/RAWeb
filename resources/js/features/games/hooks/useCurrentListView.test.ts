@@ -8,7 +8,7 @@ import { currentListViewAtom, currentPlayableListSortAtom } from '../state/games
 import { useCurrentListView } from './useCurrentListView';
 
 describe('Hook: useCurrentListView', () => {
-  let mockRouterReload: ReturnType<typeof vi.fn>;
+  let mockRouterReload: ReturnType<typeof vi.fn<() => void>>;
 
   beforeEach(() => {
     vi.clearAllMocks();

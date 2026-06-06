@@ -56,7 +56,6 @@ Homestead.yaml
 # Caches
 *.tsbuildinfo
 .deptrac.cache
-.eslintcache
 /.pnpm-store
 
 # IDE and editor
@@ -67,13 +66,36 @@ Homestead.yaml
 /.nova
 /.project
 /.settings
-/.vscode
+/.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 nbproject
+
+# Laravel Boost
+/.agents
+/.amp
+/.codex
+/.gemini
+/.github/skills
+/.junie
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+/boost.json
+/.mcp.json
+/opencode.json
 
 # Docker and local dev
 /.vagrant
 /docker/nginx/logs
 /tmp
+
+# FrankenPHP / Octane
+/Caddyfile
+/Caddyfile.template
+/config/caddy/
+/data/caddy/
+/frankenphp
 
 # OS files
 ._*
@@ -82,9 +104,7 @@ nbproject
 
 # Misc
 .buildpath
-.mcp.json
 .rnd
-/resources/views/pages-legacy/interceptor/
 lang/php_*.json
 npm-debug.log
 yarn-error.log

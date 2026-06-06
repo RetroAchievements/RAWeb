@@ -60,8 +60,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
-            Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
-            Route::get('achievement/{achievementId}{slug?}', fn ($achievementId) => $this->handlePageRequest('achievementInfo', $achievementId))->name('achievement.show');
+            Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show')->middleware('cacheResponse');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
         });
 
@@ -69,7 +68,7 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
-            Route::middleware(['inertia'])->group(function () {
+            Route::middleware(['cacheResponse', 'inertia'])->group(function () {
                 Route::get('/', [HomeController::class, 'index'])->name('home');
 
                 Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');
@@ -93,7 +92,6 @@ class RouteServiceProvider extends ServiceProvider
              * user & permalinks
              */
             // Route::resource('user', UserController::class)->only('show');
-            // Route::resource('users', UserController::class)->only('index')->names(['index' => 'user.index']);
             Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
 
             Route::group([

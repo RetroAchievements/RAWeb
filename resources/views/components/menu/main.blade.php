@@ -11,10 +11,16 @@ use Illuminate\Support\Facades\Cache;
 $mobile ??= false;
 
 /* caching this saves about 750us on every page load */
-$menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addHours(1), function() {
+$menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addHours(1), function () {
     $systems = System::gameSystems()->active()
         ->orderBy('order_column')
-        ->get();
+        ->get()
+        ->map(fn (System $system) => [
+            'id' => $system->id,
+            'manufacturer' => $system->manufacturer,
+            'name' => $system->name,
+            'name_short' => $system->name_short,
+        ]);
 
     $menuSystemsList = [
         ['Nintendo' => [], 'Sony' => [], 'Atari' => []],
@@ -25,8 +31,8 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     foreach ($systems as $system) {
         $found = false;
         foreach ($menuSystemsList as &$column) {
-            if (array_key_exists($system->manufacturer, $column)) {
-                $column[$system->manufacturer][] = $system;
+            if (array_key_exists($system['manufacturer'], $column)) {
+                $column[$system['manufacturer']][] = $system;
                 $found = true;
                 break;
             }
@@ -65,9 +71,9 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             @foreach ($column as $manufacturer => $manufacturerSystems)
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
                     @foreach ($manufacturerSystems as $system)
-                        <x-dropdown-item :href="route('system.game.index', ['system' => $system])">
-                            <img src="{!! getSystemIconUrl($system) !!}" loading="lazy" width="16" height="16" alt='{{ $system->name }}'>
-                            <span>{{ $system->name }}</span>
+                        <x-dropdown-item :href="route('system.game.index', ['system' => $system['id']])">
+                            <img src="{{ getSystemIconUrl($system['name_short']) }}" loading="lazy" width="16" height="16" alt='{{ $system['name'] }}'>
+                            <span>{{ $system['name'] }}</span>
                         </x-dropdown-item>
                     @endforeach
             @endforeach
@@ -100,7 +106,6 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     <x-dropdown-item :href="url('viewforum.php?f=25')">Event Forums</x-dropdown-item>
     <x-dropdown-item :href="route('forum.recent-posts')">Recent Forum Posts</x-dropdown-item>
     <div class="dropdown-divider"></div>
-    <x-dropdown-item :href="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
     <x-dropdown-item :href="route('patreon-supporter.index')">Patreon Supporters</x-dropdown-item>
     <x-dropdown-item :href="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>
     <x-dropdown-item :href="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>

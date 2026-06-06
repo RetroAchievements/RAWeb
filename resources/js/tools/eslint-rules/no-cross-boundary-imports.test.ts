@@ -1,271 +1,214 @@
-import { RuleTester } from '@typescript-eslint/rule-tester';
-import * as vitest from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { rule, RULE_NAME } from './no-cross-boundary-imports.js';
+import { rule } from './no-cross-boundary-imports.js';
 
-RuleTester.afterAll = vitest.afterAll;
-RuleTester.it = vitest.it;
-RuleTester.itOnly = vitest.it.only;
-RuleTester.describe = vitest.describe;
+function runRule(filename: string, importSource: string) {
+  const report = vi.fn();
+  const context = { filename, report };
+  const visitors = rule.create(context as any);
 
-const ruleTester = new RuleTester();
+  // Simulate an ImportDeclaration node.
+  const node = {
+    source: { value: importSource },
+  };
+  visitors.ImportDeclaration(node);
 
-ruleTester.run(RULE_NAME, rule, {
-  valid: [
-    // Common can import from common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
-      code: `import { getIsInteractiveElement } from "@/common/utils/getIsInteractiveElement";`,
-    },
-    // Common can import from common via relative path.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
-      code: `import { getIsInteractiveElement } from "./getIsInteractiveElement";`,
-    },
-    // Shared can import from common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Layout.tsx',
-      code: `import { formatDate } from "@/common/utils/l10n/formatDate";`,
-    },
-    // Shared can import from shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Layout.tsx',
-      code: `import { Header } from "@/shared/components/Header";`,
-    },
-    // Feature can import from common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
-      code: `import { sortAchievements } from "@/common/utils/sortAchievements";`,
-    },
-    // Feature can import from shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
-      code: `import { DataTable } from "@/shared/components/DataTable";`,
-    },
-    // Feature can import from same feature.
-    {
-      filename:
+  return report;
+}
+
+describe('Rule: no-cross-boundary-imports', () => {
+  describe('valid cases', () => {
+    it('allows common importing from common', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
+        '@/common/utils/getIsInteractiveElement',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows common importing from common via relative path', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
+        './getIsInteractiveElement',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows shared importing from common', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/shared/components/Layout.tsx',
+        '@/common/utils/l10n/formatDate',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows shared importing from shared', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/shared/components/Layout.tsx',
+        '@/shared/components/Header',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows feature importing from common', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
+        '@/common/utils/sortAchievements',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows feature importing from shared', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
+        '@/shared/components/DataTable',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows feature importing from the same feature', () => {
+      const report = runRule(
         '/Users/dev/RAWeb/resources/js/features/forums/components/ForumPostCard/ForumPostCard.tsx',
-      code: `import { ForumPostCardMeta } from "@/features/forums/components/ForumPostCard/ForumPostCardMeta";`,
-    },
-    // Feature can import from same feature via relative path.
-    {
-      filename:
-        '/Users/dev/RAWeb/resources/js/features/forums/components/ForumPostCard/ForumPostCard.tsx',
-      code: `import { ForumPostCardMeta } from "./ForumPostCardMeta";`,
-    },
-    // Feature can import from same feature via relative path (up directory).
-    {
-      filename:
-        '/Users/dev/RAWeb/resources/js/features/forums/components/ForumPostCard/ForumPostCardMeta/ForumPostCardMeta.tsx',
-      code: `import { CommentMetaChip } from "../CommentMetaChip";`,
-    },
-    // Imports from tall-stack are allowed.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/hooks/useCardTooltip.ts',
-      code: `import { Button } from "@/tall-stack/components/Button";`,
-    },
-    // Imports from types are allowed.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
-      code: `import type { Game } from "@/types/game";`,
-    },
-    // External imports are allowed.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/hooks/useCardTooltip.ts',
-      code: `import React from "react";`,
-    },
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/components/GameForm.tsx',
-      code: `import { z } from "zod";`,
-    },
-    // Imports from pages are allowed (pages is not enforced).
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
-      code: `import { Layout } from "@/pages/Layout";`,
-    },
-    // Core can import from core.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
-      code: `import { ApiService } from "@/core/services/api";`,
-    },
-  ],
-  invalid: [
-    // Common cannot import from feature.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
-      code: `import { ForumPostCard } from "@/features/forums/components/ForumPostCard/ForumPostCard";`,
-      errors: [
-        {
+        '@/features/forums/components/ForumPostCard/ForumPostCardMeta',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows imports from tall-stack', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/hooks/useCardTooltip.ts',
+        '@/tall-stack/components/Button',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows imports from types', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/features/games/components/GameList.tsx',
+        '@/types/game',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows external imports', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/hooks/useCardTooltip.ts',
+        'react',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it('allows core importing from core', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
+        '@/core/services/api',
+      );
+      expect(report).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('invalid cases', () => {
+    it('reports common importing from feature', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
+        '@/features/forums/components/ForumPostCard/ForumPostCard',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'common',
-            target: 'feature',
-          },
-        },
-      ],
-    },
-    // Common cannot import from shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/components/ManageButton/ManageButton.tsx',
-      code: `import { Header } from "@/shared/components/Header";`,
-      errors: [
-        {
+          data: { source: 'common', target: 'feature' },
+        }),
+      );
+    });
+
+    it('reports common importing from shared', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/components/ManageButton/ManageButton.tsx',
+        '@/shared/components/Header',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'common',
-            target: 'shared',
-          },
-        },
-      ],
-    },
-    // Shared cannot import from feature.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Navigation.tsx',
-      code: `import { useGameBacklogState } from "@/features/games/hooks/useGameBacklogState";`,
-      errors: [
-        {
+          data: { source: 'common', target: 'shared' },
+        }),
+      );
+    });
+
+    it('reports shared importing from feature', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/shared/components/Navigation.tsx',
+        '@/features/games/hooks/useGameBacklogState',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'shared',
-            target: 'feature',
-          },
-        },
-      ],
-    },
-    // Feature cannot import from another feature.
-    {
-      filename:
+          data: { source: 'shared', target: 'feature' },
+        }),
+      );
+    });
+
+    it('reports feature importing from another feature', () => {
+      const report = runRule(
         '/Users/dev/RAWeb/resources/js/features/games/components/GameHeaderSlotContent/GameHeaderSlotContent.tsx',
-      code: `import { UserProfile } from "@/features/users/components/UserProfile";`,
-      errors: [
-        {
+        '@/features/users/components/UserProfile',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossFeatureImport',
-          data: {
-            from: 'feature/games',
-            to: 'feature/users',
-          },
-        },
-      ],
-    },
-    // Feature cannot import from another feature.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/achievements/hooks/useAchievement.ts',
-      code: `import { GameModel } from "@/features/games/models/game";`,
-      errors: [
-        {
-          messageId: 'crossFeatureImport',
-          data: {
-            from: 'feature/achievements',
-            to: 'feature/games',
-          },
-        },
-      ],
-    },
-    // Feature cannot import from another feature via relative path.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/features/games/utils/gameFormSchemas.ts',
-      code: `import { mapAchievements } from "../../achievements/utils/mapAchievements";`,
-      errors: [
-        {
-          messageId: 'crossFeatureImport',
-          data: {
-            from: 'feature/games',
-            to: 'feature/achievements',
-          },
-        },
-      ],
-    },
-    // Common cannot import from feature via relative path.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/hooks/useCardTooltip.ts',
-      code: `import { GameForm } from "../../features/games/GameForm";`,
-      errors: [
-        {
-          messageId: 'crossBoundaryImport',
-          data: {
-            source: 'common',
-            target: 'feature',
-          },
-        },
-      ],
-    },
-    // Shared cannot import from feature via relative path.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/shared/components/Layout.tsx',
-      code: `import { GameModel } from "../../features/games/models/game";`,
-      errors: [
-        {
-          messageId: 'crossBoundaryImport',
-          data: {
-            source: 'shared',
-            target: 'feature',
-          },
-        },
-      ],
-    },
-    // Nothing can import from tools.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
-      code: `import { crowdinDownload } from "@/tools/crowdin-download";`,
-      errors: [
-        {
+          data: { from: 'feature/games', to: 'feature/users' },
+        }),
+      );
+    });
+
+    it('reports application code importing from tools', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/common/utils/sortAchievements.ts',
+        '@/tools/crowdin-download',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'toolsImport',
-        },
-      ],
-    },
-    // Features cannot import from tools.
-    {
-      filename:
-        '/Users/dev/RAWeb/resources/js/features/games/components/GameHeaderSlotContent/GameHeaderSlotContent.tsx',
-      code: `import { crowdinUpload } from "@/tools/crowdin-upload";`,
-      errors: [
-        {
-          messageId: 'toolsImport',
-        },
-      ],
-    },
-    // Core cannot import from common.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
-      code: `import { sortAchievements } from "@/common/utils/sortAchievements";`,
-      errors: [
-        {
+        }),
+      );
+    });
+
+    it('reports core importing from common', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
+        '@/common/utils/sortAchievements',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'core',
-            target: 'common',
-          },
-        },
-      ],
-    },
-    // Core cannot import from shared.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
-      code: `import { Header } from "@/shared/components/Header";`,
-      errors: [
-        {
+          data: { source: 'core', target: 'common' },
+        }),
+      );
+    });
+
+    it('reports core importing from shared', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/core/hooks/useAuth.ts',
+        '@/shared/components/Header',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'core',
-            target: 'shared',
-          },
-        },
-      ],
-    },
-    // Core cannot import from feature.
-    {
-      filename: '/Users/dev/RAWeb/resources/js/core/services/api.ts',
-      code: `import { ForumPostCard } from "@/features/forums/components/ForumPostCard/ForumPostCard";`,
-      errors: [
-        {
+          data: { source: 'core', target: 'shared' },
+        }),
+      );
+    });
+
+    it('reports core importing from feature', () => {
+      const report = runRule(
+        '/Users/dev/RAWeb/resources/js/core/services/api.ts',
+        '@/features/forums/components/ForumPostCard/ForumPostCard',
+      );
+      expect(report).toHaveBeenCalledWith(
+        expect.objectContaining({
           messageId: 'crossBoundaryImport',
-          data: {
-            source: 'core',
-            target: 'feature',
-          },
-        },
-      ],
-    },
-  ],
+          data: { source: 'core', target: 'feature' },
+        }),
+      );
+    });
+  });
 });

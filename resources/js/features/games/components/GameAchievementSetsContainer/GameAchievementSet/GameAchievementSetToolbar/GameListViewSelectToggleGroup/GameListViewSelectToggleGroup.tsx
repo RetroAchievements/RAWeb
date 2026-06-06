@@ -11,9 +11,9 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useReloadDeferredOnBackForward } from '@/common/hooks/useReloadDeferredOnBackForward';
 import { cn } from '@/common/utils/cn';
 import { useCurrentListView } from '@/features/games/hooks/useCurrentListView';
-import { usePreloadDeferredLeaderboards } from '@/features/games/hooks/usePreloadDeferredLeaderboards';
 
 export const GameListViewSelectToggleGroup: FC = () => {
   const { allLeaderboards, backingGame, isViewingPublishedAchievements, numLeaderboards } =
@@ -24,7 +24,7 @@ export const GameListViewSelectToggleGroup: FC = () => {
 
   const { currentListView, setCurrentListView } = useCurrentListView();
 
-  usePreloadDeferredLeaderboards(numLeaderboards, allLeaderboards);
+  useReloadDeferredOnBackForward(numLeaderboards > 5 ? { allLeaderboards } : {});
 
   return (
     <BaseToggleGroup

@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "singleQuote": true,
+  "sortTailwindcss": {
+    "config": "./tailwind.config.js",
+    "attributes": [
+      "anchorClassName",
+      "baseCommandListClassName",
+      "containerClassName",
+      "gameTitleClassName",
+      "imgClassName",
+      "wrapperClassName"
+    ]
+  }
+}

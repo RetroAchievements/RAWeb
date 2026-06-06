@@ -3,7 +3,7 @@ import type { ProcessedVideo } from '@/common/models';
 /**
  * Supports three types of Twitch URLs:
  * 1. Video URLs: https://www.twitch.tv/videos/270709956 or https://www.twitch.tv/gamingwithmist/v/40482810
- * 2. Collection URLs: https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+ * 2. Collection URLs: https://www.twitch.tv/collections/cWHCMbAY1xQVDA or https://www.twitch.tv/username/c/3400323
  * 3. Clip URLs: https://clips.twitch.tv/AmorphousCautiousLegPanicVis
  */
 export function processTwitchUrl(url: string): ProcessedVideo | null {
@@ -24,8 +24,10 @@ export function processTwitchUrl(url: string): ProcessedVideo | null {
   const videoRegex =
     /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/.*(?:videos|[^/]+\/v)\/(\d+)([?=&+%\w.-]*)/i;
 
-  // Matches URLs like: https://www.twitch.tv/collections/cWHCMbAY1xQVDA.
-  const collectionRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/collections\/([a-z0-9]+)/i;
+  // Matches URLs like: https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+  // or the legacy format: https://www.twitch.tv/retroachievementsorg/c/3400323
+  const collectionRegex =
+    /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/(?:collections|[^/]+\/c)\/([a-z0-9]+)/i;
 
   // Matches URLs like: https://clips.twitch.tv/AmorphousCautiousLegPanicVis.
   const clipRegex = /(?:https?:\/\/)?clips\.twitch\.tv\/([a-zA-Z0-9-_]+)/i;

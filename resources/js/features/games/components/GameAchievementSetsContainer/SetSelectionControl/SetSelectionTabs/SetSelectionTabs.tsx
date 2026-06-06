@@ -73,8 +73,8 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                 prefetch="desktop-hover-only"
                 preserveScroll={true}
                 preserveState={true}
-                onClick={() => {
-                  handleTabClick(index);
+                onClick={(event) => {
+                  handleTabClick(index, event);
                 }}
                 onPointerLeave={() => {
                   handlePointerLeave(index);
@@ -82,6 +82,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
               >
                 <div
                   ref={(el) => {
+                    // eslint-disable-next-line react-compiler/react-compiler -- Standard ref callback pattern.
                     tabRefs.current[index] = el;
                   }}
                   className={cn(

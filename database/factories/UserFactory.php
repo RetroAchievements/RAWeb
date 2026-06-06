@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'ulid' => (string) Str::ulid(),
             'username' => $this->fakeUsername(),
             'display_name' => null,
-            'email' => fake()->unique()->safeEmail,
+            'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'Permissions' => Permissions::Registered,
             'password' => Hash::make('password'),
@@ -51,9 +51,13 @@ class UserFactory extends Factory
             'web_api_key' => 'apiKey',
             'remember_token' => Str::random(10),
             'banned_at' => null,
+            'unranked_at' => null,
         ];
     }
 
+    /**
+     * @phpstan-return static
+     */
     public function configure(): static
     {
         /**

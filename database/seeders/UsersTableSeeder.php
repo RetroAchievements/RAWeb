@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\Permissions;
+use App\Models\Comment;
+use App\Models\EventAchievement;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -12,6 +14,7 @@ use Database\Seeders\Concerns\SeedsUsers;
 use DateTime;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class UsersTableSeeder extends Seeder
 {
@@ -65,6 +68,12 @@ class UsersTableSeeder extends Seeder
             $this->prepareUser($user);
             $user->save();
         });
+
+        // special users with reserved IDs
+        $this->addTeamAccount(Comment::SYSTEM_USER_ID, 'system');
+        $this->addTeamAccount(EventAchievement::RAEVENTS_USER_ID, 'RAEvents');
+        $this->addTeamAccount(EventAchievement::DEVQUEST_USER_ID, 'DevQuest');
+        $this->addTeamAccount(EventAchievement::QATEAM_USER_ID, 'QATeam');
     }
 
     private function prepareUser(User &$user): void
@@ -73,6 +82,7 @@ class UsersTableSeeder extends Seeder
         $salt = config('app.legacy_password_salt');
 
         $user->legacy_salted_password = md5($user->username . $salt);
+        $user->web_api_key = Str::random(32);
         $user->points_hardcore = $user->points = 0; // factory seeds a user with hardcore points
         $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-6 months')->format(DateTime::ATOM));
         $user->timestamps = false;
@@ -134,5 +144,18 @@ class UsersTableSeeder extends Seeder
         }
 
         return $username;
+    }
+
+    private function addTeamAccount(int $id, string $name): void
+    {
+        $user = User::factory()->create([
+            'id' => $id,
+            'username' => $name,
+            'display_name' => $name,
+            'email' => '',
+        ]);
+        $this->prepareUser($user);
+        $user->assignRole(Role::TEAM_ACCOUNT);
+        $user->save();
     }
 }

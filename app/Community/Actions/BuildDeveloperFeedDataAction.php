@@ -127,14 +127,14 @@ class BuildDeveloperFeedDataAction
             ->orderByDesc('unlocked_at');
 
         if ($shouldUseDateRange) {
-            $thirtyDaysAgo = Carbon::now()->subDays(30);
-            $query->whereDate('unlocked_at', '>=', $thirtyDaysAgo);
+            $thirtyDaysAgo = Carbon::now()->subDays(30)->startOfDay();
+            $query->where('unlocked_at', '>=', $thirtyDaysAgo);
         }
 
         return $query
             ->take(200)
             ->get()
-            ->reject(fn ($unlock) => $unlock->user->unranked_at !== null)
+            ->reject(fn ($unlock) => $unlock->user === null || $unlock->user->unranked_at !== null)
             ->map(fn ($unlock) => new FeedRecentUnlockData(
                 achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
                 game: GameData::fromGame($unlock->achievement->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
@@ -151,13 +151,13 @@ class BuildDeveloperFeedDataAction
      */
     private function getRecentPlayerBadges(array $gameIds): array
     {
-        $thirtyDaysAgo = Carbon::now()->subDays(30);
+        $thirtyDaysAgo = Carbon::now()->subDays(30)->startOfDay();
 
         return PlayerBadge::from('user_awards as pb')
             ->with(['user', 'gameIfApplicable', 'gameIfApplicable.system'])
             ->whereIn('pb.award_key', $gameIds)
             ->whereIn('pb.award_type', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereDate('pb.awarded_at', '>=', $thirtyDaysAgo)
+            ->where(DB::raw('pb.awarded_at'), '>=', $thirtyDaysAgo)
             ->joinSub(
                 PlayerBadge::selectRaw('MAX(award_tier) as MaxExtra, award_key, award_type, user_id')
                     ->groupBy('award_key', 'award_type', 'user_id'),
@@ -172,7 +172,7 @@ class BuildDeveloperFeedDataAction
             ->orderByDesc('pb.awarded_at')
             ->take(50)
             ->get()
-            ->reject(fn ($award) => $award->user->unranked_at !== null)
+            ->reject(fn ($award) => $award->user === null || $award->user->unranked_at !== null)
             ->map(fn ($award) => new RecentPlayerBadgeData(
                 game: GameData::fromGame($award->gameIfApplicable)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 awardType: $award->award_tier === UnlockMode::Hardcore
@@ -200,7 +200,7 @@ class BuildDeveloperFeedDataAction
             ->orderBy('leaderboard_entries.updated_at', 'desc')
             ->take(200)
             ->get()
-            ->reject(fn ($entry) => $entry->user->unranked_at !== null)
+            ->reject(fn ($entry) => $entry->user === null || $entry->user->unranked_at !== null)
             ->map(fn ($entry) => new RecentLeaderboardEntryData(
                 leaderboard: LeaderboardData::fromLeaderboard($entry->leaderboard),
                 leaderboardEntry: LeaderboardEntryData::fromLeaderboardEntry($entry, $entry->leaderboard->format)->include('formattedScore'),

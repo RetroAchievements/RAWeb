@@ -4,6 +4,7 @@ import { LuFlag } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -65,19 +66,21 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                   ) : null}
 
                   {canUpdate ? (
-                    <a
-                      href={route('forum-topic-comment.edit', { comment: comment.id })}
+                    <InertiaLink
+                      href={route('forum-topic-comment.edit', {
+                        comment: comment.id,
+                      })}
                       className={baseButtonVariants({
                         size: 'sm',
                         className: 'max-h-[22px] !p-1 !text-2xs lg:!text-xs',
                       })}
                     >
                       {t('Edit')}
-                    </a>
+                    </InertiaLink>
                   ) : null}
 
                   {canReport ? (
-                    <a
+                    <InertiaLink
                       href={route('message-thread.create', {
                         to: 'RAdmin',
                         subject: `Report: Forum Post by ${comment.user?.displayName}`,
@@ -91,7 +94,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                     >
                       <LuFlag className="size-3" />
                       {t('Report')}
-                    </a>
+                    </InertiaLink>
                   ) : null}
 
                   <ForumPostCopyLinkButton comment={comment} topic={topic} />

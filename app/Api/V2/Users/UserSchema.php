@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Users;
 
+use App\Api\V2\UserAwards\UserAwardGameAwardsFilter;
+use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -92,18 +94,29 @@ class UserSchema extends Schema
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
 
+            HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
+            HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
+            HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
+            HasMany::make('awards', 'playerBadges')
+                ->type('user-awards')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    Scope::make('awardedFrom'),
+                    Scope::make('awardedTo'),
+                    Scope::make('eventId', 'forEventId'),
+                    Scope::make('gameId', 'forGameId'),
+                    new UserAwardGameAwardsFilter(),
+                    new UserAwardKindFilter(),
+                )
+                ->readOnly(),
 
             // TODO add relationships and relationship endpoints
             // - lastGame (BelongsTo Game)
-            // - playerAchievements (HasMany PlayerAchievement)
-            // - awards (HasMany PlayerBadge)
             // - following (BelongsToMany User) - users this user follows
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
-            // - claims (HasMany AchievementSetClaim)
-            // - wall comments (HasMany Comment, commentable_type=user.comment, commentable_id=self)
         ];
     }
 

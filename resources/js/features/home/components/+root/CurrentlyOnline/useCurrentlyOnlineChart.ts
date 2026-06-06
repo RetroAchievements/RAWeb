@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { useMemo } from 'react';
 
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
@@ -14,14 +13,10 @@ export function useCurrentlyOnlineChart(currentlyOnline: App.Data.CurrentlyOnlin
   const chartData = buildChartData(currentlyOnline?.logEntries ?? []);
 
   const maxPlayersOnline = Math.max(...(currentlyOnline?.logEntries ?? []));
-  const yAxisTicks = useMemo(() => {
-    const ticks = [];
-    for (let i = 0; i <= maxPlayersOnline + 1000; i += 1000) {
-      ticks.push(i);
-    }
-
-    return ticks;
-  }, [maxPlayersOnline]);
+  const yAxisTicks = Array.from(
+    { length: Math.floor((maxPlayersOnline + 1000) / 1000) + 1 },
+    (_, i) => i * 1000,
+  );
 
   const formatXAxisTick = (value: string) => formatDate(dayjs(value), 'LT');
   const formatYAxisTick = (value: number) => formatNumber(value);
