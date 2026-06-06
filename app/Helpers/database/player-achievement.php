@@ -49,22 +49,6 @@ function getAchievementUnlocksData(
 }
 
 /**
- * Gets the number of softcore and hardcore awards for an achievement since a given time.
- */
-function getUnlocksSince(int $id, string $date): array
-{
-    $softcoreCount = PlayerAchievement::where('achievement_id', $id)
-        ->where('unlocked_at', '>', $date)->count();
-    $hardcoreCount = PlayerAchievement::where('achievement_id', $id)
-        ->where('unlocked_hardcore_at', '>', $date)->count();
-
-    return [
-        'softcoreCount' => $softcoreCount,
-        'hardcoreCount' => $hardcoreCount,
-    ];
-}
-
-/**
  * Gets a list of users who have unlocked an achievement or list of achievements within a given time-range.
  */
 function getUnlocksInDateRange(array $achievementIDs, string $startTime, string $endTime, int $hardcoreMode): array
@@ -75,38 +59,33 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
 
     $column = $hardcoreMode ? 'unlocked_hardcore_at' : 'unlocked_at';
 
-    $dateQuery = "";
-    if (strtotime($startTime)) {
-        if (strtotime($endTime)) {
-            // valid start and end
-            $dateQuery = "AND pa.$column BETWEEN '$startTime' AND '$endTime'";
-        } else {
-            // valid start, invalid end
-            $dateQuery = "AND pa.$column >= '$startTime'";
-        }
-    } else {
-        if (strtotime($endTime)) {
-            // invalid start, valid end
-            $dateQuery = "AND pa.$column <= '$endTime'";
-        } else {
-            $dateQuery = "AND pa.$column IS NOT NULL";
-        }
-    }
+    $hasValidStart = (bool) strtotime($startTime);
+    $hasValidEnd = (bool) strtotime($endTime);
 
     $userArray = [];
     foreach ($achievementIDs as $nextID) {
-        $query = "SELECT ua.username AS User
-                      FROM player_achievements AS pa
-                      INNER JOIN users AS ua ON ua.id = pa.user_id
-                      WHERE pa.achievement_id = $nextID
-                      AND ua.unranked_at IS NULL
-                      $dateQuery
-                      ORDER BY ua.username";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                $userArray[$nextID][] = $db_entry['User'];
-            }
+        $query = PlayerAchievement::query()
+            ->join('users', 'users.id', '=', 'player_achievements.user_id')
+            ->where('player_achievements.achievement_id', $nextID)
+            ->whereNull('users.unranked_at');
+
+        if ($hasValidStart && $hasValidEnd) {
+            $query->whereBetween("player_achievements.$column", [$startTime, $endTime]);
+        } elseif ($hasValidStart) {
+            $query->where("player_achievements.$column", '>=', $startTime);
+        } elseif ($hasValidEnd) {
+            $query->where("player_achievements.$column", '<=', $endTime);
+        } else {
+            $query->whereNotNull("player_achievements.$column");
+        }
+
+        $usernames = $query
+            ->orderBy('users.username')
+            ->pluck('users.username')
+            ->all();
+
+        foreach ($usernames as $username) {
+            $userArray[$nextID][] = $username;
         }
     }
 

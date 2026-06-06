@@ -6,11 +6,7 @@ use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Platform\Enums\TicketableType;
-
-function GetUserData(string $username): ?array
-{
-    return User::whereName($username)->first()?->toArray();
-}
+use Illuminate\Support\Facades\DB;
 
 function getUserIDFromUser(?string $user): int
 {
@@ -24,25 +20,6 @@ function getUserIDFromUser(?string $user): int
     }
 
     return $userModel->id;
-}
-
-function getUserMetadataFromID(int $userID): ?array
-{
-    $query = "SELECT * FROM users WHERE id ='$userID'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
-    }
-
-    return null;
-}
-
-function validateUsername(string $userIn): ?string
-{
-    $user = User::whereName($userIn)->first();
-
-    return ($user !== null) ? $user->username : null;
 }
 
 /**
@@ -102,6 +79,59 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     return $libraryOut;
 }
 
+function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
+{
+    $applyPermsFilter = null;
+
+    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
+        $applyPermsFilter = fn ($query) => $query->where('Permissions', '=', $perms);
+    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Moderator) {
+        $applyPermsFilter = fn ($query) => $query->where('Permissions', '>=', $perms);
+    } elseif (!$showUntracked) {
+        return 0;
+    }
+
+    $query = User::withTrashed();
+
+    if ($showUntracked) {
+        if ($applyPermsFilter !== null) {
+            $applyPermsFilter($query);
+        } else {
+            $query->whereNotNull('unranked_at');
+        }
+    } else {
+        $requester = (string) $requestedBy;
+        $query->where(function ($query) use ($requester) {
+            $query->whereNull('unranked_at')
+                ->orWhere('username', '=', $requester)
+                ->orWhere('display_name', '=', $requester);
+        });
+        $applyPermsFilter($query);
+    }
+
+    match ($sortBy) {
+        1 => $query->orderByRaw('COALESCE(display_name, username) ASC'),
+        11 => $query->orderByRaw('COALESCE(display_name, username) DESC'),
+        2 => $query->orderBy('points_hardcore', 'desc'),
+        12 => $query->orderBy('points_hardcore', 'asc'),
+        3 => $query->orderBy('achievements_unlocked', 'desc'),
+        13 => $query->orderBy('achievements_unlocked', 'asc'),
+        4 => $query->orderBy('last_activity_at', 'desc'),
+        14 => $query->orderBy('last_activity_at', 'asc'),
+        default => $query->orderByRaw('COALESCE(display_name, username) ASC'),
+    };
+
+    $dataOut = $query
+        ->selectRaw('id, COALESCE(display_name, username) AS User, points_hardcore AS points, points_weighted, last_activity_at, achievements_unlocked AS NumAwarded')
+        ->offset($offset)
+        ->limit($count)
+        ->get()
+        ->map(fn ($model) => $model->getAttributes())
+        ->all();
+
+    return count($dataOut);
+}
+
 // TODO: Used in developerstats.blade.php. Migrate to a controller.
 function getDeveloperStatsTotalCount(int $devFilter = 7): int
 {
@@ -158,7 +188,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $data = [];
     $buildData = function ($query) use (&$devs, &$data) {
         $populateDevs = empty($devs);
-        foreach (legacyDbFetchAll($query) as $row) {
+        foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
             $data[$row['id']] = [
                 'Author' => $row['display_name'],
                 'Permissions' => $row['Permissions'],
@@ -180,7 +210,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         // build an ordered list of the user_ids that will be displayed
         // these will be used to limit the query results of the subsequent queries
         $devs = [];
-        foreach (legacyDbFetchAll($query . " LIMIT $offset, $count") as $row) {
+        foreach (collect(DB::select($query . " LIMIT $offset, $count"))->map(fn ($row) => (array) $row) as $row) {
             $devs[] = $row['id'];
         }
         if (empty($devs)) {
@@ -263,7 +293,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
               AND ach.user_id IN ($devList)
               AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
               GROUP BY ach.user_id";
-    foreach (legacyDbFetchAll($query) as $row) {
+    foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
         $data[$row['id']]['OpenTickets'] = $row['OpenTickets'];
     }
 
@@ -278,7 +308,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
               AND tick.state = '" . TicketState::Resolved->value . "'
               AND tick.resolver_id IN ($devList)
               GROUP BY tick.resolver_id";
-    foreach (legacyDbFetchAll($query) as $row) {
+    foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
         $data[$row['id']]['TicketsResolvedForOthers'] = $row['total'];
     }
 
@@ -289,7 +319,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
               WHERE sc.status IN ('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')
               AND ua.id IN ($devList)
               GROUP BY ua.id";
-    foreach (legacyDbFetchAll($query) as $row) {
+    foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
         $data[$row['id']]['ActiveClaims'] = $row['ActiveClaims'];
     }
 
@@ -312,27 +342,21 @@ function getMostAwardedUsers(array $gameIDs): array
         return $retVal;
     }
 
-    $gameAwardValues = implode("','", AwardType::gameValues());
-
-    $query = "SELECT ua.username AS User,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 0, 1, 0)) AS BeatenSoftcore,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 1, 1, 0)) AS BeatenHardcore,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 0, 1, 0)) AS Completed,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 1, 1, 0)) AS Mastered
-              FROM user_awards AS sa
-              LEFT JOIN users AS ua ON ua.id = sa.user_id
-              WHERE sa.award_type IN ('{$gameAwardValues}')
-              AND award_key IN (" . implode(",", $gameIDs) . ")
-              AND ua.unranked_at IS NULL
-              GROUP BY ua.username
-              ORDER BY ua.username";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
+    $retVal = DB::table('user_awards as sa')
+        ->leftJoin('users as ua', 'ua.id', '=', 'sa.user_id')
+        ->whereIn('sa.award_type', AwardType::gameValues())
+        ->whereIn('award_key', $gameIDs)
+        ->whereNull('ua.unranked_at')
+        ->groupBy('ua.username')
+        ->orderBy('ua.username')
+        ->selectRaw('ua.username AS User')
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 0, 1, 0)) AS BeatenSoftcore", [AwardType::GameBeaten->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 1, 1, 0)) AS BeatenHardcore", [AwardType::GameBeaten->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 0, 1, 0)) AS Completed", [AwardType::Mastery->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 1, 1, 0)) AS Mastered", [AwardType::Mastery->value])
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 
     return $retVal;
 }
@@ -347,28 +371,25 @@ function getMostAwardedGames(array $gameIDs): array
         return $retVal;
     }
 
-    $gameAwardValues = implode("','", AwardType::gameValues());
-
-    $query = "SELECT gd.title AS Title, sa.award_key AS ID, s.name AS ConsoleName, gd.image_icon_asset_path as GameIcon,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenSoftcore,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenHardcore,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS Completed,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS Mastered
-              FROM user_awards AS sa
-              LEFT JOIN games AS gd ON gd.id = sa.award_key
-              LEFT JOIN systems AS s ON s.id = gd.system_id
-              LEFT JOIN users AS ua ON ua.id = sa.user_id
-              WHERE sa.award_type IN ('{$gameAwardValues}')
-              AND award_key IN(" . implode(",", $gameIDs) . ")
-              GROUP BY sa.award_key, gd.title
-              ORDER BY Title";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
+    $retVal = DB::table('user_awards as sa')
+        ->leftJoin('games as gd', 'gd.id', '=', 'sa.award_key')
+        ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
+        ->leftJoin('users as ua', 'ua.id', '=', 'sa.user_id')
+        ->whereIn('sa.award_type', AwardType::gameValues())
+        ->whereIn('award_key', $gameIDs)
+        ->groupBy('sa.award_key', 'gd.title')
+        ->orderBy('Title')
+        ->selectRaw('gd.title AS Title')
+        ->selectRaw('sa.award_key AS ID')
+        ->selectRaw('s.name AS ConsoleName')
+        ->selectRaw('gd.image_icon_asset_path as GameIcon')
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenSoftcore", [AwardType::GameBeaten->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenHardcore", [AwardType::GameBeaten->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS Completed", [AwardType::Mastery->value])
+        ->selectRaw("SUM(IF(award_type = ? AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS Mastered", [AwardType::Mastery->value])
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 
     return $retVal;
 }
