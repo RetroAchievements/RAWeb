@@ -79,7 +79,22 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 $gameId = $achievement->game_id;
                 $this->game = $achievement->game;
             } elseif ($gameId !== $achievement->game_id) {
-                return $this->invalidParameter('All provided achievements must be from the same game.');
+                if ($this->game->parent_game_id === $achievement->game_id) {
+                    // achievement game is parent game. switch game to be the parent
+                    $gameId = $achievement->game_id;
+                    $this->game = $achievement->game;
+                } elseif ($gameId === $achievement->game->parent_game_id) {
+                    // achievement belongs to subset of currently tracked game. keep it
+                } elseif ($this->game->parent_game_id && $this->game->parent_game_id === $achievement->game->parent_game_id) {
+                    // both achievements belong to separate subsets of the same game. switch to the parent.
+                    $gameId = $this->game->parent_game_id;
+                    $this->game = Game::find($gameId);
+                } else {
+                    // achievements from two distinct games are being requested at the same time.
+                    // even if they can both be individually delegated, fail, as the process logic
+                    // can only work with one game at a time.
+                    return $this->invalidParameter('All provided achievements must be from the same game.');
+                }
             }
         }
 
@@ -92,7 +107,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
         $this->hardcore = $request->boolean('h', false);
 
-        // Check validation hash (note use of parameters k/u - the parameter may not have the same casing as the model)
+        // Check validation hash (note use of parameters k/a - the parameter may not have the same casing as the model)
         $validationHash = strtolower($request->input('v', ''));
 
         // Delegated unlocks will be rejected if the appropriate validation hash is not provided
@@ -191,7 +206,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 if ($this->hardcore) {
                     $this->user->points_hardcore += $achievement->points;
 
-                    if ($playerGame) {
+                    if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                         $playerGame->achievements_unlocked_hardcore++;
                     }
 
@@ -201,14 +216,14 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                         // it must be an upgrade from softcore.
                         $this->user->points -= $achievement->points;
 
-                        if ($playerGame) {
+                        if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                             $playerGame->achievements_unlocked--;
                         }
                     }
                 } else {
                     $this->user->points += $achievement->points;
 
-                    if ($playerGame) {
+                    if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                         $playerGame->achievements_unlocked++;
                     }
                 }
