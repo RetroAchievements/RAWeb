@@ -298,11 +298,6 @@ class GameScreenshotModerationResource extends Resource
                 (new RevalidateMediaContributionBadgeEligibilityAction())->execute($record->capturedBy);
             }
 
-            Notification::make()
-                ->success()
-                ->title($decision === ScreenshotReviewDecision::Primary ? 'Screenshot Approved and Set as Primary' : 'Screenshot Approved')
-                ->send();
-
             return true;
         } catch (ValidationException $e) {
             Notification::make()
@@ -425,8 +420,10 @@ class GameScreenshotModerationResource extends Resource
                     ->label('Reason')
                     ->options(collect(GameScreenshotRejectionReason::cases())
                         ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [$reason->value => $reason->label()])
+                        ->sortBy(fn (string $label, string $value) => [$value === GameScreenshotRejectionReason::Other->value ? 1 : 0, $label])
                         ->toArray()
                     )
+                    ->default(fn (GameScreenshot $record): ?string => ScreenshotReviewContext::make($record)->suggestedRejectionReason()?->value)
                     ->required(),
 
                 Forms\Components\Textarea::make('rejection_notes')

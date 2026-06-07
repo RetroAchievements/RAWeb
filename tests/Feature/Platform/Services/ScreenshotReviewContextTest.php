@@ -282,7 +282,7 @@ describe('Review Plan', function () {
         expect($context->recommendedAction())->toEqual(ScreenshotReviewDecision::Primary);
     });
 
-    it('recommends galery approval when the candidate matches the current ingame primary and the gallery has room', function () {
+    it('allows gallery approval without recommending it when the candidate matches the current ingame primary and the gallery has room', function () {
         // ARRANGE
         $system = System::factory()->create([
             'screenshot_resolutions' => [['width' => 1280, 'height' => 720]],
@@ -310,7 +310,7 @@ describe('Review Plan', function () {
 
         // ASSERT
         expect($context->canApproveToGallery())->toBeTrue();
-        expect($context->recommendedAction())->toEqual(ScreenshotReviewDecision::Gallery);
+        expect($context->recommendedAction())->toBeNull();
     });
 
     it('does not allow gallery approval when the candidate would auto-promote over an invalid ingame primary', function () {

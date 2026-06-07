@@ -84,11 +84,6 @@ class Index extends ListRecords
                     return false;
                 }
 
-                Notification::make()
-                    ->success()
-                    ->title('Screenshot Rejected')
-                    ->send();
-
                 return true;
             },
         );

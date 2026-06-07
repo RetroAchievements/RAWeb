@@ -7,6 +7,7 @@ namespace App\Platform\Services;
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
+use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
@@ -209,6 +210,21 @@ final class ScreenshotReviewContext
         });
     }
 
+    public function suggestedRejectionReason(): ?GameScreenshotRejectionReason
+    {
+        return $this->remember('suggestedRejectionReason', function (): ?GameScreenshotRejectionReason {
+            if ($this->hasInvalidResolution()) {
+                return GameScreenshotRejectionReason::WrongResolution;
+            }
+
+            if ($this->hasUnresolvedPrimaryPreviewMismatch()) {
+                return GameScreenshotRejectionReason::MissingMatchingCompanion;
+            }
+
+            return null;
+        });
+    }
+
     public function recommendedAction(): ?ScreenshotReviewDecision
     {
         return $this->remember('recommendedAction', function (): ?ScreenshotReviewDecision {
@@ -226,10 +242,6 @@ final class ScreenshotReviewContext
 
             if ($this->willPromoteIngameToPrimary() || $this->canApproveAndReplaceIngamePrimary()) {
                 return ScreenshotReviewDecision::Primary;
-            }
-
-            if ($this->canApproveToGallery()) {
-                return ScreenshotReviewDecision::Gallery;
             }
 
             return null;
