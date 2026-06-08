@@ -41,7 +41,7 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->helperText('The client string to match (eg: "RALibRetro", "Dolphin", "PCSX2")'),
 
                 Schemas\Components\Section::make('Minimum versions')
-                    ->icon('heroicon-s-photo')
+                    ->icon('heroicon-s-shield-exclamation')
                     ->schema([
                         Forms\Components\TextInput::make('minimum_hardcore_version')
                             ->label('Minimum Hardcore Version')
