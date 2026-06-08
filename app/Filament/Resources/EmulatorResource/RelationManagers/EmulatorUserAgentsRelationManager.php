@@ -87,7 +87,7 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->label('Minimum Hardcore Version')
                     ->placeholder('—')
                     ->tooltip(fn ($record) => 'Versions older than this can only play in softcore mode.' .
-                        ($record->pending_minimum_hardcore_version_at 
+                        ($record->pending_minimum_hardcore_version_at
                             ? (' This will change to ' . $record->pending_minimum_hardcore_version . ' in ' . floor($record->pending_minimum_hardcore_version_at->diffInDays(now(), true)) . ' days.')
                             : '')
                     )

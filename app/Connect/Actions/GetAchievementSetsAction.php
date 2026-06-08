@@ -490,13 +490,13 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                 if ($this->coreRestriction->recommendation) {
                     $description .= " {$this->coreRestriction->recommendation}";
                 }
-            } else if ($this->clientSupportLevel === ClientSupportLevel::SoftcorePending) {
+            } elseif ($this->clientSupportLevel === ClientSupportLevel::SoftcorePending) {
                 $userAgentService = new UserAgentService();
                 $emulatorUserAgent = $userAgentService->getEmulatorUserAgent($this->userAgent);
                 if (!$emulatorUserAgent || !$emulatorUserAgent->pending_minimum_hardcore_version_at) {
                     return;
                 }
-                $days = ceil($emulatorUserAgent->pending_minimum_hardcore_version_at->diffInDays(Carbon::now(), true));
+                $days = (int) ceil($emulatorUserAgent->pending_minimum_hardcore_version_at->diffInDays(Carbon::now(), true));
                 if ($days > 14) {
                     return;
                 }
