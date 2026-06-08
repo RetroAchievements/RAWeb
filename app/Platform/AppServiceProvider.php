@@ -56,6 +56,7 @@ use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
+use App\Platform\Commands\UpdateMinimumEmulatorVersions;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
@@ -156,6 +157,9 @@ class AppServiceProvider extends ServiceProvider
                 // Events
                 CreateAchievementOfTheWeek::class,
 
+                // Emulators
+                UpdateMinimumEmulatorVersions::class,
+
                 // Sync
                 SyncUnrankedUsersTable::class,
             ]);
@@ -176,6 +180,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(PruneGameRecentPlayers::class)->daily();
             $schedule->command(CheckDeveloperInactivity::class)->daily();
             $schedule->command(CheckForAchievementSetChanges::class)->daily();
+            $schedule->command(UpdateMinimumEmulatorVersions::class)->daily();
 
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
