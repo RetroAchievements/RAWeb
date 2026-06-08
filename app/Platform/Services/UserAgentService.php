@@ -337,6 +337,14 @@ class UserAgentService
             return [ClientSupportLevel::SoftcoreOnly, $coreRestriction];
         }
 
+        if ($supportLevel === ClientSupportLevel::Full
+            && $emulatorUserAgent->pending_minimum_hardcore_version
+            && $emulatorUserAgent->pending_minimum_hardcore_version_at) {
+            if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->pending_minimum_hardcore_version) < 0) {
+                $supportLevel = ClientSupportLevel::SoftcorePending;
+            }
+        }
+
         return [$supportLevel, $coreRestriction];
     }
 
