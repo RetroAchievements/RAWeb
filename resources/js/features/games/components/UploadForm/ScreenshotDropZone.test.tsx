@@ -165,11 +165,7 @@ describe('Component: ScreenshotDropZone', () => {
     // ARRANGE
     const fileInputRef = createFileInputRef();
     render(
-      <ScreenshotDropZone
-        fileInputRef={fileInputRef}
-        isResolutionValid={true}
-        previewUrl={null}
-      />,
+      <ScreenshotDropZone fileInputRef={fileInputRef} isResolutionValid={true} previewUrl={null} />,
     );
 
     const clickSpy = vi.fn();
