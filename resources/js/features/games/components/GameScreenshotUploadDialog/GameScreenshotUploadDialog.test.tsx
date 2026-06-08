@@ -270,7 +270,11 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByText(/valid resolution/i)).toBeVisible();
-      expect(screen.getByText(/doesn't match existing screenshots \(256x224\)/i)).toBeVisible();
+      expect(
+        screen.getByText(
+          /more likely to be accepted if you also submit a matching title screenshot/i,
+        ),
+      ).toBeVisible();
     });
   });
 

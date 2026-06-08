@@ -187,7 +187,6 @@ export const UploadForm: FC<UploadFormProps> = ({
             <BaseFormItem>
               <BaseFormControl>
                 <ScreenshotDropZone
-                  canonicalResolution={screenshotUploadConsistency?.canonicalResolution}
                   fileInputRef={fileInputRef}
                   hasConsistencyWarning={hasConsistencyWarning}
                   hasPreview={hasPreview}
@@ -197,7 +196,7 @@ export const UploadForm: FC<UploadFormProps> = ({
                   onFileChange={handleFileChange}
                   previewDimensions={previewDimensions}
                   previewUrl={previewUrl}
-                  screenshotResolutions={screenshotResolutions}
+                  selectedType={selectedType}
                   supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 />
               </BaseFormControl>
