@@ -9,6 +9,7 @@ use App\Models\GameScreenshot;
 use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Services\Atari2600WidthDoubler;
 use App\Platform\Services\GameScreenshotValidationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,7 @@ class SubmitPendingGameScreenshotAction
 {
     public function __construct(
         private readonly GameScreenshotValidationService $validationService = new GameScreenshotValidationService(),
+        private readonly Atari2600WidthDoubler $widthDoubler = new Atari2600WidthDoubler(),
     ) {
     }
 
@@ -47,19 +49,27 @@ class SubmitPendingGameScreenshotAction
         $this->validationService->validateResolution($width, $height, $game);
         $hash = $this->validationService->validateHash($file, $game);
 
-        // Add to the pending collection so no conversions are generated yet.
-        // Conversions are triggered later if a reviewer approves the screenshot.
-        $media = $game
-            ->addMedia($file->getRealPath())
-            ->usingFileName($hash . '.' . $file->guessExtension())
-            ->preservingOriginal()
-            ->withCustomProperties(['sha1' => $hash])
-            ->toMediaCollection('screenshots-pending');
+        $prepared = $this->widthDoubler->prepare($file->getRealPath(), $width, $game);
+
+        try {
+            // Add to the pending collection so no conversions are generated yet.
+            // Conversions are triggered later if a reviewer approves the screenshot.
+            $media = $game
+                ->addMedia($prepared->filePath)
+                ->usingFileName($hash . '.' . $prepared->extension($file->guessExtension()))
+                ->preservingOriginal()
+                ->withCustomProperties(['sha1' => $hash])
+                ->toMediaCollection('screenshots-pending');
+        } finally {
+            $prepared->cleanup();
+        }
+
+        $prepared->finalize($media);
 
         return GameScreenshot::create([
             'game_id' => $game->id,
             'media_id' => $media->id,
-            'width' => $width,
+            'width' => $prepared->width,
             'height' => $height,
             'type' => $type,
             'is_primary' => false,

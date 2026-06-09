@@ -38,26 +38,32 @@ function getCodeNoteCounts(User $user): array
 {
     $userId = $user->id;
 
-    $retVal = [];
-    $query = "SELECT gd.title as GameTitle, gd.image_icon_asset_path as GameIcon, s.name as ConsoleName, mn.game_id as GameID, COUNT(mn.game_id) as TotalNotes,
-              SUM(CASE WHEN mn.user_id = $userId THEN 1 ELSE 0 END) AS NoteCount
-              FROM memory_notes AS mn
-              LEFT JOIN games AS gd ON gd.id = mn.game_id
-              LEFT JOIN systems AS s ON s.id = gd.system_id
-              WHERE LENGTH(body) > 0
-              AND mn.deleted_at IS NULL
-              AND gd.id IN (SELECT DISTINCT game_id from memory_notes WHERE user_id = $userId AND deleted_at IS NULL)
-              AND gd.title IS NOT NULL
-              GROUP BY GameID, GameTitle
-              HAVING NoteCount > 0
-              ORDER BY NoteCount DESC, GameTitle";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
+    return MemoryNote::query()
+        ->select([
+            'gd.title as GameTitle',
+            'gd.image_icon_asset_path as GameIcon',
+            's.name as ConsoleName',
+            'memory_notes.game_id as GameID',
+        ])
+        ->selectRaw('COUNT(memory_notes.game_id) as TotalNotes')
+        ->selectRaw('SUM(CASE WHEN memory_notes.user_id = ? THEN 1 ELSE 0 END) AS NoteCount', [$userId])
+        ->leftJoin('games as gd', 'gd.id', '=', 'memory_notes.game_id')
+        ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
+        ->whereRaw('LENGTH(body) > 0')
+        ->whereIn('gd.id', function ($query) use ($userId) {
+            $query->select('game_id')
+                ->distinct()
+                ->from('memory_notes')
+                ->where('user_id', $userId)
+                ->whereNull('deleted_at');
+        })
+        ->whereNotNull('gd.title')
+        ->groupBy('GameID', 'GameTitle')
+        ->havingRaw('NoteCount > 0')
+        ->orderByDesc('NoteCount')
+        ->orderBy('GameTitle')
+        ->toBase() // force rows to come back as stdClass
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 }

@@ -9,7 +9,6 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
-use App\Models\Game;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
@@ -159,9 +158,9 @@ function getFilteredClaims(
     // Create claim type condition.
     $claimTypeCondition = '';
     if ($primaryClaim && !$collaborationClaim) {
-        $claimTypeCondition = "AND sc.claim_type = '" . ClaimType::Primary->value . "'";
+        $claimTypeCondition = "sc.claim_type = '" . ClaimType::Primary->value . "'";
     } elseif (!$primaryClaim && $collaborationClaim) {
-        $claimTypeCondition = "AND sc.claim_type = '" . ClaimType::Collaboration->value . "'";
+        $claimTypeCondition = "sc.claim_type = '" . ClaimType::Collaboration->value . "'";
     } elseif (!$primaryClaim && !$collaborationClaim) {
         return collect();
     }
@@ -169,9 +168,9 @@ function getFilteredClaims(
     // Create set type condition.
     $setTypeCondition = '';
     if ($newSetClaim && !$revisionClaim) {
-        $setTypeCondition = "AND sc.set_type = '" . ClaimSetType::NewSet->value . "'";
+        $setTypeCondition = "sc.set_type = '" . ClaimSetType::NewSet->value . "'";
     } elseif (!$newSetClaim && $revisionClaim) {
-        $setTypeCondition = "AND sc.set_type = '" . ClaimSetType::Revision->value . "'";
+        $setTypeCondition = "sc.set_type = '" . ClaimSetType::Revision->value . "'";
     } elseif (!$newSetClaim && !$revisionClaim) {
         return collect();
     }
@@ -196,7 +195,7 @@ function getFilteredClaims(
     $statusCondition = '';
     $allStatusValues = array_map(fn ($case) => "'" . $case->value . "'", ClaimStatus::cases());
     if ($statuses != $allStatusValues) {
-        $statusCondition = 'AND sc.status IN (' . join(',', $statuses) . ')';
+        $statusCondition = 'sc.status IN (' . join(',', $statuses) . ')';
     }
 
     // Create the special condition.
@@ -214,19 +213,19 @@ function getFilteredClaims(
         $specials[] = "'" . ClaimSpecial::ScheduledRelease->value . "'";
     }
 
-    $specialCondition = 'AND FALSE';
+    $specialCondition = 'FALSE';
     if (!empty($specials)) {
-        $specialCondition = "AND sc.special_type IN (" . join(',', $specials) . ")";
+        $specialCondition = "sc.special_type IN (" . join(',', $specials) . ")";
     }
 
     // Create the developer status condition.
     $devStatusCondition = '';
     if ($developerClaim && !$juniorDeveloperClaim) {
-        $devStatusCondition = "AND ua.Permissions >= " . Permissions::Developer;
+        $devStatusCondition = "ua.Permissions >= " . Permissions::Developer;
     } elseif (!$developerClaim && $juniorDeveloperClaim) {
-        $devStatusCondition = "AND ua.Permissions = " . Permissions::JuniorDeveloper;
+        $devStatusCondition = "ua.Permissions = " . Permissions::JuniorDeveloper;
     } elseif (!$developerClaim && !$juniorDeveloperClaim) {
-        $devStatusCondition = "AND ua.Permissions < " . Permissions::JuniorDeveloper;
+        $devStatusCondition = "ua.Permissions < " . Permissions::JuniorDeveloper;
     }
 
     // Determine ascending or descending order.
@@ -252,28 +251,6 @@ function getFilteredClaims(
 
     $sortCondition .= $sortOrder;
 
-    $bindings = [];
-
-    $userCondition = '';
-    if (isset($username)) {
-        $bindings['username'] = $username;
-        $bindings['display_name'] = $username;
-        $userCondition = "AND (ua.username = :username OR ua.display_name = :display_name)";
-    }
-
-    $gameCondition = '';
-    if ($gameID !== null && $gameID > 0) {
-        $bindings['gameId'] = $gameID;
-        $gameCondition = "AND sc.game_id = :gameId";
-    }
-
-    // Get expiring claims only.
-    $havingCondition = '';
-    if ($getExpiringOnly) {
-        $havingCondition = "HAVING MinutesLeft <= 10080"; // 7 days = 7 * 24 * 60
-    }
-
-    // Get either the filtered count or the filtered data.
     $selectCondition = "
         sc.id AS ID,
         ua.ulid as ULID,
@@ -295,41 +272,40 @@ function getFilteredClaims(
     ";
     $selectCondition .= diffMinutesRemainingStatement('sc.finished_at', 'MinutesLeft');
 
-    $query = "
-        SELECT
-            $selectCondition
-        FROM
-            achievement_set_claims sc
-        LEFT JOIN
-            games AS gd ON gd.id = sc.game_id
-        LEFT JOIN
-            systems AS s ON s.id = gd.system_id
-        LEFT JOIN
-            users AS ua ON ua.id = sc.user_id
-        WHERE
-            TRUE
-            $claimTypeCondition
-            $setTypeCondition
-            $statusCondition
-            $specialCondition
-            $devStatusCondition
-            $userCondition
-            $gameCondition
-            $havingCondition
-        ORDER BY
-            $sortCondition";
+    $query = DB::table('achievement_set_claims as sc')
+        ->leftJoin('games as gd', 'gd.id', '=', 'sc.game_id')
+        ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
+        ->leftJoin('users as ua', 'ua.id', '=', 'sc.user_id')
+        ->selectRaw($selectCondition);
 
-    if ($limit !== null) {
-        $query .= ' LIMIT';
-        if ($offset !== null) {
-            $query .= ' :offset,';
-            $bindings['offset'] = $offset;
+    foreach ([$claimTypeCondition, $setTypeCondition, $statusCondition, $specialCondition, $devStatusCondition] as $rawCondition) {
+        if ($rawCondition !== '') {
+            $query->whereRaw($rawCondition);
         }
-        $query .= ' :limit';
-        $bindings['limit'] = $limit;
     }
 
-    $results = legacyDbFetchAll($query, $bindings);
+    if (isset($username)) {
+        $query->whereRaw('(ua.username = ? OR ua.display_name = ?)', [$username, $username]);
+    }
+
+    if ($gameID !== null && $gameID > 0) {
+        $query->where('sc.game_id', '=', $gameID);
+    }
+
+    if ($getExpiringOnly) {
+        $query->havingRaw('MinutesLeft <= 10080'); // 7 days
+    }
+
+    $query->orderByRaw($sortCondition);
+
+    if ($limit !== null) {
+        $query->limit($limit);
+        if ($offset !== null) {
+            $query->offset($offset);
+        }
+    }
+
+    $results = $query->get()->map(fn ($row) => (array) $row);
 
     // For V1 API backward compatibility, convert string enum values to legacy integers.
     if ($useLegacyIntegers) {
@@ -352,39 +328,22 @@ function getFilteredClaims(
  */
 function getActiveClaimCount(?User $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
 {
-    $bindings = [];
+    $query = AchievementSetClaim::query()
+        ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview]);
 
-    $userCondition = '';
     if (isset($user)) {
-        $bindings['userId'] = $user->id;
-        $userCondition = "AND user_id = :userId";
+        $query->where('user_id', $user->id);
     }
 
-    $claimTypeCondition = '';
     if (!$countCollaboration) {
-        $bindings['type'] = ClaimType::Primary->value;
-        $claimTypeCondition = 'AND claim_type = :type';
+        $query->where('claim_type', ClaimType::Primary);
     }
 
-    $specialCondition = '';
     if (!$countSpecial) {
-        $bindings['special'] = ClaimSpecial::None->value;
-        $specialCondition = 'AND special_type = :special';
+        $query->where('special_type', ClaimSpecial::None);
     }
 
-    $query = "
-        SELECT
-            COUNT(*) AS ActiveClaims
-        FROM
-            achievement_set_claims
-        WHERE
-            TRUE
-            $userCondition
-            $claimTypeCondition
-            $specialCondition
-            AND status IN ('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')";
-
-    return (int) legacyDbFetch($query, $bindings)['ActiveClaims'];
+    return $query->count();
 }
 
 /**
