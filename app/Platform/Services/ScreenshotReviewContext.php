@@ -282,7 +282,7 @@ final class ScreenshotReviewContext
         $typeLabel = strtolower($this->screenshot->type->label());
 
         return $this->currentPrimaryForType($this->screenshot->type)
-            ? "Approve and retire the current {$typeLabel} primary."
+            ? "Approve and replace the current {$typeLabel} primary."
             : "Approve as the first {$typeLabel} primary.";
     }
 
