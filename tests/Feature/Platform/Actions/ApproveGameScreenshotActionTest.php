@@ -120,7 +120,7 @@ it('carries the Atari 2600 original-capture image through the pending-to-approve
     app()->instance(FileManipulator::class, $fileManipulator);
 
     // ACT
-    (new ApproveGameScreenshotAction())->execute($pending->fresh(['media']), $reviewer);
+    (new ApproveGameScreenshotAction())->execute($pending->fresh(['media']), $reviewer, ScreenshotReviewDecision::Gallery);
 
     // ASSERT
     $approvedMedia = $pending->fresh()->media;
