@@ -215,7 +215,10 @@ class GameScreenshotModerationResource extends Resource
 
                         return new HtmlString(implode('', $lines));
                     })
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->visible(fn ($livewire): bool => $livewire instanceof Pages\Index
+                        ? self::shouldShowStatusColumn($livewire)
+                        : true
+                    ),
             ])
             ->defaultSort('created_at', 'asc')
             ->filters([
@@ -382,6 +385,14 @@ class GameScreenshotModerationResource extends Resource
         $status = $statusFilterState['value'];
 
         return is_string($status) && $status !== '' ? $status : null;
+    }
+
+    private static function shouldShowStatusColumn(Pages\Index $livewire): bool
+    {
+        /** @var array<string, mixed> $statusFilterState */
+        $statusFilterState = $livewire->getTableFilterFormState('status');
+
+        return ($statusFilterState['value'] ?? null) !== GameScreenshotStatus::Pending->value;
     }
 
     /**
