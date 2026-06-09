@@ -5,7 +5,6 @@ use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Models\UserGameBadgePreference;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Support\Facades\DB;
 
@@ -16,23 +15,39 @@ function getGameRankAndScore(int $gameID, User $user): array
     }
 
     $dateClause = greatestStatement(['pg.last_unlock_hardcore_at', 'pg.last_unlock_at']);
-    $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.Points DESC, $dateClause ASC) UserRank";
-    $untrackedClause = "AND ua.unranked_at IS NULL";
-    if ($user->unranked_at !== null) {
+
+    // Rank every tracked player for the game with a window function and then filter
+    // down to the requested user. Unranked users are excluded from the ranking set and
+    // surface a NULL rank instead.
+    $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.points DESC, $dateClause ASC) AS UserRank";
+    $isUserUnranked = $user->unranked_at !== null;
+    if ($isUserUnranked) {
         $rankClause = "NULL AS UserRank";
-        $untrackedClause = "";
     }
 
-    $query = "WITH data
-    AS (SELECT ua.username AS User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
-        FROM player_games AS pg
-        INNER JOIN users AS ua ON ua.id = pg.user_id
-        WHERE pg.game_id = $gameID $untrackedClause
-        GROUP BY ua.username
-        ORDER BY TotalScore DESC, LastAward ASC
-   ) SELECT * FROM data WHERE User = :username";
+    $rankedPlayers = DB::table('player_games as pg')
+        ->select([
+            'ua.username as User',
+            'ua.ulid as ULID',
+            DB::raw($rankClause),
+            'pg.points as TotalScore',
+            DB::raw("$dateClause AS LastAward"),
+        ])
+        ->join('users as ua', 'ua.id', '=', 'pg.user_id')
+        ->where('pg.game_id', $gameID)
+        ->when(!$isUserUnranked, function ($q) {
+            $q->whereNull('ua.unranked_at');
+        })
+        ->groupBy('ua.username')
+        ->orderByDesc('TotalScore')
+        ->orderBy('LastAward');
 
-    return legacyDbFetchAll($query, ['username' => $user->username])->toArray();
+    return DB::query()
+        ->fromSub($rankedPlayers, 'data')
+        ->where('User', $user->username)
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->toArray();
 }
 
 function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
@@ -277,7 +292,7 @@ function getUserAchievementUnlocksForGame(
             DB::raw('player_achievements.unlocked_at'),
             DB::raw('player_achievements.unlocked_hardcore_at'),
         ])
-        ->mapWithKeys(function ($unlock, int $key) {
+        ->mapWithKeys(function ($unlock) {
             $result = [];
 
             // TODO move this transformation to where it's needed (web api) and use models everywhere else
@@ -309,7 +324,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
             $query->where('is_promoted', true);
         })
         ->get(['source_achievement_id', 'achievement_id'])
-        ->mapWithKeys(function ($eventAchievement, int $key) {
+        ->mapWithKeys(function ($eventAchievement) {
             return [$eventAchievement->achievement_id => $eventAchievement->source_achievement_id];
         })
         ->toArray();
@@ -343,38 +358,64 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         return [];
     }
 
-    // On the user's own profile, show the badge the user chose for each game (if any).
-    // Everywhere else, including the public APIs that also call this, show the canonical badge.
-    [$gameBadgeJoin, $gameBadgeImageIcon] = UserGameBadgePreference::imageIconJoin($applyBadgePreferences, 'pg.user_id', 'pg.game_id');
-
     $minAchievementsForCompletion = 5;
-    $limitClause = $limit !== null ? "LIMIT $limit" : "";
-
-    // When excluding completed games, filter out rows where user has unlocked all achievements.
-    $excludeCompletedClause = $isExcludingCompleted
-        ? "AND pg.achievements_unlocked < gd.achievements_published"
-        : "";
 
     $mostRecentDate = 'COALESCE(' . greatestStatement(['pg.last_unlock_at', 'pg.last_unlock_hardcore_at']) . ', pg.last_unlock_at, pg.last_unlock_hardcore_at)';
+    $pctWon = floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published');
+    $pctWonHc = floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published');
+    $gameBadgeImageIcon = $applyBadgePreferences
+        ? 'COALESCE(gb.image_asset_path, gd.image_icon_asset_path)'
+        : 'gd.image_icon_asset_path';
 
-    $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
-            {$gameBadgeImageIcon} AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
-            pg.first_unlock_at AS FirstWonDate,
-            $mostRecentDate AS MostRecentWonDate,
-            pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
-            floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
-            floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
-            FROM player_games AS pg
-            LEFT JOIN games AS gd ON gd.id = pg.game_id
-            LEFT JOIN systems AS s ON s.id = gd.system_id
-            LEFT JOIN users ua ON ua.id = pg.user_id{$gameBadgeJoin}
-            WHERE (ua.username = :user OR ua.display_name = :user2)
-            AND gd.achievements_published > $minAchievementsForCompletion
-            $excludeCompletedClause
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.title
-            $limitClause";
+    $query = DB::table('player_games as pg')
+        ->select([
+            'gd.id as GameID',
+            's.name as ConsoleName',
+            's.id as ConsoleID',
+            DB::raw("$gameBadgeImageIcon AS ImageIcon"),
+            'gd.title as Title',
+            'gd.sort_title as SortTitle',
+            'gd.achievements_published as MaxPossible',
+            'pg.first_unlock_at as FirstWonDate',
+            DB::raw("$mostRecentDate AS MostRecentWonDate"),
+            'pg.achievements_unlocked as NumAwarded',
+            'pg.achievements_unlocked_hardcore as NumAwardedHC',
+            DB::raw("$pctWon AS PctWon"),
+            DB::raw("$pctWonHc AS PctWonHC"),
+        ])
+        ->leftJoin('games as gd', 'gd.id', '=', 'pg.game_id')
+        ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
+        ->leftJoin('users as ua', 'ua.id', '=', 'pg.user_id')
+        ->when($applyBadgePreferences, function ($q) {
+            $q->leftJoin('user_game_badge_preferences as ugbp', function ($join) {
+                $join->on('ugbp.user_id', '=', 'pg.user_id')
+                    ->on('ugbp.game_id', '=', 'pg.game_id');
+            })
+                ->leftJoin('game_badges as gb', function ($join) {
+                    $join->on('gb.game_id', '=', 'ugbp.game_id')
+                        ->on('gb.sha1', '=', 'ugbp.sha1')
+                        ->whereNull('gb.deleted_at');
+                });
+        })
+        ->where(function ($q) use ($user) {
+            $q->where('ua.username', $user)
+                ->orWhere('ua.display_name', $user);
+        })
+        ->where('gd.achievements_published', '>', $minAchievementsForCompletion)
+        ->when($isExcludingCompleted, function ($q) {
+            // When excluding completed games, filter out rows where user has unlocked all achievements.
+            $q->whereColumn('pg.achievements_unlocked', '<', 'gd.achievements_published');
+        })
+        ->orderByDesc('PctWon')
+        ->orderByDesc('PctWonHC')
+        ->orderByDesc('MaxPossible')
+        ->orderBy('gd.title');
 
-    return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
+    if ($limit !== null) {
+        $query->limit($limit);
+    }
+
+    return $query->get()->map(fn ($row) => (array) $row)->toArray();
 }
 
 /**
