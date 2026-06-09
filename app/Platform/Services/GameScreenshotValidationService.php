@@ -28,7 +28,7 @@ class GameScreenshotValidationService
             ['screenshot' => [
                 'image',
                 $allowedMimes,
-                'max:4096',
+                'max:6144',
                 'dimensions:min_width=64,min_height=64,max_width=3840,max_height=2160',
                 new DisallowAnimatedImageRule(),
             ]],

@@ -22,6 +22,9 @@ import { useGameScreenshotUploadForm } from './useGameScreenshotUploadForm';
 const ALLOWED_MIME_TYPES_PNG_ONLY = ['image/png'];
 const ALLOWED_MIME_TYPES_ALL = ['image/png', 'image/jpeg', 'image/webp'];
 
+/** @see GameScreenshotValidationService.php */
+const MAX_FILE_SIZE_BYTES = 6 * 1024 * 1024;
+
 interface UploadFormProps {
   gameId: number;
   screenshotResolutions: Array<{ width: number; height: number }>;
@@ -103,12 +106,33 @@ export const UploadForm: FC<UploadFormProps> = ({
     ? t('Only PNG, JPEG, and WebP screenshots are accepted.')
     : t('This system only accepts PNG screenshots.');
 
-  const handleDrop = (e: React.DragEvent) => {
-    const file = e.dataTransfer.files[0];
-
+  const isAcceptableFile = (file: File): boolean => {
     if (!isAllowedMimeType(file)) {
       toastMessage.error(mimeTypeErrorMessage);
 
+      return false;
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const actualMb = (file.size / (1024 * 1024)).toFixed(1);
+      const maxMb = MAX_FILE_SIZE_BYTES / (1024 * 1024);
+      toastMessage.error(
+        t('This screenshot is {{size}} MB. The maximum is {{max}} MB.', {
+          size: actualMb,
+          max: maxMb,
+        }),
+      );
+
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    const file = e.dataTransfer.files[0];
+
+    if (!isAcceptableFile(file)) {
       return;
     }
 
@@ -117,9 +141,7 @@ export const UploadForm: FC<UploadFormProps> = ({
   };
 
   const handleFileChange = (file: File | undefined) => {
-    if (file && !isAllowedMimeType(file)) {
-      toastMessage.error(mimeTypeErrorMessage);
-
+    if (file && !isAcceptableFile(file)) {
       return;
     }
 
