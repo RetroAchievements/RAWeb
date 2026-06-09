@@ -279,7 +279,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
         // Make sure the user has a claim on the game.
         if (!$this->user->hasActiveClaimOnGameId($game->id)) {
-            return $this->mustHaveClaim();
+            return $this->mustHaveActiveClaim();
         }
 
         if (!AchievementPoints::isValid($this->points)) {
@@ -321,10 +321,5 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             'Success' => true,
             'AchievementID' => $achievement->id,
         ];
-    }
-
-    private function mustHaveClaim(): array
-    {
-        return $this->accessDenied('You must have an active claim on this game to perform this action.');
     }
 }

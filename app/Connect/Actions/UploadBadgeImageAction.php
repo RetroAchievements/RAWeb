@@ -7,6 +7,7 @@ namespace App\Connect\Actions;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Connect\Support\ValidateUploadedFile;
 use App\Models\Achievement;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -40,12 +41,19 @@ class UploadBadgeImageAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        // Achievement badges don't have their own policy. Leverage the AchievementPolicy.
-        // Developers and Junior Developers can create achievements.
-        // Developers, Writers, and Artists can update achievements.
-        if (!$this->user->can('create', Achievement::class)
-            && !$this->user->can('updateAny', Achievement::class)) {
-            return $this->mustBeDeveloper();
+        // Achievement badges don't have their own policy.
+        // Assume that any user who can change the achievement badge can also upload new ones.
+        if (!$this->user->can('updateField', [Achievement::class, null, 'image_name'])) {
+            // The check for junior developers requires an Achievement instance so it can
+            // ensure the user has a claim on the game. We don't know which Achievement this
+            // badge will be associated to, so just make sure they have a claim on something.
+            if (!$this->user->hasRole(Role::DEVELOPER_JUNIOR)) {
+                return $this->mustBeDeveloper();
+            }
+
+            if (!$this->user->achievementSetClaims()->active()->exists()) {
+                return $this->mustHaveActiveClaim();
+            }
         }
 
         // Cap uploads to 1500/day per user.

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\ClaimStatus;
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\Role;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -25,6 +27,8 @@ beforeEach(function () {
 
     Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
     Role::create(['name' => Role::DEVELOPER_JUNIOR, 'display' => 2]);
+    Role::create(['name' => Role::ARTIST, 'display' => 3]);
+    Role::create(['name' => Role::WRITER, 'display' => 4]);
 
     Storage::fake('media');
     Storage::fake('s3');
@@ -32,7 +36,7 @@ beforeEach(function () {
 });
 
 describe('valid badge', function () {
-    test('can be uploaded by developer', function () {
+    test('can be uploaded by a developer', function () {
         $this->user->assignRole(Role::DEVELOPER);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
@@ -52,8 +56,9 @@ describe('valid badge', function () {
         Storage::disk('s3')->assertExists('Badge/00001_lock.png');
     });
 
-    test('can be uploaded by junior developer', function () {
+    test('can be uploaded by a junior developer with an active claim', function () {
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        AchievementSetClaim::factory()->create(['user_id' => $this->user->id]);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
             'u' => $this->user->display_name,
@@ -72,8 +77,46 @@ describe('valid badge', function () {
         Storage::disk('s3')->assertExists('Badge/00001_lock.png');
     });
 
+    test('cannot be uploaded by a junior developer without any active claims', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        AchievementSetClaim::factory()->create(['user_id' => $this->user->id, 'status' => ClaimStatus::Dropped]);
+
+        $this->post('doupload.php?r=uploadbadgeimage', [
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'You must have an active claim on this game to perform this action.',
+            ]);
+
+        Storage::disk('media')->assertCount('Badge/', 0);
+        Storage::disk('s3')->assertCount('Badge/', 0);
+    });
+
+    test('cannot be uploaded by a regular user', function () {
+        $this->post('doupload.php?r=uploadbadgeimage', [
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+
+        Storage::disk('media')->assertCount('Badge/', 0);
+        Storage::disk('s3')->assertCount('Badge/', 0);
+    });
+
     test('can be uploaded by an artist', function () {
-        Role::create(['name' => Role::ARTIST, 'display' => 3]);
         $this->user->assignRole(Role::ARTIST);
 
         $this->post('doupload.php?r=uploadbadgeimage', [
@@ -93,7 +136,9 @@ describe('valid badge', function () {
         Storage::disk('s3')->assertExists('Badge/00001_lock.png');
     });
 
-    test('cannot be uploaded by a regular user', function () {
+    test('cannot be uploaded by a writer', function () {
+        $this->user->assignRole(Role::WRITER);
+
         $this->post('doupload.php?r=uploadbadgeimage', [
             'u' => $this->user->display_name,
             't' => $this->user->connect_token,
