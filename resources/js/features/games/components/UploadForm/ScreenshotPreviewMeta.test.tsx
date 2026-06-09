@@ -52,7 +52,7 @@ describe('Component: ScreenshotPreviewMeta', () => {
 
     // ASSERT
     expect(screen.getByText(/native, 2x, or 3x internal resolution/i)).toBeVisible();
-    expect(screen.getByText(/don't manually resize/i)).toBeVisible();
+    expect(screen.getByText(/not a desktop capture or manual resize/i)).toBeVisible();
   });
 
   it('given the resolution is invalid on a non-upscaling system, shows the native-only explanation', () => {
@@ -67,7 +67,9 @@ describe('Component: ScreenshotPreviewMeta', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/at native resolution\. don't manually resize/i)).toBeVisible();
+    expect(
+      screen.getByText(/at native resolution, not a desktop capture or manual resize/i),
+    ).toBeVisible();
     expect(screen.queryByText(/2x, or 3x/i)).not.toBeInTheDocument();
   });
 
@@ -153,9 +155,7 @@ describe('Component: ScreenshotPreviewMeta', () => {
     // ASSERT
     expect(screen.getByText(/valid resolution/i)).toBeVisible();
     expect(
-      screen.getByText(
-        /more likely to be accepted if you also submit a matching title screenshot/i,
-      ),
+      screen.getByText(/then submit a matching title screenshot at this resolution/i),
     ).toBeVisible();
   });
 
@@ -173,9 +173,7 @@ describe('Component: ScreenshotPreviewMeta', () => {
 
     // ASSERT
     expect(
-      screen.getByText(
-        /more likely to be accepted if you also submit a matching in-game screenshot/i,
-      ),
+      screen.getByText(/then submit a matching in-game screenshot at this resolution/i),
     ).toBeVisible();
   });
 
@@ -193,7 +191,7 @@ describe('Component: ScreenshotPreviewMeta', () => {
 
     // ASSERT
     expect(
-      screen.getByText(/more likely to be accepted with matching screenshots at this resolution/i),
+      screen.getByText(/then submit matching screenshots at this resolution/i),
     ).toBeVisible();
     expect(screen.queryByText(/title screenshot/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/in-game screenshot/i)).not.toBeInTheDocument();

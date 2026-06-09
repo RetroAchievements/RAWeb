@@ -3,6 +3,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { fireEvent, render, screen, waitFor } from '@/test';
+import { createGameScreenshot } from '@/test/factories';
 
 import { UploadForm } from './UploadForm';
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
@@ -172,11 +173,36 @@ describe('Component: UploadForm', () => {
     await waitFor(() => {
       expect(screen.getByText(/valid resolution/i)).toBeVisible();
       expect(
-        screen.getByText(
-          /more likely to be accepted if you also submit a matching title screenshot/i,
-        ),
+        screen.getByText(/then submit a matching title screenshot at this resolution/i),
       ).toBeVisible();
     });
+  });
+
+  it('given the user already has a pending submission at the previewed resolution, does not show the companion nudge', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        screenshotUploadConsistency={{
+          existingResolutions: [{ width: 256, height: 224 }],
+          canonicalResolution: '256x224',
+        }}
+        pendingSubmissions={[createGameScreenshot({ type: 'ingame', width: 320, height: 240 })]}
+        selectedType="title"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, createMockImageFile());
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/valid resolution/i)).toBeVisible();
+    });
+    expect(screen.queryByText(/more likely to be accepted/i)).not.toBeInTheDocument();
   });
 
   it('given the preview is 1px off from the canonical resolution, does not show a consistency warning', async () => {

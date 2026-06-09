@@ -27,10 +27,10 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
 
   const invalidExplanation = supportsUpscaledScreenshots
     ? t(
-        "This doesn't look like a native capture. Use your emulator's screenshot tool at native, 2x, or 3x internal resolution. Don't manually resize.",
+        "This doesn't look like a native capture. Use your emulator's screenshot tool at native, 2x, or 3x internal resolution, not a desktop capture or manual resize.",
       )
     : t(
-        "This doesn't look like a native capture. Use your emulator's screenshot tool at native resolution. Don't manually resize.",
+        "This doesn't look like a native capture. Use your emulator's screenshot tool at native resolution, not a desktop capture or manual resize.",
       );
 
   const showUpscaleNudge = isResolutionValid && supportsUpscaledScreenshots && is1xCapture;
@@ -82,15 +82,17 @@ function buildConsistencyNudgeMessage(
 ): string {
   if (selectedType === 'title') {
     return t(
-      'More likely to be accepted if you also submit a matching in-game screenshot at this resolution.',
+      'Submit this first, then submit a matching in-game screenshot at this resolution. Pairs are more likely to be accepted.',
     );
   }
 
   if (selectedType === 'ingame') {
     return t(
-      'More likely to be accepted if you also submit a matching title screenshot at this resolution.',
+      'Submit this first, then submit a matching title screenshot at this resolution. Pairs are more likely to be accepted.',
     );
   }
 
-  return t('More likely to be accepted with matching screenshots at this resolution.');
+  return t(
+    'Submit this first, then submit matching screenshots at this resolution. Pairs are more likely to be accepted.',
+  );
 }
