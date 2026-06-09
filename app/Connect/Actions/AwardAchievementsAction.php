@@ -18,6 +18,7 @@ use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AwardAchievementsAction extends BaseAuthenticatedApiAction
 {
@@ -57,7 +58,10 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
     protected function initialize(Request $request): ?array
     {
         if (!$request->has(['a', 'v', 'k'])) {
-            return $this->missingParameters();
+            $result = $this->missingParameters();
+            $this->logUnprocessableRequest($request, $result);
+
+            return $result;
         }
 
         $achievementIds = array_map('intval', explode(',', strval($request->input('a', ''))));
@@ -93,7 +97,16 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     // achievements from two distinct games are being requested at the same time.
                     // even if they can both be individually delegated, fail, as the process logic
                     // can only work with one game at a time.
-                    return $this->invalidParameter('All provided achievements must be from the same game.');
+                    $result = $this->invalidParameter('All provided achievements must be from the same game.');
+                    $this->logUnprocessableRequest($request, $result, [
+                        'achievement_count' => count($this->achievements),
+                        'game_ids' => array_values(array_unique(array_map(
+                            static fn (Achievement $achievement): int => $achievement->game_id,
+                            $this->achievements
+                        ))),
+                    ]);
+
+                    return $result;
                 }
             }
         }
@@ -119,6 +132,43 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
         $this->when = Carbon::now();
 
         return null;
+    }
+
+    /**
+     * @param array{Status?: int, Code?: string, Error?: string} $result
+     * @param array<string, mixed> $context
+     */
+    private function logUnprocessableRequest(Request $request, array $result, array $context = []): void
+    {
+        $achievementIds = $request->input('a');
+        $achievementIdsString = is_scalar($achievementIds) ? (string) $achievementIds : null;
+        $achievementIdCount = $achievementIdsString
+            ? count(array_filter(explode(',', $achievementIdsString), static fn (string $id): bool => $id !== ''))
+            : 0;
+
+        $validationHash = $request->input('v');
+        $validationHashString = is_scalar($validationHash) ? (string) $validationHash : null;
+
+        Log::warning('Connect awardachievements request returned 422.', [
+            'code' => $result['Code'] ?? null,
+            'error' => $result['Error'] ?? null,
+            'method' => $request->method(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'content_type' => $request->headers->get('content-type'),
+            'content_length' => $request->headers->get('content-length'),
+            'query_keys' => array_keys($request->query->all()),
+            'post_keys' => array_keys($request->request->all()),
+            'input_keys' => array_keys($request->all()),
+            'has_a' => $request->has('a'),
+            'has_v' => $request->has('v'),
+            'has_k' => $request->has('k'),
+            'a_length' => $achievementIdsString !== null ? mb_strlen($achievementIdsString) : null,
+            'a_count' => $achievementIdCount,
+            'v_present' => filled($validationHashString),
+            'v_length' => $validationHashString !== null ? mb_strlen($validationHashString) : null,
+            'target_user' => $request->input('k'),
+        ] + $context);
     }
 
     protected function process(): array
