@@ -279,9 +279,11 @@ final class ScreenshotReviewContext
 
     public function primaryDecisionHelp(): string
     {
+        $typeLabel = strtolower($this->screenshot->type->label());
+
         return $this->currentPrimaryForType($this->screenshot->type)
-            ? 'Approve and retire the primary.'
-            : 'Approve as the first primary for this type.';
+            ? "Approve and retire the current {$typeLabel} primary."
+            : "Approve as the first {$typeLabel} primary.";
     }
 
     public function primaryDecisionDetail(): ?string
@@ -477,6 +479,25 @@ final class ScreenshotReviewContext
         }
 
         if ($this->willPromoteIngameToPrimary()) {
+            return false;
+        }
+
+        return $this->approvedIngameCount() < ScreenshotType::Ingame->approvedCap();
+    }
+
+    /**
+     * Whether the reviewer can promote this submission to primary while keeping the
+     * current primary as a non-primary gallery image rather than retiring it. Only
+     * in-game screenshots have a gallery to fall back into, and keeping the old primary
+     * consumes one more slot, so the game must be under the in-game cap.
+     */
+    public function canKeepReplacedPrimaryInGallery(): bool
+    {
+        if ($this->screenshot->type !== ScreenshotType::Ingame) {
+            return false;
+        }
+
+        if (!$this->currentPrimaryForType(ScreenshotType::Ingame)) {
             return false;
         }
 

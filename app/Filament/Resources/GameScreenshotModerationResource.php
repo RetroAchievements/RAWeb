@@ -452,15 +452,26 @@ class GameScreenshotModerationResource extends Resource
     {
         return Action::make('confirmReplacePrimaryScreenshot')
             ->label('Replace Primary')
-            ->requiresConfirmation()
+            ->schema([
+                Forms\Components\Checkbox::make('keep_current_in_gallery')
+                    ->label('Keep the current primary in the gallery')
+                    ->helperText('If left unchecked, the current primary will be unpublished and hidden from view.')
+                    ->default(false)
+                    ->visible(fn (GameScreenshot $record): bool => ScreenshotReviewContext::make($record)->canKeepReplacedPrimaryInGallery()),
+            ])
             ->modalIcon('heroicon-o-arrow-path')
+            ->modalWidth(Width::Medium)
             ->modalHeading('Replace current primary?')
             ->modalSubmitActionLabel('Replace Primary')
             ->modalDescription(fn (GameScreenshot $record): HtmlString => self::buildReplacePrimaryConfirmationDescription($record))
-            ->action(function (GameScreenshot $record, Component $livewire): void {
+            ->action(function (GameScreenshot $record, array $data, Component $livewire): void {
                 abort_unless($livewire instanceof Pages\Index, 500);
 
-                $livewire->approveMountedScreenshotReview((string) $record->getKey(), ScreenshotReviewDecision::Primary->value);
+                $decision = ($data['keep_current_in_gallery'] ?? false)
+                    ? ScreenshotReviewDecision::PrimaryKeepGallery
+                    : ScreenshotReviewDecision::Primary;
+
+                $livewire->approveMountedScreenshotReview((string) $record->getKey(), $decision->value);
             })
             ->cancelParentActions('review')
             ->color('primary')
@@ -743,7 +754,7 @@ class GameScreenshotModerationResource extends Resource
         $cards = [];
 
         $cards[] = [
-            'title' => 'Promote to primary',
+            'title' => 'Promote to ' . strtolower($record->type->label()) . ' primary',
             'help' => $context->primaryDecisionHelp(),
             'detail' => $context->primaryDecisionDetail(),
             'tone' => 'primary',

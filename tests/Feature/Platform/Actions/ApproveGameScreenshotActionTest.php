@@ -466,6 +466,66 @@ it('promotes a newly approved ingame screenshot when the current primary has an 
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
 });
 
+it('promotes a new ingame primary while keeping the current primary in the gallery', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $existingPrimary = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'order_column' => 1,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest(
+        $game,
+        $submitter,
+        ScreenshotType::Ingame,
+        withLegacyPath: true,
+    );
+
+    $fileManipulator = fakeApproveScreenshotFileManipulator();
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer, ScreenshotReviewDecision::PrimaryKeepGallery);
+
+    $fresh = $pending->fresh();
+
+    // ASSERT
+    expect($fresh->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($fresh->is_primary)->toBeTrue();
+
+    // the old primary is demoted but stays visible as a non-primary gallery image, not retired
+    expect($existingPrimary->fresh()->status)->toEqual(GameScreenshotStatus::Approved);
+    expect($existingPrimary->fresh()->is_primary)->toBeFalse();
+
+    expect($game->gameScreenshots()->ofType(ScreenshotType::Ingame)->approved()->count())->toEqual(2);
+    expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
+});
+
+it('does not allow keeping a gallery copy when approving a title screenshot', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    GameScreenshot::factory()->for($game)->title()->primary()->create([
+        'order_column' => 1,
+    ]);
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Title);
+
+    // ACT
+    $attempt = fn () => (new ApproveGameScreenshotAction())->execute($pending, $reviewer, ScreenshotReviewDecision::PrimaryKeepGallery);
+
+    // ASSERT
+    expect($attempt)->toThrow(
+        ValidationException::class,
+        'Title and completion screenshots must be approved as primary.',
+    );
+
+    expect($pending->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+});
+
 it('enforces the 10 approved ingame screenshot cap during approval', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);

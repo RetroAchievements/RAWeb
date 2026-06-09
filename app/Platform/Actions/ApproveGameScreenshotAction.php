@@ -91,10 +91,18 @@ class ApproveGameScreenshotAction
                     ->primary()
                     ->first();
 
+                $isPromotion =
+                    $decision === ScreenshotReviewDecision::Primary
+                    || $decision === ScreenshotReviewDecision::PrimaryKeepGallery;
+
                 $cap = ScreenshotType::Ingame->approvedCap();
                 if (
                     $approvedCount >= $cap
-                    && ($decision === ScreenshotReviewDecision::Gallery || !$existingPrimary)
+                    && (
+                        $decision === ScreenshotReviewDecision::Gallery
+                        || $decision === ScreenshotReviewDecision::PrimaryKeepGallery
+                        || !$existingPrimary
+                    )
                 ) {
                     throw ValidationException::withMessages([
                         'screenshot' => "This game has reached the maximum of {$cap} approved in-game screenshots.",
@@ -112,7 +120,7 @@ class ApproveGameScreenshotAction
                     && $resolutionService->isValidResolution($screenshot->width, $screenshot->height, $system);
 
                 if (
-                    $decision === ScreenshotReviewDecision::Primary
+                    $isPromotion
                     && $existingPrimary
                     && $systemValidatesResolutions
                     && !$doesNewHaveValidResolution
@@ -122,8 +130,12 @@ class ApproveGameScreenshotAction
                     ]);
                 }
 
-                if ($decision === ScreenshotReviewDecision::Primary) {
-                    $this->promotePrimary($screenshot, $existingPrimary);
+                if ($isPromotion) {
+                    $this->promotePrimary(
+                        $screenshot,
+                        $existingPrimary,
+                        shouldRetireExisting: $decision === ScreenshotReviewDecision::Primary,
+                    );
                 }
             }
 
@@ -181,13 +193,12 @@ class ApproveGameScreenshotAction
         }, attempts: 3);
     }
 
-    private function promotePrimary(GameScreenshot $screenshot, ?GameScreenshot $existingPrimary): void
+    private function promotePrimary(GameScreenshot $screenshot, ?GameScreenshot $existingPrimary, bool $shouldRetireExisting = true): void
     {
         if ($existingPrimary) {
-            // replaced images won't get sent to the front-end
             $existingPrimary->update([
                 'is_primary' => false,
-                'status' => GameScreenshotStatus::Replaced,
+                'status' => $shouldRetireExisting ? GameScreenshotStatus::Replaced : GameScreenshotStatus::Approved,
             ]);
         }
 

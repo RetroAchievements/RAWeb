@@ -345,6 +345,66 @@ describe('Review Plan', function () {
         expect($context->recommendedAction())->toEqual(ScreenshotReviewDecision::Primary);
     });
 
+    it('allows keeping the current ingame primary in the gallery when there is room under the cap', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$ingamePrimary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->ingame()->primary()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create([
+                    'captured_by_user_id' => User::factory()->create()->id,
+                ]),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$ingamePrimary, $pending]);
+
+        // ASSERT
+        expect(ScreenshotReviewContext::make($pending)->canKeepReplacedPrimaryInGallery())->toBeTrue();
+    });
+
+    it('does not allow keeping the current ingame primary in the gallery when the game is at the cap', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$approved, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            $primary = GameScreenshot::factory()->for($game)->ingame()->primary()->create();
+            $rest = GameScreenshot::factory()->count(9)->for($game)->ingame()->create()->all();
+
+            return [
+                array_merge([$primary], $rest),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create([
+                    'captured_by_user_id' => User::factory()->create()->id,
+                ]),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [...$approved, $pending]);
+
+        // ASSERT
+        expect(ScreenshotReviewContext::make($pending)->canKeepReplacedPrimaryInGallery())->toBeFalse();
+    });
+
+    it('does not allow keeping the current primary in the gallery for non-ingame screenshots', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$titlePrimary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->title()->primary()->create(),
+                GameScreenshot::factory()->for($game)->title()->pending()->create([
+                    'captured_by_user_id' => User::factory()->create()->id,
+                ]),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$titlePrimary, $pending]);
+
+        // ASSERT
+        expect(ScreenshotReviewContext::make($pending)->canKeepReplacedPrimaryInGallery())->toBeFalse();
+    });
+
     it('returns the current primary for the submission type', function () {
         // ARRANGE
         $game = Game::factory()->create(['system_id' => System::factory()]);
