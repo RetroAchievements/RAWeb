@@ -9,7 +9,6 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -154,34 +153,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         return Limit::perMinute($perMinute)
             ->by("connect:{$bucket}:{$identifier}")
-            ->response(function (Request $request, array $headers) use ($bucket, $identifier, $perMinute): JsonResponse {
-                $this->logConnectRateLimit($request, $bucket, $identifier, $perMinute, $headers);
-
-                return response()->json([
-                    'Success' => false,
-                    'Error' => 'Too Many Attempts',
-                    'Status' => Response::HTTP_TOO_MANY_REQUESTS,
-                ], Response::HTTP_TOO_MANY_REQUESTS, $headers);
-            });
-    }
-
-    /**
-     * @param array<string, mixed> $headers
-     */
-    private function logConnectRateLimit(Request $request, string $bucket, string $identifier, int $perMinute, array $headers): void
-    {
-        Log::info('Connect rate limited', [
-            'bucket' => $bucket,
-            'identifier' => $identifier,
-            'ip' => $request->ip(),
-            'ip_bucket' => $this->ipBucket($request),
-            'limit_per_minute' => $perMinute,
-            'method' => $request->method(),
-            'request_type' => $request->input('r'),
-            'retry_after' => $headers['Retry-After'] ?? null,
-            'username' => Str::transliterate(Str::lower((string) $request->input('u', ''))),
-            'user_agent' => $request->userAgent(),
-        ]);
+            ->response(fn (Request $request, array $headers): JsonResponse => response()->json([
+                'Success' => false,
+                'Error' => 'Too Many Attempts',
+                'Status' => Response::HTTP_TOO_MANY_REQUESTS,
+            ], Response::HTTP_TOO_MANY_REQUESTS, $headers));
     }
 
     private function rateLimit(string $key): int

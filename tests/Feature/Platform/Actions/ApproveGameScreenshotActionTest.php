@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\Conversions\FileManipulator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 uses(RefreshDatabase::class);
 
@@ -91,6 +92,43 @@ function fakeApproveScreenshotFileManipulator(): ApproveGameScreenshotActionTest
 beforeEach(function () {
     Storage::fake('s3');
     Storage::fake('media');
+});
+
+it('carries the Atari 2600 original-capture image through the pending-to-approved transition', function () {
+    // ARRANGE
+    $system = System::factory()->create([
+        'id' => System::Atari2600,
+        'screenshot_resolutions' => [['width' => 160, 'height' => 228]],
+        'has_analog_tv_output' => true,
+    ]);
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $pending = (new SubmitPendingGameScreenshotAction())->execute(
+        $game,
+        UploadedFile::fake()->image('native.png', 160, 228),
+        ScreenshotType::Ingame,
+        $submitter,
+    );
+
+    $pendingMedia = $pending->fresh()->media;
+    $pendingDirectory = PathGeneratorFactory::create($pendingMedia)->getPath($pendingMedia);
+    Storage::disk('s3')->assertExists($pendingDirectory . 'original-capture.png');
+
+    $fileManipulator = new ApproveGameScreenshotActionTestFileManipulator();
+    app()->instance(FileManipulator::class, $fileManipulator);
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending->fresh(['media']), $reviewer);
+
+    // ASSERT
+    $approvedMedia = $pending->fresh()->media;
+    expect($approvedMedia->getCustomProperty('original_capture_path'))->toEqual('original-capture.png');
+
+    $approvedDirectory = PathGeneratorFactory::create($approvedMedia)->getPath($approvedMedia);
+    Storage::disk('s3')->assertMissing($pendingDirectory . 'original-capture.png');
+    Storage::disk('s3')->assertExists($approvedDirectory . 'original-capture.png');
 });
 
 it('approves a pending screenshot, moves its media, and records review metadata', function () {
