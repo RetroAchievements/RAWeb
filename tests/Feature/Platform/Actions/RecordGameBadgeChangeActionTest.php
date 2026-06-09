@@ -13,6 +13,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('media');
+    Storage::fake('s3');
 });
 
 function recordBadgePath(string $numericName): string
@@ -36,6 +37,24 @@ it('writes a badge row when the game is playable', function () {
     // ASSERT
     expect($badge)->not->toBeNull();
     expect(GameBadge::where('game_id', $game->id)->count())->toEqual(1);
+    expect($game->badges()->first()->image_asset_path)->toEqual($path);
+});
+
+it('writes a badge row from s3 when the media disk is missing the badge file', function () {
+    // ARRANGE
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'achievements_published' => 5,
+    ]);
+    $path = '/Images/200099.png';
+    Storage::disk('s3')->put('Images/200099.png', 'badge-content-200099');
+
+    // ACT
+    $badge = (new RecordGameBadgeChangeAction())->execute($game, $path);
+
+    // ASSERT
+    expect($badge)->not->toBeNull();
+    expect($badge->sha1)->toEqual(sha1('badge-content-200099'));
     expect($game->badges()->first()->image_asset_path)->toEqual($path);
 });
 
