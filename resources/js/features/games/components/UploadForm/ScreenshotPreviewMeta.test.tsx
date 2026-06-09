@@ -190,9 +190,7 @@ describe('Component: ScreenshotPreviewMeta', () => {
     );
 
     // ASSERT
-    expect(
-      screen.getByText(/then submit matching screenshots at this resolution/i),
-    ).toBeVisible();
+    expect(screen.getByText(/then submit matching screenshots at this resolution/i)).toBeVisible();
     expect(screen.queryByText(/title screenshot/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/in-game screenshot/i)).not.toBeInTheDocument();
   });
