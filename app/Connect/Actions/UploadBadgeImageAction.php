@@ -40,7 +40,11 @@ class UploadBadgeImageAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        if (!$this->user->can('create', Achievement::class)) {
+        // Achievement badges don't have their own policy. Leverage the AchievementPolicy.
+        // Developers and Junior Developers can create achievements.
+        // Developers, Writers, and Artists can update achievements.
+        if (!$this->user->can('create', Achievement::class)
+            && !$this->user->can('updateAny', Achievement::class)) {
             return $this->mustBeDeveloper();
         }
 

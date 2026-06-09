@@ -72,7 +72,28 @@ describe('valid badge', function () {
         Storage::disk('s3')->assertExists('Badge/00001_lock.png');
     });
 
-    test('cannot be uploaded by non-developer', function () {
+    test('can be uploaded by an artist', function () {
+        Role::create(['name' => Role::ARTIST, 'display' => 3]);
+        $this->user->assignRole(Role::ARTIST);
+
+        $this->post('doupload.php?r=uploadbadgeimage', [
+            'u' => $this->user->display_name,
+            't' => $this->user->connect_token,
+            'file' => UploadedFile::fake()->image('uploadbadgeimage.png', 64, 64),
+        ])
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => ['BadgeIter' => '00001'],
+            ]);
+
+        Storage::disk('media')->assertExists('Badge/00001.png');
+        Storage::disk('media')->assertExists('Badge/00001_lock.png');
+        Storage::disk('s3')->assertExists('Badge/00001.png');
+        Storage::disk('s3')->assertExists('Badge/00001_lock.png');
+    });
+
+    test('cannot be uploaded by a regular user', function () {
         $this->post('doupload.php?r=uploadbadgeimage', [
             'u' => $this->user->display_name,
             't' => $this->user->connect_token,
