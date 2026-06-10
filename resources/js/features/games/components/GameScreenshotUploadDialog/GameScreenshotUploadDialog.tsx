@@ -16,7 +16,6 @@ import { cn } from '@/common/utils/cn';
 
 import { useDeleteGameScreenshotMutation } from '../../hooks/mutations/useDeleteGameScreenshotMutation';
 import { ScreenshotSlotConfig } from '../../models';
-import { screenshotSubmissionLimits } from '../../utils/screenshotSubmissionLimits';
 import { PendingSubmissionsList } from '../PendingSubmissionsList';
 import { ScreenshotSlotStatusIndicator } from '../ScreenshotSlotStatusIndicator';
 import { UploadForm } from '../UploadForm';
@@ -37,6 +36,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
   onOpenChange,
 }) => {
   const {
+    config,
     game,
     screenshotUploadConsistency,
     screenshotUploadStatuses,
@@ -48,6 +48,9 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
   const [selectedType, setSelectedType] = useState<App.Platform.Enums.ScreenshotType>('ingame');
   const [submissions, setSubmissions] = useState(screenshotUploadUserSubmissions ?? []);
   const [currentPendingCount, setCurrentPendingCount] = useState(screenshotUploadPendingCount ?? 0);
+
+  const maxPendingSubmissions = config.screenshots.maxPendingSubmissions;
+  const pendingWarningThreshold = Math.max(1, Math.floor(maxPendingSubmissions * 0.75));
 
   const deleteMutation = useDeleteGameScreenshotMutation();
 
@@ -72,8 +75,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
     setSubmissions((prev) => [screenshot, ...prev]);
   };
 
-  const showPendingWarning =
-    currentPendingCount >= screenshotSubmissionLimits.pendingWarningThreshold;
+  const showPendingWarning = currentPendingCount >= pendingWarningThreshold;
   const statuses = screenshotUploadStatuses ?? {};
 
   return (
@@ -89,7 +91,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
             <p className="rounded-lg border border-yellow-800 bg-yellow-950/30 px-3 py-2 text-xs text-yellow-300">
               {t('You have {{count}} of {{max}} pending submissions.', {
                 count: currentPendingCount,
-                max: screenshotSubmissionLimits.maxPendingSubmissions,
+                max: maxPendingSubmissions,
               })}
             </p>
           ) : null}

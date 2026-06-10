@@ -99,7 +99,7 @@ describe('Component: GlobalStatistics', () => {
     );
   });
 
-  it('displays the correct count of registered players and has the right href on that element', () => {
+  it('displays the correct count of registered players', () => {
     // ARRANGE
     render(<GlobalStatistics />, {
       pageProps: createHomePageProps({
@@ -112,11 +112,6 @@ describe('Component: GlobalStatistics', () => {
 
     expect(registeredPlayersEl).toBeVisible();
     expect(registeredPlayersEl).toHaveTextContent('914,370');
-
-    expect(screen.getByRole('link', { name: 'Registered Players' })).toHaveAttribute(
-      'href',
-      '/userList.php',
-    );
   });
 
   it('displays the correct count of achievement unlocks and has the right href on that element', () => {

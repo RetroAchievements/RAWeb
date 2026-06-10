@@ -10,6 +10,12 @@ import { GameScreenshotUploadDialog } from './GameScreenshotUploadDialog';
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 
+const baseConfig = {
+  app: { url: 'https://retroachievements.org' },
+  screenshots: { maxPendingSubmissions: 200 },
+  services: { patreon: {} },
+};
+
 describe('Component: GameScreenshotUploadDialog', () => {
   beforeEach(() => {
     vi.stubGlobal(
@@ -41,6 +47,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
       <GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />,
       {
         pageProps: {
+          config: baseConfig,
           game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
           screenshotUploadConsistency: null,
           screenshotUploadStatuses: {},
@@ -58,6 +65,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -78,6 +86,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={false} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -94,6 +103,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -113,6 +123,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: { title: { count: 1, hasResolutionIssues: false } },
@@ -130,6 +141,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -150,6 +162,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -166,6 +179,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -182,6 +196,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -202,6 +217,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
 
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -229,6 +245,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({
           system: createSystem({
             screenshotResolutions: [{ width: 320, height: 240 }],
@@ -264,6 +281,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
 
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ id: 10, system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},
@@ -294,6 +312,7 @@ describe('Component: GameScreenshotUploadDialog', () => {
 
     render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
       pageProps: {
+        config: baseConfig,
         game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
         screenshotUploadConsistency: null,
         screenshotUploadStatuses: {},

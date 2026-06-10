@@ -1337,6 +1337,7 @@
     "No emulators matched your search.": "Tidak ada emulator yang cocok dalam pencarianmu.",
     "This system only accepts PNG screenshots.": "Sistem hanya menerima tangkapan layar PNG.",
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Hanya tangkapan layar PNG, JPEG, dan WebP yang diterima.",
+    "This screenshot is {{size}} MB. The maximum is {{max}} MB.": "Ukuran tangkapan layar ini {{size}} MB. Maksimalnya ialah {{max}} MB. ",
     "This image has already been uploaded for this game.": "Gambar ini sudah diunggah untuk permainan ini.",
     "This screenshot's resolution doesn't match what's expected for this system.": "Resolusi tangkapan layar ini tidak sesuai dengan yang diharapkan sistem ini.",
     "You have reached the maximum number of pending submissions.": "Kamu telah mencapai angka maksimal untuk penundaan pengajuan.",

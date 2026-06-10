@@ -73,16 +73,6 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->resourceNotFound('achievement');
         }
 
-        $gameId = null;
-        foreach ($this->achievements as $achievement) {
-            if (!$gameId) {
-                $gameId = $achievement->game_id;
-                $this->game = $achievement->game;
-            } elseif ($gameId !== $achievement->game_id) {
-                return $this->invalidParameter('All provided achievements must be from the same game.');
-            }
-        }
-
         // If any requested achievement cannot be delegated, fail.
         $actingUser = $this->user;
         $result = $this->applyDelegationForUnlocks($request, $this->achievements);
@@ -92,7 +82,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
         $this->hardcore = $request->boolean('h', false);
 
-        // Check validation hash (note use of parameters k/u - the parameter may not have the same casing as the model)
+        // Check validation hash (note use of parameters k/a - the parameter may not have the same casing as the model)
         $validationHash = strtolower($request->input('v', ''));
 
         // Delegated unlocks will be rejected if the appropriate validation hash is not provided
@@ -101,9 +91,48 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
+        // Find the primary game so we can update the session and return the number of
+        // remaining achievements for completion. Sessions for secondary games will be
+        // updated/created by the unlock action.
+        $this->game = $this->determinePrimaryGame();
+
         $this->when = Carbon::now();
 
         return null;
+    }
+
+    private function determinePrimaryGame(): ?Game
+    {
+        $game = null;
+        foreach ($this->achievements as $achievement) {
+            if (!$game) {
+                $game = $achievement->game;
+
+                if (!$game->is_subset_game) {
+                    // Not a subset game, stop scanning.
+                    return $game;
+                }
+
+                // This achievement is associated to a subset. Keep scanning to see if unlocks
+                // from the base game are also being requested. If so, we want to use that.
+
+            } elseif ($achievement->game_id !== $game->id) {
+                if ($game->parent_game_id === $achievement->game_id) {
+                    // The achievement game is the parent game. Prefer the parent.
+                    return $achievement->game;
+                }
+
+                if ($game->parent_game_id === $achievement->game->parent_game_id) {
+                    // Achievements share a common parent game. Prefer the parent.
+                    return Game::find($game->parent_game_id);
+                }
+
+                // The achievement is from a distinct separate game (or subset).
+                // Ignore it and keep scanning.
+            }
+        }
+
+        return $game;
     }
 
     protected function process(): array
@@ -191,7 +220,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 if ($this->hardcore) {
                     $this->user->points_hardcore += $achievement->points;
 
-                    if ($playerGame) {
+                    if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                         $playerGame->achievements_unlocked_hardcore++;
                     }
 
@@ -201,14 +230,14 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                         // it must be an upgrade from softcore.
                         $this->user->points -= $achievement->points;
 
-                        if ($playerGame) {
+                        if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                             $playerGame->achievements_unlocked--;
                         }
                     }
                 } else {
                     $this->user->points += $achievement->points;
 
-                    if ($playerGame) {
+                    if ($playerGame && $playerGame->game_id === $achievement->game->id) {
                         $playerGame->achievements_unlocked++;
                     }
                 }

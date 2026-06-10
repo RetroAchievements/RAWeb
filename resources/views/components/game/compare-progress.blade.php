@@ -105,7 +105,7 @@ function selectSearchBoxUser() {
             @if ($user === null)
                 <a href="/createaccount.php">Create an account</a> or login and start earning achievements today!<br>
             @else
-                <p>Find users to follow <a href="/userList.php">here</a>!</p>
+                <p>Follow other players to compare progress on this game.</p>
             @endif
         @elseif (empty($followedUserCompletion))
             <p>None of your followed users have unlocked any achievements for this game.</p>

@@ -103,6 +103,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'image_title_asset_path',
         'image_ingame_asset_path',
         'image_box_art_asset_path',
+        'parent_game_id',
     ];
 
     protected $casts = [
@@ -136,6 +137,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'achievements_published',
         'points_total',
         'players_total',
+        'parent_game_id',
     ];
 
     protected static function newFactory(): GameFactory
