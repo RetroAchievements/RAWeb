@@ -23,6 +23,7 @@ class UpdateMinimumEmulatorVersions extends Command
     {
         $count = EmulatorUserAgent::query()
             ->where('pending_minimum_hardcore_version_at', '<=', Carbon::now())
+            ->whereNotNull('pending_minimum_hardcore_version')
             ->update([
                 'minimum_hardcore_version' => DB::raw('pending_minimum_hardcore_version'),
                 'pending_minimum_hardcore_version' => null,
