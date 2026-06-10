@@ -1,101 +1,200 @@
-import type { FC } from 'react';
-import { useRef, useState } from 'react';
+import React, { Dispatch, SetStateAction, useMemo, useRef, useState } from 'react';
+import {DragDropProvider} from '@dnd-kit/react';
+import {useSortable} from '@dnd-kit/react/sortable';
+import {move} from '@dnd-kit/helpers';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  Header,
+  Row as TableRow,
+} from '@tanstack/react-table';
 import UserAwardData = App.Community.Data.UserAwardData;
-import { move } from '@dnd-kit/helpers';
-import { DragDropProvider } from '@dnd-kit/react';
-import { useSortable } from '@dnd-kit/react/sortable';
-import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
-type Column = { id: string; name: string };
+export type AwardType = 'mastery' | 'achievement_unlocks_yield' | 'achievement_points_yield' | 'patreon_supporter' | 'certified_legend' | 'game_beaten' | 'event' | 'playtest' | 'media_contribution';
 
-const columns: Column[] = [
-  { id: 'imageUrl', name: 'Badge' },
-  { id: 'title', name: 'Site Award' },
-  { id: 'hidden', name: 'Hidden' },
-  { id: 'manualMove', name: 'Manual Move' },
-];
-// https://tanstack.com/table/latest/docs/framework/react/examples/row-dnd?panel=sandbox
-export const AwardOrderTable: FC<{ awards: UserAwardData[] }> = ({ awards }) => {
-  'use no memo'; // useReactTable does not support React Compiler
+const initialColumnOrder = ['badge', 'badgeSwitcher', 'title', 'dateAwarded', 'awardType', 'displayOrder'];
 
-  const [data, setData] = useState<UserAwardData[]>(awards);
+interface AwardTableProps {
+  awards: UserAwardData[];
+  setAwards: Dispatch<SetStateAction<UserAwardData[]>>;
+  title: string;
+}
 
-  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
+export function AwardOrderTable({title, awards, setAwards}: AwardTableProps) {
+  const [columnOrder, setColumnOrder] = useState<string[]>(initialColumnOrder);
+
+  const initialOrder = useRef({
+    columnOrder,
+    data: awards,
+  });
+
+  const columns = useMemo<ColumnDef<UserAwardData>[]>(
+    () => [
+      {
+        id: 'badge',
+        header: 'Badge',
+        // show the badge
+        accessorKey: 'imageUrl',
+        cell: ({ getValue, row }) => {
+          const imageUrl = getValue<string | null>();
+
+          if (!imageUrl) {
+            return null;
+          }
+
+          return (
+            <img
+              src={imageUrl}
+              alt={row.original.title ?? 'Award badge'}
+              className={'h-8 w-8 object-contain ' + (row.original.isGold ? 'goldimage' : '')}
+            />
+          );
+        },
+      },
+      {
+        id: 'badgeSwitcher',
+        header: 'Badge Switcher',
+      },
+      {
+        id: 'title',
+        accessorKey: 'title',
+        header: 'Title',
+      },
+      {
+        id: 'hidden',
+        accessorKey: 'hidden',
+        header: 'Date Awarded',
+      },
+      {
+        id: 'awardType',
+        accessorKey: 'awardType',
+        header: 'Award Type',
+      },
+      {
+        id: 'displayOrder',
+        accessorKey: 'displayOrder',
+        header: 'Order',
+      },
+    ],
+    []
+  );
+
   const table = useReactTable({
-    data,
+    data: awards,
     columns,
+    state: {
+      columnOrder,
+    },
+    onColumnOrderChange: setColumnOrder,
+    getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const initialOrder = useRef({
-    columns,
-    data,
+  return (
+    <>
+      <div className="flex w-full items-center justify-between">
+        <h4>{title}</h4>
+        <select data-award-kind="game">
+          <option value="1" selected>1</option>
+        </select>
+      </div>
+
+      <DragDropProvider
+        onDragStart={() => {
+          initialOrder.current = {
+            columnOrder,
+            data: awards
+          };
+        }}
+        onDragOver={(event) => {
+          const { source } = event.operation;
+
+          if (source?.type === 'column') {
+            setColumnOrder((order) => move(order, event));
+          } else {
+            setAwards((rows) => {
+              const newOrder = move(rows.map((r) => r.id), event);
+              return newOrder.map((id) => rows.find((r) => String(r.id) === String(id))!);
+            });
+          }
+        }}
+        onDragEnd={(event) => {
+          if (event.canceled) {
+            setColumnOrder(initialOrder.current.columnOrder);
+            setAwards(initialOrder.current.data);
+          }
+        }}
+      >
+        <div>
+          <table>
+            <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header, index) => (
+                  <SortableHeader
+                    key={header.id}
+                    header={header}
+                    index={index}
+                  />
+                ))}
+              </tr>
+            ))}
+            </thead>
+            <tbody>
+            {table.getRowModel().rows.map((row, index) => (
+              <SortableRow
+                key={row.id}
+                row={row}
+                index={index}
+                lastRow={index === table.getRowModel().rows.length - 1}
+              />
+            ))}
+            </tbody>
+          </table>
+        </div>
+      </DragDropProvider>
+    </>
+  );
+}
+
+interface SortableHeaderProps {
+  header: Header<UserAwardData, unknown>;
+  index: number;
+}
+
+function SortableHeader({ header, index }: SortableHeaderProps) {
+  const {ref, isDragging} = useSortable({
+    id: header.column.id,
+    index,
+    type: 'column',
+    accept: 'column',
+    modifiers: [/*RestrictToHorizontalAxis*/],
   });
 
   return (
-    <DragDropProvider
-      onDragStart={() => {
-        initialOrder.current = {
-          columns,
-          data,
-        };
-      }}
-      onDragOver={(event) => {
-        const { source } = event.operation;
-
-        setData((rows) => move(rows, event));
-      }}
-      onDragEnd={(event) => {
-        if (event.canceled) {
-          // setData(initialOrder.current.rows);
-        }
-      }}
+    <th
+      ref={ref}
     >
-      <div
-        style={{
-          maxWidth: 800,
-          marginInline: 'auto',
-          overflow: 'hidden',
-          borderRadius: 8,
-          border: '1px solid #e2e8f0',
-        }}
-      >
-        <table>
-          <thead>
-            <tr>
-              <th />
-              {columns.map((column, index) => (
-                <th key={column.id}>{column.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => (
-              <SortableRow
-                key={row.gameId}
-                row={row}
-                columns={columns}
-                index={index}
-                lastRow={index === data.length - 1}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </DragDropProvider>
+      {header.isPlaceholder
+        ? null
+        : flexRender(header.column.columnDef.header, header.getContext())}
+    </th>
   );
-};
+}
 
 interface SortableRowProps {
-  row: UserAwardData;
-  columns: Column[];
+  row: TableRow<UserAwardData>;
   index: number;
   lastRow?: boolean;
 }
 
-function SortableRow({ row, columns, index, lastRow }: SortableRowProps) {
-  const { ref, handleRef, isDragging } = useSortable({
-    id: row.gameId,
+function SortableRow({row, index, lastRow}: SortableRowProps) {
+  const {ref, handleRef, isDragging} = useSortable({
+    id: row.original.id,
     index,
     type: 'row',
     accept: 'row',
@@ -104,16 +203,11 @@ function SortableRow({ row, columns, index, lastRow }: SortableRowProps) {
   return (
     <tr
       ref={ref}
-      style={{
-        boxShadow: isDragging
-          ? '0 0 0 1px rgba(63, 63, 68, 0.05), 0px 15px 15px 0 rgba(34, 33, 81, 0.25)'
-          : undefined,
-        opacity: isDragging ? 0.9 : undefined,
-      }}
     >
-      <td>True</td>
-      {columns.map((column) => (
-        <td key={column.id}>True</td>
+      {row.getVisibleCells().map((cell) => (
+        <td key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </td>
       ))}
     </tr>
   );

@@ -1,11 +1,11 @@
-import type { FC } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { AwardOrderTableOld } from '@/features/reorder-site-awards/components/AwardOrderTableOld';
 
 import { ResetOrderButton } from '../ResetOrderButton';
 import UserAwardData = App.Community.Data.UserAwardData;
+import { AwardOrderTable } from '@/features/reorder-site-awards/components/AwardOrderTable';
 
 export const ReorderSiteAwardsMainRoot: FC = () => {
   const { awards } = usePageProps<{
@@ -13,18 +13,24 @@ export const ReorderSiteAwardsMainRoot: FC = () => {
   }>();
   const { t } = useTranslation();
 
+  const [userAwards, setUserAwards] = useState(awards);
+
+  const printButton = () => {
+    console.log(userAwards);
+  }
+
   const saveAllChangesButton = () => {
-    const mappedTableRows = reorderSiteAwards.collectMappedTableRows();
-
-    try {
-      const withComputedDisplayOrderValues =
-        reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
-
-      postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
-      reorderSiteAwards.moveHiddenRowsToTop();
-    } catch (error) {
-      showStatusFailure(error.toString());
-    }
+    // const mappedTableRows = reorderSiteAwards.collectMappedTableRows();
+    //
+    // try {
+    //   const withComputedDisplayOrderValues =
+    //     reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
+    //
+    //   postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+    //   reorderSiteAwards.moveHiddenRowsToTop();
+    // } catch (error) {
+    //   showStatusFailure(error.toString());
+    // }
   };
 
   return (
@@ -55,14 +61,17 @@ export const ReorderSiteAwardsMainRoot: FC = () => {
         <button onClick={saveAllChangesButton} className="btn">
           {t('Save All Changes')}
         </button>
+        <button onClick={printButton} className="btn">
+          Print Awards to CONSOLE
+        </button>
       </div>
 
-      <AwardOrderTableOld
+      <AwardOrderTable
         title={'Game Awards'}
-        awards={awards}
+        awards={userAwards}
+        setAwards={setUserAwards}
         awardCounter={0}
         renderedSectionCount={9}
-        prefersSeeingSavedHiddenRows={true}
         initialSectionOrder={0}
       />
     </div>
