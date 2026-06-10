@@ -13,6 +13,7 @@ enum GameScreenshotRejectionReason: string
     case PoorQuality = 'poor_quality';
     case Duplicate = 'duplicate'; // too similar to another image in the game's gallery
     case IncorrectType = 'incorrect_type';
+    case MissingMatchingCompanion = 'missing_matching_companion';
     case InappropriateContent = 'inappropriate_content';
     case Other = 'other';
 
@@ -23,6 +24,7 @@ enum GameScreenshotRejectionReason: string
             self::PoorQuality => 'Poor Quality',
             self::Duplicate => 'Duplicate',
             self::IncorrectType => 'Incorrect Type',
+            self::MissingMatchingCompanion => 'Missing Matching Companion',
             self::InappropriateContent => 'Inappropriate Content',
             self::Other => 'Other',
         };

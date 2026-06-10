@@ -10,6 +10,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\GameBadgeAttribution;
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -45,12 +46,13 @@ class RecordGameBadgeChangeAction
             }
 
             $storagePath = ltrim($imageAssetPath, '/');
+            $fileContents = $this->getBadgeFileContents($storagePath);
 
-            if (!Storage::disk('media')->exists($storagePath)) {
+            if ($fileContents === null) {
                 throw new RuntimeException("Badge file missing at {$imageAssetPath}");
             }
 
-            $sha1 = sha1(Storage::disk('media')->get($storagePath));
+            $sha1 = sha1($fileContents);
 
             // a placeholder re-uploaded under a unique filename means the badge was removed,
             // so retire the current row without recording the placeholder as a real badge.
@@ -100,5 +102,19 @@ class RecordGameBadgeChangeAction
                 'replaced_at' => null,
             ]);
         });
+    }
+
+    private function getBadgeFileContents(string $storagePath): ?string
+    {
+        foreach (['media', 's3'] as $diskName) {
+            /** @var Filesystem $disk */
+            $disk = Storage::disk($diskName);
+
+            if ($disk->exists($storagePath)) {
+                return $disk->get($storagePath);
+            }
+        }
+
+        return null;
     }
 }

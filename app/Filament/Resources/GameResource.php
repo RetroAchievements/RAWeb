@@ -98,7 +98,8 @@ class GameResource extends Resource
                 Infolists\Components\SpatieMediaLibraryImageEntry::make('banner')
                     ->label('Banner Image')
                     ->collection('banner')
-                    ->conversion('lg-webp')
+                    ->conversion('desktop-xl-webp')
+                    ->visibility('public')
                     ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true)),
 
                 Schemas\Components\Section::make('Primary Details')
