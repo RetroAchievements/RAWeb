@@ -15,6 +15,7 @@ use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Sentry\Laravel\Integration as SentryIntegration;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -35,6 +36,7 @@ class Handler extends ExceptionHandler
 
     protected $dontReport = [
         JsonApiException::class,
+        OAuthServerException::class,
     ];
 
     /**
