@@ -43,6 +43,9 @@ class Index extends ListRecords
 
     public function approveMountedScreenshotReview(string $recordKey, string $kind): void
     {
+        $decision = ScreenshotReviewDecision::tryFrom($kind);
+        abort_unless($decision !== null, 422, 'Unknown screenshot review decision.');
+
         /** @var User $user */
         $user = Auth::user();
 
@@ -52,25 +55,28 @@ class Index extends ListRecords
             fn (GameScreenshot $record): bool => GameScreenshotModerationResource::approve(
                 $record,
                 $user,
-                ScreenshotReviewDecision::from($kind),
+                $decision,
             ),
         );
     }
 
     public function rejectMountedScreenshotReview(string $recordKey, string $reason, ?string $notes = null): void
     {
+        $rejectionReason = GameScreenshotRejectionReason::tryFrom($reason);
+        abort_unless($rejectionReason !== null, 422, 'Unknown screenshot rejection reason.');
+
         /** @var User $user */
         $user = Auth::user();
 
         $this->performMountedReviewOrAdvance(
             $recordKey,
             $user,
-            function (GameScreenshot $record) use ($user, $reason, $notes): bool {
+            function (GameScreenshot $record) use ($user, $rejectionReason, $notes): bool {
                 try {
                     (new RejectGameScreenshotAction())->execute(
                         screenshot: $record,
                         reviewer: $user,
-                        reason: GameScreenshotRejectionReason::from($reason),
+                        reason: $rejectionReason,
                         notes: $notes,
                     );
                 } catch (ValidationException $e) {
