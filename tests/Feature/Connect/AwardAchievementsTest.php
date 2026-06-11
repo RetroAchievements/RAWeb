@@ -809,6 +809,108 @@ describe('normal unlock', function () {
         );
         $this->assertEquals($softcoreScoreBefore, $user1->points);
     });
+
+    test('multiple achievements from distinct games', function () {
+        $data = AwardAchievementsTestHelpers::createStandaloneGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement2 = $data['achievements'][1];
+        $achievement3 = $data['achievements'][2];
+        $achievement4 = $data['achievements'][3];
+        $delegatedUser = $data['delegatedUser'];
+        $integrationUser = $data['integrationUser'];
+        $now = Carbon::now();
+
+        $game2 = Game::factory()->create(['system_id' => $game->system_id]);
+        $achievement3->game_id = $game2->id;
+        $achievement3->save();
+
+        // do the delegated unlocks sync
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
+
+        $params = [
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
+            'r' => 'awardachievements',
+            'k' => $delegatedUser->username,
+        ];
+        $payload = [
+            // Achievement 3 is from a different base game than 1, 2, and 4, but has the same
+            // author. We allow this for things like Final Fantasy XI, which has a separate base
+            // game for each expansion so players can earn badges for each expansion.
+            // The "integration user is not author" test below will ensure achievements from
+            // unrelated games cannot also be unlocked.
+            'a' => "1,2,3,4",
+            'h' => 1,
+            'v' => AwardAchievementsTestHelpers::buildValidationHash('1,2,3,4', $delegatedUser, 1),
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl, $payload)
+            ->assertStatus(200)
+            ->assertExactJson([
+                "Success" => true,
+                "Score" => $scoreBefore + $achievement1->points + $achievement2->points + $achievement3->points + $achievement4->points,
+                "SoftcoreScore" => $softcoreScoreBefore,
+                "ExistingIDs" => [],
+                "SuccessfulIDs" => [
+                    $achievement1->id,
+                    $achievement2->id,
+                    $achievement3->id,
+                    $achievement4->id,
+                ],
+                "AchievementsRemaining" => 2, // from first game
+            ]);
+        $delegatedUser->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement2->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement2->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // three achievements unlocked
+        $this->assertHasHardcoreUnlock($delegatedUser, $achievement1);
+        $this->assertHasHardcoreUnlock($delegatedUser, $achievement2);
+        $this->assertHasHardcoreUnlock($delegatedUser, $achievement3);
+        $this->assertHasHardcoreUnlock($delegatedUser, $achievement4);
+
+        // player score should have increased
+        $user1 = User::whereName($delegatedUser->username)->first();
+        $this->assertEquals(
+            $scoreBefore + $achievement1->points + $achievement2->points + $achievement3->points + $achievement4->points,
+            $user1->points_hardcore
+        );
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
+
+        // make sure the unlock cache was updated
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
+        $this->assertEqualsCanonicalizing(
+            [
+                $achievement1->id,
+                $achievement2->id,
+                $achievement4->id,
+            ],
+            array_keys($unlocks)
+        );
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game2->id);
+        $this->assertEqualsCanonicalizing(
+            [
+                $achievement3->id,
+            ],
+            array_keys($unlocks)
+        );
+    });
 });
 
 describe('validation', function () {
@@ -940,54 +1042,6 @@ describe('validation', function () {
             'user_id' => $delegatedUser->id,
             'game_id' => $game->id,
         ]);
-    });
-
-    test('multiple achievements must be from same game', function () {
-        $data = AwardAchievementsTestHelpers::createStandaloneGame();
-        $game = $data['game'];
-        $achievement1 = $data['achievements'][0];
-        $achievement2 = $data['achievements'][1];
-        $achievement3 = $data['achievements'][2];
-        $achievement4 = $data['achievements'][3];
-        $delegatedUser = $data['delegatedUser'];
-        $integrationUser = $data['integrationUser'];
-        $now = Carbon::now();
-
-        $game2 = Game::factory()->create(['system_id' => $game->system_id]);
-        $achievement3->game_id = $game2->id;
-        $achievement3->save();
-
-        // do the delegated unlocks sync
-        $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
-
-        $params = [
-            'u' => $integrationUser->username,
-            't' => $integrationUser->connect_token,
-            'r' => 'awardachievements',
-            'k' => $delegatedUser->username,
-        ];
-        $payload = [
-            // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
-            'a' => "1,2,3,4",
-            'h' => 1,
-            'v' => AwardAchievementsTestHelpers::buildValidationHash('1,2,3,4', $delegatedUser, 1),
-        ];
-
-        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl, $payload)
-            ->assertStatus(422)
-            ->assertExactJson([
-                'Success' => false,
-                'Status' => 422,
-                'Code' => 'invalid_parameter',
-                'Error' => 'All provided achievements must be from the same game.',
-            ]);
-
-        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement1);
-        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement2);
-        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement3);
-        $this->assertDoesNotHaveAnyUnlock($delegatedUser, $achievement4);
     });
 
     test('integration user is not author', function () {

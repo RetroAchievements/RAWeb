@@ -634,6 +634,56 @@ describe('Component: UploadForm', () => {
     });
   });
 
+  it('given the user picks a file larger than 6 MB via the file input, rejects it with a toast', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+    const oversizedFile = new File([new Uint8Array(7 * 1024 * 1024)], 'huge.png', {
+      type: 'image/png',
+    });
+
+    // ACT
+    fireEvent.change(fileInput, { target: { files: [oversizedFile] } });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(/this screenshot is 7\.0 MB\. the maximum is 6 MB/i)).toBeVisible();
+    });
+  });
+
+  it('given the user drops a file larger than 6 MB on the drop zone, rejects it with a toast', async () => {
+    // ARRANGE
+    render(
+      <UploadForm
+        gameId={1}
+        screenshotResolutions={[{ width: 320, height: 240 }]}
+        selectedType="ingame"
+      />,
+    );
+
+    const dropZone = screen.getByRole('button', { name: /drop your screenshot/i });
+    const oversizedFile = new File([new Uint8Array(7 * 1024 * 1024)], 'huge.png', {
+      type: 'image/png',
+    });
+
+    // ACT
+    fireEvent.drop(dropZone, { dataTransfer: { files: [oversizedFile], types: ['Files'] } });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(/this screenshot is 7\.0 MB\. the maximum is 6 MB/i)).toBeVisible();
+    });
+  });
+
   it('given the user drops a non-image file, does not set it as the form value', () => {
     // ARRANGE
     render(

@@ -73,31 +73,6 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->resourceNotFound('achievement');
         }
 
-        $gameId = null;
-        foreach ($this->achievements as $achievement) {
-            if (!$gameId) {
-                $gameId = $achievement->game_id;
-                $this->game = $achievement->game;
-            } elseif ($gameId !== $achievement->game_id) {
-                if ($this->game->parent_game_id === $achievement->game_id) {
-                    // achievement game is parent game. switch game to be the parent
-                    $gameId = $achievement->game_id;
-                    $this->game = $achievement->game;
-                } elseif ($gameId === $achievement->game->parent_game_id) {
-                    // achievement belongs to subset of currently tracked game. keep it
-                } elseif ($this->game->parent_game_id && $this->game->parent_game_id === $achievement->game->parent_game_id) {
-                    // both achievements belong to separate subsets of the same game. switch to the parent.
-                    $gameId = $this->game->parent_game_id;
-                    $this->game = Game::find($gameId);
-                } else {
-                    // achievements from two distinct games are being requested at the same time.
-                    // even if they can both be individually delegated, fail, as the process logic
-                    // can only work with one game at a time.
-                    return $this->invalidParameter('All provided achievements must be from the same game.');
-                }
-            }
-        }
-
         // If any requested achievement cannot be delegated, fail.
         $actingUser = $this->user;
         $result = $this->applyDelegationForUnlocks($request, $this->achievements);
@@ -116,9 +91,48 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
+        // Find the primary game so we can update the session and return the number of
+        // remaining achievements for completion. Sessions for secondary games will be
+        // updated/created by the unlock action.
+        $this->game = $this->determinePrimaryGame();
+
         $this->when = Carbon::now();
 
         return null;
+    }
+
+    private function determinePrimaryGame(): ?Game
+    {
+        $game = null;
+        foreach ($this->achievements as $achievement) {
+            if (!$game) {
+                $game = $achievement->game;
+
+                if (!$game->is_subset_game) {
+                    // Not a subset game, stop scanning.
+                    return $game;
+                }
+
+                // This achievement is associated to a subset. Keep scanning to see if unlocks
+                // from the base game are also being requested. If so, we want to use that.
+
+            } elseif ($achievement->game_id !== $game->id) {
+                if ($game->parent_game_id === $achievement->game_id) {
+                    // The achievement game is the parent game. Prefer the parent.
+                    return $achievement->game;
+                }
+
+                if ($game->parent_game_id === $achievement->game->parent_game_id) {
+                    // Achievements share a common parent game. Prefer the parent.
+                    return Game::find($game->parent_game_id);
+                }
+
+                // The achievement is from a distinct separate game (or subset).
+                // Ignore it and keep scanning.
+            }
+        }
+
+        return $game;
     }
 
     protected function process(): array
