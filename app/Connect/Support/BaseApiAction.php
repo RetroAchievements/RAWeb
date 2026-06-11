@@ -116,4 +116,14 @@ abstract class BaseApiAction
     {
         return $this->resourceNotFound('game');
     }
+
+    protected function internalError(string $message): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 500,
+            'Code' => 'internal_error',
+            'Error' => $message,
+        ];
+    }
 }
