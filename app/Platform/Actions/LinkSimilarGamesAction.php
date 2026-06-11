@@ -4,46 +4,71 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Exceptions\SimilarGamesCapExceededException;
 use App\Models\Game;
 use App\Models\GameSet;
-use App\Models\GameSetGame;
 use App\Platform\Enums\GameSetType;
+use Illuminate\Support\Facades\DB;
 
 class LinkSimilarGamesAction
 {
+    public const int MAX_SIMILAR_GAMES = 6;
+
     public function execute(Game $parentGame, array $gameIdsToLink): void
     {
-        $parentSimilarGamesSet = GameSet::firstOrCreate([
+        $parentSimilarGamesSet = GameSet::firstOrNew([
             'type' => GameSetType::SimilarGames,
             'game_id' => $parentGame->id,
         ]);
 
-        $existingSimilarGames = GameSetGame::query()
-            ->where('game_set_id', $parentSimilarGamesSet->id)
-            ->whereIn('game_id', $gameIdsToLink)
-            ->pluck('game_id')
-            ->toArray();
+        $existingParentLinkedIds = $parentSimilarGamesSet->exists
+            ? $parentSimilarGamesSet->games()->pluck('games.id')->all()
+            : [];
 
-        $newSetGameIds = array_diff($gameIdsToLink, $existingSimilarGames);
-        if (!empty($newSetGameIds)) {
-            $parentSimilarGamesSet->games()->attach($newSetGameIds);
+        $newSetGameIds = array_values(array_diff($gameIdsToLink, $existingParentLinkedIds));
+
+        if (empty($newSetGameIds)) {
+            return;
         }
 
-        // Link each game's similar games set to include the parent game.
-        foreach ($gameIdsToLink as $gameId) {
-            $similarGamesSet = GameSet::firstOrCreate([
+        $existingParentCount = count($existingParentLinkedIds);
+        if ($existingParentCount + count($newSetGameIds) > self::MAX_SIMILAR_GAMES) {
+            throw new SimilarGamesCapExceededException($parentGame->id, self::MAX_SIMILAR_GAMES);
+        }
+
+        /** @var GameSet[] $targetSets */
+        $targetSets = [];
+        foreach ($newSetGameIds as $gameId) {
+            $candidateSet = GameSet::firstOrNew([
                 'type' => GameSetType::SimilarGames,
                 'game_id' => $gameId,
             ]);
 
-            $isAlreadyAttached = GameSetGame::query()
-                ->where('game_set_id', $similarGamesSet->id)
-                ->where('game_id', $parentGame->id)
-                ->exists();
-
-            if (!$isAlreadyAttached) {
-                $similarGamesSet->games()->attach($parentGame->id);
+            if ($candidateSet->exists && $candidateSet->games()->where('games.id', $parentGame->id)->exists()) {
+                continue;
             }
+
+            $candidateCount = $candidateSet->exists ? $candidateSet->games()->count() : 0;
+            if ($candidateCount + 1 > self::MAX_SIMILAR_GAMES) {
+                throw new SimilarGamesCapExceededException($gameId, self::MAX_SIMILAR_GAMES);
+            }
+
+            $targetSets[] = $candidateSet;
         }
+
+        // writes only happen if validation passed
+        DB::transaction(function () use ($parentGame, $parentSimilarGamesSet, $newSetGameIds, $targetSets): void {
+            if (!$parentSimilarGamesSet->exists) {
+                $parentSimilarGamesSet->save();
+            }
+            $parentSimilarGamesSet->games()->attach($newSetGameIds);
+
+            foreach ($targetSets as $candidateSet) {
+                if (!$candidateSet->exists) {
+                    $candidateSet->save();
+                }
+                $candidateSet->games()->attach($parentGame->id);
+            }
+        });
     }
 }
