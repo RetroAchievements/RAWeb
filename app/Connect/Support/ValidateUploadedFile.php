@@ -15,7 +15,7 @@ trait ValidateUploadedFile
                 return $this->invalidParameter('File too large.');
             }
 
-            return $this->invalidParameter($this->file->getErrorMessage());
+            return $this->invalidParameter($file->getErrorMessage());
         }
 
         if ($supportedExtensions) {

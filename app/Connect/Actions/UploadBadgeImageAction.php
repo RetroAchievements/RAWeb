@@ -125,6 +125,9 @@ class UploadBadgeImageAction extends BaseAuthenticatedApiAction
         UploadToS3($localImagePath, $imagePath);
         UploadToS3($localImagePathLocked, $imagePathLocked);
 
+        unlink($localImagePath);
+        unlink($localImagePathLocked);
+
         return [
             'Success' => true,
             'Response' => [
