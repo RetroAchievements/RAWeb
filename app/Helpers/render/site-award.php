@@ -8,6 +8,7 @@ use App\Models\PlayerBadge;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
 function SeparateAwards(array $userAwards): array
@@ -391,6 +392,30 @@ function RenderAward(
 }
 
 /**
+ * Render the Badge cell for an award-reorder row: the badge itself, optionally paired with the
+ * "change displayed badge" affordance. Buffers the (echoing) award renderer so the picker wrapper
+ * doesn't have to straddle it inside the row loop.
+ *
+ * @param callable(): void $renderAward
+ */
+function renderBadgeCellContents(callable $renderAward, bool $showBadgePicker, int $gameId, string $iconHtml): string
+{
+    ob_start();
+    $renderAward();
+    $awardHtml = ob_get_clean();
+
+    if (!$showBadgePicker) {
+        return $awardHtml;
+    }
+
+    return
+        "<div class='flex items-center gap-2'>{$awardHtml}"
+        . "<button type='button' class='btn p-1 leading-none' "
+        . "title='Change displayed badge' aria-label='Change displayed badge' "
+        . "onclick='reorderSiteAwards.openBadgePicker({$gameId})'>{$iconHtml}</button></div>";
+}
+
+/**
  * @param Collection<int, Event> $eventData
  * @param SupportCollection<int, Collection<int, EventAward>> $eventAwardData
  */
@@ -404,6 +429,7 @@ function RenderAwardOrderTable(
     int $initialSectionOrder,
     Collection $eventData,
     SupportCollection $eventAwardData,
+    array $badgeCounts = [],
 ): void {
     // "Game Awards" -> "game"
     $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -432,6 +458,8 @@ function RenderAwardOrderTable(
     echo "</tr>";
     echo "</thead>";
     echo "<tbody>";
+
+    $changeBadgeIconHtml = Blade::render('<x-fas-right-left class="w-3.5 h-3.5" />');
 
     foreach ($awards as $award) {
         $awardType = $award['AwardType'];
@@ -490,8 +518,16 @@ function RenderAwardOrderTable(
             >
         HTML;
 
+        // offer to change the displayed badge only when the game has an alternative to pick
+        $showBadgePicker = $awardTypeEnum === AwardType::Mastery && ($badgeCounts[(int) $awardData] ?? 0) >= 2;
+
         echo "<td class='$subduedOpacityClassName transition'>";
-        RenderAward($award, 32, $awardOwnerUsername, $eventData, $eventAwardData, false);
+        echo renderBadgeCellContents(
+            fn () => RenderAward($award, 32, $awardOwnerUsername, $eventData, $eventAwardData, false),
+            $showBadgePicker,
+            (int) $awardData,
+            $changeBadgeIconHtml,
+        );
         echo "</td>";
         echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
         echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";

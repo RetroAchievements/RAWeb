@@ -22,12 +22,16 @@ import { useGameScreenshotUploadForm } from './useGameScreenshotUploadForm';
 const ALLOWED_MIME_TYPES_PNG_ONLY = ['image/png'];
 const ALLOWED_MIME_TYPES_ALL = ['image/png', 'image/jpeg', 'image/webp'];
 
+/** @see GameScreenshotValidationService.php */
+const MAX_FILE_SIZE_BYTES = 6 * 1024 * 1024;
+
 interface UploadFormProps {
   gameId: number;
   screenshotResolutions: Array<{ width: number; height: number }>;
   selectedType: 'title' | 'ingame' | 'completion';
 
   hasAnalogTvOutput?: boolean;
+  pendingSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
   screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
   supportsUpscaledScreenshots?: boolean;
   onSuccess?: (screenshot: App.Platform.Data.GameScreenshot) => void;
@@ -37,6 +41,7 @@ export const UploadForm: FC<UploadFormProps> = ({
   gameId,
   hasAnalogTvOutput,
   onSuccess,
+  pendingSubmissions,
   screenshotResolutions,
   screenshotUploadConsistency,
   selectedType,
@@ -103,12 +108,33 @@ export const UploadForm: FC<UploadFormProps> = ({
     ? t('Only PNG, JPEG, and WebP screenshots are accepted.')
     : t('This system only accepts PNG screenshots.');
 
-  const handleDrop = (e: React.DragEvent) => {
-    const file = e.dataTransfer.files[0];
-
+  const isAcceptableFile = (file: File): boolean => {
     if (!isAllowedMimeType(file)) {
       toastMessage.error(mimeTypeErrorMessage);
 
+      return false;
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const actualMb = (file.size / (1024 * 1024)).toFixed(1);
+      const maxMb = MAX_FILE_SIZE_BYTES / (1024 * 1024);
+      toastMessage.error(
+        t('This screenshot is {{size}} MB. The maximum is {{max}} MB.', {
+          size: actualMb,
+          max: maxMb,
+        }),
+      );
+
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    const file = e.dataTransfer.files[0];
+
+    if (!isAcceptableFile(file)) {
       return;
     }
 
@@ -117,9 +143,7 @@ export const UploadForm: FC<UploadFormProps> = ({
   };
 
   const handleFileChange = (file: File | undefined) => {
-    if (file && !isAllowedMimeType(file)) {
-      toastMessage.error(mimeTypeErrorMessage);
-
+    if (file && !isAcceptableFile(file)) {
       return;
     }
 
@@ -138,11 +162,19 @@ export const UploadForm: FC<UploadFormProps> = ({
     )
   );
 
+  // pending submissions need to be treated as existing resolutions, otherwise the
+  // nudge will keep firing after submission, because the back-end baseline only counts
+  // approved screenshots and pending ones aren't approved yet.
+  const matchingResolutions = [
+    ...(screenshotUploadConsistency?.existingResolutions ?? []),
+    ...(pendingSubmissions ?? []),
+  ];
+
   const hasConsistencyWarning = !!(
     previewDimensions &&
     isResolutionValid &&
     screenshotUploadConsistency &&
-    !screenshotUploadConsistency.existingResolutions.some((resolution) =>
+    !matchingResolutions.some((resolution) =>
       getIsSameScreenshotResolution(
         previewDimensions.width,
         previewDimensions.height,
@@ -187,7 +219,6 @@ export const UploadForm: FC<UploadFormProps> = ({
             <BaseFormItem>
               <BaseFormControl>
                 <ScreenshotDropZone
-                  canonicalResolution={screenshotUploadConsistency?.canonicalResolution}
                   fileInputRef={fileInputRef}
                   hasConsistencyWarning={hasConsistencyWarning}
                   hasPreview={hasPreview}
@@ -197,7 +228,7 @@ export const UploadForm: FC<UploadFormProps> = ({
                   onFileChange={handleFileChange}
                   previewDimensions={previewDimensions}
                   previewUrl={previewUrl}
-                  screenshotResolutions={screenshotResolutions}
+                  selectedType={selectedType}
                   supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 />
               </BaseFormControl>

@@ -24,7 +24,14 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillAchievementSetVersionDefinitions;
+use App\Platform\Commands\BackfillAllGameBadgesCommand;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\BackfillGameBadgesCollapseSameDayCommand;
+use App\Platform\Commands\BackfillGameBadgesCurrentCanonicalCommand;
+use App\Platform\Commands\BackfillGameBadgesFromAuditLogCommand;
+use App\Platform\Commands\BackfillGameBadgesFromCommentsCommand;
+use App\Platform\Commands\BackfillGameBadgesFromForumCommentsCommand;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
@@ -36,6 +43,7 @@ use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
+use App\Platform\Commands\PruneWipGameBadgesCommand;
 use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
@@ -49,6 +57,7 @@ use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
+use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerCount;
@@ -78,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Achievements
+                BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
 
@@ -88,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
                 PruneGameRecentPlayers::class,
                 RegenerateGameScreenshotConversions::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameAchievementUnlockMedians::class,
                 UpdateGameBeatenMetrics::class,
                 UpdateGameMetrics::class,
                 UpdateGamePlayerCount::class,
@@ -95,6 +106,15 @@ class AppServiceProvider extends ServiceProvider
                 VerifyAchievementSetIntegrity::class,
                 WriteGameSetSortTitles::class,
                 WriteGameSortTitles::class,
+
+                // Game Badges
+                BackfillAllGameBadgesCommand::class,
+                BackfillGameBadgesCollapseSameDayCommand::class,
+                BackfillGameBadgesCurrentCanonicalCommand::class,
+                BackfillGameBadgesFromAuditLogCommand::class,
+                BackfillGameBadgesFromCommentsCommand::class,
+                BackfillGameBadgesFromForumCommentsCommand::class,
+                PruneWipGameBadgesCommand::class,
 
                 // Game Hashes
                 NoIntroImport::class,

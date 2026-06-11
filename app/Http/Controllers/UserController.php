@@ -20,14 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    public function index(): View
-    {
-        $this->authorize('viewAny', User::class);
-
-        return view('resource.index')
-            ->with('resource', 'user');
-    }
-
     public function show(User $user): View
     {
         $this->authorize('view', $user);

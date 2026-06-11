@@ -83,4 +83,14 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
             'Error' => 'Invalid user/token combination.',
         ];
     }
+
+    protected function mustBeDeveloper(): array
+    {
+        return $this->accessDenied('You must be a developer to perform this action! Please drop a message in the forums to apply.');
+    }
+
+    protected function mustHaveActiveClaim(): array
+    {
+        return $this->accessDenied('You must have an active claim on this game to perform this action.');
+    }
 }
