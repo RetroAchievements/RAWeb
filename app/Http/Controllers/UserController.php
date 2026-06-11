@@ -118,6 +118,33 @@ class UserController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function importAvatarFromUrl(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('updateAvatar', $user);
+
+        // Pull the source image so users can reuse their existing profile picture
+        // from Discord, GitHub, Steam, etc. without having to download it locally first.
+        $sourceUrl = $request->input('url');
+        $imageData = @file_get_contents($sourceUrl);
+
+        if ($imageData === false) {
+            return response()->json(['message' => 'Could not fetch image.'], 400);
+        }
+
+        try {
+            UploadAvatar($user->username, 'data:image/png;base64,' . base64_encode($imageData));
+
+            return response()->json(['success' => true]);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
+
+            return response()->json(['message' => __('legacy.error.server')], 500);
+        }
+    }
+
     public function requestAccountDeletion(Request $request): JsonResponse
     {
         /** @var User $user */

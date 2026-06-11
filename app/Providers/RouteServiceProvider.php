@@ -116,6 +116,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('api.user.delete-request.destroy');
 
                 Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
+                Route::post('avatar/import', [UserController::class, 'importAvatarFromUrl'])->name('api.user.avatar.import');
                 Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
             });
 
