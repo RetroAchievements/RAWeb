@@ -1337,6 +1337,7 @@
     "No emulators matched your search.": "Er zijn geen emulators gevonden die aan je zoekopdracht voldoen.",
     "This system only accepts PNG screenshots.": "Dit systeem accepteert alleen schermafbeeldingen in PNG-formaat.",
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Alleen PNG, JPEG, en WebP schermafbeeldingen worden geaccepteerd.",
+    "This screenshot is {{size}} MB. The maximum is {{max}} MB.": "This screenshot is {{size}} MB. The maximum is {{max}} MB.",
     "This image has already been uploaded for this game.": "Deze afbeelding is al geüpload voor dit spel.",
     "This screenshot's resolution doesn't match what's expected for this system.": "De resolutie van deze schermafbeelding komt niet overeen met wat er verwacht wordt voor dit systeem.",
     "You have reached the maximum number of pending submissions.": "Je hebt het maximum aantal uitstaande inzendingen bereikt.",
