@@ -18,7 +18,6 @@ use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class AwardAchievementsAction extends BaseAuthenticatedApiAction
 {
@@ -58,10 +57,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
     protected function initialize(Request $request): ?array
     {
         if (!$request->has(['a', 'v', 'k'])) {
-            $result = $this->missingParameters();
-            $this->logUnprocessableRequest($request, $result);
-
-            return $result;
+            return $this->missingParameters();
         }
 
         $achievementIds = array_map('intval', explode(',', strval($request->input('a', ''))));
@@ -75,40 +71,6 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
 
         if (empty($this->achievements)) {
             return $this->resourceNotFound('achievement');
-        }
-
-        $gameId = null;
-        foreach ($this->achievements as $achievement) {
-            if (!$gameId) {
-                $gameId = $achievement->game_id;
-                $this->game = $achievement->game;
-            } elseif ($gameId !== $achievement->game_id) {
-                if ($this->game->parent_game_id === $achievement->game_id) {
-                    // achievement game is parent game. switch game to be the parent
-                    $gameId = $achievement->game_id;
-                    $this->game = $achievement->game;
-                } elseif ($gameId === $achievement->game->parent_game_id) {
-                    // achievement belongs to subset of currently tracked game. keep it
-                } elseif ($this->game->parent_game_id && $this->game->parent_game_id === $achievement->game->parent_game_id) {
-                    // both achievements belong to separate subsets of the same game. switch to the parent.
-                    $gameId = $this->game->parent_game_id;
-                    $this->game = Game::find($gameId);
-                } else {
-                    // achievements from two distinct games are being requested at the same time.
-                    // even if they can both be individually delegated, fail, as the process logic
-                    // can only work with one game at a time.
-                    $result = $this->invalidParameter('All provided achievements must be from the same game.');
-                    $this->logUnprocessableRequest($request, $result, [
-                        'achievement_count' => count($this->achievements),
-                        'game_ids' => array_values(array_unique(array_map(
-                            static fn (Achievement $achievement): int => $achievement->game_id,
-                            $this->achievements
-                        ))),
-                    ]);
-
-                    return $result;
-                }
-            }
         }
 
         // If any requested achievement cannot be delegated, fail.
@@ -129,46 +91,48 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
+        // Find the primary game so we can update the session and return the number of
+        // remaining achievements for completion. Sessions for secondary games will be
+        // updated/created by the unlock action.
+        $this->game = $this->determinePrimaryGame();
+
         $this->when = Carbon::now();
 
         return null;
     }
 
-    /**
-     * @param array{Status?: int, Code?: string, Error?: string} $result
-     * @param array<string, mixed> $context
-     */
-    private function logUnprocessableRequest(Request $request, array $result, array $context = []): void
+    private function determinePrimaryGame(): ?Game
     {
-        $achievementIds = $request->input('a');
-        $achievementIdsString = is_scalar($achievementIds) ? (string) $achievementIds : null;
-        $achievementIdCount = $achievementIdsString
-            ? count(array_filter(explode(',', $achievementIdsString), static fn (string $id): bool => $id !== ''))
-            : 0;
+        $game = null;
+        foreach ($this->achievements as $achievement) {
+            if (!$game) {
+                $game = $achievement->game;
 
-        $validationHash = $request->input('v');
-        $validationHashString = is_scalar($validationHash) ? (string) $validationHash : null;
+                if (!$game->is_subset_game) {
+                    // Not a subset game, stop scanning.
+                    return $game;
+                }
 
-        Log::warning('Connect awardachievements request returned 422.', [
-            'code' => $result['Code'] ?? null,
-            'error' => $result['Error'] ?? null,
-            'method' => $request->method(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'content_type' => $request->headers->get('content-type'),
-            'content_length' => $request->headers->get('content-length'),
-            'query_keys' => array_keys($request->query->all()),
-            'post_keys' => array_keys($request->request->all()),
-            'input_keys' => array_keys($request->all()),
-            'has_a' => $request->has('a'),
-            'has_v' => $request->has('v'),
-            'has_k' => $request->has('k'),
-            'a_length' => $achievementIdsString !== null ? mb_strlen($achievementIdsString) : null,
-            'a_count' => $achievementIdCount,
-            'v_present' => filled($validationHashString),
-            'v_length' => $validationHashString !== null ? mb_strlen($validationHashString) : null,
-            'target_user' => $request->input('k'),
-        ] + $context);
+                // This achievement is associated to a subset. Keep scanning to see if unlocks
+                // from the base game are also being requested. If so, we want to use that.
+
+            } elseif ($achievement->game_id !== $game->id) {
+                if ($game->parent_game_id === $achievement->game_id) {
+                    // The achievement game is the parent game. Prefer the parent.
+                    return $achievement->game;
+                }
+
+                if ($game->parent_game_id === $achievement->game->parent_game_id) {
+                    // Achievements share a common parent game. Prefer the parent.
+                    return Game::find($game->parent_game_id);
+                }
+
+                // The achievement is from a distinct separate game (or subset).
+                // Ignore it and keep scanning.
+            }
+        }
+
+        return $game;
     }
 
     protected function process(): array

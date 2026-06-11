@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Models\Game;
+use App\Platform\Enums\GameScreenshotRejectionReason;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Rules\DisallowAnimatedImageRule;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +28,7 @@ class GameScreenshotValidationService
             ['screenshot' => [
                 'image',
                 $allowedMimes,
-                'max:4096',
+                'max:6144',
                 'dimensions:min_width=64,min_height=64,max_width=3840,max_height=2160',
                 new DisallowAnimatedImageRule(),
             ]],
@@ -73,12 +75,20 @@ class GameScreenshotValidationService
     {
         $hash = sha1_file($file->getRealPath());
 
-        // Reject duplicates based on SHA1 across all of this game's screenshots,
-        // including those previously rejected. A rejection is a review decision,
-        // so re-uploading the same image should not bypass the decision.
+        // Reject duplicates based on SHA1 across this game's screenshots so a
+        // rejection cannot be bypassed by re-uploading the same image. The one
+        // exception is MissingMatchingCompanion: the image itself was fine and
+        // was only rejected pending a paired companion, so resubmission with
+        // the missing companion is the intended way to clear that decision.
         $isDuplicate = $game->gameScreenshots()
             ->whereHas('media', function ($query) use ($hash) {
                 $query->where('custom_properties->sha1', $hash);
+            })
+            ->where(function ($query) {
+                $query
+                    ->where('status', '!=', GameScreenshotStatus::Rejected)
+                    ->orWhere('rejection_reason', '!=', GameScreenshotRejectionReason::MissingMatchingCompanion)
+                    ->orWhereNull('rejection_reason');
             })
             ->exists();
 
