@@ -275,7 +275,9 @@ class SimilarGames extends ManageRelatedRecords
     private function isSimilarGamesCapReached(): bool
     {
         if ($this->isSimilarGamesCapReached === null) {
-            $similarGamesCount = $this->getOwnerRecord()->similarGamesList()->count();
+            /** @var Game $game */
+            $game = $this->getOwnerRecord();
+            $similarGamesCount = $game->similarGamesList()->count();
             $this->isSimilarGamesCapReached = $similarGamesCount >= LinkSimilarGamesAction::MAX_SIMILAR_GAMES;
         }
 
