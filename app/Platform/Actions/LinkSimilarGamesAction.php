@@ -27,10 +27,6 @@ class LinkSimilarGamesAction
 
         $newSetGameIds = array_values(array_diff($gameIdsToLink, $existingParentLinkedIds));
 
-        if (empty($newSetGameIds)) {
-            return;
-        }
-
         $existingParentCount = count($existingParentLinkedIds);
         if ($existingParentCount + count($newSetGameIds) > self::MAX_SIMILAR_GAMES) {
             throw new SimilarGamesCapExceededException($parentGame->id, self::MAX_SIMILAR_GAMES);
@@ -38,7 +34,7 @@ class LinkSimilarGamesAction
 
         /** @var GameSet[] $targetSets */
         $targetSets = [];
-        foreach ($newSetGameIds as $gameId) {
+        foreach ($gameIdsToLink as $gameId) {
             $candidateSet = GameSet::firstOrNew([
                 'type' => GameSetType::SimilarGames,
                 'game_id' => $gameId,
@@ -56,12 +52,18 @@ class LinkSimilarGamesAction
             $targetSets[] = $candidateSet;
         }
 
+        if (empty($newSetGameIds) && empty($targetSets)) {
+            return;
+        }
+
         // writes only happen if validation passed
         DB::transaction(function () use ($parentGame, $parentSimilarGamesSet, $newSetGameIds, $targetSets): void {
-            if (!$parentSimilarGamesSet->exists) {
-                $parentSimilarGamesSet->save();
+            if (!empty($newSetGameIds)) {
+                if (!$parentSimilarGamesSet->exists) {
+                    $parentSimilarGamesSet->save();
+                }
+                $parentSimilarGamesSet->games()->attach($newSetGameIds);
             }
-            $parentSimilarGamesSet->games()->attach($newSetGameIds);
 
             foreach ($targetSets as $candidateSet) {
                 if (!$candidateSet->exists) {

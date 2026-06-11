@@ -208,7 +208,7 @@ class SimilarGames extends ManageRelatedRecords
                             Notification::make()
                                 ->danger()
                                 ->title('Cap exceeded')
-                                ->body("Cannot add: \"{$title}\" would exceed the {$e->cap}-similar-game cap. Remove an entry first.")
+                                ->body("Cannot add: {$title} would exceed the {$e->cap}-similar-game cap. Remove an entry first.")
                                 ->send();
 
                             return;
@@ -233,6 +233,7 @@ class SimilarGames extends ManageRelatedRecords
                         $game = $this->getOwnerRecord();
 
                         (new UnlinkSimilarGamesAction())->execute($game, [$similarGame->id]);
+                        $this->isSimilarGamesCapReached = null;
 
                         Notification::make()
                             ->success()
@@ -256,6 +257,7 @@ class SimilarGames extends ManageRelatedRecords
                             $game,
                             $similarGames->pluck('id')->toArray()
                         );
+                        $this->isSimilarGamesCapReached = null;
 
                         $this->deselectAllTableRecords();
 
