@@ -121,7 +121,10 @@ class RouteServiceProvider extends ServiceProvider
 
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('achievementSetVersions')->readOnly();
+                                });
 
                             $server->resource('achievement-set-claims', AchievementSetClaimController::class)
                                 ->only('index');
@@ -138,7 +141,6 @@ class RouteServiceProvider extends ServiceProvider
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
-                                    $relationships->hasMany('achievementSetVersions')->readOnly();
                                     $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('hashes')->readOnly();
                                 });

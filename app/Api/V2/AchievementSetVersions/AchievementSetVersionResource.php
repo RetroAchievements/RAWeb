@@ -21,6 +21,13 @@ class AchievementSetVersionResource extends JsonApiResource
     public function attributes($request): iterable
     {
         return [
+            'version' => $this->resource->version,
+            'definition' => $this->resource->definition,
+            'players_total' => $this->resource->players_total,
+            'players_hardcore' => $this->resource->players_hardcore,
+            'achievements_published' => $this->resource->achievements_published,
+            'achievements_unpublished' => $this->resource->achievements_unpublished,
+            'points_total' => $this->resource->points_total,
             'createdAt' => $this->resource->created_at,
             'updatedAt' => $this->resource->updated_at,
         ];
@@ -35,7 +42,7 @@ class AchievementSetVersionResource extends JsonApiResource
     public function relationships($request): iterable
     {
         return [
-            'games' => $this->relation('game')
+            'achievementSets' => $this->relation('achievementSet')
                 ->withoutLinks()
                 ->showDataIfLoaded()
         ];
