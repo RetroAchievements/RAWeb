@@ -36,7 +36,6 @@ class Handler extends ExceptionHandler
 
     protected $dontReport = [
         JsonApiException::class,
-        OAuthServerException::class,
     ];
 
     /**
@@ -44,6 +43,10 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
+        $this->reportable(function (OAuthServerException $e) {
+            return $e->getHttpStatusCode() < 500 ? false : null;
+        });
+
         $this->reportable(function (Throwable $e) {
             SentryIntegration::captureUnhandledException($e);
         });
