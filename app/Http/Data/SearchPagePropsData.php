@@ -14,6 +14,7 @@ class SearchPagePropsData extends Data
         public string $initialQuery,
         public string $initialScope,
         public int $initialPage,
+        public ?string $suggestedUsername = null,
     ) {
     }
 }
