@@ -2,14 +2,14 @@
 
 namespace App\Api\V2\AchievementSetVersions;
 
+use App\Api\V2\BaseJsonApiResource;
 use App\Models\AchievementSetVersion;
 use Illuminate\Http\Request;
-use LaravelJsonApi\Core\Resources\JsonApiResource;
 
 /**
  * @property AchievementSetVersion $resource
  */
-class AchievementSetVersionResource extends JsonApiResource
+class AchievementSetVersionResource extends BaseJsonApiResource
 {
 
     /**
