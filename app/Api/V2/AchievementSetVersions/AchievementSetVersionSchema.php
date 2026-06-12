@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Api\V2\AchievementSetVersions;
 
 use App\Models\AchievementSetVersion;
-use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\ArrayHash;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -19,11 +19,8 @@ use LaravelJsonApi\Eloquent\Schema;
 
 class AchievementSetVersionSchema extends Schema
 {
-
     /**
      * The model the schema corresponds to.
-     *
-     * @var string
      */
     public static string $model = AchievementSetVersion::class;
 
@@ -55,8 +52,6 @@ class AchievementSetVersionSchema extends Schema
 
     /**
      * Get the resource fields.
-     *
-     * @return array
      */
     public function fields(): array
     {
@@ -82,8 +77,6 @@ class AchievementSetVersionSchema extends Schema
 
     /**
      * Get the resource filters.
-     *
-     * @return array
      */
     public function filters(): array
     {

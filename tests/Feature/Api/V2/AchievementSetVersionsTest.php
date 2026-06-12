@@ -153,7 +153,7 @@ class AchievementSetVersionsTest extends TestCase
             'achievements_published' => 0,
             'achievements_unpublished' => 0,
             'points_total' => 0,
-            'version' => 1
+            'version' => 1,
         ]);
 
         AchievementSetVersion::factory()->create([
@@ -163,7 +163,7 @@ class AchievementSetVersionsTest extends TestCase
             'achievements_published' => 0,
             'achievements_unpublished' => 0,
             'points_total' => 0,
-            'version' => 1
+            'version' => 1,
         ]);
 
         // Act
@@ -191,7 +191,7 @@ class AchievementSetVersionsTest extends TestCase
             'achievements_published' => 0,
             'achievements_unpublished' => 0,
             'points_total' => 0,
-            'version' => 1
+            'version' => 1,
         ]);
 
         // Act
@@ -225,7 +225,7 @@ class AchievementSetVersionsTest extends TestCase
             'achievements_published' => 0,
             'achievements_unpublished' => 0,
             'points_total' => 0,
-            'version' => 1
+            'version' => 1,
         ]);
 
         AchievementSetVersion::factory()->create([
@@ -235,7 +235,7 @@ class AchievementSetVersionsTest extends TestCase
             'achievements_published' => 0,
             'achievements_unpublished' => 0,
             'points_total' => 0,
-            'version' => 1
+            'version' => 1,
         ]);
 
         // Act

@@ -7,11 +7,8 @@ use LaravelJsonApi\Validation\Rule as JsonApiRule;
 
 class AchievementSetVersionCollectionQuery extends ResourceQuery
 {
-
     /**
      * Get the validation rules that apply to the request query parameters.
-     *
-     * @return array
      */
     public function rules(): array
     {

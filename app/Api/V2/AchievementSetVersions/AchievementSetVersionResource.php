@@ -11,12 +11,10 @@ use Illuminate\Http\Request;
  */
 class AchievementSetVersionResource extends BaseJsonApiResource
 {
-
     /**
      * Get the resource's attributes.
      *
      * @param Request|null $request
-     * @return iterable
      */
     public function attributes($request): iterable
     {
@@ -33,7 +31,7 @@ class AchievementSetVersionResource extends BaseJsonApiResource
             'achievements_unpublished' => $this->resource->achievements_unpublished,
             'points_total' => $this->resource->points_total,
 
-            'achievement_set_id' => $this->resource->achievement_set_id
+            'achievement_set_id' => $this->resource->achievement_set_id,
         ];
     }
 
@@ -41,15 +39,13 @@ class AchievementSetVersionResource extends BaseJsonApiResource
      * Get the resource's relationships.
      *
      * @param Request|null $request
-     * @return iterable
      */
     public function relationships($request): iterable
     {
         return [
             'achievementSets' => $this->relation('achievementSet')
                 ->withoutLinks()
-                ->showDataIfLoaded()
+                ->showDataIfLoaded(),
         ];
     }
-
 }
