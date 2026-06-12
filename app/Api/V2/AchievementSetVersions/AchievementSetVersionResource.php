@@ -22,14 +22,18 @@ class AchievementSetVersionResource extends JsonApiResource
     {
         return [
             'version' => $this->resource->version,
+
+            'createdAt' => $this->resource->created_at,
+            'updatedAt' => $this->resource->updated_at,
+
             'definition' => $this->resource->definition,
             'players_total' => $this->resource->players_total,
             'players_hardcore' => $this->resource->players_hardcore,
             'achievements_published' => $this->resource->achievements_published,
             'achievements_unpublished' => $this->resource->achievements_unpublished,
             'points_total' => $this->resource->points_total,
-            'createdAt' => $this->resource->created_at,
-            'updatedAt' => $this->resource->updated_at,
+
+            'achievement_set_id' => $this->resource->achievement_set_id
         ];
     }
 
