@@ -22,21 +22,26 @@ class AchievementSetVersionPolicy
 
     public function create(User $user): bool
     {
+        return false;
     }
 
     public function update(User $user, AchievementSetVersion $achievementSetVersion): bool
     {
+        return false;
     }
 
     public function delete(User $user, AchievementSetVersion $achievementSetVersion): bool
     {
+        return false;
     }
 
     public function restore(User $user, AchievementSetVersion $achievementSetVersion): bool
     {
+        return false;
     }
 
     public function forceDelete(User $user, AchievementSetVersion $achievementSetVersion): bool
     {
+        return false;
     }
 }
