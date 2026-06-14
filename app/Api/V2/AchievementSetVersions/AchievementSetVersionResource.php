@@ -25,13 +25,13 @@ class AchievementSetVersionResource extends BaseJsonApiResource
             'updatedAt' => $this->resource->updated_at,
 
             'definition' => $this->resource->definition,
-            'players_total' => $this->resource->players_total,
-            'players_hardcore' => $this->resource->players_hardcore,
-            'achievements_published' => $this->resource->achievements_published,
-            'achievements_unpublished' => $this->resource->achievements_unpublished,
-            'points_total' => $this->resource->points_total,
+            'playersTotal' => $this->resource->players_total,
+            'playersHardcore' => $this->resource->players_hardcore,
+            'achievementsPublished' => $this->resource->achievements_published,
+            'achievementsUnpublished' => $this->resource->achievements_unpublished,
+            'pointsTotal' => $this->resource->points_total,
 
-            'achievement_set_id' => $this->resource->achievement_set_id,
+            'achievementSetId' => $this->resource->achievement_set_id,
         ];
     }
 
