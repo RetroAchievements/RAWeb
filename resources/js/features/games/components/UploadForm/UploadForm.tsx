@@ -31,6 +31,7 @@ interface UploadFormProps {
   selectedType: 'title' | 'ingame' | 'completion';
 
   hasAnalogTvOutput?: boolean;
+  pendingSubmissions?: Array<App.Platform.Data.GameScreenshot> | null;
   screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
   supportsUpscaledScreenshots?: boolean;
   onSuccess?: (screenshot: App.Platform.Data.GameScreenshot) => void;
@@ -40,6 +41,7 @@ export const UploadForm: FC<UploadFormProps> = ({
   gameId,
   hasAnalogTvOutput,
   onSuccess,
+  pendingSubmissions,
   screenshotResolutions,
   screenshotUploadConsistency,
   selectedType,
@@ -160,11 +162,19 @@ export const UploadForm: FC<UploadFormProps> = ({
     )
   );
 
+  // pending submissions need to be treated as existing resolutions, otherwise the
+  // nudge will keep firing after submission, because the back-end baseline only counts
+  // approved screenshots and pending ones aren't approved yet.
+  const matchingResolutions = [
+    ...(screenshotUploadConsistency?.existingResolutions ?? []),
+    ...(pendingSubmissions ?? []),
+  ];
+
   const hasConsistencyWarning = !!(
     previewDimensions &&
     isResolutionValid &&
     screenshotUploadConsistency &&
-    !screenshotUploadConsistency.existingResolutions.some((resolution) =>
+    !matchingResolutions.some((resolution) =>
       getIsSameScreenshotResolution(
         previewDimensions.width,
         previewDimensions.height,
@@ -209,7 +219,6 @@ export const UploadForm: FC<UploadFormProps> = ({
             <BaseFormItem>
               <BaseFormControl>
                 <ScreenshotDropZone
-                  canonicalResolution={screenshotUploadConsistency?.canonicalResolution}
                   fileInputRef={fileInputRef}
                   hasConsistencyWarning={hasConsistencyWarning}
                   hasPreview={hasPreview}
@@ -219,7 +228,7 @@ export const UploadForm: FC<UploadFormProps> = ({
                   onFileChange={handleFileChange}
                   previewDimensions={previewDimensions}
                   previewUrl={previewUrl}
-                  screenshotResolutions={screenshotResolutions}
+                  selectedType={selectedType}
                   supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 />
               </BaseFormControl>

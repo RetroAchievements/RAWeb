@@ -606,12 +606,18 @@ class BuildGameShowPagePropsAction
         $system = $game->system;
         $resolutionService = new ScreenshotResolutionService();
 
-        $existingResolutions = $game->gameScreenshots()
+        $rawScreenshots = $game->gameScreenshots()
             ->approved()
             ->where('is_primary', true)
             ->whereNotNull('width')
             ->whereNotNull('height')
-            ->get(['width', 'height'])
+            ->get(['width', 'height']);
+
+        if ($rawScreenshots->isEmpty()) {
+            return null;
+        }
+
+        $existingResolutions = $rawScreenshots
             ->map(fn (GameScreenshot $screenshot) => $system
                 ? $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system)
                 : ['width' => $screenshot->width, 'height' => $screenshot->height]
@@ -621,10 +627,6 @@ class BuildGameShowPagePropsAction
             ->sortBy(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
             ->values()
             ->all();
-
-        if ($existingResolutions === []) {
-            return null;
-        }
 
         $canonicalResolution = count($existingResolutions) === 1
             ? "{$existingResolutions[0]['width']}x{$existingResolutions[0]['height']}"

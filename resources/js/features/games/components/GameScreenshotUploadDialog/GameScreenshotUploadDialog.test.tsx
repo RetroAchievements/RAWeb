@@ -270,8 +270,45 @@ describe('Component: GameScreenshotUploadDialog', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByText(/valid resolution/i)).toBeVisible();
-      expect(screen.getByText(/doesn't match existing screenshots \(256x224\)/i)).toBeVisible();
+      expect(
+        screen.getByText(/then submit a matching title screenshot at this resolution/i),
+      ).toBeVisible();
     });
+  });
+
+  it('given the user already submitted a matching screenshot at the previewed resolution, suppresses the companion nudge', async () => {
+    // ARRANGE
+    render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
+      pageProps: {
+        config: baseConfig,
+        game: createGame({
+          system: createSystem({
+            screenshotResolutions: [{ width: 320, height: 240 }],
+            supportsUpscaledScreenshots: false,
+          }),
+        }),
+        screenshotUploadConsistency: {
+          existingResolutions: [{ width: 256, height: 224 }],
+          canonicalResolution: '256x224',
+        },
+        screenshotUploadStatuses: {},
+        screenshotUploadPendingCount: 1,
+        screenshotUploadUserSubmissions: [
+          createGameScreenshot({ type: 'ingame', width: 320, height: 240 }),
+        ],
+      },
+    });
+
+    const fileInput = screen.getByLabelText(/upload screenshot file/i) as HTMLInputElement;
+
+    // ACT
+    await userEvent.upload(fileInput, new File(['test'], 'screenshot.png', { type: 'image/png' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/valid resolution/i)).toBeVisible();
+    });
+    expect(screen.queryByText(/more likely to be accepted/i)).not.toBeInTheDocument();
   });
 
   it('given the user cancels a submission and confirms, removes it from the list and calls the delete endpoint', async () => {
