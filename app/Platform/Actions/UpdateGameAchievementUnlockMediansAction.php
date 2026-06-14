@@ -188,10 +188,6 @@ class UpdateGameAchievementUnlockMediansAction
         }
 
         foreach ($unlocks as $userId => $userUnlocks) {
-            if (empty($userUnlocks)) {
-                continue;
-            }
-
             // unlocks are sorted by date desc, so the first element is this user's latest unlock
             $latestUserUnlockAt = $userUnlocks[array_key_first($userUnlocks)]['unlocked_effective_at'] ?? null;
             $elapsed = 0;
