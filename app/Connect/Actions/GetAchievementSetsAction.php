@@ -501,8 +501,9 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                     return;
                 }
 
-                $title = 'Warning: Outdated Emulator (please update)';
-                $description = 'Hardcore unlocks will not be earnable using this emulator in less than ' . $days . ' ' . Str::plural('day', $days) . '.';
+                $daysStr = $days . ' ' . Str::plural('day', $days);
+                $title = "Warning: Outdated Emulator in $daysStr (please update)";
+                $description = "Hardcore unlocks will not be earnable using this emulator in less than $daysStr.";
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',

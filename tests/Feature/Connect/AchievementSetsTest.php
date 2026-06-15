@@ -1882,7 +1882,7 @@ describe('User Agent', function () {
                         'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                         'Achievements' => [
                             AchievementSetsTestHelpers::getWarningAchievementPatchData(
-                                'Warning: Outdated Emulator (please update)',
+                                'Warning: Outdated Emulator in 5 days (please update)',
                                 'Hardcore unlocks will not be earnable using this emulator in less than 5 days.'
                             ),
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1

@@ -585,7 +585,7 @@ class PatchDataTest extends TestCase
                     'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
-                            'Warning: Outdated Emulator (please update)',
+                            'Warning: Outdated Emulator in 5 days (please update)',
                             'Hardcore unlocks will not be earnable using this emulator in less than 5 days.'
                         ),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
