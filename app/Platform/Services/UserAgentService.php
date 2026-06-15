@@ -341,7 +341,16 @@ class UserAgentService
             && $emulatorUserAgent->pending_minimum_hardcore_version
             && $emulatorUserAgent->pending_minimum_hardcore_version_at) {
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->pending_minimum_hardcore_version) < 0) {
-                $supportLevel = ClientSupportLevel::SoftcorePending;
+                if ($emulatorUserAgent->pending_minimum_hardcore_version_at->isFuture()) {
+                    $supportLevel = ClientSupportLevel::SoftcorePending;
+                } else {
+                    // Version is already past-due. Perform the update now.
+                    $emulatorUserAgent->minimum_hardcore_version = $emulatorUserAgent->pending_minimum_hardcore_version;
+                    $emulatorUserAgent->pending_minimum_hardcore_version = null;
+                    $emulatorUserAgent->pending_minimum_hardcore_version_at = null;
+                    $emulatorUserAgent->save();
+                    $supportLevel = ClientSupportLevel::Outdated;
+                }
             }
         }
 
