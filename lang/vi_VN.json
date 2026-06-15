@@ -1337,6 +1337,7 @@
     "No emulators matched your search.": "Không tìm thấy trình giả lập nào khớp với từ khóa của bạn.",
     "This system only accepts PNG screenshots.": "Hệ máy này chỉ nhận ảnh PNG.",
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Chỉ có ảnh PNG, JPEG, hoặc WebP là được chấp nhận.",
+    "This screenshot is {{size}} MB. The maximum is {{max}} MB.": "This screenshot is {{size}} MB. The maximum is {{max}} MB.",
     "This image has already been uploaded for this game.": "Ảnh này đã được đăng cho trò chơi này.",
     "This screenshot's resolution doesn't match what's expected for this system.": "Độ phân giải của ảnh chụp màn hình này không khớp với độh phân giải mong đợi của hệ máy này.",
     "You have reached the maximum number of pending submissions.": "Bạn đã đạt số lượng tối đa số lần đăng đang chờ xử lý.",

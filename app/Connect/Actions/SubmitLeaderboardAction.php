@@ -219,7 +219,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         // Make sure the user has a claim on the game.
         // if (!hasSetClaimed($this->user, $game->id, false)) {
-        //     return $this->accessDenied('You must have an active claim on this game to perform this action.');
+        //     return $this->mustHaveActiveClaim();
         // }
 
         if (!ValueFormat::isValid($this->format)) {

@@ -1852,6 +1852,175 @@ describe('User Agent', function () {
             ]);
     });
 
+    test('user agent older than pending minimum hardcore version receives warning', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->addDays(5);
+        $emulatorUserAgent->save();
+
+        $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getWarningAchievementPatchData(
+                                'Warning: Outdated Emulator in 5 days (please update)',
+                                'Hardcore unlocks will not be earnable using this emulator in less than 5 days.'
+                            ),
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('user agent matching pending hardcore version does not receive warning', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->addDays(15);
+        $emulatorUserAgent->save();
+
+        $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('user agent older than pending minimum hardcore version more than two weeks out does not receive warning', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->addDays(5);
+        $emulatorUserAgent->save();
+
+        $this->withHeaders(['User-Agent' => 'MyClient/1.6'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('user agent older than pending minimum hardcore version updates minimum hardcore version if past due', function () {
+        $data = AchievementSetsTestHelpers::createSimpleGame();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->subDays(2);
+        $emulatorUserAgent->save();
+
+        $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getWarningAchievementPatchData(
+                                'Warning: Outdated Emulator (please update)',
+                                'Hardcore unlocks cannot be earned using this version of this emulator.'
+                            ),
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        $emulatorUserAgent->refresh();
+        $this->assertEquals('1.6', $emulatorUserAgent->minimum_hardcore_version);
+        $this->assertNull($emulatorUserAgent->pending_minimum_hardcore_version);
+        $this->assertNull($emulatorUserAgent->pending_minimum_hardcore_version_at);
+    });
+
     test('unsupported user agent receives warning', function () {
         $data = AchievementSetsTestHelpers::createSimpleGame();
         $game = $data['game'];

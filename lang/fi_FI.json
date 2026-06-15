@@ -1337,6 +1337,7 @@
     "No emulators matched your search.": "Haullasi ei löytynyt emulaattoreita.",
     "This system only accepts PNG screenshots.": "Järjestelmä hyväksyy kuvakaappauksia vain PNG-muodossa.",
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Vain PNG-, JPEG-, ja WebP-muotoisia kuvakaappauksia hyväksytään.",
+    "This screenshot is {{size}} MB. The maximum is {{max}} MB.": "This screenshot is {{size}} MB. The maximum is {{max}} MB.",
     "This image has already been uploaded for this game.": "Tämä kuva on jo ladattu pelille.",
     "This screenshot's resolution doesn't match what's expected for this system.": "Tämän kuvakaappauksen resoluutio ei vastaa järjestelmän odotettua resoluutiota.",
     "You have reached the maximum number of pending submissions.": "Olet saavuttanut odottavien lähetysten enimmäismäärän.",
