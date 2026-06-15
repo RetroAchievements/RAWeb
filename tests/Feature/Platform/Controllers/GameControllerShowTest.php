@@ -3523,7 +3523,7 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
-    it('given the only approved primary screenshot is invalid for the system, screenshotUploadConsistency is omitted', function () {
+    it('given the only approved primary screenshot is invalid for the system, screenshotUploadConsistency is present with no existing resolutions so the nudge fires', function () {
         // ARRANGE
         Storage::fake('s3');
         config()->set('feature.game_screenshot_uploads', true);
@@ -3546,7 +3546,9 @@ describe('Screenshot Upload Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->missing('screenshotUploadConsistency')
+            ->has('screenshotUploadConsistency')
+            ->has('screenshotUploadConsistency.existingResolutions', 0)
+            ->missing('screenshotUploadConsistency.canonicalResolution')
             ->where('screenshotUploadStatuses.title.hasResolutionIssues', true)
         );
     });

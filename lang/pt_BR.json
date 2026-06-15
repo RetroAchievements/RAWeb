@@ -1337,6 +1337,7 @@
     "No emulators matched your search.": "Nenhum emulador corresponde à sua busca.",
     "This system only accepts PNG screenshots.": "O console aceita apenas imagens PNG.",
     "Only PNG, JPEG, and WebP screenshots are accepted.": "Apenas imagens PNG, JPEG e WebP são aceitas.",
+    "This screenshot is {{size}} MB. The maximum is {{max}} MB.": "Esta imagem possui {{size}} MB. O tamanho máximo é de {{max}} MB.",
     "This image has already been uploaded for this game.": "Essa imagem já foi enviada para este jogo.",
     "This screenshot's resolution doesn't match what's expected for this system.": "A resolução da imagem não bate com o esperado para este console.",
     "You have reached the maximum number of pending submissions.": "Você já alcançou o número máximo de envios pendentes!",
