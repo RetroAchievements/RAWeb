@@ -5,6 +5,7 @@ namespace App\Api\V2\AchievementSetVersions;
 use App\Api\V2\BaseJsonApiResource;
 use App\Models\AchievementSetVersion;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Links;
 
 /**
  * @property AchievementSetVersion $resource
@@ -46,5 +47,16 @@ class AchievementSetVersionResource extends BaseJsonApiResource
             'achievementSets' => $this->relation('achievementSet')
                 ->withoutLinks(),
         ];
+    }
+
+    /**
+     * Get the resource's links.
+     *
+     * @param Request|null $request
+     */
+    public function links($request): Links
+    {
+        // Versions have no standalone show route, so suppress the self link.
+        return new Links();
     }
 }
