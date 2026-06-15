@@ -288,6 +288,25 @@ describe('developer', function () {
 
         $this->assertEquals(0, MemoryNote::count());
     });
+
+    test('cannot submit invalidly encoded notes', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = Game::factory()->create();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenotes', [
+            'g' => 99,
+            'n' => "4660=This is a note\n",
+        ]))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Error' => 'Improperly encoded notes list.',
+            ]);
+
+        $this->assertEquals(0, MemoryNote::count());
+    });
 });
 
 describe('junior developer', function () {

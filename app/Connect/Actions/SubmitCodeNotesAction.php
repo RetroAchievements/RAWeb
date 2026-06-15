@@ -40,7 +40,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
 
             $index = strpos($line, ':');
             if ($index === false) {
-                return $this->invalidParameter('Improperly encoded notes list');
+                return $this->invalidParameter('Improperly encoded notes list.');
             }
 
             $address = intval(substr($line, 0, $index));
