@@ -34,7 +34,7 @@ class CreateDoubledScreenshotAction
             $sourceWidth, $sourceHeight,
         );
 
-        $tempPath = tempnam(sys_get_temp_dir(), 'doubled_screenshot_') . '.png';
+        $tempPath = tempnam(sys_get_temp_dir(), 'doubled_screenshot_');
 
         imagepng($doubled, $tempPath);
 
