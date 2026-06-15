@@ -28,12 +28,15 @@ enum ClientSupportLevel: int
     // client is recognized, but doesn't meet our hardcore requirements.
     case SoftcoreOnly = 6;
 
+    // client is scheduled to become softcore only
+    case SoftcorePending = 7;
+
     /**
      * Full and Warned levels both permit hardcore unlocks and leaderboard submissions.
      * All other levels restrict these capabilities in some way.
      */
     public function allowsHardcoreUnlocks(): bool
     {
-        return $this === self::Full || $this === self::Warned;
+        return $this === self::Full || $this === self::Warned || $this === self::SoftcorePending;
     }
 }
