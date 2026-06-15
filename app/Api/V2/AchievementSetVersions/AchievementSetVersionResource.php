@@ -44,8 +44,7 @@ class AchievementSetVersionResource extends BaseJsonApiResource
     {
         return [
             'achievementSets' => $this->relation('achievementSet')
-                ->withoutLinks()
-                ->showDataIfLoaded(),
+                ->withoutLinks(),
         ];
     }
 }
