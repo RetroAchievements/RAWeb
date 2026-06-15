@@ -200,15 +200,18 @@ class SimilarGames extends ManageRelatedRecords
                         try {
                             (new LinkSimilarGamesAction())->execute($game, $gameIds);
                         } catch (SimilarGamesCapExceededException $e) {
-                            $offending = $e->offendingGameId === $game->id
-                                ? $game
-                                : Game::find($e->offendingGameId);
-                            $title = $offending?->title ?? "Game #{$e->offendingGameId}";
+                            if ($e->offendingGameId === $game->id) {
+                                $body = "Adding these games would push this game's similar list over the {$e->cap}-similar-game cap. Remove an entry or add fewer games.";
+                            } else {
+                                $offending = Game::find($e->offendingGameId);
+                                $title = $offending?->title ?? "Game #{$e->offendingGameId}";
+                                $body = "{$title} is already at the {$e->cap}-similar-game cap and cannot be linked.";
+                            }
 
                             Notification::make()
                                 ->danger()
                                 ->title('Cap exceeded')
-                                ->body("Cannot add: {$title} would exceed the {$e->cap}-similar-game cap. Remove an entry first.")
+                                ->body($body)
                                 ->send();
 
                             return;
