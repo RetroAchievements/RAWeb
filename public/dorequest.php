@@ -26,6 +26,7 @@ use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\StartSessionAction;
 use App\Connect\Actions\SubmitAchievementAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
+use App\Connect\Actions\SubmitCodeNotesAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitLeaderboardEntryAction;
@@ -66,6 +67,7 @@ $handler = match ($requestType) {
     'postactivity' => new PostActivityAction(),
     'startsession' => new StartSessionAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
+    'submitcodenotes' => new SubmitCodeNotesAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitlbentry' => new SubmitLeaderboardEntryAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),

@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Connect\Actions;
 
 use App\Connect\Support\BaseAuthenticatedApiAction;
-use App\Models\Game;
-use App\Models\MemoryNote;
 use App\Models\User;
-use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
 
 class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
@@ -42,56 +39,19 @@ class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
-            [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);
+        $action = new SubmitCodeNotesAction();
+        $result = $action->execute($this->gameId, [$this->address => $this->note], $this->user);
+
+        if ($result['Success']) {
+            return ['Success' => true];
         }
 
-        $memoryNote = MemoryNote::withTrashed()
-            ->where('game_id', $this->gameId)
-            ->where('address', $this->address)
-            ->first();
-
-        if (empty($this->note)) {
-            if (!$this->user->can('delete', $memoryNote)) {
-                return $this->accessDenied();
-            }
-
-            if ($memoryNote) {
-                $memoryNote->delete();
-            }
-        } else {
-            if (!$memoryNote) {
-                if (!$this->user->can('create', MemoryNote::class)) {
-                    return $this->accessDenied();
-                }
-
-                if (!Game::where('id', $this->gameId)->exists()) {
-                    return $this->gameNotFound();
-                }
-
-                $memoryNote = new MemoryNote([
-                    'game_id' => $this->gameId,
-                    'address' => $this->address,
-                ]);
-            } elseif ($memoryNote->trashed()) {
-                if (!$this->user->can('create', MemoryNote::class)) {
-                    return $this->accessDenied();
-                }
-
-                $memoryNote->restore();
-            } else {
-                if (!$this->user->can('update', $memoryNote)) {
-                    return $this->accessDenied();
-                }
-            }
-
-            $memoryNote->user_id = $this->user->id;
-            $memoryNote->body = $this->note;
-            $memoryNote->save();
-        }
-
+        // strip out the extra fields provided by bulk update response
         return [
-            'Success' => true,
+            'Success' => false,
+            'Status' => $result['Status'],
+            'Code' => $result['Code'],
+            'Error' => $result['Error'],
         ];
     }
 }
