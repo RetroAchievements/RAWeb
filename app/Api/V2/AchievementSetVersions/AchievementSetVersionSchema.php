@@ -68,6 +68,7 @@ class AchievementSetVersionSchema extends Schema
             Number::make('playersHardcore', 'players_hardcore')->readOnly(),
             Number::make('achievementsPublished', 'achievements_published')->readOnly(),
             Number::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
+            Number::make('pointsTotal', 'points_total')->readOnly(),
 
             Str::make('achievementSetId', 'achievement_set_id')->readOnly(),
 
