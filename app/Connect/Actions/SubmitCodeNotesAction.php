@@ -31,6 +31,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
+        $this->notes = [];
         $this->gameId = request()->integer('g', 0);
         $notes = request()->input('n') ?? '';
         foreach (explode("\n", $notes) as $line) {
