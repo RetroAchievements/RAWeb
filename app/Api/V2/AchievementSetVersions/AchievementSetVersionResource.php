@@ -19,13 +19,15 @@ class AchievementSetVersionResource extends BaseJsonApiResource
      */
     public function attributes($request): iterable
     {
+        $presenter = new AchievementSetVersionPresenter($this->resource);
+
         return [
             'version' => $this->resource->version,
 
             'createdAt' => $this->resource->created_at,
             'updatedAt' => $this->resource->updated_at,
 
-            'definition' => $this->resource->definition,
+            'achievementSnapshot' => $presenter->definition(),
             'playersTotal' => $this->resource->players_total,
             'playersHardcore' => $this->resource->players_hardcore,
             'achievementsPublished' => $this->resource->achievements_published,
