@@ -12,7 +12,7 @@ class AchievementSetVersionPresenter
     }
 
     /**
-     * @return array{id: int, points: int, isPromoted: bool, type: ?string}
+     * @return array<int, array{id: int, points: int, isPromoted: bool, type: string|null}>
      */
     public function definition(): array
     {
