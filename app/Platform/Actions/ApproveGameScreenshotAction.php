@@ -15,11 +15,7 @@ use App\Platform\Services\ScreenshotResolutionService;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Spatie\MediaLibrary\Conversions\FileManipulator;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 class ApproveGameScreenshotAction
 {
@@ -139,24 +135,7 @@ class ApproveGameScreenshotAction
                 }
             }
 
-            $media = $screenshot->media;
-
-            if ($media && $media->collection_name === 'screenshots-pending') {
-                $pathGenerator = PathGeneratorFactory::create($media);
-                $oldPath = $pathGenerator->getPath($media);
-
-                $media->collection_name = 'screenshots';
-                $newPath = $pathGenerator->getPath($media);
-
-                $this->moveApprovedScreenshotMedia(
-                    media: $media,
-                    oldPath: $oldPath,
-                    newPath: $newPath,
-                );
-
-                $media->save();
-                $this->queueApprovedScreenshotConversions($media);
-            }
+            (new PromoteGameScreenshotMediaToApprovedAction())->execute($screenshot);
 
             // Only assign a tail order for gallery additions. Primary screenshots are anchored
             // to the top of their type group by GameScreenshotObserver::moveToTopOfTypeGroup,
@@ -204,26 +183,6 @@ class ApproveGameScreenshotAction
 
         $this->ensureLegacyPng($screenshot);
         $screenshot->update(['is_primary' => true]);
-    }
-
-    private function moveApprovedScreenshotMedia(Media $media, string $oldPath, string $newPath): void
-    {
-        $disk = Storage::disk($media->disk);
-
-        foreach ($disk->allFiles($oldPath) as $file) {
-            $newFile = $newPath . Str::after($file, $oldPath);
-
-            $disk->move($file, $newFile);
-        }
-    }
-
-    private function queueApprovedScreenshotConversions(Media $media): void
-    {
-        // defer medialibrary conversion generation until after the DB transaction commits
-        // we don't want to generate thumbnails for a screenshot whose transaction failed
-        DB::afterCommit(function () use ($media): void {
-            app(FileManipulator::class)->createDerivedFiles($media);
-        });
     }
 
     private function ensureLegacyPng(GameScreenshot $screenshot): void
