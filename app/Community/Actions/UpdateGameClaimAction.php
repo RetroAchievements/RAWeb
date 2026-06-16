@@ -20,8 +20,8 @@ use App\Notifications\Achievement\SetAchievementsPublishedNotification;
 use App\Notifications\Achievement\SetRevisionNotification;
 use App\Platform\Actions\CheckForAchievementSetChangesAction;
 use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
+use App\Support\Alerts\SetClaimChangeAlert;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 
 class UpdateGameClaimAction
@@ -148,15 +148,6 @@ class UpdateGameClaimAction
             (new CheckForAchievementSetChangesAction())->execute($achievementSet);
         }
 
-        $webhookUrl = config('services.discord.webhook.claims');
-        if (!empty($webhookUrl)) {
-            $payload = [
-                'username' => 'Claim Bot',
-                'avatar_url' => media_asset('UserPic/QATeam.png'),
-                'content' => route('game.show', $game) . "\n:white_check_mark: " .
-                             "Claim completed by " . $currentUser->display_name,
-            ];
-            (new Client())->post($webhookUrl, ['json' => $payload]);
-        }
+        (new SetClaimChangeAlert(game: $game, claim: $claim, user: $currentUser, action: 'update'))->send();
     }
 }
