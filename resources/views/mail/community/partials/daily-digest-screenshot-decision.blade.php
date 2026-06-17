@@ -18,7 +18,7 @@
         default => 'was reviewed.',
     };
 @endphp
-Your screenshot submission for [{{ $notificationItem['title'] }}]({{ $notificationItem['link'] }}) {{ $message }}
+Your screenshot submission for [{{ $notificationItem['title'] }}]({{ $notificationItem['link'] }}) {!! $message !!}
 @else
 @php
     $gameCount = $notificationItem['gameCount'] ?? 1;
@@ -59,7 +59,7 @@ Your screenshot submission for [{{ $notificationItem['title'] }}]({{ $notificati
         ? Shortcode::sanitizeForMailMarkdown($itemNotes)
         : null;
 @endphp
- - Rejected{{ $itemReason ? " ({$itemReason})" : '' }}{{ $sanitizedItemNotes ? ": {$sanitizedItemNotes}" : '' }}
+ - Rejected{{ $itemReason ? " ({$itemReason})" : '' }}{!! $sanitizedItemNotes ? ": {$sanitizedItemNotes}" : '' !!}
 @endforeach
 @endif
 @endif
