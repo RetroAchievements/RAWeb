@@ -50,17 +50,9 @@ class AddGameScreenshotAction
             ->approved()
             ->exists();
 
-        $previousPrimary = null;
-        $legacyPath = null;
-        if ($shouldBePrimary) {
-            $previousPrimary = $game->gameScreenshots()
-                ->ofType($type)
-                ->approved()
-                ->primary()
-                ->first();
-
-            $legacyPath = (new CreateLegacyScreenshotPngAction())->execute(file_get_contents($prepared->filePath));
-        }
+        $legacyPath = $shouldBePrimary
+            ? (new CreateLegacyScreenshotPngAction())->execute(file_get_contents($prepared->filePath))
+            : null;
 
         $customProperties = ['sha1' => $hash];
         if ($legacyPath !== null) {
@@ -87,13 +79,21 @@ class AddGameScreenshotAction
             $type,
             $description,
             $shouldBePrimary,
-            $previousPrimary,
             $media,
             $prepared,
             $height,
             $causer,
         ): GameScreenshot {
+            $previousPrimary = null;
+
             if ($shouldBePrimary) {
+                $previousPrimary = $game->gameScreenshots()
+                    ->ofType($type)
+                    ->approved()
+                    ->primary()
+                    ->lockForUpdate()
+                    ->first();
+
                 $demotedStatus = match ($type) {
                     ScreenshotType::Title, ScreenshotType::Completion => GameScreenshotStatus::Replaced,
                     ScreenshotType::Ingame => GameScreenshotStatus::Pending,
