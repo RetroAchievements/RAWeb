@@ -9,6 +9,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\ConnectWarning;
 use App\Models\Emulator;
+use App\Models\EmulatorUserAgent;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -2428,6 +2429,57 @@ describe('validation', function () {
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
+    test('user agent pending change to outdated still unlocks in hardcore', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        $game = $data['game'];
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->addDays(5);
+        $emulatorUserAgent->save();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlocked
+        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
