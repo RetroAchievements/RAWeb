@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Actions;
 use App\Community\Actions\SendDailyDigestAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Jobs\SendDailyDigestJob;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -18,6 +19,7 @@ use App\Models\UserDelayedSubscription;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class SendDailyDigestActionTest extends TestCase
@@ -179,6 +181,38 @@ class SendDailyDigestActionTest extends TestCase
 
         // Assert
         Mail::assertNothingQueued();
+    }
+
+    public function testCommandDispatchesDigestJobForScreenshotDecisionOnlyNotifications(): void
+    {
+        // Arrange
+        Queue::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $screenshot = GameScreenshot::factory()->for($game)->rejected()->create([
+            'rejection_reason' => GameScreenshotRejectionReason::WrongGame,
+        ]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+            'subject_id' => $screenshot->id,
+            'first_update_id' => $screenshot->id,
+        ]);
+
+        // Act
+        $this->artisan('ra:community:send-daily-digest')
+            ->assertExitCode(0);
+
+        // Assert
+        Queue::assertPushedOn('summary-emails', SendDailyDigestJob::class);
+        Queue::assertPushed(SendDailyDigestJob::class, 1);
     }
 
     public function testIncludesApprovedScreenshotDecisionMetadataInDigest(): void
