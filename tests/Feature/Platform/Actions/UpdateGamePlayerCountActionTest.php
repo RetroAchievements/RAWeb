@@ -87,8 +87,10 @@ describe('core set', function () {
         UpdateGamePlayerCountActionTestHelpers::addPlayers($game, 2, true);
 
         // unrank one hardcore and one softcore player
-        UnrankedUser::create(['user_id' => PlayerGame::where('achievements_unlocked_hardcore', 0)->first()->user_id]);
-        UnrankedUser::create(['user_id' => PlayerGame::where('achievements_unlocked_hardcore', '!=', 0)->first()->user_id]);
+        $softcoreUserId = PlayerGame::where('achievements_unlocked_hardcore', 0)->first()->user_id;
+        $hardcoreUserId = PlayerGame::where('achievements_unlocked_hardcore', '!=', 0)->first()->user_id;
+        UnrankedUser::create(['user_id' => $softcoreUserId]);
+        UnrankedUser::create(['user_id' => $hardcoreUserId]);
 
         (new UpdateGamePlayerCountAction())->execute($game);
 
