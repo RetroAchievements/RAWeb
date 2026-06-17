@@ -430,8 +430,20 @@ class GameScreenshotModerationResource extends Resource
                 Forms\Components\Select::make('rejection_reason')
                     ->label('Reason')
                     ->options(collect(GameScreenshotRejectionReason::cases())
-                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [$reason->value => $reason->label()])
-                        ->sortBy(fn (string $label, string $value) => [$value === GameScreenshotRejectionReason::Other->value ? 1 : 0, $label])
+                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [
+                            $reason->value => $reason === GameScreenshotRejectionReason::InappropriateContent
+                                ? $reason->label() . ' (alerts the mod team)' // don't leak this into user-facing surfaces
+                                : $reason->label(),
+                        ])
+                        ->sortBy(function (string $label, string $value): array {
+                            $bucket = match ($value) {
+                                GameScreenshotRejectionReason::InappropriateContent->value => 1,
+                                GameScreenshotRejectionReason::Other->value => 2,
+                                default => 0,
+                            };
+
+                            return [$bucket, $label];
+                        })
                         ->toArray()
                     )
                     ->default(fn (GameScreenshot $record): ?string => ScreenshotReviewContext::make($record)->suggestedRejectionReason()?->value)
