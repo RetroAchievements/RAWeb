@@ -111,7 +111,7 @@ class UpdateGameBeatenMetricsAction
             return [0, null];
         }
 
-        return [$count, (float) $result->median];
+        return [$count, $result->median !== null ? (float) $result->median : null];
     }
 
     private function medianField(string $field): string
