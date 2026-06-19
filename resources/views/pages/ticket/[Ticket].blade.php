@@ -368,14 +368,21 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                             @if (!$ticket->reporter->trashed())
                                 @php
                                     $lastComment = null;
+                                    $hasNonReporterComment = false;
                                     foreach ($commentData as $comment) {
-                                        if ($comment['User'] !== 'Server') {
-                                            $lastComment = $comment;
+                                        if ($comment['User'] === 'Server') {
+                                            continue;
+                                        }
+                                        $lastComment = $comment;
+                                        if ($comment['User'] !== $ticket->reporter->username) {
+                                            $hasNonReporterComment = true;
                                         }
                                     }
 
                                     $assigneeName = $ticketableAssignee?->display_name ?? $ticket->author?->display_name;
-                                    $isLatestCommentFromReporter = $lastComment !== null && $lastComment['User'] === $ticket->reporter->username;
+                                    $isLatestCommentFromReporter = $lastComment !== null
+                                        && $lastComment['User'] === $ticket->reporter->username
+                                        && $hasNonReporterComment;
                                     $canTransferToReporter = $lastComment !== null
                                         && (
                                             $isLatestCommentFromReporter
