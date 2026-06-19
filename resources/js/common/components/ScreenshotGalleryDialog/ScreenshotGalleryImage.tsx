@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LuEye } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
-import { getScreenshotImageRendering } from '@/common/utils/getScreenshotImageRendering';
 import { getScreenshotGalleryUrl } from '@/common/utils/getScreenshotGalleryUrl';
+import { getScreenshotImageRendering } from '@/common/utils/getScreenshotImageRendering';
 
 // matches max-w-5xl on the gallery container
 const MAX_CONTAINER_WIDTH = 1024;

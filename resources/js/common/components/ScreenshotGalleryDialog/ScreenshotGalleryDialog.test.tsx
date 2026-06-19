@@ -179,16 +179,10 @@ describe('Component: ScreenshotGalleryDialog', () => {
 
   it('given a non-pixelated source at or below the crisp-edges width threshold, applies crisp-edges', async () => {
     // ARRANGE
-    const screenshots = [
-      createGameScreenshot({ id: 1, type: 'ingame', width: 320, height: 240 }),
-    ];
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 320, height: 240 })];
 
     render(
-      <ScreenshotGalleryDialog
-        screenshots={screenshots}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-      />,
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
     );
 
     // ASSERT
@@ -205,11 +199,7 @@ describe('Component: ScreenshotGalleryDialog', () => {
     ];
 
     render(
-      <ScreenshotGalleryDialog
-        screenshots={screenshots}
-        isOpen={true}
-        onOpenChange={vi.fn()}
-      />,
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
     );
 
     // ASSERT
