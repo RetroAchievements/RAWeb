@@ -82,6 +82,28 @@ describe('Component: GameScreenshotUploadDialog', () => {
     expect(screen.getByRole('button', { name: /submit screenshot/i })).toBeDisabled();
   });
 
+  it('renders a link to the screenshot guidelines that opens in a new tab', () => {
+    // ARRANGE
+    render(<GameScreenshotUploadDialog isOpen={true} onOpenChange={vi.fn()} />, {
+      pageProps: {
+        config: baseConfig,
+        game: createGame({ system: createSystem({ screenshotResolutions: [] }) }),
+        screenshotUploadConsistency: null,
+        screenshotUploadStatuses: {},
+        screenshotUploadPendingCount: 0,
+        screenshotUploadUserSubmissions: [],
+      },
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /view screenshot guidelines/i });
+    expect(linkEl).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/guidelines/content/screenshot-guidelines.html',
+    );
+    expect(linkEl).toHaveAttribute('target', '_blank');
+  });
+
   it('given the dialog is closed, does not render any content', () => {
     // ARRANGE
     render(<GameScreenshotUploadDialog isOpen={false} onOpenChange={vi.fn()} />, {

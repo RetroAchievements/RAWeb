@@ -162,21 +162,12 @@ class UpdateGameAchievementUnlockMediansAction
             ];
         }
 
-        // ===== Sort the unlocks, and determine the most recent unlock across all users =====
-        $latestUnlockAt = null;
+        // ===== Sort the unlocks for each user =====
         foreach ($unlocks as &$userUnlocks) {
             usort(
                 $userUnlocks,
                 fn (array $a, array $b): int => ($b['unlocked_effective_at'] ?? 0) <=> ($a['unlocked_effective_at'] ?? 0),
             );
-
-            if (count($userUnlocks) > 0) {
-                // Unlocks are sorted by date desc, so the first element will be the latest
-                $lastUserUnlockAt = $userUnlocks[array_key_first($userUnlocks)]['unlocked_effective_at'] ?? 0;
-                if (!$latestUnlockAt || $lastUserUnlockAt > $latestUnlockAt) {
-                    $latestUnlockAt = $lastUserUnlockAt;
-                }
-            }
         }
         unset($userUnlocks); // prevent corruption when new $userUnlocks is assigned below
 
@@ -196,72 +187,70 @@ class UpdateGameAchievementUnlockMediansAction
             $unlock_hardcore_times[$achievementId] = [];
         }
 
-        $totalSessionTime = [];
-        $sessions = PlayerSession::query()
-            ->where('game_id', $game->id)
-            ->whereIn('user_id', array_keys($unlocks))
-            ->when($achievementsFirstPublishedAt, fn ($q) => $q->where('rich_presence_updated_at', '>', $achievementsFirstPublishedAt))
-            ->when($latestUnlockAt, fn ($q) => $q->where('created_at', '<=', date('Y-m-d H:i:s', $latestUnlockAt)))
-            ->select(['user_id', 'duration'])
-            ->selectRaw(unixTimestampStatement('created_at', 'created_at_timestamp'))
-            ->selectRaw(unixTimestampStatement('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
-            ->orderBy('created_at')
-            ->toBase()
-            ->get();
-        foreach ($sessions as $session) {
-            $userUnlocks = $unlocks[$session->user_id];
-            if (empty($userUnlocks)) {
-                // Already processed all achievements for this user
-                continue;
-            }
+        foreach ($unlocks as $userId => $userUnlocks) {
+            // unlocks are sorted by date desc, so the first element is this user's latest unlock
+            $latestUserUnlockAt = $userUnlocks[array_key_first($userUnlocks)]['unlocked_effective_at'] ?? null;
+            $elapsed = 0;
 
-            $sessionCreatedAt = (int) $session->created_at_timestamp;
-            $sessionStartBoundary = $resets[$session->user_id] ?? $achievementsFirstPublishedAtTimestamp;
-            $sessionStart = $sessionStartBoundary ? max($sessionStartBoundary, $sessionCreatedAt) : $sessionCreatedAt;
-            $sessionEnd = max((int) $session->rich_presence_updated_at_timestamp, $sessionCreatedAt + ((int) $session->duration * 60));
+            $sessions = PlayerSession::query()
+                ->where('game_id', $game->id)
+                ->where('user_id', $userId)
+                ->when($achievementsFirstPublishedAt, fn ($q) => $q->where('rich_presence_updated_at', '>', $achievementsFirstPublishedAt))
+                ->when($latestUserUnlockAt, fn ($q) => $q->where('created_at', '<=', date('Y-m-d H:i:s', $latestUserUnlockAt)))
+                ->select(['user_id', 'duration'])
+                ->selectRaw(unixTimestampStatement('created_at', 'created_at_timestamp'))
+                ->selectRaw(unixTimestampStatement('rich_presence_updated_at', 'rich_presence_updated_at_timestamp'))
+                ->orderBy('created_at')
+                ->toBase()
+                ->cursor();
 
-            if ($sessionStartBoundary && $sessionEnd < $sessionStartBoundary) {
-                // Ignore sessions prior to the achievements being published or the player's last full reset
-                continue;
-            }
+            foreach ($sessions as $session) {
+                if (empty($userUnlocks)) {
+                    break;
+                }
 
-            // Get time from previous sessions for user
-            $elapsed = $totalSessionTime[$session->user_id] ?? 0;
-            do {
-                // Unlocks are sorted by date desc, so the last element will be the earliest
-                $unlock = end($userUnlocks);
+                $sessionCreatedAt = (int) $session->created_at_timestamp;
+                $sessionStartBoundary = $resets[$userId] ?? $achievementsFirstPublishedAtTimestamp;
+                $sessionStart = $sessionStartBoundary ? max($sessionStartBoundary, $sessionCreatedAt) : $sessionCreatedAt;
+                $sessionEnd = max((int) $session->rich_presence_updated_at_timestamp, $sessionCreatedAt + ((int) $session->duration * 60));
 
-                if ($unlock['unlocked_hardcore_at']) {
-                    if ($unlock['unlocked_hardcore_at'] < $sessionStart || $unlock['unlocked_hardcore_at'] > $sessionEnd) {
-                        break;
-                    }
+                if ($sessionStartBoundary && $sessionEnd < $sessionStartBoundary) {
+                    // Ignore sessions prior to the achievements being published or the player's last full reset
+                    continue;
+                }
 
-                    $unlock_hardcore_times[$unlock['achievement_id']][] = $elapsed +
-                        ($unlock['unlocked_hardcore_at'] - $sessionStart);
+                do {
+                    // Unlocks are sorted by date desc, so the last element will be the earliest
+                    $unlock = end($userUnlocks);
 
-                    if ($unlock['unlocked_at'] && $unlock['unlocked_at'] != $unlock['unlocked_hardcore_at']
-                        && $unlock['unlocked_at'] >= $sessionStart && $unlock['unlocked_at'] <= $sessionEnd) {
+                    if ($unlock['unlocked_hardcore_at']) {
+                        if ($unlock['unlocked_hardcore_at'] < $sessionStart || $unlock['unlocked_hardcore_at'] > $sessionEnd) {
+                            break;
+                        }
+
+                        $unlock_hardcore_times[$unlock['achievement_id']][] = $elapsed +
+                            ($unlock['unlocked_hardcore_at'] - $sessionStart);
+
+                        if ($unlock['unlocked_at'] && $unlock['unlocked_at'] != $unlock['unlocked_hardcore_at']
+                            && $unlock['unlocked_at'] >= $sessionStart && $unlock['unlocked_at'] <= $sessionEnd) {
+                            $unlock_times[$unlock['achievement_id']][] = $elapsed +
+                                ($unlock['unlocked_at'] - $sessionStart);
+                        }
+                    } elseif ($unlock['unlocked_at']) {
+                        if ($unlock['unlocked_at'] < $sessionStart || $unlock['unlocked_at'] > $sessionEnd) {
+                            break;
+                        }
+
                         $unlock_times[$unlock['achievement_id']][] = $elapsed +
                             ($unlock['unlocked_at'] - $sessionStart);
                     }
-                } elseif ($unlock['unlocked_at']) {
-                    if ($unlock['unlocked_at'] < $sessionStart || $unlock['unlocked_at'] > $sessionEnd) {
-                        break;
-                    }
 
-                    $unlock_times[$unlock['achievement_id']][] = $elapsed +
-                        ($unlock['unlocked_at'] - $sessionStart);
-                }
+                    // Remove processed element so we don't try to process it again.
+                    array_pop($userUnlocks);
+                } while (!empty($userUnlocks));
 
-                // Remove processed element so we don't try to process it again.
-                // This also allows us to avoid processing the user in the future once
-                // all of their achievements have been processed.
-                array_pop($userUnlocks);
-            } while (!empty($userUnlocks));
-
-            // Update state for next session
-            $unlocks[$session->user_id] = $userUnlocks;
-            $totalSessionTime[$session->user_id] = $elapsed + ($sessionEnd - $sessionStart);
+                $elapsed += $sessionEnd - $sessionStart;
+            }
         }
 
         return [$unlock_times, $unlock_hardcore_times];

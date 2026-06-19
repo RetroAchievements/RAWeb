@@ -73,17 +73,31 @@ export const SessionDrivenIssueListItems: FC = () => {
   }
 
   return (
-    <ReportIssueOptionItem
-      t_buttonText={t('Create Ticket')}
-      href={route('achievement.tickets.create', {
-        achievement: achievement.id,
-        type: 'triggered_at_wrong_time',
-        extra,
-      })}
-      anchorClassName={buildTrackingClassNames('Click Create Ticket')}
-      shouldUseClientSideRoute={true}
-    >
-      {t('I unlocked this achievement without meeting the requirements.')}
-    </ReportIssueOptionItem>
+    <>
+      <ReportIssueOptionItem
+        t_buttonText={t('Create Ticket')}
+        href={route('achievement.tickets.create', {
+          achievement: achievement.id,
+          type: 'triggered_at_wrong_time',
+          extra,
+        })}
+        anchorClassName={buildTrackingClassNames('Click Create Ticket')}
+        shouldUseClientSideRoute={true}
+      >
+        {t('I unlocked this achievement without meeting the requirements.')}
+      </ReportIssueOptionItem>
+      <ReportIssueOptionItem
+        t_buttonText={t('Create Ticket')}
+        href={route('achievement.tickets.create', {
+          achievement: achievement.id,
+          type: 'did_not_trigger',
+        })}
+        anchorClassName={buildTrackingClassNames('Click Create Ticket')}
+        shouldUseClientSideRoute={true}
+      >
+        {t('I met the requirements, but the achievement did not trigger.')}&nbsp;
+        {t('It did trigger on a later attempt.')}
+      </ReportIssueOptionItem>
+    </>
   );
 };

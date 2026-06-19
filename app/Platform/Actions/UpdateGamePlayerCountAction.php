@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\PlayerGame;
+use Illuminate\Support\Facades\DB;
 
 // Recalculates the number of players for a game.
 class UpdateGamePlayerCountAction
@@ -14,21 +15,31 @@ class UpdateGamePlayerCountAction
     {
         $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
 
-        $countExpr = fn (string $column): string => "SUM(CASE WHEN player_games.{$column} > 0 THEN 1 ELSE 0 END)";
+        $unrankedUserFilter = function ($query) {
+            $query->selectRaw('1')
+                ->from('unranked_users')
+                ->whereColumn('unranked_users.user_id', 'player_games.user_id');
+        };
 
-        $row = PlayerGame::query()
+        $totalPlayersQuery = PlayerGame::query()
             ->where('player_games.game_id', $game->id)
-            ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.id')
-            ->selectRaw(sprintf(
-                '%s AS total, %s AS hardcore',
-                $countExpr('achievements_unlocked'),
-                $countExpr('achievements_unlocked_hardcore'),
-            ))
-            ->first();
+            ->where('player_games.achievements_unlocked', '>', 0)
+            ->whereNotExists($unrankedUserFilter);
 
-        $game->players_total = (int) ($row->total ?? 0);
-        $game->players_hardcore = (int) ($row->hardcore ?? 0);
+        $hardcorePlayersQuery = PlayerGame::query()
+            ->where('player_games.game_id', $game->id)
+            ->where('player_games.achievements_unlocked_hardcore', '>', 0)
+            ->whereNotExists($unrankedUserFilter);
+
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $totalPlayersQuery->forceIndex('player_games_game_id_achievements_unlocked_index');
+            $hardcorePlayersQuery->forceIndex('player_games_game_id_achievements_unlocked_hardcore_index');
+        }
+
+        [$game->players_total, $game->players_hardcore] = DB::transaction(fn (): array => [
+            $totalPlayersQuery->count(),
+            $hardcorePlayersQuery->count(),
+        ]);
 
         if ($game->isDirty()) {
             $game->saveQuietly();

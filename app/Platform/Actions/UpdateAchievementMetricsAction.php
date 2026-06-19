@@ -38,11 +38,9 @@ class UpdateAchievementMetricsAction
             return;
         }
 
-        // Get both total and hardcore counts in a single query.
         $achievementIds = $achievements->pluck('id')->all();
-        $unlockStats = PlayerAchievement::query()
-            ->leftJoin('unranked_users', 'player_achievements.user_id', '=', 'unranked_users.user_id')
-            ->whereNull('unranked_users.user_id')
+
+        $allUnlockStats = PlayerAchievement::query()
             ->whereIn('player_achievements.achievement_id', $achievementIds)
             ->groupBy('player_achievements.achievement_id')
             ->selectRaw('
@@ -52,12 +50,30 @@ class UpdateAchievementMetricsAction
             ')
             ->get();
 
+        $unrankedUnlockStats = PlayerAchievement::query()
+            ->whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('unranked_users')
+                    ->whereColumn('unranked_users.user_id', 'player_achievements.user_id');
+            })
+            ->whereIn('player_achievements.achievement_id', $achievementIds)
+            ->groupBy('player_achievements.achievement_id')
+            ->selectRaw('
+                player_achievements.achievement_id,
+                COUNT(*) as total_unlocks,
+                SUM(CASE WHEN player_achievements.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) as hardcore_unlocks
+            ')
+            ->get()
+            ->keyBy('achievement_id');
+
         // Convert to lookup arrays for faster read access.
         $unlockCounts = [];
         $hardcoreUnlockCounts = [];
-        foreach ($unlockStats as $stat) {
-            $unlockCounts[$stat->achievement_id] = $stat->total_unlocks;
-            $hardcoreUnlockCounts[$stat->achievement_id] = $stat->hardcore_unlocks;
+        foreach ($allUnlockStats as $stat) {
+            $unrankedStat = $unrankedUnlockStats->get($stat->achievement_id);
+
+            $unlockCounts[$stat->achievement_id] = (int) $stat->total_unlocks - (int) ($unrankedStat->total_unlocks ?? 0);
+            $hardcoreUnlockCounts[$stat->achievement_id] = (int) $stat->hardcore_unlocks - (int) ($unrankedStat->hardcore_unlocks ?? 0);
         }
 
         $this->updateUsingUnlockCounts($game, $achievements, $unlockCounts, $hardcoreUnlockCounts);

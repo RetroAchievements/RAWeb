@@ -22,6 +22,12 @@ class EmulatorUserAgent extends BaseModel
         'client',
         'minimum_allowed_version',
         'minimum_hardcore_version',
+        'pending_minimum_hardcore_version',
+        'pending_minimum_hardcore_version_at',
+    ];
+
+    protected $casts = [
+        'pending_minimum_hardcore_version_at' => 'date',
     ];
 
     // audit activity log
