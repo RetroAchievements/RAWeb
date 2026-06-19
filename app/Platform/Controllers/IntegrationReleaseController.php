@@ -54,8 +54,8 @@ class IntegrationReleaseController extends Controller
         $data = $request->validated();
         $data['minimum'] ??= false;
         $data['stable'] ??= $data['minimum'] ?? false;
-        /** @var IntegrationRelease $release */
-        $release = IntegrationRelease::create($data);
+        $release = new IntegrationRelease($data);
+        $release->save();
 
         $addMediaAction->execute($release, $request, 'build_x86');
         $addMediaAction->execute($release, $request, 'build_x64');

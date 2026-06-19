@@ -65,8 +65,8 @@ class EmulatorReleaseController extends Controller
         $data['minimum'] ??= false;
         $data['stable'] ??= $data['minimum'] ?? false;
         $data['emulator_id'] = $emulator->id;
-        /** @var EmulatorRelease $release */
-        $release = EmulatorRelease::create($data);
+        $release = new EmulatorRelease($data);
+        $release->save();
 
         $addFileToCollectionAction->execute($release, $request, 'build_x86');
         $addFileToCollectionAction->execute($release, $request, 'build_x64');
