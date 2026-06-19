@@ -264,7 +264,7 @@ class TicketListService
                     $query->where(function ($achievementQuery) {
                         $achievementQuery
                             ->where('ticketable_type', TicketableType::Achievement->value)
-                            ->whereHas('ticketable', function ($ticketableQuery) {
+                            ->whereHasMorph('ticketable', [Achievement::class], function ($ticketableQuery) {
                                 $ticketableQuery->whereDoesntHave('activeMaintainer');
                             });
                     })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
