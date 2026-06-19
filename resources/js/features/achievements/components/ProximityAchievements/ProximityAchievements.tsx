@@ -64,11 +64,17 @@ export const ProximityAchievements: FC = () => {
                   />
 
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <p className="max-w-fit truncate text-link group-hover:text-link-hover">
+                    <p
+                      className="max-w-fit truncate text-link group-hover:text-link-hover"
+                      title={proximityAchievement.title}
+                    >
                       {proximityAchievement.title}
                     </p>
 
-                    <p className="truncate text-2xs text-text">
+                    <p
+                      className="truncate text-2xs text-text"
+                      title={proximityAchievement.description}
+                    >
                       {proximityAchievement.description}
                     </p>
 
