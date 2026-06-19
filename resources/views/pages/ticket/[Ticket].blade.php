@@ -369,21 +369,32 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         @if ($ticket->state === TicketState::Open)
                             @if (!$ticket->reporter->trashed())
                                 @php
-                                    $isLatestCommentFromReporter = false;
+                                    $lastComment = null;
                                     foreach ($commentData as $comment) {
                                         if ($comment['User'] !== 'Server') {
-                                            $isLatestCommentFromReporter = $comment['User'] === $ticket->reporter->username;
+                                            $lastComment = $comment;
                                         }
                                     }
+
+                                    $assigneeName = $ticketableAssignee?->display_name ?? $ticket->author?->display_name;
+                                    $isLatestCommentFromReporter = $lastComment !== null && $lastComment['User'] === $ticket->reporter->username;
+                                    $canTransferToReporter = $lastComment !== null
+                                        && (
+                                            $isLatestCommentFromReporter
+                                            || $lastComment['User'] === $user->username
+                                            || ($assigneeName && $lastComment['User'] === $assigneeName)
+                                        );
                                 @endphp
-                                <option
-                                    value="{{ TicketAction::Request }}"
-                                    @if ($isLatestCommentFromReporter)
-                                        data-confirm="The reporter made the latest comment. Transfer this ticket back without adding a new comment?"
-                                    @endif
-                                >
-                                    Transfer to reporter{{ $isLatestCommentFromReporter ? ' without new comment' : '' }} - {{ $ticket->reporter->display_name }}
-                                </option>
+                                @if ($canTransferToReporter)
+                                    <option
+                                        value="{{ TicketAction::Request }}"
+                                        @if ($isLatestCommentFromReporter)
+                                            data-confirm="The reporter made the latest comment. Transfer this ticket back without adding a new comment?"
+                                        @endif
+                                    >
+                                        Transfer to reporter{{ $isLatestCommentFromReporter ? ' without new comment' : '' }} - {{ $ticket->reporter->display_name }}
+                                    </option>
+                                @endif
                             @endif
                         @elseif ($ticket->state === TicketState::Request)
                             <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticketableAssignee?->display_name ?? $ticket->author?->display_name }}</option>
