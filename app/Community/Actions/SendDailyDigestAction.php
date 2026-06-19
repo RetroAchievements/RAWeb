@@ -252,6 +252,10 @@ class SendDailyDigestAction
 
         $tickets = Ticket::whereIn('id', $ids)->with('ticketable')->get();
         foreach ($tickets as $ticket) {
+            if (!$ticket->ticketable) {
+                continue;
+            }
+
             $result[$ticket->id] = $ticket->getTicketableModel()->getTicketableTitle();
         }
 

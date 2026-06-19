@@ -36,7 +36,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
         // If this is a ticket comment, fetch the ticket data in constructor.
         if ($this->commentableType === CommentableType::AchievementTicket) {
             $ticket = Ticket::with(['ticketable.game.system'])->find($this->activityId);
-            if ($ticket) {
+            if ($ticket && $ticket->ticketable) {
                 $ticketable = $ticket->getTicketableModel();
                 $this->ticketable = $ticketable;
                 $this->game = $ticketable->getTicketableGame();
