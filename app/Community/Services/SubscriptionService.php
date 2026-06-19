@@ -486,7 +486,7 @@ class TicketSubscriptionHandler extends CommentSubscriptionHandler
 
         if ($subjectId !== null) {
             $ticket = Ticket::with('ticketable')->find($subjectId);
-            if ($ticket) {
+            if ($ticket && $ticket->ticketable) {
                 $ticketable = $ticket->getTicketableModel();
                 $ticketableGame = $ticketable->getTicketableGame();
 

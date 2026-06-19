@@ -10,6 +10,7 @@ use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -256,12 +257,19 @@ class TicketListService
                 break;
 
             case 'inactive':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query
-                        ->whereDoesntHave('activeMaintainer')
-                        ->whereHas('developer', function ($query2) {
-                            $query2->where('Permissions', '<', Permissions::JuniorDeveloper);
-                        });
+                // For achievement tickets, also exclude any with an active maintainer.
+                // Leaderboards don't have a maintainer concept, so author permissions
+                // alone are checked.
+                $tickets->where(function ($query) {
+                    $query->where(function ($achievementQuery) {
+                        $achievementQuery
+                            ->where('ticketable_type', TicketableType::Achievement->value)
+                            ->whereHas('ticketable', function ($ticketableQuery) {
+                                $ticketableQuery->whereDoesntHave('activeMaintainer');
+                            });
+                    })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
+                })->whereHas('author', function ($query) {
+                    $query->where('Permissions', '<', Permissions::JuniorDeveloper);
                 });
                 break;
         }
