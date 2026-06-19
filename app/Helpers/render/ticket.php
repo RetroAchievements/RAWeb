@@ -16,7 +16,7 @@ function ticketAvatar(
         $ticket = Ticket::find($ticket);
     }
 
-    if ($ticket === null) {
+    if ($ticket === null || $ticket->ticketable === null) {
         return '';
     }
 
@@ -50,7 +50,7 @@ function renderTicketCard(int|Ticket $ticket): string
         $ticket = Ticket::find($ticket);
     }
 
-    if (!$ticket) {
+    if (!$ticket || !$ticket->ticketable) {
         return '';
     }
 

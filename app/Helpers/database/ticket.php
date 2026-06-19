@@ -162,7 +162,7 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
 
     switch ($ticketVal) {
         case TicketState::Closed:
-            if ($reason === TicketState::REASON_DEMOTED) {
+            if ($reason === TicketState::REASON_DEMOTED && $ticket->ticketable) {
                 $ticket->getTicketableModel()->demoteForTicket($userModel);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
