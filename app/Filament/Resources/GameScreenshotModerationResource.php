@@ -79,7 +79,9 @@ class GameScreenshotModerationResource extends Resource
                         'game.system',
                         'capturedBy',
                         'media',
-                        'game.gameScreenshots' => fn ($q) => $q->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending]),
+                        'game.gameScreenshots' => fn ($q) => $q
+                            ->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending])
+                            ->with(['media', 'capturedBy']),
                     ]);
             })
             ->columns([
@@ -641,8 +643,8 @@ class GameScreenshotModerationResource extends Resource
      *     currentPanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     candidatePanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
-     *     pendingCompanions: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>, extraCount: int}|null,
-     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string}|null,
+     *     otherPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null,
+     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null,
      * }
      */
     private static function getReviewModalContentViewData(GameScreenshot $record): array
@@ -672,7 +674,7 @@ class GameScreenshotModerationResource extends Resource
                 'cues' => self::getCandidateImageCueViewData($context),
             ],
             'currentPrimaries' => $context->currentPrimaryContextItems(),
-            'pendingCompanions' => $context->pendingCompanionsContextData(),
+            'otherPendingForGame' => $context->otherPendingForGameContextData(),
             'approvedIngame' => self::getApprovedIngameContextViewData($context),
         ];
     }
@@ -737,7 +739,7 @@ class GameScreenshotModerationResource extends Resource
     }
 
     /**
-     * @return array{count: int, cap: int, mediaPageUrl: string}|null
+     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string}>}|null
      */
     private static function getApprovedIngameContextViewData(ScreenshotReviewContext $context): ?array
     {
@@ -751,6 +753,7 @@ class GameScreenshotModerationResource extends Resource
             'count' => $context->approvedIngameCount(),
             'cap' => ScreenshotType::Ingame->approvedCap(),
             'mediaPageUrl' => GameResource::getUrl('media', ['record' => $record->game]),
+            'items' => $context->approvedGalleryItemsViewData(),
         ];
     }
 
