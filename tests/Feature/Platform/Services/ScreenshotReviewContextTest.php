@@ -11,7 +11,6 @@ use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotReviewContext;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\Storage;
 
 uses(LazilyRefreshDatabase::class);
 
