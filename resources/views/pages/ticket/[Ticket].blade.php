@@ -5,9 +5,7 @@ use App\Platform\Services\TicketViewService;
 use App\Platform\Services\UserAgentService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\middleware;
-use function Laravel\Folio\name;
-use function Laravel\Folio\render;
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
