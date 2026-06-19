@@ -12,7 +12,7 @@ middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
 render(function (View $view, Ticket $ticket) {
-    abort_if(!$ticket->achievement, 404);
+    abort_if(!$ticket->ticketable, 404);
 
     $userAgentService = new UserAgentService();
     $ticketService = new TicketViewService();
@@ -29,6 +29,7 @@ render(function (View $view, Ticket $ticket) {
         'userAgentService' => $userAgentService,
         'contactReporterUrl' => $ticketService->contactReporterUrl,
         'existingUnlock' => $ticketService->existingUnlock,
+        'reporterLeaderboardEntry' => $ticketService->reporterLeaderboardEntry,
         'ticketNotes' => $ticketService->ticketNotes,
     ]);
 });
@@ -45,6 +46,7 @@ render(function (View $view, Ticket $ticket) {
     'userAgentService' => null, // ?UserAgentService
     'contactReporterUrl' => '',
     'existingUnlock' => null, // ?PlayerAchievement
+    'reporterLeaderboardEntry' => null, // ?LeaderboardEntry
     'ticketNotes' => '',
 ])
 
@@ -57,6 +59,8 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Enums\PlayerGameActivityEventType;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Carbon;
 
@@ -74,25 +78,33 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
     default => 'Open Tickets',
 };
 
+$ticketable = $ticket->getTicketableModel();
+$isAchievementTicket = $ticket->ticketable_type === TicketableType::Achievement->value;
+$ticketableGame = $ticketable->getTicketableGame();
+$ticketableTitle = $ticketable->getTicketableTitle();
+$ticketableAssignee = $ticketable->getTicketableAssignee();
+
 @endphp
 
 <x-app-layout
-    pageTitle="Ticket {{ $ticket->id }}: {!! $ticket->achievement->title !!} ({!! $ticket->type->label() !!})"
-    pageDescription="{{ $ticket->achievement->description }}"
-    pageImage="{{ media_asset('/Badge/' . $ticket->achievement->image_name . '.png') }}"
+    pageTitle="Ticket {{ $ticket->id }}: {!! $ticketableTitle !!} ({!! $ticket->type->label() !!})"
+    pageDescription="{{ $ticketable->description }}"
+    pageImage="{{ $ticketable->getTicketableIconUrl() }}"
     pageType="retroachievements:ticket"
 >
     <div class="navpath">
         <a href="{{ route('tickets.index', ['filter' => ['status' => $ticketListStatusFilter]]) }}">{{ $ticketListBreadcrumbLabel }}</a>
         &raquo;
-        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game, 'filter' => ['status' => $ticketListStatusFilter]]) }}">{{ $ticket->achievement->game->title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticketableGame, 'filter' => ['status' => $ticketListStatusFilter]]) }}">{{ $ticketableGame->title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->id }}</span>
     </div>
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! achievementAvatar($ticket->achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $ticket->achievement->title }} ({{ $ticket->type->label() }})</h1>
+        @if ($isAchievementTicket)
+            {!! achievementAvatar($ticketable, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        @endif
+        <h1 class="mt-[10px] w-full">{{ $ticketableTitle }} ({{ $ticket->type->label() }})</h1>
     </div>
 
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
@@ -112,7 +124,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                     <x-ticket.stat-element label="Core">{{ $ticket->emulator_core }}</x-ticket.stat-element>
                 @endif
                 @if ($ticket->gameHash)
-                    <x-ticket.stat-element label="Hash"><a href='{!! route("game.hashes.index", ["game" => $ticket->achievement->game]) !!}' title='{{ $ticket->gameHash->name }}'>{{ $ticket->gameHash->md5 }}</a></x-ticket.stat-element>
+                    <x-ticket.stat-element label="Hash"><a href='{!! route("game.hashes.index", ["game" => $ticketableGame]) !!}' title='{{ $ticket->gameHash->name }}'>{{ $ticket->gameHash->md5 }}</a></x-ticket.stat-element>
                 @else
                     <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
                 @endif
@@ -124,27 +136,51 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                         <x-ticket.stat-element label="Resolved by"><span class="text-muted">Unknown</span></x-ticket.stat-element>
                     @endif
                     <x-ticket.stat-element label="Resolved at">{{ getNiceDate($ticket->resolved_at->unix()) }}</x-ticket.stat-element>
-                @else
-                    <x-ticket.stat-element label="Times earned since reported">{{ $unlocksSinceReported }}</b></x-ticket.stat-element>
+                @elseif ($isAchievementTicket)
+                    <x-ticket.stat-element label="Times earned since reported">{{ $unlocksSinceReported }}</x-ticket.stat-element>
                 @endif
             </div>
         </div>
         <div class="flex flex-col gap-y-1">
-            <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Achievement Information</p>
+            @if ($isAchievementTicket)
+                <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Achievement Information</p>
                 <div class="relative w-full p-2 bg-embed rounded">
-                    <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize: 16) !!}</x-ticket.stat-element>
-                    <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize: 16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticketable, iconSize: 16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Game">{!! gameAvatar($ticketableGame, iconSize: 16) !!}</x-ticket.stat-element>
                     @php
                         $authorLabel = 'Author';
-                        if (!$ticket->author->is($ticket->achievement->developer)) {
+                        if (!$ticket->author?->is($ticketable->developer)) {
                             $authorLabel = 'Maintainer';
                         }
                     @endphp
                     <x-ticket.stat-element label="{{ $authorLabel }}">{!! userAvatar($ticket->author ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
-        
-                    @if ($ticket->achievement->type)
-                        <x-ticket.stat-element label="Type">{{ __('achievement-type.' . $ticket->achievement->type) }}</x-ticket.stat-element>
+
+                    @if ($ticketable->type)
+                        <x-ticket.stat-element label="Type">{{ __('achievement-type.' . $ticketable->type) }}</x-ticket.stat-element>
                     @endif
+            @else
+                <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Leaderboard Information</p>
+                <div class="relative w-full p-2 bg-embed rounded">
+                    <x-ticket.stat-element label="Leaderboard"><a href="{{ $ticketable->getTicketableUrl() }}">{{ $ticketableTitle }}</a></x-ticket.stat-element>
+                    <x-ticket.stat-element label="Game">{!! gameAvatar($ticketableGame, iconSize: 16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Author">{!! userAvatar($ticketableAssignee ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
+                    @if ($ticketable->format)
+                        <x-ticket.stat-element label="Format">{{ ValueFormat::toString($ticketable->format) }}</x-ticket.stat-element>
+                    @endif
+                    <x-ticket.stat-element label="Rank order">{{ $ticketable->rank_asc ? 'Lower is better' : 'Higher is better' }}</x-ticket.stat-element>
+                    @if ($reporterLeaderboardEntry)
+                        @php
+                            $reporterRank = $ticketable->getRank($reporterLeaderboardEntry->score);
+                            $totalEntries = $ticketable->entries()->count();
+                            $reporterScoreLabel = $ticketable->format
+                                ? ValueFormat::format($reporterLeaderboardEntry->score, $ticketable->format)
+                                : (string) $reporterLeaderboardEntry->score;
+                        @endphp
+                        <x-ticket.stat-element label="Reporter's entry">#{{ $reporterRank }} / {{ $totalEntries }} - {{ $reporterScoreLabel }}</x-ticket.stat-element>
+                    @else
+                        <x-ticket.stat-element label="Reporter's entry"><span class="text-muted">No entry yet</span></x-ticket.stat-element>
+                    @endif
+            @endif
 
                     @php $label = $ticket->state->isOpen() ? 'Other open tickets' : 'Open tickets' @endphp
                     @if (empty($openTickets))
@@ -156,7 +192,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                             @endforeach
                         </x-ticket.stat-element>
                     @endif
-        
+
                     @php $label = $ticket->state->isOpen() ? 'Closed tickets' : 'Other closed tickets' @endphp
                     @if (empty($closedTickets))
                         <x-ticket.stat-element label="{{ $label }}"><span class="text-muted">None</span></x-ticket.stat-element>
@@ -168,11 +204,10 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                         </x-ticket.stat-element>
                     @endif
                 </div>
-            </p>
         </div>
     </div>
 
-    @if ($ticket->reporter)
+    @if ($isAchievementTicket && $ticket->reporter)
       @canany(['manage', 'viewHistory'], Ticket::class)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
@@ -201,7 +236,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                         </x-alert>
 
                         <x-user.game-activity
-                            :game="$ticket->achievement->game"
+                            :game="$ticketableGame"
                             :user="$user"
                             :sessions="$sessions"
                             :userAgentService="$userAgentService"
@@ -215,7 +250,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                         @if ($existingUnlock->unlocker_id)
                             <span>Manually unlocked by {!! userAvatar(User::firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
                         @else
-                            {{ $ticket->reporter->display_name }} earned this achievement at 
+                            {{ $ticket->reporter->display_name }} earned this achievement at
                             {{ getNiceDate($unlockedAt->unix()) }}
                             @if ($unlockedAt > $ticket->created_at)
                                 (after the report)
@@ -233,7 +268,7 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
 
                                         $.post('/request/user/award-achievement.php', {
                                             user: '{{ $ticket->reporter->display_name }}',
-                                            achievement: {{ $ticket->achievement->id }},
+                                            achievement: {{ $ticketable->id }},
                                             hardcore: hardcore
                                         })
                                         .done(function () {
@@ -333,20 +368,24 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
                             @php
                                 $lastComment = null;
                                 foreach ($commentData as $comment) {
-                                    if ($comment['User'] != 'Server') {
+                                    if ($comment['User'] !== 'Server') {
                                         $lastComment = $comment;
                                     }
                                 }
+
+                                $assigneeName = $ticketableAssignee?->display_name ?? $ticket->author?->display_name;
                             @endphp
-                            @if ($lastComment != null && ($lastComment['User'] === $user->username || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
+                            @if ($lastComment !== null && ($lastComment['User'] === $user->username || ($assigneeName && $lastComment['User'] === $assigneeName)) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
                         @elseif ($ticket->state === TicketState::Request)
-                            <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticket->achievement->developer->display_name }}</option>
+                            <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticketableAssignee?->display_name ?? $ticket->author?->display_name }}</option>
                         @endif
 
                         @if ($ticket->state !== TicketState::Quarantined)
-                            <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
+                            <option value="{{ TicketAction::Demoted }}">
+                                {{ $isAchievementTicket ? 'Demote achievement to Unofficial' : 'Demote leaderboard to Unpromoted' }}
+                            </option>
                         @endif
 
                         <option value="{{ TicketAction::Network }}">Close - Network problems</option>
@@ -388,28 +427,36 @@ $ticketListBreadcrumbLabel = match ($ticketListStatusFilter) {
         </form>
 
         @canany(['manage', 'viewLogic',], Ticket::class)
+            @php
+                $logicLabel = $isAchievementTicket ? 'Achievement Logic' : 'Leaderboard Logic';
+                $logicIdLabel = $isAchievementTicket ? 'Achievement ID' : 'Leaderboard ID';
+            @endphp
             <div class="mt-4 w-full relative flex gap-x-3">
-                <button id="achievementLogicButton" class="btn"
-                        onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>
+                <button id="ticketableLogicButton" class="btn"
+                        onclick="toggleExpander('ticketableLogicButton', 'ticketableLogicContent')">{{ $logicLabel }} ▼</button>
             </div>
 
-            <div id="achievementLogicContent" class="hidden devboxcontainer">
+            <div id="ticketableLogicContent" class="hidden devboxcontainer">
                 <ul class="list-disc ml-4 mb-2">
-                    <li>Achievement ID: {{ $ticket->achievement->id }}</li>
+                    <li>{{ $logicIdLabel }}: {{ $ticketable->id }}</li>
                     <li>
                         Mem:
-                        <code>{{ $ticket->achievement->trigger_definition }}</code>
+                        <code>{{ $ticketable->trigger_definition }}</code>
                     </li>
                 </ul>
 
                 <p>Mem explained:</p>
                 <div>
-                    @php
-                        $triggerDecoderService = new TriggerDecoderService();
-                        $groups = $triggerDecoderService->decode($ticket->achievement->trigger_definition);
-                        $triggerDecoderService->addCodeNotes($groups, $ticket->achievement->game_id);
-                    @endphp
-                    <x-trigger.viewer :groups="$groups" />
+                    @if ($isAchievementTicket)
+                        @php
+                            $triggerDecoderService = new TriggerDecoderService();
+                            $groups = $triggerDecoderService->decode($ticketable->trigger_definition);
+                            $triggerDecoderService->addCodeNotes($groups, $ticketable->game_id);
+                        @endphp
+                        <x-trigger.viewer :groups="$groups" />
+                    @else
+                        <x-leaderboard.trigger-viewer :leaderboard="$ticketable" />
+                    @endif
                 </div>
             </div>
         @endcanany
