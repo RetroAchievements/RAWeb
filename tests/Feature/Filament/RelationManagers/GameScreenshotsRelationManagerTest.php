@@ -9,10 +9,16 @@ use App\Platform\Actions\ClearGameScreenshotsFromGamePageAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Storage::fake('s3');
+    Storage::fake('media');
+});
 
 function createScreenshotMedia(Game $game, array $customProperties = []): Media
 {
