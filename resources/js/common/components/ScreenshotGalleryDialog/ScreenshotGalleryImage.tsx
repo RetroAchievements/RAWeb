@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { LuEye } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
+import { getScreenshotImageRendering } from '@/common/utils/getScreenshotImageRendering';
 import { getScreenshotGalleryUrl } from '@/common/utils/getScreenshotGalleryUrl';
 
 // matches max-w-5xl on the gallery container
@@ -76,6 +77,8 @@ export const ScreenshotGalleryImage: FC<ScreenshotGalleryImageProps> = ({
     setIsLoaded(true);
   };
 
+  const imageRendering = getScreenshotImageRendering(screenshot.width, isPixelated);
+
   // Hover preloads can finish before React attaches onLoad, so check `complete` on mount too.
   const handleImageRef = (element: HTMLImageElement | null) => {
     if (element?.complete && element.naturalWidth > 0) {
@@ -131,7 +134,7 @@ export const ScreenshotGalleryImage: FC<ScreenshotGalleryImageProps> = ({
           isCompletion && !isRevealed && 'blur-3xl',
         )}
         style={{
-          ...(isPixelated ? { imageRendering: 'pixelated' } : {}),
+          imageRendering,
           ...(!isPixelated && aspectRatio ? { aspectRatio } : {}),
         }}
       />

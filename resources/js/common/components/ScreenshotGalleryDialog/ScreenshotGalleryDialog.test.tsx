@@ -177,6 +177,49 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given a non-pixelated source at or below the crisp-edges width threshold, applies crisp-edges', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 320, height: 240 }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveStyle({ imageRendering: 'crisp-edges' });
+    });
+  });
+
+  it('given a non-pixelated source above the crisp-edges width threshold, applies no imageRendering hint', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 1920, height: 1440 }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+      expect(image).not.toHaveStyle({ imageRendering: 'pixelated' });
+    });
+  });
+
   it('given a low-res screenshot, uses the original lossless URL', async () => {
     // ARRANGE
     const screenshots = [

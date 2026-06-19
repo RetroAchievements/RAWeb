@@ -152,6 +152,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             alt={t('title screenshot')}
             aspectRatio={aspectRatio}
             isPixelated={isPixelated}
+            srcWidth={imageTitleDimensions?.width}
           >
             <div
               className="flex w-full items-center justify-center overflow-hidden"
@@ -166,6 +167,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             alt={t('ingame screenshot')}
             aspectRatio={aspectRatio}
             isPixelated={isPixelated}
+            srcWidth={imageIngameDimensions?.width}
           >
             <div
               className="flex w-full items-center justify-center overflow-hidden"
