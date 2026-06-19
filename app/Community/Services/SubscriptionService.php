@@ -69,8 +69,8 @@ class SubscriptionService
 
         return [
             'explicitlySubscribed' => $explicitSubscriberIds,
-            'implicitlySubscribedNotifyNow' => array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds)),
-            'implicitlySubscribedNotifyLater' => array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds)),
+            'implicitlySubscribedNotifyNow' => array_values(array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds))),
+            'implicitlySubscribedNotifyLater' => array_values(array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds))),
         ];
     }
 
