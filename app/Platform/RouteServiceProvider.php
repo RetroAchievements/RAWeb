@@ -15,6 +15,7 @@ use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
+use App\Platform\Controllers\Api\UserMasteryBadgePreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -156,6 +157,11 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::put('user/event-award-tier-preference', [UserEventAwardTierPreferenceApiController::class, 'update'])
                         ->name('api.user.event-award-tier-preference.update');
+
+                    Route::get('user/games/{game}/selectable-badges', [UserMasteryBadgePreferenceApiController::class, 'index'])
+                        ->name('api.user.mastery-badge-preference.index');
+                    Route::post('user/mastery-badge-preference', [UserMasteryBadgePreferenceApiController::class, 'update'])
+                        ->name('api.user.mastery-badge-preference.update');
 
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
 

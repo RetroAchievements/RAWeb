@@ -41,8 +41,6 @@ trait HandlesPublicFileRequests
             throw new NotFoundHttpException();
         }
 
-        $this->runInterceptor($path);
-
         $response = require $scriptPath;
 
         if ($response instanceof Response) {
@@ -62,18 +60,5 @@ trait HandlesPublicFileRequests
         }
 
         return response($response, headers: ['Content-Type' => 'application/json']);
-    }
-
-    private function runInterceptor(string $path): void
-    {
-        if (config('interceptor.connect') && $path === 'dorequest') {
-            if (file_exists(config('interceptor.connect'))) {
-                require config('interceptor.connect');
-            }
-        } elseif (config('interceptor.web')) {
-            if (file_exists(config('interceptor.web'))) {
-                require config('interceptor.web');
-            }
-        }
     }
 }

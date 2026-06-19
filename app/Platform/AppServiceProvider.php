@@ -63,6 +63,7 @@ use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerCount;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
+use App\Platform\Commands\UpdateMinimumEmulatorVersions;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
@@ -156,6 +157,9 @@ class AppServiceProvider extends ServiceProvider
                 // Events
                 CreateAchievementOfTheWeek::class,
 
+                // Emulators
+                UpdateMinimumEmulatorVersions::class,
+
                 // Sync
                 SyncUnrankedUsersTable::class,
             ]);
@@ -176,6 +180,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(PruneGameRecentPlayers::class)->daily();
             $schedule->command(CheckDeveloperInactivity::class)->daily();
             $schedule->command(CheckForAchievementSetChanges::class)->daily();
+            $schedule->command(UpdateMinimumEmulatorVersions::class)->daily();
 
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC

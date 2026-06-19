@@ -104,6 +104,11 @@ describe('Component: GameSidebarFullWidthButtons', () => {
         auth: { user: createAuthenticatedUser({ roles: [] }) },
         backingGame: createGame(),
         can: { createGameScreenshot: true },
+        config: {
+          app: { url: 'https://retroachievements.org' },
+          screenshots: { maxPendingSubmissions: 200 },
+          services: { patreon: {} },
+        },
         game,
         ziggy: createZiggyProps({ device: 'desktop' }),
       },

@@ -9,6 +9,7 @@ use App\Models\GameScreenshot;
 use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Actions\ClearGameScreenshotsFromGamePageAction;
+use App\Platform\Actions\PromoteGameScreenshotMediaToApprovedAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Rules\DisallowAnimatedImageRule;
@@ -279,6 +280,8 @@ class GameScreenshotsRelationManager extends RelationManager
                                 $currentPrimary->update(['is_primary' => false]);
                             }
 
+                            (new PromoteGameScreenshotMediaToApprovedAction())->execute($record);
+
                             $record->update([
                                 'is_primary' => true,
                                 'status' => GameScreenshotStatus::Approved,
@@ -303,7 +306,11 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->action(function (GameScreenshot $record) use ($game): void {
                             $oldStatus = $record->status;
 
-                            $record->update(['status' => GameScreenshotStatus::Approved]);
+                            DB::transaction(function () use ($record): void {
+                                (new PromoteGameScreenshotMediaToApprovedAction())->execute($record);
+
+                                $record->update(['status' => GameScreenshotStatus::Approved]);
+                            });
 
                             $this->logScreenshotActivity($game)
                                 ->withProperty('old', ['status' => $oldStatus->name])

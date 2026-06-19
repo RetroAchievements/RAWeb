@@ -44,8 +44,8 @@ class Create extends CreateRecord
         unset($data['user_id']);
 
         // create the event record
-        /** @var Event $event */
-        $event = static::getModel()::create($data);
+        $event = new Event($data);
+        $event->save();
 
         // create the number of requested achievements
         (new AddAchievementsToEventAction())->execute($event, $numberOfAchievements, $user_id);

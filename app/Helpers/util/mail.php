@@ -13,146 +13,6 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Auth\ValidateUserEmailNotification;
 use App\Notifications\Community\CommunityActivityNotification;
-use Aws\CommandPool;
-use Illuminate\Contracts\Mail\Mailer as MailerContract;
-use Illuminate\Mail\Mailer;
-use Illuminate\Mail\Transport\SesTransport;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\Mime\Email;
-
-function mail_utf8(string $to, string $subject = '(No subject)', string $message = ''): bool
-{
-    if (empty($to)) {
-        return false;
-    }
-
-    if (config('mail.default') === 'smtp') {
-        return mail_smtp($to, $subject, $message);
-    }
-
-    if (config('mail.default') === 'ses') {
-        return mail_ses($to, $subject, $message);
-    }
-
-    return mail_log($to, $subject, $message);
-}
-
-function mail_log(string $to, string $subject = '(No subject)', string $message = ''): bool
-{
-    $mailParams = ['to' => $to, 'subject' => $subject, 'message' => $message];
-    Log::debug('Mail', $mailParams);
-
-    if (app()->environment('testing')) {
-        $arr = Cache::store('array')->get('test:emails');
-        if ($arr !== null) {
-            $arr[] = $mailParams;
-            Cache::store('array')->put('test:emails', $arr);
-        }
-    }
-
-    return true;
-}
-
-function mail_smtp(string $to, string $subject = '(No subject)', string $message = ''): bool
-{
-    /** @var Mailer $mailer */
-    $mailer = app()->make(MailerContract::class);
-
-    /** @var SesTransport $transport */
-    $transport = $mailer->getSymfonyTransport();
-
-    $email = (new Email())
-        ->from(config('mail.from.name') . ' <' . config('mail.from.address') . '>')
-        ->to($to)
-        ->subject($subject)
-        ->html($message);
-
-    $transport->send($email);
-
-    return true;
-}
-
-function mail_ses(string $to, string $subject = '(No subject)', string $message = ''): bool
-{
-    /** @var Mailer $mailer */
-    $mailer = app()->make(MailerContract::class);
-
-    /** @var SesTransport $transport */
-    $transport = $mailer->getSymfonyTransport();
-
-    $client = $transport->ses();
-
-    $recipients = [
-        $to,
-    ];
-
-    // Queue emails as SendEmail commands
-    $i = 100;
-    $commands = [];
-    foreach ($recipients as $recipient) {
-        $commands[] = $client->getCommand('SendEmail', [
-            // Pass the message id so it can be updated after it is processed (it's ignored by SES)
-            'x-message-id' => $i,
-            'Source' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
-            'Destination' => [
-                'ToAddresses' => [$recipient],
-            ],
-            'Message' => [
-                'Subject' => [
-                    'Data' => $subject,
-                    'Charset' => 'UTF-8',
-                ],
-                'Body' => [
-                    'Html' => [
-                        'Data' => $message,
-                        'Charset' => 'UTF-8',
-                    ],
-                ],
-            ],
-        ]);
-        $i++;
-    }
-
-    try {
-        $pool = new CommandPool($client, $commands, [
-            'concurrency' => 10,
-            // 'before' => function (CommandInterface $cmd, $iteratorId) {
-            //     echo sprintf('About to send %d: %s'.PHP_EOL, $iteratorId, $a['Destination']['ToAddresses'][0]);
-            //     error_log('About to send '.$iteratorId.': '.$a['Destination']['ToAddresses'][0]);
-            //     $a = $cmd->toArray();
-            // },
-            // 'fulfilled' => function (ResultInterface $result, $iteratorId) use ($commands) {
-            //     echo sprintf(
-            //         'Completed %d: %s'.PHP_EOL,
-            //         $commands[$iteratorId]['x-message-id'],
-            //         $commands[$iteratorId]['Destination']['ToAddresses'][0]
-            //     );
-            //     error_log('Completed '.$commands[$iteratorId]['x-message-id'].' :'.$commands[$iteratorId]['Destination']['ToAddresses'][0]);
-            // },
-            // 'rejected' => function (AwsException $reason, $iteratorId) use ($commands) {
-            //     echo sprintf(
-            //         'Failed %d: %s'.PHP_EOL,
-            //         $commands[$iteratorId]['x-message-id'],
-            //         $commands[$iteratorId]['Destination']['ToAddresses'][0]
-            //     );
-            //
-            //     error_log('Reason : '.$reason);
-            //     error_log('Amazon SES Failed Rejected:'.$commands[$iteratorId]['x-message-id'].' :'.$commands[$iteratorId]['Destination']['ToAddresses'][0]);
-            // },
-        ]);
-        // Initiate the pool transfers
-        $promise = $pool->promise();
-        // Force the pool to complete synchronously
-        $promise->wait();
-
-        return true;
-    } catch (Exception $e) {
-        Log::error($e->getMessage());
-
-        return false;
-    }
-}
 
 function sendValidationEmail(User $user, string $email): bool
 {
@@ -230,12 +90,13 @@ function informAllSubscribersAboutActivity(
             break;
 
         case CommentableType::AchievementTicket:  // Ticket
-            $ticket = Ticket::with(['achievement.game', 'reporter'])->find($commentableId);
-            if (!$ticket) {
+            $ticket = Ticket::with(['ticketable.game', 'reporter'])->find($commentableId);
+            if (!$ticket || !$ticket->ticketable) {
                 return;
             }
 
-            $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->title})";
+            $ticketable = $ticket->getTicketableModel();
+            $articleTitle = "{$ticketable->getTicketableTitle()} ({$ticketable->getTicketableGame()->title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->id]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;

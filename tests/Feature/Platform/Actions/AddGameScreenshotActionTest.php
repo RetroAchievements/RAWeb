@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 uses(RefreshDatabase::class);
 
@@ -412,9 +413,10 @@ it('preserves the original capture to S3 when doubling an Atari 2600 screenshot'
 
     // ASSERT
     $media = $game->fresh()->getMedia('screenshots')->first();
-    $preservationPath = $media->getCustomProperty('original_capture_path');
+    expect($media->getCustomProperty('original_capture_path'))->toEqual('original-capture.png');
 
-    Storage::disk('s3')->assertExists($preservationPath);
+    $directory = PathGeneratorFactory::create($media)->getPath($media);
+    Storage::disk('s3')->assertExists($directory . 'original-capture.png');
 });
 
 it('does not double the width for a non-Atari system', function () {

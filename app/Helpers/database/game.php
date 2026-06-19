@@ -1,11 +1,10 @@
 <?php
 
-use App\Community\Enums\CommentableType;
-use App\Models\ForumTopic;
+use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\User;
-use App\Platform\Actions\TrimGameMetadataAction;
-use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @deprecated use Eloquent
@@ -34,144 +33,6 @@ function getGameData(int $gameID): ?array
         'RichPresencePatch' => $game->trigger_definition,
         'GuideURL' => $game->legacy_guide_url,
     ]);
-}
-
-/**
- * @param-out array $achievementDataOut
- */
-function getGameMetadata(
-    int $gameID,
-    ?User $user,
-    ?array &$achievementDataOut,
-    ?array &$gameDataOut,
-    int $sortBy = 1,
-    ?User $user2 = null,
-    bool $isPromoted = true,
-    bool $metrics = false,
-): int {
-    $orderBy = match ($sortBy) {
-        11 => "ORDER BY ach.order_column DESC, ach.id DESC ",
-        2 => "ORDER BY NumAwarded, ach.id ASC ",
-        12 => "ORDER BY NumAwarded DESC, ach.id DESC ",
-        // 3 and 13 should sort by the date the user unlocked the achievement
-        // however, it's not trivial to implement (requires SQL tweaks)
-        // 3 => "",
-        // 13 => "",
-        4 => "ORDER BY ach.points, ach.id ASC ",
-        14 => "ORDER BY ach.points DESC, ach.id DESC ",
-        5 => "ORDER BY ach.title, ach.id ASC ",
-        15 => "ORDER BY ach.title DESC, ach.id DESC ",
-
-        6 => "ORDER BY
-            CASE
-                WHEN ach.type = 'progression' THEN 0
-                WHEN ach.type = 'win_condition' THEN 1
-                WHEN ach.type = 'missable' THEN 2
-                WHEN ach.type IS NULL THEN 3
-                ELSE 4
-            END,
-            ach.order_column,
-            ach.id ASC ",
-
-        16 => "ORDER BY
-            CASE
-                WHEN ach.type = 'progression' THEN 0
-                WHEN ach.type = 'win_condition' THEN 1
-                WHEN ach.type = 'missable' THEN 2
-                WHEN ach.type IS NULL THEN 3
-                ELSE 4
-            END DESC,
-            ach.order_column DESC,
-            ach.id DESC ",
-
-        // 1
-        default => "ORDER BY ach.order_column, ach.id ASC ",
-    };
-
-    $gameDataOut = getGameData($gameID);
-
-    $achievementDataOut = [];
-
-    if ($gameDataOut == null) {
-        return 0;
-    }
-
-    $metricsColumns = '';
-    if ($metrics) {
-        $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore AS NumAwardedHardcore,';
-    }
-
-    $query = "
-    SELECT
-        ach.id AS ID,
-        $metricsColumns
-        ach.title AS Title,
-        ach.description AS Description,
-        ach.points AS Points,
-        ach.points_weighted AS TrueRatio,
-        COALESCE(ua.display_name, ua.username) AS Author,
-        ua.ulid AS AuthorULID,
-        ach.modified_at AS DateModified,
-        ach.created_at AS DateCreated,
-        ach.image_name AS BadgeName,
-        ach.order_column AS DisplayOrder,
-        ach.trigger_definition AS MemAddr,
-        ach.type
-    FROM achievements AS ach
-    LEFT JOIN users AS ua ON ach.user_id = ua.id
-    WHERE ach.game_id = :gameId AND ach.is_promoted = :isPromoted AND ach.deleted_at IS NULL
-    $orderBy";
-
-    $achievementDataOut = legacyDbFetchAll($query, [
-        'gameId' => $gameID,
-        'isPromoted' => $isPromoted,
-    ])
-        ->keyBy('ID')
-        ->toArray();
-
-    $numAchievements = count($achievementDataOut);
-    foreach ($achievementDataOut as &$achievement) {
-        settype($achievement['ID'], 'integer');
-        settype($achievement['Points'], 'integer');
-        settype($achievement['TrueRatio'], 'integer');
-        settype($achievement['DisplayOrder'], 'integer');
-        if ($metrics) {
-            settype($achievement['NumAwarded'], 'integer');
-            settype($achievement['NumAwardedHardcore'], 'integer');
-        }
-    }
-
-    if ($user) {
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $isPromoted);
-        foreach ($userUnlocks as $achID => $userUnlock) {
-            if (array_key_exists($achID, $achievementDataOut)) {
-                if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
-                    $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
-                }
-                if (array_key_exists('DateEarned', $userUnlock)) {
-                    $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
-                }
-            }
-        }
-    }
-
-    if ($user2) {
-        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $isPromoted);
-        foreach ($friendUnlocks as $achID => $friendUnlock) {
-            if (array_key_exists($achID, $achievementDataOut)) {
-                if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
-                    $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
-                }
-                if (array_key_exists('DateEarned', $friendUnlock)) {
-                    $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
-                }
-            }
-        }
-    }
-
-    $gameDataOut['NumAchievements'] = $numAchievements;
-
-    return $numAchievements;
 }
 
 function getGamesListByDev(
@@ -276,7 +137,8 @@ function getGamesListByDev(
     }
 
     if ($initialQuery) {
-        foreach (legacyDbFetchAll($query, $bindings) as $row) {
+        $rows = collect(DB::select($query, $bindings))->map(fn ($row) => (array) $row);
+        foreach ($rows as $row) {
             $gameIds[] = $row['ID'];
         }
 
@@ -288,8 +150,8 @@ function getGamesListByDev(
         $numGamesFound = count($gameIds);
         if ($count > 0) {
             if ($numGamesFound == $count) {
-                $query = "SELECT FOUND_ROWS() AS NumGames";
-                $numGamesFound = legacyDbFetch($query)['NumGames'];
+                $foundRowsResult = DB::select("SELECT FOUND_ROWS() AS NumGames");
+                $numGamesFound = ((array) $foundRowsResult[0])['NumGames'];
             } else {
                 $numGamesFound += $offset;
             }
@@ -320,7 +182,8 @@ function getGamesListByDev(
                   INNER JOIN systems s ON s.id = gd.system_id $listJoin
                   WHERE ach.user_id = :userId AND ach.is_promoted = 1 $whereClause
                   GROUP BY ach.game_id $orderBy";
-        foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
+        $rows = collect(DB::select($query, ['userId' => $dev->id]))->map(fn ($row) => (array) $row);
+        foreach ($rows as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
             }
@@ -351,7 +214,8 @@ function getGamesListByDev(
                   INNER JOIN systems s ON s.id = gd.system_id $listJoin
                   WHERE 1=1 $whereClause
                   GROUP BY gd.id $orderBy";
-        foreach (legacyDbFetchAll($query, $bindings) as $row) {
+        $rows = collect(DB::select($query, $bindings))->map(fn ($row) => (array) $row);
+        foreach ($rows as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
             }
@@ -382,8 +246,8 @@ function getGamesListByDev(
         $numGamesFound = count($gameIds);
         if ($count > 0) {
             if ($numGamesFound == $count) {
-                $query = "SELECT FOUND_ROWS() AS NumGames";
-                $numGamesFound = legacyDbFetch($query)['NumGames'];
+                $foundRowsResult = DB::select("SELECT FOUND_ROWS() AS NumGames");
+                $numGamesFound = ((array) $foundRowsResult[0])['NumGames'];
             } else {
                 $numGamesFound += $offset;
             }
@@ -391,32 +255,44 @@ function getGamesListByDev(
     }
 
     // merge leaderboards
-    $query = "SELECT game_id, COUNT(*) AS NumLBs
-              FROM leaderboards
-              WHERE game_id IN ($gameList)
-              GROUP BY game_id";
-    foreach (legacyDBFetchAll($query) as $row) {
+    $leaderboardCounts = Leaderboard::query()
+        ->withTrashed()
+        ->whereIn('game_id', $gameIds)
+        ->selectRaw('game_id, COUNT(*) AS NumLBs')
+        ->groupBy('game_id')
+        ->toBase()
+        ->get()
+        ->map(fn ($row) => (array) $row);
+    foreach ($leaderboardCounts as $row) {
         $games[$row['game_id']]['NumLBs'] = $row['NumLBs'];
     }
 
     if ($dev !== null) {
-        $query = "SELECT game_id, COUNT(*) AS NumLBs
-                  FROM leaderboards
-                  WHERE game_id IN ($gameList)
-                  AND author_id = :authorId
-                  GROUP BY game_id";
-        foreach (legacyDBFetchAll($query, ['authorId' => $dev->id]) as $row) {
+        $myLeaderboardCounts = Leaderboard::query()
+            ->withTrashed()
+            ->whereIn('game_id', $gameIds)
+            ->where('author_id', $dev->id)
+            ->selectRaw('game_id, COUNT(*) AS NumLBs')
+            ->groupBy('game_id')
+            ->toBase()
+            ->get()
+            ->map(fn ($row) => (array) $row);
+        foreach ($myLeaderboardCounts as $row) {
             $games[$row['game_id']]['MyLBs'] = $row['NumLBs'];
         }
     }
 
     // calculate last updated
-    $query = "SELECT game_id AS GameID, MAX(modified_at) AS DateModified
-              FROM achievements
-              WHERE game_id IN ($gameList)
-              AND is_promoted=1
-              GROUP BY game_id";
-    foreach (legacyDbFetchAll($query) as $row) {
+    $dateModifiedRows = Achievement::query()
+        ->withTrashed()
+        ->whereIn('game_id', $gameIds)
+        ->where('is_promoted', 1)
+        ->selectRaw('game_id AS GameID, MAX(modified_at) AS DateModified')
+        ->groupBy('game_id')
+        ->toBase()
+        ->get()
+        ->map(fn ($row) => (array) $row);
+    foreach ($dateModifiedRows as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
     }
 
@@ -429,27 +305,31 @@ function getGamesListByDev(
             }
         }
         if ($dev === null) {
-            $query = "SELECT ach.game_id AS GameID, COUNT(*) AS OpenTickets
-                      FROM tickets tick
-                      INNER JOIN achievements ach ON ach.id=tick.ticketable_id
-                      WHERE ach.game_id IN ($gameList)
-                      AND tick.ticketable_type = 'achievement'
-                      AND tick.state IN ('open','request')
-                      GROUP BY ach.game_id";
-            foreach (legacyDbFetchAll($query) as $row) {
+            $openTicketRows = DB::table('tickets as tick')
+                ->join('achievements as ach', 'ach.id', '=', 'tick.ticketable_id')
+                ->whereIn('ach.game_id', $gameIds)
+                ->where('tick.ticketable_type', 'achievement')
+                ->whereIn('tick.state', ['open', 'request'])
+                ->selectRaw('ach.game_id AS GameID, COUNT(*) AS OpenTickets')
+                ->groupBy('ach.game_id')
+                ->get()
+                ->map(fn ($row) => (array) $row);
+            foreach ($openTicketRows as $row) {
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
-            $query = "SELECT ach.game_id AS GameID, ua.username as Author, COUNT(*) AS OpenTickets
-                      FROM tickets tick
-                      INNER JOIN achievements ach ON ach.id = tick.ticketable_id
-                      LEFT JOIN users ua ON ach.user_id = ua.id
-                      WHERE ach.game_id IN ($gameList)
-                      AND tick.ticketable_type = 'achievement'
-                      AND tick.state IN ('open','request')
-                      GROUP BY ach.game_id, Author";
-            foreach (legacyDbFetchAll($query) as $row) {
-                if ($row['Author'] === $dev) {
+            $openTicketRows = DB::table('tickets as tick')
+                ->join('achievements as ach', 'ach.id', '=', 'tick.ticketable_id')
+                ->leftJoin('users as ua', 'ach.user_id', '=', 'ua.id')
+                ->whereIn('ach.game_id', $gameIds)
+                ->where('tick.ticketable_type', 'achievement')
+                ->whereIn('tick.state', ['open', 'request'])
+                ->selectRaw('ach.game_id AS GameID, ua.username as Author, COUNT(*) AS OpenTickets')
+                ->groupBy('ach.game_id', 'Author')
+                ->get()
+                ->map(fn ($row) => (array) $row);
+            foreach ($openTicketRows as $row) {
+                if ($row['Author'] === $dev->username) {
                     $games[$row['GameID']]['MyOpenTickets'] += (int) $row['OpenTickets'];
                 } else {
                     $games[$row['GameID']]['OpenTickets'] += (int) $row['OpenTickets'];
@@ -465,192 +345,13 @@ function getGamesListByDev(
     return $numGamesFound;
 }
 
-function getGamesListData(?int $consoleID = null, bool $officialFlag = false): array
-{
-    $leftJoinAch = "";
-    $whereClause = "";
-    if ($officialFlag) {
-        $leftJoinAch = "LEFT JOIN achievements AS ach ON ach.game_id = gd.id ";
-        $whereClause = "WHERE ach.is_promoted=1 ";
-    }
-
-    // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
-    if (!empty($consoleID)) {
-        $whereClause .= $officialFlag ? "AND " : "WHERE ";
-        $whereClause .= "system_id=$consoleID ";
-    }
-
-    $query = "SELECT DISTINCT gd.title AS Title, gd.id AS ID, gd.system_id AS ConsoleID, gd.image_icon_asset_path AS ImageIcon, s.name as ConsoleName
-              FROM games AS gd
-              LEFT JOIN systems AS s ON s.id = gd.system_id
-              $leftJoinAch
-              $whereClause
-              ORDER BY ConsoleName, Title";
-
-    $retVal = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
-}
-
-function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = false): int
-{
-    $dataOut = getGamesListData($consoleID, $officialFlag);
-
-    return count($dataOut);
-}
-
 function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 {
-    sanitize_sql_inputs($gameTitle);
+    $gameId = Game::query()
+        ->withoutGlobalScopes()
+        ->where('title', $gameTitle)
+        ->where('system_id', $consoleID)
+        ->value('id');
 
-    $query = "SELECT gd.id AS ID
-              FROM games AS gd
-              WHERE gd.title='$gameTitle' AND gd.system_id='$consoleID'";
-
-    $dbResult = s_mysql_query($query);
-    if ($retVal = mysqli_fetch_assoc($dbResult)) {
-        $retVal['ID'] = (int) $retVal['ID'];
-
-        return $retVal['ID'];
-    }
-    log_sql_fail();
-
-    return 0;
-}
-
-function modifyGameData(
-    User $user,
-    int $gameId,
-    ?string $developer,
-    ?string $publisher,
-    ?string $genre,
-    ?string $guideUrl,
-): bool {
-    $game = Game::with("system")->find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    // FIXME actions should only expose `execute()`
-    $developer = TrimGameMetadataAction::trimWhitespace($developer);
-    $publisher = TrimGameMetadataAction::trimWhitespace($publisher);
-    $genre = TrimGameMetadataAction::trimWhitespace($genre);
-    $guideUrl = TrimGameMetadataAction::trimWhitespace($guideUrl);
-
-    $modifications = [];
-    if ($game->developer !== $developer) {
-        $modifications[] = "developer";
-        $game->developer = $developer;
-    }
-    if ($game->publisher !== $publisher) {
-        $modifications[] = "publisher";
-        $game->publisher = $publisher;
-    }
-    if ($game->genre !== $genre) {
-        $modifications[] = "genre";
-        $game->genre = $genre;
-    }
-    if ($game->legacy_guide_url !== $guideUrl) {
-        $modifications[] = "Guide URL";
-        $game->legacy_guide_url = $guideUrl;
-    }
-
-    if (count($modifications) == 0) {
-        return true;
-    }
-
-    $game->save();
-    addArticleComment(
-        "Server",
-        CommentableType::GameModification,
-        $gameId,
-        "{$user->display_name} changed the " .
-            implode(", ", $modifications) .
-            (count($modifications) == 1 ? " field" : " fields"),
-    );
-
-    return true;
-}
-
-function modifyGameTitle(string $username, int $gameId, string $value): bool
-{
-    if (mb_strlen($value) < 2) {
-        return false;
-    }
-
-    $user = User::whereName($username)->first();
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $originalTitle = $game->title;
-    $game->title = $value;
-
-    $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
-        $game,
-        $originalTitle,
-        shouldSaveGame: false,
-    );
-
-    if ($newSortTitle !== null) {
-        $game->sort_title = $newSortTitle;
-    }
-
-    if ($game->isDirty()) {
-        $game->save();
-
-        // Update the canonical title in game_releases.
-        $canonicalTitle = $game->releases()->where('is_canonical_game_title', true)->first();
-        if ($canonicalTitle) {
-            $canonicalTitle->title = $value;
-            $canonicalTitle->save();
-        }
-
-        addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the game name");
-    }
-
-    return true;
-}
-
-function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicId): bool
-{
-    if ($gameId == 0 || $newForumTopicId == 0) {
-        return false;
-    }
-
-    if (!ForumTopic::where('id', $newForumTopicId)->exists()) {
-        return false;
-    }
-
-    $user = User::whereName($username)->first();
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $game->forum_topic_id = $newForumTopicId;
-    $game->save();
-
-    addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
-
-    return true;
-}
-
-function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
-{
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $dataOut = $game->trigger_definition;
-
-    return true;
+    return (int) ($gameId ?? 0);
 }

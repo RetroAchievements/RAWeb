@@ -13,14 +13,13 @@ describe('Component: UserBreadcrumbs', () => {
     expect(container).toBeTruthy();
   });
 
-  it('has a link to the All Users list', () => {
+  it('given no user or game, only renders the current page label', () => {
     // ARRANGE
     render(<UserBreadcrumbs t_currentPageLabel={i18n.t('Comments')} />);
 
     // ASSERT
-    const allGamesLinkEl = screen.getByRole('link', { name: /all users/i });
-    expect(allGamesLinkEl).toBeVisible();
-    expect(allGamesLinkEl).toHaveAttribute('href', '/userList.php');
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.getByText('Comments')).toBeVisible();
   });
 
   it('given a user, has a link to the user profile', () => {

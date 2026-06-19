@@ -37,8 +37,7 @@ $dateStr = strftime("%d %b %Y", $dateInput);
 </script>
     <?php
     echo "<div class='navpath'>";
-    echo "<a href='/userList.php'>All Users</a>";
-    echo " &raquo; <a href='/user/$userPage'>$userPage</a>";
+    echo "<a href='/user/$userPage'>$userPage</a>";
     echo " &raquo; <a href='history.php?u=$userPage'>History</a>";
     echo " &raquo; <b>$dateStr</b>";
     echo "</div>";
