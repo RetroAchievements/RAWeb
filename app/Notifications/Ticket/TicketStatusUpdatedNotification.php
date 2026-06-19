@@ -30,6 +30,10 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
      */
     public function via(object $notifiable): array
     {
+        if (!$this->ticket->ticketable) {
+            return [];
+        }
+
         return ['mail'];
     }
 
