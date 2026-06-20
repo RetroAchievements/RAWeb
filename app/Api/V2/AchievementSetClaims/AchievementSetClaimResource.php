@@ -84,15 +84,4 @@ class AchievementSetClaimResource extends BaseJsonApiResource
         // Claims have no standalone show route, so suppress the self link.
         return new Links();
     }
-
-    private function wasIncluded(?Request $request, string $relationship): bool
-    {
-        if (!$request) {
-            return false;
-        }
-
-        return collect(explode(',', (string) $request->query('include')))
-            ->map(fn (string $include) => trim($include))
-            ->contains(fn (string $include) => $include === $relationship || str_starts_with($include, "{$relationship}."));
-    }
 }
