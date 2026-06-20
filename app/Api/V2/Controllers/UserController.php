@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Api\V2\Controllers;
 
 use App\Api\V2\UserAwards\UserAwardKind;
+use App\Api\V2\UserFollows\UserFollowResource;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\PlayerBadge;
 use App\Models\User;
+use App\Models\UserRelation;
 use App\Policies\UserCommentPolicy;
+use Illuminate\Support\Collection;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use LaravelJsonApi\Core\Pagination\Page;
 use LaravelJsonApi\Core\Responses\RelatedResponse;
@@ -72,6 +76,51 @@ class UserController extends JsonApiController
         ResourceQuery $request,
     ): void {
         $this->abortIfWallCommentsAreHidden($user, $request);
+    }
+
+    /**
+     * Precompute the set of user ids reciprocating the perspective user's
+     * Following relations so UserFollowResource can derive `isMutual`
+     * without a per-row query.
+     *
+     * Access control for both endpoints lives in UserPolicy::viewFollowers
+     * and viewFollowing.
+     */
+    protected function readingRelatedFollowers(
+        User $user,
+        ResourceQuery $request,
+    ): void {
+        $this->stashReciprocalUserIds(
+            UserRelation::query()
+                ->where('status', '=', UserRelationStatus::Following)
+                ->where('user_id', $user->id)
+                ->pluck('related_user_id'),
+        );
+    }
+
+    protected function readingRelatedFollowing(
+        User $user,
+        ResourceQuery $request,
+    ): void {
+        $this->stashReciprocalUserIds(
+            UserRelation::query()
+                ->where('status', '=', UserRelationStatus::Following)
+                ->where('related_user_id', $user->id)
+                ->pluck('user_id'),
+        );
+    }
+
+    /**
+     * Stored as a lookup map (id => true) so the presenter's isMutual check is O(1).
+     *
+     * @param Collection<int, int> $ids
+     */
+    private function stashReciprocalUserIds(Collection $ids): void
+    {
+        request()->attributes->set(
+            UserFollowResource::RECIPROCAL_IDS_ATTRIBUTE,
+            array_fill_keys($ids->all(), true),
+        );
     }
 
     private function abortIfWallCommentsAreHidden(User $user, ResourceQuery $request): void

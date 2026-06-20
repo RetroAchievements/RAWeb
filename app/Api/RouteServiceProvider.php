@@ -163,6 +163,8 @@ class RouteServiceProvider extends ServiceProvider
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
                                     $relationships->hasMany('awards')->readOnly();
+                                    $relationships->hasMany('followers')->readOnly();
+                                    $relationships->hasMany('following')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();

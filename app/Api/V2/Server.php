@@ -47,6 +47,7 @@ class Server extends BaseServer
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
             UserAwards\UserAwardSchema::class,
+            UserFollows\UserFollowSchema::class,
             Users\UserSchema::class,
         ];
     }

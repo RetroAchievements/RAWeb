@@ -112,10 +112,17 @@ class UserSchema extends Schema
                 )
                 ->readOnly(),
 
+            HasMany::make('followers', 'followsAsTarget')
+                ->type('user-follows')
+                ->cannotEagerLoad()
+                ->readOnly(),
+            HasMany::make('following', 'followsAsSource')
+                ->type('user-follows')
+                ->cannotEagerLoad()
+                ->readOnly(),
+
             // TODO add relationships and relationship endpoints
             // - lastGame (BelongsTo Game)
-            // - following (BelongsToMany User) - users this user follows
-            // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
         ];
     }

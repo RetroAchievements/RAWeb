@@ -127,6 +127,28 @@ trait ActsAsCommunityMember
         return $this->inverseRelatedUsers()->where('status', '=', UserRelationStatus::Following);
     }
 
+    /**
+     * Outgoing Following-status rows: relations where this user is the source.
+     *
+     * @return HasMany<UserRelation, $this>
+     */
+    public function followsAsSource(): HasMany
+    {
+        return $this->hasMany(UserRelation::class, 'user_id', 'id')
+            ->where('status', '=', UserRelationStatus::Following);
+    }
+
+    /**
+     * Incoming Following-status rows: relations where this user is the target.
+     *
+     * @return HasMany<UserRelation, $this>
+     */
+    public function followsAsTarget(): HasMany
+    {
+        return $this->hasMany(UserRelation::class, 'related_user_id', 'id')
+            ->where('status', '=', UserRelationStatus::Following);
+    }
+
     public function getRelationship(User $user): UserRelationStatus
     {
         $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
