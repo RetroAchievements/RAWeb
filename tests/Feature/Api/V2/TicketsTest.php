@@ -160,6 +160,21 @@ class TicketsTest extends TestCase
         $mixedResponse->assertStatus(400);
     }
 
+    public function testItRejectsMalformedLeaderboardIdFilter(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[leaderboardId]=abc');
+
+        // Assert
+        $response->assertStatus(400);
+    }
+
     public function testItRejectsUnknownStateFilterValues(): void
     {
         // Arrange
@@ -293,6 +308,34 @@ class TicketsTest extends TestCase
         $response->assertSuccessful();
         $this->assertCount(1, $response->json('data'));
         $this->assertEquals((string) $achievementTicket->id, $response->json('data.0.id'));
+    }
+
+    public function testLeaderboardIdFilterDoesNotLeakAchievementTickets(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        $leaderboard = Leaderboard::factory()->create([
+            'id' => $achievement->id, // !! collides with the achievement's id
+            'game_id' => $game->id,
+        ]);
+
+        Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        $leaderboardTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
+            'ticketable_author_id' => $author->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[leaderboardId]={$leaderboard->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $leaderboardTicket->id, $response->json('data.0.id'));
     }
 
     public function testItHidesQuarantinedTicketsFromNonManagersOnIndex(): void
@@ -571,6 +614,41 @@ class TicketsTest extends TestCase
         $response->assertSuccessful();
         $ids = collect($response->json('data'))->pluck('id')->all();
         $this->assertEquals([(string) $newer->id, (string) $older->id], $ids);
+    }
+
+    public function testItSortsByTicketId(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        $first = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        $second = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        $third = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+
+        // Act
+        $ascending = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?sort=id');
+
+        $descending = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?sort=-id');
+
+        // Assert
+        $ascending->assertSuccessful();
+        $this->assertEquals(
+            [(string) $first->id, (string) $second->id, (string) $third->id],
+            collect($ascending->json('data'))->pluck('id')->all(),
+        );
+
+        $descending->assertSuccessful();
+        $this->assertEquals(
+            [(string) $third->id, (string) $second->id, (string) $first->id],
+            collect($descending->json('data'))->pluck('id')->all(),
+        );
     }
 
     public function testStateAndTypeSerializeAsStringEnumValues(): void
