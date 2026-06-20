@@ -70,7 +70,7 @@ class TicketSchema extends Schema
 
     public function id(): ID
     {
-        return ID::make()->matchAs('[^/]+');
+        return ID::make()->matchAs('[^/]+')->sortable();
     }
 
     public function fields(): array
@@ -108,6 +108,7 @@ class TicketSchema extends Schema
             new UserUlidFilter('reporterUserId', 'reporter_id'),
             new UserUlidFilter('resolverUserId', 'resolver_id'),
             new AchievementIdFilter(),
+            new LeaderboardIdFilter(),
             new GameIdFilter(),
         ];
     }
