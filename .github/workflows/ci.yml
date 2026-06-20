@@ -161,16 +161,7 @@ jobs:
 
       - name: Run tests with sharding
         if: ${{ needs.changes.outputs.php == 'true' }}
-        run: |
-          set +e
-
-          ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --display-all-issues
-          status=$?
-
-          echo "Pest exited with status: $status"
-          find . -maxdepth 3 -type f \( -name "*.log" -o -name "*.xml" \) -print
-
-          exit $status
+        run: ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --display-all-issues
 
   merge-php-test-reports:
     needs: [changes, php-tests]
