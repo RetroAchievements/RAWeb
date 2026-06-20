@@ -15,11 +15,13 @@ use LaravelJsonApi\Eloquent\Schema;
 class TicketRepository extends Repository
 {
     private Parser $ticketParser;
+    private Schema $ticketSchema;
 
     public function __construct(Schema $schema, Driver $driver, Parser $parser)
     {
         parent::__construct($schema, $driver, $parser);
         $this->ticketParser = $parser;
+        $this->ticketSchema = $schema;
     }
 
     public function find(string $resourceId): ?object
@@ -28,6 +30,7 @@ class TicketRepository extends Repository
         $caller = Auth::user();
 
         $ticket = Ticket::query()
+            ->with($this->ticketSchema->with())
             ->visibleTo($caller)
             ->find($resourceId);
 
