@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\V2\UserFollows;
 
-use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Database\Eloquent\Builder;
@@ -92,8 +91,7 @@ class UserFollowSchema extends Schema
 
     /**
      * Scope the relationship query for `users/{id}/followers` and
-     * `users/{id}/following`. Both routes resolve to a HasMany<UserRelation>
-     * on the User; we additionally exclude rows whose *other* user is banned.
+     * `users/{id}/following` to exclude rows whose "other user" is banned.
      *
      * The "other user" lives on the opposite column from the relation's
      * foreign key: followsAsSource keys on `user_id`, so the other user is
@@ -114,8 +112,6 @@ class UserFollowSchema extends Schema
             ? 'relatedUser'
             : 'user';
 
-        return $query
-            ->where('status', '=', UserRelationStatus::Following)
-            ->whereHas($otherSideRelation, fn (Builder $q) => $q->whereNull('banned_at'));
+        return $query->whereHas($otherSideRelation, fn (Builder $q) => $q->whereNull('banned_at'));
     }
 }

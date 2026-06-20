@@ -414,6 +414,42 @@ class UserFollowsTest extends TestCase
         $this->assertEquals(['Active'], $names);
     }
 
+    public function testItExcludesFollowerRowsWhereTheFollowerIsBanned(): void
+    {
+        // Arrange
+        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $activeFollower = User::factory()->create(['display_name' => 'ActiveFollower']);
+        $bannedFollower = User::factory()->create([
+            'display_name' => 'BannedFollower',
+            'banned_at' => Carbon::now(),
+        ]);
+
+        UserRelation::create([
+            'user_id' => $activeFollower->id,
+            'related_user_id' => $auth->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+        UserRelation::create([
+            'user_id' => $bannedFollower->id,
+            'related_user_id' => $auth->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/followers");
+
+        // Assert
+        $response->assertSuccessful();
+        $names = array_map(
+            fn (array $row) => $row['attributes']['displayName'],
+            $response->json('data'),
+        );
+        $this->assertEquals(['ActiveFollower'], $names);
+    }
+
     public function testItPaginatesWithA50PerPageDefault(): void
     {
         // Arrange
