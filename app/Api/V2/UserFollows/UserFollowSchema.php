@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\V2\UserFollows;
 
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Database\Eloquent\Builder;
@@ -112,6 +113,8 @@ class UserFollowSchema extends Schema
             ? 'relatedUser'
             : 'user';
 
-        return $query->whereHas($otherSideRelation, fn (Builder $q) => $q->whereNull('banned_at'));
+        return $query
+            ->where('status', '=', UserRelationStatus::Following)
+            ->whereHas($otherSideRelation, fn (Builder $q) => $q->whereNull('banned_at'));
     }
 }
