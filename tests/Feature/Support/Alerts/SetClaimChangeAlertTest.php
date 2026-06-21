@@ -6,6 +6,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\System;
@@ -14,122 +15,97 @@ use App\Support\Alerts\Jobs\SendAlertWebhookJob;
 use App\Support\Alerts\SetClaimChangeAlert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-use Tests\TestCase;
 
-class SetClaimChangeAlertTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    private function prepareVariables(ClaimType $claimType, ClaimSetType $setType): array
-    {
-        $system = System::factory()->create();
-        $user = User::factory()->create(['username' => 'Scott', 'display_name' => 'Scott']);
-        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+beforeEach(function () {
+    $system = System::factory()->create();
+    $this->user = User::factory()->create(['username' => 'Scott', 'display_name' => 'Scott']);
+    $this->game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+});
 
-        $claim = AchievementSetClaim::create([
-            'user_id' => $user->id,
-            'game_id' => $game->id,
-            'claim_type' => $claimType,
-            'set_type' => $setType,
-            'status' => ClaimStatus::Active,
-            'extensions_count' => 0,
-            'special_type' => ClaimSpecial::None,
-        ]);
+dataset('claim actions', [
+    'created' => [SetClaimChangeAction::Create, ':new:', 'created'],
+    'extended' => [SetClaimChangeAction::Extend, ':timer:', 'extended'],
+    'dropped' => [SetClaimChangeAction::Drop, ':no_entry_sign:', 'dropped'],
+    'completed' => [SetClaimChangeAction::Update, ':white_check_mark:', 'completed'],
+]);
 
-        return [$game, $claim, $user];
+dataset('set types', [
+    'new' => [ClaimSetType::NewSet, ''],
+    'revision' => [ClaimSetType::Revision, ' revision'],
+]);
+
+dataset('claim types', [
+    'primary' => [ClaimType::Primary, 'Primary'],
+    'collaboration' => [ClaimType::Collaboration, 'Collaboration'],
+]);
+
+it('formats a site inactivity discord message', function (
+    SetClaimChangeAction $action,
+    string $expectedEmoji,
+    string $expectedAction,
+    ClaimSetType $setType,
+    string $expectedRevisionText,
+    ClaimType $claimType,
+    string $expectedClaimType,
+): void {
+    // Arrange
+    $claim = AchievementSetClaim::create([
+        'user_id' => $this->user->id,
+        'game_id' => $this->game->id,
+        'claim_type' => $claimType,
+        'set_type' => $setType,
+        'status' => ClaimStatus::Active,
+        'extensions_count' => 0,
+        'special_type' => ClaimSpecial::None,
+    ]);
+
+    $alert = new SetClaimChangeAlert(game: $this->game, user: $this->user, claim: $claim, action: $action);
+
+    // Act
+    $message = $alert->toDiscordMessage();
+
+    // Assert
+    expect($message)->toContain(route('game.show', $this->game))
+        ->and($message)->toContain($expectedEmoji)
+        ->and($message)->toContain($expectedClaimType)
+        ->and($message)->toContain($expectedAction)
+        ->and($message)->toContain('Scott');
+
+    if ($setType === ClaimSetType::Revision) {
+        expect($message)->toContain($expectedRevisionText);
     }
 
-    public function testToDiscordMessageNormalClaimPrimaryNotRevision(): void
-    {
-        // Arrange
-        [$game, $claim, $user] = $this->prepareVariables(ClaimType::Primary, ClaimSetType::NewSet);
+})->with('claim actions')
+    ->with('set types')
+    ->with('claim types');
 
-        $alert = (new SetClaimChangeAlert(game: $game, claim: $claim, user: $user, action: 'create'));
+it('dispatches the alert webhook job when configured', function (): void {
+    // Arrange
+    Queue::fake();
 
-        // Act
-        $message = $alert->toDiscordMessage();
+    config(['services.discord.alerts_webhook.set_claim_change' => 'https://discord.com/api/webhooks/test']);
 
-        // Assert
-        $this->assertStringContainsString(route('game.show', $game), $message);
-        $this->assertStringContainsString(':new:', $message);
-        $this->assertStringContainsString('Primary claim', $message);
-        $this->assertStringContainsString('created', $message);
-        $this->assertStringContainsString('Scott', $message);
-    }
+    $claim = AchievementSetClaim::create([
+        'user_id' => $this->user->id,
+        'game_id' => $this->game->id,
+        'claim_type' => ClaimType::Primary,
+        'set_type' => ClaimSetType::NewSet,
+        'status' => ClaimStatus::Active,
+        'extensions_count' => 0,
+        'special_type' => ClaimSpecial::None,
+    ]);
 
-    public function testToDiscordMessageExtendClaimPrimaryRevision(): void
-    {
-        // Arrange
-        [$game, $claim, $user] = $this->prepareVariables(ClaimType::Primary, ClaimSetType::Revision);
+    $alert = new SetClaimChangeAlert(game: $this->game, user: $this->user, claim: $claim, action: SetClaimChangeAction::Create);
 
-        $alert = (new SetClaimChangeAlert(game: $game, claim: $claim, user: $user, action: 'extend'));
+    // Act
+    $result = $alert->send();
 
-        // Act
-        $message = $alert->toDiscordMessage();
+    // Assert
+    expect($result)->toBeTrue();
 
-        // Assert
-        $this->assertStringContainsString(route('game.show', $game), $message);
-        $this->assertStringContainsString(':timer:', $message);
-        $this->assertStringContainsString('Primary revision claim', $message);
-        $this->assertStringContainsString('extended', $message);
-        $this->assertStringContainsString('Scott', $message);
-    }
-
-    public function testToDiscordMessageDropNonPrimaryNonRevision(): void
-    {
-        // Arrange
-        [$game, $claim, $user] = $this->prepareVariables(ClaimType::Collaboration, ClaimSetType::NewSet);
-
-        $alert = (new SetClaimChangeAlert(game: $game, claim: $claim, user: $user, action: 'drop'));
-
-        // Act
-        $message = $alert->toDiscordMessage();
-
-        // Assert
-        $this->assertStringContainsString(route('game.show', $game), $message);
-        $this->assertStringContainsString(':no_entry_sign:', $message);
-        $this->assertStringContainsString('Collaboration claim', $message);
-        $this->assertStringContainsString('dropped', $message);
-        $this->assertStringContainsString('Scott', $message);
-    }
-
-    public function testToDiscordMessageUpdateNonPrimaryRevision(): void
-    {
-        // Arrange
-        [$game, $claim, $user] = $this->prepareVariables(ClaimType::Collaboration, ClaimSetType::Revision);
-
-        $alert = (new SetClaimChangeAlert(game: $game, claim: $claim, user: $user, action: 'update'));
-
-        // Act
-        $message = $alert->toDiscordMessage();
-
-        // Assert
-        $this->assertStringContainsString(route('game.show', $game), $message);
-        $this->assertStringContainsString(':white_check_mark:', $message);
-        $this->assertStringContainsString('Collaboration revision claim', $message);
-        $this->assertStringContainsString('completed', $message);
-        $this->assertStringContainsString('Scott', $message);
-    }
-
-    public function testSendDispatchesJobWhenWebhookUrlExists(): void
-    {
-        // Arrange
-        Queue::fake();
-
-        config(['services.discord.alerts_webhook.set_claim_change' => 'https://discord.com/api/webhooks/test']);
-
-        [$game, $claim, $user] = $this->prepareVariables(ClaimType::Primary, ClaimSetType::NewSet);
-
-        $alert = (new SetClaimChangeAlert(game: $game, claim: $claim, user: $user, action: 'create'));
-
-        // Act
-        $result = $alert->send();
-
-        // Assert
-        $this->assertTrue($result);
-
-        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) {
-            return $job->webhookUrl === 'https://discord.com/api/webhooks/test';
-        });
-    }
-}
+    Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) {
+        return $job->webhookUrl === 'https://discord.com/api/webhooks/test';
+    });
+});
