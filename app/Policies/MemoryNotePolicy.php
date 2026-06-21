@@ -42,7 +42,7 @@ class MemoryNotePolicy
     public function update(User $user, MemoryNote $memoryNote): bool
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have authored the note to edit it.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $user->is($memoryNote->user)) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $memoryNote->user_id === $user->id) {
             return true;
         }
 

@@ -35,4 +35,13 @@ enum ScreenshotType: string
             self::Completion => 2,
         };
     }
+
+    public function legacyAssetPathField(): ?string
+    {
+        return match ($this) {
+            self::Title => 'image_title_asset_path',
+            self::Ingame => 'image_ingame_asset_path',
+            self::Completion => null,
+        };
+    }
 }

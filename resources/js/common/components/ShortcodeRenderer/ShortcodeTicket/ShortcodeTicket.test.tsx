@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievement, createTicket } from '@/test/factories';
+import { createAchievement, createLeaderboard, createTicket } from '@/test/factories';
 
 import { persistedTicketsAtom } from '../../../state/shortcode.atoms';
 import { ShortcodeTicket } from './ShortcodeTicket';
@@ -72,13 +72,13 @@ describe('Component: ShortcodeTicket', () => {
     expect(screen.getByText(/ticket #123/i)).toBeVisible();
   });
 
-  it('given a non-achievement ticket is found, renders nothing', () => {
+  it('given a leaderboard ticket is found, renders a text embed with the state border', () => {
     // ARRANGE
     const ticket = createTicket({
       id: 123,
       ticketableType: 'leaderboard',
       state: 'open',
-      ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
+      ticketable: createLeaderboard(),
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
@@ -90,7 +90,11 @@ describe('Component: ShortcodeTicket', () => {
 
     // ASSERT
     expect(screen.queryByTestId('achievement-ticket-embed')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('leaderboard-ticket-embed')).not.toBeInTheDocument();
+    const linkEl = screen.getByTestId('leaderboard-ticket-embed');
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('ticket.show'));
+    expect(linkEl).toHaveClass('border-green-600');
+    expect(screen.getByText(/ticket #123/i)).toBeVisible();
   });
 
   it('given an open ticket, applies green border styling', () => {

@@ -289,9 +289,30 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->getCanonicalUrlAttribute();
     }
 
+    public function getTicketableIconUrl(): string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
     public function getTicketableBadgeUrl(): ?string
     {
         return $this->getBadgeUrlAttribute();
+    }
+
+    public function demoteForTicket(User $byUser): void
+    {
+        if (!$this->is_promoted) {
+            return;
+        }
+
+        updateAchievementPromotedStatus($this->id, false);
+        addArticleComment(
+            'Server',
+            CommentableType::Achievement,
+            $this->id,
+            "{$byUser->display_name} demoted this achievement to Unofficial.",
+            $byUser->display_name,
+        );
     }
 
     // == helpers
