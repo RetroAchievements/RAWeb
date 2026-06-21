@@ -71,7 +71,7 @@ class FetchDynamicShortcodeContentAction
             return collect();
         }
 
-        return Ticket::with('achievement')
+        return Ticket::with('ticketable')
             ->whereIn('id', $ticketIds)
             ->get()
             ->map(fn (Ticket $ticket) => TicketData::fromTicket($ticket)->include('state', 'ticketable'));

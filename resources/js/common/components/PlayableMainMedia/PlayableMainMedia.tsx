@@ -90,7 +90,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
         'grid w-full grid-cols-2 items-start justify-items-center',
         'border border-embed-highlight bg-zinc-900/50 light:bg-neutral-50',
         'gap-x-5 gap-y-1',
-        'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
+        'xl:mx-0 xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
       {hasGallery ? (
