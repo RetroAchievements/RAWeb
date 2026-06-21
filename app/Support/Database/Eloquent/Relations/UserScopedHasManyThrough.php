@@ -33,7 +33,7 @@ class UserScopedHasManyThrough extends HasManyThrough
         if (static::$constraints) {
             $userId = $this->farParent->user_id ?? null;
             if ($userId !== null) {
-                $this->query->where($this->related->getTable() . '.user_id', $userId);
+                $this->query->getQuery()->where($this->related->getTable() . '.user_id', $userId);
             }
         }
     }
@@ -48,7 +48,7 @@ class UserScopedHasManyThrough extends HasManyThrough
         // All parent models share the same user_id in a user-scoped request.
         $userId = $models[0]->user_id ?? null;
         if ($userId !== null) {
-            $this->query->where($this->related->getTable() . '.user_id', $userId);
+            $this->query->getQuery()->where($this->related->getTable() . '.user_id', $userId);
         }
     }
 }

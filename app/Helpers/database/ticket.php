@@ -137,7 +137,7 @@ function getTicket(int $ticketID): ?array
 
 function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?string $reason = null): bool
 {
-    $ticket = Ticket::with(['reporter', 'author', 'achievement.game.system'])->find($ticketID);
+    $ticket = Ticket::with(['reporter', 'author', 'ticketable.game.system'])->find($ticketID);
 
     if (!$ticket) {
         return false;
@@ -162,9 +162,8 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
 
     switch ($ticketVal) {
         case TicketState::Closed:
-            if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement?->is_promoted) {
-                updateAchievementPromotedStatus($ticket->achievement->id, false);
-                addArticleComment("Server", CommentableType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
+            if ($reason === TicketState::REASON_DEMOTED && $ticket->ticketable) {
+                $ticket->getTicketableModel()->demoteForTicket($userModel);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
             break;

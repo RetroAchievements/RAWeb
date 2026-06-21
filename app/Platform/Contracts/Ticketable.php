@@ -21,5 +21,9 @@ interface Ticketable
 
     public function getTicketableUrl(): string;
 
+    public function getTicketableIconUrl(): string;
+
     public function getTicketableBadgeUrl(): ?string;
+
+    public function demoteForTicket(User $byUser): void;
 }
