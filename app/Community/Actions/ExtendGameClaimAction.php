@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Enums\CommentableType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 use App\Support\Alerts\SetClaimChangeAlert;
@@ -22,7 +23,7 @@ class ExtendGameClaimAction
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
         addArticleComment("Server", CommentableType::SetClaim, $claim->game->id, "Claim extended by " . $actingUser->display_name);
 
-        (new SetClaimChangeAlert(game: $claim->game, claim: $claim, user: $actingUser, action: 'extend'))->send();
+        (new SetClaimChangeAlert(game: $claim->game, user: $actingUser, claim: $claim, action: SetClaimChangeAction::Extend))->send();
 
         $collaborationClaims = $claim->game->achievementSetClaims()
             ->activeOrInReview()

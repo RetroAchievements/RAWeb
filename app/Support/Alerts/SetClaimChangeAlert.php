@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Support\Alerts;
 
 use App\Community\Enums\ClaimSetType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\User;
@@ -12,8 +15,8 @@ class SetClaimChangeAlert extends Alert
     public function __construct(
         public readonly Game $game,
         public readonly User $user,
-        public readonly string $action,
         public readonly AchievementSetClaim $claim,
+        public readonly SetClaimChangeAction $action,
     ) {
     }
 
@@ -29,20 +32,13 @@ class SetClaimChangeAlert extends Alert
         $claimType = $this->claim->claim_type->label() . ($isRevision ? ' revision' : '');
 
         $emoji = match ($this->action) {
-            'create' => ':new:',
-            'extend' => ':timer:',
-            'drop' => ':no_entry_sign:',
-            'update' => ':white_check_mark:',
-            default => '',
+            SetClaimChangeAction::Create => ':new:',
+            SetClaimChangeAction::Extend => ':timer:',
+            SetClaimChangeAction::Drop => ':no_entry_sign:',
+            SetClaimChangeAction::Update => ':white_check_mark:',
         };
 
-        $action = match ($this->action) {
-            'create' => 'created',
-            'extend' => 'extended',
-            'drop' => 'dropped',
-            'update' => 'completed',
-            default => '',
-        };
+        $action = $this->action->label();
 
         // Put it all together!
         return "$gameLink\n" .

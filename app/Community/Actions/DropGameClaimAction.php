@@ -7,6 +7,7 @@ namespace App\Community\Actions;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
@@ -43,6 +44,6 @@ class DropGameClaimAction
             addArticleComment("Server", CommentableType::SetClaim, $claim->game->id, $claim->claim_type->label() . " claim dropped by {$actingUser->display_name}");
         }
 
-        (new SetClaimChangeAlert(game: $claim->game, claim: $claim, user: $actingUser, action: 'drop'))->send();
+        (new SetClaimChangeAlert(game: $claim->game, user: $actingUser, claim: $claim, action: SetClaimChangeAction::Drop))->send();
     }
 }

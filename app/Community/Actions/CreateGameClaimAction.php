@@ -11,6 +11,7 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Ticket;
@@ -91,7 +92,7 @@ class CreateGameClaimAction
 
         $this->maybeSendClaimWithUnresolvedTicketsAlert($currentUser, $game, $claimType);
 
-        (new SetClaimChangeAlert(game: $game, claim: $newClaim, user: $currentUser, action: 'create'))->send();
+        (new SetClaimChangeAlert(game: $game, user: $currentUser, claim: $newClaim, action: SetClaimChangeAction::Create))->send();
 
         return $newClaim;
     }

@@ -11,6 +11,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserGameListType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\PlayerBadge;
@@ -148,6 +149,6 @@ class UpdateGameClaimAction
             (new CheckForAchievementSetChangesAction())->execute($achievementSet);
         }
 
-        (new SetClaimChangeAlert(game: $game, claim: $claim, user: $currentUser, action: 'update'))->send();
+        (new SetClaimChangeAlert(game: $game, user: $currentUser, claim: $claim, action: SetClaimChangeAction::Update))->send();
     }
 }
