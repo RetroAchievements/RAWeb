@@ -523,18 +523,19 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
         $updates = [];
 
-        $primaryIngame = $primaries->get('ingame');
-        if ($primaryIngame) {
-            $updates['image_ingame_asset_path'] = $primaryIngame->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
-        } elseif ($resetType === ScreenshotType::Ingame) {
-            $updates['image_ingame_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
-        }
+        foreach (ScreenshotType::cases() as $type) {
+            $field = $type->legacyAssetPathField();
+            if ($field === null) {
+                continue;
+            }
 
-        $primaryTitle = $primaries->get('title');
-        if ($primaryTitle) {
-            $updates['image_title_asset_path'] = $primaryTitle->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
-        } elseif ($resetType === ScreenshotType::Title) {
-            $updates['image_title_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
+            $primary = $primaries->get($type->value);
+
+            if ($primary) {
+                $updates[$field] = $primary->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
+            } elseif ($resetType === $type) {
+                $updates[$field] = self::PLACEHOLDER_IMAGE_PATH;
+            }
         }
 
         if (!empty($updates)) {
