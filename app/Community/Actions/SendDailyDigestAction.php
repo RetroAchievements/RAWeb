@@ -81,6 +81,9 @@ class SendDailyDigestAction
                     if ($screenshot->rejection_reason instanceof GameScreenshotRejectionReason) {
                         $data['rejectionReason'] = $screenshot->rejection_reason->label();
                     }
+                    if ($screenshot->rejection_notes !== null && $screenshot->rejection_notes !== '') {
+                        $data['rejectionNotes'] = $screenshot->rejection_notes;
+                    }
 
                     $screenshotDecisionData[$screenshot->id] = $data;
                 }
@@ -250,9 +253,13 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $tickets = Ticket::whereIn('id', $ids)->with('achievement')->get();
+        $tickets = Ticket::whereIn('id', $ids)->with('ticketable')->get();
         foreach ($tickets as $ticket) {
-            $result[$ticket->id] = "{$ticket->achievement->title}";
+            if (!$ticket->ticketable) {
+                continue;
+            }
+
+            $result[$ticket->id] = $ticket->getTicketableModel()->getTicketableTitle();
         }
 
         return $result;
@@ -331,6 +338,7 @@ class SendDailyDigestAction
         $rejectedCount = 0;
         $reviewedCount = 0;
         $rejectionReasons = [];
+        $rejectedItems = [];
 
         foreach ($gameItems as $item) {
             match ($item['status'] ?? null) {
@@ -342,6 +350,11 @@ class SendDailyDigestAction
             if (($item['status'] ?? null) === GameScreenshotStatus::Rejected->value && ($item['rejectionReason'] ?? null)) {
                 $reason = $item['rejectionReason'];
                 $rejectionReasons[$reason] = ($rejectionReasons[$reason] ?? 0) + 1;
+
+                $rejectedItems[] = [
+                    'reason' => $reason,
+                    'notes' => $item['rejectionNotes'] ?? null,
+                ];
             }
         }
 
@@ -355,6 +368,7 @@ class SendDailyDigestAction
             'rejectedCount' => $rejectedCount,
             'reviewedCount' => $reviewedCount,
             'rejectionReasonSummary' => $this->summarizeScreenshotRejectionReasons($rejectionReasons),
+            'rejectedItems' => $rejectedItems,
         ];
     }
 }
