@@ -9,6 +9,7 @@ use App\Models\GameScreenshot;
 use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Actions\ClearGameScreenshotsFromGamePageAction;
+use App\Platform\Actions\LogPrimaryScreenshotChangeAction;
 use App\Platform\Actions\PromoteGameScreenshotMediaToApprovedAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
@@ -157,7 +158,10 @@ class GameScreenshotsRelationManager extends RelationManager
                         ->modalSubmitActionLabel('Clear Screenshots')
                         ->authorize(fn (): bool => $user->can('clearScreenshots', $game))
                         ->action(function () use ($game): void {
-                            $clearedCount = (new ClearGameScreenshotsFromGamePageAction())->execute($game);
+                            /** @var User $causer */
+                            $causer = Auth::user();
+
+                            $clearedCount = (new ClearGameScreenshotsFromGamePageAction())->execute($game, $causer);
 
                             $this->logScreenshotActivity($game)
                                 ->event('clearedScreenshots')
@@ -267,17 +271,22 @@ class GameScreenshotsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->hidden(fn (GameScreenshot $record): bool => $record->is_primary)
                     ->action(function (GameScreenshot $record) use ($game): void {
-                        DB::transaction(function () use ($record) {
+                        /** @var User $causer */
+                        $causer = Auth::user();
+
+                        $previousPrimary = null;
+
+                        DB::transaction(function () use ($record, &$previousPrimary) {
                             // Demote the current primary of the same type via Eloquent
                             // so model events fire if the observer ever needs to react.
-                            $currentPrimary = GameScreenshot::where('game_id', $record->game_id)
+                            $previousPrimary = GameScreenshot::where('game_id', $record->game_id)
                                 ->where('type', $record->type)
                                 ->where('is_primary', true)
                                 ->lockForUpdate()
                                 ->first();
 
-                            if ($currentPrimary) {
-                                $currentPrimary->update(['is_primary' => false]);
+                            if ($previousPrimary) {
+                                $previousPrimary->update(['is_primary' => false]);
                             }
 
                             (new PromoteGameScreenshotMediaToApprovedAction())->execute($record);
@@ -288,13 +297,13 @@ class GameScreenshotsRelationManager extends RelationManager
                             ]);
                         });
 
-                        $this->logScreenshotActivity($game)
-                            ->withProperty('attributes', [
-                                'screenshot' => $record->media?->getUrl(),
-                                'type' => $record->type->label(),
-                            ])
-                            ->event('setScreenshotAsPrimary')
-                            ->log('Set screenshot as primary');
+                        (new LogPrimaryScreenshotChangeAction())->execute(
+                            $game,
+                            $record->type,
+                            $previousPrimary,
+                            $record,
+                            $causer,
+                        );
                     }),
 
                 ActionGroup::make([

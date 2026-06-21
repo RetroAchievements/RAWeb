@@ -30,6 +30,7 @@ return [
             'multisetEnabled' => 'Enabled multiset',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
+            'primaryScreenshotChanged' => 'Primary screenshot changed',
             'rejectedScreenshot' => 'Rejected screenshot',
             'releaseCreated' => 'Release added',
             'releaseDeleted' => 'Release removed',
