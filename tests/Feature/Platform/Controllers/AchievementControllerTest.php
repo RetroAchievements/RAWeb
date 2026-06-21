@@ -53,6 +53,7 @@ function createGameWithAchievementAndSet(
  * Creates an event achievement with its event game and base achievement set.
  * Optionally links to a source achievement from a regular game.
  *
+ * @param array<model-property<EventAchievement>, mixed> $eventOverrides
  * @return array{eventAchievement: Achievement, sourceAchievement: ?Achievement}
  */
 function createEventAchievementWithSet(
