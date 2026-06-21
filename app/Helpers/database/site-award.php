@@ -294,9 +294,9 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
 
         $key = '';
         if ($awardType === AwardType::Mastery) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'completed' : 'mastered';
+            $key = $awardExtra == UnlockMode::Casual ? 'completed' : 'mastered';
         } elseif ($awardType === AwardType::GameBeaten) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'beaten-softcore' : 'beaten-hardcore';
+            $key = $awardExtra == UnlockMode::Casual ? 'beaten-softcore' : 'beaten-hardcore';
         }
 
         if ($key && is_null($userGameProgressionAwards[$key])) {

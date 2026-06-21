@@ -62,7 +62,7 @@ class UserAwardPresenter
         return match ($this->award->award_type) {
             AwardType::Mastery, AwardType::GameBeaten => [
                 'gameId' => $this->award->award_key,
-                'mode' => $this->award->award_tier === UnlockMode::Hardcore ? 'hardcore' : 'softcore',
+                'mode' => $this->award->award_tier === UnlockMode::Hardcore ? 'hardcore' : 'casual',
             ],
             AwardType::Event => [
                 'eventId' => $this->award->award_key,

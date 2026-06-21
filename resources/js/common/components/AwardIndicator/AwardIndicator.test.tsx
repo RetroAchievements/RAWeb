@@ -44,12 +44,12 @@ describe('Component: AwardIndicator', () => {
     expect(screen.getByTitle('Beaten')).toBeVisible();
   });
 
-  it('given awardKind is "beaten-softcore" and no title prop is provided, generates "Beaten (softcore)" title', () => {
+  it('given awardKind is "beaten-casual" and no title prop is provided, generates "Beaten (casual)" title', () => {
     // ARRANGE
-    render(<AwardIndicator awardKind="beaten-softcore" />);
+    render(<AwardIndicator awardKind="beaten-casual" />);
 
     // ASSERT
-    expect(screen.getByTitle('Beaten (softcore)')).toBeVisible();
+    expect(screen.getByTitle('Beaten (casual)')).toBeVisible();
   });
 
   it('renders with the correct role and aria-label', () => {
@@ -93,9 +93,9 @@ describe('Component: AwardIndicator', () => {
     expect(indicatorEl).toHaveClass('bg-zinc-300');
   });
 
-  it('applies the correct className for beaten-softcore award', () => {
+  it('applies the correct className for beaten-casual award', () => {
     // ARRANGE
-    render(<AwardIndicator awardKind="beaten-softcore" />);
+    render(<AwardIndicator awardKind="beaten-casual" />);
 
     // ASSERT
     const indicatorEl = screen.getByRole('img');

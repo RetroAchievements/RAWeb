@@ -46,7 +46,7 @@ $userScoreData = getAwardedList($userDetails);
     // Declare columns
     dataTotalScore.addColumn('date', 'Date Earned');
     dataTotalScore.addColumn('number', 'Hardcore Score');
-    dataTotalScore.addColumn('number', 'Softcore Score');
+    dataTotalScore.addColumn('number', 'Casual Score');
 
     dataTotalScore.addRows([
         <?php
@@ -211,7 +211,7 @@ $userScoreData = getAwardedList($userDetails);
         echo "(" . localized_number($userPageHardcorePoints) . ") ";
     }
     if ($userPageSoftcorePoints > 0) {
-        echo "<span class ='softcore'>(" . localized_number($userPageSoftcorePoints) . " softcore)</span>";
+        echo "<span class ='softcore'>(" . localized_number($userPageSoftcorePoints) . " casual)</span>";
     }
     echo "</b><br>";
 

@@ -101,7 +101,7 @@ function usePlayerPreferredProgressFilterOptions(): FilterOptions<App.Platform.E
     ];
   }
 
-  if (playerPreferredMode === 'softcore') {
+  if (playerPreferredMode === 'casual') {
     return [
       {
         t_heading: t('Progress'),
@@ -111,7 +111,7 @@ function usePlayerPreferredProgressFilterOptions(): FilterOptions<App.Platform.E
         t_heading: t('Awards - At Least'),
         options: [
           {
-            t_label: t('Beaten (softcore) or Higher'),
+            t_label: t('Beaten (casual) or Higher'),
             value: 'gte_beaten_softcore',
             icon: LuCircleDot,
           },
@@ -120,7 +120,7 @@ function usePlayerPreferredProgressFilterOptions(): FilterOptions<App.Platform.E
       {
         t_heading: t('Awards - Exact'),
         options: [
-          { t_label: t('Beaten (softcore) Only'), value: 'eq_beaten_softcore', icon: LuCircleDot },
+          { t_label: t('Beaten (casual) Only'), value: 'eq_beaten_softcore', icon: LuCircleDot },
           { t_label: t('Completed Only'), value: 'eq_completed', icon: LuTrophy },
         ],
       },
@@ -154,7 +154,7 @@ function usePlayerPreferredProgressFilterOptions(): FilterOptions<App.Platform.E
       t_heading: t('Awards - At Least'),
       options: [
         {
-          t_label: t('Beaten (Softcore) or Higher'),
+          t_label: t('Beaten (Casual) or Higher'),
           value: 'gte_beaten_softcore',
           icon: LuCircleDot,
         },
@@ -169,7 +169,7 @@ function usePlayerPreferredProgressFilterOptions(): FilterOptions<App.Platform.E
     {
       t_heading: t('Awards - Exact'),
       options: [
-        { t_label: t('Beaten (Softcore) Only'), value: 'eq_beaten_softcore', icon: LuCircleDot },
+        { t_label: t('Beaten (Casual) Only'), value: 'eq_beaten_softcore', icon: LuCircleDot },
         { t_label: t('Beaten (Hardcore) Only'), value: 'eq_beaten_hardcore', icon: LuCircleDot },
         { t_label: t('Completed Only'), value: 'eq_completed', icon: LuTrophy },
         { t_label: t('Mastered Only'), value: 'eq_mastered', icon: LuTrophy },

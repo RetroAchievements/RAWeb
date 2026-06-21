@@ -24,6 +24,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+// TODO rename 'softcore_only' to 'casual_only'
 class Emulator extends BaseModel implements HasMedia
 {
     /*

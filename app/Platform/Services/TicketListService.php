@@ -112,7 +112,7 @@ class TicketListService
             'options' => [
                 'all' => 'All',
                 'hardcore' => 'Hardcore',
-                'softcore' => 'Softcore',
+                'softcore' => 'Casual',
                 'unspecified' => 'Unspecified',
             ],
         ];

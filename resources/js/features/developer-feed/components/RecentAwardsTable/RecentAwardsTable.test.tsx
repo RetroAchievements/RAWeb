@@ -26,7 +26,7 @@ describe('Component: RecentAwardsTable', () => {
     const recentAward = createRecentPlayerBadge({
       game: createGame({ id: 1, title: 'Test Game' }),
       user: createUser({ displayName: 'Scott' }),
-      awardType: 'beaten-softcore',
+      awardType: 'beaten-casual',
     });
 
     render(<RecentAwardsTable recentPlayerBadges={[recentAward]} />);
@@ -35,7 +35,7 @@ describe('Component: RecentAwardsTable', () => {
     expect(screen.getByRole('table')).toBeVisible();
 
     expect(screen.getAllByText(/test game/i)[0]).toBeVisible();
-    expect(screen.getByText(/beaten \(softcore\)/i)).toBeVisible();
+    expect(screen.getByText(/beaten \(casual\)/i)).toBeVisible();
     expect(screen.getAllByText(/scott/i)[0]).toBeVisible();
   });
 
@@ -63,14 +63,14 @@ describe('Component: RecentAwardsTable', () => {
   });
 
   describe('Award label translation', () => {
-    it('given the award type is beaten-softcore, displays "Beaten (softcore)"', () => {
+    it('given the award type is beaten-casual, displays "Beaten (casual)"', () => {
       // ARRANGE
-      const recentAward = createRecentPlayerBadge({ awardType: 'beaten-softcore' });
+      const recentAward = createRecentPlayerBadge({ awardType: 'beaten-casual' });
 
       render(<RecentAwardsTable recentPlayerBadges={[recentAward]} />);
 
       // ASSERT
-      expect(screen.getByText(/beaten \(softcore\)/i)).toBeVisible();
+      expect(screen.getByText(/beaten \(casual\)/i)).toBeVisible();
     });
 
     it('given the award type is beaten-hardcore, displays "Beaten"', () => {

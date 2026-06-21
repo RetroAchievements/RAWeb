@@ -1884,9 +1884,9 @@ describe('Completion Stats Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
         $game->refresh();
 
-        $softcoreUser = User::factory()->create();
+        $casualUser = User::factory()->create();
         PlayerGame::factory()->create([
-            'user_id' => $softcoreUser->id,
+            'user_id' => $casualUser->id,
             'game_id' => $game->id,
             'achievements_unlocked' => 6,
             'achievements_unlocked_hardcore' => 0,
@@ -1915,9 +1915,9 @@ describe('Completion Stats Props', function () {
             'beaten_hardcore_at' => now(),
         ]);
 
-        $beatenSoftcoreUser = User::factory()->create();
+        $beatenCasualUser = User::factory()->create();
         PlayerGame::factory()->create([
-            'user_id' => $beatenSoftcoreUser->id,
+            'user_id' => $beatenCasualUser->id,
             'game_id' => $game->id,
             'beaten_at' => now(),
             'beaten_hardcore_at' => null,
@@ -1929,7 +1929,7 @@ describe('Completion Stats Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('numBeaten', 1)
-            ->where('numBeatenSoftcore', 1)
+            ->where('numBeatenCasual', 1)
         );
     });
 });

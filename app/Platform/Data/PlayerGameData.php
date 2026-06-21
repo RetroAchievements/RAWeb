@@ -66,9 +66,9 @@ class PlayerGameData extends Data
 
         $awardPriority = [
             ['type' => AwardType::Mastery, 'extra' => UnlockMode::Hardcore],    // Mastery
-            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Softcore],    // Completion
+            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Casual],    // Completion
             ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Hardcore], // Beaten
-            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Softcore], // Beaten (softcore)
+            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Casual], // Beaten (casual)
         ];
 
         // Loop through the priority list and return the first matching badge.

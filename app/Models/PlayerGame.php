@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// TODO rename 'achievements_unlocked_softcore' to 'achievements_unlocked_casual'
 class PlayerGame extends BasePivot
 {
     use SoftDeletes;

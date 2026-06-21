@@ -126,7 +126,7 @@ class PlayerCompletionProgressTest extends TestCase
         $view->assertSeeTextInOrder(["2", "Played"]);
         $view->assertSeeTextInOrder(["2", "Unfinished"]);
 
-        $view->assertDontSee("beaten-softcore-link"); // These two links shouldn't appear if the user has no softcore progress.
+        $view->assertDontSee("beaten-casual-link"); // These two links shouldn't appear if the user has no casual progress.
         $view->assertDontSee("completed-link");
     }
 
@@ -220,9 +220,9 @@ class PlayerCompletionProgressTest extends TestCase
         $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Upgrade Later']);
         $achievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id]);
 
-        $softcoreCompletionDate = Carbon::parse('2025-09-27 12:00:00');
+        $casualCompletionDate = Carbon::parse('2025-09-27 12:00:00');
         foreach ($achievements as $index => $achievement) {
-            $this->addSoftcoreUnlock($me, $achievement, $softcoreCompletionDate->clone()->addMinutes($index));
+            $this->addCasualUnlock($me, $achievement, $casualCompletionDate->clone()->addMinutes($index));
         }
 
         $hardcoreMasteryDate = Carbon::parse('2025-10-02 12:00:00');
@@ -300,16 +300,16 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameNineAchievements->get(0));
         $this->addHardcoreUnlock($me, $gameTenAchievements->get(0));
 
-        $this->addSoftcoreUnlock($me, $gameOneAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameTwoAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameThreeAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameFourAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameFiveAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameSixAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameSevenAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameEightAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameNineAchievements->get(0));
-        $this->addSoftcoreUnlock($me, $gameTenAchievements->get(0));
+        $this->addCasualUnlock($me, $gameOneAchievements->get(0));
+        $this->addCasualUnlock($me, $gameTwoAchievements->get(0));
+        $this->addCasualUnlock($me, $gameThreeAchievements->get(0));
+        $this->addCasualUnlock($me, $gameFourAchievements->get(0));
+        $this->addCasualUnlock($me, $gameFiveAchievements->get(0));
+        $this->addCasualUnlock($me, $gameSixAchievements->get(0));
+        $this->addCasualUnlock($me, $gameSevenAchievements->get(0));
+        $this->addCasualUnlock($me, $gameEightAchievements->get(0));
+        $this->addCasualUnlock($me, $gameNineAchievements->get(0));
+        $this->addCasualUnlock($me, $gameTenAchievements->get(0));
 
         // Now, grant the various awards.
         // 3 Beaten (hardcore)
@@ -318,12 +318,12 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addGameBeatenAward($me, $gameThree, awardTime: Carbon::now());
 
         // 1 Beaten (softcore)
-        $this->addGameBeatenAward($me, $gameFour, UnlockMode::Softcore, Carbon::now()->subMinutes(30));
+        $this->addGameBeatenAward($me, $gameFour, UnlockMode::Casual, Carbon::now()->subMinutes(30));
 
         // 3 Completed
-        $this->addMasteryBadge($me, $gameFour, UnlockMode::Softcore, Carbon::now());
-        $this->addMasteryBadge($me, $gameFive, UnlockMode::Softcore, Carbon::now());
-        $this->addMasteryBadge($me, $gameSix, UnlockMode::Softcore, Carbon::now());
+        $this->addMasteryBadge($me, $gameFour, UnlockMode::Casual, Carbon::now());
+        $this->addMasteryBadge($me, $gameFive, UnlockMode::Casual, Carbon::now());
+        $this->addMasteryBadge($me, $gameSix, UnlockMode::Casual, Carbon::now());
 
         // 4 Mastered
         $this->addMasteryBadge($me, $gameOne, awardTime: Carbon::now());
@@ -337,7 +337,7 @@ class PlayerCompletionProgressTest extends TestCase
         // Assert
         $view->assertSeeText("10 Played");
         $view->assertSeeText("2 Unfinished");
-        $view->assertDontSeeText("Beaten (softcore)");
+        $view->assertDontSeeText("Beaten (casual)");
         $view->assertSeeText("1 Beaten");
         $view->assertSeeText("3 Completed");
         $view->assertSeeText("4 Mastered");

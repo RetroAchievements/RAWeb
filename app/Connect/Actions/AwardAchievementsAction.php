@@ -166,7 +166,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 // Case 1: The achievement hasn't been previously unlocked
                 return true;
             } elseif (!$this->hardcore) {
-                // Case 2: The achievement was already unlocked in either mode, and a softcore unlock is being requested.
+                // Case 2: The achievement was already unlocked in either mode, and a casual unlock is being requested.
                 $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
 
                 return false;
@@ -185,7 +185,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 return false;
             }
 
-            // Case 4: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
+            // Case 4: The achievement was already unlocked in casual mode, and a hardcore unlock is being requested.
             return true;
         });
 
@@ -227,7 +227,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $achievement->id);
                     if ($foundPlayerAchievement) {
                         // if there's a found PlayerAchievement and we're doing a hardcore unlock,
-                        // it must be an upgrade from softcore.
+                        // it must be an upgrade from casual.
                         $this->user->points -= $achievement->points;
 
                         if ($playerGame && $playerGame->game_id === $achievement->game->id) {
@@ -266,7 +266,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             }
 
             // Update the metrics for the main page
-            // NOTE: this double-counts achievements the user is upgrading from softcore to hardcore
+            // NOTE: this double-counts achievements the user is upgrading from casual to hardcore
             //       and anything the user has previously reset.
             if ($lastAwardedId) {
                 StaticData::incrementEach([

@@ -1,5 +1,5 @@
 declare namespace App.Api.V2.UserAwards {
-export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-hardcore' | 'beaten-softcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
+export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-casual' | 'beaten-hardcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
 }
 declare namespace App.Community.Data {
 export type AchievementChecklistGroup = {
@@ -70,7 +70,7 @@ header: string;
 masteredCount: number;
 completedCount: number;
 beatenCount: number;
-beatenSoftcoreCount: number;
+beatenCasualCount: number;
 games: Array<App.Platform.Data.GameListEntry>;
 };
 export type GameSetRequestsPageProps = {
@@ -440,7 +440,7 @@ viewDeveloperInterest?: boolean;
 };
 }
 declare namespace App.Enums {
-export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
@@ -880,7 +880,7 @@ playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBuc
 featuredLeaderboards?: Array<App.Platform.Data.Leaderboard>;
 allLeaderboards?: Array<App.Platform.Data.Leaderboard>;
 numBeaten: number;
-numBeatenSoftcore: number;
+numBeatenCasual: number;
 numComments: number;
 numCompatibleHashes: number;
 numCompletions: number;
@@ -1007,7 +1007,7 @@ orderColumn: number;
 export type PlayerAchievementChartBucket = {
 start: number;
 end: number;
-softcore: number;
+casual: number;
 hardcore: number;
 };
 export type PlayerAchievementSet = {
@@ -1084,7 +1084,7 @@ timeToBeatHardcore?: number | null;
 highestAward?: App.Platform.Data.PlayerBadge | null;
 };
 export type PlayerGameProgressionAwards = {
-beatenSoftcore: App.Platform.Data.PlayerBadge | null;
+beatenCasual: App.Platform.Data.PlayerBadge | null;
 beatenHardcore: App.Platform.Data.PlayerBadge | null;
 completed: App.Platform.Data.PlayerBadge | null;
 mastered: App.Platform.Data.PlayerBadge | null;
@@ -1197,7 +1197,7 @@ export type GameSetType = 'hub' | 'similar-games';
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
 export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
 export type PlatformExecutionEnvironment = 'desktop' | 'mobile' | 'console' | 'single_board' | 'original_hardware' | 'embedded' | 'web';
-export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
+export type PlayerPreferredMode = 'casual' | 'hardcore' | 'mixed';
 export type PlayerProgressResetType = 'account' | 'achievement' | 'achievement_set' | 'game';
 export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks_beaten' | 'all_beaten';
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';

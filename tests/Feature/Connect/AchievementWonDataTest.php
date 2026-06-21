@@ -92,14 +92,14 @@ class AchievementWonDataTest extends TestCase
             // $count/4 users will NOT have unlocked achievement.
             // $count/4 users will only unlock in softcore
             if ($count % 4 == 2) { // 2,6,10,14,18
-                $this->addSoftcoreUnlock($user, $achievement1, $now);
+                $this->addCasualUnlock($user, $achievement1, $now);
             } elseif ($count % 4 != 1) { // 3,4,7,8,11,12,15,16,19
                 $this->addHardcoreUnlock($user, $achievement1, $now);
             }
 
             // $count/3 users will have unlocked achievement2
             if ($count % 3 == 1) { // 1,4,7,10,13,16,19
-                $this->addSoftcoreUnlock($user, $achievement2, $now);
+                $this->addCasualUnlock($user, $achievement2, $now);
             }
 
             $user->display_name = $user->username;

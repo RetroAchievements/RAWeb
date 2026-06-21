@@ -102,7 +102,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 01:30:00',
         ]);
@@ -118,7 +118,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 02:00:00',
         ]);
@@ -145,7 +145,7 @@ class UserAwardsTest extends TestCase
         $this->assertSame(['beaten-hardcore', 'mastered'], $kinds);
         $this->assertEquals(2, $response->json('meta.totalAwardsCount'));
         $this->assertEquals(1, $response->json('meta.beatenHardcoreAwardsCount'));
-        $this->assertEquals(0, $response->json('meta.beatenSoftcoreAwardsCount'));
+        $this->assertEquals(0, $response->json('meta.beatenCasualAwardsCount'));
         $this->assertEquals(1, $response->json('meta.masteryAwardsCount'));
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
@@ -165,7 +165,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 01:30:00',
         ]);
@@ -181,7 +181,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 02:00:00',
         ]);
@@ -206,7 +206,7 @@ class UserAwardsTest extends TestCase
         $this->assertSame(['mastered'], collect($response->json('data'))->pluck('attributes.kind')->all());
         $this->assertEquals(1, $response->json('meta.totalAwardsCount'));
         $this->assertEquals(0, $response->json('meta.beatenHardcoreAwardsCount'));
-        $this->assertEquals(0, $response->json('meta.beatenSoftcoreAwardsCount'));
+        $this->assertEquals(0, $response->json('meta.beatenCasualAwardsCount'));
         $this->assertEquals(1, $response->json('meta.masteryAwardsCount'));
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
@@ -305,7 +305,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
         ]);
 
@@ -336,7 +336,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
         ]);
 
@@ -674,7 +674,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $gameB->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 1,
         ]);
 
@@ -689,6 +689,43 @@ class UserAwardsTest extends TestCase
         $this->assertCount(1, $response->json('data'));
         $this->assertEquals('mastered', $response->json('data.0.attributes.kind'));
         $this->assertEquals('Mastered Game', $response->json('data.0.attributes.title'));
+    }
+
+    public function testItCanFilterByBeatenCasualKind(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $beatenHardcoreGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Hardcore Beaten Game']);
+        $beatenCasualGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Casual Beaten Game']);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $beatenHardcoreGame->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $beatenCasualGame->id,
+            'award_tier' => UnlockMode::Casual,
+            'order_column' => 1,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[kind]=beaten-casual");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals('beaten-casual', $response->json('data.0.attributes.kind'));
+        $this->assertEquals('Casual Beaten Game', $response->json('data.0.attributes.title'));
     }
 
     public function testItReturnsErrorWhenFilteringByInvalidKind(): void
@@ -743,7 +780,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $gameB->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 1,
         ]);
 
@@ -864,7 +901,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => now()->subDay(),
         ]);

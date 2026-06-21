@@ -217,7 +217,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
               {achievementsUnlockedSoftcore > 0 ? (
                 <p>
-                  {t('{{earned, number}} of {{total, number}} softcore achievements unlocked', {
+                  {t('{{earned, number}} of {{total, number}} casual achievements unlocked', {
                     earned: achievementsUnlockedSoftcore,
                     total: achievementsPublished,
                   })}
@@ -237,7 +237,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
                   {points > 0 ? (
                     <p>
-                      {t('{{earned, number}} of {{total, number}} softcore points earned', {
+                      {t('{{earned, number}} of {{total, number}} casual points earned', {
                         earned: points,
                         total: pointsTotal,
                       })}

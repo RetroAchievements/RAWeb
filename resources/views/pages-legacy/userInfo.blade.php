@@ -49,7 +49,7 @@ $progressionCounts = (new GetUserProgressionStatusCountsAction())->execute(
 
 $averageCompletionPercentage = sprintf("%01.2f", $progressionCounts['avgCompletionPercentage']);
 $totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
-$totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
+$totalCasualAchievements = $progressionCounts['totalCasualAchievements'];
 
 $userAllGamesList = getUsersCompletedGamesAndMax($userPage, applyBadgePreferences: true);
 $userAwards = getUsersSiteAwards($userPageModel, applyBadgePreferences: true);
@@ -109,7 +109,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
     <x-user-profile-meta
         :averageCompletionPercentage="$averageCompletionPercentage"
         :totalHardcoreAchievements="$totalHardcoreAchievements"
-        :totalSoftcoreAchievements="$totalSoftcoreAchievements"
+        :totalCasualAchievements="$totalCasualAchievements"
         :user="$userPageModel"
         :userJoinedGamesAndAwards="$userJoinedGamesAndAwardsFull"
         :userMassData="$userMassData"
@@ -128,7 +128,6 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :totalCounts="$progressionCounts['totalCounts']"
             :topSystemId="$progressionCounts['topSystemId']"
             :userHardcorePoints="$userMassData['TotalPoints']"
-            :userSoftcorePoints="$userMassData['TotalSoftcorePoints']"
         />
         <?php
         echo "</div>";

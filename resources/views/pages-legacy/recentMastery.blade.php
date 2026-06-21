@@ -19,7 +19,7 @@ $awardTypeInput = requestInputSanitized('t');
 $unlockMode = requestInputSanitized('m');
 
 if ($unlockMode === 's') {
-    $unlockMode = UnlockMode::Softcore;
+    $unlockMode = UnlockMode::Casual;
 } elseif ($unlockMode === 'h') {
     $unlockMode = UnlockMode::Hardcore;
 }
@@ -33,7 +33,7 @@ if ($awardTypeInput == AwardType::Mastery->toLegacyInteger()) {
     $awardType = AwardType::GameBeaten;
 }
 
-if ($unlockMode != UnlockMode::Hardcore && $unlockMode != UnlockMode::Softcore) {
+if ($unlockMode != UnlockMode::Hardcore && $unlockMode != UnlockMode::Casual) {
     $unlockMode = null;
 }
 
@@ -101,7 +101,7 @@ if ($followed == 1) {
                 if ($dataPoint['AwardDataExtra'] == 1) {
                     echo "Beaten";
                 } else {
-                    echo "Beaten (softcore)";
+                    echo "Beaten (casual)";
                 }
             }
             echo "</td>";

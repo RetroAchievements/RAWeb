@@ -250,7 +250,7 @@ class GameCardTest extends TestCase
         $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
-        $view->assertSeeTextInOrder(['Beaten (softcore)',  '2 July 2015']);
+        $view->assertSeeTextInOrder(['Beaten (casual)',  '2 July 2015']);
     }
 
     public function testItRendersHardcoreBeatenAwards(): void

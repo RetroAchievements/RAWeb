@@ -146,22 +146,22 @@ function getAwardedList(
         ->get();
 
     $cumulHardcoreScore = 0;
-    $cumulSoftcoreScore = 0;
+    $cumulCasualScore = 0;
 
     return $rows
-        ->map(function ($row) use (&$cumulHardcoreScore, &$cumulSoftcoreScore) {
+        ->map(function ($row) use (&$cumulHardcoreScore, &$cumulCasualScore) {
             $hardcorePoints = (int) $row->HardcorePoints;
             $allPoints = (int) $row->SoftcorePoints;
 
             $cumulHardcoreScore += $hardcorePoints;
-            $cumulSoftcoreScore += $allPoints - $hardcorePoints;
+            $cumulCasualScore += $allPoints - $hardcorePoints;
 
             return [
                 'Date' => $row->Date,
                 'HardcorePoints' => $row->HardcorePoints,
                 'SoftcorePoints' => $row->SoftcorePoints,
                 'CumulHardcoreScore' => $cumulHardcoreScore,
-                'CumulSoftcoreScore' => $cumulSoftcoreScore,
+                'CumulSoftcoreScore' => $cumulCasualScore,
             ];
         })
         ->values()

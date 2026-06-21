@@ -45,8 +45,8 @@ class UserController extends JsonApiController
             ->countBy();
 
         $meta = [
+            'beatenCasualAwardsCount' => $awardKindCounts->get(UserAwardKind::BeatenCasual->value, 0),
             'beatenHardcoreAwardsCount' => $awardKindCounts->get(UserAwardKind::BeatenHardcore->value, 0),
-            'beatenSoftcoreAwardsCount' => $awardKindCounts->get(UserAwardKind::BeatenSoftcore->value, 0),
             'completionAwardsCount' => $awardKindCounts->get(UserAwardKind::Completed->value, 0),
             'eventAwardsCount' => $allAwards->filter(fn (PlayerBadge $award) => $award->isCountedAsEventAward())->count(),
             'hiddenAwardsCount' => $allAwards->reject(fn (PlayerBadge $award) => $award->isVisibleOnUserProfile())->count(),

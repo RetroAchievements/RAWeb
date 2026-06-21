@@ -77,16 +77,16 @@ class ConvertGameToEvent extends Command
                 ->where('award_key', $game->id)
                 ->delete();
 
-            // delete softcore unlocks
+            // delete casual unlocks
             PlayerAchievement::query()
                 ->whereNull('unlocked_hardcore_at')
                 ->whereIn('achievement_id', $game->achievements->pluck('id'))
                 ->delete();
 
-            // delete completed (softcore mastery) badges
+            // delete completed (casual mastery) badges
             PlayerBadge::where('award_type', AwardType::Mastery)
                 ->where('award_key', $game->id)
-                ->where('award_tier', UnlockMode::Softcore)
+                ->where('award_tier', UnlockMode::Casual)
                 ->delete();
 
             // move mastery badges

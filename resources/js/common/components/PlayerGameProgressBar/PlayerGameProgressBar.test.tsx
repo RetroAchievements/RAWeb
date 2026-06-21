@@ -141,10 +141,10 @@ describe('Component: PlayerGameProgressBar', () => {
 
     // ASSERT
     expect(screen.getByText(/beaten/i)).toBeVisible();
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it("given the user's highest award for the game is Beaten (softcore), renders those award details", () => {
+  it("given the user's highest award for the game is Beaten (casual), renders those award details", () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
     const game = createGame({ system, achievementsPublished: 33 });
@@ -158,7 +158,7 @@ describe('Component: PlayerGameProgressBar', () => {
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
 
     // ASSERT
-    expect(screen.getByText(/beaten \(softcore\)/i)).toBeVisible();
+    expect(screen.getByText(/beaten \(casual\)/i)).toBeVisible();
   });
 
   it('given the user has progress on the game and hovers over the progress bar, shows a tooltip with more details', async () => {

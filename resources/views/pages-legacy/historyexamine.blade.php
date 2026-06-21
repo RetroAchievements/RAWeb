@@ -52,7 +52,7 @@ $dateStr = strftime("%d %b %Y", $dateInput);
         echo "($userPageHardcorePoints) ";
     }
     if ($userPageSoftcorePoints > 0) {
-        echo "<span class='softcore'>($userPageSoftcorePoints softcore)</span>";
+        echo "<span class='softcore'>($userPageSoftcorePoints casual)</span>";
     }
 
     echo "</b><br>";

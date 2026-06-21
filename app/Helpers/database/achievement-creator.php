@@ -87,7 +87,7 @@ function getUserAchievementInformation(User $user): array
 }
 
 /**
- * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
+ * Gets the number of time the user has obtained (casual and hardcore) their own achievements.
  */
 function getOwnAchievementsObtained(User $user): array
 {

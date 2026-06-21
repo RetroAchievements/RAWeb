@@ -30,7 +30,7 @@ use Illuminate\Support\Carbon;
             // Declare columns
             dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
             dataRecentProgress.addColumn('number', 'Hardcore Score');
-            dataRecentProgress.addColumn('number', 'Softcore Score');
+            dataRecentProgress.addColumn('number', 'Casual Score');
 
             dataRecentProgress.addRows([
                 @php

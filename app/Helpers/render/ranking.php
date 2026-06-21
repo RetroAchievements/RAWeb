@@ -23,8 +23,8 @@ use Illuminate\Support\Facades\DB;
  *            2 - All Time
  * @param int $sort Stats to sort by
  *            1 - User
- *            2 - Softcore Points (used to be Total Achievements)
- *            3 - Softcore Achievements
+ *            2 - Casual Points (used to be Total Achievements)
+ *            3 - Casual Achievements
  *            4 - Hardcore Achievements
  *            5 - Hardcore Points
  *            6 - Retro Points
@@ -100,13 +100,13 @@ function getGlobalRankingData(
 
     // Determine the ORDER BY condition
     switch ($sort) {
-        case 2: // Softcore Points
+        case 2: // Casual Points
             $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
-            $unlockMode = UnlockMode::Softcore;
+            $unlockMode = UnlockMode::Casual;
             break;
-        case 3: // Softcore Achievements
+        case 3: // Casual Achievements
             $orderCond = "ORDER BY AchievementCount " . $sortOrder . ", Points DESC, User ASC";
-            $unlockMode = UnlockMode::Softcore;
+            $unlockMode = UnlockMode::Casual;
             break;
         case 4: // Hardcore Achievements
             $orderCond = "ORDER BY AchievementCount " . $sortOrder . ", Points DESC, User ASC";
@@ -123,7 +123,7 @@ function getGlobalRankingData(
             break;
         case 8: // Completed Awards
             $orderCond = "ORDER BY TotalAwards " . $sortOrder . ", User ASC";
-            $unlockMode = UnlockMode::Softcore;
+            $unlockMode = UnlockMode::Casual;
             break;
         case 9: // Mastered Awards
             $orderCond = "ORDER BY TotalAwards " . $sortOrder . ", User ASC";
@@ -142,14 +142,14 @@ function getGlobalRankingData(
         $totalAwards = "SUM(" . ifStatement('award_tier > 0', 1, 0) . ")";
     } else {
         $totalAwards = "COUNT(*)";
-        $pointRequirement = "AND ua.points >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
+        $pointRequirement = "AND ua.points >= 0"; // if someone resets a casual achievement without resetting the hardcore, the query can return negative points
     }
 
     $retVal = [];
     if ($lbType == 2) { // Run the All-Time ranking query
         if ($friendsOf === null) {
             // if not comparing against friends, only look at the ranked users
-            if ($unlockMode == UnlockMode::Softcore) {
+            if ($unlockMode == UnlockMode::Casual) {
                 $pointRequirement = "AND ua.points >= " . Rank::MIN_POINTS;
             } elseif ($sort == 6) {
                 $pointRequirement = "AND ua.points_weighted >= " . Rank::MIN_TRUE_POINTS;

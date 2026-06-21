@@ -37,7 +37,7 @@ describe('Component: PlayerGameProgressLabel', () => {
     expect(screen.queryByText(/unlocked/i)).not.toBeInTheDocument();
   });
 
-  it('given the player has unlocked all achievements in softcore mode, renders nothing', () => {
+  it('given the player has unlocked all achievements in casual mode, renders nothing', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01', points: 10 }),
@@ -95,10 +95,10 @@ describe('Component: PlayerGameProgressLabel', () => {
     expect(screen.getAllByText('30')[0]).toBeVisible();
     expect(screen.getAllByText(/40/)[0]).toBeVisible();
 
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it('given the player has only softcore achievements unlocked, displays softcore progress', () => {
+  it('given the player has only casual achievements unlocked, displays casual progress', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01', points: 10 }),
@@ -114,20 +114,20 @@ describe('Component: PlayerGameProgressLabel', () => {
     render(<PlayerGameProgressLabel achievements={achievements} />, { pageProps: { playerGame } });
 
     // ASSERT
-    // "Unlocked 2 softcore achievements worth 30 points".
+    // "Unlocked 2 casual achievements worth 30 points".
     expect(screen.getByText(/unlocked/i)).toBeVisible();
     expect(screen.getAllByText('2')[0]).toBeVisible();
     expect(screen.getAllByText(/30/i)[0]).toBeVisible();
-    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/casual/i)[0]).toBeVisible();
 
-    expect(screen.queryByText(/\(/)).not.toBeInTheDocument(); // no weighted points for softcore mode
+    expect(screen.queryByText(/\(/)).not.toBeInTheDocument(); // no weighted points for casual mode
   });
 
-  it('given the player has both hardcore and softcore achievements, displays both progress lines', () => {
+  it('given the player has both hardcore and casual achievements, displays both progress lines', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01', points: 10, pointsWeighted: 15 }),
-      createAchievement({ unlockedAt: '2024-01-02', points: 20 }), // softcore only
+      createAchievement({ unlockedAt: '2024-01-02', points: 20 }), // casual only
       createAchievement({ points: 30 }), // not unlocked
     ];
     const playerGame = createPlayerGame({
@@ -147,8 +147,8 @@ describe('Component: PlayerGameProgressLabel', () => {
     expect(screen.getAllByText('10')[0]).toBeVisible();
     expect(screen.getAllByText(/15/)[0]).toBeVisible();
 
-    // "Unlocked 1 softcore achievement worth 20 points"
-    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    // "Unlocked 1 casual achievement worth 20 points"
+    expect(screen.getAllByText(/casual/i)[0]).toBeVisible();
     expect(screen.getAllByText(/20/i)[0]).toBeVisible();
   });
 
@@ -177,8 +177,8 @@ describe('Component: PlayerGameProgressLabel', () => {
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01', points: 5, pointsWeighted: 8 }),
       createAchievement({ unlockedHardcoreAt: '2024-01-02', points: 10, pointsWeighted: 12 }),
-      createAchievement({ unlockedAt: '2024-01-03', points: 15 }), // softcore only
-      createAchievement({ unlockedAt: '2024-01-04', points: 20 }), // softcore only
+      createAchievement({ unlockedAt: '2024-01-03', points: 15 }), // casual only
+      createAchievement({ unlockedAt: '2024-01-04', points: 20 }), // casual only
       createAchievement({ points: 25 }), // not unlocked
     ];
     const playerGame = createPlayerGame({
@@ -195,8 +195,8 @@ describe('Component: PlayerGameProgressLabel', () => {
     expect(screen.getAllByText('15')[0]).toBeVisible();
     expect(screen.getAllByText(/20/)[0]).toBeVisible();
 
-    // Softcore: 2 achievements, 35 points (15+20).
-    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    // Casual: 2 achievements, 35 points (15+20).
+    expect(screen.getAllByText(/casual/i)[0]).toBeVisible();
     expect(screen.getAllByText(/35/i)[0]).toBeVisible();
   });
 });
