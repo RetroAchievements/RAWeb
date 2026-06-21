@@ -20,6 +20,16 @@ class SetClaimChangeAlert extends Alert
     ) {
     }
 
+    public static function webhookUsername(): string
+    {
+        return "Claim Bot";
+    }
+
+    public static function webhookAvatarUrl(): string
+    {
+        return media_asset('UserPic/QATeam.png');
+    }
+
     /**
      * "[gameLink]
      * :new: Primary claim created by [userLink]"

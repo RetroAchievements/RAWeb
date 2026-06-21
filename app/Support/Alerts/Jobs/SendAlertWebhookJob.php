@@ -32,6 +32,8 @@ class SendAlertWebhookJob implements ShouldQueue
     public function __construct(
         public readonly Alert $alert,
         public readonly string $webhookUrl,
+        public readonly ?string $webhookUsername = null,
+        public readonly ?string $webhookAvatarUrl = null,
     ) {
     }
 
@@ -39,9 +41,11 @@ class SendAlertWebhookJob implements ShouldQueue
     {
         $client = $this->client ?? new Client();
 
-        $payload = [
+        $payload = array_filter([
             'content' => $this->alert->toDiscordMessage(),
-        ];
+            'username' => $this->webhookUsername,
+            'avatar_url' => $this->webhookAvatarUrl,
+        ]);
 
         try {
             $client->post($this->webhookUrl, [
