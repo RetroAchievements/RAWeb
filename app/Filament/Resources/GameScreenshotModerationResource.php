@@ -432,7 +432,7 @@ class GameScreenshotModerationResource extends Resource
                     ->options(collect(GameScreenshotRejectionReason::cases())
                         ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [
                             $reason->value => $reason === GameScreenshotRejectionReason::InappropriateContent
-                                ? $reason->label() . ' (alerts the mod team)' // don't leak this into user-facing surfaces
+                                ? $reason->label() . ' (alerts the moderation team)' // don't leak this into user-facing surfaces
                                 : $reason->label(),
                         ])
                         ->sortBy(function (string $label, string $value): array {
