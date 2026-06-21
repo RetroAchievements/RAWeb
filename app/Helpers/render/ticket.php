@@ -16,7 +16,7 @@ function ticketAvatar(
         $ticket = Ticket::find($ticket);
     }
 
-    if ($ticket === null) {
+    if ($ticket === null || $ticket->ticketable === null) {
         return '';
     }
 
@@ -28,6 +28,8 @@ function ticketAvatar(
         TicketState::Closed, TicketState::Resolved, TicketState::Quarantined => 'closed',
     };
 
+    $badgeUrl = $safeTicket->getTicketableModel()->getTicketableIconUrl();
+
     return avatar(
         resource: 'ticket',
         id: $safeTicket->id,
@@ -35,7 +37,7 @@ function ticketAvatar(
         link: route('ticket.show', ['ticket' => $safeTicket->id]),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
         class: "ticket-avatar $ticketStateClass",
-        iconUrl: media_asset("/Badge/" . $safeTicket->achievement->image_name . ".png"),
+        iconUrl: $badgeUrl,
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
@@ -48,7 +50,7 @@ function renderTicketCard(int|Ticket $ticket): string
         $ticket = Ticket::find($ticket);
     }
 
-    if (!$ticket) {
+    if (!$ticket || !$ticket->ticketable) {
         return '';
     }
 
@@ -57,10 +59,14 @@ function renderTicketCard(int|Ticket $ticket): string
         TicketState::Closed, TicketState::Resolved, TicketState::Quarantined => 'closed',
     };
 
+    $ticketable = $ticket->getTicketableModel();
+    $game = $ticketable->getTicketableGame();
+    $badgeUrl = $ticketable->getTicketableIconUrl();
+
     return "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .
-        "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->achievement->image_name . '.png') . "' width='64' height='64' />" .
+        "<img style='margin-right:5px' src='" . $badgeUrl . "' width='64' height='64' />" .
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
-        "<div><b>" . $ticket->achievement->title . "</b> <i>(" . $ticket->achievement->game->title . ")</i></div>" .
+        "<div><b>" . $ticketable->getTicketableTitle() . "</b> <i>(" . $game->title . ")</i></div>" .
         "<div>Reported by {$ticket->reporter->display_name}</div>" .
         "<div>Issue: " . $ticket->type->label() . "</div>" .
         ($ticket->resolver ? "<div class='tooltip-closer'>Closed by {$ticket->resolver->display_name}, " . getNiceDate(strtotime($ticket->resolved_at)) . "</div>" : "") .
