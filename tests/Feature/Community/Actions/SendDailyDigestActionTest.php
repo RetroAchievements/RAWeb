@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Actions;
 use App\Community\Actions\SendDailyDigestAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Jobs\SendDailyDigestJob;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -18,6 +19,7 @@ use App\Models\UserDelayedSubscription;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class SendDailyDigestActionTest extends TestCase
@@ -181,6 +183,38 @@ class SendDailyDigestActionTest extends TestCase
         Mail::assertNothingQueued();
     }
 
+    public function testCommandDispatchesDigestJobForScreenshotDecisionOnlyNotifications(): void
+    {
+        // Arrange
+        Queue::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $screenshot = GameScreenshot::factory()->for($game)->rejected()->create([
+            'rejection_reason' => GameScreenshotRejectionReason::WrongGame,
+        ]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+            'subject_id' => $screenshot->id,
+            'first_update_id' => $screenshot->id,
+        ]);
+
+        // Act
+        $this->artisan('ra:community:send-daily-digest')
+            ->assertExitCode(0);
+
+        // Assert
+        Queue::assertPushedOn('summary-emails', SendDailyDigestJob::class);
+        Queue::assertPushed(SendDailyDigestJob::class, 1);
+    }
+
     public function testIncludesApprovedScreenshotDecisionMetadataInDigest(): void
     {
         // Arrange
@@ -247,6 +281,45 @@ class SendDailyDigestActionTest extends TestCase
             $this->assertCount(1, $mail->notificationItems);
             $this->assertSame('rejected', $mail->notificationItems[0]['status']);
             $this->assertSame('Wrong Game', $mail->notificationItems[0]['rejectionReason']);
+            $this->assertArrayNotHasKey('rejectionNotes', $mail->notificationItems[0]);
+
+            return true;
+        });
+    }
+
+    public function testIncludesRejectionNotesForSingleRejectedScreenshotInDigest(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $screenshot = GameScreenshot::factory()->for($game)->rejected()->create([
+            'rejection_reason' => GameScreenshotRejectionReason::WrongGame,
+            'rejection_notes' => 'screenshot is from Sonic 2',
+        ]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+            'subject_id' => $screenshot->id,
+            'first_update_id' => $screenshot->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
+        Mail::assertQueued(DailyDigestMail::class, function ($mail) {
+            $this->assertCount(1, $mail->notificationItems);
+            $this->assertSame('rejected', $mail->notificationItems[0]['status']);
+            $this->assertSame('Wrong Game', $mail->notificationItems[0]['rejectionReason']);
+            $this->assertSame('screenshot is from Sonic 2', $mail->notificationItems[0]['rejectionNotes']);
 
             return true;
         });
@@ -269,6 +342,7 @@ class SendDailyDigestActionTest extends TestCase
         $approvedScreenshotB = GameScreenshot::factory()->for($game)->create();
         $rejectedScreenshot = GameScreenshot::factory()->for($game)->rejected()->create([
             'rejection_reason' => GameScreenshotRejectionReason::WrongGame,
+            'rejection_notes' => 'screenshot is from Sonic 2',
         ]);
 
         foreach ([$approvedScreenshotA, $approvedScreenshotB, $rejectedScreenshot] as $screenshot) {
@@ -291,6 +365,61 @@ class SendDailyDigestActionTest extends TestCase
             $this->assertSame(2, $mail->notificationItems[0]['approvedCount']);
             $this->assertSame(1, $mail->notificationItems[0]['rejectedCount']);
             $this->assertSame('Wrong Game', $mail->notificationItems[0]['rejectionReasonSummary']);
+            $this->assertSame(
+                [['reason' => 'Wrong Game', 'notes' => 'screenshot is from Sonic 2']],
+                $mail->notificationItems[0]['rejectedItems'],
+            );
+
+            return true;
+        });
+    }
+
+    public function testAggregatedScreenshotDigestExposesPerRejectionNotes(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $approvedScreenshot = GameScreenshot::factory()->for($game)->create();
+        $rejectedWithNotes = GameScreenshot::factory()->for($game)->rejected()->create([
+            'rejection_reason' => GameScreenshotRejectionReason::WrongGame,
+            'rejection_notes' => 'screenshot is from Sonic 2',
+        ]);
+        $rejectedWithoutNotes = GameScreenshot::factory()->for($game)->rejected()->create([
+            'rejection_reason' => GameScreenshotRejectionReason::Duplicate,
+            'rejection_notes' => null,
+        ]);
+
+        foreach ([$approvedScreenshot, $rejectedWithNotes, $rejectedWithoutNotes] as $screenshot) {
+            UserDelayedSubscription::create([
+                'user_id' => $subscriber->id,
+                'subject_type' => SubscriptionSubjectType::GameScreenshotDecision,
+                'subject_id' => $screenshot->id,
+                'first_update_id' => $screenshot->id,
+            ]);
+        }
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
+        Mail::assertQueued(DailyDigestMail::class, function ($mail) {
+            $this->assertCount(1, $mail->notificationItems);
+            $this->assertSame(2, $mail->notificationItems[0]['rejectedCount']);
+            $this->assertSame(
+                [
+                    ['reason' => 'Wrong Game', 'notes' => 'screenshot is from Sonic 2'],
+                    ['reason' => 'Duplicate', 'notes' => null],
+                ],
+                $mail->notificationItems[0]['rejectedItems'],
+            );
 
             return true;
         });
@@ -441,5 +570,64 @@ class SendDailyDigestActionTest extends TestCase
         $this->assertStringContainsString('Sonic the Hedgehog (Genesis/Mega Drive)', $rendered);
         $this->assertStringContainsString('were reviewed: 3 approved, 4 rejected (Incorrect Type x2, Duplicate x2).', $rendered);
         $this->assertStringNotContainsString('across 2 games', $rendered);
+    }
+
+    public function testRendersRejectionNotesForSingleRejectedScreenshotInDigestMail(): void
+    {
+        // Arrange
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+        ]);
+
+        $mail = new DailyDigestMail($subscriber, [[
+            'type' => SubscriptionSubjectType::GameScreenshotDecision->value,
+            'title' => 'Super Mario Bros. (NES)',
+            'link' => 'https://example.com/game/1',
+            'count' => 1,
+            'status' => 'rejected',
+            'rejectionReason' => 'Wrong Game',
+            'rejectionNotes' => 'screenshot is from Sonic 2',
+        ]]);
+
+        // Act
+        $rendered = $mail->render();
+
+        // Assert
+        $this->assertStringContainsString('Super Mario Bros. (NES)', $rendered);
+        $this->assertStringContainsString('Wrong Game', $rendered);
+        $this->assertStringContainsString('screenshot is from Sonic 2', $rendered);
+    }
+
+    public function testRendersAggregatedRejectedItemsListInDigestMail(): void
+    {
+        // Arrange
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+        ]);
+
+        $mail = new DailyDigestMail($subscriber, [[
+            'type' => SubscriptionSubjectType::GameScreenshotDecision->value,
+            'title' => 'Super Mario Bros. (NES)',
+            'link' => 'https://example.com/game/1',
+            'count' => 3,
+            'gameCount' => 1,
+            'approvedCount' => 1,
+            'rejectedCount' => 2,
+            'reviewedCount' => 0,
+            'rejectionReasonSummary' => 'Wrong Game, Duplicate',
+            'rejectedItems' => [
+                ['reason' => 'Wrong Game', 'notes' => 'screenshot is from Sonic 2'],
+                ['reason' => 'Duplicate', 'notes' => null],
+            ],
+        ]]);
+
+        // Act
+        $rendered = $mail->render();
+
+        // Assert
+        $this->assertStringContainsString('were reviewed: 1 approved, 2 rejected (Wrong Game, Duplicate).', $rendered);
+        $this->assertStringContainsString('Rejected (Wrong Game)', $rendered);
+        $this->assertStringContainsString('screenshot is from Sonic 2', $rendered);
+        $this->assertStringContainsString('Rejected (Duplicate)', $rendered);
     }
 }

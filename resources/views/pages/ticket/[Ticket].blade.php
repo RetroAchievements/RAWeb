@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Role;
 use App\Models\Ticket;
 use App\Platform\Services\TicketViewService;
 use App\Platform\Services\UserAgentService;
@@ -58,6 +57,7 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Enums\PlayerGameActivityEventType;
+use App\Models\Role;
 use App\Models\User;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
@@ -365,18 +365,41 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         @endif
 
                         @if ($ticket->state === TicketState::Open)
-                            @php
-                                $lastComment = null;
-                                foreach ($commentData as $comment) {
-                                    if ($comment['User'] !== 'Server') {
+                            @if (!$ticket->reporter->trashed())
+                                @php
+                                    $lastComment = null;
+                                    $hasNonReporterComment = false;
+                                    foreach ($commentData as $comment) {
+                                        if ($comment['User'] === 'Server') {
+                                            continue;
+                                        }
                                         $lastComment = $comment;
+                                        if ($comment['User'] !== $ticket->reporter->username) {
+                                            $hasNonReporterComment = true;
+                                        }
                                     }
-                                }
 
-                                $assigneeName = $ticketableAssignee?->display_name ?? $ticket->author?->display_name;
-                            @endphp
-                            @if ($lastComment !== null && ($lastComment['User'] === $user->username || ($assigneeName && $lastComment['User'] === $assigneeName)) && !$ticket->reporter->trashed())
-                                <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
+                                    $assigneeName = $ticketableAssignee?->display_name ?? $ticket->author?->display_name;
+                                    $isLatestCommentFromReporter = $lastComment !== null
+                                        && $lastComment['User'] === $ticket->reporter->username
+                                        && $hasNonReporterComment;
+                                    $canTransferToReporter = $lastComment !== null
+                                        && (
+                                            $isLatestCommentFromReporter
+                                            || $lastComment['User'] === $user->username
+                                            || ($assigneeName && $lastComment['User'] === $assigneeName)
+                                        );
+                                @endphp
+                                @if ($canTransferToReporter)
+                                    <option
+                                        value="{{ TicketAction::Request }}"
+                                        @if ($isLatestCommentFromReporter)
+                                            data-confirm="The reporter made the latest comment. Transfer this ticket back without adding a new comment?"
+                                        @endif
+                                    >
+                                        Transfer to reporter{{ $isLatestCommentFromReporter ? ' without new comment' : '' }} - {{ $ticket->reporter->display_name }}
+                                    </option>
+                                @endif
                             @endif
                         @elseif ($ticket->state === TicketState::Request)
                             <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticketableAssignee?->display_name ?? $ticket->author?->display_name }}</option>
@@ -393,7 +416,12 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         <option value="{{ TicketAction::WrongRom }}">Close - Wrong ROM</option>
                         <option value="{{ TicketAction::UnableToReproduce }}">Close - Unable to reproduce</option>
                         @if (!$ticket->emulator?->can_debug_triggers)
-                            <option value="{{ TicketAction::UnableToDebug }}">Close - Unable to debug due to no toolkit support</option>
+                            <option
+                                value="{{ TicketAction::UnableToDebug }}"
+                                data-confirm="If the player provided reproduction steps, you should still try to reproduce the issue before closing the ticket. Are you sure you want to close this ticket?"
+                            >
+                                Close - Unable to debug due to no toolkit support
+                            </option>
                         @endif
                         <option value="{{ TicketAction::ClosedMistaken }}">Close - Mistaken report</option>
                         <option value="{{ TicketAction::ClosedOther }}">Close - Another reason (add comments above)</option>
@@ -403,14 +431,13 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     <script>
                         document.getElementById('ticketActionForm').addEventListener('submit', function(e) {
                             const actionSelect = document.getElementById('ticketAction');
+                            const selectedOption = actionSelect.options[actionSelect.selectedIndex];
+                            const confirmMessage = selectedOption.getAttribute('data-confirm');
 
-                            // Check if "Unable to debug" is selected. If it is, we'll add a minor speedbump.
-                            if (actionSelect.value === '{{ TicketAction::UnableToDebug }}') {
-                                if (!confirm('If the player provided reproduction steps, you should still try to reproduce the issue before closing the ticket. Are you sure you want to close this ticket?')) {
-                                    e.preventDefault();
+                            if (confirmMessage && !confirm(confirmMessage)) {
+                                e.preventDefault();
 
-                                    return false;
-                                }
+                                return false;
                             }
                         });
                     </script>
