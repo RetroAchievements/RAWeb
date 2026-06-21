@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotReviewContext;
@@ -427,5 +428,115 @@ describe('Review Plan', function () {
 
         // ASSERT
         expect(ScreenshotReviewContext::make($pending)->currentPrimaryForType(ScreenshotType::Title)?->id)->toEqual($existingPrimary->id);
+    });
+});
+
+describe('Other Pending For Game', function () {
+    it('returns pending shots of any type for the same game, excluding the candidate and regardless of submitter', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+        $submitter = User::factory()->create();
+        $otherSubmitter = User::factory()->create();
+
+        [$ingameSibling, $titleSibling, $pending] = GameScreenshot::withoutEvents(function () use ($game, $submitter, $otherSubmitter) {
+            return [
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create([
+                    'captured_by_user_id' => $submitter->id,
+                ]),
+                GameScreenshot::factory()->for($game)->title()->pending()->create([
+                    'captured_by_user_id' => $otherSubmitter->id,
+                ]),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create([
+                    'captured_by_user_id' => $submitter->id,
+                ]),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$ingameSibling, $titleSibling, $pending]);
+
+        // ASSERT
+        $ids = ScreenshotReviewContext::make($pending)->otherPendingForGame()->pluck('id')->all();
+        expect($ids)->toEqualCanonicalizing([$ingameSibling->id, $titleSibling->id]);
+    });
+
+    it('excludes non-pending statuses', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$approvedSameGame, $rejectedSameGame, $validSibling, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->ingame()->primary()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->rejected()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [
+            $approvedSameGame,
+            $rejectedSameGame,
+            $validSibling,
+            $pending,
+        ]);
+
+        // ASSERT
+        $ids = ScreenshotReviewContext::make($pending)->otherPendingForGame()->pluck('id')->all();
+        expect($ids)->toEqual([$validSibling->id]);
+    });
+});
+
+describe('Approved Gallery Screenshots', function () {
+    it('returns approved in-game screenshots ordered by order_column, including the primary', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$gallerySecond, $galleryFirst, $primary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->ingame()->create([
+                    'is_primary' => false,
+                    'status' => GameScreenshotStatus::Approved,
+                    'order_column' => 20,
+                ]),
+                GameScreenshot::factory()->for($game)->ingame()->create([
+                    'is_primary' => false,
+                    'status' => GameScreenshotStatus::Approved,
+                    'order_column' => 10,
+                ]),
+                GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+                    'order_column' => 1,
+                ]),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$gallerySecond, $galleryFirst, $primary, $pending]);
+
+        // ASSERT
+        $ids = ScreenshotReviewContext::make($pending)->approvedGalleryScreenshots()->pluck('id')->all();
+        expect($ids)->toEqual([$primary->id, $galleryFirst->id, $gallerySecond->id]);
+    });
+
+    it('excludes rejected, pending, and non-ingame screenshots', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$includedGallery, $rejected, $pendingShot, $titleApproved, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->ingame()->create([
+                    'is_primary' => false,
+                    'status' => GameScreenshotStatus::Approved,
+                ]),
+                GameScreenshot::factory()->for($game)->ingame()->rejected()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create(),
+                GameScreenshot::factory()->for($game)->title()->primary()->create(),
+                GameScreenshot::factory()->for($game)->ingame()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$includedGallery, $rejected, $pendingShot, $titleApproved, $pending]);
+
+        // ASSERT
+        $ids = ScreenshotReviewContext::make($pending)->approvedGalleryScreenshots()->pluck('id')->all();
+        expect($ids)->toEqual([$includedGallery->id]);
     });
 });
