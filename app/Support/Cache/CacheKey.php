@@ -13,6 +13,13 @@ class CacheKey
         return self::buildNormalizedCacheKey("game", $gameId, "card-data");
     }
 
+    public static function buildGameOpenTicketsCacheKey(int $gameId, bool $isPromoted): string
+    {
+        return self::buildNormalizedCacheKey("game", $gameId, "open-ticket-count", [
+            $isPromoted ? "published" : "unpublished",
+        ]);
+    }
+
     public static function buildGameSetBreadcrumbsCacheKey(int $gameSetId): string
     {
         return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs2");

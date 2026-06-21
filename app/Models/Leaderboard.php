@@ -64,6 +64,7 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     ];
 
     protected $casts = [
+        'game_id' => 'integer',
         'rank_asc' => 'boolean',
         'state' => LeaderboardState::class,
     ];
