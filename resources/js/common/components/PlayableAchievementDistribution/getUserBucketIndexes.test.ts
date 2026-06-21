@@ -79,7 +79,7 @@ describe('Util: getUserBucketIndexes', () => {
     expect(result).toEqual({ userHardcoreIndex: 1 });
   });
 
-  it('given the player has no hardcore achievements but has softcore, only returns softcore index', () => {
+  it('given the player has no hardcore achievements but has casual, only returns casual index', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
       { start: 0, end: 10, casual: 5, hardcore: 3 },
