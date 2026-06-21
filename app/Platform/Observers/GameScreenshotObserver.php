@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Observers;
 
 use App\Models\GameScreenshot;
+use App\Platform\Actions\LogPrimaryScreenshotChangeAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
@@ -56,12 +57,17 @@ class GameScreenshotObserver
         if ($next) {
             // Promoting the next screenshot triggers saved(), which handles the sync.
             $next->update(['is_primary' => true]);
-
-            return;
+        } else {
+            // No remaining screenshots of this type. Reset to placeholder.
+            $game->syncLegacyScreenshotFields($screenshot->type);
         }
 
-        // No remaining screenshots of this type. Reset to placeholder.
-        $game->syncLegacyScreenshotFields($screenshot->type);
+        (new LogPrimaryScreenshotChangeAction())->execute(
+            $game,
+            $screenshot->type,
+            $screenshot,
+            $next,
+        );
     }
 
     /**
@@ -90,6 +96,13 @@ class GameScreenshotObserver
                 $next->updateQuietly(['is_primary' => true]);
                 $this->ensureLegacyPng($next);
             }
+
+            (new LogPrimaryScreenshotChangeAction())->execute(
+                $screenshot->game,
+                $oldType,
+                $screenshot,
+                $next,
+            );
         }
 
         // Auto-promote to primary if no primary exists for the new type yet,
@@ -112,6 +125,13 @@ class GameScreenshotObserver
 
             $this->moveToTopOfTypeGroup($screenshot);
             $this->ensureLegacyPng($screenshot);
+
+            (new LogPrimaryScreenshotChangeAction())->execute(
+                $screenshot->game,
+                $screenshot->type,
+                null,
+                $screenshot,
+            );
         } elseif ($wasOldPrimary) {
             // The new type already has a primary. Demote this screenshot
             // so we don't end up with two primaries of the same type.
