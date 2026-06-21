@@ -62,8 +62,6 @@ class AchievementSetVersionSchema extends Schema
 
             DateTime::make('createdAt')->sortable()->readOnly(),
             DateTime::make('updatedAt')->sortable()->readOnly(),
-
-            ArrayHash::make('achievementSnapshot', 'achievementSnapshot')->readOnly(),
             Number::make('playersTotal', 'players_total')->readOnly(),
             Number::make('playersHardcore', 'players_hardcore')->readOnly(),
             Number::make('achievementsPublished', 'achievements_published')->readOnly(),

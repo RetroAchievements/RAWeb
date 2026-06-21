@@ -46,7 +46,7 @@ class AchievementSetVersionResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
-            'achievementSets' => $this->relation('achievementSet')
+            'achievementSet' => $this->relation('achievementSet')
                 ->withoutLinks(),
         ];
     }

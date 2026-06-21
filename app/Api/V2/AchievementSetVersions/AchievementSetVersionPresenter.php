@@ -12,9 +12,9 @@ class AchievementSetVersionPresenter
     }
 
     /**
-     * @return array<int, array{id: int, points: int, isPromoted: bool, type: string|null}>
+     * @return array<int, array{id: int, points: int, isPromoted: bool, type: string|null}>|null
      */
-    public function definition(): array
+    public function definition(): ?array
     {
         $definition = $this->version->definition;
 
@@ -39,7 +39,7 @@ class AchievementSetVersionPresenter
                 return $parsed;
 
             default:
-                return [];
+                return null;
         }
     }
 }
