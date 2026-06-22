@@ -531,7 +531,6 @@ describe('non-developer', function () {
          * pre-existing live not and a soft-deleted note to confirm neither
          * is touched by the request.
          */
-
         $game = Game::factory()->create();
         $otherUser = User::factory()->create();
         $live = MemoryNote::create(['game_id' => $game->id, 'user_id' => $otherUser->id, 'address' => 0x1234, 'body' => 'Live']);
