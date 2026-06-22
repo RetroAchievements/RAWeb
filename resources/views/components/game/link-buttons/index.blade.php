@@ -19,19 +19,14 @@
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Ticket;
+use App\Platform\Services\GameOpenTicketCountService;
 use Illuminate\Support\Facades\Auth;
 
 $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $gameTickets = Ticket::forGame($game)->open();
-    if ($isViewingOfficial) {
-        $gameTickets->promoted();
-    } else {
-        $gameTickets->unpromoted();
-    }
-    $numOpenTickets = $gameTickets->count();
+    $numOpenTickets = app(GameOpenTicketCountService::class)->count($game, $isViewingOfficial);
 }
 
 ?>

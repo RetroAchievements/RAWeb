@@ -16,8 +16,12 @@ class LinkSimilarGamesAction
 
     public function execute(Game $parentGame, array $gameIdsToLink): void
     {
-        // normalize to a list of ints
+        // normalize to a list of ints and drop any self-link attempt
         $gameIdsToLink = array_values(array_unique(array_map('intval', $gameIdsToLink)));
+        $gameIdsToLink = array_values(array_filter(
+            $gameIdsToLink,
+            fn (int $id): bool => $id !== $parentGame->id,
+        ));
 
         $parentSimilarGamesSet = GameSet::firstOrNew([
             'type' => GameSetType::SimilarGames,
