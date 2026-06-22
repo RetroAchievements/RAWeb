@@ -72,8 +72,11 @@ class UpdateAchievementMetricsAction
         foreach ($allUnlockStats as $stat) {
             $unrankedStat = $unrankedUnlockStats->get($stat->achievement_id);
 
-            $unlockCounts[$stat->achievement_id] = (int) $stat->total_unlocks - (int) ($unrankedStat->total_unlocks ?? 0);
-            $hardcoreUnlockCounts[$stat->achievement_id] = (int) $stat->hardcore_unlocks - (int) ($unrankedStat->hardcore_unlocks ?? 0);
+            // Add a max() clamp because a concurrent unlock from an untracked user could
+            // push the subtraction here to be negative, which would then fail the unsigned
+            // strict-mode update and force the whole job to retry.
+            $unlockCounts[$stat->achievement_id] = max(0, (int) $stat->total_unlocks - (int) ($unrankedStat->total_unlocks ?? 0));
+            $hardcoreUnlockCounts[$stat->achievement_id] = max(0, (int) $stat->hardcore_unlocks - (int) ($unrankedStat->hardcore_unlocks ?? 0));
         }
 
         $this->updateUsingUnlockCounts($game, $achievements, $unlockCounts, $hardcoreUnlockCounts);
