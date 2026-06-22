@@ -2,7 +2,7 @@
     $panels = [$currentPanel, $candidatePanel];
     $contextCards = array_filter([
         ['type' => 'primaries', 'data' => $currentPrimaries],
-        $pendingCompanions ? ['type' => 'pending', 'data' => $pendingCompanions] : null,
+        $otherPendingForGame ? ['type' => 'otherPendingForGame', 'data' => $otherPendingForGame] : null,
         $approvedIngame ? ['type' => 'ingame', 'data' => $approvedIngame] : null,
     ]);
     $imageRenderingStyle = $isPixelated ? 'image-rendering: pixelated;' : '';
@@ -216,16 +216,19 @@
                         </div>
                     @endif
                 </section>
-            @elseif ($card['type'] === 'pending')
-                <section class="rounded-lg border border-success-500/25 bg-white p-3 dark:bg-gray-900/60">
-                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">Pending queue</div>
-                    <div class="mt-2 flex flex-col gap-1.5">
+            @elseif ($card['type'] === 'otherPendingForGame')
+                @php $otherPendingCount = count($card['data']['items']); @endphp
+                <section class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700/70 dark:bg-gray-900/60">
+                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Other pending for this game{{ $otherPendingCount > 3 ? ' (' . $otherPendingCount . ')' : '' }}
+                    </div>
+                    <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
                         @foreach ($card['data']['items'] as $item)
                             <button
                                 type="button"
                                 wire:click="replaceMountedScreenshotReview('{{ $item['recordKey'] }}', false)"
                                 wire:loading.attr="disabled"
-                                class="flex w-full min-w-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
+                                class="flex w-full min-w-0 shrink-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
                             >
                                 @if ($item['url'])
                                     <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" />
@@ -239,20 +242,40 @@
                                 </span>
                             </button>
                         @endforeach
-
-                        @if ($card['data']['extraCount'] > 0)
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                +{{ $card['data']['extraCount'] }} more matching submission{{ $card['data']['extraCount'] === 1 ? '' : 's' }}
-                            </div>
-                        @endif
                     </div>
                 </section>
             @elseif ($card['type'] === 'ingame')
                 <section class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700/70 dark:bg-gray-900/60">
-                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">In-game gallery</div>
-                    <a href="{{ $card['data']['mediaPageUrl'] }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block font-bold text-gray-950 underline-offset-2 hover:underline dark:text-white">
-                        {{ $card['data']['count'] }} / {{ $card['data']['cap'] }}
-                    </a>
+                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Current in-game gallery
+                        <a href="{{ $card['data']['mediaPageUrl'] }}" target="_blank" rel="noopener noreferrer" class="underline-offset-2 hover:underline">
+                            ({{ $card['data']['count'] }} / {{ $card['data']['cap'] }})
+                        </a>
+                    </div>
+
+                    @if ($card['data']['items'] !== [])
+                        <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
+                            @foreach ($card['data']['items'] as $item)
+                                <button
+                                    type="button"
+                                    @click="openZoom(@js($item['url']), @js($item['label']))"
+                                    class="flex w-full min-w-0 shrink-0 cursor-zoom-in items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-gray-800"
+                                    title="{{ $item['label'] }}"
+                                >
+                                    @if ($item['url'])
+                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $imageRenderingStyle }}" />
+                                    @else
+                                        <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
+                                    @endif
+
+                                    <span class="min-w-0 text-xs leading-tight">
+                                        <span class="block font-semibold text-gray-950 dark:text-white">{{ $item['typeLabel'] }} · {{ $item['resolution'] }}</span>
+                                        <span class="block truncate text-gray-500 dark:text-gray-400">by {{ $item['submitterLabel'] }}</span>
+                                    </span>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 </section>
             @endif
         @endforeach

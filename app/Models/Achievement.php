@@ -22,6 +22,7 @@ use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
+use App\Platform\Services\GameOpenTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\CarbonInterface;
 use Database\Factories\AchievementFactory;
@@ -163,6 +164,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
                     AchievementMoved::dispatch($achievement, $originalGame);
                 }
             }
+
+            if ($achievement->wasChanged(['game_id', 'is_promoted'])) {
+                $service = app(GameOpenTicketCountService::class);
+                $service->clearForGameId((int) $achievement->game_id);
+                $originalGameId = $achievement->getOriginal('game_id');
+                if ($achievement->wasChanged('game_id') && $originalGameId !== null) {
+                    $service->clearForGameId((int) $originalGameId);
+                }
+            }
         });
 
         static::deleting(function (Achievement $achievement) {
@@ -289,9 +299,30 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->getCanonicalUrlAttribute();
     }
 
+    public function getTicketableIconUrl(): string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
     public function getTicketableBadgeUrl(): ?string
     {
         return $this->getBadgeUrlAttribute();
+    }
+
+    public function demoteForTicket(User $byUser): void
+    {
+        if (!$this->is_promoted) {
+            return;
+        }
+
+        updateAchievementPromotedStatus($this->id, false);
+        addArticleComment(
+            'Server',
+            CommentableType::Achievement,
+            $this->id,
+            "{$byUser->display_name} demoted this achievement to Unofficial.",
+            $byUser->display_name,
+        );
     }
 
     // == helpers

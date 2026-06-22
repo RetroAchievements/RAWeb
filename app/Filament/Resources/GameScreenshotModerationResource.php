@@ -79,7 +79,9 @@ class GameScreenshotModerationResource extends Resource
                         'game.system',
                         'capturedBy',
                         'media',
-                        'game.gameScreenshots' => fn ($q) => $q->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending]),
+                        'game.gameScreenshots' => fn ($q) => $q
+                            ->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending])
+                            ->with(['media', 'capturedBy']),
                     ]);
             })
             ->columns([
@@ -430,8 +432,20 @@ class GameScreenshotModerationResource extends Resource
                 Forms\Components\Select::make('rejection_reason')
                     ->label('Reason')
                     ->options(collect(GameScreenshotRejectionReason::cases())
-                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [$reason->value => $reason->label()])
-                        ->sortBy(fn (string $label, string $value) => [$value === GameScreenshotRejectionReason::Other->value ? 1 : 0, $label])
+                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [
+                            $reason->value => $reason === GameScreenshotRejectionReason::InappropriateContent
+                                ? $reason->label() . ' (alerts the moderation team)' // don't leak this into user-facing surfaces
+                                : $reason->label(),
+                        ])
+                        ->sortBy(function (string $label, string $value): array {
+                            $bucket = match ($value) {
+                                GameScreenshotRejectionReason::InappropriateContent->value => 1,
+                                GameScreenshotRejectionReason::Other->value => 2,
+                                default => 0,
+                            };
+
+                            return [$bucket, $label];
+                        })
                         ->toArray()
                     )
                     ->default(fn (GameScreenshot $record): ?string => ScreenshotReviewContext::make($record)->suggestedRejectionReason()?->value)
@@ -641,8 +655,8 @@ class GameScreenshotModerationResource extends Resource
      *     currentPanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     candidatePanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
-     *     pendingCompanions: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>, extraCount: int}|null,
-     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string}|null,
+     *     otherPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null,
+     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null,
      * }
      */
     private static function getReviewModalContentViewData(GameScreenshot $record): array
@@ -672,7 +686,7 @@ class GameScreenshotModerationResource extends Resource
                 'cues' => self::getCandidateImageCueViewData($context),
             ],
             'currentPrimaries' => $context->currentPrimaryContextItems(),
-            'pendingCompanions' => $context->pendingCompanionsContextData(),
+            'otherPendingForGame' => $context->otherPendingForGameContextData(),
             'approvedIngame' => self::getApprovedIngameContextViewData($context),
         ];
     }
@@ -737,7 +751,7 @@ class GameScreenshotModerationResource extends Resource
     }
 
     /**
-     * @return array{count: int, cap: int, mediaPageUrl: string}|null
+     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null
      */
     private static function getApprovedIngameContextViewData(ScreenshotReviewContext $context): ?array
     {
@@ -751,6 +765,7 @@ class GameScreenshotModerationResource extends Resource
             'count' => $context->approvedIngameCount(),
             'cap' => ScreenshotType::Ingame->approvedCap(),
             'mediaPageUrl' => GameResource::getUrl('media', ['record' => $record->game]),
+            'items' => $context->approvedGalleryItemsViewData(),
         ];
     }
 
