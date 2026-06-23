@@ -128,22 +128,22 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * Outgoing Following-status rows: relations where this user is the source.
+     * Rows for users this user follows.
      *
      * @return HasMany<UserRelation, $this>
      */
-    public function followsAsSource(): HasMany
+    public function follows(): HasMany
     {
         return $this->hasMany(UserRelation::class, 'user_id', 'id')
             ->where('status', '=', UserRelationStatus::Following);
     }
 
     /**
-     * Incoming Following-status rows: relations where this user is the target.
+     * Rows for users following this user.
      *
      * @return HasMany<UserRelation, $this>
      */
-    public function followsAsTarget(): HasMany
+    public function followedBy(): HasMany
     {
         return $this->hasMany(UserRelation::class, 'related_user_id', 'id')
             ->where('status', '=', UserRelationStatus::Following);

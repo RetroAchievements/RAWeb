@@ -68,8 +68,8 @@ class UserResource extends JsonApiResource
     {
         return [
             'awards' => $this->relation('awards', 'playerBadges')->withoutLinks(),
-            'followers' => $this->relation('followers', 'followsAsTarget')->withoutLinks(),
-            'following' => $this->relation('following', 'followsAsSource')->withoutLinks(),
+            'followers' => $this->relation('followers', 'followedBy')->withoutLinks(),
+            'following' => $this->relation('following', 'follows')->withoutLinks(),
             'playerAchievements' => $this->relation('playerAchievements')->withoutLinks(),
             'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
             'playerGames' => $this->relation('playerGames')->withoutLinks(),

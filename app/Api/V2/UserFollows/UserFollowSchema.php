@@ -7,7 +7,6 @@ namespace App\Api\V2\UserFollows;
 use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -16,6 +15,7 @@ use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
@@ -39,9 +39,7 @@ class UserFollowSchema extends Schema
     protected $defaultSort = '-followedAt';
 
     /**
-     * Eager load both sides of every relation. The presenter picks whichever
-     * one is the "other" user based on perspective, so we cannot know which
-     * side is needed at query time.
+     * The displayed user can be on either side of the relation.
      */
     protected array $with = [
         'user',
@@ -58,12 +56,6 @@ class UserFollowSchema extends Schema
 
     /**
      * Get the resource fields.
-     *
-     * Most attributes (userId, displayName, etc.) project the _other_ user's
-     * data and are computed by UserFollowResource via UserFollowPresenter,
-     * not read from columns directly.
-     *
-     * isMutual is also presenter-derived from a per-request reciprocal-id set.
      */
     public function fields(): array
     {
@@ -73,11 +65,13 @@ class UserFollowSchema extends Schema
             DateTime::make('followedAt', 'created_at')->sortable()->readOnly(),
 
             Str::make('userId')->readOnly(),
-            Str::make('displayName')->readOnly(),
+            Str::make('displayName', 'displayed_users.display_name')->sortable()->readOnly(),
             Str::make('avatarUrl')->readOnly(),
-            Number::make('points')->readOnly(),
-            Number::make('pointsHardcore')->readOnly(),
+            Number::make('points', 'displayed_users.points')->sortable()->readOnly(),
+            Number::make('pointsHardcore', 'displayed_users.points_hardcore')->sortable()->readOnly(),
             Boolean::make('isMutual')->readOnly(),
+
+            BelongsTo::make('user', 'relatedUser')->type('users')->readOnly(),
         ];
     }
 
@@ -91,30 +85,25 @@ class UserFollowSchema extends Schema
     }
 
     /**
-     * Scope the relationship query for `users/{id}/followers` and
-     * `users/{id}/following` to exclude rows whose "other user" is banned.
-     *
-     * The "other user" lives on the opposite column from the relation's
-     * foreign key: followsAsSource keys on `user_id`, so the other user is
-     * `relatedUser`; followsAsTarget keys on `related_user_id`, so the other
-     * user is `user`.
+     * Exclude rows where the displayed user is banned.
      *
      * @param Relation<UserRelation, User, mixed> $query
      * @return Relation<UserRelation, User, mixed>
      */
     public function relatableQuery(?Request $request, Relation $query): Relation
     {
-        // Type-narrowing for getForeignKeyName(). Both followers/following routes are HasMany.
         if (!$query instanceof HasMany) {
             return $query;
         }
 
-        $otherSideRelation = $query->getForeignKeyName() === 'user_id'
-            ? 'relatedUser'
-            : 'user';
+        $displayedUserForeignKey = $query->getForeignKeyName() === 'user_id'
+            ? 'related_user_id'
+            : 'user_id';
 
         return $query
-            ->where('status', '=', UserRelationStatus::Following)
-            ->whereHas($otherSideRelation, fn (Builder $q) => $q->whereNull('banned_at'));
+            ->where('user_relations.status', '=', UserRelationStatus::Following)
+            ->leftJoin('users as displayed_users', 'displayed_users.id', '=', 'user_relations.' . $displayedUserForeignKey)
+            ->whereNull('displayed_users.banned_at')
+            ->select('user_relations.*');
     }
 }

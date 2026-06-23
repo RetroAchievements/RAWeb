@@ -79,12 +79,7 @@ class UserController extends JsonApiController
     }
 
     /**
-     * Precompute the set of user ids reciprocating the perspective user's
-     * Following relations so UserFollowResource can derive `isMutual`
-     * without a per-row query.
-     *
-     * Access control for both endpoints lives in UserPolicy::viewFollowers
-     * and viewFollowing.
+     * Precompute reciprocal follow ids for `isMutual`.
      */
     protected function readingRelatedFollowers(
         User $user,
@@ -111,8 +106,6 @@ class UserController extends JsonApiController
     }
 
     /**
-     * Stored as a lookup map (id => true) so the presenter's isMutual check is O(1).
-     *
      * @param Collection<int, int> $ids
      */
     private function stashReciprocalUserIds(Collection $ids): void

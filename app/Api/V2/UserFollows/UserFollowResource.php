@@ -45,7 +45,22 @@ class UserFollowResource extends BaseJsonApiResource
      */
     public function relationships($request): iterable
     {
-        return [];
+        if (!$this->wasRelationshipIncluded($request, 'user')) {
+            return [];
+        }
+
+        $presenter = UserFollowPresenter::for(
+            $this->resource,
+            $this->perspectiveUser(),
+            $this->reciprocalUserIds(),
+        );
+
+        return [
+            'user' => $this->relation('user', 'relatedUser')
+                ->withoutLinks()
+                ->withData($presenter->user())
+                ->alwaysShowData(),
+        ];
     }
 
     /**
@@ -58,7 +73,6 @@ class UserFollowResource extends BaseJsonApiResource
 
     private function perspectiveUser(): User
     {
-        // Always the auth user. UserPolicy::view{Followers,Following} gates other callers before serialization.
         /** @var User $user */
         $user = request()->user();
 

@@ -173,6 +173,90 @@ class UserFollowsTest extends TestCase
         $this->assertFalse($attributes['isMutual']);
     }
 
+    public function testItCanIncludeUserRelationshipOnFollowers(): void
+    {
+        // Arrange
+        $auth = User::factory()->create([
+            'display_name' => 'AuthenticatedUser',
+            'web_api_key' => 'test-key',
+        ]);
+        $follower = User::factory()->create([
+            'display_name' => 'FollowerWithPresence',
+            'last_activity_at' => Carbon::parse('2026-06-01 12:00:00'),
+            'rich_presence' => 'Playing Stage 1',
+            'rich_presence_updated_at' => Carbon::parse('2026-06-01 12:05:00'),
+        ]);
+
+        UserRelation::create([
+            'user_id' => $follower->id,
+            'related_user_id' => $auth->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/followers?include=user");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $this->assertEquals('users', $response->json('data.0.relationships.user.data.type'));
+        $this->assertEquals($follower->ulid, $response->json('data.0.relationships.user.data.id'));
+
+        $included = $response->json('included');
+        $this->assertCount(1, $included);
+        $this->assertEquals('users', $included[0]['type']);
+        $this->assertEquals($follower->ulid, $included[0]['id']);
+        $this->assertEquals('FollowerWithPresence', $included[0]['attributes']['displayName']);
+        $this->assertEquals('Playing Stage 1', $included[0]['attributes']['richPresence']);
+        $this->assertNotNull($included[0]['attributes']['lastActivityAt']);
+        $this->assertNotNull($included[0]['attributes']['richPresenceUpdatedAt']);
+    }
+
+    public function testItCanIncludeUserRelationshipOnFollowing(): void
+    {
+        // Arrange
+        $auth = User::factory()->create([
+            'display_name' => 'AuthenticatedUser',
+            'web_api_key' => 'test-key',
+        ]);
+        $followed = User::factory()->create([
+            'display_name' => 'FollowedWithPresence',
+            'last_activity_at' => Carbon::parse('2026-06-02 12:00:00'),
+            'rich_presence' => 'Playing Stage 2',
+            'rich_presence_updated_at' => Carbon::parse('2026-06-02 12:05:00'),
+        ]);
+
+        UserRelation::create([
+            'user_id' => $auth->id,
+            'related_user_id' => $followed->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/following?include=user");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $this->assertEquals('users', $response->json('data.0.relationships.user.data.type'));
+        $this->assertEquals($followed->ulid, $response->json('data.0.relationships.user.data.id'));
+
+        $included = $response->json('included');
+        $this->assertCount(1, $included);
+        $this->assertEquals('users', $included[0]['type']);
+        $this->assertEquals($followed->ulid, $included[0]['id']);
+        $this->assertEquals('FollowedWithPresence', $included[0]['attributes']['displayName']);
+        $this->assertEquals('Playing Stage 2', $included[0]['attributes']['richPresence']);
+        $this->assertNotNull($included[0]['attributes']['lastActivityAt']);
+        $this->assertNotNull($included[0]['attributes']['richPresenceUpdatedAt']);
+    }
+
     public function testIsMutualIsTrueWhenBothFollow(): void
     {
         // Arrange
@@ -339,6 +423,75 @@ class UserFollowsTest extends TestCase
         $this->assertEquals(['NewestFollower', 'OldestFollower'], $names);
     }
 
+    public function testItCanSortFollowingByDisplayedUserPoints(): void
+    {
+        // Arrange
+        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $casual = User::factory()->create([
+            'display_name' => 'Casual',
+            'points' => 100,
+        ]);
+        $regular = User::factory()->create([
+            'display_name' => 'Regular',
+            'points' => 200,
+        ]);
+        $veteran = User::factory()->create([
+            'display_name' => 'Veteran',
+            'points' => 300,
+        ]);
+
+        foreach ([$regular, $veteran, $casual] as $followed) {
+            UserRelation::create([
+                'user_id' => $auth->id,
+                'related_user_id' => $followed->id,
+                'status' => UserRelationStatus::Following,
+            ]);
+        }
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/following?sort=-points");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertDisplayNamesOrder(['Veteran', 'Regular', 'Casual'], $response->json('data'));
+    }
+
+    public function testItCanSortFollowersByDisplayedUserDisplayName(): void
+    {
+        // Arrange
+        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $alpha = User::factory()->create([
+            'display_name' => 'FollowerAlpha',
+        ]);
+        $bravo = User::factory()->create([
+            'display_name' => 'FollowerBravo',
+        ]);
+        $charlie = User::factory()->create([
+            'display_name' => 'FollowerCharlie',
+        ]);
+
+        foreach ([$charlie, $alpha, $bravo] as $follower) {
+            UserRelation::create([
+                'user_id' => $follower->id,
+                'related_user_id' => $auth->id,
+                'status' => UserRelationStatus::Following,
+            ]);
+        }
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/followers?sort=displayName");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertDisplayNamesOrder(['FollowerAlpha', 'FollowerBravo', 'FollowerCharlie'], $response->json('data'));
+    }
+
     public function testItExcludesBlockedAndNotFollowingRows(): void
     {
         // Arrange
@@ -477,5 +630,20 @@ class UserFollowsTest extends TestCase
         $this->assertEquals(63, $pageMeta['total']);
         $this->assertEquals(50, $pageMeta['perPage']);
         $this->assertEquals(1, $pageMeta['currentPage']);
+    }
+
+    /**
+     * @param list<string> $expected
+     * @param list<array{attributes: array{displayName: string}}> $data
+     */
+    private function assertDisplayNamesOrder(array $expected, array $data): void
+    {
+        $this->assertEquals(
+            $expected,
+            array_map(
+                fn (array $row) => $row['attributes']['displayName'],
+                $data,
+            ),
+        );
     }
 }

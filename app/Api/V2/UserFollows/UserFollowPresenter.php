@@ -10,9 +10,7 @@ use App\Models\UserRelation;
 class UserFollowPresenter
 {
     /**
-     * @param array<int, bool> $reciprocalUserIds Lookup map (id => true) of users
-     *        reciprocating $perspective on the opposite side. Map (not list) so
-     *        isMutual() is O(1).
+     * @param array<int, bool> $reciprocalUserIds
      */
     public function __construct(
         private readonly UserRelation $relation,
@@ -31,32 +29,32 @@ class UserFollowPresenter
 
     public function userId(): ?string
     {
-        return $this->otherUser()?->ulid;
+        return $this->user()?->ulid;
     }
 
     public function displayName(): ?string
     {
-        return $this->otherUser()?->display_name;
+        return $this->user()?->display_name;
     }
 
     public function avatarUrl(): ?string
     {
-        return $this->otherUser()?->avatarUrl;
+        return $this->user()?->avatarUrl;
     }
 
     public function points(): int
     {
-        return $this->otherUser()?->points ?? 0;
+        return $this->user()?->points ?? 0;
     }
 
     public function pointsHardcore(): int
     {
-        return $this->otherUser()?->points_hardcore ?? 0;
+        return $this->user()?->points_hardcore ?? 0;
     }
 
     public function isMutual(): bool
     {
-        $otherUserId = $this->otherUser()?->id;
+        $otherUserId = $this->user()?->id;
         if ($otherUserId === null) {
             return false;
         }
@@ -64,7 +62,7 @@ class UserFollowPresenter
         return isset($this->reciprocalUserIds[$otherUserId]);
     }
 
-    private function otherUser(): ?User
+    public function user(): ?User
     {
         return $this->relation->user_id === $this->perspective->id
             ? $this->relation->relatedUser

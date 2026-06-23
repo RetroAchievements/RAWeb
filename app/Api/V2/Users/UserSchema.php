@@ -112,11 +112,11 @@ class UserSchema extends Schema
                 )
                 ->readOnly(),
 
-            HasMany::make('followers', 'followsAsTarget')
+            HasMany::make('followers', 'followedBy')
                 ->type('user-follows')
                 ->cannotEagerLoad()
                 ->readOnly(),
-            HasMany::make('following', 'followsAsSource')
+            HasMany::make('following', 'follows')
                 ->type('user-follows')
                 ->cannotEagerLoad()
                 ->readOnly(),
