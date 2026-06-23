@@ -76,7 +76,6 @@ class ResumePlayerSessionAction
                     }
                 })
                 ->orderByDesc('rich_presence_updated_at')
-                ->orderByDesc('id')
                 ->first();
         }
 
