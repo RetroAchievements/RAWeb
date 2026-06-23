@@ -44,6 +44,16 @@ final class TicketPresenter
         return $this->ticketableGame()?->title;
     }
 
+    public function gameIconUrl(): ?string
+    {
+        return $this->ticketableGame()?->badge_url;
+    }
+
+    public function systemName(): ?string
+    {
+        return $this->ticketableGame()?->system?->name;
+    }
+
     public function reporterDisplayName(): ?string
     {
         return $this->ticket->reporter?->display_name;

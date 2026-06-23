@@ -7,11 +7,14 @@ namespace Tests\Feature\Api\V2;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\Leaderboard;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\TicketableType;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,19 +34,22 @@ class TicketsTest extends TestCase
     }
 
     /**
-     * @return array{game: Game, achievement: Achievement, ticketAuthor: User}
+     * @return array{system: System, game: Game, achievement: Achievement, ticketAuthor: User}
      */
     private function makeGameContext(): array
     {
-        $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->id]);
+        $system = System::factory()->create(['name' => 'Nintendo Entertainment System']);
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/123456.png',
+        ]);
         $ticketAuthor = User::factory()->create();
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $ticketAuthor->id,
         ]);
 
-        return ['game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $ticketAuthor];
+        return ['system' => $system, 'game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $ticketAuthor];
     }
 
     public function testItDefaultsToOpenStateOnly(): void
@@ -367,7 +373,7 @@ class TicketsTest extends TestCase
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
-        ['game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+        ['system' => $system, 'game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $reporter = User::factory()->create(['display_name' => 'TestReporter']);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
@@ -389,6 +395,8 @@ class TicketsTest extends TestCase
         $this->assertEquals($achievement->title, $attributes['ticketableTitle']);
         $this->assertEquals($game->id, $attributes['gameId']);
         $this->assertEquals($game->title, $attributes['gameTitle']);
+        $this->assertEquals($game->badge_url, $attributes['gameIconUrl']);
+        $this->assertEquals($system->name, $attributes['systemName']);
         $this->assertEquals('TestReporter', $attributes['reporterDisplayName']);
     }
 
@@ -396,7 +404,7 @@ class TicketsTest extends TestCase
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
-        ['game' => $game, 'ticketAuthor' => $author] = $this->makeGameContext();
+        ['system' => $system, 'game' => $game, 'ticketAuthor' => $author] = $this->makeGameContext();
         $leaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
             'title' => 'Speedrun',
@@ -420,6 +428,8 @@ class TicketsTest extends TestCase
         $this->assertEquals('Speedrun', $attributes['ticketableTitle']);
         $this->assertEquals($game->id, $attributes['gameId']);
         $this->assertEquals($game->title, $attributes['gameTitle']);
+        $this->assertEquals($game->badge_url, $attributes['gameIconUrl']);
+        $this->assertEquals($system->name, $attributes['systemName']);
     }
 
     public function testItDoesNotEmitRelationshipsWithoutInclude(): void
@@ -464,6 +474,70 @@ class TicketsTest extends TestCase
         $response->assertSuccessful();
         $relationships = $response->json('data.relationships') ?? [];
         $this->assertArrayNotHasKey('achievement', $relationships);
+    }
+
+    public function testItSupportsNestedAchievementGameIncludePath(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievementSet = AchievementSet::factory()->create();
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+
+        $author = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $author->id,
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => $author->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?include=achievement.games');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals((string) $ticket->id, $response->json('data.0.id'));
+        $this->assertEquals((string) $achievement->id, $response->json('data.0.relationships.achievement.data.id'));
+
+        $included = collect($response->json('included'));
+        $this->assertTrue($included->contains(fn (array $resource) => $resource['type'] === 'achievements' && $resource['id'] === (string) $achievement->id));
+        $this->assertTrue($included->contains(fn (array $resource) => $resource['type'] === 'games' && $resource['id'] === (string) $game->id));
+    }
+
+    public function testItSupportsNestedLeaderboardGameIncludePath(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['game' => $game, 'ticketAuthor' => $author] = $this->makeGameContext();
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forLeaderboard($leaderboard)->create([
+            'ticketable_author_id' => $author->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?include=leaderboard.games');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals((string) $ticket->id, $response->json('data.0.id'));
+        $this->assertEquals((string) $leaderboard->id, $response->json('data.0.relationships.leaderboard.data.id'));
+
+        $included = collect($response->json('included'));
+        $this->assertTrue($included->contains(fn (array $resource) => $resource['type'] === 'leaderboards' && $resource['id'] === (string) $leaderboard->id));
+        $this->assertTrue($included->contains(fn (array $resource) => $resource['type'] === 'games' && $resource['id'] === (string) $game->id));
     }
 
     public function testAchievementsRelationshipEndpointReturnsOnlyThatAchievementsTickets(): void

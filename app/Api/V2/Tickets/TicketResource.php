@@ -39,6 +39,8 @@ class TicketResource extends BaseJsonApiResource
             'ticketableTitle' => $presenter->ticketableTitle(),
             'gameId' => $presenter->gameId(),
             'gameTitle' => $presenter->gameTitle(),
+            'gameIconUrl' => $presenter->gameIconUrl(),
+            'systemName' => $presenter->systemName(),
             'reporterDisplayName' => $presenter->reporterDisplayName(),
             'resolverDisplayName' => $presenter->resolverDisplayName(),
             'authorDisplayName' => $presenter->authorDisplayName(),

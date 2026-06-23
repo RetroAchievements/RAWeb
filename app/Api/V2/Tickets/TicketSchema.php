@@ -29,6 +29,8 @@ class TicketSchema extends Schema
      */
     public static string $model = Ticket::class;
 
+    protected int $maxDepth = 2;
+
     /**
      * Default pagination parameters when client doesn't provide any.
      * This prevents unbounded result sets.
@@ -44,8 +46,8 @@ class TicketSchema extends Schema
      * Relationships that should always be eager loaded.
      */
     protected array $with = [
-        'achievement.game',
-        'leaderboard.game',
+        'achievement.game.system',
+        'leaderboard.game.system',
         'reporter',
         'resolver',
         'author',
@@ -88,6 +90,8 @@ class TicketSchema extends Schema
 
             Str::make('ticketableType', 'ticketable_type')->readOnly(),
             Number::make('ticketableId', 'ticketable_id')->readOnly(),
+            Str::make('gameIconUrl')->readOnly(),
+            Str::make('systemName')->readOnly(),
 
             BelongsTo::make('achievement')->type('achievements')->readOnly(),
             BelongsTo::make('leaderboard')->type('leaderboards')->readOnly(),
