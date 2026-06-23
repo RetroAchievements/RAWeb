@@ -55,10 +55,10 @@ class UserTicketCountService
      */
     public function countRequestsForReporter(User $reporter): int
     {
-        return Cache::remember(
+        return (int) Cache::remember(
             CacheKey::buildUserRequestTicketsCacheKey($reporter->id),
             Carbon::now()->addHours(self::TTL_HOURS),
-            fn () => Ticket::where('state', TicketState::Request)
+            fn (): int => Ticket::where('state', TicketState::Request)
                 ->where('reporter_id', $reporter->id)
                 ->count(),
         );
@@ -79,7 +79,7 @@ class UserTicketCountService
         foreach ($userIds as $userId) {
             try {
                 $this->clearForUserId((int) $userId);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 // swallow the error if this fails, it's no big deal
             }
         }
