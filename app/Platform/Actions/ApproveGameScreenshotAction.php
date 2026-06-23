@@ -72,7 +72,7 @@ class ApproveGameScreenshotAction
                     ->approved()
                     ->first();
 
-                $this->promotePrimary($screenshot, $existingApprovedImage);
+                $this->promotePrimary($screenshot, $existingApprovedImage, $reviewer);
             }
 
             if ($type === ScreenshotType::Ingame) {
@@ -130,6 +130,7 @@ class ApproveGameScreenshotAction
                     $this->promotePrimary(
                         $screenshot,
                         $existingPrimary,
+                        $reviewer,
                         shouldRetireExisting: $decision === ScreenshotReviewDecision::Primary,
                     );
                 }
@@ -172,8 +173,12 @@ class ApproveGameScreenshotAction
         }, attempts: 3);
     }
 
-    private function promotePrimary(GameScreenshot $screenshot, ?GameScreenshot $existingPrimary, bool $shouldRetireExisting = true): void
-    {
+    private function promotePrimary(
+        GameScreenshot $screenshot,
+        ?GameScreenshot $existingPrimary,
+        User $reviewer,
+        bool $shouldRetireExisting = true,
+    ): void {
         if ($existingPrimary) {
             $existingPrimary->update([
                 'is_primary' => false,
@@ -183,6 +188,14 @@ class ApproveGameScreenshotAction
 
         $this->ensureLegacyPng($screenshot);
         $screenshot->update(['is_primary' => true]);
+
+        (new LogPrimaryScreenshotChangeAction())->execute(
+            $screenshot->game,
+            $screenshot->type,
+            $existingPrimary,
+            $screenshot,
+            $reviewer,
+        );
     }
 
     private function ensureLegacyPng(GameScreenshot $screenshot): void

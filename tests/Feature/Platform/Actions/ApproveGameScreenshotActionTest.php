@@ -18,6 +18,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\MediaLibrary\Conversions\FileManipulator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
@@ -581,4 +582,52 @@ it('enforces the 10 approved ingame screenshot cap during approval', function ()
         ->toThrow(ValidationException::class);
 
     expect($fileManipulator->createdDerivedFilesFor)->toBeEmpty();
+});
+
+it('writes a primaryScreenshotChanged audit row when approving a title replacement', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $existing = GameScreenshot::factory()->for($game)->title()->primary()->create([
+        'order_column' => 1,
+    ]);
+    $existing->media->setCustomProperty('legacy_path', '/Images/title-old.png');
+    $existing->media->save();
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Title, withLegacyPath: true);
+    fakeApproveScreenshotFileManipulator();
+
+    Activity::query()->delete();
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer, ScreenshotReviewDecision::Primary);
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->causer_id)->toEqual($reviewer->id);
+    expect($row->subject_id)->toEqual($game->id);
+    expect($row->properties->get('old')['title_screenshot'])->toEqual('/Images/title-old.png');
+    expect($row->properties->get('attributes'))->toHaveKey('title_screenshot');
+});
+
+it('writes a primaryScreenshotChanged row with placeholder old asset for the first ingame primary', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    $pending = createPendingScreenshotForApprovalTest($game, $submitter, ScreenshotType::Ingame, withLegacyPath: true);
+    fakeApproveScreenshotFileManipulator();
+
+    Activity::query()->delete();
+
+    // ACT
+    (new ApproveGameScreenshotAction())->execute($pending, $reviewer, ScreenshotReviewDecision::Primary);
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->properties->get('old')['ingame_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+    expect($row->properties->get('attributes')['ingame_screenshot'])->not->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
 });
