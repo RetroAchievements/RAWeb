@@ -19,50 +19,61 @@ class RevalidateMediaContributionBadgeEligibilityAction
             ->count();
         $expectedTier = PlayerBadge::getNewBadgeTier(AwardType::MediaContribution, 0, $eligibleCount);
 
-        $existingBadges = $user->playerBadges()
+        $existingBadge = $user->playerBadges()
             ->where('award_type', AwardType::MediaContribution)
-            ->orderByDesc('award_key')
-            ->get();
+            ->first();
 
         if ($expectedTier === null) {
             // Media contribution badges represent current community screenshot credit.
             // If later dev activity makes those screenshots ineligible, remove the badge.
-            if ($existingBadges->isNotEmpty()) {
-                PlayerBadge::whereKey($existingBadges->modelKeys())->delete();
-            }
+            $existingBadge?->delete();
 
             return null;
         }
 
-        $previousHighestBadge = $existingBadges->first();
+        if ($existingBadge === null) {
+            $newBadge = PlayerBadge::create([
+                'user_id' => $user->id,
+                'award_type' => AwardType::MediaContribution,
+                'award_key' => $expectedTier,
+                'award_tier' => $expectedTier,
+                'awarded_at' => now(),
+                'order_column' => PlayerBadge::getNextDisplayOrder($user),
+            ]);
 
-        // If only some screenshots stopped counting, keep the earned tier that still
-        // matches current eligibility and remove any higher tiers.
-        $tooHighIds = $existingBadges
-            ->where('award_key', '>', $expectedTier)
-            ->modelKeys();
-        if ($tooHighIds) {
-            PlayerBadge::whereKey($tooHighIds)->delete();
-        }
-
-        $expectedBadge = $existingBadges->first(
-            fn (PlayerBadge $badge) => $badge->award_key === $expectedTier && $badge->award_tier === 0,
-        );
-        if ($expectedBadge) {
-            return $expectedBadge;
-        }
-
-        $newBadge = AddSiteAward(
-            user: $user,
-            awardType: AwardType::MediaContribution,
-            data: $expectedTier,
-            displayOrder: $previousHighestBadge?->order_column ?? PlayerBadge::getNextDisplayOrder($user),
-        );
-
-        if ($previousHighestBadge === null || $newBadge->award_key > $previousHighestBadge->award_key) {
             SiteBadgeAwarded::dispatch($newBadge);
+
+            return $newBadge;
         }
 
-        return $newBadge;
+        $currentTier = (int) $existingBadge->award_tier;
+
+        if ($expectedTier === $currentTier) {
+            return $existingBadge;
+        }
+
+        if ($expectedTier > $currentTier) {
+            $existingBadge->award_key = $expectedTier;
+            $existingBadge->award_tier = $expectedTier;
+            $existingBadge->awarded_at = now();
+            $existingBadge->save();
+
+            SiteBadgeAwarded::dispatch($existingBadge);
+
+            return $existingBadge;
+        }
+
+        // Downgrade: bump the tier down and leave awarded_at alone.
+        $existingBadge->award_key = $expectedTier;
+        $existingBadge->award_tier = $expectedTier;
+
+        // Clear the displayed tier only when the user's chosen tier is no longer earned.
+        if ($existingBadge->display_award_tier !== null && $existingBadge->display_award_tier > $expectedTier) {
+            $existingBadge->display_award_tier = null;
+        }
+
+        $existingBadge->save();
+
+        return $existingBadge;
     }
 }
