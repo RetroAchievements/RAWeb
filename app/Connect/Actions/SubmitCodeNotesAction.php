@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
 {
-    private const MAX_NOTES_PER_REQUEST = 35000;
+    private const MAX_NOTES_PER_REQUEST = 500;
 
     protected int $gameId;
     protected array $notes;
@@ -80,6 +80,8 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
             ->whereIn('address', array_keys($this->notes))
             ->get();
 
+        $canCreate = $this->user->can('create', MemoryNote::class);
+
         $accessDenied = [];
         $successful = [];
         foreach ($this->notes as $address => $note) {
@@ -96,7 +98,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
                 }
             } else {
                 if (!$memoryNote) {
-                    if (!$this->user->can('create', MemoryNote::class)) {
+                    if (!$canCreate) {
                         $accessDenied[] = $address;
                         continue;
                     }
@@ -106,7 +108,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
                         'address' => $address,
                     ]);
                 } elseif ($memoryNote->trashed()) {
-                    if (!$this->user->can('create', MemoryNote::class)) {
+                    if (!$canCreate) {
                         $accessDenied[] = $address;
                         continue;
                     }

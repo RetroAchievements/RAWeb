@@ -313,7 +313,7 @@ describe('developer', function () {
         $game = Game::factory()->create();
 
         $lines = [];
-        for ($i = 1; $i <= 35001; $i++) {
+        for ($i = 1; $i <= 501; $i++) {
             $lines[] = $i . ':Note ' . $i;
         }
 
@@ -569,7 +569,7 @@ describe('non-developer', function () {
         $game = Game::factory()->create();
 
         $lines = [];
-        for ($i = 1; $i <= 35001; $i++) {
+        for ($i = 1; $i <= 501; $i++) {
             $lines[] = $i . ':Note ' . $i;
         }
 
