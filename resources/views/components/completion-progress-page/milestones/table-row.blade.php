@@ -45,7 +45,7 @@ $showRecentBeatenCasualTooltip = $milestone['kind'] === 'beaten-softcore';
     <td>
         <div 
             class="flex flex-col items-end whitespace-nowrap {{ $showRecentBeatenCasualTooltip ? 'cursor-help' : '' }}"
-            @if ($showRecentBeatenCasualTooltip) title="Game was beaten on casual mode" @endif
+            @if ($showRecentBeatenCasualTooltip) title="Game was beaten in casual mode" @endif
         >
             <p class="text-2xs">{{ $kindLabel }}</p>
             <p class="text-2xs">{{ $dateLabel }}</p>

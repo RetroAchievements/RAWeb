@@ -51,7 +51,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     expect(screen.getByLabelText(/beaten/i)).toBeVisible();
   });
 
-  it('renders an accessible label for beaten casual', () => {
+  it('renders an accessible label for Beaten (casual)', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'game_beaten',

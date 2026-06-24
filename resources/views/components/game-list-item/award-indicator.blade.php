@@ -1,5 +1,5 @@
 @props([
-    'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
+    'highestAwardKind' => null,
 ])
 
 <?php

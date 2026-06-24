@@ -41,7 +41,7 @@ describe('Component: GamesListItem', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 3,
       achievementsUnlockedHardcore: 2,
-      achievementsUnlockedSoftcore: 1,
+      achievementsUnlockedCasual: 1,
     });
 
     render(<GamesListItem game={game} playerGame={playerGame} />);
@@ -56,7 +56,7 @@ describe('Component: GamesListItem', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 0,
-      achievementsUnlockedSoftcore: 8,
+      achievementsUnlockedCasual: 8,
       completedAt: '2024-01-06 14:32:11',
       completedHardcoreAt: null,
       highestAward: null,

@@ -809,7 +809,7 @@ user: App.Data.User;
 richPresence: string;
 richPresenceUpdatedAt: string;
 achievementsUnlocked: number;
-achievementsUnlockedSoftcore: number;
+achievementsUnlockedCasual: number;
 achievementsUnlockedHardcore: number;
 points: number;
 pointsHardcore: number;
@@ -1070,7 +1070,7 @@ durationPercentage: number;
 export type PlayerGame = {
 achievementsUnlocked: number | null;
 achievementsUnlockedHardcore: number | null;
-achievementsUnlockedSoftcore: number | null;
+achievementsUnlockedCasual: number | null;
 beatenAt: string | null;
 beatenHardcoreAt: string | null;
 completedAt: string | null;

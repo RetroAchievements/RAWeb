@@ -114,7 +114,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
-  it('given the current bucket has a softcore reference line, renders softcore line info', () => {
+  it('given the current bucket has a casual reference line, renders casual line info', () => {
     // ARRANGE
     render(
       <ReferenceLineTooltipContent
@@ -171,7 +171,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     expect(screen.getByText(/your hardcore progress/i)).toBeVisible();
   });
 
-  it('given user achievement counts are null for softcore, still renders softcore line info when index matches', () => {
+  it('given user achievement counts are null for casual, still renders casual line info when index matches', () => {
     // ARRANGE
     render(
       <ReferenceLineTooltipContent

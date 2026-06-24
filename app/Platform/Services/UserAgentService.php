@@ -369,7 +369,7 @@ class UserAgentService
             return [ClientSupportLevel::Blocked, null];
         }
 
-        // The DB column softcore_only wins over a stale minimum_hardcore_version.
+        // The legacy compatibility column wins over a stale minimum_hardcore_version.
         // Ordering matters: minimum_allowed_version still blocks ancient
         // clients above, and core restrictions below are intentionally
         // bypassed because this is a blanket emulator-wide flag.

@@ -42,7 +42,7 @@ describe('Util: getUserBucketIndexes', () => {
     expect(result).toEqual({ userHardcoreIndex: 1 });
   });
 
-  it('given the player has casual achievements different from hardcore, returns both bucket indexes', () => {
+  it('given the player has casual mode unlocks different from hardcore, returns both bucket indexes', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
       { start: 0, end: 10, casual: 5, hardcore: 3 },
@@ -61,7 +61,7 @@ describe('Util: getUserBucketIndexes', () => {
     expect(result).toEqual({ userHardcoreIndex: 0, userCasualIndex: 2 });
   });
 
-  it('given the player has casual achievements equal to hardcore, only returns hardcore index', () => {
+  it('given the player has casual mode unlocks equal to hardcore, only returns hardcore index', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
       { start: 0, end: 10, casual: 5, hardcore: 3 },

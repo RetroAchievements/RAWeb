@@ -161,7 +161,7 @@ function getAwardedList(
                 'HardcorePoints' => $row->HardcorePoints,
                 'SoftcorePoints' => $row->SoftcorePoints,
                 'CumulHardcoreScore' => $cumulHardcoreScore,
-                'CumulSoftcoreScore' => $cumulCasualScore,
+                'CumulCasualScore' => $cumulCasualScore,
             ];
         })
         ->values()

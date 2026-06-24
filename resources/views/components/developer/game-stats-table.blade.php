@@ -121,7 +121,7 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Beaten Casual/Hardcore Awards:">
+        <x-developer.game-stats-table-row headingLabel="Beaten (casual/hardcore) Awards:">
             @if ($beatenCasualAwards === 0 && $beatenHardcoreAwards === 0)
                 N/A
             @else
@@ -139,11 +139,11 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Own Beaten Casual/Hardcore Awards:">
-            @if (($ownAwards['BeatenSoftcore'] ?? 0) === 0 && ($ownAwards['BeatenHardcore'] ?? 0) === 0)
+        <x-developer.game-stats-table-row headingLabel="Own Beaten (casual/hardcore) Awards:">
+            @if (($ownAwards['BeatenCasual'] ?? 0) === 0 && ($ownAwards['BeatenHardcore'] ?? 0) === 0)
                 N/A
             @else
-                {{ $ownAwards['BeatenSoftcore'] }}
+                {{ $ownAwards['BeatenCasual'] }}
                 <strong>({{ $ownAwards['BeatenHardcore'] }})</strong>
             @endif
         </x-developer.game-stats-table-row>
@@ -157,11 +157,11 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Most Beaten Casual Game:">
-            @if (($mostBeatenCasualGame['BeatenSoftcore'] ?? 0) === 0)
+        <x-developer.game-stats-table-row headingLabel="Most Beaten (casual) Game:">
+            @if (($mostBeatenCasualGame['BeatenCasual'] ?? 0) === 0)
                 N/A
             @else
-                {{ localized_number($mostBeatenCasualGame['BeatenSoftcore'] ?? 0) }}
+                {{ localized_number($mostBeatenCasualGame['BeatenCasual'] ?? 0) }}
                 &ndash;
                 {!! gameAvatar($mostBeatenCasualGame) !!}
             @endif
@@ -197,11 +197,11 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="User with Most Beaten Casual Awards:">
+        <x-developer.game-stats-table-row headingLabel="User with Most Beaten (casual) Awards:">
             @if (empty($userMostBeatenCasual))
                 N/A
             @else
-                {{ localized_number($userMostBeatenCasual['BeatenSoftcore']) }}
+                {{ localized_number($userMostBeatenCasual['BeatenCasual']) }}
                 &ndash;
                 {!! userAvatar($userMostBeatenCasual['User']) !!}
             @endif

@@ -273,7 +273,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it('given a mix of hardcore and casual achievements, shows mixed progress labels', async () => {
+  it('given a mix of hardcore and casual mode unlocks, shows mixed progress labels', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),

@@ -1,5 +1,5 @@
 @props([
-    'awardIndicator' => null, // 'unfinished' | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered' | null
+    'awardIndicator' => null,
     'containerClassNames' => '',
     'hardcoreProgress' => 0,
     'maxProgress' => 100,

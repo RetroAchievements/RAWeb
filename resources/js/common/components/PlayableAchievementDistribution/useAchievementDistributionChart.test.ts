@@ -28,7 +28,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -49,7 +49,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -79,7 +79,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -100,7 +100,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -133,12 +133,12 @@ describe('Hook: useAchievementDistributionChart', () => {
     expect(result.current.userAchievementCounts).toBeNull();
   });
 
-  it('returns the correct user hardcore and softcore indexes', () => {
+  it('returns the correct user hardcore and casual indexes', () => {
     // ARRANGE
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -161,7 +161,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -190,7 +190,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -213,7 +213,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -272,7 +272,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>

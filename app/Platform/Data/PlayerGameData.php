@@ -19,7 +19,7 @@ class PlayerGameData extends Data
         // Model fields
         public ?int $achievementsUnlocked,
         public ?int $achievementsUnlockedHardcore,
-        public ?int $achievementsUnlockedSoftcore,
+        public ?int $achievementsUnlockedCasual,
         public ?Carbon $beatenAt,
         public ?Carbon $beatenHardcoreAt,
         public ?Carbon $completedAt,
@@ -43,7 +43,7 @@ class PlayerGameData extends Data
         return new self(
             achievementsUnlocked: $playerGame->achievements_unlocked,
             achievementsUnlockedHardcore: $playerGame->achievements_unlocked_hardcore,
-            achievementsUnlockedSoftcore: $playerGame->achievements_unlocked_softcore,
+            achievementsUnlockedCasual: $playerGame->achievements_unlocked_softcore,
             beatenAt: $playerGame->beaten_at,
             beatenHardcoreAt: $playerGame->beaten_hardcore_at,
             completedAt: $playerGame->completed_at,

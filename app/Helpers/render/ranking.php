@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
  * @param int $sort Stats to sort by
  *            1 - User
  *            2 - Casual Points (used to be Total Achievements)
- *            3 - Casual Achievements
+ *            3 - Casual Unlocks
  *            4 - Hardcore Achievements
  *            5 - Hardcore Points
  *            6 - Retro Points
@@ -104,7 +104,7 @@ function getGlobalRankingData(
             $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
             $unlockMode = UnlockMode::Casual;
             break;
-        case 3: // Casual Achievements
+        case 3: // Casual Unlocks
             $orderCond = "ORDER BY AchievementCount " . $sortOrder . ", Points DESC, User ASC";
             $unlockMode = UnlockMode::Casual;
             break;
@@ -142,7 +142,7 @@ function getGlobalRankingData(
         $totalAwards = "SUM(" . ifStatement('award_tier > 0', 1, 0) . ")";
     } else {
         $totalAwards = "COUNT(*)";
-        $pointRequirement = "AND ua.points >= 0"; // if someone resets a casual achievement without resetting the hardcore, the query can return negative points
+        $pointRequirement = "AND ua.points >= 0"; // if someone resets a casual-mode unlock without resetting the hardcore, the query can return negative points
     }
 
     $retVal = [];

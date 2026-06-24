@@ -173,7 +173,7 @@ $unlockMode = match ($sort % 10) {
     if ($unlockMode == UnlockMode::Hardcore) {
         $sortFilter('Hardcore Achievements', 4);
     } else {
-        $sortFilter('Casual Achievements', 3);
+        $sortFilter('Casual Unlocks', 3);
     }
     echo "</th>";
 

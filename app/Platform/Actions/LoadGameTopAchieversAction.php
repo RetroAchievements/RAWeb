@@ -21,7 +21,7 @@ class LoadGameTopAchieversAction
      * mastery, for a given game.
      *
      * @param Game $game the target game to load top players for
-     * @return array{int, Collection<int, GameTopAchieverData>, int, int, int} array with number of masters, collection of top players, number of completions, number beaten, and number beaten casual
+     * @return array{int, Collection<int, GameTopAchieverData>, int, int, int} array with number of masters, collection of top players, number of completions, number beaten, and number beaten in casual mode
      */
     public function execute(Game $game): array
     {

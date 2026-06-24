@@ -34,7 +34,6 @@ class UserProfileMeta extends Component
     public function render(): View
     {
         $hardcorePoints = $this->userMassData['TotalPoints'] ?? 0;
-        // 'TotalSoftcorePoints' kept verbatim for V1 API / legacy SQL column alias compatibility.
         $casualPoints = $this->userMassData['TotalSoftcorePoints'] ?? 0;
 
         $hardcoreRankMeta = ['rank' => 0];
@@ -209,7 +208,6 @@ class UserProfileMeta extends Component
         array $casualRankMeta,
     ): array {
         $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
-        // 'TotalSoftcorePoints' is kept verbatim for V1 API / legacy SQL column alias compatibility.
         $casualPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
         $preferredMode = $casualPoints > $hardcorePoints ? 'casual' : 'hardcore';
 
@@ -357,7 +355,6 @@ class UserProfileMeta extends Component
 
     private function buildCasualPlayerStats(User $user, array $userMassData, array $casualRankMeta): array
     {
-        // 'TotalSoftcorePoints' is kept verbatim for V1 API / legacy SQL column alias compatibility.
         $casualPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 
         // Casual points.

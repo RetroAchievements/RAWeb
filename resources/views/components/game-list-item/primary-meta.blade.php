@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
     'gameTitle' => '',
     'highestAwardTimeTaken' => null,
     'highestAwardDate' => null,
-    'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
+    'highestAwardKind' => null,
     'mostRecentWonDate' => '',
     'numAwardedAchievements' => 0,
     'numAwardedHardcorePoints' => null,

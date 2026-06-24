@@ -13,7 +13,7 @@
     @if ($totalBeatenCasualCount > 0)
         <div>
             <div class="rounded-full w-2 h-2 border border-zinc-400"></div>
-            <p class="text-zinc-400 font-bold text-xs">Beaten Casual</p>
+            <p class="text-zinc-400 font-bold text-xs">Beaten (casual)</p>
         </div>
     @endif
 

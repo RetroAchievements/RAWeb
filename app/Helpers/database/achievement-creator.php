@@ -98,7 +98,7 @@ function getOwnAchievementsObtained(User $user): array
         ->where('pa.user_id', $user->id)
         ->where('ach.is_promoted', true)
         ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
-        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount')
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS CasualCount')
         ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount')
         ->first();
 
@@ -122,7 +122,7 @@ function getObtainersOfSpecificUser(User $user): array
         ->groupBy('ua.username')
         ->orderByDesc('ObtainCount')
         ->selectRaw('ua.username AS User, COUNT(ua.username) AS ObtainCount')
-        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount')
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS CasualCount')
         ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount')
         ->get()
         ->map(fn ($row) => (array) $row)

@@ -710,7 +710,7 @@ trait BuildsGameListQueries
                 /*
                  * games where the player has any award for the game
                  */
-                case GameListProgressFilterValue::GteBeatenSoftcore->value:
+                case GameListProgressFilterValue::GteBeatenCasual->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
                             ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
@@ -719,7 +719,7 @@ trait BuildsGameListQueries
 
                 /*
                  * games where the player has a hardcore beaten award or better
-                 * (includes beaten hardcore, mastered softcore, mastered hardcore)
+                 * (includes beaten hardcore, casual completion, mastered hardcore)
                  */
                 case GameListProgressFilterValue::GteBeatenHardcore->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
@@ -737,7 +737,7 @@ trait BuildsGameListQueries
                 /*
                  * games where the player has a casual beaten award
                  */
-                case GameListProgressFilterValue::EqBeatenSoftcore->value:
+                case GameListProgressFilterValue::EqBeatenCasual->value:
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
@@ -770,7 +770,7 @@ trait BuildsGameListQueries
 
                 /*
                  * games where the player has any mastery award
-                 * (includes mastered softcore, mastered hardcore)
+                 * (includes casual completion, mastered hardcore)
                  */
                 case GameListProgressFilterValue::GteCompleted->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {

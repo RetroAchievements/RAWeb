@@ -47,9 +47,9 @@ use Illuminate\Support\Carbon;
                         $dateStr = $nextDate->format('d M Y');
 
                         $hardcoreValue = $dayInfo['CumulHardcoreScore'];
-                        $softcoreValue = $dayInfo['CumulSoftcoreScore'];
+                        $casualValue = $dayInfo['CumulCasualScore'];
 
-                        echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
+                        echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $casualValue ]";
                     }
                 @endphp
             ]);

@@ -69,7 +69,7 @@ class DeveloperGameStatsTable extends Component
 
         $mostAwardedGames = getMostAwardedGames($targetGameIds);
         foreach ($mostAwardedGames as $game) {
-            $mostBeatenCasualGame = $this->findMost($game, 'BeatenSoftcore', $mostBeatenCasualGame);
+            $mostBeatenCasualGame = $this->findMost($game, 'BeatenCasual', $mostBeatenCasualGame);
             $mostBeatenHardcoreGame = $this->findMost($game, 'BeatenHardcore', $mostBeatenHardcoreGame);
             $mostCompletedGame = $this->findMost($game, 'Completed', $mostCompletedGame);
             $mostMasteredGame = $this->findMost($game, 'Mastered', $mostMasteredGame);
@@ -77,7 +77,7 @@ class DeveloperGameStatsTable extends Component
 
         $mostAwardedUsers = getMostAwardedUsers($targetGameIds);
         foreach ($mostAwardedUsers as $userInfo) {
-            $userMostBeatenCasual = $this->findMost($userInfo, 'BeatenSoftcore', $userMostBeatenCasual);
+            $userMostBeatenCasual = $this->findMost($userInfo, 'BeatenCasual', $userMostBeatenCasual);
             $userMostBeatenHardcore = $this->findMost($userInfo, 'BeatenHardcore', $userMostBeatenHardcore);
             $userMostCompleted = $this->findMost($userInfo, 'Completed', $userMostCompleted);
             $userMostMastered = $this->findMost($userInfo, 'Mastered', $userMostMastered);
@@ -86,7 +86,7 @@ class DeveloperGameStatsTable extends Component
                 $ownAwards = $userInfo;
             }
 
-            $beatenCasualAwards += $userInfo['BeatenSoftcore'];
+            $beatenCasualAwards += $userInfo['BeatenCasual'];
             $beatenHardcoreAwards += $userInfo['BeatenHardcore'];
             $completedAwards += $userInfo['Completed'];
             $masteredAwards += $userInfo['Mastered'];

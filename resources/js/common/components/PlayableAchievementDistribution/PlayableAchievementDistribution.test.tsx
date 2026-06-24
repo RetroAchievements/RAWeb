@@ -129,7 +129,7 @@ describe('Component: PlayableAchievementDistribution', () => {
     expect(hookData.userCasualIndex).toBeUndefined();
   });
 
-  it('given a playerGame with casual achievements, renders with the right user indices', () => {
+  it('given a playerGame with casual mode unlocks, renders with the right user indices', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
       { start: 0, end: 9, hardcore: 10, casual: 5 },

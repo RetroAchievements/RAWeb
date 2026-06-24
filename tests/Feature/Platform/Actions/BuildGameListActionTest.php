@@ -669,7 +669,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals([1002, 1003, 1004, 1005], $resultGameIds);
     }
 
-    public function testItCanFilterByGteBeatenSoftcoreProgress(): void
+    public function testItCanFilterByGteBeatenCasualProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -687,7 +687,7 @@ class BuildGameListActionTest extends TestCase
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['progress' => [GameListProgressFilterValue::GteBeatenSoftcore->value]],
+            filters: ['progress' => [GameListProgressFilterValue::GteBeatenCasual->value]],
         );
 
         // Assert
@@ -733,7 +733,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals([1001, 1002, 1004], $resultGameIds);
     }
 
-    public function testItCanFilterByEqBeatenSoftcoreProgress(): void
+    public function testItCanFilterByEqBeatenCasualProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -752,7 +752,7 @@ class BuildGameListActionTest extends TestCase
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['progress' => [GameListProgressFilterValue::EqBeatenSoftcore->value]],
+            filters: ['progress' => [GameListProgressFilterValue::EqBeatenCasual->value]],
         );
 
         // Assert
