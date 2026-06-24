@@ -169,6 +169,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
       achievementsUnlockedCasual: 0,
+      points: 285,
       pointsHardcore: 285,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
