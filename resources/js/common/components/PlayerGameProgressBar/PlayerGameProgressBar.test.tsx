@@ -185,8 +185,9 @@ describe('Component: PlayerGameProgressBar', () => {
     // ASSERT
     const tooltipEl = await screen.findByRole('tooltip');
 
-    expect(tooltipEl).toHaveTextContent(/8 of 33 achievements unlocked in hardcore mode/i);
-    expect(tooltipEl).toHaveTextContent(/285 of 400 points earned in hardcore mode/i);
+    expect(tooltipEl).toHaveTextContent(/8 of 33 achievements unlocked/i);
+    expect(tooltipEl).toHaveTextContent(/285 of 400 points earned/i);
+    expect(tooltipEl).not.toHaveTextContent(/hardcore mode/i);
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
 

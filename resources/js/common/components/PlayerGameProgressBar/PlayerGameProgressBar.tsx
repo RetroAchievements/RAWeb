@@ -126,6 +126,9 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
     canShowDetailedProgress && canShowTooltipPoints && (pointsHardcore > 0 || points > 0);
   const hasTooltipContent =
     hasAchievementTooltipContent || hasPointTooltipContent || !!highestAward;
+  const hasCasualTooltipContent =
+    canShowDetailedProgress &&
+    (achievementsUnlockedCasual > 0 || (canShowTooltipPoints && points > 0));
 
   const Wrapper = shouldLink ? 'a' : 'div';
 
@@ -207,13 +210,18 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
             <>
               {achievementsUnlockedHardcore > 0 ? (
                 <p>
-                  {t(
-                    '{{earned, number}} of {{total, number}} achievements unlocked in hardcore mode',
-                    {
-                      earned: achievementsUnlockedHardcore,
-                      total: achievementsPublished,
-                    },
-                  )}
+                  {hasCasualTooltipContent
+                    ? t(
+                        '{{earned, number}} of {{total, number}} achievements unlocked in hardcore mode',
+                        {
+                          earned: achievementsUnlockedHardcore,
+                          total: achievementsPublished,
+                        },
+                      )
+                    : t('{{earned, number}} of {{total, number}} achievements unlocked', {
+                        earned: achievementsUnlockedHardcore,
+                        total: achievementsPublished,
+                      })}
                 </p>
               ) : null}
 
@@ -233,10 +241,18 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
                 <>
                   {pointsHardcore > 0 ? (
                     <p>
-                      {t('{{earned, number}} of {{total, number}} points earned in hardcore mode', {
-                        earned: pointsHardcore,
-                        total: pointsTotal,
-                      })}
+                      {hasCasualTooltipContent
+                        ? t(
+                            '{{earned, number}} of {{total, number}} points earned in hardcore mode',
+                            {
+                              earned: pointsHardcore,
+                              total: pointsTotal,
+                            },
+                          )
+                        : t('{{earned, number}} of {{total, number}} points earned', {
+                            earned: pointsHardcore,
+                            total: pointsTotal,
+                          })}
                     </p>
                   ) : null}
 
