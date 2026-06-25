@@ -291,6 +291,42 @@ class UpdateGameBeatenMetricsActionTest extends TestCase
         $this->assertEquals(600, $game->median_time_to_beat); // median of [500, 700] = 600
     }
 
+    public function testItPreservesNullMedianWhenCompletedRecordsHaveNoTrackedTime(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 10]);
+
+        $achievementSet = AchievementSet::factory()->create([
+            'achievements_published' => 10,
+            'players_total' => 0,
+            'players_hardcore' => 0,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+        ]);
+
+        $rankedUser = User::factory()->create();
+
+        PlayerAchievementSet::create([
+            'user_id' => $rankedUser->id,
+            'achievement_set_id' => $achievementSet->id,
+            'achievements_unlocked' => 10,
+            'achievements_unlocked_hardcore' => 0,
+            'time_taken' => null,
+            'time_taken_hardcore' => null,
+        ]);
+
+        // Act
+        (new UpdateGameBeatenMetricsAction())->execute($game);
+
+        // Assert
+        $achievementSet->refresh();
+        $this->assertEquals(1, $achievementSet->times_completed);
+        $this->assertNull($achievementSet->median_time_to_complete);
+    }
+
     public function testItReturnsZeroWhenNoRankedUsersHaveTimes(): void
     {
         // Arrange
