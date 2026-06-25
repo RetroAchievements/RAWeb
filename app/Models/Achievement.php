@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketState;
 use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Contracts\Ticketable;
@@ -23,6 +24,7 @@ use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Services\GameOpenTicketCountService;
+use App\Platform\Services\UserTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\CarbonInterface;
 use Database\Factories\AchievementFactory;
@@ -39,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -176,20 +179,26 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         });
 
         static::deleting(function (Achievement $achievement) {
+            $affectedUserIds = self::affectedTicketUserIdsForCacheInvalidation($achievement);
+
             // If we're force deleting the achievement, force delete the tickets.
             if ($achievement->isForceDeleting()) {
                 $achievement->tickets()->forceDelete();
-
-                return;
+            } else {
+                // Otherwise, soft delete the tickets.
+                $achievement->tickets()->delete();
             }
 
-            // Otherwise, soft delete the tickets.
-            $achievement->tickets()->delete();
+            app(UserTicketCountService::class)->clearForUserIds($affectedUserIds);
         });
 
         // When restoring an achievement, restore its tickets.
         static::restoring(function (Achievement $achievement) {
+            $affectedUserIds = self::affectedTicketUserIdsForCacheInvalidation($achievement, onlyTrashed: true);
+
             $achievement->tickets()->restore();
+
+            app(UserTicketCountService::class)->clearForUserIds($affectedUserIds);
         });
 
         static::restored(function (Achievement $achievement) {
@@ -209,12 +218,24 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
-     * Convert is_promoted boolean to the legacy Flags integer value.
-     * For backwards compatibility with legacy code.
+     * @return Collection<int, int>
      */
-    public function getFlagsAttribute(): int
+    private static function affectedTicketUserIdsForCacheInvalidation(Achievement $achievement, bool $onlyTrashed = false): Collection
     {
-        return $this->is_promoted ? self::FLAG_PROMOTED : self::FLAG_UNPROMOTED;
+        $tickets = $achievement->tickets();
+
+        if ($onlyTrashed) {
+            $tickets->onlyTrashed();
+        }
+
+        return $tickets
+            ->whereIn('state', [TicketState::Open->value, TicketState::Request->value])
+            ->get(['ticketable_author_id', 'reporter_id'])
+            ->flatMap(fn (Ticket $ticket): array => [$ticket->ticketable_author_id, $ticket->reporter_id])
+            ->filter()
+            ->map(fn ($userId): int => (int) $userId)
+            ->unique()
+            ->values();
     }
 
     /**
@@ -426,6 +447,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             ->exists();
 
         return !$hasNonCoreLink;
+    }
+
+    /**
+     * Convert is_promoted boolean to the legacy Flags integer value.
+     * For backwards compatibility with legacy code.
+     */
+    public function getFlagsAttribute(): int
+    {
+        return $this->is_promoted ? self::FLAG_PROMOTED : self::FLAG_UNPROMOTED;
     }
 
     public function getPermalinkAttribute(): string

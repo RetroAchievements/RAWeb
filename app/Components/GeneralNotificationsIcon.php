@@ -7,6 +7,7 @@ namespace App\Components;
 use App\Models\AchievementSetClaim;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -30,7 +31,7 @@ class GeneralNotificationsIcon extends Component
 
         // Ticket feedback for users without manage permissions
         if (!$user->can('manage', Ticket::class)) {
-            $ticketFeedback = countRequestTicketsByUser($user);
+            $ticketFeedback = app(UserTicketCountService::class)->countRequestsForReporter($user);
             if ($ticketFeedback) {
                 $notifications->push([
                     'link' => route('reporter.tickets', ['user' => $user->display_name]),
