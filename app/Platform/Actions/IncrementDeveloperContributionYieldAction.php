@@ -70,12 +70,17 @@ class IncrementDeveloperContributionYieldAction
         // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
         // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
         // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
+        //
+        // This and the users update above are deliberately non-transactional.
+        // A single PK update can block but cannot deadlock. A crash between the two
+        // can leave author_yield_unlocks momentarily drifted from users.yield_*,
+        // which self-heals on the next full recalc. This is an accepted tradeoff for
+        // eliminating the deadlock cycle.
         if ($developer->id === $achievement->user_id) {
             $player = User::find($playerAchievement->user_id);
             if ($player && !$player->is_unranked) {
-                // This is an intentional raw update of only author_yield_unlocks.
-                // We intentionally do not use increment() or decrement(), which also
-                // bumps updated_at and causes a deadlock.
+                // Raw update of only author_yield_unlocks - not increment()/decrement(),
+                // which also bump updated_at and deadlock with the metrics recalc.
                 DB::table('achievements')
                     ->where('id', $achievement->id)
                     ->update([
