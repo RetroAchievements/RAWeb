@@ -145,3 +145,120 @@ it('invalidates the cached count when a ticket leaves an open state', function (
     // Assert
     expect($service->count($game, true))->toBe(0);
 });
+
+it('invalidates the cached count when an achievement is promoted', function () {
+    // Arrange
+    $developer = User::factory()->create();
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->create([
+        'game_id' => $game->id,
+        'user_id' => $developer->id,
+        'is_promoted' => false,
+    ]);
+    Ticket::factory()->create([
+        'ticketable_id' => $achievement->id,
+        'state' => TicketState::Open,
+    ]);
+
+    $service = app(GameOpenTicketCountService::class);
+
+    expect($service->count($game, false))->toBe(1);
+    expect($service->count($game, true))->toBe(0);
+
+    // Act
+    $achievement->is_promoted = true;
+    $achievement->save();
+
+    // Assert
+    expect($service->count($game, false))->toBe(0);
+    expect($service->count($game, true))->toBe(1);
+});
+
+it('invalidates both source and destination caches when an achievement moves between games', function () {
+    // Arrange
+    $developer = User::factory()->create();
+    $system = System::factory()->create();
+    $sourceGame = Game::factory()->create(['system_id' => $system->id]);
+    $destinationGame = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create([
+        'game_id' => $sourceGame->id,
+        'user_id' => $developer->id,
+    ]);
+    Ticket::factory()->create([
+        'ticketable_id' => $achievement->id,
+        'state' => TicketState::Open,
+    ]);
+
+    $service = app(GameOpenTicketCountService::class);
+
+    expect($service->count($sourceGame, true))->toBe(1);
+    expect($service->count($destinationGame, true))->toBe(0);
+
+    // Act
+    $achievement->game_id = $destinationGame->id;
+    $achievement->save();
+
+    // Assert
+    expect($service->count($sourceGame, true))->toBe(0);
+    expect($service->count($destinationGame, true))->toBe(1);
+});
+
+it('invalidates the cached count when a leaderboard changes promotion state', function () {
+    // Arrange
+    $developer = User::factory()->create();
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $leaderboard = Leaderboard::factory()->create([
+        'game_id' => $game->id,
+        'author_id' => $developer->id,
+        'state' => LeaderboardState::Unpromoted,
+    ]);
+    Ticket::factory()->create([
+        'ticketable_type' => TicketableType::Leaderboard->value,
+        'ticketable_id' => $leaderboard->id,
+        'state' => TicketState::Open,
+    ]);
+
+    $service = app(GameOpenTicketCountService::class);
+
+    expect($service->count($game, false))->toBe(1);
+    expect($service->count($game, true))->toBe(0);
+
+    // Act
+    $leaderboard->state = LeaderboardState::Active;
+    $leaderboard->save();
+
+    // Assert
+    expect($service->count($game, false))->toBe(0);
+    expect($service->count($game, true))->toBe(1);
+});
+
+it('invalidates both source and destination caches when a leaderboard moves between games', function () {
+    // Arrange
+    $developer = User::factory()->create();
+    $system = System::factory()->create();
+    $sourceGame = Game::factory()->create(['system_id' => $system->id]);
+    $destinationGame = Game::factory()->create(['system_id' => $system->id]);
+    $leaderboard = Leaderboard::factory()->create([
+        'game_id' => $sourceGame->id,
+        'author_id' => $developer->id,
+        'state' => LeaderboardState::Active,
+    ]);
+    Ticket::factory()->create([
+        'ticketable_type' => TicketableType::Leaderboard->value,
+        'ticketable_id' => $leaderboard->id,
+        'state' => TicketState::Open,
+    ]);
+
+    $service = app(GameOpenTicketCountService::class);
+
+    expect($service->count($sourceGame, true))->toBe(1);
+    expect($service->count($destinationGame, true))->toBe(0);
+
+    // Act
+    $leaderboard->game_id = $destinationGame->id;
+    $leaderboard->save();
+
+    // Assert
+    expect($service->count($sourceGame, true))->toBe(0);
+    expect($service->count($destinationGame, true))->toBe(1);
+});

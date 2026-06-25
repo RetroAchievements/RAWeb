@@ -23,6 +23,7 @@ use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
+use App\Platform\Services\GameOpenTicketCountService;
 use App\Platform\Services\UserTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\CarbonInterface;
@@ -164,6 +165,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
                 $originalGame = Game::find($achievement->getOriginal('game_id'));
                 if ($originalGame) {
                     AchievementMoved::dispatch($achievement, $originalGame);
+                }
+            }
+
+            if ($achievement->wasChanged(['game_id', 'is_promoted'])) {
+                $service = app(GameOpenTicketCountService::class);
+                $service->clearForGameId((int) $achievement->game_id);
+                $originalGameId = $achievement->getOriginal('game_id');
+                if ($achievement->wasChanged('game_id') && $originalGameId !== null) {
+                    $service->clearForGameId((int) $originalGameId);
                 }
             }
         });
