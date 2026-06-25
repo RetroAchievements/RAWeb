@@ -47,48 +47,49 @@ class IncrementDeveloperContributionYieldAction
             }
         }
 
-        [$oldContribCount, $oldContribYield] = DB::transaction(function () use (
-            $developer, $achievement, $playerAchievement, $isUnlock
-        ): array {
-            $developer->refresh(); // need to re-read so retries see the current authoritative state
-            $snapshot = [$developer->yield_unlocks, $developer->yield_points];
+        $developer->refresh();
+        $oldContribCount = $developer->yield_unlocks;
+        $oldContribYield = $developer->yield_points;
 
-            if ($isUnlock) {
-                DB::table('users')
-                    ->where('id', $developer->id)
+        if ($isUnlock) {
+            DB::table('users')
+                ->where('id', $developer->id)
+                ->update([
+                    'yield_unlocks' => DB::raw('yield_unlocks + 1'),
+                    'yield_points' => DB::raw('yield_points + ' . $achievement->points),
+                ]);
+        } else {
+            DB::table('users')
+                ->where('id', $developer->id)
+                ->update([
+                    'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
+                    'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
+                ]);
+        }
+
+        // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
+        // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
+        // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
+        if ($developer->id === $achievement->user_id) {
+            $player = User::find($playerAchievement->user_id);
+            if ($player && !$player->is_unranked) {
+                // This is an intentional raw update of only author_yield_unlocks.
+                // We intentionally do not use increment() or decrement(), which also
+                // bumps updated_at and causes a deadlock.
+                DB::table('achievements')
+                    ->where('id', $achievement->id)
                     ->update([
-                        'yield_unlocks' => DB::raw('yield_unlocks + 1'),
-                        'yield_points' => DB::raw('yield_points + ' . $achievement->points),
-                    ]);
-            } else {
-                DB::table('users')
-                    ->where('id', $developer->id)
-                    ->update([
-                        'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
-                        'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
+                        'author_yield_unlocks' => DB::raw(
+                            $isUnlock
+                                ? 'author_yield_unlocks + 1'
+                                : 'CASE WHEN author_yield_unlocks > 0 THEN author_yield_unlocks - 1 ELSE 0 END'
+                        ),
                     ]);
             }
-
-            // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
-            // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
-            // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
-            if ($developer->id === $achievement->user_id) {
-                $player = User::find($playerAchievement->user_id);
-                if ($player && !$player->is_unranked) {
-                    if ($isUnlock) {
-                        $achievement->increment('author_yield_unlocks');
-                    } else {
-                        $achievement->decrement('author_yield_unlocks');
-                    }
-                }
-            }
-
-            return $snapshot;
-        }, 3);
+        }
 
         $developer->refresh();
 
-        // Only check for new badges if incrementing.
         if ($isUnlock) {
             $this->checkAndAwardNewBadges($developer, $oldContribYield, $oldContribCount);
         }
