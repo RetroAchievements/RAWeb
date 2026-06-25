@@ -68,15 +68,4 @@ class UserAwardResource extends BaseJsonApiResource
         // User awards are only exposed via the parent user relationship endpoint.
         return new Links();
     }
-
-    private function wasIncluded(?Request $request, string $relationship): bool
-    {
-        if (!$request) {
-            return false;
-        }
-
-        return collect(explode(',', (string) $request->query('include')))
-            ->map(fn (string $include) => trim($include))
-            ->contains(fn (string $include) => $include === $relationship || str_starts_with($include, "{$relationship}."));
-    }
 }

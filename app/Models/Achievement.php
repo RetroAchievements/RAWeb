@@ -305,6 +305,11 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->game;
     }
 
+    public function getTicketableGameId(): int
+    {
+        return $this->game_id;
+    }
+
     public function getTicketableAssignee(?CarbonInterface $at = null): ?User
     {
         return $this->getMaintainerAt($at ?? now());

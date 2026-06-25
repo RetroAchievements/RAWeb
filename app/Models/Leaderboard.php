@@ -131,6 +131,11 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->game;
     }
 
+    public function getTicketableGameId(): int
+    {
+        return $this->game_id;
+    }
+
     public function getTicketableAssignee(?CarbonInterface $at = null): ?User
     {
         // leaderboards don't have a "maintainer" concept - the assignee is always the author.

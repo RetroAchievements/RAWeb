@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Users;
 
+use App\Api\V2\Tickets\TicketableTypeFilter;
+use App\Api\V2\Tickets\TicketStateFilter;
+use App\Api\V2\Tickets\TicketTypeFilter;
+use App\Api\V2\Tickets\UserUlidFilter;
 use App\Api\V2\UserAwards\UserAwardGameAwardsFilter;
 use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
@@ -98,6 +102,17 @@ class UserSchema extends Schema
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
+            HasMany::make('tickets', 'authoredTickets')
+                ->type('tickets')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    new TicketStateFilter(),
+                    new TicketTypeFilter(),
+                    new TicketableTypeFilter(),
+                    new UserUlidFilter('reporterUserId', 'reporter_id'),
+                    new UserUlidFilter('resolverUserId', 'resolver_id'),
+                )
+                ->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
