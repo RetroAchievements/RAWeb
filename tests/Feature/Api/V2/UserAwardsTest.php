@@ -593,7 +593,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 2,
-            'award_tier' => 0,
+            'award_tier' => 2,
             'order_column' => 0,
         ]);
 
@@ -611,8 +611,40 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('Media Contribution', $response->json('data.0.attributes.title'));
         $this->assertStringEndsWith('/assets/images/badge/mediaContrib-2.png', $response->json('data.0.attributes.badgeUrl'));
         $this->assertEquals(2, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.displayTierIndex'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.earnedTier'));
         $this->assertEquals(100, $response->json('data.0.attributes.context.threshold'));
         $this->assertEquals(1, $response->json('meta.siteAwardsCount'));
+    }
+
+    public function testItUsesTheDisplayTierBadgeUrlForMediaContributionAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::MediaContribution,
+            'award_key' => 2,
+            'award_tier' => 2,
+            'display_award_tier' => 0,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[kind]=media-contribution");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/assets/images/badge/mediaContrib-0.png', $response->json('data.0.attributes.badgeUrl'));
+        $this->assertEquals(0, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(0, $response->json('data.0.attributes.context.displayTierIndex'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.earnedTier'));
+        $this->assertEquals(10, $response->json('data.0.attributes.context.threshold'));
     }
 
     public function testItCanSortByAwardedAtDescending(): void
@@ -937,12 +969,14 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 1,
+            'award_tier' => 1,
             'order_column' => 0,
         ]);
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 2,
+            'award_tier' => 2,
             'order_column' => 0,
         ]);
 

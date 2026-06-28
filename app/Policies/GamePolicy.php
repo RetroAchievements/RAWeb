@@ -128,6 +128,11 @@ class GamePolicy
         return true;
     }
 
+    public function viewTickets(?User $user, Game $game): bool
+    {
+        return $user !== null;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([

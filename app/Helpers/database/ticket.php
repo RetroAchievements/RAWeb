@@ -17,9 +17,7 @@ use App\Models\User;
 use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserAgentService;
-use App\Support\Cache\CacheKey;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\DB;
 
 function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
@@ -75,7 +73,9 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         'body' => $note,
     ]);
 
-    expireUserTicketCounts($maintainer);
+    if ($maintainer) {
+        app(UserTicketCountService::class)->clearForUserId($maintainer->id);
+    }
 
     $newTicket->state = TicketState::Open; // normalize to a proper enum value
 
@@ -198,12 +198,14 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
         ]);
     }
 
+    $userTicketCountService = app(UserTicketCountService::class);
+
     if ($ticket->author) {
-        expireUserTicketCounts($ticket->author);
+        $userTicketCountService->clearForUserId($ticket->author->id);
     }
 
     if ($ticket->reporter) {
-        expireUserTicketCounts($ticket->reporter);
+        $userTicketCountService->clearForUserId($ticket->reporter->id);
 
         // Only send email if the reporter has email notifications enabled for ticket activity.
         if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
@@ -212,51 +214,6 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
     }
 
     return true;
-}
-
-function countRequestTicketsByUser(?User $user = null): int
-{
-    if ($user === null) {
-        return 0;
-    }
-
-    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->username);
-
-    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($user) {
-        return Ticket::where('state', TicketState::Request)
-            ->where('reporter_id', $user->id)
-            ->count();
-    });
-}
-
-function countOpenTicketsByDev(User $dev): array
-{
-    $retVal = [
-        TicketState::Open->value => 0,
-        TicketState::Request->value => 0,
-    ];
-
-    $counts = Ticket::with('achievement')
-        ->where('ticketable_author_id', $dev->id)
-        ->whereHas('achievement')
-        ->whereIn('state', [TicketState::Open, TicketState::Request])
-        ->select('state', DB::raw('count(*) as Count'))
-        ->groupBy('state')
-        ->pluck('Count', 'state');
-
-    foreach ($counts as $state => $count) {
-        $retVal[$state] = (int) $count;
-    }
-
-    return $retVal;
-}
-
-function expireUserTicketCounts(?User $user): void
-{
-    if ($user) {
-        $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->username);
-        Cache::forget($cacheKey);
-    }
 }
 
 function countOpenTicketsByAchievement(int $achievementID): int

@@ -12,7 +12,6 @@ use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
 use Closure;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 final class ScreenshotReviewContext
@@ -354,6 +353,84 @@ final class ScreenshotReviewContext
     }
 
     /**
+     * @return Collection<int, GameScreenshot>
+     */
+    public function otherPendingForGame(): Collection
+    {
+        return $this->remember('otherPendingForGame', fn (): Collection => $this->gameScreenshots()
+            ->filter(fn (GameScreenshot $screenshot): bool => $screenshot->status === GameScreenshotStatus::Pending
+                && $screenshot->id !== $this->screenshot->id
+            )
+            ->sortBy([
+                fn (GameScreenshot $a, GameScreenshot $b): int => $a->type->sortOrder() <=> $b->type->sortOrder(),
+                ['created_at', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->values()
+        );
+    }
+
+    /**
+     * @return array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null
+     */
+    public function otherPendingForGameContextData(): ?array
+    {
+        $submissions = $this->otherPendingForGame();
+        if ($submissions->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'items' => $submissions
+                ->map(fn (GameScreenshot $submission): array => [
+                    'recordKey' => (string) $submission->getKey(),
+                    'typeLabel' => $submission->type->label(),
+                    'resolution' => $this->formatResolution($submission) ?? '?',
+                    'submitterLabel' => $submission->capturedBy?->display_name ?? 'Unknown user',
+                    'url' => $submission->media?->getUrl(),
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * @return Collection<int, GameScreenshot>
+     */
+    public function approvedGalleryScreenshots(): Collection
+    {
+        return $this->remember('approvedGalleryScreenshots', fn (): Collection => $this->approvedScreenshotsForType(ScreenshotType::Ingame)
+            ->filter(fn (GameScreenshot $screenshot): bool => $screenshot->width !== null && $screenshot->height !== null)
+            ->sortBy([
+                ['order_column', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->values()
+        );
+    }
+
+    /**
+     * @return array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>
+     */
+    public function approvedGalleryItemsViewData(): array
+    {
+        return $this->approvedGalleryScreenshots()
+            ->map(function (GameScreenshot $screenshot): array {
+                $resolution = $this->formatResolution($screenshot) ?? '?';
+
+                return [
+                    'url' => $screenshot->media?->getUrl(),
+                    'resolution' => $resolution,
+                    'label' => "Gallery image ({$resolution})",
+                    'typeLabel' => $screenshot->type->label(),
+                    'submitterLabel' => $screenshot->capturedBy?->display_name ?? 'Unknown user',
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>
      */
     public function currentPrimaryContextItems(): array
@@ -381,39 +458,6 @@ final class ScreenshotReviewContext
             ->filter()
             ->values()
             ->all();
-    }
-
-    /**
-     * @return array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>, extraCount: int}|null
-     */
-    public function pendingCompanionsContextData(): ?array
-    {
-        /** @var EloquentCollection<int, GameScreenshot> $companions */
-        $companions = new EloquentCollection($this->matchingPendingCompanions()->all());
-        $companions->loadMissing(['capturedBy', 'media']);
-
-        $companions = $companions
-            ->sortBy(fn (GameScreenshot $screenshot): int => $screenshot->type->sortOrder())
-            ->values();
-
-        if ($companions->isEmpty()) {
-            return null;
-        }
-
-        return [
-            'items' => $companions
-                ->take(3)
-                ->map(fn (GameScreenshot $companion): array => [
-                    'recordKey' => (string) $companion->getKey(),
-                    'typeLabel' => $companion->type->label(),
-                    'resolution' => $this->formatResolution($companion) ?? '?',
-                    'submitterLabel' => $companion->capturedBy?->display_name ?? 'Unknown user',
-                    'url' => $companion->media?->getUrl(),
-                ])
-                ->values()
-                ->all(),
-            'extraCount' => max(0, $companions->count() - 3),
-        ];
     }
 
     public function canFixCurrentPrimary(): bool

@@ -21,7 +21,9 @@ use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Platform\Enums\ScreenshotType;
+use App\Platform\Enums\TicketableType;
 use App\Support\Database\Eloquent\BaseModel;
+use App\Support\Database\Eloquent\Relations\TicketsForGameRelation;
 use Database\Factories\GameFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -523,18 +525,19 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
         $updates = [];
 
-        $primaryIngame = $primaries->get('ingame');
-        if ($primaryIngame) {
-            $updates['image_ingame_asset_path'] = $primaryIngame->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
-        } elseif ($resetType === ScreenshotType::Ingame) {
-            $updates['image_ingame_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
-        }
+        foreach (ScreenshotType::cases() as $type) {
+            $field = $type->legacyAssetPathField();
+            if ($field === null) {
+                continue;
+            }
 
-        $primaryTitle = $primaries->get('title');
-        if ($primaryTitle) {
-            $updates['image_title_asset_path'] = $primaryTitle->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
-        } elseif ($resetType === ScreenshotType::Title) {
-            $updates['image_title_asset_path'] = self::PLACEHOLDER_IMAGE_PATH;
+            $primary = $primaries->get($type->value);
+
+            if ($primary) {
+                $updates[$field] = $primary->media?->getCustomProperty('legacy_path') ?? self::PLACEHOLDER_IMAGE_PATH;
+            } elseif ($resetType === $type) {
+                $updates[$field] = self::PLACEHOLDER_IMAGE_PATH;
+            }
         }
 
         if (!empty($updates)) {
@@ -1151,17 +1154,24 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
     /**
      * @return HasManyThrough<Ticket, Achievement, $this>
      */
-    public function tickets(): HasManyThrough
+    public function achievementTickets(): HasManyThrough
     {
-        return $this->hasManyThrough(Ticket::class, Achievement::class, 'game_id', 'ticketable_id', 'id', 'id');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'game_id', 'ticketable_id', 'id', 'id')
+            ->where('tickets.ticketable_type', TicketableType::Achievement->value);
     }
 
     /**
-     * @return HasManyThrough<Ticket, Achievement, $this>
+     * @return HasManyThrough<Ticket, Leaderboard, $this>
      */
-    public function unresolvedTickets(): HasManyThrough
+    public function leaderboardTickets(): HasManyThrough
     {
-        return $this->tickets()->open();
+        return $this->hasManyThrough(Ticket::class, Leaderboard::class, 'game_id', 'ticketable_id', 'id', 'id')
+            ->where('tickets.ticketable_type', TicketableType::Leaderboard->value);
+    }
+
+    public function allTickets(): TicketsForGameRelation
+    {
+        return new TicketsForGameRelation($this);
     }
 
     /**

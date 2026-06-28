@@ -86,6 +86,11 @@ class UserPolicy
         return true;
     }
 
+    public function viewTickets(?User $user, User $model): bool
+    {
+        return $user !== null;
+    }
+
     public function viewWallComments(?User $user, User $model): bool
     {
         // This is only to facilitate the V2 Web API.
