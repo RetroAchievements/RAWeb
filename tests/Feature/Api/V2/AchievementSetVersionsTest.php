@@ -6,7 +6,10 @@ namespace Tests\Feature\Api\V2;
 
 use App\Models\AchievementSet;
 use App\Models\AchievementSetVersion;
+use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
@@ -249,5 +252,47 @@ class AchievementSetVersionsTest extends TestCase
         $response->assertFetchedMany([
             ['type' => 'achievement-set-versions', 'id' => (string) $achievementSetVersionA->id],
         ]);
+    }
+
+    public function testItCanIncludeAssociatedSetGames(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create();
+        $achievementSet = AchievementSet::factory()->create();
+
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+
+        AchievementSetVersion::factory()->create([
+            'achievement_set_id' => $achievementSet->id,
+            'players_total' => 0,
+            'players_hardcore' => 0,
+            'achievements_published' => 0,
+            'achievements_unpublished' => 0,
+            'points_total' => 0,
+            'version' => 1,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('achievement-set-versions')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/achievement-set-versions?include=achievementSet.games');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = collect($response->json('included'));
+
+        $this->assertTrue($included->contains(
+            fn (array $resource) => $resource['type'] === 'achievement-sets' && $resource['id'] === (string) $achievementSet->id
+        ));
+        $this->assertTrue($included->contains(
+            fn (array $resource) => $resource['type'] === 'games' && $resource['id'] === (string) $game->id
+        ));
     }
 }
