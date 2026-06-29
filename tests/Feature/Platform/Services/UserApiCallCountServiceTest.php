@@ -17,15 +17,28 @@ function mockApiCallCountRedisSnapshot(array $snapshot): void
     Redis::shouldReceive('transaction')
         ->once()
         ->andReturnUsing(function (callable $callback) use ($snapshot): array {
-            $transaction = Mockery::mock();
-            $transaction->shouldReceive('hgetall')
-                ->once()
-                ->with('api-call-counts');
-            $transaction->shouldReceive('del')
-                ->once()
-                ->with('api-call-counts');
+            $transaction = new class
+            {
+                /** @var list<array{string, string}> */
+                public array $commands = [];
+
+                public function hgetall(string $key): void
+                {
+                    $this->commands[] = ['hgetall', $key];
+                }
+
+                public function del(string $key): void
+                {
+                    $this->commands[] = ['del', $key];
+                }
+            };
 
             $callback($transaction);
+
+            expect($transaction->commands)->toEqual([
+                ['hgetall', 'api-call-counts'],
+                ['del', 'api-call-counts'],
+            ]);
 
             return [$snapshot, 1];
         });
