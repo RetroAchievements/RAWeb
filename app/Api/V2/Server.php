@@ -48,6 +48,7 @@ class Server extends BaseServer
             Systems\SystemSchema::class,
             Tickets\TicketSchema::class,
             UserAwards\UserAwardSchema::class,
+            UserFollows\UserFollowSchema::class,
             Users\UserSchema::class,
         ];
     }
