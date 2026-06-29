@@ -19,6 +19,11 @@ abstract class BaseJsonApiResource extends JsonApiResource
         return (string) $this->resource->getKey();
     }
 
+    protected function wasRelationshipIncluded(?Request $request, string $relationship): bool
+    {
+        return $this->wasIncluded($request, $relationship);
+    }
+
     /**
      * Did the consumer opt into this relationship via `?include=...`?
      * Matches exact names and dotted paths (eg: `achievement.game`).

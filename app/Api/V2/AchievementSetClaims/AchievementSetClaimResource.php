@@ -59,13 +59,13 @@ class AchievementSetClaimResource extends BaseJsonApiResource
     {
         $relationships = [];
 
-        if ($this->wasIncluded($request, 'user')) {
+        if ($this->wasRelationshipIncluded($request, 'user')) {
             $relationships['user'] = $this->relation('user')
                 ->withoutLinks()
                 ->showDataIfLoaded();
         }
 
-        if ($this->wasIncluded($request, 'game')) {
+        if ($this->wasRelationshipIncluded($request, 'game')) {
             $relationships['game'] = $this->relation('game')
                 ->withoutLinks()
                 ->showDataIfLoaded();
