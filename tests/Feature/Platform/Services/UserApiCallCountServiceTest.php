@@ -17,8 +17,7 @@ function mockApiCallCountRedisSnapshot(array $snapshot): void
     Redis::shouldReceive('transaction')
         ->once()
         ->andReturnUsing(function (callable $callback) use ($snapshot): array {
-            $transaction = new class
-            {
+            $transaction = new class {
                 /** @var list<array{string, string}> */
                 public array $commands = [];
 
