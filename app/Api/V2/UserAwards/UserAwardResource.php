@@ -43,13 +43,13 @@ class UserAwardResource extends BaseJsonApiResource
         $relationships = [];
         $presenter = UserAwardPresenter::for($this->resource);
 
-        if ($presenter->hasGameRelationship() && $this->wasIncluded($request, 'game')) {
+        if ($presenter->hasGameRelationship() && $this->wasRelationshipIncluded($request, 'game')) {
             $relationships['game'] = $this->relation('game', 'gameIfApplicable')
                 ->withoutLinks()
                 ->showDataIfLoaded();
         }
 
-        if ($presenter->hasEventRelationship() && $this->wasIncluded($request, 'event')) {
+        if ($presenter->hasEventRelationship() && $this->wasRelationshipIncluded($request, 'event')) {
             $relationships['event'] = $this->relation('event', 'eventIfApplicable')
                 ->withoutLinks()
                 ->showDataIfLoaded();
