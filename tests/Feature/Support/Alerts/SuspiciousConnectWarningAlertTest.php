@@ -23,7 +23,7 @@ class SuspiciousConnectWarningAlertTest extends TestCase
     public function testToWrongClientDiscordMessageFormatsCorrectlyForAchievement(): void
     {
         // Arrange
-        $system = System::factory()->create();
+        $system = System::factory()->create(['name' => 'Genesis/Mega Drive']);
         $user = User::factory()->create(['username' => 'Scott', 'display_name' => 'Scott']);
         $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['game_id' => $game->id]);
@@ -48,6 +48,7 @@ class SuspiciousConnectWarningAlertTest extends TestCase
         $this->assertStringContainsString('Scott', $message);
         $this->assertStringContainsString('Sonic the Hedgehog', $message);
         $this->assertStringContainsString('TestUserAgent', $message);
+        $this->assertStringContainsString('Genesis/Mega Drive', $message);
         $this->assertStringContainsString('achievements', $message);
         $this->assertStringContainsString(route('user.show', ['user' => $user]), $message);
         $this->assertStringContainsString(route('game.show', ['game' => $game]), $message);
@@ -57,7 +58,7 @@ class SuspiciousConnectWarningAlertTest extends TestCase
     public function testToWrongClientDiscordMessageFormatsCorrectlyForLeaderboard(): void
     {
         // Arrange
-        $system = System::factory()->create();
+        $system = System::factory()->create(['name' => 'Genesis/Mega Drive']);
         $user = User::factory()->create(['username' => 'Scott', 'display_name' => 'Scott']);
         $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
@@ -82,6 +83,7 @@ class SuspiciousConnectWarningAlertTest extends TestCase
         $this->assertStringContainsString('Scott', $message);
         $this->assertStringContainsString('Sonic the Hedgehog', $message);
         $this->assertStringContainsString('TestUserAgent', $message);
+        $this->assertStringContainsString('Genesis/Mega Drive', $message);
         $this->assertStringContainsString('leaderboard entries', $message);
         $this->assertStringContainsString(route('user.show', ['user' => $user]), $message);
         $this->assertStringContainsString(route('game.show', ['game' => $game]), $message);

@@ -79,6 +79,11 @@ class AchievementPolicy
         ]);
     }
 
+    public function viewTickets(?User $user, Achievement $achievement): bool
+    {
+        return $user !== null;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
@@ -152,7 +157,7 @@ class AchievementPolicy
     public function updateField(User $user, ?Achievement $achievement, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['title', 'description', 'type', 'points', 'order_column'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'type', 'points', 'order_column', 'image_name'],
             Role::DEVELOPER => ['title', 'description', 'is_promoted', 'type', 'points', 'order_column', 'embed_url', 'image_name'],
             Role::WRITER => ['title', 'description'],
             Role::ARTIST => ['image_name'],

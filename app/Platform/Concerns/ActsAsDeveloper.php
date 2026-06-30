@@ -66,6 +66,14 @@ trait ActsAsDeveloper
     }
 
     /**
+     * @return HasMany<Ticket, $this>
+     */
+    public function authoredTickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'ticketable_author_id');
+    }
+
+    /**
      * NOTE: this is the tickets the user has resolved (including ones not associated to their achievements).
      * @return HasMany<Ticket, $this>
      */

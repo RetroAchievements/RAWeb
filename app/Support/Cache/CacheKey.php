@@ -13,6 +13,13 @@ class CacheKey
         return self::buildNormalizedCacheKey("game", $gameId, "card-data");
     }
 
+    public static function buildGameOpenTicketsCacheKey(int $gameId, bool $isPromoted): string
+    {
+        return self::buildNormalizedCacheKey("game", $gameId, "open-ticket-count", [
+            $isPromoted ? "published" : "unpublished",
+        ]);
+    }
+
     public static function buildGameSetBreadcrumbsCacheKey(int $gameSetId): string
     {
         return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs2");
@@ -53,9 +60,14 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "rank", [$rankTypeParam]);
     }
 
-    public static function buildUserRequestTicketsCacheKey(string $username): string
+    public static function buildUserRequestTicketsCacheKey(int $userId): string
     {
-        return self::buildNormalizedUserCacheKey($username, "request-tickets");
+        return self::buildNormalizedCacheKey("user", $userId, "request-tickets");
+    }
+
+    public static function buildUserOpenTicketsCacheKey(int $userId): string
+    {
+        return self::buildNormalizedCacheKey("user", $userId, "open-tickets");
     }
 
     public static function buildUserExpiringClaimsCacheKey(string $username): string

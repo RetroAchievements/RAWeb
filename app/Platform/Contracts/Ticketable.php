@@ -15,11 +15,21 @@ interface Ticketable
 
     public function getTicketableGame(): Game;
 
+    /**
+     * Direct FK access.
+     * This is cheaper than `getTicketableGame()` when only the id is needed.
+     */
+    public function getTicketableGameId(): int;
+
     public function getTicketableAssignee(?CarbonInterface $at = null): ?User;
 
     public function getTicketableTitle(): string;
 
     public function getTicketableUrl(): string;
 
+    public function getTicketableIconUrl(): string;
+
     public function getTicketableBadgeUrl(): ?string;
+
+    public function demoteForTicket(User $byUser): void;
 }

@@ -21,6 +21,7 @@ use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\HubController;
 use App\Api\V2\Controllers\LeaderboardController;
 use App\Api\V2\Controllers\SystemController;
+use App\Api\V2\Controllers\TicketController;
 use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
@@ -117,6 +118,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
+                                    $relationships->hasMany('tickets')->readOnly();
                                 });
 
                             $server->resource('achievement-sets', AchievementSetController::class)
@@ -143,6 +145,7 @@ class RouteServiceProvider extends ServiceProvider
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
                                     $relationships->hasMany('comments')->readOnly();
                                     $relationships->hasMany('hashes')->readOnly();
+                                    $relationships->hasMany('tickets')->readOnly();
                                 });
 
                             $server->resource('hubs', HubController::class)
@@ -164,15 +167,22 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly();
 
+                            $server->resource('tickets', TicketController::class)
+                                ->only('index', 'show')
+                                ->readOnly();
+
                             $server->resource('users', UserController::class)
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
                                     $relationships->hasMany('awards')->readOnly();
+                                    $relationships->hasMany('followers')->readOnly();
+                                    $relationships->hasMany('following')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();
+                                    $relationships->hasMany('tickets')->readOnly();
                                     $relationships->hasMany('wallComments')->readOnly();
                                 });
                         });

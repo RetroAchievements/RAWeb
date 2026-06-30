@@ -3292,6 +3292,32 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given the game title starts with "~Z~", does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, '~Z~ Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadConsistency')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
     it('given an unranked non-developer, does not include screenshot upload props', function () {
         // ARRANGE
         config()->set('feature.game_screenshot_uploads', true);
@@ -3523,7 +3549,7 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
-    it('given the only approved primary screenshot is invalid for the system, screenshotUploadConsistency is omitted', function () {
+    it('given the only approved primary screenshot is invalid for the system, screenshotUploadConsistency is present with no existing resolutions so the nudge fires', function () {
         // ARRANGE
         Storage::fake('s3');
         config()->set('feature.game_screenshot_uploads', true);
@@ -3546,7 +3572,9 @@ describe('Screenshot Upload Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->missing('screenshotUploadConsistency')
+            ->has('screenshotUploadConsistency')
+            ->has('screenshotUploadConsistency.existingResolutions', 0)
+            ->missing('screenshotUploadConsistency.canonicalResolution')
             ->where('screenshotUploadStatuses.title.hasResolutionIssues', true)
         );
     });

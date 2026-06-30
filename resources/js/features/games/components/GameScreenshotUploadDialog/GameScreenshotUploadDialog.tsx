@@ -2,6 +2,7 @@ import * as m from 'motion/react-m';
 import type { FC } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuExternalLink } from 'react-icons/lu';
 
 import {
   BaseDialog,
@@ -84,6 +85,16 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
         <BaseDialogHeader>
           <BaseDialogTitle>{t('Upload Screenshot')}</BaseDialogTitle>
           <BaseDialogDescription className="sr-only">{game.title}</BaseDialogDescription>
+
+          <a
+            href="https://docs.retroachievements.org/guidelines/content/screenshot-guidelines.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-fit items-center gap-1 text-xs"
+          >
+            <LuExternalLink className="size-3" />
+            {t('View screenshot guidelines')}
+          </a>
         </BaseDialogHeader>
 
         <div className="flex flex-col gap-4">
@@ -132,6 +143,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
           {/* Upload drop zone */}
           <UploadForm
             gameId={game.id}
+            pendingSubmissions={submissions}
             screenshotUploadConsistency={screenshotUploadConsistency}
             screenshotResolutions={game.system?.screenshotResolutions ?? []}
             selectedType={selectedType}

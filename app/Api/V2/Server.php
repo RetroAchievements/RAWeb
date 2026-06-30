@@ -47,7 +47,9 @@ class Server extends BaseServer
             PlayerAchievementSets\PlayerAchievementSetSchema::class,
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
+            Tickets\TicketSchema::class,
             UserAwards\UserAwardSchema::class,
+            UserFollows\UserFollowSchema::class,
             Users\UserSchema::class,
         ];
     }

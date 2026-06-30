@@ -19,8 +19,10 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class GetAchievementSetsAction extends BaseAuthenticatedApiAction
 {
@@ -488,6 +490,20 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                 if ($this->coreRestriction->recommendation) {
                     $description .= " {$this->coreRestriction->recommendation}";
                 }
+            } elseif ($this->clientSupportLevel === ClientSupportLevel::SoftcorePending) {
+                $userAgentService = new UserAgentService();
+                $emulatorUserAgent = $userAgentService->getEmulatorUserAgent($this->userAgent);
+                if (!$emulatorUserAgent || !$emulatorUserAgent->pending_minimum_hardcore_version_at) {
+                    return;
+                }
+                $days = (int) ceil($emulatorUserAgent->pending_minimum_hardcore_version_at->diffInDays(Carbon::now(), true));
+                if ($days > 14) {
+                    return;
+                }
+
+                $daysStr = $days . ' ' . Str::plural('day', $days);
+                $title = "Warning: Outdated Emulator in $daysStr (please update)";
+                $description = "Hardcore unlocks will not be earnable using this emulator in less than $daysStr.";
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',

@@ -47,6 +47,18 @@ class Ticket extends BaseModel
         return TicketFactory::new();
     }
 
+    // == helpers
+
+    public function getTicketableModel(): Achievement|Leaderboard
+    {
+        $ticketable = $this->ticketable;
+        if ($ticketable instanceof Achievement || $ticketable instanceof Leaderboard) {
+            return $ticketable;
+        }
+
+        throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
+    }
+
     // == accessors
 
     public function getIsOpenAttribute(): bool
@@ -68,7 +80,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = achievement` filter.
-     * Use `ticketable()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()`, `ticketable()`, or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Achievement, $this>
      */
@@ -79,7 +91,7 @@ class Ticket extends BaseModel
 
     /**
      * Unsafe without a `ticketable_type = leaderboard` filter.
-     * Use `ticketable()` or pair with `scopeForTicketableType`.
+     * Use `getTicketableModel()`, `ticketable()`, or pair with `scopeForTicketableType`.
      *
      * @return BelongsTo<Leaderboard, $this>
      */
@@ -167,6 +179,26 @@ class Ticket extends BaseModel
     public function scopeQuarantined(Builder $query): Builder
     {
         return $query->where('state', TicketState::Quarantined);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
+    {
+        if ($user === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->can('manage', self::class)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('state', '!=', TicketState::Quarantined->value)
+                ->orWhere('reporter_id', $user->id);
+        });
     }
 
     /**
