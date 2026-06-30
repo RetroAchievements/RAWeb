@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Games;
 
+use App\Api\V2\Tickets\TicketableTypeFilter;
+use App\Api\V2\Tickets\TicketStateFilter;
+use App\Api\V2\Tickets\TicketTypeFilter;
+use App\Api\V2\Tickets\UserUlidFilter;
 use App\Models\Game;
 use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,6 +84,17 @@ class GameSchema extends Schema
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
             HasMany::make('comments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('hashes')->type('game-hashes')->readOnly(),
+            HasMany::make('tickets', 'allTickets') // `allTickets` is a custom polymorphic relation, not a true HasMany
+                ->type('tickets')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    new TicketStateFilter(),
+                    new TicketTypeFilter(),
+                    new TicketableTypeFilter(),
+                    new UserUlidFilter('reporterUserId', 'reporter_id'),
+                    new UserUlidFilter('resolverUserId', 'resolver_id'),
+                )
+                ->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /games/{id}/achievementSets

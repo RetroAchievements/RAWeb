@@ -2,10 +2,9 @@
     $panels = [$currentPanel, $candidatePanel];
     $contextCards = array_filter([
         ['type' => 'primaries', 'data' => $currentPrimaries],
-        $pendingCompanions ? ['type' => 'pending', 'data' => $pendingCompanions] : null,
+        $otherPendingForGame ? ['type' => 'otherPendingForGame', 'data' => $otherPendingForGame] : null,
         $approvedIngame ? ['type' => 'ingame', 'data' => $approvedIngame] : null,
     ]);
-    $imageRenderingStyle = $isPixelated ? 'image-rendering: pixelated;' : '';
     $checkerboardStyle = 'background-color: #030712; background-image: linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(-45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%), linear-gradient(-45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%); background-size: 18px 18px; background-position: 0 0, 0 9px, 9px -9px, -9px 0;';
 @endphp
 
@@ -15,6 +14,7 @@
     x-data="{
         zoomedUrl: null,
         zoomedLabel: '',
+        zoomedImageRendering: null,
         zoomMode: 'scale',
         zoomScale: {{ $isPixelated ? 4 : 2 }},
         defaultScale: {{ $isPixelated ? 4 : 2 }},
@@ -53,15 +53,19 @@
                 this.zoomScale = option;
             }
         },
-        zoomImageStyle() {
-            return `{{ $imageRenderingStyle }} border: 1px solid #404040; ${this.zoomMode === 'fit' ? 'max-width: calc(100vw - 4rem); max-height: calc(100vh - 8rem);' : ''}`;
+        imageRenderingStyle(imageRendering) {
+            return imageRendering ? `image-rendering: ${imageRendering};` : '';
         },
-        openZoom(url, label) {
+        zoomImageStyle() {
+            return `${this.imageRenderingStyle(this.zoomedImageRendering)} border: 1px solid #404040; ${this.zoomMode === 'fit' ? 'max-width: calc(100vw - 4rem); max-height: calc(100vh - 8rem);' : ''}`;
+        },
+        openZoom(url, label, imageRendering) {
             this.naturalWidth = 0;
             this.naturalHeight = 0;
             this.zoomMode = 'scale';
             this.zoomScale = this.defaultScale;
             this.zoomedLabel = label;
+            this.zoomedImageRendering = imageRendering;
             this.zoomedUrl = url;
         },
         closeZoom() {
@@ -80,6 +84,10 @@
 >
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         @foreach ($panels as $panel)
+            @php
+                $panelImageRenderingStyle = $panel['imageRendering'] ? 'image-rendering: ' . $panel['imageRendering'] . ';' : '';
+            @endphp
+
             <div class="min-w-0">
                 <div class="min-h-[2.6rem] text-center">
                     <div class="font-bold text-gray-950 dark:text-white">{{ $panel['label'] }}</div>
@@ -105,14 +113,14 @@
                 @if ($panel['url'])
                     <button
                         type="button"
-                        @click="openZoom(@js($panel['url']), @js($panel['label']))"
+                        @click="openZoom(@js($panel['url']), @js($panel['label']), @js($panel['imageRendering']))"
                         class="mt-2 flex w-full items-center justify-center overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         style="min-height: 280px; max-height: 320px; padding: 0.35rem; border-radius: 0.25rem; {{ $checkerboardStyle }}"
                     >
                         <img
                             src="{{ $panel['url'] }}"
                             alt="{{ $panel['label'] }}"
-                            style="{{ $imageRenderingStyle }} max-height: 310px; box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7);"
+                            style="{{ $panelImageRenderingStyle }} max-height: 310px; box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7);"
                             class="block h-full w-full cursor-zoom-in object-contain"
                         />
                     </button>
@@ -216,16 +224,19 @@
                         </div>
                     @endif
                 </section>
-            @elseif ($card['type'] === 'pending')
-                <section class="rounded-lg border border-success-500/25 bg-white p-3 dark:bg-gray-900/60">
-                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">Pending queue</div>
-                    <div class="mt-2 flex flex-col gap-1.5">
+            @elseif ($card['type'] === 'otherPendingForGame')
+                @php $otherPendingCount = count($card['data']['items']); @endphp
+                <section class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700/70 dark:bg-gray-900/60">
+                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Other pending for this game{{ $otherPendingCount > 3 ? ' (' . $otherPendingCount . ')' : '' }}
+                    </div>
+                    <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
                         @foreach ($card['data']['items'] as $item)
                             <button
                                 type="button"
                                 wire:click="replaceMountedScreenshotReview('{{ $item['recordKey'] }}', false)"
                                 wire:loading.attr="disabled"
-                                class="flex w-full min-w-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
+                                class="flex w-full min-w-0 shrink-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
                             >
                                 @if ($item['url'])
                                     <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" />
@@ -239,20 +250,40 @@
                                 </span>
                             </button>
                         @endforeach
-
-                        @if ($card['data']['extraCount'] > 0)
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                +{{ $card['data']['extraCount'] }} more matching submission{{ $card['data']['extraCount'] === 1 ? '' : 's' }}
-                            </div>
-                        @endif
                     </div>
                 </section>
             @elseif ($card['type'] === 'ingame')
                 <section class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700/70 dark:bg-gray-900/60">
-                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">In-game gallery</div>
-                    <a href="{{ $card['data']['mediaPageUrl'] }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block font-bold text-gray-950 underline-offset-2 hover:underline dark:text-white">
-                        {{ $card['data']['count'] }} / {{ $card['data']['cap'] }}
-                    </a>
+                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Current in-game gallery
+                        <a href="{{ $card['data']['mediaPageUrl'] }}" target="_blank" rel="noopener noreferrer" class="underline-offset-2 hover:underline">
+                            ({{ $card['data']['count'] }} / {{ $card['data']['cap'] }})
+                        </a>
+                    </div>
+
+                    @if ($card['data']['items'] !== [])
+                        <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
+                            @foreach ($card['data']['items'] as $item)
+                                <button
+                                    type="button"
+                                    @click="openZoom(@js($item['url']), @js($item['label']))"
+                                    class="flex w-full min-w-0 shrink-0 cursor-zoom-in items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-gray-800"
+                                    title="{{ $item['label'] }}"
+                                >
+                                    @if ($item['url'])
+                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $imageRenderingStyle }}" />
+                                    @else
+                                        <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
+                                    @endif
+
+                                    <span class="min-w-0 text-xs leading-tight">
+                                        <span class="block font-semibold text-gray-950 dark:text-white">{{ $item['typeLabel'] }} · {{ $item['resolution'] }}</span>
+                                        <span class="block truncate text-gray-500 dark:text-gray-400">by {{ $item['submitterLabel'] }}</span>
+                                    </span>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 </section>
             @endif
         @endforeach

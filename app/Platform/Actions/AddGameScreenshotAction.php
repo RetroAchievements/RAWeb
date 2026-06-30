@@ -6,12 +6,15 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\GameScreenshot;
+use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\Atari2600WidthDoubler;
 use App\Platform\Services\GameScreenshotValidationService;
 use App\Support\Media\CreateLegacyScreenshotPngAction;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AddGameScreenshotAction
@@ -47,20 +50,9 @@ class AddGameScreenshotAction
             ->approved()
             ->exists();
 
-        $legacyPath = null;
-        if ($shouldBePrimary) {
-            $legacyPath = (new CreateLegacyScreenshotPngAction())->execute(file_get_contents($prepared->filePath));
-
-            $demotedStatus = match ($type) {
-                ScreenshotType::Title, ScreenshotType::Completion => GameScreenshotStatus::Replaced,
-                ScreenshotType::Ingame => GameScreenshotStatus::Pending,
-            };
-
-            $game->gameScreenshots()
-                ->ofType($type)
-                ->approved()
-                ->update(['is_primary' => false, 'status' => $demotedStatus]);
-        }
+        $legacyPath = $shouldBePrimary
+            ? (new CreateLegacyScreenshotPngAction())->execute(file_get_contents($prepared->filePath))
+            : null;
 
         $customProperties = ['sha1' => $hash];
         if ($legacyPath !== null) {
@@ -79,16 +71,63 @@ class AddGameScreenshotAction
 
         $prepared->finalize($media);
 
-        return GameScreenshot::create([
-            'game_id' => $game->id,
-            'media_id' => $media->id,
-            'width' => $prepared->width,
-            'height' => $height,
-            'type' => $type,
-            'is_primary' => $shouldBePrimary,
-            'status' => GameScreenshotStatus::Approved,
-            'description' => $description,
-        ]);
+        /** @var User|null $causer */
+        $causer = Auth::user();
+
+        return DB::transaction(function () use (
+            $game,
+            $type,
+            $description,
+            $shouldBePrimary,
+            $media,
+            $prepared,
+            $height,
+            $causer,
+        ): GameScreenshot {
+            $previousPrimary = null;
+
+            if ($shouldBePrimary) {
+                $previousPrimary = $game->gameScreenshots()
+                    ->ofType($type)
+                    ->approved()
+                    ->primary()
+                    ->lockForUpdate()
+                    ->first();
+
+                $demotedStatus = match ($type) {
+                    ScreenshotType::Title, ScreenshotType::Completion => GameScreenshotStatus::Replaced,
+                    ScreenshotType::Ingame => GameScreenshotStatus::Pending,
+                };
+
+                $game->gameScreenshots()
+                    ->ofType($type)
+                    ->approved()
+                    ->update(['is_primary' => false, 'status' => $demotedStatus]);
+            }
+
+            $created = GameScreenshot::create([
+                'game_id' => $game->id,
+                'media_id' => $media->id,
+                'width' => $prepared->width,
+                'height' => $height,
+                'type' => $type,
+                'is_primary' => $shouldBePrimary,
+                'status' => GameScreenshotStatus::Approved,
+                'description' => $description,
+            ]);
+
+            if ($shouldBePrimary) {
+                (new LogPrimaryScreenshotChangeAction())->execute(
+                    $game,
+                    $type,
+                    $previousPrimary,
+                    $created,
+                    $causer,
+                );
+            }
+
+            return $created;
+        });
     }
 
     /**

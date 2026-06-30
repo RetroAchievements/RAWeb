@@ -141,6 +141,25 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).toHaveStyle({ imageRendering: 'pixelated' });
   });
 
+  it('given the system is not pixelated, applies no imageRendering hint to inline thumbnails', () => {
+    // ARRANGE
+    render(
+      <PlayableMainMedia
+        imageTitleUrl="https://example.com/title.jpg"
+        imageIngameUrl="https://example.com/ingame.jpg"
+      />,
+    );
+
+    // ASSERT
+    const titleImage = screen.getByRole('img', { name: /title screenshot/i });
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+
+    expect(titleImage).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+    expect(titleImage).not.toHaveStyle({ imageRendering: 'pixelated' });
+    expect(ingameImage).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+    expect(ingameImage).not.toHaveStyle({ imageRendering: 'pixelated' });
+  });
+
   it('given the system does not have analog TV output, does not apply a 4:3 aspect ratio to images', () => {
     // ARRANGE
     render(

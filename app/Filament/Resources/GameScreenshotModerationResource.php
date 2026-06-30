@@ -79,7 +79,9 @@ class GameScreenshotModerationResource extends Resource
                         'game.system',
                         'capturedBy',
                         'media',
-                        'game.gameScreenshots' => fn ($q) => $q->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending]),
+                        'game.gameScreenshots' => fn ($q) => $q
+                            ->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending])
+                            ->with(['media', 'capturedBy']),
                     ]);
             })
             ->columns([
@@ -430,8 +432,20 @@ class GameScreenshotModerationResource extends Resource
                 Forms\Components\Select::make('rejection_reason')
                     ->label('Reason')
                     ->options(collect(GameScreenshotRejectionReason::cases())
-                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [$reason->value => $reason->label()])
-                        ->sortBy(fn (string $label, string $value) => [$value === GameScreenshotRejectionReason::Other->value ? 1 : 0, $label])
+                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [
+                            $reason->value => $reason === GameScreenshotRejectionReason::InappropriateContent
+                                ? $reason->label() . ' (alerts the moderation team)' // don't leak this into user-facing surfaces
+                                : $reason->label(),
+                        ])
+                        ->sortBy(function (string $label, string $value): array {
+                            $bucket = match ($value) {
+                                GameScreenshotRejectionReason::InappropriateContent->value => 1,
+                                GameScreenshotRejectionReason::Other->value => 2,
+                                default => 0,
+                            };
+
+                            return [$bucket, $label];
+                        })
                         ->toArray()
                     )
                     ->default(fn (GameScreenshot $record): ?string => ScreenshotReviewContext::make($record)->suggestedRejectionReason()?->value)
@@ -638,11 +652,11 @@ class GameScreenshotModerationResource extends Resource
      * @return array{
      *     recordKey: string,
      *     isPixelated: bool,
-     *     currentPanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
-     *     candidatePanel: array{label: string, url: string|null, placeholder: string, cues: array<int, array{label: string, tone: string, icon: string}>},
+     *     currentPanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
+     *     candidatePanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
-     *     pendingCompanions: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>, extraCount: int}|null,
-     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string}|null,
+     *     otherPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null,
+     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null,
      * }
      */
     private static function getReviewModalContentViewData(GameScreenshot $record): array
@@ -653,28 +667,48 @@ class GameScreenshotModerationResource extends Resource
         $submissionResolution = $context->formatResolution();
         $currentPrimary = $context->currentPrimaryForType($record->type);
         $currentPrimary?->loadMissing('media');
+        $isPixelated = !($record->game?->system?->supports_upscaled_screenshots ?? true);
 
         return [
             'recordKey' => (string) $record->getKey(),
-            'isPixelated' => !($record->game?->system?->supports_upscaled_screenshots ?? true), // similar to the game page dialog
+            'isPixelated' => $isPixelated, // similar to the game page dialog
             'currentPanel' => [
                 'label' => $currentPrimary
                     ? 'Current primary (' . $context->formatResolution($currentPrimary) . ')'
                     : 'No current primary',
                 'url' => $currentPrimary?->media?->getUrl(),
                 'placeholder' => $currentPrimary ? 'No preview' : 'No current image',
+                'imageRendering' => self::screenshotImageRendering($currentPrimary?->width, $isPixelated),
                 'cues' => self::getCurrentImageCueViewData($context, $currentPrimary),
             ],
             'candidatePanel' => [
                 'label' => 'Submission (' . ($submissionResolution ?? '?') . ')',
                 'url' => $record->media?->getUrl(),
                 'placeholder' => 'No preview',
+                'imageRendering' => self::screenshotImageRendering($record->width, $isPixelated),
                 'cues' => self::getCandidateImageCueViewData($context),
             ],
             'currentPrimaries' => $context->currentPrimaryContextItems(),
-            'pendingCompanions' => $context->pendingCompanionsContextData(),
+            'otherPendingForGame' => $context->otherPendingForGameContextData(),
             'approvedIngame' => self::getApprovedIngameContextViewData($context),
         ];
+    }
+
+    private static function screenshotImageRendering(?int $sourceWidth, bool $isPixelated): ?string
+    {
+        if ($isPixelated) {
+            return 'pixelated';
+        }
+
+        if (!$sourceWidth || $sourceWidth <= 0) {
+            return null;
+        }
+
+        if ($sourceWidth <= 640) {
+            return 'crisp-edges';
+        }
+
+        return null;
     }
 
     /**
@@ -737,7 +771,7 @@ class GameScreenshotModerationResource extends Resource
     }
 
     /**
-     * @return array{count: int, cap: int, mediaPageUrl: string}|null
+     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null
      */
     private static function getApprovedIngameContextViewData(ScreenshotReviewContext $context): ?array
     {
@@ -751,6 +785,7 @@ class GameScreenshotModerationResource extends Resource
             'count' => $context->approvedIngameCount(),
             'cap' => ScreenshotType::Ingame->approvedCap(),
             'mediaPageUrl' => GameResource::getUrl('media', ['record' => $record->game]),
+            'items' => $context->approvedGalleryItemsViewData(),
         ];
     }
 

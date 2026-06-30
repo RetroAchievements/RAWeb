@@ -10,6 +10,7 @@ import {
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
 import { cn } from '@/common/utils/cn';
+import { getScreenshotImageRendering } from '@/common/utils/getScreenshotImageRendering';
 import type { TranslatedString } from '@/types/i18next';
 
 interface ZoomableImageProps {
@@ -19,6 +20,7 @@ interface ZoomableImageProps {
 
   aspectRatio?: number;
   isPixelated?: boolean;
+  srcWidth?: number | null;
 }
 
 export const ZoomableImage: FC<ZoomableImageProps> = ({
@@ -26,9 +28,12 @@ export const ZoomableImage: FC<ZoomableImageProps> = ({
   aspectRatio,
   children,
   src,
+  srcWidth,
   isPixelated = true,
 }) => {
   const { t } = useTranslation();
+
+  const imageRendering = getScreenshotImageRendering(srcWidth, isPixelated);
 
   return (
     <BaseDialog>
@@ -57,7 +62,7 @@ export const ZoomableImage: FC<ZoomableImageProps> = ({
               alt={alt}
               className={cn(aspectRatio ? '' : 'h-full w-full object-contain')}
               style={{
-                ...(isPixelated ? { imageRendering: 'pixelated' as const } : {}),
+                imageRendering,
                 ...(aspectRatio
                   ? {
                       // Use min() so the image is as large as possible while
