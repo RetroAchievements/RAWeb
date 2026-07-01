@@ -28,7 +28,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
                     $query->where('points_hardcore', '>=', Rank::MIN_POINTS);
                     break;
 
-                case RankType::Softcore:
+                case RankType::Casual:
                     $query->where('points', '>=', Rank::MIN_POINTS);
                     break;
 
@@ -78,7 +78,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         $field = match ($type) {
-            RankType::Softcore => 'points',
+            RankType::Casual => 'points',
             RankType::TruePoints => 'points_weighted',
             default => 'points_hardcore',
         };

@@ -669,7 +669,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals([1002, 1003, 1004, 1005], $resultGameIds);
     }
 
-    public function testItCanFilterByGteBeatenSoftcoreProgress(): void
+    public function testItCanFilterByGteBeatenCasualProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -677,17 +677,17 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // !! (1)
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual); // !! (1)
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // !! (2)
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // !! (2)
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // !! (3)
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore); // !! (4)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual);    // !! (3)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Casual); // !! (4)
 
         // Act
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['progress' => [GameListProgressFilterValue::GteBeatenSoftcore->value]],
+            filters: ['progress' => [GameListProgressFilterValue::GteBeatenCasual->value]],
         );
 
         // Assert
@@ -710,11 +710,11 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // !! (1)
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // !! (1) beat, then mastered the same game
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // !! (2)
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual);    // !! (2)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Casual);
         $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore); // !! (3)
 
         // Act
@@ -733,7 +733,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals([1001, 1002, 1004], $resultGameIds);
     }
 
-    public function testItCanFilterByEqBeatenSoftcoreProgress(): void
+    public function testItCanFilterByEqBeatenCasualProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -741,18 +741,18 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // !! (1)
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual); // !! (1)
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore); // !! (2)
-        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Softcore); // !! (3)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual);
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Casual); // !! (2)
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Casual); // !! (3)
 
         // Act
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['progress' => [GameListProgressFilterValue::EqBeatenSoftcore->value]],
+            filters: ['progress' => [GameListProgressFilterValue::EqBeatenCasual->value]],
         );
 
         // Assert
@@ -772,7 +772,7 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // doesn't count ...
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // ... because then they mastered it.
         $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore);
@@ -803,11 +803,11 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // (1)
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore); // (2)
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual); // (2)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Casual);
         $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
 
         // Act
@@ -834,10 +834,10 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual);
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore); // (1)
-        $this->addMasteryBadge($user, Game::find(1003), UnlockMode::Softcore); // (2)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual); // (1)
+        $this->addMasteryBadge($user, Game::find(1003), UnlockMode::Casual); // (2)
         $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
 
         // Act
@@ -864,8 +864,8 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // (1) they completed it first ...
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual);
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Casual); // (1) they completed it first ...
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // (1) ... and then they mastered it later
         $this->addGameBeatenAward($user, Game::find(1002), UnlockMode::Hardcore);
         $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore); // (2)
@@ -934,10 +934,10 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // (-1) negated ...
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Casual); // (-1) negated ...
         $this->addMasteryBadge($user, Game::find(1000), UnlockMode::Hardcore);    // (-1) ... because they mastered it.
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // (-2)
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // (-3)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Casual);    // (-3)
         $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Hardcore);
         $this->addMasteryBadge($user, Game::find(1004), UnlockMode::Hardcore);    // (-4)
 

@@ -128,7 +128,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                 @else
                     <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
                 @endif
-                <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
+                <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Casual" }}</x-ticket.stat-element>
                 @if ($ticket->state->isResolved())
                     @if ($ticket->resolver)
                         <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
@@ -277,7 +277,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                                     }
                                 </script>
                                 <div class="flex items-center gap-x-3">
-                                    <button class="btn" onclick="AwardManually(0)">Award Softcore</button>
+                                    <button class="btn" onclick="AwardManually(0)">Award Casual</button>
                                     @if ($ticket->hardcore)
                                     <button class="btn" onclick="AwardManually(1)">Award Hardcore</button>
                                     @endif

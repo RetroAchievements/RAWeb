@@ -304,10 +304,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('radio', { name: /toggle hardcore/i })).not.toBeChecked();
-    expect(screen.getByRole('radio', { name: /toggle softcore/i })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /toggle casual/i })).not.toBeChecked();
   });
 
-  it('given the server does not specify the user mode and the user has equal points in hardcore and softcore, does not preselect a mode', () => {
+  it('given the server does not specify the user mode and the user has equal points in hardcore and casual, does not preselect a mode', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -324,7 +324,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('radio', { name: /toggle hardcore/i })).not.toBeChecked();
-    expect(screen.getByRole('radio', { name: /toggle softcore/i })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /toggle casual/i })).not.toBeChecked();
   });
 
   it('given the server states the user had a hardcore session, preselects hardcore mode', () => {
@@ -347,7 +347,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByRole('radio', { name: /toggle hardcore/i })).toBeChecked();
   });
 
-  it('given the server states the user had a softcore session, preselects softcore mode', () => {
+  it('given the server states the user had a casual session, preselects casual mode', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -364,10 +364,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /toggle softcore/i })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /toggle casual/i })).toBeChecked();
   });
 
-  it('given the server does not specify the user mode and the user has more hardcore points than softcore points, preselects hardcore mode', () => {
+  it('given the server does not specify the user mode and the user has more hardcore points than casual points, preselects hardcore mode', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -386,7 +386,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByRole('radio', { name: /toggle hardcore/i })).toBeChecked();
   });
 
-  it('given the server does not specify the user mode and the user has more softcore points than hardcore points, preselects select mode', () => {
+  it('given the server does not specify the user mode and the user has more casual points than hardcore points, preselects select mode', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -402,7 +402,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /toggle softcore/i })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /toggle casual/i })).toBeChecked();
   });
 
   it('given the server does not specify the selected hash id and there are multiple hashes available, does not preselect a hash', () => {
@@ -585,7 +585,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -630,7 +630,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -656,7 +656,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       extra: null,
       gameHashId: gameHashes[0].id,
       issue: 'triggered_at_wrong_time',
-      mode: 'softcore',
+      mode: 'casual',
       ticketableId: achievement.id,
       ticketableModel: 'achievement',
     });
@@ -702,7 +702,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
@@ -734,7 +734,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
         'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
       gameHashId: gameHashes[0].id,
       issue: 'did_not_trigger',
-      mode: 'softcore',
+      mode: 'casual',
       ticketableId: achievement.id,
       ticketableModel: 'achievement',
     });
@@ -793,7 +793,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
 
     await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));

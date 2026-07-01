@@ -467,7 +467,7 @@ class UserSummaryTest extends TestCase
         $now = Carbon::now();
 
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(1), $now->clone()->subMinutes(3));
-        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(4), $now->clone()->subMinutes(6));
+        $this->addCasualUnlock($this->user, $publishedAchievements->get(4), $now->clone()->subMinutes(6));
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(6), $now->clone()->subMinutes(10));
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0), $now->clone()->subMinutes(20));
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(2), $now->clone()->subMinutes(30));

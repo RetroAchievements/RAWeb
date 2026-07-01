@@ -40,16 +40,16 @@ class UpdatePlayerPointsStatsAction
             ->get();
 
         // Separate achievements by type.
-        ['hardcore' => $hardcoreAchievements, 'softcore' => $softcoreAchievements] =
+        ['hardcore' => $hardcoreAchievements, 'casual' => $casualAchievements] =
             $this->separateAchievementsByType($recentPlayerAchievements);
 
         $statIntervals = $this->getStatIntervals();
 
         foreach ($statIntervals as $period => $interval) {
             $hardcorePoints = $this->calculatePointsForInterval($hardcoreAchievements, $interval);
-            $softcorePoints = $this->calculatePointsForInterval($softcoreAchievements, $interval);
+            $casualPoints = $this->calculatePointsForInterval($casualAchievements, $interval);
 
-            $this->upsertAllPlayerPointsStats($user, $hardcorePoints, $softcorePoints, $period);
+            $this->upsertAllPlayerPointsStats($user, $hardcorePoints, $casualPoints, $period);
         }
     }
 
@@ -61,7 +61,7 @@ class UpdatePlayerPointsStatsAction
     private function upsertAllPlayerPointsStats(
         User $user,
         array $hardcorePoints,
-        array $softcorePoints,
+        array $casualPoints,
         string $period,
     ): void {
         $statTypes = static::PERIOD_MAP[$period];
@@ -80,11 +80,11 @@ class UpdatePlayerPointsStatsAction
             $hardcorePoints['points_weighted'],
         );
 
-        // Softcore points.
+        // Casual points.
         $this->writePlayerPointsStat(
             $user,
-            $statTypes['softcore'],
-            $softcorePoints['points'],
+            $statTypes['casual'],
+            $casualPoints['points'],
         );
     }
 

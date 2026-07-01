@@ -56,7 +56,7 @@ export const RecentUnlocksTable: FC<RecentUnlocksTableProps> = ({ recentUnlocks 
                       />
 
                       <span className="text-neutral-500 light:text-neutral-700">
-                        {!recentUnlock.isHardcore ? '(softcore)' : null}
+                        {!recentUnlock.isHardcore ? '(casual)' : null}
                       </span>
                     </div>
                   </BaseTableCell>

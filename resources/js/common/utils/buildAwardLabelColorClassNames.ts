@@ -20,7 +20,7 @@ export function buildAwardLabelColorClassNames(
       : 'text-yellow-600', // Completion
     game_beaten: awardTier
       ? 'text-zinc-300' // Beaten
-      : 'text-zinc-400', // Beaten (softcore)
+      : 'text-zinc-400', // Beaten (casual)
   };
 
   const mutedGroupColors: Partial<Record<App.Community.Enums.AwardType, string>> = {
@@ -30,7 +30,7 @@ export function buildAwardLabelColorClassNames(
 
     game_beaten: awardTier
       ? 'transition text-muted group-hover:text-zinc-300' // Beaten
-      : 'transition text-muted group-hover:text-zinc-400', // Beaten (softcore)
+      : 'transition text-muted group-hover:text-zinc-400', // Beaten (casual)
   };
 
   if (variant === 'muted-group') {

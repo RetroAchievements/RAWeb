@@ -1,6 +1,6 @@
 @props([
     'totalBeatenHardcoreCount' => 0,
-    'totalBeatenSoftcoreCount' => 0,
+    'totalBeatenCasualCount' => 0,
     'totalCompletedCount' => 0,
     'totalMasteredCount' => 0,
 ])
@@ -10,14 +10,14 @@
         <p class="text-zinc-500 font-bold text-xs">Unfinished</p>
     </div>
 
-    @if ($totalBeatenSoftcoreCount > 0)
+    @if ($totalBeatenCasualCount > 0)
         <div>
             <div class="rounded-full w-2 h-2 border border-zinc-400"></div>
-            <p class="text-zinc-400 font-bold text-xs">Beaten Softcore</p>
+            <p class="text-zinc-400 font-bold text-xs">Beaten (casual)</p>
         </div>
     @endif
 
-    @if ($totalBeatenHardcoreCount > 0 || ($totalBeatenHardcoreCount === 0 && $totalBeatenSoftcoreCount === 0))
+    @if ($totalBeatenHardcoreCount > 0 || ($totalBeatenHardcoreCount === 0 && $totalBeatenCasualCount === 0))
         <div>
             <div class="rounded-full w-2 h-2 bg-zinc-300"></div>
             <p class="text-zinc-300 font-bold text-xs">Beaten</p>

@@ -78,7 +78,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       highestAward: null,
     });
 
@@ -99,7 +99,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       highestAward: createPlayerBadge({ awardType: 'mastery', awardTier: 1 }),
     });
 
@@ -116,7 +116,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       highestAward: createPlayerBadge({ awardType: 'mastery', awardTier: 0 }),
     });
 
@@ -133,7 +133,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       highestAward: createPlayerBadge({ awardType: 'game_beaten', awardTier: 1 }),
     });
 
@@ -141,24 +141,24 @@ describe('Component: PlayerGameProgressBar', () => {
 
     // ASSERT
     expect(screen.getByText(/beaten/i)).toBeVisible();
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it("given the user's highest award for the game is Beaten (softcore), renders those award details", () => {
+  it("given the user's highest award for the game is Beaten (casual), renders those award details", () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
     const game = createGame({ system, achievementsPublished: 33 });
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 0,
-      achievementsUnlockedSoftcore: 8,
+      achievementsUnlockedCasual: 8,
       highestAward: createPlayerBadge({ awardType: 'game_beaten', awardTier: 0 }),
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
 
     // ASSERT
-    expect(screen.getByText(/beaten \(softcore\)/i)).toBeVisible();
+    expect(screen.getByText(/beaten \(casual\)/i)).toBeVisible();
   });
 
   it('given the user has progress on the game and hovers over the progress bar, shows a tooltip with more details', async () => {
@@ -168,7 +168,8 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
+      points: 285,
       pointsHardcore: 285,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
@@ -185,9 +186,38 @@ describe('Component: PlayerGameProgressBar', () => {
     // ASSERT
     const tooltipEl = await screen.findByRole('tooltip');
 
-    expect(tooltipEl).toHaveTextContent(/8 of 33 achievements/i);
-    expect(tooltipEl).toHaveTextContent(/285 of 400 points/i);
+    expect(tooltipEl).toHaveTextContent(/8 of 33 achievements unlocked/i);
+    expect(tooltipEl).toHaveTextContent(/285 of 400 points earned/i);
+    expect(tooltipEl).not.toHaveTextContent(/hardcore mode/i);
     expect(tooltipEl).toHaveTextContent(/mastered/i);
+  });
+
+  it('given the user has mixed progress on the game and hovers over the progress bar, describes casual progress as casual mode', async () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 35, pointsTotal: 525 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 23,
+      achievementsUnlockedHardcore: 20,
+      achievementsUnlockedCasual: 3,
+      points: 205,
+      pointsHardcore: 160,
+      highestAward: null,
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('progressbar'));
+
+    // ASSERT
+    const tooltipEl = await screen.findByRole('tooltip');
+
+    expect(tooltipEl).toHaveTextContent(/20 of 35 achievements unlocked in hardcore mode/i);
+    expect(tooltipEl).toHaveTextContent(/3 of 35 achievements unlocked in casual mode/i);
+    expect(tooltipEl).toHaveTextContent(/160 of 525 points earned in hardcore mode/i);
+    expect(tooltipEl).toHaveTextContent(/45 of 525 points earned in casual mode/i);
+    expect(tooltipEl).not.toHaveTextContent(/casual achievements/i);
   });
 
   it('given variant is "minimal" and pointsTotal equals achievementsPublished, does not show points metadata in the tooltip', async () => {
@@ -197,7 +227,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       pointsHardcore: 285,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
@@ -224,7 +254,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: game.achievementsPublished,
       achievementsUnlockedHardcore: game.achievementsPublished,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
@@ -253,7 +283,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: game.achievementsPublished,
       achievementsUnlockedHardcore: 0,
-      achievementsUnlockedSoftcore: game.achievementsPublished,
+      achievementsUnlockedCasual: game.achievementsPublished,
       points: 400,
       pointsHardcore: 0,
       highestAward: null,
@@ -275,7 +305,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: game.achievementsPublished,
       achievementsUnlockedHardcore: game.achievementsPublished,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
@@ -300,7 +330,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 80,
       achievementsUnlockedHardcore: 80,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
         awardType: 'game_beaten',
@@ -324,7 +354,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 0,
       achievementsUnlockedHardcore: 0,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: null,
     });
@@ -344,7 +374,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
     });
 
     render(
@@ -367,7 +397,7 @@ describe('Component: PlayerGameProgressBar', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
-      achievementsUnlockedSoftcore: 0,
+      achievementsUnlockedCasual: 0,
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);

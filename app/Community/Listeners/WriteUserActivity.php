@@ -72,7 +72,7 @@ class WriteUserActivity
                 $subjectId = $event->achievement->id;
                 $context = $event->hardcore ? 1 : null;
 
-                if (!System::isGameSystem($event->achievement->game->system->id)) {
+                if (!System::isGameSystem($event->achievement->game->system_id)) {
                     // event unlocks should not update the user's LastLogin
                     $shouldUpdateLastActivityAt = false;
                 } else {
