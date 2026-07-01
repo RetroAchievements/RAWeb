@@ -1311,7 +1311,7 @@
     "Screenshot submitted successfully!": "La capture d'écran a bien été envoyée !",
     "Screenshot deleted successfully.": "La capture d'écran a bien été supprimée.",
     "Are you sure you want to cancel this submission?": "Êtes-vous sûr de vouloir annuler cette soumission ?",
-    "You have {{count}} of {{max}} pending submissions.": "Vous avez {{count}} sur {{max}} en attente de soumissions.",
+    "You have {{count}} of {{max}} pending submissions.": "Vous avez {{count}} sur {{max}} d'envois en attente.",
     "No pending submissions for this game.": "Aucune soumission en attente pour ce jeu.",
     "Submit another": "Envoyer un autre",
     "Back to game": "Retour au jeu",
