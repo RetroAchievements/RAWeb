@@ -1999,14 +1999,12 @@ describe('event unlocks', function () {
         $achievement1 = $data['achievements'][0];
         $achievement2 = $data['achievements'][1];
         $gameHash = $data['gameHash'];
-        $now = Carbon::now();
         $this->addHardcoreUnlock($this->user, $achievement2); // ensures PlayerGame record exists and player score is accurate
 
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
         $casualScoreBefore = $this->user->points;
-        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', [
@@ -2044,14 +2042,12 @@ describe('event unlocks', function () {
         $achievement1 = $data['achievements'][0];
         $achievement2 = $data['achievements'][1];
         $gameHash = $data['gameHash'];
-        $now = Carbon::now();
         $this->addHardcoreUnlock($this->user, $achievement2); // ensures PlayerGame record exists and player score is accurate
 
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
         $casualScoreBefore = $this->user->points;
-        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', [
