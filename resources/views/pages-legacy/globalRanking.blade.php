@@ -171,7 +171,7 @@ $unlockMode = match ($sort % 10) {
     // Sortable Achievements header
     echo "<th class='text-right'>";
     if ($unlockMode == UnlockMode::Hardcore) {
-        $sortFilter('Hardcore Achievements', 4);
+        $sortFilter('Hardcore Unlocks', 4);
     } else {
         $sortFilter('Casual Unlocks', 3);
     }
