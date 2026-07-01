@@ -2044,7 +2044,7 @@ describe('event unlocks', function () {
         $gameHash = $data['gameHash'];
         $this->addHardcoreUnlock($this->user, $achievement2); // ensures PlayerGame record exists and player score is accurate
 
-        // do the hardcore unlock
+        // do the casual unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
         $casualScoreBefore = $this->user->points;
@@ -2066,7 +2066,7 @@ describe('event unlocks', function () {
         $this->user->refresh();
 
         // achievement not unlocked
-        $this->assertDoesNotHaveSoftcoreUnlock($this->user, $achievement1);
+        $this->assertDoesNotHaveCasualUnlock($this->user, $achievement1);
 
         // player score should not have increased
         $this->assertEquals($scoreBefore, $this->user->points_hardcore);
