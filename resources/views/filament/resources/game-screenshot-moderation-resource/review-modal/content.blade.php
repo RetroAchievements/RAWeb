@@ -264,14 +264,18 @@
                     @if ($card['data']['items'] !== [])
                         <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
                             @foreach ($card['data']['items'] as $item)
+                                @php
+                                    $itemImageRenderingStyle = $item['imageRendering'] ? 'image-rendering: ' . $item['imageRendering'] . ';' : '';
+                                @endphp
+
                                 <button
                                     type="button"
-                                    @click="openZoom(@js($item['url']), @js($item['label']))"
+                                    @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
                                     class="flex w-full min-w-0 shrink-0 cursor-zoom-in items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-gray-800"
                                     title="{{ $item['label'] }}"
                                 >
                                     @if ($item['url'])
-                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $imageRenderingStyle }}" />
+                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $itemImageRenderingStyle }}" />
                                     @else
                                         <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
                                     @endif
