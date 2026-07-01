@@ -13,6 +13,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\StaticData;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
@@ -142,6 +143,10 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->unsupportedSystem('Cannot unlock achievements for unsupported console.');
         }
 
+        if ($this->game->system_id === System::Events && !$this->hardcore) {
+            return $this->invalidParameter('Event achievements can only be unlocked in hardcore.');
+        }
+
         // Fetch all achievements already awarded to the user.
         $foundPlayerAchievements = PlayerAchievement::where('user_id', $this->user->id)
             ->whereIn('achievement_id', array_column($this->achievements, 'id'))
@@ -263,6 +268,12 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     timestamp: $this->when,
                     userAgent: $this->userAgent
                 ))->onQueue('player-achievements');
+            }
+
+            // event achievements don't award points
+            if ($this->game->system_id === System::Events) {
+                $this->user->points_hardcore -= $pointsEarned;
+                $pointsEarned = 0;
             }
 
             // Update the metrics for the main page
