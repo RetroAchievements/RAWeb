@@ -70,9 +70,9 @@ trait ActsAsPlayer
     {
         // This attribute doesn't care if the user is untracked.
         $hasHardcoreRank = $this->points_hardcore >= Rank::MIN_POINTS;
-        $hasSoftcoreRank = $this->points >= Rank::MIN_POINTS;
+        $hasCasualRank = $this->points >= Rank::MIN_POINTS;
 
-        if ($hasHardcoreRank && $hasSoftcoreRank) {
+        if ($hasHardcoreRank && $hasCasualRank) {
             return PlayerPreferredMode::Mixed;
         }
 
@@ -80,8 +80,8 @@ trait ActsAsPlayer
             return PlayerPreferredMode::Hardcore;
         }
 
-        if ($hasSoftcoreRank) {
-            return PlayerPreferredMode::Softcore;
+        if ($hasCasualRank) {
+            return PlayerPreferredMode::Casual;
         }
 
         // New players are defaulted to preferring hardcore.

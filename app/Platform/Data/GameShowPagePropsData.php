@@ -60,7 +60,7 @@ class GameShowPagePropsData extends Data
         #[AutoInertiaDeferred]
         public Lazy|Collection $allLeaderboards,
         public int $numBeaten,
-        public int $numBeatenSoftcore,
+        public int $numBeatenCasual,
         public int $numComments,
         public int $numCompatibleHashes,
         public int $numCompletions,

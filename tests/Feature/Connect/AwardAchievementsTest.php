@@ -120,7 +120,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -140,7 +140,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement1->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $achievement1->id,
@@ -177,7 +177,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore + $achievement1->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -205,7 +205,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -225,7 +225,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore + $achievement1->points,
+                "SoftcoreScore" => $casualScoreBefore + $achievement1->points,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $achievement1->id,
@@ -262,7 +262,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement1->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement1->points, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -289,7 +289,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -309,7 +309,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [
                     $achievement1->id,
                 ],
@@ -345,7 +345,7 @@ describe('normal unlock', function () {
         // player score should not have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
     });
 
     test('single achievement upgraded to hardcore', function () {
@@ -357,11 +357,11 @@ describe('normal unlock', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
+        $this->addCasualUnlock($delegatedUser, $achievement1, $unlock1Date);
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -381,7 +381,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement1->points,
-                "SoftcoreScore" => $softcoreScoreBefore - $achievement1->points,
+                "SoftcoreScore" => $casualScoreBefore - $achievement1->points,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $achievement1->id,
@@ -417,7 +417,7 @@ describe('normal unlock', function () {
         // player score should not have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore + $achievement1->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore - $achievement1->points, $user1->points);
+        $this->assertEquals($casualScoreBefore - $achievement1->points, $user1->points);
     });
 
     test('multiple achievements hardcore', function () {
@@ -446,7 +446,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -467,7 +467,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement2->points + $achievement3->points + $achievement4->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [
                     $achievement1->id,
                 ],
@@ -529,7 +529,7 @@ describe('normal unlock', function () {
             $scoreBefore + $achievement2->points + $achievement3->points + $achievement4->points,
             $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -559,7 +559,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -579,7 +579,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $subsetAchievement1->points + $subsetAchievement2->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $subsetAchievement1->id,
@@ -613,7 +613,7 @@ describe('normal unlock', function () {
             $scoreBefore + $subsetAchievement1->points + $subsetAchievement2->points,
             $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
     });
 
     test('base and subset achievements hardcore', function () {
@@ -640,7 +640,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -661,7 +661,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement2->points + $subsetAchievement1->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [
                     $achievement1->id,
                 ],
@@ -721,7 +721,7 @@ describe('normal unlock', function () {
             $scoreBefore + $achievement2->points + $subsetAchievement1->points,
             $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
     });
 
     test('achievements from two subsets of same game hardcore', function () {
@@ -752,7 +752,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -773,7 +773,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $subset1Achievement1->points + $subset2Achievement1->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $subset1Achievement1->id,
@@ -807,7 +807,7 @@ describe('normal unlock', function () {
             $scoreBefore + $subset1Achievement1->points + $subset2Achievement1->points,
             $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
     });
 
     test('multiple achievements from distinct games', function () {
@@ -827,7 +827,7 @@ describe('normal unlock', function () {
 
         // do the delegated unlocks sync
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -852,7 +852,7 @@ describe('normal unlock', function () {
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement1->points + $achievement2->points + $achievement3->points + $achievement4->points,
-                "SoftcoreScore" => $softcoreScoreBefore,
+                "SoftcoreScore" => $casualScoreBefore,
                 "ExistingIDs" => [],
                 "SuccessfulIDs" => [
                     $achievement1->id,
@@ -891,7 +891,7 @@ describe('normal unlock', function () {
             $scoreBefore + $achievement1->points + $achievement2->points + $achievement3->points + $achievement4->points,
             $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -920,7 +920,7 @@ describe('validation', function () {
         $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered]);
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $this->user->username,
@@ -947,7 +947,7 @@ describe('validation', function () {
 
         // Points shouldn't change.
         $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+        $this->assertEquals($casualScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -964,7 +964,7 @@ describe('validation', function () {
         $integrationUser = $data['integrationUser'];
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -991,7 +991,7 @@ describe('validation', function () {
 
         // Points shouldn't change.
         $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+        $this->assertEquals($casualScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -1008,7 +1008,7 @@ describe('validation', function () {
         $integrationUser = $data['integrationUser'];
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -1035,7 +1035,7 @@ describe('validation', function () {
 
         // Points shouldn't change.
         $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+        $this->assertEquals($casualScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -1051,7 +1051,7 @@ describe('validation', function () {
         $delegatedUser = $data['delegatedUser'];
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $this->user->username,
@@ -1078,7 +1078,7 @@ describe('validation', function () {
 
         // Points shouldn't change.
         $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+        $this->assertEquals($casualScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -1149,7 +1149,7 @@ describe('validation', function () {
         $delegatedUser = $data['delegatedUser'];
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $this->user->username,
@@ -1182,7 +1182,7 @@ describe('validation', function () {
         $achievement1->save();
 
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -1209,7 +1209,7 @@ describe('validation', function () {
 
         // Points shouldn't change.
         $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
+        $this->assertEquals($casualScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -1224,7 +1224,7 @@ describe('validation', function () {
         $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
 
         $params = [
             'u' => $this->user->username,
@@ -1251,7 +1251,7 @@ describe('validation', function () {
 
         // points shouldn't change
         $this->assertEquals($scoreBefore, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $this->user->points);
+        $this->assertEquals($casualScoreBefore, $this->user->points);
 
         // no achievement unlock should have been recorded
         $this->assertDatabaseMissing((new PlayerAchievement())->getTable(), [

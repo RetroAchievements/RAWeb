@@ -45,24 +45,24 @@ describe('Component: RecentUnlocksTable', () => {
     expect(screen.getAllByText(/scott/i)[0]).toBeVisible();
   });
 
-  it('given an unlock is softcore, displays a softcore indicator', () => {
+  it('given an unlock is casual, displays a casual indicator', () => {
     // ARRANGE
     const recentUnlock = createFeedRecentUnlock({ isHardcore: false });
 
     render(<RecentUnlocksTable recentUnlocks={[recentUnlock]} />);
 
     // ASSERT
-    expect(screen.getByText(/\(softcore\)/i)).toBeVisible();
+    expect(screen.getByText(/\(casual\)/i)).toBeVisible();
   });
 
-  it('given an unlock is hardcore, does not display a softcore indicator', () => {
+  it('given an unlock is hardcore, does not display a casual indicator', () => {
     // ARRANGE
     const recentUnlock = createFeedRecentUnlock({ isHardcore: true });
 
     render(<RecentUnlocksTable recentUnlocks={[recentUnlock]} />);
 
     // ASSERT
-    expect(screen.queryByText(/\(softcore\)/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\(casual\)/i)).not.toBeInTheDocument();
   });
 
   it('given the user prefers absolute dates, shows the timestamp in absolute format', () => {

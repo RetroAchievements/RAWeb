@@ -52,8 +52,8 @@ class UpdatePlayerPointsStats extends Command
             $relevantPlayerStatTypes = [
                 PlayerStatType::PointsHardcoreDay,
                 PlayerStatType::PointsHardcoreWeek,
-                PlayerStatType::PointsSoftcoreDay,
-                PlayerStatType::PointsSoftcoreWeek,
+                PlayerStatType::PointsCasualDay,
+                PlayerStatType::PointsCasualWeek,
                 PlayerStatType::PointsWeightedDay,
                 PlayerStatType::PointsWeightedWeek,
             ];

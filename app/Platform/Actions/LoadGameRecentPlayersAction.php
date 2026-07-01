@@ -74,9 +74,9 @@ class LoadGameRecentPlayersAction
     {
         $awardPriority = [
             ['type' => AwardType::Mastery, 'extra' => UnlockMode::Hardcore],    // Mastery
-            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Softcore],    // Completion
+            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Casual],    // Completion
             ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Hardcore], // Beaten
-            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Softcore], // Beaten (softcore)
+            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Casual], // Beaten (casual)
         ];
 
         foreach ($awardPriority as $criteria) {

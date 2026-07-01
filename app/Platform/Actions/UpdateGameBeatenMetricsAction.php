@@ -29,7 +29,7 @@ class UpdateGameBeatenMetricsAction
             $game->times_beaten_hardcore = 0;
             $game->median_time_to_beat_hardcore = null;
         } else {
-            // Get median time to beat (softcore only - has time_to_beat but not time_to_beat_hardcore).
+            // Get median time to beat (casual only - has time_to_beat but not time_to_beat_hardcore).
             $query = PlayerGame::where('player_games.game_id', $game->id)
                 ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
                 ->whereNull('unranked_users.id')
@@ -65,7 +65,7 @@ class UpdateGameBeatenMetricsAction
                 // NOTE: This only finds masters of the current set.
                 // It ignores users who may have previously mastered it before a revision.
 
-                // Get median time to complete (softcore only - completed but NOT completed hardcore).
+                // Get median time to complete (casual only - completed but NOT completed hardcore).
                 $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
                     ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
                     ->whereNull('unranked_users.id')

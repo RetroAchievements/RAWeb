@@ -9,7 +9,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 enum PlayerPreferredMode: string
 {
-    case Softcore = 'softcore';
+    case Casual = 'casual';
     case Hardcore = 'hardcore';
     case Mixed = 'mixed';
 }

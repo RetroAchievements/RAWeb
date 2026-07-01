@@ -1,10 +1,10 @@
 @props([
-    'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
+    'highestAwardKind' => null,
 ])
 
 <?php
 $awardTitles = [
-    'beaten-softcore' => 'Beaten (softcore)',
+    'beaten-softcore' => 'Beaten (casual)',
     'beaten-hardcore' => 'Beaten',
     'completed' => 'Completed',
     'mastered' => 'Mastered',

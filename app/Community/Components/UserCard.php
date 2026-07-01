@@ -85,7 +85,7 @@ class UserCard extends Component
         $motto = $rawUserData['motto'] && !$rawUserData['isMuted'] ? $rawUserData['motto'] : null;
         $avatarUrl = $rawUserData['avatarUrl'] ?? null;
         $hardcorePoints = $rawUserData['points_hardcore'] ?? 0;
-        $softcorePoints = $rawUserData['points'] ?? 0;
+        $casualPoints = $rawUserData['points'] ?? 0;
         $retroPoints = $rawUserData['points_weighted'] ?? 0;
         $isUntracked = $rawUserData['unranked_at'] !== null;
         $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;
@@ -97,7 +97,7 @@ class UserCard extends Component
             'motto',
             'avatarUrl',
             'hardcorePoints',
-            'softcorePoints',
+            'casualPoints',
             'retroPoints',
             'isUntracked',
             'permissions',
@@ -106,7 +106,7 @@ class UserCard extends Component
         );
     }
 
-    private function buildCardRankData(string $username, int $hardcorePoints, int $softcorePoints, bool $isUntracked): array
+    private function buildCardRankData(string $username, int $hardcorePoints, int $casualPoints, bool $isUntracked): array
     {
         $siteRank = 0;
         $totalRankedUsersCount = 0;
@@ -118,13 +118,13 @@ class UserCard extends Component
         if ($isUntracked) {
             $siteRank = 'Untracked';
             $rankType = 'Untracked';
-        } elseif ($hardcorePoints >= $softcorePoints) {
+        } elseif ($hardcorePoints >= $casualPoints) {
             $rankType = RankType::Hardcore;
             $siteRank = $hardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
-        } elseif ($softcorePoints > 0) {
-            $rankType = RankType::Softcore;
-            $siteRank = $softcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
-            $rankLabel = 'Softcore Rank';
+        } elseif ($casualPoints > 0) {
+            $rankType = RankType::Casual;
+            $siteRank = $casualPoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
+            $rankLabel = 'Casual Rank';
         }
 
         if ($rankType !== 'Untracked') {

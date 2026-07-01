@@ -35,9 +35,9 @@ class IncrementDeveloperContributionYieldAction
             return;
         }
 
-        // If this is a hardcore unlock, check if it's just an upgrade of an existing softcore unlock.
+        // If this is a hardcore unlock, check if it's just an upgrade of an existing casual unlock.
         if ($isUnlock && $isHardcore) {
-            // If the player already had a softcore unlock, this is an upgrade - don't count it again.
+            // If the player already had a casual unlock, this is an upgrade so don't count it again.
             // Bail.
             if (
                 $playerAchievement->unlocked_at !== null

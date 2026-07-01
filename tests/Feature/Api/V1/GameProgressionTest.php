@@ -172,12 +172,12 @@ class GameProgressionTest extends TestCase
 
         // user3 has non-hardcore unlocks
         $session3a = $this->createSession($user3, $game, new Carbon('2024-01-14 01:01:53'), 673);
-        $this->addSoftcoreUnlock($user3, $achievement1, $session3a->created_at->clone()->addSeconds(613));
+        $this->addCasualUnlock($user3, $achievement1, $session3a->created_at->clone()->addSeconds(613));
         $session3b = $this->createSession($user3, $game, new Carbon('2024-01-14 09:31:44'), 217);
-        $this->addSoftcoreUnlock($user3, $achievement3, $session3b->created_at->clone()->addSeconds(148));
+        $this->addCasualUnlock($user3, $achievement3, $session3b->created_at->clone()->addSeconds(148));
         $session3c = $this->createSession($user3, $game, new Carbon('2024-01-15 01:17:21'), 946);
-        $this->addSoftcoreUnlock($user3, $achievement4, $session3c->created_at->clone()->addSeconds(511));
-        $this->addSoftcoreUnlock($user3, $achievement2, $session3c->created_at->clone()->addSeconds(909));
+        $this->addCasualUnlock($user3, $achievement4, $session3c->created_at->clone()->addSeconds(511));
+        $this->addCasualUnlock($user3, $achievement2, $session3c->created_at->clone()->addSeconds(909));
 
         // pick up updated metrics
         $game->refresh();

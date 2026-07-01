@@ -197,7 +197,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -213,7 +213,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -247,7 +247,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -290,7 +290,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -308,19 +308,19 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Hardcore);
         $this->assertEquals($unlock1Date, $unlockTime);
-        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Casual);
         $this->assertEquals($unlock1Date, $unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -363,7 +363,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement2, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -379,13 +379,13 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 0,
                 'Score' => $scoreBefore + $achievement2->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement2->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -435,7 +435,7 @@ describe('normal unlock', function () {
         $offset = 30;
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1, $offset);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -452,7 +452,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -487,7 +487,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -528,7 +528,7 @@ describe('normal unlock', function () {
         $offset = 30;
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -545,7 +545,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -580,7 +580,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -625,7 +625,7 @@ describe('normal unlock', function () {
         $offset = 30;
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -641,7 +641,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -676,7 +676,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -721,7 +721,7 @@ describe('normal unlock', function () {
         $offset = -30;
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1, $offset);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -738,7 +738,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -773,7 +773,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -814,7 +814,7 @@ describe('normal unlock', function () {
         $offset = 30 * 24 * 60 * 60; // 300 days
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1, $offset);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -831,7 +831,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -866,7 +866,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -892,9 +892,9 @@ describe('normal unlock', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
@@ -910,7 +910,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -926,7 +926,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
@@ -960,7 +960,7 @@ describe('normal unlock', function () {
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -985,7 +985,7 @@ describe('normal unlock', function () {
 
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
 
         $this->withHeaders(['User-Agent' => $offlineSubmissionUserAgent])
             ->get($this->apiUrl('awardachievement', [
@@ -1000,7 +1000,7 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
@@ -1018,7 +1018,7 @@ describe('normal unlock', function () {
 
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -1033,9 +1033,9 @@ describe('normal unlock', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
@@ -1055,7 +1055,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1073,19 +1073,19 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Casual);
         $this->assertEquals($unlock1Date, $unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1123,7 +1123,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1141,19 +1141,19 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Hardcore);
         $this->assertEquals($unlock1Date, $unlockTime);
-        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Casual);
         $this->assertEquals($unlock1Date, $unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1172,11 +1172,11 @@ describe('normal unlock', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement4, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement4, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
@@ -1196,7 +1196,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement2, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1212,13 +1212,13 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 0,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement2->points,
             ]);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement2->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement2->points, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
@@ -1230,7 +1230,7 @@ describe('normal unlock', function () {
         $this->assertNotNull(PlayerBadge::where('user_id', $this->user->id)
             ->where('award_type', AwardType::Mastery)
             ->where('award_key', $game->id)
-            ->where('award_tier', UnlockMode::Softcore)
+            ->where('award_tier', UnlockMode::Casual)
             ->where('awarded_at', $newNow)
             ->first()
         );
@@ -1248,9 +1248,9 @@ describe('normal unlock', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
@@ -1270,7 +1270,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1286,18 +1286,18 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 5, // only 1 unlocked in hardcore
                 'Score' => $scoreBefore + $achievement1->points,
-                'SoftcoreScore' => $softcoreScoreBefore - $achievement1->points,
+                'SoftcoreScore' => $casualScoreBefore - $achievement1->points,
             ]);
 
         // player score should have adjusted
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement1->points, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore - $achievement1->points, $user2->points);
+        $this->assertEquals($casualScoreBefore - $achievement1->points, $user2->points);
 
         // make sure the softcore unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Hardcore);
         $this->assertEquals($newNow, $unlockTime);
-        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($user2, $achievement1, UnlockMode::Casual);
         $this->assertEquals($unlock1Date, $unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1321,7 +1321,7 @@ describe('normal unlock', function () {
         $this->addHardcoreUnlock($this->user, $achievement4, $unlock1Date, $gameHash);
         $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
         $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
-        $this->addSoftcoreUnlock($this->user, $achievement2, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement2, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
@@ -1341,7 +1341,7 @@ describe('normal unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement2, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1357,18 +1357,18 @@ describe('normal unlock', function () {
                 'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 0,
                 'Score' => $scoreBefore + $achievement2->points,
-                'SoftcoreScore' => $softcoreScoreBefore - $achievement2->points,
+                'SoftcoreScore' => $casualScoreBefore - $achievement2->points,
             ]);
 
         // player score should have adjusted
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement2->points, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore - $achievement2->points, $user2->points);
+        $this->assertEquals($casualScoreBefore - $achievement2->points, $user2->points);
 
         // make sure the softcore unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement2, UnlockMode::Hardcore);
         $this->assertEquals($newNow, $unlockTime);
-        $unlockTime = $this->getUnlockTime($user2, $achievement2, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($user2, $achievement2, UnlockMode::Casual);
         $this->assertEquals($unlock1Date, $unlockTime);
 
         // verify badge was awarded
@@ -1384,7 +1384,7 @@ describe('normal unlock', function () {
         $this->assertNull(PlayerBadge::where('user_id', $this->user->id)
             ->where('award_type', AwardType::Mastery)
             ->where('award_key', $game->id)
-            ->where('award_tier', UnlockMode::Softcore)
+            ->where('award_tier', UnlockMode::Casual)
             ->first()
         );
 
@@ -1395,7 +1395,7 @@ describe('normal unlock', function () {
         // requesting an unlock for the warning achievement should return success without actually unlocking it
         $validationHash = md5(Achievement::CLIENT_WARNING_ID . $this->user->display_name . '1');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1411,13 +1411,13 @@ describe('normal unlock', function () {
                 'AchievementID' => Achievement::CLIENT_WARNING_ID,
                 'AchievementsRemaining' => 9999,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't occur
@@ -1457,7 +1457,7 @@ describe('delegated unlock', function () {
         // do the delegated hardcore unlock
         $validationHash = md5($achievement3->id . $delegatedUser->username . '1' . $achievement3->id);
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->post('dorequest.php?r=awardachievement', [
@@ -1474,7 +1474,7 @@ describe('delegated unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $delegatedUser->refresh();
 
@@ -1506,7 +1506,7 @@ describe('delegated unlock', function () {
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -1546,7 +1546,7 @@ describe('delegated unlock', function () {
         // do the delegated hardcore unlock
         $validationHash = md5($achievement3->id . $delegatedUser->ulid . '1' . $achievement3->id);
         $scoreBefore = $delegatedUser->points_hardcore;
-        $softcoreScoreBefore = $delegatedUser->points;
+        $casualScoreBefore = $delegatedUser->points;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->post('dorequest.php?r=awardachievement', [
@@ -1563,7 +1563,7 @@ describe('delegated unlock', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $delegatedUser->refresh();
 
@@ -1595,7 +1595,7 @@ describe('delegated unlock', function () {
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
@@ -1616,7 +1616,7 @@ describe('delegated unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $delegatedUser, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1639,17 +1639,17 @@ describe('delegated unlock', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
         $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
         $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1668,7 +1668,7 @@ describe('delegated unlock', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $delegatedUser, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1691,17 +1691,17 @@ describe('delegated unlock', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
         $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
         $unlockTime = $this->getUnlockTime($author, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($author, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($author, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1717,7 +1717,7 @@ describe('delegated unlock', function () {
 
         // do the hardcore unlock
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1739,17 +1739,17 @@ describe('delegated unlock', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
         $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
         $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1766,7 +1766,7 @@ describe('delegated unlock', function () {
         // do the hardcore unlock
         $validationHash = md5('This isn\'t the correct validation hash');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1789,17 +1789,17 @@ describe('delegated unlock', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
         $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($delegatedUser, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
         $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Hardcore);
         $this->assertNull($unlockTime);
-        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Softcore);
+        $unlockTime = $this->getUnlockTime($this->user, $achievement1, UnlockMode::Casual);
         $this->assertNull($unlockTime);
 
         $this->assertEquals(0, ConnectWarning::count());
@@ -1820,7 +1820,7 @@ describe('event unlocks', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1836,7 +1836,7 @@ describe('event unlocks', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement1->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -1846,7 +1846,7 @@ describe('event unlocks', function () {
 
         // player score should have increased
         $this->assertEquals($scoreBefore + $achievement1->points, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $this->user->points);
+        $this->assertEquals($casualScoreBefore, $this->user->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -1865,7 +1865,7 @@ describe('event unlocks', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1883,7 +1883,7 @@ describe('event unlocks', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 5,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -1893,7 +1893,7 @@ describe('event unlocks', function () {
         // player score should not have changed
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -1906,12 +1906,12 @@ describe('event unlocks', function () {
         $eventAchievement = AwardAchievementTestHelpers::createEventAchievement($achievement1);
         $gameHash = $data['gameHash'];
         $now = Carbon::now();
-        $this->addSoftcoreUnlock($this->user, $achievement2); // ensures PlayerGame record exists and player score is accurate
+        $this->addCasualUnlock($this->user, $achievement2); // ensures PlayerGame record exists and player score is accurate
 
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1927,19 +1927,19 @@ describe('event unlocks', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement1->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement1->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement1);
-        $this->assertDoesNotHaveSoftcoreUnlock($this->user, $eventAchievement);
+        $this->assertHasCasualUnlock($this->user, $achievement1);
+        $this->assertDoesNotHaveCasualUnlock($this->user, $eventAchievement);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement1);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $eventAchievement);
 
         // player score should have increased
         $this->assertEquals($scoreBefore, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement1->points, $this->user->points);
+        $this->assertEquals($casualScoreBefore + $achievement1->points, $this->user->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -1959,7 +1959,7 @@ describe('event unlocks', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -1975,7 +1975,7 @@ describe('event unlocks', function () {
                 'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement1->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
@@ -1985,7 +1985,7 @@ describe('event unlocks', function () {
 
         // player score should have increased
         $this->assertEquals($scoreBefore + $achievement1->points, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $this->user->points);
+        $this->assertEquals($casualScoreBefore, $this->user->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2085,7 +2085,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5('999999' . $this->user->username . '1');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2106,7 +2106,7 @@ describe('validation', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
@@ -2126,7 +2126,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2147,7 +2147,7 @@ describe('validation', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
@@ -2164,11 +2164,11 @@ describe('validation', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
 
         $this->withHeaders(['User-Agent' => null])
             ->get($this->apiUrl('awardachievement', [
@@ -2183,7 +2183,7 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
 
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
@@ -2200,11 +2200,11 @@ describe('validation', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
 
         $this->withHeaders(['User-Agent' => null])
             ->get($this->apiUrl('awardachievement', [
@@ -2219,17 +2219,17 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
     });
 
     test('unknown user agent demotes hardcore unlock to casual', function () {
@@ -2246,7 +2246,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
@@ -2262,18 +2262,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
         $this->assertEquals($this->user->username, $warning->username);
@@ -2292,12 +2292,12 @@ describe('validation', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         // do the unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
@@ -2313,18 +2313,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
         $this->assertEquals($this->user->username, $warning->username);
@@ -2348,7 +2348,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
@@ -2364,18 +2364,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2389,12 +2389,12 @@ describe('validation', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         // do the unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
@@ -2410,18 +2410,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2440,7 +2440,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
@@ -2456,18 +2456,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2481,12 +2481,12 @@ describe('validation', function () {
         $now = Carbon::now();
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addSoftcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addCasualUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
 
         // do the unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
@@ -2502,18 +2502,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
+                'SoftcoreScore' => $casualScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertDoesNotHaveHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
+        $this->assertEquals($casualScoreBefore + $achievement3->points, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2537,7 +2537,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
@@ -2553,18 +2553,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlocked
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         $this->assertEquals(0, ConnectWarning::count());
     });
@@ -2580,7 +2580,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
@@ -2601,7 +2601,7 @@ describe('validation', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
@@ -2626,7 +2626,7 @@ describe('validation', function () {
         // do the unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement1, $this->user, 0);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
@@ -2647,7 +2647,7 @@ describe('validation', function () {
         // player score should not have increased
         $user2 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($casualScoreBefore, $user2->points);
         $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock didn't happen
@@ -2681,7 +2681,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2697,18 +2697,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should be captured
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
@@ -2745,7 +2745,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2761,18 +2761,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should not be captured
         $this->assertEquals(0, ConnectWarning::count());
@@ -2791,7 +2791,7 @@ describe('validation', function () {
 
         // do the hardcore unlock
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2806,18 +2806,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should be captured
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
@@ -2844,7 +2844,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5('This is the wrong validation hash');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2860,18 +2860,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should be captured
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
@@ -2899,7 +2899,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5($achievement3->id . $this->user->username . '1' . $achievement3->id . '0');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2915,18 +2915,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should not be captured
         $this->assertEquals(0, ConnectWarning::count());
@@ -2946,7 +2946,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5($achievement3->id . strtoupper($this->user->username) . '1' . $achievement3->id . '0');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -2964,18 +2964,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should not be captured
         $this->assertEquals(0, ConnectWarning::count());
@@ -2997,7 +2997,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5('This is the wrong validation hash');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         ConnectWarning::create([
@@ -3024,18 +3024,18 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
         $this->user->refresh();
 
         // achievement unlock should go through as hardcore
-        $this->assertHasSoftcoreUnlock($this->user, $achievement3);
+        $this->assertHasCasualUnlock($this->user, $achievement3);
         $this->assertHasHardcoreUnlock($this->user, $achievement3);
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
         $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore, $user1->points);
+        $this->assertEquals($casualScoreBefore, $user1->points);
 
         // smell should be captured
         $warning = AwardAchievementTestHelpers::getWarning($achievement3);
@@ -3068,7 +3068,7 @@ describe('validation', function () {
         // do the hardcore unlock
         $validationHash = md5('This is the wrong validation hash');
         $scoreBefore = $this->user->points_hardcore;
-        $softcoreScoreBefore = $this->user->points;
+        $casualScoreBefore = $this->user->points;
         $truePointsBefore = $this->user->points_weighted;
 
         ConnectWarning::create([
@@ -3095,7 +3095,7 @@ describe('validation', function () {
                 'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // notification should be sent
@@ -3118,7 +3118,7 @@ describe('validation', function () {
                 'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore + $achievement3->points + $achievement4->points,
-                'SoftcoreScore' => $softcoreScoreBefore,
+                'SoftcoreScore' => $casualScoreBefore,
             ]);
 
         // notification should not be sent

@@ -29,7 +29,7 @@ if ($milestone['kind'] === 'mastered') {
 
 $dateLabel = Carbon::createFromTimestampUTC($milestone['when'])->format('M j Y');
 
-$showRecentBeatenSoftcoreTooltip = $milestone['kind'] === 'beaten-softcore';
+$showRecentBeatenCasualTooltip = $milestone['kind'] === 'beaten-softcore';
 ?>
 
 <tr>
@@ -44,8 +44,8 @@ $showRecentBeatenSoftcoreTooltip = $milestone['kind'] === 'beaten-softcore';
 
     <td>
         <div 
-            class="flex flex-col items-end whitespace-nowrap {{ $showRecentBeatenSoftcoreTooltip ? 'cursor-help' : '' }}"
-            @if ($showRecentBeatenSoftcoreTooltip) title="Game was beaten on softcore mode" @endif
+            class="flex flex-col items-end whitespace-nowrap {{ $showRecentBeatenCasualTooltip ? 'cursor-help' : '' }}"
+            @if ($showRecentBeatenCasualTooltip) title="Game was beaten in casual mode" @endif
         >
             <p class="text-2xs">{{ $kindLabel }}</p>
             <p class="text-2xs">{{ $dateLabel }}</p>

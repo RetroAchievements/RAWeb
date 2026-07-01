@@ -103,16 +103,16 @@ class UserCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameNineAchievements->get(0), Carbon::now()->subMinutes(45));
         $this->addHardcoreUnlock($me, $gameTenAchievements->get(0), Carbon::now()->subMinutes(50));
 
-        $this->addSoftcoreUnlock($me, $gameOneAchievements->get(0), Carbon::now()->subMinutes(5));
-        $this->addSoftcoreUnlock($me, $gameTwoAchievements->get(0), Carbon::now()->subMinutes(10));
-        $this->addSoftcoreUnlock($me, $gameThreeAchievements->get(0), Carbon::now()->subMinutes(15));
-        $this->addSoftcoreUnlock($me, $gameFourAchievements->get(0), Carbon::now()->subMinutes(20));
-        $this->addSoftcoreUnlock($me, $gameFiveAchievements->get(0), Carbon::now()->subMinutes(25));
-        $this->addSoftcoreUnlock($me, $gameSixAchievements->get(0), Carbon::now()->subMinutes(30));
-        $this->addSoftcoreUnlock($me, $gameSevenAchievements->get(0), Carbon::now()->subMinutes(35));
-        $this->addSoftcoreUnlock($me, $gameEightAchievements->get(0), Carbon::now()->subMinutes(40));
-        $this->addSoftcoreUnlock($me, $gameNineAchievements->get(0), Carbon::now()->subMinutes(45));
-        $this->addSoftcoreUnlock($me, $gameTenAchievements->get(0), Carbon::now()->subMinutes(50));
+        $this->addCasualUnlock($me, $gameOneAchievements->get(0), Carbon::now()->subMinutes(5));
+        $this->addCasualUnlock($me, $gameTwoAchievements->get(0), Carbon::now()->subMinutes(10));
+        $this->addCasualUnlock($me, $gameThreeAchievements->get(0), Carbon::now()->subMinutes(15));
+        $this->addCasualUnlock($me, $gameFourAchievements->get(0), Carbon::now()->subMinutes(20));
+        $this->addCasualUnlock($me, $gameFiveAchievements->get(0), Carbon::now()->subMinutes(25));
+        $this->addCasualUnlock($me, $gameSixAchievements->get(0), Carbon::now()->subMinutes(30));
+        $this->addCasualUnlock($me, $gameSevenAchievements->get(0), Carbon::now()->subMinutes(35));
+        $this->addCasualUnlock($me, $gameEightAchievements->get(0), Carbon::now()->subMinutes(40));
+        $this->addCasualUnlock($me, $gameNineAchievements->get(0), Carbon::now()->subMinutes(45));
+        $this->addCasualUnlock($me, $gameTenAchievements->get(0), Carbon::now()->subMinutes(50));
 
         // Now, grant the various awards.
         // 3 Beaten (hardcore)
@@ -120,13 +120,13 @@ class UserCompletionProgressTest extends TestCase
         $this->addGameBeatenAward($me, $gameTwo, awardTime: Carbon::now()->subMinutes(10));
         $this->addGameBeatenAward($me, $gameThree, awardTime: Carbon::now()->subMinutes(12));
 
-        // 1 Beaten (softcore)
-        $this->addGameBeatenAward($me, $gameFour, UnlockMode::Softcore, Carbon::now()->subMinutes(20));
+        // 1 Beaten (casual)
+        $this->addGameBeatenAward($me, $gameFour, UnlockMode::Casual, Carbon::now()->subMinutes(20));
 
         // 3 Completed
-        $this->addMasteryBadge($me, $gameFour, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
-        $this->addMasteryBadge($me, $gameFive, UnlockMode::Softcore, Carbon::now()->subMinutes(10));
-        $this->addMasteryBadge($me, $gameSix, UnlockMode::Softcore, Carbon::now()->subMinutes(15));
+        $this->addMasteryBadge($me, $gameFour, UnlockMode::Casual, Carbon::now()->subMinutes(5));
+        $this->addMasteryBadge($me, $gameFive, UnlockMode::Casual, Carbon::now()->subMinutes(10));
+        $this->addMasteryBadge($me, $gameSix, UnlockMode::Casual, Carbon::now()->subMinutes(15));
 
         // 4 Mastered
         $this->addMasteryBadge($me, $gameOne, awardTime: Carbon::now()->subMinutes(1));

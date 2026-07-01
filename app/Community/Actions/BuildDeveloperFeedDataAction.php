@@ -177,7 +177,7 @@ class BuildDeveloperFeedDataAction
                 game: GameData::fromGame($award->gameIfApplicable)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 awardType: $award->award_tier === UnlockMode::Hardcore
                     ? ($award->award_type === AwardType::Mastery ? 'mastered' : 'beaten-hardcore')
-                    : ($award->award_type === AwardType::Mastery ? 'completed' : 'beaten-softcore'),
+                    : ($award->award_type === AwardType::Mastery ? 'completed' : 'beaten-casual'),
                 user: UserData::fromUser($award->user),
                 earnedAt: $award->awarded_at,
             ))
