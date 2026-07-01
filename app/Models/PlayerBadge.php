@@ -224,6 +224,15 @@ class PlayerBadge extends BaseModel
         return null;
     }
 
+    /**
+     * The tier index the user has chosen to display, falling back to the earned tier
+     * (award_tier) when no preference is set.
+     */
+    public function getDisplayedTierAttribute(): int
+    {
+        return $this->display_award_tier ?? (int) $this->award_tier;
+    }
+
     // == mutators
 
     // == relations

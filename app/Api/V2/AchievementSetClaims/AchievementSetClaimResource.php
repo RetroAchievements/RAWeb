@@ -59,13 +59,13 @@ class AchievementSetClaimResource extends BaseJsonApiResource
     {
         $relationships = [];
 
-        if ($this->wasIncluded($request, 'user')) {
+        if ($this->wasRelationshipIncluded($request, 'user')) {
             $relationships['user'] = $this->relation('user')
                 ->withoutLinks()
                 ->showDataIfLoaded();
         }
 
-        if ($this->wasIncluded($request, 'game')) {
+        if ($this->wasRelationshipIncluded($request, 'game')) {
             $relationships['game'] = $this->relation('game')
                 ->withoutLinks()
                 ->showDataIfLoaded();
@@ -83,16 +83,5 @@ class AchievementSetClaimResource extends BaseJsonApiResource
     {
         // Claims have no standalone show route, so suppress the self link.
         return new Links();
-    }
-
-    private function wasIncluded(?Request $request, string $relationship): bool
-    {
-        if (!$request) {
-            return false;
-        }
-
-        return collect(explode(',', (string) $request->query('include')))
-            ->map(fn (string $include) => trim($include))
-            ->contains(fn (string $include) => $include === $relationship || str_starts_with($include, "{$relationship}."));
     }
 }

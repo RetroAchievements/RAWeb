@@ -12,6 +12,7 @@ use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Services\GameOpenTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\CarbonInterface;
 use Database\Factories\LeaderboardFactory;
@@ -90,6 +91,15 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
             if ($leaderboard->wasChanged('rank_asc')) {
                 (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard->id);
             }
+
+            if ($leaderboard->wasChanged(['game_id', 'state'])) {
+                $service = app(GameOpenTicketCountService::class);
+                $service->clearForGameId((int) $leaderboard->game_id);
+                $originalGameId = $leaderboard->getOriginal('game_id');
+                if ($leaderboard->wasChanged('game_id') && $originalGameId !== null) {
+                    $service->clearForGameId((int) $originalGameId);
+                }
+            }
         });
     }
 
@@ -119,6 +129,11 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function getTicketableGame(): Game
     {
         return $this->game;
+    }
+
+    public function getTicketableGameId(): int
+    {
+        return $this->game_id;
     }
 
     public function getTicketableAssignee(?CarbonInterface $at = null): ?User

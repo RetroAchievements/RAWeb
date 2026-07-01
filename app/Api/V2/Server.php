@@ -34,6 +34,7 @@ class Server extends BaseServer
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
             AchievementSetClaims\AchievementSetClaimSchema::class,
+            AchievementSetVersions\AchievementSetVersionSchema::class,
             Comments\CommentSchema::class,
             EventAwards\EventAwardSchema::class,
             Events\EventSchema::class,
@@ -46,7 +47,9 @@ class Server extends BaseServer
             PlayerAchievementSets\PlayerAchievementSetSchema::class,
             PlayerGames\PlayerGameSchema::class,
             Systems\SystemSchema::class,
+            Tickets\TicketSchema::class,
             UserAwards\UserAwardSchema::class,
+            UserFollows\UserFollowSchema::class,
             Users\UserSchema::class,
         ];
     }

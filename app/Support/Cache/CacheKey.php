@@ -60,9 +60,14 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "rank", [$rankTypeParam]);
     }
 
-    public static function buildUserRequestTicketsCacheKey(string $username): string
+    public static function buildUserRequestTicketsCacheKey(int $userId): string
     {
-        return self::buildNormalizedUserCacheKey($username, "request-tickets");
+        return self::buildNormalizedCacheKey("user", $userId, "request-tickets");
+    }
+
+    public static function buildUserOpenTicketsCacheKey(int $userId): string
+    {
+        return self::buildNormalizedCacheKey("user", $userId, "open-tickets");
     }
 
     public static function buildUserExpiringClaimsCacheKey(string $username): string

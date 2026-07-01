@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Achievements;
 
+use App\Api\V2\Tickets\TicketStateFilter;
+use App\Api\V2\Tickets\TicketTypeFilter;
+use App\Api\V2\Tickets\UserUlidFilter;
 use App\Models\Achievement;
 use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
@@ -84,6 +87,16 @@ class AchievementSchema extends Schema
             HasMany::make('comments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('games')->type('games')->readOnly(),
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
+            HasMany::make('tickets')
+                ->type('tickets')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    new TicketStateFilter(),
+                    new TicketTypeFilter(),
+                    new UserUlidFilter('reporterUserId', 'reporter_id'),
+                    new UserUlidFilter('resolverUserId', 'resolver_id'),
+                )
+                ->readOnly(),
 
             // TODO add relationships
             // - activeMaintainer (HasOne AchievementMaintainer)

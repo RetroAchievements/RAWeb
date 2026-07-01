@@ -12,6 +12,7 @@ use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -118,7 +119,7 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->yield_unlocks) {
-            $openTickets = array_sum(countOpenTicketsByDev($user));
+            $openTickets = array_sum(app(UserTicketCountService::class)->countOpenForDev($user));
         }
         $openTicketsStat = [
             'label' => 'Open tickets',
