@@ -106,7 +106,7 @@ class AchievementSetsTestHelpers
         return AchievementSetsTestHelpers::getWarningAchievementPatchData(
             title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
+                ClientSupportLevel::CasualOnly => 'Warning: Casual Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -2091,7 +2091,7 @@ describe('User Agent', function () {
                         'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                         'Achievements' => [
                             AchievementSetsTestHelpers::getClientWarningAchievementPatchData(
-                                ClientSupportLevel::SoftcoreOnly,
+                                ClientSupportLevel::CasualOnly,
                             ),
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2

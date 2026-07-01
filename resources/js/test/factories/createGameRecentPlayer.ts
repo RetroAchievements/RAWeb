@@ -5,7 +5,7 @@ export const createGameRecentPlayer = createFactory<App.Platform.Data.GameRecent
   return {
     achievementsUnlocked: 0,
     achievementsUnlockedHardcore: 0,
-    achievementsUnlockedSoftcore: 0,
+    achievementsUnlockedCasual: 0,
     isActive: false,
     points: 0,
     pointsHardcore: 0,

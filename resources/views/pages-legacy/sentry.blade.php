@@ -82,7 +82,7 @@ $colors = [
         'background' => 'indianred',
         'border' => 'red',
     ],
-    'softcore_validation' => [ // validation hash for hardcore unlocks matches softcore validation hash
+    'softcore_validation' => [ // validation hash for hardcore unlocks matches casual validation hash
         'background' => 'indianred',
         'border' => 'red',
     ],

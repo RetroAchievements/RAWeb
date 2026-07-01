@@ -21,12 +21,12 @@ class LoadGameTopAchieversAction
      * mastery, for a given game.
      *
      * @param Game $game the target game to load top players for
-     * @return array{int, Collection<int, GameTopAchieverData>, int, int, int} array with number of masters, collection of top players, number of completions, number beaten, and number beaten softcore
+     * @return array{int, Collection<int, GameTopAchieverData>, int, int, int} array with number of masters, collection of top players, number of completions, number beaten, and number beaten in casual mode
      */
     public function execute(Game $game): array
     {
         $this->gameTopAchieversService->initialize($game);
-        [$numMasters, $rawTopAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore] =
+        [$numMasters, $rawTopAchievers, $numCompletions, $numBeaten, $numBeatenCasual] =
             $this->gameTopAchieversService->getTopAchieversComponentData();
 
         /** @var array<int, array<string, mixed>> $rawTopAchievers */
@@ -35,6 +35,6 @@ class LoadGameTopAchieversAction
                 return GameTopAchieverData::fromTopAchiever($topAchiever);
             });
 
-        return [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore];
+        return [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenCasual];
     }
 }

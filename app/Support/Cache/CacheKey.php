@@ -47,7 +47,7 @@ class CacheKey
 
     /**
      * @param int $rankType the type of the rank which should correspond to values in the `RankType` enum.
-     *                      1 for 'Hardcore' (default), 2 for 'Softcore', 3 for 'TruePoints'.
+     *                      1 for 'Hardcore' (default), 2 for 'Casual', 3 for 'TruePoints'.
      */
     public static function buildUserRankCacheKey(string $username, int $rankType = 1): string
     {

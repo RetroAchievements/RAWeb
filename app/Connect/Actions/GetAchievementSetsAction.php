@@ -490,7 +490,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                 if ($this->coreRestriction->recommendation) {
                     $description .= " {$this->coreRestriction->recommendation}";
                 }
-            } elseif ($this->clientSupportLevel === ClientSupportLevel::SoftcorePending) {
+            } elseif ($this->clientSupportLevel === ClientSupportLevel::CasualPending) {
                 $userAgentService = new UserAgentService();
                 $emulatorUserAgent = $userAgentService->getEmulatorUserAgent($this->userAgent);
                 if (!$emulatorUserAgent || !$emulatorUserAgent->pending_minimum_hardcore_version_at) {
@@ -507,7 +507,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                    ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
+                    ClientSupportLevel::CasualOnly => 'Warning: Casual Only',
                     ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
                 };

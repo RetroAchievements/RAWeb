@@ -43,7 +43,7 @@ A [local valet driver](LocalValetDriver.php) is provided.
 composer install
 ```
 
-### Run setup script
+### Run the setup script
 
 ```shell
 composer setup

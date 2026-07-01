@@ -25,7 +25,7 @@ class GameRecentPlayerData extends Data
         public string $richPresence,
         public Carbon $richPresenceUpdatedAt,
         public int $achievementsUnlocked,
-        public int $achievementsUnlockedSoftcore,
+        public int $achievementsUnlockedCasual,
         public int $achievementsUnlockedHardcore,
         public int $points,
         public int $pointsHardcore,
@@ -41,7 +41,7 @@ class GameRecentPlayerData extends Data
     ): self {
         $achievementsUnlocked = $playerGame?->achievements_unlocked ?? 0;
         $achievementsUnlockedHardcore = $playerGame?->achievements_unlocked_hardcore ?? 0;
-        $achievementsUnlockedSoftcore = $achievementsUnlocked - $achievementsUnlockedHardcore;
+        $achievementsUnlockedCasual = $achievementsUnlocked - $achievementsUnlockedHardcore;
 
         $points = $playerGame?->points ?? 0;
         $pointsHardcore = $playerGame?->points_hardcore ?? 0;
@@ -51,7 +51,7 @@ class GameRecentPlayerData extends Data
             richPresence: $gameRecentPlayer->rich_presence ?? '',
             richPresenceUpdatedAt: $gameRecentPlayer->rich_presence_updated_at,
             achievementsUnlocked: $achievementsUnlocked,
-            achievementsUnlockedSoftcore: $achievementsUnlockedSoftcore,
+            achievementsUnlockedCasual: $achievementsUnlockedCasual,
             achievementsUnlockedHardcore: $achievementsUnlockedHardcore,
             points: $points,
             pointsHardcore: $pointsHardcore,

@@ -139,17 +139,17 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
                         <td>
                             {{ $otherUserUnlockCount }} of {{ $numAchievements }} unlocked
                             @if ($otherUserUnlockHardcoreCount === 0 && $otherUserUnlockCount > 0)
-                                (softcore only)
+                                (casual only)
                             @elseif ($otherUserUnlockCount > $otherUserUnlockHardcoreCount)
-                                ({{ $otherUserUnlockCount - $otherUserUnlockHardcoreCount }} softcore)
+                                ({{ $otherUserUnlockCount - $otherUserUnlockHardcoreCount }} casual)
                             @endif
                         </td>
                         <td>
                             {{ $userUnlockCount }} of {{ $numAchievements }} unlocked
                             @if ($userUnlockHardcoreCount === 0 && $userUnlockCount > 0)
-                                (softcore only)
+                                (casual only)
                             @elseif ($userUnlockCount > $userUnlockHardcoreCount)
-                                ({{ $userUnlockCount - $userUnlockHardcoreCount }} softcore)
+                                ({{ $userUnlockCount - $userUnlockHardcoreCount }} casual)
                             @endif
                         </td>
                     </tr>

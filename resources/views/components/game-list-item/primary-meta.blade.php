@@ -12,11 +12,11 @@ use Illuminate\Support\Carbon;
     'gameTitle' => '',
     'highestAwardTimeTaken' => null,
     'highestAwardDate' => null,
-    'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
+    'highestAwardKind' => null,
     'mostRecentWonDate' => '',
     'numAwardedAchievements' => 0,
     'numAwardedHardcorePoints' => null,
-    'numAwardedSoftcorePoints' => null,
+    'numAwardedCasualPoints' => null,
     'numPossibleAchievements' => 0,
     'numPossiblePoints' => null,
     'variant' => 'user-progress', // 'user-progress' | 'user-recent-played'
@@ -128,8 +128,8 @@ if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDa
             @if ($numPossiblePoints)
                 <p>
                     @php
-                        $exclusiveSoftcorePoints = max($numAwardedSoftcorePoints - $numAwardedHardcorePoints, 0);
-                        $leftPoints = $numAwardedHardcorePoints >= $exclusiveSoftcorePoints ? $numAwardedHardcorePoints : $exclusiveSoftcorePoints;
+                        $exclusiveCasualPoints = max($numAwardedCasualPoints - $numAwardedHardcorePoints, 0);
+                        $leftPoints = $numAwardedHardcorePoints >= $exclusiveCasualPoints ? $numAwardedHardcorePoints : $exclusiveCasualPoints;
                     @endphp
 
                     <span class="font-bold">{{ localized_number($leftPoints) }}</span>
@@ -137,9 +137,9 @@ if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDa
                     <span class="font-bold">{{ localized_number($numPossiblePoints) }}</span>
                     points
 
-                    @if ($exclusiveSoftcorePoints > 0 && $exclusiveSoftcorePoints < $numAwardedHardcorePoints)
-                        (+<span class="font-bold">{{ localized_number($exclusiveSoftcorePoints) }}</span> softcore)
-                    @elseif ($numAwardedHardcorePoints > 0 && $exclusiveSoftcorePoints > $numAwardedHardcorePoints)
+                    @if ($exclusiveCasualPoints > 0 && $exclusiveCasualPoints < $numAwardedHardcorePoints)
+                        (+<span class="font-bold">{{ localized_number($exclusiveCasualPoints) }}</span> casual)
+                    @elseif ($numAwardedHardcorePoints > 0 && $exclusiveCasualPoints > $numAwardedHardcorePoints)
                         (+<span class="font-bold">{{ localized_number($numAwardedHardcorePoints) }}</span> hardcore)
                     @endif
                 </p>

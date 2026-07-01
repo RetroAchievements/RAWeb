@@ -44,7 +44,7 @@ export const CreateAchievementTicketForm: FC = () => {
     ),
     mode: getDefaultSelectedMode(selectedMode, {
       hardcore: auth!.user.points,
-      softcore: auth!.user.pointsSoftcore,
+      casual: auth!.user.pointsSoftcore,
     }),
     core: emulatorCore ?? '',
     description: '',
@@ -141,18 +141,18 @@ function getDefaultGameHashId(
 
 function getDefaultSelectedMode(
   selectedMode: number | null,
-  currentUserPoints: { hardcore: number; softcore: number },
-): 'hardcore' | 'softcore' | undefined {
+  currentUserPoints: { hardcore: number; casual: number },
+): 'hardcore' | 'casual' | undefined {
   if (selectedMode === 1) return 'hardcore';
-  if (selectedMode === 0) return 'softcore';
+  if (selectedMode === 0) return 'casual';
 
-  const hasNoPoints = !currentUserPoints.hardcore && !currentUserPoints.softcore;
-  const hasEqualPoints = currentUserPoints.hardcore === currentUserPoints.softcore;
+  const hasNoPoints = !currentUserPoints.hardcore && !currentUserPoints.casual;
+  const hasEqualPoints = currentUserPoints.hardcore === currentUserPoints.casual;
   if (hasNoPoints || hasEqualPoints) {
     return;
   }
 
-  return currentUserPoints.hardcore >= currentUserPoints.softcore ? 'hardcore' : 'softcore';
+  return currentUserPoints.hardcore >= currentUserPoints.casual ? 'hardcore' : 'casual';
 }
 
 function getDefaultIssueValueFromTypeParameter(

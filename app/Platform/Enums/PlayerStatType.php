@@ -22,9 +22,9 @@ abstract class PlayerStatType
 
     public const PointsHardcoreWeek = 'points_hardcore_week';
 
-    public const PointsSoftcoreDay = 'points_softcore_day';
+    public const PointsCasualDay = 'points_softcore_day';
 
-    public const PointsSoftcoreWeek = 'points_softcore_week';
+    public const PointsCasualWeek = 'points_softcore_week';
 
     public const PointsWeightedDay = 'points_weighted_day';
 
@@ -42,8 +42,8 @@ abstract class PlayerStatType
 
             self::PointsHardcoreDay,
             self::PointsHardcoreWeek,
-            self::PointsSoftcoreDay,
-            self::PointsSoftcoreWeek,
+            self::PointsCasualDay,
+            self::PointsCasualWeek,
             self::PointsWeightedDay,
             self::PointsWeightedWeek,
         ];

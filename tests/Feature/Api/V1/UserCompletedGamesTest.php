@@ -80,7 +80,7 @@ class UserCompletedGamesTest extends TestCase
                     $this->addHardcoreUnlock($user, $ach);
                 } else {
                     // 1,5,7,11,13,17,19 softcore
-                    $this->addSoftcoreUnlock($user, $ach);
+                    $this->addCasualUnlock($user, $ach);
                 }
             }
             $index++;
@@ -88,7 +88,7 @@ class UserCompletedGamesTest extends TestCase
 
         for ($index = 0; $index < 3; $index++) {
             $ach = $publishedAchievements4->get($index);
-            $this->addSoftcoreUnlock($user, $ach);
+            $this->addCasualUnlock($user, $ach);
         }
 
         $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->username]))
@@ -199,7 +199,7 @@ class UserCompletedGamesTest extends TestCase
                     $this->addHardcoreUnlock($user, $ach);
                 } else {
                     // 1,5,7,11,13,17,19 softcore
-                    $this->addSoftcoreUnlock($user, $ach);
+                    $this->addCasualUnlock($user, $ach);
                 }
             }
             $index++;
@@ -207,7 +207,7 @@ class UserCompletedGamesTest extends TestCase
 
         for ($index = 0; $index < 3; $index++) {
             $ach = $publishedAchievements4->get($index);
-            $this->addSoftcoreUnlock($user, $ach);
+            $this->addCasualUnlock($user, $ach);
         }
 
         $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->ulid])) // !!
