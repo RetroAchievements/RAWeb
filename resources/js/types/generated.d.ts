@@ -169,7 +169,19 @@ descriptionKey: string | null;
 descriptionParams: Record<string, string> | null;
 undoToken: string | null;
 };
-export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+export type UserAwardData = {
+    title: string;
+    imageUrl: string;
+    tooltip: string;
+    link: string | null;
+    isGold: boolean;
+    gameId: number | null;
+    dateAwarded: string;
+    awardType: App.Community.Enums.AwardType;
+    awardSection: string;
+    displayOrder: number;
+  };
+  export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
 paginatedGameListEntries: App.Data.PaginatedData<TItems>;
 filterableSystemOptions: Array<App.Platform.Data.System>;
 can: App.Data.UserPermissions;
