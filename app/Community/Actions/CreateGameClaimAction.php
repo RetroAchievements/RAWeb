@@ -11,15 +11,16 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Support\Alerts\ClaimWithUnresolvedTicketsAlert;
+use App\Support\Alerts\SetClaimChangeAlert;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -91,18 +92,7 @@ class CreateGameClaimAction
 
         $this->maybeSendClaimWithUnresolvedTicketsAlert($currentUser, $game, $claimType);
 
-        $webhookUrl = config('services.discord.webhook.claims');
-        if (!empty($webhookUrl)) {
-            $payload = [
-                'username' => 'Claim Bot',
-                'avatar_url' => media_asset('UserPic/QATeam.png'),
-                'content' => route('game.show', $game) . "\n:new: " .
-                             $claimType->label() .
-                             ($setType === ClaimSetType::Revision ? ' revision' : '') .
-                             " claim made by " . $currentUser->display_name,
-            ];
-            (new Client())->post($webhookUrl, ['json' => $payload]);
-        }
+        (new SetClaimChangeAlert(game: $game, user: $currentUser, claim: $newClaim, action: SetClaimChangeAction::Create))->send();
 
         return $newClaim;
     }
