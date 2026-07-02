@@ -41,7 +41,7 @@ dataset('claim types', [
     'collaboration' => [ClaimType::Collaboration, 'Collaboration'],
 ]);
 
-it('formats a site inactivity discord message', function (
+it('formats a set claim change discord message', function (
     SetClaimChangeAction $action,
     string $expectedEmoji,
     string $expectedAction,
