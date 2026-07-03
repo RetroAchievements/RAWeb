@@ -212,7 +212,7 @@ function removeAvatar(string $user): void
  *
  * Call this only after the avatar file write or delete has completed, otherwise the
  * first fetch of the new versioned URL could pin the old image at the edge.
- * 
+ *
  * The queries use withTrashed() because account deletion soft-deletes the user before
  * removing the avatar file.
  */
