@@ -306,12 +306,20 @@ class PlayerGamesTest extends TestCase
         $game1 = Game::factory()->create(['system_id' => $system->id]);
         $game2 = Game::factory()->create(['system_id' => $system->id]);
 
-        $milestonePg = PlayerGame::factory()->create([
-            'user_id' => $player->id,
-            'game_id' => $game1->id,
-            $timestampColumn => now()->subDay(),
-            'last_played_at' => now(),
-        ]);
+        $milestonePg = match ($timestampColumn) {
+            'beaten_at' => PlayerGame::factory()->create([
+                'user_id' => $player->id,
+                'game_id' => $game1->id,
+                'beaten_at' => now()->subDay(),
+                'last_played_at' => now(),
+            ]),
+            'beaten_hardcore_at' => PlayerGame::factory()->create([
+                'user_id' => $player->id,
+                'game_id' => $game1->id,
+                'beaten_hardcore_at' => now()->subDay(),
+                'last_played_at' => now(),
+            ]),
+        };
         PlayerGame::factory()->create([
             'user_id' => $player->id,
             'game_id' => $game2->id,
