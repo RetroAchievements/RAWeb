@@ -14,12 +14,12 @@ use Illuminate\Support\Str;
 class BackfillMissingPlayerGames extends Command
 {
     protected $signature = 'ra:platform:game:backfill-missing-player-games
-                            {gameIds? : Comma-separated list of game IDs. Leave empty to scan all games}';
+                            {gameIds : Comma-separated list of game IDs}';
     protected $description = 'Create missing player_games rows for users who have unlocks on a game';
 
     public function handle(AttachPlayerGameAction $attachPlayerGame): void
     {
-        $gameIds = collect(explode(',', $this->argument('gameIds') ?? ''))
+        $gameIds = collect(explode(',', $this->argument('gameIds')))
             ->filter()
             ->map(fn ($id) => (int) $id);
 
@@ -35,7 +35,7 @@ class BackfillMissingPlayerGames extends Command
                     ->on('player_games.game_id', '=', 'achievements.game_id');
             })
             ->whereNull('player_games.id')
-            ->when($gameIds->isNotEmpty(), fn ($query) => $query->whereIn('achievements.game_id', $gameIds))
+            ->whereIn('achievements.game_id', $gameIds)
             ->distinct()
             ->get(['player_achievements.user_id', 'achievements.game_id']);
 
