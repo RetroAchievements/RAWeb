@@ -135,7 +135,7 @@ class LoginAction extends BaseApiAction
 
     private function completeLogin(User $user): array
     {
-        // keep the token alive for another two weeks
+        // keep the token alive for another year
         $user->extendConnectTokenExpiry();
         $user->saveQuietly();
 
