@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
+use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
@@ -39,6 +40,13 @@ class UserGameListEntrySchema extends Schema
     protected $defaultSort = '-createdAt';
 
     /**
+     * Relationships that should always be eager loaded.
+     */
+    protected array $with = [
+        'game.system',
+    ];
+
+    /**
      * Get the resource type.
      */
     public static function type(): string
@@ -60,6 +68,14 @@ class UserGameListEntrySchema extends Schema
             Str::make('kind', 'type')->sortable()->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
+
+            Number::make('gameId', 'game_id')->readOnly(),
+            Str::make('gameTitle')->readOnly(),
+            Str::make('gameIconUrl')->readOnly(),
+            Number::make('systemId')->readOnly(),
+            Str::make('systemName')->readOnly(),
+            Number::make('pointsTotal')->readOnly(),
+            Number::make('achievementsPublished')->readOnly(),
 
             BelongsTo::make('game')->readOnly(),
         ];

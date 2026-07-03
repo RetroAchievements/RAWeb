@@ -24,6 +24,13 @@ class UserGameListEntryResource extends BaseJsonApiResource
         return [
             'kind' => $this->resource->type->value,
             'createdAt' => $this->resource->created_at,
+            'gameId' => $this->resource->game_id,
+            'gameTitle' => $this->resource->game->title,
+            'gameIconUrl' => $this->resource->game->badge_url,
+            'systemId' => $this->resource->game->system_id,
+            'systemName' => $this->resource->game->system->name,
+            'pointsTotal' => $this->resource->game->points_total,
+            'achievementsPublished' => $this->resource->game->achievements_published,
         ];
     }
 
@@ -34,6 +41,10 @@ class UserGameListEntryResource extends BaseJsonApiResource
      */
     public function relationships($request): iterable
     {
+        if (!$this->wasRelationshipIncluded($request, 'game')) {
+            return [];
+        }
+
         return [
             'game' => $this->relation('game')->withoutLinks()->showDataIfLoaded(),
         ];

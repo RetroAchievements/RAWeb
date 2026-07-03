@@ -515,8 +515,14 @@ class UserGameListEntriesTest extends TestCase
     public function testItReturnsEntryAttributesAndType(): void
     {
         // Arrange
-        $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->id]);
+        $system = System::factory()->create(['name' => 'Nintendo Entertainment System']);
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Super Mario Bros.',
+            'image_icon_asset_path' => '/Images/000001.png',
+            'points_total' => 123,
+            'achievements_published' => 12,
+        ]);
         $self = User::factory()->create(['web_api_key' => 'test-key']);
         $entry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
 
@@ -533,7 +539,15 @@ class UserGameListEntriesTest extends TestCase
         $this->assertEquals('user-game-list-entries', $row['type']);
         $this->assertEquals('play', $row['attributes']['kind']);
         $this->assertArrayHasKey('createdAt', $row['attributes']);
+        $this->assertEquals($game->id, $row['attributes']['gameId']);
+        $this->assertEquals('Super Mario Bros.', $row['attributes']['gameTitle']);
+        $this->assertEquals(media_asset('/Images/000001.png'), $row['attributes']['gameIconUrl']);
+        $this->assertEquals($system->id, $row['attributes']['systemId']);
+        $this->assertEquals('Nintendo Entertainment System', $row['attributes']['systemName']);
+        $this->assertEquals(123, $row['attributes']['pointsTotal']);
+        $this->assertEquals(12, $row['attributes']['achievementsPublished']);
         $this->assertArrayNotHasKey('user', $row['relationships'] ?? []);
+        $this->assertArrayNotHasKey('game', $row['relationships'] ?? []);
         $this->assertArrayNotHasKey('links', $row);
     }
 
