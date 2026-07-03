@@ -12,6 +12,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -319,6 +320,7 @@ class PlayerGamesTest extends TestCase
                 'beaten_hardcore_at' => now()->subDay(),
                 'last_played_at' => now(),
             ]),
+            default => throw new InvalidArgumentException("Unsupported timestamp column [{$timestampColumn}]."),
         };
         PlayerGame::factory()->create([
             'user_id' => $player->id,
