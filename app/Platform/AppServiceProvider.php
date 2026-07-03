@@ -32,6 +32,7 @@ use App\Platform\Commands\BackfillGameBadgesCurrentCanonicalCommand;
 use App\Platform\Commands\BackfillGameBadgesFromAuditLogCommand;
 use App\Platform\Commands\BackfillGameBadgesFromCommentsCommand;
 use App\Platform\Commands\BackfillGameBadgesFromForumCommentsCommand;
+use App\Platform\Commands\BackfillMissingPlayerGames;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
@@ -93,6 +94,7 @@ class AppServiceProvider extends ServiceProvider
                 RecalculateAchievementWeightedPoints::class,
 
                 // Games
+                BackfillMissingPlayerGames::class,
                 CheckForAchievementSetChanges::class,
                 ConvertGameToEvent::class,
                 PruneDuplicateSubsetNotes::class,
