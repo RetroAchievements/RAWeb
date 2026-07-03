@@ -113,6 +113,7 @@ class UserSchema extends Schema
                     new UserUlidFilter('resolverUserId', 'resolver_id'),
                 )
                 ->readOnly(),
+            HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
