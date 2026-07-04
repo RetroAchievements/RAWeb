@@ -141,10 +141,11 @@ class AchievementSchema extends Schema
      */
     public function indexQuery(?object $model, Builder $query): Builder
     {
-        // Exclude hub and event game achievements.
+        // Exclude achievements belonging to hub, event, or soft-deleted games.
         $query->whereNotIn('game_id', Game::query()
             ->withTrashed()
             ->whereIn('system_id', [System::Hubs, System::Events])
+            ->orWhereNotNull('deleted_at')
             ->select('id'));
 
         // Default to promoted only if no state filter is applied.
