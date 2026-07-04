@@ -53,8 +53,9 @@ class UserResource extends JsonApiResource
             'richPresenceUpdatedAt' => $this->resource->rich_presence_updated_at,
 
             'visibleRole' => $this->resource->visibleRole?->name,
-            'displayableRoles' => $this->resource->displayableRoles()
-                ->get()
+            'displayableRoles' => ($this->resource->relationLoaded('roles')
+                ? $this->resource->roles->where('display', '>', 0)
+                : $this->resource->displayableRoles()->get())
                 ->pluck('name')
                 ->values()
                 ->all(),

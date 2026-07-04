@@ -38,6 +38,14 @@ class UserSchema extends Schema
     protected ?array $defaultPagination = ['number' => 1];
 
     /**
+     * Relationships that should always be eager loaded.
+     *
+     * The visibleRole and displayableRoles attributes both derive from roles,
+     * and lazily loading them costs two queries per user on the index.
+     */
+    protected array $with = ['roles'];
+
+    /**
      * Default sort order when client doesn't provide any.
      * Shows highest point users first for leaderboard-style results.
      */
