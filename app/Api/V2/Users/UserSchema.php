@@ -21,6 +21,7 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
+use LaravelJsonApi\Eloquent\Filters\WhereNotNull;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -149,6 +150,8 @@ class UserSchema extends Schema
     {
         return [
             Scope::make('role', 'withRole'),
+
+            WhereNotNull::make('isUnranked', 'unranked_at'),
         ];
     }
 
