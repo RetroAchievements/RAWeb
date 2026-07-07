@@ -518,12 +518,10 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertNotContains($rankedUser->ulid, $ids);
     }
 
-    public function testItTreatsAnInvalidRankedFilterValueAsFalse(): void
+    public function testItRejectsAnInvalidRankedFilterValue(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
-        $rankedUser = User::factory()->create();
-        $unrankedUser = User::factory()->untracked()->create();
 
         // Act
         $response = $this->jsonApi('v2')
@@ -532,10 +530,7 @@ class UsersTest extends JsonApiResourceTestCase
             ->get('/api/v2/users?filter[ranked]=banana');
 
         // Assert
-        $response->assertSuccessful();
-        $ids = collect($response->json('data'))->pluck('id')->toArray();
-        $this->assertContains($unrankedUser->ulid, $ids);
-        $this->assertNotContains($rankedUser->ulid, $ids);
+        $response->assertStatus(400);
     }
 
     public function testItDoesNotExcludeUnrankedUsersByDefault(): void
