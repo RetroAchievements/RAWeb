@@ -136,12 +136,12 @@ function getAchievementDistribution(
 
         $results = $countQuery->get();
     } else {
-        $countColumn = $isHardcore ? 'sub.hardcore_unlocks' : 'sub.softcore_unlocks';
+        $countColumn = $isHardcore ? 'sub.hardcore_unlocks' : 'sub.casual_unlocks';
 
         $subQuery = PlayerAchievement::query()
             ->selectRaw(
                 "player_achievements.user_id,
-                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks,
+                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as casual_unlocks,
                 sum(case when player_achievements.unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
             )
             ->join("achievements", "player_achievements.achievement_id", "=", "achievements.id")

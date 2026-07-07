@@ -294,7 +294,7 @@ class PlayerBadge extends BaseModel
 
     /**
      * Select the canonical award rows used by public API/profile rendering.
-     * This collapses superseded softcore game awards and prior developer tiers.
+     * This collapses superseded casual game awards and prior developer tiers.
      *
      * @param Builder<PlayerBadge> $query
      * @return Builder<PlayerBadge>
@@ -416,9 +416,9 @@ class PlayerBadge extends BaseModel
     {
         return [
             AwardType::Mastery->value, UnlockMode::Hardcore, // mastery
-            AwardType::Mastery->value, UnlockMode::Softcore, // completion
+            AwardType::Mastery->value, UnlockMode::Casual, // completion
             AwardType::GameBeaten->value, UnlockMode::Hardcore, // beaten hardcore
-            AwardType::GameBeaten->value, UnlockMode::Softcore, // beaten softcore
+            AwardType::GameBeaten->value, UnlockMode::Casual, // beaten casual
         ];
     }
 

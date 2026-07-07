@@ -5,21 +5,21 @@ use App\Community\Enums\Rank;
 
 @props([
     'hardcoreRankMeta' => [],
-    'softcoreRankMeta' => [],
+    'casualRankMeta' => [],
     'userMassData' => [],
     'username' => '',
 ])
 
 <?php
 $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
-$softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
+$casualPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 
 $rankMode = 'hardcore';
 $rankMeta = $hardcoreRankMeta;
 $rankPoints = $userMassData['TotalPoints'] ?? 0;
-if ($softcorePoints > $hardcorePoints) {
-    $rankMode = 'softcore';
-    $rankMeta = $softcoreRankMeta;
+if ($casualPoints > $hardcorePoints) {
+    $rankMode = 'casual';
+    $rankMeta = $casualRankMeta;
     $rankPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 }
 ?>
@@ -34,7 +34,7 @@ if ($softcorePoints > $hardcorePoints) {
                 @if ($rankMode === 'none' || $rankMode === 'hardcore')
                     Site Rank:
                 @else
-                    Softcore Rank:
+                    Casual Rank:
                 @endif
             </span>
 
@@ -42,7 +42,7 @@ if ($softcorePoints > $hardcorePoints) {
                 @if ($rankPoints < Rank::MIN_POINTS)
                     <span class="italic">Requires at least {{ Rank::MIN_POINTS }} points.</span>
                 @else
-                    <a href="{{ '/globalRanking.php?t=2&o=' . $rankMeta['rankOffset'] . '&s=' . ($rankMode === 'softcore' ? '2' : '5') }}">
+                    <a href="{{ '/globalRanking.php?t=2&o=' . $rankMeta['rankOffset'] . '&s=' . ($rankMode === 'casual' ? '2' : '5') }}">
                         #{{ localized_number($rankMeta['rank']) }}
                     </a>
                     of {{ localized_number($rankMeta['numRankedUsers']) }} {{ $rankMeta['rankPercentLabel'] }}

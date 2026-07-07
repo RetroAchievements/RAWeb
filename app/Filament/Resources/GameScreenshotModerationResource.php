@@ -656,7 +656,7 @@ class GameScreenshotModerationResource extends Resource
      *     candidatePanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
      *     otherPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null,
-     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null,
+     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>}|null,
      * }
      */
     private static function getReviewModalContentViewData(GameScreenshot $record): array
@@ -667,7 +667,7 @@ class GameScreenshotModerationResource extends Resource
         $submissionResolution = $context->formatResolution();
         $currentPrimary = $context->currentPrimaryForType($record->type);
         $currentPrimary?->loadMissing('media');
-        $isPixelated = !($record->game?->system?->supports_upscaled_screenshots ?? true);
+        $isPixelated = $context->isPixelated();
 
         return [
             'recordKey' => (string) $record->getKey(),
@@ -678,37 +678,20 @@ class GameScreenshotModerationResource extends Resource
                     : 'No current primary',
                 'url' => $currentPrimary?->media?->getUrl(),
                 'placeholder' => $currentPrimary ? 'No preview' : 'No current image',
-                'imageRendering' => self::screenshotImageRendering($currentPrimary?->width, $isPixelated),
+                'imageRendering' => $context->imageRenderingFor($currentPrimary),
                 'cues' => self::getCurrentImageCueViewData($context, $currentPrimary),
             ],
             'candidatePanel' => [
                 'label' => 'Submission (' . ($submissionResolution ?? '?') . ')',
                 'url' => $record->media?->getUrl(),
                 'placeholder' => 'No preview',
-                'imageRendering' => self::screenshotImageRendering($record->width, $isPixelated),
+                'imageRendering' => $context->imageRenderingFor($record),
                 'cues' => self::getCandidateImageCueViewData($context),
             ],
             'currentPrimaries' => $context->currentPrimaryContextItems(),
             'otherPendingForGame' => $context->otherPendingForGameContextData(),
             'approvedIngame' => self::getApprovedIngameContextViewData($context),
         ];
-    }
-
-    private static function screenshotImageRendering(?int $sourceWidth, bool $isPixelated): ?string
-    {
-        if ($isPixelated) {
-            return 'pixelated';
-        }
-
-        if (!$sourceWidth || $sourceWidth <= 0) {
-            return null;
-        }
-
-        if ($sourceWidth <= 640) {
-            return 'crisp-edges';
-        }
-
-        return null;
     }
 
     /**
@@ -771,7 +754,7 @@ class GameScreenshotModerationResource extends Resource
     }
 
     /**
-     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>}|null
+     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>}|null
      */
     private static function getApprovedIngameContextViewData(ScreenshotReviewContext $context): ?array
     {

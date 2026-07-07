@@ -11,8 +11,7 @@ interface PlayerBadgeIndicatorProps {
 export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadge, className }) => {
   const { awardType, awardTier } = playerBadge;
 
-  let indicator: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-softcore' =
-    'beaten-softcore';
+  let indicator: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-casual' = 'beaten-casual';
   if (awardType === 'mastery' && awardTier) {
     indicator = 'mastery';
   } else if (awardType === 'mastery' && !awardTier) {

@@ -26,7 +26,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
     formatXAxisTick,
     userAchievementCounts,
     userHardcoreIndex,
-    userSoftcoreIndex,
+    userCasualIndex,
   } = useAchievementDistributionChart({ buckets, playerGame, variant });
 
   if (buckets.length < 2) {
@@ -51,7 +51,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
                   labelFormatter={formatTooltipLabel}
                   userAchievementCounts={userAchievementCounts}
                   userHardcoreIndex={userHardcoreIndex}
-                  userSoftcoreIndex={userSoftcoreIndex}
+                  userCasualIndex={userCasualIndex}
                   variant={variant}
                 />
               }
@@ -65,11 +65,11 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
             />
 
             <Bar
-              // Events do not track softcore progress.
+              // Events do not track casual progress.
               hide={variant === 'event'}
-              data-testid="softcore-bar"
-              dataKey="softcore"
-              fill="var(--color-softcore)"
+              data-testid="casual-bar"
+              dataKey="casual"
+              fill="var(--color-casual)"
               stackId="a"
               isAnimationActive={false}
             />
@@ -83,9 +83,9 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
               />
             ) : null}
 
-            {userSoftcoreIndex !== undefined ? (
+            {userCasualIndex !== undefined ? (
               <ReferenceLine
-                x={userSoftcoreIndex}
+                x={userCasualIndex}
                 stroke="#737373"
                 strokeDasharray="3 3"
                 strokeWidth={2}

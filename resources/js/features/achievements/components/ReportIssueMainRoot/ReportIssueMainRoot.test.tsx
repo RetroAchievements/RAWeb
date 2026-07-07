@@ -91,7 +91,7 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(labelEl).toHaveTextContent(/have not unlocked this achievement/i);
   });
 
-  it('given the user has a session but only has a softcore unlock, tells them', () => {
+  it('given the user has a session but only has a casual unlock, tells them', () => {
     // ARRANGE
     const achievement = createAchievement({
       unlockedAt: faker.date.recent().toISOString(),
@@ -110,7 +110,7 @@ describe('Component: ReportIssueMainRoot', () => {
     const labelEl = screen.getByTestId(testId);
 
     expect(labelEl).toBeVisible();
-    expect(labelEl).toHaveTextContent(/have unlocked this achievement in softcore/i);
+    expect(labelEl).toHaveTextContent(/have unlocked this achievement in casual/i);
   });
 
   it('given the user has a session and has a hardcore unlock, tells them', () => {
@@ -133,7 +133,7 @@ describe('Component: ReportIssueMainRoot', () => {
 
     expect(labelEl).toBeVisible();
     expect(labelEl).toHaveTextContent(/have unlocked this achievement/i);
-    expect(labelEl).not.toHaveTextContent(/in softcore/i);
+    expect(labelEl).not.toHaveTextContent(/in casual/i);
   });
 
   it('given the user has no session, they do not see a link to open a ticket', () => {

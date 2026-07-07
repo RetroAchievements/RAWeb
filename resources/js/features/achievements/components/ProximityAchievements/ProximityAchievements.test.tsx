@@ -126,14 +126,14 @@ describe('Component: ProximityAchievements', () => {
     expect(screen.getByRole('link', { name: /beta achievement/i })).toBeVisible();
   });
 
-  it('shows a gray checkmark for softcore-unlocked achievements', () => {
+  it('shows a gray checkmark for casual-unlocked achievements', () => {
     // ARRANGE
     const achievement = createAchievement({ id: 1, game: createGame() });
     const proximityAchievements = [
       createAchievement({ id: 2, title: 'Locked One' }),
       createAchievement({
         id: 3,
-        title: 'Softcore One',
+        title: 'Casual One',
         unlockedAt: '2024-01-15T00:00:00Z',
         unlockedHardcoreAt: undefined,
       }),

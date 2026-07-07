@@ -153,9 +153,10 @@ class EmulatorResource extends Resource
                             ->boolean(),
 
                         Infolists\Components\IconEntry::make('softcore_only')
+                            ->label('Casual only')
                             ->hintIcon(
                                 'heroicon-m-question-mark-circle',
-                                tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to softcore.'
+                                tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to casual.'
                             )
                             ->boolean()
                             ->default(false),
@@ -237,9 +238,10 @@ class EmulatorResource extends Resource
                                 ),
 
                             Forms\Components\Toggle::make('softcore_only')
+                                ->label('Casual only')
                                 ->hintIcon(
                                     'heroicon-m-question-mark-circle',
-                                    tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to softcore.'
+                                    tooltip: 'Stops asking players to update their emulator. Hardcore unlocks will be converted to casual.'
                                 ),
                         ]),
                 ])->from('md'),
@@ -290,6 +292,7 @@ class EmulatorResource extends Resource
                     ->alignCenter(),
 
                 Tables\Columns\IconColumn::make('softcore_only')
+                    ->label('Casual only')
                     ->alignCenter()
                     ->boolean()
                     ->default(false)

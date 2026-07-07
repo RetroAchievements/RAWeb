@@ -30,7 +30,7 @@ use Illuminate\Support\Carbon;
             // Declare columns
             dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
             dataRecentProgress.addColumn('number', 'Hardcore Score');
-            dataRecentProgress.addColumn('number', 'Softcore Score');
+            dataRecentProgress.addColumn('number', 'Casual Score');
 
             dataRecentProgress.addRows([
                 @php
@@ -47,9 +47,9 @@ use Illuminate\Support\Carbon;
                         $dateStr = $nextDate->format('d M Y');
 
                         $hardcoreValue = $dayInfo['CumulHardcoreScore'];
-                        $softcoreValue = $dayInfo['CumulSoftcoreScore'];
+                        $casualValue = $dayInfo['CumulCasualScore'];
 
-                        echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
+                        echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $casualValue ]";
                     }
                 @endphp
             ]);

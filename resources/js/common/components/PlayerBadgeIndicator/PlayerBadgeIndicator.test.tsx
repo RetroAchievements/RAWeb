@@ -51,7 +51,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     expect(screen.getByLabelText(/beaten/i)).toBeVisible();
   });
 
-  it('renders an accessible label for beaten softcore', () => {
+  it('renders an accessible label for Beaten (casual)', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'game_beaten',
@@ -61,6 +61,6 @@ describe('Component: PlayerBadgeIndicator', () => {
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
 
     // ASSERT
-    expect(screen.getByLabelText(/beaten \(softcore\)/i)).toBeVisible();
+    expect(screen.getByLabelText(/beaten \(casual\)/i)).toBeVisible();
   });
 });

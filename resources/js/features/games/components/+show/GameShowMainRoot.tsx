@@ -25,7 +25,7 @@ export const GameShowMainRoot: FC = () => {
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const hasBeatenGame =
-    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
+    !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
 
   const currentListView = useAtomValue(currentListViewAtom);
 

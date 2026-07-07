@@ -22,7 +22,7 @@ final class CacheKeyTest extends TestCase
     public function testBuildUserRankCacheKey(): void
     {
         $username = "UserName";
-        $rankType = RankType::Softcore;
+        $rankType = RankType::Casual;
 
         $cacheKey = CacheKey::buildUserRankCacheKey($username, $rankType);
 

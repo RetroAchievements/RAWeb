@@ -12,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -64,6 +65,8 @@ class AchievementSetSchema extends Schema
             DateTime::make('updatedAt', 'updated_at')->readOnly(),
 
             BelongsToMany::make('games', 'linkedGames')->type('games')->readOnly(),
+
+            HasMany::make('achievementSetVersions', 'versions')->type('achievement-set-versions')->cannotEagerLoad()->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /achievement-sets/{id}/games

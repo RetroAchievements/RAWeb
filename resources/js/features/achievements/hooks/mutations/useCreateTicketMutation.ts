@@ -6,7 +6,7 @@ interface Variables {
   payload: {
     ticketableModel: 'achievement' | 'leaderboard';
     ticketableId: number;
-    mode: 'hardcore' | 'softcore';
+    mode: 'hardcore' | 'casual';
     issue: App.Community.Enums.TicketType;
     description: string;
     emulator: string;

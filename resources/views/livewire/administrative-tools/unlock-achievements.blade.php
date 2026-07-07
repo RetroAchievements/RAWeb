@@ -297,7 +297,7 @@ new class extends Component implements HasForms {
                     ]),
                 Forms\Components\ToggleButtons::make('mode')
                     ->options([
-                        'softcore' => 'Softcore',
+                        'casual' => 'Casual',
                         'hardcore' => 'Hardcore',
                     ])
                     ->grouped()

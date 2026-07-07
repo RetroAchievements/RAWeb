@@ -16,6 +16,7 @@ console.error = vi.fn();
 describe('Component: CreateMessageThreadForm', () => {
   beforeEach(() => {
     window.scrollTo = vi.fn();
+    sessionStorage.clear();
   });
 
   it('renders without crashing', () => {
@@ -364,6 +365,95 @@ describe('Component: CreateMessageThreadForm', () => {
     await waitFor(() => {
       expect(screen.getByText(/muted users can only message radmin/i)).toBeVisible();
     });
+  });
+
+  it('given a draft was saved from a different recipient, does not restore it into the pre-selected user form', async () => {
+    // ARRANGE
+    sessionStorage.setItem(
+      'create-message:suspect15',
+      JSON.stringify({
+        title: 'drafted subject',
+        body: 'drafted message body',
+      }),
+    );
+
+    const mockUser = createUser({
+      id: 1,
+      displayName: 'QATeam',
+      avatarUrl: faker.image.avatar(),
+    });
+
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        toUser: mockUser, // !!
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByDisplayValue('drafted subject')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('drafted message body')).not.toBeInTheDocument();
+  });
+
+  it("given a draft was saved for the preselected user, restores it into that user's form", async () => {
+    // ARRANGE
+    sessionStorage.setItem(
+      'create-message:QATeam',
+      JSON.stringify({
+        title: 'drafted subject',
+        body: 'drafted message body',
+      }),
+    );
+
+    const mockUser = createUser({
+      id: 1,
+      displayName: 'QATeam',
+      avatarUrl: faker.image.avatar(),
+    });
+
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        toUser: mockUser, // !!
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByDisplayValue('drafted subject')).toBeVisible();
+    expect(screen.getByDisplayValue('drafted message body')).toBeVisible();
+  });
+
+  it('given a saved draft holds a recipient and no user is preselected, restores the title and body but not the recipient', async () => {
+    // ARRANGE
+    sessionStorage.setItem(
+      'create-message',
+      JSON.stringify({
+        recipient: 'suspect15',
+        title: 'drafted subject',
+        body: 'drafted message body',
+      }),
+    );
+
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByDisplayValue('drafted subject')).toBeVisible();
+    expect(screen.getByDisplayValue('drafted message body')).toBeVisible();
+
+    expect(screen.getByRole('combobox')).toHaveTextContent(/find a user/i);
   });
 
   it('given a templateKind is provided, renders the TemplateKindAlert', () => {

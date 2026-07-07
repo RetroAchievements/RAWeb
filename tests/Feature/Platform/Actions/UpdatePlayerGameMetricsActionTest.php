@@ -36,7 +36,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $achievements = $game->achievements()->promoted()->get();
         $achievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
 
-        $this->addSoftcoreUnlock($user, $achievements->get(0));
+        $this->addCasualUnlock($user, $achievements->get(0));
 
         $playerGame = PlayerGame::first();
         $createdAt = $playerGame->created_at;
@@ -106,8 +106,8 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         Achievement::factory()->promoted()->count(1)->create(['game_id' => $game->id, 'points' => 10, 'type' => AchievementType::WinCondition]);
         $achievements = $game->achievements()->promoted()->get();
 
-        $this->addSoftcoreUnlock($user, $achievements->get(1));
-        $this->addSoftcoreUnlock($user, $achievements->get(2));
+        $this->addCasualUnlock($user, $achievements->get(1));
+        $this->addCasualUnlock($user, $achievements->get(2));
         $this->addHardcoreUnlock($user, $achievements->get(4)); // Progression
         $this->addHardcoreUnlock($user, $achievements->get(3));
 
@@ -366,11 +366,11 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
 
         $time3 = $time2->clone()->addMinutes(1);
         Carbon::setTestNow($time3);
-        $this->addSoftcoreUnlock($user, $achievements->get(1));
+        $this->addCasualUnlock($user, $achievements->get(1));
 
         $time4 = $time3->clone()->addMinutes(1);
         Carbon::setTestNow($time4);
-        $this->addSoftcoreUnlock($user, $subsetAchievements->get(1));
+        $this->addCasualUnlock($user, $subsetAchievements->get(1));
 
         (new UpdateGameMetricsAction())->execute($game);
         (new UpdatePlayerGameMetricsAction())->execute($playerGame);
