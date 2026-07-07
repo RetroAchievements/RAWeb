@@ -364,7 +364,7 @@ class TicketApiControllerTest extends TestCase
         $response = $this->postJson(route('api.ticket.store'), [
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
-            'mode' => 'softcore',
+            'mode' => 'casual',
             'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'gopher64',

@@ -1,12 +1,12 @@
 @props([
     'beatenHardcoreAwards',
-    'beatenSoftcoreAwards',
+    'beatenCasualAwards',
     'completedAwards',
     'easiestGame',
     'hardestGame',
     'masteredAwards',
     'mostBeatenHardcoreGame',
-    'mostBeatenSoftcoreGame',
+    'mostBeatenCasualGame',
     'mostCompletedGame',
     'mostMasteredGame',
     'numGamesWithLeaderboards',
@@ -17,7 +17,7 @@
     'targetDeveloperDisplayName',
     'targetGameIds',
     'userMostBeatenHardcore',
-    'userMostBeatenSoftcore',
+    'userMostBeatenCasual',
     'userMostCompleted',
     'userMostMastered',
 ])
@@ -121,11 +121,11 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Beaten Softcore/Hardcore Awards:">
-            @if ($beatenSoftcoreAwards === 0 && $beatenHardcoreAwards === 0)
+        <x-developer.game-stats-table-row headingLabel="Beaten (casual/hardcore) Awards:">
+            @if ($beatenCasualAwards === 0 && $beatenHardcoreAwards === 0)
                 N/A
             @else
-                {{ localized_number($beatenSoftcoreAwards) }}
+                {{ localized_number($beatenCasualAwards) }}
                 <strong>({{ localized_number($beatenHardcoreAwards) }})</strong>
             @endif
         </x-developer.game-stats-table-row>
@@ -139,11 +139,11 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Own Beaten Softcore/Hardcore Awards:">
-            @if (($ownAwards['BeatenSoftcore'] ?? 0) === 0 && ($ownAwards['BeatenHardcore'] ?? 0) === 0)
+        <x-developer.game-stats-table-row headingLabel="Own Beaten (casual/hardcore) Awards:">
+            @if (($ownAwards['BeatenCasual'] ?? 0) === 0 && ($ownAwards['BeatenHardcore'] ?? 0) === 0)
                 N/A
             @else
-                {{ $ownAwards['BeatenSoftcore'] }}
+                {{ $ownAwards['BeatenCasual'] }}
                 <strong>({{ $ownAwards['BeatenHardcore'] }})</strong>
             @endif
         </x-developer.game-stats-table-row>
@@ -157,13 +157,13 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="Most Beaten Softcore Game:">
-            @if (($mostBeatenSoftcoreGame['BeatenSoftcore'] ?? 0) === 0)
+        <x-developer.game-stats-table-row headingLabel="Most Beaten (casual) Game:">
+            @if (($mostBeatenCasualGame['BeatenCasual'] ?? 0) === 0)
                 N/A
             @else
-                {{ localized_number($mostBeatenSoftcoreGame['BeatenSoftcore'] ?? 0) }}
+                {{ localized_number($mostBeatenCasualGame['BeatenCasual'] ?? 0) }}
                 &ndash;
-                {!! gameAvatar($mostBeatenSoftcoreGame) !!}
+                {!! gameAvatar($mostBeatenCasualGame) !!}
             @endif
         </x-developer.game-stats-table-row>
 
@@ -197,13 +197,13 @@
             @endif
         </x-developer.game-stats-table-row>
 
-        <x-developer.game-stats-table-row headingLabel="User with Most Beaten Softcore Awards:">
-            @if (empty($userMostBeatenSoftcore))
+        <x-developer.game-stats-table-row headingLabel="User with Most Beaten (casual) Awards:">
+            @if (empty($userMostBeatenCasual))
                 N/A
             @else
-                {{ localized_number($userMostBeatenSoftcore['BeatenSoftcore']) }}
+                {{ localized_number($userMostBeatenCasual['BeatenCasual']) }}
                 &ndash;
-                {!! userAvatar($userMostBeatenSoftcore['User']) !!}
+                {!! userAvatar($userMostBeatenCasual['User']) !!}
             @endif
         </x-developer.game-stats-table-row>
 

@@ -69,7 +69,7 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievementOne, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementTwo, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementThree, Carbon::now()->subDays(3));
-        $this->addSoftcoreUnlock($user, $achievementFour, Carbon::now()->subMinutes(5));
+        $this->addCasualUnlock($user, $achievementFour, Carbon::now()->subMinutes(5));
 
         // points_weighted will get updated, so we should refresh our instances of the achievements.
         $achievementOne->refresh();
@@ -101,10 +101,10 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
             $weeklyWeightedPoints->value
         );
 
-        $dailySoftcorePoints = $userStats->where('type', PlayerStatType::PointsSoftcoreDay)->first();
+        $dailySoftcorePoints = $userStats->where('type', PlayerStatType::PointsCasualDay)->first();
         $this->assertEquals(10, $dailySoftcorePoints->value);
 
-        $weeklySoftcorePoints = $userStats->where('type', PlayerStatType::PointsSoftcoreWeek)->first();
+        $weeklySoftcorePoints = $userStats->where('type', PlayerStatType::PointsCasualWeek)->first();
         $this->assertEquals(10, $weeklySoftcorePoints->value);
     }
 
@@ -126,7 +126,7 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievementOne, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementTwo, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementThree, Carbon::now()->subDays(3));
-        $this->addSoftcoreUnlock($user, $achievementFour, Carbon::now()->subMinutes(5));
+        $this->addCasualUnlock($user, $achievementFour, Carbon::now()->subMinutes(5));
         $this->addHardcoreUnlock($user, $achievementFive, Carbon::now()->subMinutes(5));
 
         // points_weighted will get updated, so we should refresh our instances of the achievements.

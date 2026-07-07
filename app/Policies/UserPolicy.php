@@ -59,6 +59,18 @@ class UserPolicy
         return true;
     }
 
+    public function viewFollowers(?User $user, User $model): bool
+    {
+        // users can only view their own follower lists
+        return $user?->is($model) ?? false;
+    }
+
+    public function viewFollowing(?User $user, User $model): bool
+    {
+        // users can only view their own following lists
+        return $user?->is($model) ?? false;
+    }
+
     public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;

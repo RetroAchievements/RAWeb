@@ -46,7 +46,7 @@ class EmulatorCoreRestrictionResource extends Resource
                     ->required()
                     ->options([
                         ClientSupportLevel::Warned->value => 'Warned (warning shown, hardcore and leaderboards allowed)',
-                        ClientSupportLevel::Unsupported->value => 'Unsupported (softcore only, warning shown)',
+                        ClientSupportLevel::Unsupported->value => 'Unsupported (casual only, warning shown)',
                         ClientSupportLevel::Blocked->value => 'Blocked (cannot earn achievements at all)',
                     ])
                     ->helperText('Use Warned for minor issues, Unsupported for cores that should not earn hardcore, and Blocked for cores with major debilitating issues.'),

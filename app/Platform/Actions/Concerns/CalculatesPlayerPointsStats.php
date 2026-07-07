@@ -13,12 +13,12 @@ trait CalculatesPlayerPointsStats
     protected const PERIOD_MAP = [
         'day' => [
             'hardcore' => PlayerStatType::PointsHardcoreDay,
-            'softcore' => PlayerStatType::PointsSoftcoreDay,
+            'casual' => PlayerStatType::PointsCasualDay,
             'weighted' => PlayerStatType::PointsWeightedDay,
         ],
         'week' => [
             'hardcore' => PlayerStatType::PointsHardcoreWeek,
-            'softcore' => PlayerStatType::PointsSoftcoreWeek,
+            'casual' => PlayerStatType::PointsCasualWeek,
             'weighted' => PlayerStatType::PointsWeightedWeek,
         ],
     ];
@@ -37,16 +37,16 @@ trait CalculatesPlayerPointsStats
     }
 
     /**
-     * Separate achievements into hardcore and softcore collections.
+     * Separate achievements into hardcore and casual collections.
      *
      * @param Collection<int, mixed> $achievements
-     * @return array{hardcore: Collection<int, mixed>, softcore: Collection<int, mixed>}
+     * @return array{hardcore: Collection<int, mixed>, casual: Collection<int, mixed>}
      */
     protected function separateAchievementsByType(Collection $achievements): array
     {
         return [
             'hardcore' => $achievements->filter(fn ($pa) => $pa->unlocked_hardcore_at !== null),
-            'softcore' => $achievements->filter(fn ($pa) => $pa->unlocked_hardcore_at === null),
+            'casual' => $achievements->filter(fn ($pa) => $pa->unlocked_hardcore_at === null),
         ];
     }
 
@@ -97,13 +97,13 @@ trait CalculatesPlayerPointsStats
      * Build stats array for a user based on their points.
      *
      * @param array{points: int, points_weighted: int} $hardcorePoints
-     * @param array{points: int, points_weighted: int} $softcorePoints
+     * @param array{points: int, points_weighted: int} $casualPoints
      * @return array<int, array<string, mixed>>
      */
     protected function buildStatsForPeriod(
         int $userId,
         array $hardcorePoints,
-        array $softcorePoints,
+        array $casualPoints,
         string $period,
     ): array {
         $stats = [];
@@ -125,11 +125,11 @@ trait CalculatesPlayerPointsStats
             ];
         }
 
-        if ($softcorePoints['points'] > 0) {
+        if ($casualPoints['points'] > 0) {
             $stats[] = [
                 'user_id' => $userId,
-                'type' => $statTypes['softcore'],
-                'value' => $softcorePoints['points'],
+                'type' => $statTypes['casual'],
+                'value' => $casualPoints['points'],
             ];
         }
 

@@ -5,7 +5,6 @@
         $otherPendingForGame ? ['type' => 'otherPendingForGame', 'data' => $otherPendingForGame] : null,
         $approvedIngame ? ['type' => 'ingame', 'data' => $approvedIngame] : null,
     ]);
-    $imageRenderingStyle = $isPixelated ? 'image-rendering: pixelated;' : '';
     $checkerboardStyle = 'background-color: #030712; background-image: linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(-45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%), linear-gradient(-45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%); background-size: 18px 18px; background-position: 0 0, 0 9px, 9px -9px, -9px 0;';
 @endphp
 
@@ -15,6 +14,7 @@
     x-data="{
         zoomedUrl: null,
         zoomedLabel: '',
+        zoomedImageRendering: null,
         zoomMode: 'scale',
         zoomScale: {{ $isPixelated ? 4 : 2 }},
         defaultScale: {{ $isPixelated ? 4 : 2 }},
@@ -53,15 +53,19 @@
                 this.zoomScale = option;
             }
         },
-        zoomImageStyle() {
-            return `{{ $imageRenderingStyle }} border: 1px solid #404040; ${this.zoomMode === 'fit' ? 'max-width: calc(100vw - 4rem); max-height: calc(100vh - 8rem);' : ''}`;
+        imageRenderingStyle(imageRendering) {
+            return imageRendering ? `image-rendering: ${imageRendering};` : '';
         },
-        openZoom(url, label) {
+        zoomImageStyle() {
+            return `${this.imageRenderingStyle(this.zoomedImageRendering)} border: 1px solid #404040; ${this.zoomMode === 'fit' ? 'max-width: calc(100vw - 4rem); max-height: calc(100vh - 8rem);' : ''}`;
+        },
+        openZoom(url, label, imageRendering) {
             this.naturalWidth = 0;
             this.naturalHeight = 0;
             this.zoomMode = 'scale';
             this.zoomScale = this.defaultScale;
             this.zoomedLabel = label;
+            this.zoomedImageRendering = imageRendering;
             this.zoomedUrl = url;
         },
         closeZoom() {
@@ -80,6 +84,10 @@
 >
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         @foreach ($panels as $panel)
+            @php
+                $panelImageRenderingStyle = $panel['imageRendering'] ? 'image-rendering: ' . $panel['imageRendering'] . ';' : '';
+            @endphp
+
             <div class="min-w-0">
                 <div class="min-h-[2.6rem] text-center">
                     <div class="font-bold text-gray-950 dark:text-white">{{ $panel['label'] }}</div>
@@ -105,14 +113,14 @@
                 @if ($panel['url'])
                     <button
                         type="button"
-                        @click="openZoom(@js($panel['url']), @js($panel['label']))"
+                        @click="openZoom(@js($panel['url']), @js($panel['label']), @js($panel['imageRendering']))"
                         class="mt-2 flex w-full items-center justify-center overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         style="min-height: 280px; max-height: 320px; padding: 0.35rem; border-radius: 0.25rem; {{ $checkerboardStyle }}"
                     >
                         <img
                             src="{{ $panel['url'] }}"
                             alt="{{ $panel['label'] }}"
-                            style="{{ $imageRenderingStyle }} max-height: 310px; box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7);"
+                            style="{{ $panelImageRenderingStyle }} max-height: 310px; box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7);"
                             class="block h-full w-full cursor-zoom-in object-contain"
                         />
                     </button>
@@ -256,14 +264,18 @@
                     @if ($card['data']['items'] !== [])
                         <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
                             @foreach ($card['data']['items'] as $item)
+                                @php
+                                    $itemImageRenderingStyle = $item['imageRendering'] ? 'image-rendering: ' . $item['imageRendering'] . ';' : '';
+                                @endphp
+
                                 <button
                                     type="button"
-                                    @click="openZoom(@js($item['url']), @js($item['label']))"
+                                    @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
                                     class="flex w-full min-w-0 shrink-0 cursor-zoom-in items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-gray-800"
                                     title="{{ $item['label'] }}"
                                 >
                                     @if ($item['url'])
-                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $imageRenderingStyle }}" />
+                                        <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" style="{{ $itemImageRenderingStyle }}" />
                                     @else
                                         <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
                                     @endif

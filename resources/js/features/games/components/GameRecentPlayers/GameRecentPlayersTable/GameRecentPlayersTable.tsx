@@ -69,7 +69,7 @@ export const GameRecentPlayersTable: FC<GameRecentPlayersTableProps> = ({
                 playerGame={{
                   achievementsUnlocked: recentPlayer.achievementsUnlocked,
                   achievementsUnlockedHardcore: recentPlayer.achievementsUnlockedHardcore,
-                  achievementsUnlockedSoftcore: recentPlayer.achievementsUnlockedSoftcore,
+                  achievementsUnlockedCasual: recentPlayer.achievementsUnlockedCasual,
                   beatenAt: null,
                   beatenHardcoreAt: null,
                   completedAt: null,

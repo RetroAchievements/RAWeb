@@ -230,10 +230,10 @@ describe('Component: MasteredProgressIndicator', () => {
 
     // ... should not show the breakdown since there's no mixed progress ...
     expect(screen.queryByText(/hardcore/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it('given all achievements are unlocked in softcore only, shows only softcore progress', async () => {
+  it('given all achievements are unlocked in casual only, shows only casual progress', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
@@ -270,10 +270,10 @@ describe('Component: MasteredProgressIndicator', () => {
 
     // ... should not show the breakdown since there's no mixed progress ...
     expect(screen.queryByText(/hardcore/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it('given a mix of hardcore and softcore achievements, shows mixed progress labels', async () => {
+  it('given a mix of hardcore and casual mode unlocks, shows mixed progress labels', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
@@ -313,7 +313,7 @@ describe('Component: MasteredProgressIndicator', () => {
 
     // ... mixed progress should show both ...
     expect(screen.getAllByText(/hardcore/i)[0]).toBeVisible();
-    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/casual/i)[0]).toBeVisible();
   });
 
   it('given no achievements are unlocked, shows 0 progress', async () => {
@@ -450,7 +450,7 @@ describe('Component: MasteredProgressIndicator', () => {
             mastered: createPlayerBadge(), // !!
             completed: null,
             beatenHardcore: null,
-            beatenSoftcore: null,
+            beatenCasual: null,
           },
           ziggy: createZiggyProps(),
         },
@@ -485,7 +485,7 @@ describe('Component: MasteredProgressIndicator', () => {
             mastered: null,
             completed: createPlayerBadge(), // !!
             beatenHardcore: null,
-            beatenSoftcore: null,
+            beatenCasual: null,
           },
           ziggy: createZiggyProps(),
         },
@@ -520,7 +520,7 @@ describe('Component: MasteredProgressIndicator', () => {
             mastered: null, // !!
             completed: null, // !!
             beatenHardcore: null,
-            beatenSoftcore: null,
+            beatenCasual: null,
           },
           ziggy: createZiggyProps(),
         },
@@ -532,7 +532,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(labelElement).toHaveClass('text-neutral-300/30');
   });
 
-  it('given the user is on mobile and has any softcore unlocks, shows the "Completed" label', () => {
+  it('given the user is on mobile and has any casual unlocks, shows the "Completed" label', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
@@ -700,7 +700,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.getAllByText(/3h 10m/i)[0]).toBeVisible();
   });
 
-  it('given the set is completed in softcore only, shows the completion date and time', async () => {
+  it('given the set is completed in casual only, shows the completion date and time', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),

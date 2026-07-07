@@ -52,6 +52,32 @@ final class ScreenshotReviewContext
         return $this->game()?->system;
     }
 
+    public function isPixelated(): bool
+    {
+        return !($this->system()?->supports_upscaled_screenshots ?? true);
+    }
+
+    public function imageRenderingFor(?GameScreenshot $screenshot): ?string
+    {
+        if (!$screenshot) {
+            return null;
+        }
+
+        if ($this->isPixelated()) {
+            return 'pixelated';
+        }
+
+        if (!$screenshot->width || $screenshot->width <= 0) {
+            return null;
+        }
+
+        if ($screenshot->width <= 640) {
+            return 'crisp-edges';
+        }
+
+        return null;
+    }
+
     /**
      * once() and Cache::* aren't really great fits for what we want here.
      * We need keyed, per-instance memoization.
@@ -410,12 +436,14 @@ final class ScreenshotReviewContext
     }
 
     /**
-     * @return array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string}>
+     * @return array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>
      */
     public function approvedGalleryItemsViewData(): array
     {
         return $this->approvedGalleryScreenshots()
             ->map(function (GameScreenshot $screenshot): array {
+                $screenshot->loadMissing(['capturedBy', 'media']);
+
                 $resolution = $this->formatResolution($screenshot) ?? '?';
 
                 return [
@@ -424,6 +452,7 @@ final class ScreenshotReviewContext
                     'label' => "Gallery image ({$resolution})",
                     'typeLabel' => $screenshot->type->label(),
                     'submitterLabel' => $screenshot->capturedBy?->display_name ?? 'Unknown user',
+                    'imageRendering' => $this->imageRenderingFor($screenshot),
                 ];
             })
             ->values()

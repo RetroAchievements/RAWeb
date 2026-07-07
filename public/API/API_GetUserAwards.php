@@ -7,9 +7,9 @@
  *  int        TotalAwardsCount           number of awards earned by the user, including hidden
  *  int        HiddenAwardsCount          number of awards hidden by the user
  *  int        MasteryAwardsCount         number of game mastery awards earned by the user
- *  int        CompletionAwardsCount      number of game completion awards earned by the user (softcore mastery)
+ *  int        CompletionAwardsCount      number of game completion awards earned by the user (casual completion)
  *  int        BeatenHardcoreAwardsCount  number of beaten game awards earned by the user (hardcore mode)
- *  int        BeatenSoftcoreAwardsCount  number of beaten game awards earned by the user (softcore mode)
+ *  int        BeatenSoftcoreAwardsCount  number of beaten game awards earned by the user (casual mode)
  *  int        EventAwardsCount           number of awards currently appearing in the user's Event Awards section
  *  int        SiteAwardsCount            number of awards currently appearing in the user's Site Awards section
  *  array      VisibleUserAwards
@@ -46,7 +46,7 @@ $userAwards = getUsersSiteAwards($userModel);
 $masteryCount = 0;
 $completionCount = 0;
 $beatenHardcoreCount = 0;
-$beatenSoftcoreCount = 0;
+$beatenCasualCount = 0;
 $eventsCount = count($eventAwards);
 $siteAwardsCount = count($siteAwards);
 $onlyVisibleUserAwards = [];
@@ -63,7 +63,7 @@ foreach ($userAwards as $userAward) {
         if ($userAward['AwardDataExtra'] == UnlockMode::Hardcore) {
             $beatenHardcoreCount++;
         } else {
-            $beatenSoftcoreCount++;
+            $beatenCasualCount++;
         }
     }
 }
@@ -95,7 +95,7 @@ $response = [
     "MasteryAwardsCount" => $masteryCount,
     "CompletionAwardsCount" => $completionCount,
     "BeatenHardcoreAwardsCount" => $beatenHardcoreCount,
-    "BeatenSoftcoreAwardsCount" => $beatenSoftcoreCount,
+    "BeatenSoftcoreAwardsCount" => $beatenCasualCount,
     "EventAwardsCount" => $eventsCount,
     "SiteAwardsCount" => $siteAwardsCount,
     "VisibleUserAwards" => $onlyVisibleUserAwards,

@@ -43,14 +43,14 @@ function assertGameGroupData(
     int $masteredCount,
     int $completedCount,
     int $beatenCount,
-    int $beatenSoftcoreCount,
+    int $beatenCasualCount,
     array $gameIds,
 ): void {
     expect($group->header)->toBe($header);
     expect($group->masteredCount)->toBe($masteredCount);
     expect($group->completedCount)->toBe($completedCount);
     expect($group->beatenCount)->toBe($beatenCount);
-    expect($group->beatenSoftcoreCount)->toBe($beatenSoftcoreCount);
+    expect($group->beatenCasualCount)->toBe($beatenCasualCount);
 
     $groupGameIds = [];
     foreach ($group->games as $game) {

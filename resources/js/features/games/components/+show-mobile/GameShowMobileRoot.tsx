@@ -68,7 +68,7 @@ export const GameShowMobileRoot: FC = () => {
   const currentListView = useAtomValue(currentListViewAtom);
 
   const hasBeatenGame =
-    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
+    !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;

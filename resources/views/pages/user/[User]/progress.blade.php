@@ -58,7 +58,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
             <x-completion-progress-page.awards-jumbobox
                 :playedCount="$primaryCountsMetrics['numPlayed']"
                 :unfinishedCount="$primaryCountsMetrics['numUnfinished']"
-                :beatenSoftcoreCount="$primaryCountsMetrics['numBeatenSoftcore']"
+                :beatenCasualCount="$primaryCountsMetrics['numBeatenCasual']"
                 :beatenHardcoreCount="$primaryCountsMetrics['numBeatenHardcore']"
                 :completedCount="$primaryCountsMetrics['numCompleted']"
                 :masteredCount="$primaryCountsMetrics['numMastered']"

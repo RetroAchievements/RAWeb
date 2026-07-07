@@ -38,7 +38,7 @@ class UserCardTest extends TestCase
         $view->assertSeeText("(6,500)"); // RetroPoints
         $view->assertSeeText("#1"); // Site Rank
         $view->assertDontSeeText(Permissions::toString(Permissions::Registered));
-        $view->assertDontSeeText("Softcore Points");
+        $view->assertDontSeeText("Casual Points");
     }
 
     public function testItDisplaysUserRoleWhenAppropriate(): void
@@ -82,7 +82,7 @@ class UserCardTest extends TestCase
         $view->assertDontSeeText(Permissions::toString(Permissions::Banned));
     }
 
-    public function testItShowsSoftcoreStandingsWhenAppropriate(): void
+    public function testItShowsCasualStandingsWhenAppropriate(): void
     {
         User::factory()->create([
             'username' => 'mockUser',
@@ -98,7 +98,7 @@ class UserCardTest extends TestCase
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
-        $view->assertSeeText("Softcore Points");
+        $view->assertSeeText("Casual Points");
         $view->assertSeeText("5,000");
     }
 

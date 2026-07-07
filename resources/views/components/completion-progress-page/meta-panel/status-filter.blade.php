@@ -6,18 +6,18 @@
 $statuses = [
     'all' => 'All games',
     'unawarded' => 'Unfinished',
-    'eq-beaten-softcore' => 'Beaten (softcore)',
+    'eq-beaten-softcore' => 'Beaten (casual)',
     'eq-beaten-hardcore' => 'Beaten',
     'eq-completed' => 'Completed',
     'eq-mastered' => 'Mastered',
-    'any-beaten' => 'Beaten, either hardcore or softcore',
+    'any-beaten' => 'Beaten, either hardcore or casual',
     'gte-completed' => 'Completed or mastered',
     'missing-unlocks' => 'Games without 100% completion',
     'awarded' => 'Games with any award',
     'eq-revised' => 'Games with awards for revised sets',
-    'gte-beaten-softcore' => 'Games with softcore awards',
+    'gte-beaten-softcore' => 'Games with casual-mode awards',
     'gte-beaten-hardcore' => 'Games with hardcore awards',
-    'any-softcore' => 'Games with any softcore progress',
+    'any-softcore' => 'Games with any casual progress',
     'any-hardcore' => 'Games with any hardcore progress',
 ];
 ?>
