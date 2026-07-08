@@ -326,5 +326,7 @@ class GamesTest extends JsonApiResourceTestCase
 
         $this->assertArrayHasKey('self', $links);
         $this->assertArrayNotHasKey('forumTopic', $links);
+        $this->assertArrayHasKey('webUrl', $links);
+        $this->assertStringEndsWith("/game/{$game->id}", $links['webUrl']);
     }
 }

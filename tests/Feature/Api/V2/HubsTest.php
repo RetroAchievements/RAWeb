@@ -522,6 +522,8 @@ class HubsTest extends JsonApiResourceTestCase
 
         $this->assertArrayHasKey('self', $links);
         $this->assertArrayNotHasKey('forumTopic', $links);
+        $this->assertArrayHasKey('webUrl', $links);
+        $this->assertStringEndsWith("/hub/{$hub->id}", $links['webUrl']);
     }
 
     public function testItRejectsRelationshipIncludesOnIndex(): void
