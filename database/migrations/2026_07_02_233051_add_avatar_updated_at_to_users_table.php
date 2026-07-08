@@ -21,7 +21,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        if (! Schema::hasColumn('users', 'avatar_updated_at')) {
+        if (!Schema::hasColumn('users', 'avatar_updated_at')) {
             return;
         }
 
