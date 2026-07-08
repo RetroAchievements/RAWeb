@@ -112,6 +112,38 @@ class EventAchievementsTest extends JsonApiResourceTestCase
         $this->assertEquals([(string) $eventAchievement->id], $ids);
     }
 
+    public function testItExcludesUnpublishedDraftAchievements(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['players_total' => 1000]);
+        $event = Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->subMonth()]);
+
+        $published = EventAchievement::factory()->create([
+            'achievement_id' => Achievement::factory()->promoted()->create(['game_id' => $game->id])->id,
+            'source_achievement_id' => Achievement::factory()->create()->id,
+            'active_from' => now()->subWeeks(2),
+            'active_until' => now()->subDay(),
+        ]);
+
+        EventAchievement::factory()->create([
+            'achievement_id' => Achievement::factory()->create(['game_id' => $game->id, 'is_promoted' => false])->id,
+            'source_achievement_id' => Achievement::factory()->create()->id,
+            'active_from' => now()->subWeeks(2),
+            'active_until' => now()->subDay(),
+        ]);
+
+        // Act
+        $base = $this->jsonApi('v2')->expects('event-achievements')->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/events/{$event->id}/event-achievements");
+        $inactive = $this->jsonApi('v2')->expects('event-achievements')->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/events/{$event->id}/event-achievements?filter[active]=false");
+
+        // Assert
+        $this->assertEquals([(string) $published->id], collect($base->json('data'))->pluck('id')->all());
+        $this->assertEquals([(string) $published->id], collect($inactive->json('data'))->pluck('id')->all());
+    }
+
     public function testFilterActiveTrueReturnsOnlyInWindowAchievements(): void
     {
         // Arrange

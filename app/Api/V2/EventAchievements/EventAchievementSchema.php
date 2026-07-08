@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\V2\EventAchievements;
 
+use App\Models\Event;
 use App\Models\EventAchievement;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
@@ -83,5 +86,16 @@ class EventAchievementSchema extends Schema
     {
         return PagePagination::make()
             ->withDefaultPerPage(50);
+    }
+
+    /**
+     * @param Relation<EventAchievement, Event, mixed> $query
+     * @return Relation<EventAchievement, Event, mixed>
+     */
+    public function relatableQuery(?Request $request, Relation $query): Relation
+    {
+        $query->promoted();
+
+        return $query;
     }
 }
