@@ -44,15 +44,8 @@ class UserGameListEntriesTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function testItReturns200ForAnyAuthenticatedCaller(): void
+    public function testItForbidsDefaultPlayListAccessToUnrelatedAuthenticatedCaller(): void
     {
-        /**
-         * UserPolicy::viewUserGameListEntries must allow any auth'd
-         * caller. If we don't do this, the framework's Authorizer::showRelated
-         * denies by default and this request will 403 before
-         * UserGameListEntrySchema::relatableQuery ever runs.
-         */
-
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         $target = User::factory()->create();
@@ -64,8 +57,7 @@ class UserGameListEntriesTest extends TestCase
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries");
 
         // Assert
-        $response->assertSuccessful();
-        $this->assertEquals([], $response->json('data'));
+        $response->assertForbidden();
     }
 
     public function testItReturns404ForNonexistentUser(): void
@@ -99,13 +91,13 @@ class UserGameListEntriesTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function testItReturnsBothKindsForSelfWithNoFilter(): void
+    public function testItDefaultsToPlayKindForSelf(): void
     {
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $self = User::factory()->create(['web_api_key' => 'test-key']);
-        UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
+        $playEntry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
         UserGameListEntry::factory()->setRequest()->for($self)->create(['game_id' => $game->id]);
 
         // Act
@@ -116,8 +108,9 @@ class UserGameListEntriesTest extends TestCase
 
         // Assert
         $response->assertSuccessful();
-        $kinds = collect($response->json('data'))->pluck('attributes.kind')->sort()->values()->toArray();
-        $this->assertEquals(['achievement_set_request', 'play'], $kinds);
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals((string) $playEntry->id, $data[0]['id']);
     }
 
     public function testItFiltersToPlayKindForSelf(): void
@@ -187,7 +180,7 @@ class UserGameListEntriesTest extends TestCase
         $this->assertEquals((string) $playEntry->id, $data[0]['id']);
     }
 
-    public function testItReturnsEmptyPlayListToNonFriend(): void
+    public function testItForbidsPlayListAccessToNonFriend(): void
     {
         // Arrange
         $system = System::factory()->create();
@@ -200,11 +193,10 @@ class UserGameListEntriesTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=play");
+            ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=%20play%20");
 
         // Assert
-        $response->assertSuccessful();
-        $this->assertEquals([], $response->json('data'));
+        $response->assertForbidden();
     }
 
     public function testItReturnsSetRequestsToNonFriend(): void
@@ -229,7 +221,7 @@ class UserGameListEntriesTest extends TestCase
         $this->assertEquals((string) $requestEntry->id, $data[0]['id']);
     }
 
-    public function testItSilentlyFiltersPlayEntriesForNonFriendWithNoFilter(): void
+    public function testItForbidsDefaultPlayListAccessToNonFriend(): void
     {
         // Arrange
         $system = System::factory()->create();
@@ -237,7 +229,7 @@ class UserGameListEntriesTest extends TestCase
         $target = User::factory()->create();
         User::factory()->create(['web_api_key' => 'test-key']);
         UserGameListEntry::factory()->play()->for($target)->create(['game_id' => $game->id]);
-        $requestEntry = UserGameListEntry::factory()->setRequest()->for($target)->create(['game_id' => $game->id]);
+        UserGameListEntry::factory()->setRequest()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -246,41 +238,16 @@ class UserGameListEntriesTest extends TestCase
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries");
 
         // Assert
-        $response->assertSuccessful();
-        $data = $response->json('data');
-        $this->assertCount(1, $data);
-        $this->assertEquals((string) $requestEntry->id, $data[0]['id']);
-        $this->assertEquals('achievement_set_request', $data[0]['attributes']['kind']);
+        $response->assertForbidden();
     }
 
-    public function testItNeverReturnsDevelopKindEntries(): void
+    public function testItReturnsDevelopKindEntriesToSelf(): void
     {
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $self = User::factory()->create(['web_api_key' => 'test-key']);
-        UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
-        UserGameListEntry::factory()->develop()->for($self)->create(['game_id' => $game->id]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$self->ulid}/user-game-list-entries");
-
-        // Assert
-        $response->assertSuccessful();
-        $kinds = collect($response->json('data'))->pluck('attributes.kind')->toArray();
-        $this->assertNotContains('develop', $kinds);
-    }
-
-    public function testItReturnsEmptyDataForDevelopKindFilter(): void
-    {
-        // Arrange
-        $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
-        UserGameListEntry::factory()->develop()->for($self)->create(['game_id' => $game->id]);
+        $developEntry = UserGameListEntry::factory()->develop()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -290,7 +257,28 @@ class UserGameListEntriesTest extends TestCase
 
         // Assert
         $response->assertSuccessful();
-        $this->assertEquals([], $response->json('data'));
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals((string) $developEntry->id, $data[0]['id']);
+    }
+
+    public function testItForbidsDevelopListAccessToAnotherUser(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $target = User::factory()->create();
+        User::factory()->create(['web_api_key' => 'test-key']);
+        UserGameListEntry::factory()->develop()->for($target)->create(['game_id' => $game->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-game-list-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=develop");
+
+        // Assert
+        $response->assertForbidden();
     }
 
     public function testItReturns400ForUnknownKindFilter(): void
@@ -306,6 +294,21 @@ class UserGameListEntriesTest extends TestCase
             ->expects('user-game-list-entries')
             ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=garbage");
+
+        // Assert
+        $response->assertStatus(400);
+    }
+
+    public function testItReturns400ForCommaSeparatedKindFilter(): void
+    {
+        // Arrange
+        $self = User::factory()->create(['web_api_key' => 'test-key']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-game-list-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=play,achievement_set_request");
 
         // Assert
         $response->assertStatus(400);
@@ -537,7 +540,7 @@ class UserGameListEntriesTest extends TestCase
         $row = $response->json('data.0');
         $this->assertEquals((string) $entry->id, $row['id']);
         $this->assertEquals('user-game-list-entries', $row['type']);
-        $this->assertEquals('play', $row['attributes']['kind']);
+        $this->assertArrayNotHasKey('kind', $row['attributes']);
         $this->assertArrayHasKey('createdAt', $row['attributes']);
         $this->assertEquals($game->id, $row['attributes']['gameId']);
         $this->assertEquals('Super Mario Bros.', $row['attributes']['gameTitle']);

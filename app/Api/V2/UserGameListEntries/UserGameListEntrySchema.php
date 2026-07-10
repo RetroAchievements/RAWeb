@@ -8,6 +8,7 @@ use App\Community\Enums\UserGameListType;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Policies\UserGameListEntryPolicy;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -62,11 +63,6 @@ class UserGameListEntrySchema extends Schema
         return [
             ID::make(),
 
-            // The model column is `type`, but exposing `type` as a JSON:API
-            // attribute is confusing -- `type` is also the JSON:API document
-            // field for the resource type identifier. Rename to `kind`.
-            Str::make('kind', 'type')->sortable()->readOnly(),
-
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
 
             Number::make('gameId', 'game_id')->readOnly(),
@@ -102,17 +98,10 @@ class UserGameListEntrySchema extends Schema
     }
 
     /**
-     * When accessed as a User relationship, restrict visibility per-kind by
-     * dispatching to UserGameListEntryPolicy::view for every UserGameListType
-     * case. The policy owns the visibility decision, and this query just collects
-     * the kinds the caller is allowed to see and filters rows accordingly.
-     *
-     * Iterating UserGameListType::cases() (rather than hard-coding Play and
-     * AchievementSetRequest) means future kind-level visibility rules are a
-     * policy-only change -- this query is unchanged.
-     *
      * @param Relation<UserGameListEntry, User, mixed> $query
      * @return Relation<UserGameListEntry, User, mixed>
+     *
+     * @throws AuthorizationException
      */
     public function relatableQuery(?Request $request, Relation $query): Relation
     {
@@ -123,15 +112,16 @@ class UserGameListEntrySchema extends Schema
             return $query->whereRaw('1 = 0');
         }
 
-        $policy = new UserGameListEntryPolicy();
-        $allowedKinds = [];
+        $filters = $request->query('filter', []);
+        $hasKindFilter = is_array($filters) && array_key_exists('kind', $filters);
+        $kind = $hasKindFilter
+            ? UserGameListEntryKindFilter::parse($filters['kind'])
+            : UserGameListType::Play;
 
-        foreach (UserGameListType::cases() as $kind) {
-            if ($policy->view($caller, $target, $kind)) {
-                $allowedKinds[] = $kind->value;
-            }
+        if (!(new UserGameListEntryPolicy())->view($caller, $target, $kind)) {
+            throw new AuthorizationException();
         }
 
-        return $query->whereIn('type', $allowedKinds);
+        return $hasKindFilter ? $query : $query->where('type', $kind->value);
     }
 }

@@ -22,7 +22,6 @@ class UserGameListEntryResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
-            'kind' => $this->resource->type->value,
             'createdAt' => $this->resource->created_at,
             'gameId' => $this->resource->game_id,
             'gameTitle' => $this->resource->game->title,

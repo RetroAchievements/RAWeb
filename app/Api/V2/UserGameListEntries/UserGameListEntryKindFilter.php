@@ -19,7 +19,7 @@ final class UserGameListEntryKindFilter implements Filter
 
     public function isSingular(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,36 +28,23 @@ final class UserGameListEntryKindFilter implements Filter
      */
     public function apply($query, $value)
     {
-        $raw = collect(explode(',', (string) $value))
-            ->map(fn (string $v) => trim($v))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
+        return $query->where('type', self::parse($value)->value);
+    }
 
-        if ($raw === [] || in_array('all', $raw, true)) {
-            return $query;
+    public static function parse(mixed $value): UserGameListType
+    {
+        $normalizedValue = trim((string) $value);
+        $kind = UserGameListType::tryFrom($normalizedValue);
+
+        if (!$kind) {
+            throw JsonApiException::error([
+                'status' => '400',
+                'code' => 'invalid_filter',
+                'title' => 'Invalid Filter',
+                'detail' => "Unknown user game list kind [{$normalizedValue}].",
+            ]);
         }
 
-        $kinds = collect($raw)
-            ->map(function (string $v) {
-                $kind = UserGameListType::tryFrom($v);
-
-                if (!$kind) {
-                    throw JsonApiException::error([
-                        'status' => '400',
-                        'code' => 'invalid_filter',
-                        'title' => 'Invalid Filter',
-                        'detail' => "Unknown user game list kind [{$v}].",
-                    ]);
-                }
-
-                return $kind->value;
-            })
-            ->unique()
-            ->values()
-            ->all();
-
-        return $query->whereIn('type', $kinds);
+        return $kind;
     }
 }
