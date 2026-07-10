@@ -481,7 +481,7 @@ describe('Non multi-set', function () {
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
         $gameHash = AchievementSetsTestHelpers::createGameHash($game);
-        $gameHash->system_id = $game->system_id;
+        $this->assertEquals($game->system_id, $gameHash->system_id);
         $game->system_id = System::Events;
         $game->save();
 
