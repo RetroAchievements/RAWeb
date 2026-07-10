@@ -13,7 +13,7 @@ export const createRaEvent = createFactory<App.Platform.Data.Event>((faker) => {
     legacyGame: createGame(),
     activeFrom: faker.date.past().toISOString(),
     activeThrough: activeThrough.toISOString(),
-    activeUntil: new Date(activeThrough.getDate() + 1).toISOString(),
+    activeUntil: new Date(activeThrough.getTime() + 24 * 60 * 60 * 1000).toISOString(),
     state: faker.helpers.arrayElement(['active', 'evergreen', 'concluded']),
   };
 });
