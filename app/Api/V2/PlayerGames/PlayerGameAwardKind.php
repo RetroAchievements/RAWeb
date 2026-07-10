@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\V2\PlayerGames;
 
+use App\Community\Enums\AwardType;
 use App\Models\PlayerGame;
+use App\Platform\Enums\UnlockMode;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -28,8 +30,26 @@ enum PlayerGameAwardKind: string
     public function apply(Builder $query): Builder
     {
         return match ($this) {
-            self::BeatenCasual => $query->whereNotNull('beaten_at'),
-            self::BeatenHardcore => $query->whereNotNull('beaten_hardcore_at'),
+            self::BeatenCasual => $this->applyBeaten($query, 'beaten_at', UnlockMode::Casual),
+            self::BeatenHardcore => $this->applyBeaten($query, 'beaten_hardcore_at', UnlockMode::Hardcore),
         };
+    }
+
+    /**
+     * @param Builder<PlayerGame> $query
+     * @return Builder<PlayerGame>
+     */
+    private function applyBeaten(Builder $query, string $timestampColumn, int $unlockMode): Builder
+    {
+        return $query->where(function (Builder $query) use ($timestampColumn, $unlockMode) {
+            $query
+                ->whereNotNull($timestampColumn)
+                ->orWhereHas('badges', function (Builder $query) use ($unlockMode) {
+                    $query
+                        ->whereColumn('user_awards.user_id', 'player_games.user_id')
+                        ->where('award_type', AwardType::Mastery)
+                        ->where('award_tier', $unlockMode);
+                });
+        });
     }
 }
