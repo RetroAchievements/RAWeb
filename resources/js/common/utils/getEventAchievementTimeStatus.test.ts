@@ -206,9 +206,9 @@ describe('Util: getStatus', () => {
     // ARRANGE
     const achievement = createAchievement({ id: 1 });
     const evnt = createRaEvent({
-        activeFrom: dayjs().subtract(1, 'second').toISOString(),
-        activeThrough: dayjs().add(1, 'second').toISOString(),
-        activeUntil: dayjs().add(2, 'second').add(1, 'day').toISOString(),
+      activeFrom: dayjs().subtract(1, 'second').toISOString(),
+      activeThrough: dayjs().add(1, 'second').toISOString(),
+      activeUntil: dayjs().add(2, 'second').add(1, 'day').toISOString(),
     });
 
     const eventAchievements = [
@@ -229,9 +229,9 @@ describe('Util: getStatus', () => {
     // ARRANGE
     const achievement = createAchievement({ id: 1 });
     const evnt = createRaEvent({
-        activeFrom: dayjs().subtract(8, 'days').toISOString(),
-        activeThrough: dayjs().subtract(3, 'days').toISOString(),
-        activeUntil: dayjs().subtract(2, 'days').toISOString(),
+      activeFrom: dayjs().subtract(8, 'days').toISOString(),
+      activeThrough: dayjs().subtract(3, 'days').toISOString(),
+      activeUntil: dayjs().subtract(2, 'days').toISOString(),
     });
 
     const eventAchievements = [
@@ -247,5 +247,4 @@ describe('Util: getStatus', () => {
     // ASSERT
     expect(result).toEqual(1);
   });
-
 });
