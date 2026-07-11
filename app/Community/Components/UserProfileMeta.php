@@ -9,7 +9,6 @@ use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\PlayerStat;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Services\UserTicketCountService;
@@ -438,7 +437,7 @@ class UserProfileMeta extends Component
 
         $pointsLast7Days = (int) Achievement::query()
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $sevenDaysAgo = now()->subDays(7)->startOfDay();
@@ -451,7 +450,7 @@ class UserProfileMeta extends Component
 
         $pointsLast30Days = (int) Achievement::query()
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $thirtyDaysAgo = now()->subDays(30)->startOfDay();

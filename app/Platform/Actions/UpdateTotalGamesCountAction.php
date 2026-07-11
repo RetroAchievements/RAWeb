@@ -6,7 +6,6 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\StaticData;
-use App\Models\System;
 
 class UpdateTotalGamesCountAction
 {
@@ -18,7 +17,7 @@ class UpdateTotalGamesCountAction
         // - It has at least 6 core achievements.
 
         $gameCount = Game::query()
-            ->whereNotIn("system_id", System::getNonGameSystems())
+            ->whereGameSystem()
             ->where("title", "not like", "%[Subset%") // TODO this can probably be removed after multiset
             ->where('achievements_published', '>=', 6)
             ->count();

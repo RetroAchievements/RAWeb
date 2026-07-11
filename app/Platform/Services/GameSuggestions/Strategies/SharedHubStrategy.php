@@ -6,7 +6,6 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\GameSet;
-use App\Models\System;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSuggestionContextData;
@@ -38,7 +37,7 @@ class SharedHubStrategy implements GameSuggestionStrategy
 
         // Then, get a random game from the hub that isn't our source game.
         $this->selectedGame = Game::query()
-            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->whereGameSystem()
             ->whereHas('gameSets', function ($query) {
                 $query->whereGameSetId($this->selectedHub->id);
             })
