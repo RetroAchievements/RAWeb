@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use LaravelJsonApi\Eloquent\Contracts\Filter;
 
-final class UserAwardGameAwardsFilter implements Filter
+final class UserAwardGameAwardTierFilter implements Filter
 {
     public function key(): string
     {
-        return 'gameAwards';
+        return 'gameAwardTier';
     }
 
     public function isSingular(): bool
@@ -36,7 +36,7 @@ final class UserAwardGameAwardsFilter implements Filter
                 'status' => '400',
                 'code' => 'invalid_filter',
                 'title' => 'Invalid Filter',
-                'detail' => "Unknown game awards filter [{$mode}].",
+                'detail' => "Unknown game award tier filter [{$mode}].",
             ]),
         };
     }

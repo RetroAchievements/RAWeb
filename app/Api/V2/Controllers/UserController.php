@@ -38,7 +38,7 @@ class UserController extends JsonApiController
                 'gameIfApplicable.system',
             ]);
 
-        if ($request->filter()?->value('gameAwards') === 'highest') {
+        if ($request->filter()?->value('gameAwardTier') === 'highest') {
             $allAwardsQuery->highestGameAwardPerGame();
         }
 
