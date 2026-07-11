@@ -70,7 +70,7 @@ class GameListService
             ]);
 
         if (!$allowNonGameSystems) {
-            $gameModelsQuery->whereNotIn('system_id', System::getNonGameSystems());
+            $gameModelsQuery->whereGameSystem();
         }
 
         if ($this->withLeaderboardCounts) {

@@ -311,9 +311,16 @@ class AchievementsTest extends JsonApiResourceTestCase
 
         $normalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
         $hubGame = Game::factory()->create(['system_id' => System::Hubs]);
+        $deletedHubGame = Game::factory()->create(['system_id' => System::Hubs]);
+        $deletedNormalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
 
         $normalAchievement = Achievement::factory()->promoted()->create(['game_id' => $normalGame->id]);
         $hubAchievement = Achievement::factory()->promoted()->create(['game_id' => $hubGame->id]);
+        $deletedHubAchievement = Achievement::factory()->promoted()->create(['game_id' => $deletedHubGame->id]);
+        $deletedNormalAchievement = Achievement::factory()->promoted()->create(['game_id' => $deletedNormalGame->id]);
+
+        $deletedHubGame->delete();
+        $deletedNormalGame->delete();
 
         // Act
         $response = $this->jsonApi('v2')
@@ -326,6 +333,8 @@ class AchievementsTest extends JsonApiResourceTestCase
         $ids = collect($response->json('data'))->pluck('id')->toArray();
         $this->assertContains((string) $normalAchievement->id, $ids);
         $this->assertNotContains((string) $hubAchievement->id, $ids);
+        $this->assertNotContains((string) $deletedHubAchievement->id, $ids);
+        $this->assertNotContains((string) $deletedNormalAchievement->id, $ids);
     }
 
     public function testItExcludesEventGameAchievements(): void
