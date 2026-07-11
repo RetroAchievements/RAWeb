@@ -32,10 +32,8 @@ class GameAchievementDistributionControllerTest extends TestCase
         Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $rankedPlayer = User::factory()->create();
-        $unrankedPlayer = User::factory()->create([
-            'unranked_at' => now(),
-            'web_api_key' => 'unranked-api-key',
-        ]);
+        $unrankedPlayer = User::factory()->create(['web_api_key' => 'unranked-api-key']);
+        $unrankedPlayer->update(['unranked_at' => now()]);
 
         PlayerGame::factory()->create([
             'user_id' => $rankedPlayer->id,
