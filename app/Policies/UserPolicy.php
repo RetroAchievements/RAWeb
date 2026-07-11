@@ -71,6 +71,11 @@ class UserPolicy
         return $user?->is($model) ?? false;
     }
 
+    public function viewLeaderboardEntries(?User $user, User $model): bool
+    {
+        return true;
+    }
+
     public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;
@@ -88,6 +93,12 @@ class UserPolicy
 
     public function viewTickets(?User $user, User $model): bool
     {
+        return $user !== null;
+    }
+
+    public function viewUserGameListEntries(?User $user, User $model): bool
+    {
+        // row-level per-kind visibility happens inside UserGameListEntrySchema::relatableQuery
         return $user !== null;
     }
 

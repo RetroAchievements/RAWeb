@@ -475,6 +475,59 @@ describe('Non multi-set', function () {
             ]);
     });
 
+    test('returns console id from hash for non-game system', function () {
+        $data = AchievementSetsTestHelpers::createGameWithUnpromotedAchievements();
+        System::factory()->create(['id' => System::Events]);
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+        $gameHash = AchievementSetsTestHelpers::createGameHash($game);
+        $this->assertEquals($game->system_id, $gameHash->system_id);
+        $game->system_id = System::Events;
+        $game->save();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $gameHash->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null, // request by hash engages multiset code, which returns null for the core set title
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                            // leaderboards[3] is unpromoted - have to specifically ask for those as older clients don't check state
+                            // leaderboards[4] is disabled - it should never be returned to any client
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->assertNotEquals($gameHash->system_id, System::Events);
+    });
+
     test('only returns published data for a given id', function () {
         $data = AchievementSetsTestHelpers::createGameWithUnpromotedAchievements();
         $game = $data['game'];

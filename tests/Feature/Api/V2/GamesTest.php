@@ -254,6 +254,10 @@ class GamesTest extends JsonApiResourceTestCase
             'points_weighted' => 1000,
             'players_total' => 100,
             'players_hardcore' => 75,
+            'times_beaten' => 60,
+            'times_beaten_hardcore' => 40,
+            'median_time_to_beat' => 8057,
+            'median_time_to_beat_hardcore' => 8598,
         ]);
 
         // Act
@@ -266,6 +270,10 @@ class GamesTest extends JsonApiResourceTestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.attributes');
 
+        $this->assertEquals(60, $attributes['timesBeaten']);
+        $this->assertEquals(40, $attributes['timesBeatenHardcore']);
+        $this->assertEquals(8057, $attributes['medianTimeToBeatSeconds']);
+        $this->assertEquals(8598, $attributes['medianTimeToBeatHardcoreSeconds']);
         $this->assertEquals('Test Game', $attributes['title']);
         $this->assertEquals(50, $attributes['achievementsPublished']);
         $this->assertEquals(500, $attributes['pointsTotal']);

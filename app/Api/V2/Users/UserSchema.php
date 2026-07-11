@@ -21,6 +21,7 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
+use LaravelJsonApi\Eloquent\Filters\WhereNull;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -36,6 +37,14 @@ class UserSchema extends Schema
      * This prevents unbounded result sets.
      */
     protected ?array $defaultPagination = ['number' => 1];
+
+    /**
+     * Relationships that should always be eager loaded.
+     *
+     * The visibleRole and displayableRoles attributes both derive from roles,
+     * and lazily loading them costs two queries per user on the index.
+     */
+    protected array $with = ['roles'];
 
     /**
      * Default sort order when client doesn't provide any.
@@ -99,6 +108,7 @@ class UserSchema extends Schema
             ArrayList::make('displayableRoles')->readOnly(),
 
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
+            HasMany::make('leaderboardEntries')->type('leaderboard-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
@@ -113,6 +123,7 @@ class UserSchema extends Schema
                     new UserUlidFilter('resolverUserId', 'resolver_id'),
                 )
                 ->readOnly(),
+            HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
@@ -149,6 +160,8 @@ class UserSchema extends Schema
     {
         return [
             Scope::make('role', 'withRole'),
+
+            WhereNull::make('ranked', 'unranked_at'),
         ];
     }
 

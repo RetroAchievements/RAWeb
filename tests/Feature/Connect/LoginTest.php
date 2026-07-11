@@ -100,6 +100,24 @@ class LoginTest extends TestCase
 
     }
 
+    public function testLoginKeepsAvatarUrlCanonicalWhenAvatarVersionExists(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+        $password = 'Pa$$w0rd';
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'avatar_updated_at' => Carbon::parse('2026-07-02 10:00:00 UTC'),
+            'connect_token' => Str::random(16),
+            'password' => Hash::make($password),
+            'Permissions' => Permissions::Registered,
+        ]);
+
+        $this->get($this->apiUrl('login', ['u' => $user->username, 'p' => $password], credentials: false))
+            ->assertStatus(200)
+            ->assertJsonPath('AvatarUrl', media_asset("UserPic/{$user->username}.png"));
+    }
+
     public function testInvalidCredentials(): void
     {
         Carbon::setTestNow(Carbon::now());
