@@ -20,6 +20,7 @@ use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\Player;
 use App\Platform\Services\UserLastActivityService;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
+use App\Support\Media\UserAvatarUrl;
 use Database\Factories\UserFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Filament\Models\Contracts\FilamentUser;
@@ -169,6 +170,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     protected $casts = [
         'banned_at' => 'datetime',
+        'avatar_updated_at' => 'datetime',
         'connect_token_expires_at' => 'datetime',
         'delete_requested_at' => 'datetime',
         'email_verified_at' => 'datetime',
@@ -370,7 +372,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getAvatarUrlAttribute(): string
     {
-        return media_asset('UserPic/' . $this->username . '.png');
+        return UserAvatarUrl::fromRecord($this->username, $this->getAttributes());
     }
 
     public function getPermissionsAttribute(): int

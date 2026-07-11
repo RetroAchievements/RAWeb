@@ -7,6 +7,7 @@ namespace App\Connect\Support;
 use App\Enums\ClientSupportLevel;
 use App\Models\ConnectWarning;
 use App\Models\Game;
+use App\Models\System;
 use App\Platform\Services\UserAgentService;
 use App\Support\Alerts\SuspiciousConnectWarningAlert;
 use Carbon\Carbon;
@@ -48,7 +49,7 @@ trait GeneratesConnectWarnings
 
             default:
                 $emulatorUserAgent = $userAgentService->getEmulatorUserAgent($this->userAgent);
-                if ($emulatorUserAgent) {
+                if ($emulatorUserAgent && $game->system_id !== System::Events) {
                     $supportedSystemCount = $emulatorUserAgent->emulator->systems()->count();
                     if ($supportedSystemCount > 0 && $supportedSystemCount < 5) {
                         // if the emulator only supports a handful of systems, and the game is not

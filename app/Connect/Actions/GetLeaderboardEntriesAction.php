@@ -8,6 +8,7 @@ use App\Connect\Support\BaseApiAction;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Actions\GetRankedLeaderboardEntriesAction;
+use App\Support\Media\UserAvatarUrl;
 use Illuminate\Http\Request;
 
 class GetLeaderboardEntriesAction extends BaseApiAction
@@ -94,7 +95,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
                 $entries[] = [
                     'User' => $entry->user->display_name,
                     'ULID' => $entry->user->ulid,
-                    'AvatarUrl' => $entry->user->avatar_url,
+                    'AvatarUrl' => UserAvatarUrl::canonical($entry->user->username),
                     'DateSubmitted' => $entry->updated_at->unix(),
                     'Score' => $entry->score,
                     'Rank' => $entry->rank,

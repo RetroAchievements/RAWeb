@@ -73,6 +73,7 @@ abstract class JsonApiResourceTestCase extends TestCase
 
         // Assert
         $response->assertUnauthorized();
+        $this->assertDatabaseCount('api_logs', 0);
     }
 
     public function testItLogsApiRequest(): void

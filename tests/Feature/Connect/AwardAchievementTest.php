@@ -2724,6 +2724,60 @@ describe('validation', function () {
         });
     });
 
+    test('user agent for incorrect system for event game does not generate warning', function () {
+        $data = AwardAchievementTestHelpers::createGame();
+        System::factory()->create(['id' => System::Events]);
+        $game = $data['game'];
+        $game->system_id = System::Events;
+        $game->save();
+        $achievement1 = $data['achievements'][0];
+        $achievement3 = $data['achievements'][2];
+        $gameHash = $data['gameHash'];
+        $now = Carbon::now();
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // $userAgentValid is associated to the "Test Client". Attach a differing system to that.
+        $otherSystem = System::factory()->create();
+        Emulator::where('name', 'Test Client')->first()->systems()->attach($otherSystem->id);
+
+        // do the hardcore unlock
+        $validationHash = AwardAchievementTestHelpers::buildValidationHash($achievement3, $this->user, 1);
+        $scoreBefore = $this->user->points_hardcore;
+        $casualScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', [
+                'a' => $achievement3->id,
+                'h' => 1,
+                'm' => $gameHash->md5,
+                'v' => $validationHash,
+            ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->id,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore, // event achievement does not award points
+                'SoftcoreScore' => $casualScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlock should go through as hardcore
+        $this->assertHasCasualUnlock($this->user, $achievement3);
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+
+        // player score should not have increased
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($casualScoreBefore, $user1->points);
+
+        // smell should not be captured
+        $this->assertEquals(0, ConnectWarning::count());
+    });
+
     test('user agent for incorrect system on multi-system client does not generate warning', function () {
         $data = AwardAchievementTestHelpers::createGame();
         $game = $data['game'];

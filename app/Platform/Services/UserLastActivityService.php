@@ -20,7 +20,7 @@ class UserLastActivityService
      * Record user activity timestamps.
      *
      * When the Redis cache driver is enabled, timestamps are cached
-     * and then batch-flushed to the DB. This helps us mitigate lock
+     * and then batch-flushed to the DB. This helps us mitigate
      * contention issues on the users table.
      *
      * When Redis isn't being used (eg: tests), timestamps are instead

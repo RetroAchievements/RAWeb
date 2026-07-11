@@ -74,8 +74,8 @@ class GameSchema extends Schema
 
             Number::make('timesBeaten', 'times_beaten'),
             Number::make('timesBeatenHardcore', 'times_beaten_hardcore'),
-            Number::make('medianTimeToBeatMinutes', 'median_time_to_beat'),
-            Number::make('medianTimeToBeatHardcoreMinutes', 'median_time_to_beat_hardcore'),
+            Number::make('medianTimeToBeatSeconds', 'median_time_to_beat'),
+            Number::make('medianTimeToBeatHardcoreSeconds', 'median_time_to_beat_hardcore'),
 
             BelongsTo::make('system')->readOnly(),
 

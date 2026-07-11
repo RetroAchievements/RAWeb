@@ -77,6 +77,11 @@ class AchievementSchema extends Schema
             Number::make('unlockPercentage', 'unlock_percentage')->sortable()->readOnly(),
             Number::make('unlockHardcorePercentage', 'unlock_hardcore_percentage')->sortable()->readOnly(),
 
+            Number::make('medianTimeToUnlockSeconds', 'median_time_to_unlock')->readOnly(),
+            Number::make('medianTimeToUnlockHardcoreSeconds', 'median_time_to_unlock_hardcore')->readOnly(),
+            Number::make('medianTimeToUnlockSamples', 'median_time_to_unlock_samples')->readOnly(),
+            Number::make('medianTimeToUnlockHardcoreSamples', 'median_time_to_unlock_hardcore_samples')->readOnly(),
+
             DateTime::make('createdAt', 'created_at')->readOnly(),
             DateTime::make('modifiedAt', 'modified_at')->readOnly(),
 
