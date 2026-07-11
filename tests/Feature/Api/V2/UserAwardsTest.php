@@ -1378,4 +1378,63 @@ class UserAwardsTest extends TestCase
         $response->assertSuccessful();
         $this->assertCount(3, $response->json('data'));
     }
+
+    public function testIndexIncludesUserAttributes(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create(['display_name' => 'AwardWinner']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('AwardWinner', $response->json('data.0.attributes.userDisplayName'));
+        $this->assertEquals($player->ulid, $response->json('data.0.attributes.userId'));
+    }
+
+    public function testIndexCanIncludeUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create(['display_name' => 'AwardWinner']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards?include=user');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = collect($response->json('included'));
+        $this->assertTrue($included->contains(
+            fn (array $resource) => $resource['type'] === 'users' && $resource['id'] === $player->ulid
+        ));
+    }
 }

@@ -30,6 +30,8 @@ class UserAwardResource extends BaseJsonApiResource
             'displayOrder' => $this->resource->order_column,
             'kind' => $presenter->kind(),
             'title' => $presenter->title(),
+            'userDisplayName' => $presenter->userDisplayName(),
+            'userId' => $presenter->userId(),
         ];
     }
 
@@ -51,6 +53,12 @@ class UserAwardResource extends BaseJsonApiResource
 
         if ($presenter->hasEventRelationship() && $this->wasRelationshipIncluded($request, 'event')) {
             $relationships['event'] = $this->relation('event', 'eventIfApplicable')
+                ->withoutLinks()
+                ->showDataIfLoaded();
+        }
+
+        if ($this->wasRelationshipIncluded($request, 'user')) {
+            $relationships['user'] = $this->relation('user')
                 ->withoutLinks()
                 ->showDataIfLoaded();
         }

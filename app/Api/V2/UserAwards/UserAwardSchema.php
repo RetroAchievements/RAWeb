@@ -63,6 +63,7 @@ class UserAwardSchema extends Schema
         'gameIfApplicable',
         'gameIfApplicable.system',
         'siteAwardIfApplicable',
+        'user',
     ];
 
     /**
@@ -87,9 +88,12 @@ class UserAwardSchema extends Schema
             Str::make('badgeUrl', 'award_key')->readOnly(),
             Number::make('displayOrder', 'order_column')->sortable()->readOnly(),
             ArrayHash::make('context', 'award_key')->readOnly(),
+            Str::make('userDisplayName')->readOnly(),
+            Str::make('userId')->readOnly(),
 
             BelongsTo::make('event', 'eventIfApplicable')->type('events')->readOnly(),
             BelongsTo::make('game', 'gameIfApplicable')->type('games')->readOnly(),
+            BelongsTo::make('user')->type('users')->readOnly(),
         ];
     }
 
