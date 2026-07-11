@@ -96,6 +96,12 @@ class UserPolicy
         return $user !== null;
     }
 
+    public function viewUserGameListEntries(?User $user, User $model): bool
+    {
+        // row-level per-kind visibility happens inside UserGameListEntrySchema::relatableQuery
+        return $user !== null;
+    }
+
     public function viewWallComments(?User $user, User $model): bool
     {
         // This is only to facilitate the V2 Web API.
