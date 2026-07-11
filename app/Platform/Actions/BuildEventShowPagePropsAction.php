@@ -77,6 +77,7 @@ class BuildEventShowPagePropsAction
                 'eventAchievements.sourceAchievement.game.system',
                 'eventAchievements.sourceAchievement.game.system.nameShort',
                 'eventAchievements.sourceAchievement.game.system.iconUrl',
+                'eventAchievements.event',
                 'eventAchievements',
                 'eventAwards',
                 'eventAwards.badgeCount',

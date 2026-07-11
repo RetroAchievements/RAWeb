@@ -23,29 +23,41 @@ export function getEventAchievementTimeStatus(
   eventAchievements?: App.Platform.Data.EventAchievement[],
 ): EventAchievementTimeStatus {
   const eventAchievement = eventAchievements?.find((ea) => ea.achievement?.id === achievement.id);
-  if (!eventAchievement?.activeFrom || !eventAchievement?.activeThrough) {
+  if (!eventAchievement) {
+    // Not found. Assume it's not restricted.
     return eventAchievementTimeStatus.evergreen;
   }
 
   const now = dayjs.utc();
-  const activeFrom = dayjs.utc(eventAchievement.activeFrom);
-  const activeThrough = dayjs.utc(eventAchievement.activeThrough);
-  const activeUntil = dayjs.utc(eventAchievement.activeUntil);
+  const activeFrom = eventAchievement.activeFrom ?? eventAchievement.event?.activeFrom;
+  if (activeFrom) {
+    const activeFromDate = dayjs.utc(activeFrom);
 
-  if (activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil)) {
-    return eventAchievementTimeStatus.active;
+    if (activeFromDate.isAfter(now)) {
+      // Not active yet.
+      const thirtyDaysFromNow = now.add(30, 'day');
+      if (activeFromDate.isSameOrBefore(thirtyDaysFromNow)) {
+        // 30 days or less until before it becomes active.
+        return eventAchievementTimeStatus.upcoming;
+      }
+
+      // More than 30 days before it becomes active.
+      return eventAchievementTimeStatus.future;
+    }
   }
 
-  // Check if upcoming is within the next 30 days.
-  const thirtyDaysFromNow = now.add(30, 'day');
-  if (activeFrom.isAfter(now) && activeFrom.isSameOrBefore(thirtyDaysFromNow)) {
-    return eventAchievementTimeStatus.upcoming;
+  const activeUntil = eventAchievement.activeUntil ?? eventAchievement.event?.activeUntil;
+  if (!activeUntil) {
+    // Active with no end date.
+    return eventAchievementTimeStatus.evergreen;
   }
 
-  if (activeThrough.isBefore(now)) {
+  const activeUntilDate = dayjs.utc(activeUntil);
+  if (activeUntilDate.isBefore(now)) {
+    // No longer active.
     return eventAchievementTimeStatus.expired;
   }
 
-  // More than 30 days away.
-  return eventAchievementTimeStatus.future;
+  // Active.
+  return eventAchievementTimeStatus.active;
 }

@@ -369,6 +369,10 @@ class AchievementsTest extends JsonApiResourceTestCase
             'points' => 10,
             'type' => AchievementType::Progression,
             'is_promoted' => true,
+            'median_time_to_unlock' => 58669,
+            'median_time_to_unlock_hardcore' => 41200,
+            'median_time_to_unlock_samples' => 300,
+            'median_time_to_unlock_hardcore_samples' => 180,
         ]);
 
         // Act
@@ -381,6 +385,10 @@ class AchievementsTest extends JsonApiResourceTestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.attributes');
 
+        $this->assertEquals(58669, $attributes['medianTimeToUnlockSeconds']);
+        $this->assertEquals(41200, $attributes['medianTimeToUnlockHardcoreSeconds']);
+        $this->assertEquals(300, $attributes['medianTimeToUnlockSamples']);
+        $this->assertEquals(180, $attributes['medianTimeToUnlockHardcoreSamples']);
         $this->assertEquals('Test Achievement', $attributes['title']);
         $this->assertEquals('Test Description', $attributes['description']);
         $this->assertEquals(10, $attributes['points']);
