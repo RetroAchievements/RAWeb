@@ -30,6 +30,8 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     // ASSERT
     expect(screen.getByLabelText(/current email address/i)).toHaveTextContent('foo@bar.com');
+    expect(screen.getByPlaceholderText('Enter your new email address')).toBeVisible();
+    expect(screen.getByPlaceholderText('Confirm your new email address')).toBeVisible();
   });
 
   it('given the user attempts to submit without a matching email and confirm email, does not submit', async () => {

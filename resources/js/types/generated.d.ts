@@ -186,6 +186,7 @@ userSettings: App.Data.User;
 can: App.Data.UserPermissions;
 displayableRoles: Array<App.Data.Role>;
 requestedUsername: string | null;
+initialTab: App.Community.Enums.UserSettingsPageTab;
 };
 }
 declare namespace App.Community.Enums {
@@ -206,6 +207,7 @@ export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' |
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
 export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
+export type UserSettingsPageTab = 'profile' | 'notifications' | 'account' | 'applications';
 }
 declare namespace App.Data {
 export type AchievementSetClaimGroup = {

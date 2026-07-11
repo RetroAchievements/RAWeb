@@ -68,7 +68,7 @@ export const ProfileSectionCard: FC = () => {
 
               <div className="flex flex-grow flex-col gap-1">
                 <BaseFormControl>
-                  <BaseInput maxLength={50} placeholder={t('enter a motto here...')} {...field} />
+                  <BaseInput maxLength={50} placeholder={t('Enter a motto')} {...field} />
                 </BaseFormControl>
 
                 <BaseFormDescription className="flex w-full justify-between">
@@ -104,7 +104,7 @@ export const ProfileSectionCard: FC = () => {
         />
 
         <BaseButton
-          className="flex w-full gap-2 @lg:max-w-fit"
+          className="flex gap-2 self-start"
           type="button"
           size="sm"
           variant="destructive"

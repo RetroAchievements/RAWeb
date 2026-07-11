@@ -16,6 +16,8 @@ describe('Component: SiteAwardsSection', () => {
     render(<SiteAwardsSection />);
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /reorder site awards/i })).toBeVisible();
+    const reorderLink = screen.getByRole('link', { name: /reorder site awards/i });
+
+    expect(reorderLink).toBeVisible();
   });
 });

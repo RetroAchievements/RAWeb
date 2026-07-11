@@ -4,16 +4,67 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Controllers;
 
+use App\Community\Enums\UserSettingsPageTab;
 use App\Enums\Permissions;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class UserSettingsControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function testSettingsPageUsesProfileAsTheDefaultInitialTab(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['motto' => '']);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('settings'));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('settings')
+            ->where('initialTab', UserSettingsPageTab::Profile->value)
+        );
+    }
+
+    public function testSettingsPageUsesTheRequestedInitialTab(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['motto' => '']);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('settings', ['tab' => 'account']));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('initialTab', UserSettingsPageTab::Account->value)
+        );
+    }
+
+    public function testSettingsPageFallsBackToProfileForAnInvalidInitialTab(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['motto' => '']);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('settings', ['tab' => 'bogus']));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('initialTab', UserSettingsPageTab::Profile->value)
+        );
+    }
 
     public function testUpdatePassword(): void
     {

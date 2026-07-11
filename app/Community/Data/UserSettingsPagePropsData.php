@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Data;
 
+use App\Community\Enums\UserSettingsPageTab;
 use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
@@ -19,6 +20,7 @@ class UserSettingsPagePropsData extends Data
         /** @var RoleData[] */
         public array $displayableRoles,
         public ?string $requestedUsername = null,
+        public UserSettingsPageTab $initialTab = UserSettingsPageTab::Profile,
     ) {
     }
 }

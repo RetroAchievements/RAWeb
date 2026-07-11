@@ -19,7 +19,7 @@ export const UnsubscribeErrorCard: FC = () => {
         {error ? t(`unsubscribeError-${error}` as unknown as any) : null}
 
         <a
-          href={route('settings.show')}
+          href={route('settings', { _query: { tab: 'notifications' } })}
           className={baseButtonVariants({ variant: 'link', size: 'sm' })}
         >
           {t('Go to Settings')}

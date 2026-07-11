@@ -1,3 +1,5 @@
+import { route } from 'ziggy-js';
+
 import { render, screen } from '@/test';
 
 import { UnsubscribeErrorCard } from './UnsubscribeErrorCard';
@@ -53,6 +55,8 @@ describe('Component: UnsubscribeErrorCard', () => {
 
   it('displays the go to settings link with correct href', () => {
     // ARRANGE
+    vi.mocked(route).mockReturnValue('settings?tab=notifications');
+
     render(<UnsubscribeErrorCard />, {
       pageProps: {
         error: null,
@@ -62,6 +66,6 @@ describe('Component: UnsubscribeErrorCard', () => {
     // ASSERT
     const link = screen.getByRole('link', { name: /go to settings/i });
     expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', 'settings.show');
+    expect(link).toHaveAttribute('href', 'settings?tab=notifications');
   });
 });

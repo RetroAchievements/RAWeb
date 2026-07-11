@@ -1,5 +1,5 @@
+import { usePageNavigationTabs } from '@/common/hooks/usePageNavigationTabs';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useShowPageTabs } from '@/common/hooks/useShowPageTabs';
 
 import type { TabConfig } from '../models';
 import { currentTabAtom } from '../state/achievements.atoms';
@@ -10,7 +10,7 @@ type AchievementTab = App.Platform.Enums.AchievementPageTab;
 export function useAchievementShowTabs(tabConfigs: TabConfig[]) {
   const { initialTab } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
 
-  const { currentTab, setCurrentTab } = useShowPageTabs(currentTabAtom, initialTab);
+  const { currentTab, setCurrentTab } = usePageNavigationTabs(currentTabAtom, initialTab);
 
   const tabValues = tabConfigs.map((c) => c.value);
   const initialIndex = tabValues.indexOf(currentTab);

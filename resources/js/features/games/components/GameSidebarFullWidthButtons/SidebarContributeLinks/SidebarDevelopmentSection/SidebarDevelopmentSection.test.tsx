@@ -18,8 +18,8 @@ vi.mock('@/common/hooks/useAddOrRemoveFromUserGameList', () => ({
 }));
 
 const mockSetCurrentTab = vi.fn();
-vi.mock('@/features/games/hooks/useGameShowTabs', () => ({
-  useGameShowTabs: () => ({
+vi.mock('@/common/hooks/usePageNavigationTabs', () => ({
+  usePageNavigationTabs: () => ({
     currentTab: 'achievements',
     setCurrentTab: mockSetCurrentTab,
   }),

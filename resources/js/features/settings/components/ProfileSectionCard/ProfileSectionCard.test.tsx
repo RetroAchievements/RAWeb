@@ -144,6 +144,7 @@ describe('Component: ProfileSectionCard', () => {
 
     // ASSERT
     expect(screen.getByLabelText(/motto/i)).toHaveValue(mockMotto);
+    expect(screen.getByPlaceholderText('Enter a motto')).toBeVisible();
     expect(screen.getByLabelText(/allow comments/i)).toBeChecked();
   });
 

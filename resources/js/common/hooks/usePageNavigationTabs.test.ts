@@ -3,12 +3,12 @@ import { atom } from 'jotai';
 
 import { act, renderHook } from '@/test';
 
-import { useShowPageTabs } from './useShowPageTabs';
+import { usePageNavigationTabs } from './usePageNavigationTabs';
 
 // Use a standalone atom so tests are fully isolated from any feature module.
 const testTabAtom = atom<'first' | 'second' | 'third'>('first');
 
-describe('Hook: useShowPageTabs', () => {
+describe('Hook: usePageNavigationTabs', () => {
   let originalLocation: Location;
 
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe('Hook: useShowPageTabs', () => {
 
   it('returns the correct function definitions', () => {
     // ACT
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -47,7 +47,7 @@ describe('Hook: useShowPageTabs', () => {
 
   it('given the user sets a non-default tab, updates the atom and adds the tab param to the URL', () => {
     // ARRANGE
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -70,7 +70,7 @@ describe('Hook: useShowPageTabs', () => {
 
   it('given the user sets another non-default tab, updates the atom and adds the tab param to the URL', () => {
     // ARRANGE
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -95,7 +95,7 @@ describe('Hook: useShowPageTabs', () => {
     // ARRANGE
     (window.location as any).href = 'https://retroachievements.org/page/1?tab=second';
     window.location.search = '?tab=second';
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'second'],
         //
@@ -120,7 +120,7 @@ describe('Hook: useShowPageTabs', () => {
     // ARRANGE
     (window.location as any).href = 'https://retroachievements.org/page/1?foo=bar&baz=qux';
     window.location.search = '?foo=bar&baz=qux';
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -145,7 +145,7 @@ describe('Hook: useShowPageTabs', () => {
     (window.location as any).href =
       'https://retroachievements.org/page/1?foo=bar&tab=second&baz=qux';
     window.location.search = '?foo=bar&tab=second&baz=qux';
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'second'],
         //
@@ -169,7 +169,7 @@ describe('Hook: useShowPageTabs', () => {
     // ARRANGE
     vi.spyOn(router, 'visit').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -195,7 +195,7 @@ describe('Hook: useShowPageTabs', () => {
     window.location.search = '?tab=third';
 
     // ACT
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //
@@ -211,7 +211,7 @@ describe('Hook: useShowPageTabs', () => {
     (window.location as any).href = 'https://retroachievements.org/page/1?tab=third';
     window.location.search = '?tab=third';
 
-    const { result } = renderHook(() => useShowPageTabs(testTabAtom, 'first'), {
+    const { result } = renderHook(() => usePageNavigationTabs(testTabAtom, 'first'), {
       jotaiAtoms: [
         [testTabAtom, 'first'],
         //

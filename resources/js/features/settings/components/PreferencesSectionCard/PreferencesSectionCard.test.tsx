@@ -58,6 +58,22 @@ describe('Component: PreferencesSectionCard', () => {
     expect(switchEl).toBeChecked();
   });
 
+  it('explains which game set types the preference affects', async () => {
+    // ARRANGE
+    const user = userEvent.setup();
+    render(<PreferencesSectionCard currentPreferencesBitfield={127} />);
+
+    // ACT
+    await user.hover(screen.getAllByRole('button')[0]);
+
+    // ASSERT
+    expect(
+      await screen.findByRole('tooltip', {
+        name: 'Base sets are always included. This only affects Bonus, Challenge, Specialty, and Exclusive sets.',
+      }),
+    ).toBeVisible();
+  });
+
   it('allows the user to change their game subsets opt out preference', async () => {
     // ARRANGE
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });

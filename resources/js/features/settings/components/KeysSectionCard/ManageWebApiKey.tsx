@@ -55,7 +55,7 @@ export const ManageWebApiKey: FC = () => {
           <BaseTooltip open={ziggy.device === 'mobile' ? false : undefined}>
             <BaseTooltipTrigger asChild>
               <BaseButton
-                className="flex gap-2 md:max-w-fit md:px-12"
+                className="flex gap-2 self-start md:max-w-fit md:px-12"
                 onClick={handleCopyApiKeyClick}
               >
                 <LuCopy />
@@ -72,10 +72,9 @@ export const ManageWebApiKey: FC = () => {
 
           <div>
             <p>
-              <Trans
-                i18nKey="This is your <1>personal</1> web API key. Handle it with care."
-                components={{ 1: <span className="italic" /> }}
-              />
+              {t(
+                'This key grants full API access as you. Treat it like a password and never share it publicly.',
+              )}
             </p>
             <p>
               <Trans
@@ -95,7 +94,7 @@ export const ManageWebApiKey: FC = () => {
           </div>
 
           <BaseButton
-            className="flex w-full gap-2 @lg:max-w-fit"
+            className="flex gap-2 self-start"
             size="sm"
             variant="destructive"
             onClick={handleResetApiKeyClick}

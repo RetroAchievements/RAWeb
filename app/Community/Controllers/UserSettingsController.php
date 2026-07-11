@@ -12,6 +12,7 @@ use App\Community\Data\UpdateProfileData;
 use App\Community\Data\UpdateWebsitePrefsData;
 use App\Community\Data\UserSettingsPagePropsData;
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\UserSettingsPageTab;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
 use App\Community\Requests\StoreUsernameChangeRequest;
@@ -38,9 +39,14 @@ use Inertia\Response as InertiaResponse;
 
 class UserSettingsController extends Controller
 {
-    public function show(): InertiaResponse
+    public function show(Request $request): InertiaResponse
     {
         $this->authorize('updateSettings');
+
+        $tabParam = $request->query('tab');
+        $initialTab =
+            (is_string($tabParam) ? UserSettingsPageTab::tryFrom($tabParam) : null)
+            ?? UserSettingsPageTab::Profile;
 
         /** @var User $user */
         $user = Auth::user();
@@ -80,10 +86,11 @@ class UserSettingsController extends Controller
             ->all();
 
         $props = new UserSettingsPagePropsData(
-            $userSettings,
-            $can,
-            $mappedRoles,
-            $requestedUsername
+            userSettings: $userSettings,
+            can: $can,
+            displayableRoles: $mappedRoles,
+            requestedUsername: $requestedUsername,
+            initialTab: $initialTab,
         );
 
         return Inertia::render('settings', $props);

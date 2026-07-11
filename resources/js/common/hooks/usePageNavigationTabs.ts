@@ -14,9 +14,10 @@ interface SetCurrentTabOptions {
   shouldPushHistory?: boolean;
 }
 
-export function useShowPageTabs<T extends string>(
+export function usePageNavigationTabs<T extends string>(
   tabAtom: PrimitiveAtom<T>,
   defaultTab: NoInfer<T>,
+  validTabs?: readonly T[],
 ) {
   const [currentTab, internal_setCurrentTab] = useAtom(tabAtom);
 
@@ -26,7 +27,10 @@ export function useShowPageTabs<T extends string>(
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab') as T | null;
 
-      internal_setCurrentTab(tabParam ?? defaultTab);
+      const nextTab =
+        tabParam && (!validTabs || validTabs.includes(tabParam)) ? tabParam : defaultTab;
+
+      internal_setCurrentTab(nextTab);
     };
 
     syncFromUrl();
@@ -34,7 +38,7 @@ export function useShowPageTabs<T extends string>(
     window.addEventListener('popstate', syncFromUrl);
 
     return () => window.removeEventListener('popstate', syncFromUrl);
-  }, [defaultTab, internal_setCurrentTab]);
+  }, [defaultTab, internal_setCurrentTab, validTabs]);
 
   const setCurrentTab = (value: T, options: SetCurrentTabOptions = {}) => {
     const { shouldPushHistory = false } = options;

@@ -16,9 +16,12 @@ describe('Component: ChangePasswordSectionCard', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
+    expect(screen.getByPlaceholderText('Enter your current password')).toBeVisible();
+    expect(screen.getByPlaceholderText('Enter a new password')).toBeVisible();
+    expect(screen.getByPlaceholderText('Confirm your new password')).toBeVisible();
   });
 
-  it('given the user attempts to submit without a matching password and confirm password, does not submit', async () => {
+  it('given the user attempts to submit without a matching password and confirm new password, does not submit', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
     const putSpy = vi.spyOn(axios, 'put');
@@ -29,8 +32,8 @@ describe('Component: ChangePasswordSectionCard', () => {
 
     // ACT
     await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
-    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), 'mismatch-password');
+    await userEvent.type(screen.getByLabelText('New Password'), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText('Confirm New Password'), 'mismatch-password');
 
     // ASSERT
     expect(putSpy).not.toHaveBeenCalled();
@@ -50,8 +53,8 @@ describe('Component: ChangePasswordSectionCard', () => {
 
     // ACT
     await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
-    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText('New Password'), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText('Confirm New Password'), 'walrus-clarinet-sunset');
 
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
@@ -79,8 +82,8 @@ describe('Component: ChangePasswordSectionCard', () => {
 
     // ACT
     await userEvent.type(screen.getByLabelText(/current password/i), 'giraffe-telescope-banana');
-    await userEvent.type(screen.getByLabelText(/new password/i), 'walrus-clarinet-sunset');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText('New Password'), 'walrus-clarinet-sunset');
+    await userEvent.type(screen.getByLabelText('Confirm New Password'), 'walrus-clarinet-sunset');
 
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 

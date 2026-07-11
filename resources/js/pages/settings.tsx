@@ -6,15 +6,16 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { SettingsRoot } from '@/features/settings/components/+root';
-import { SettingsSidebar } from '@/features/settings/components/+sidebar';
-import { requestedUsernameAtom } from '@/features/settings/state/settings.atoms';
+import { requestedUsernameAtom, settingsTabAtom } from '@/features/settings/state/settings.atoms';
 
 const Settings: AppPage = () => {
-  const { requestedUsername } = usePageProps<App.Community.Data.UserSettingsPageProps>();
+  const { initialTab, requestedUsername } =
+    usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { t } = useTranslation();
 
   useHydrateAtoms([
+    [settingsTabAtom, initialTab],
     [requestedUsernameAtom, requestedUsername ?? undefined],
     //
   ]);
@@ -26,14 +27,10 @@ const Settings: AppPage = () => {
       <AppLayout.Main>
         <SettingsRoot />
       </AppLayout.Main>
-
-      <AppLayout.Sidebar>
-        <SettingsSidebar />
-      </AppLayout.Sidebar>
     </>
   );
 };
 
-Settings.layout = (page) => <AppLayout withSidebar={true}>{page}</AppLayout>;
+Settings.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
 
 export default Settings;

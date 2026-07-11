@@ -37,6 +37,15 @@ const baseTabsTriggerVariants = cva([], {
         'data-[state=active]:text-link data-[state=active]:border-link data-[state=active]:light:border-neutral-900',
         'transition-all duration-200',
       ),
+      sidebar: cn(
+        'inline-flex items-center justify-start gap-2 rounded-md px-3 py-2 text-left text-sm font-medium transition-none',
+        'text-neutral-500 hover:bg-neutral-700/35 hover:text-neutral-200',
+        'data-[state=active]:bg-neutral-700/70 data-[state=active]:text-neutral-200',
+        'data-[state=active]:hover:bg-neutral-700/70',
+        'light:text-neutral-700 light:hover:bg-neutral-200/50 light:hover:text-neutral-900',
+        'light:data-[state=active]:bg-neutral-200/80 light:data-[state=active]:text-neutral-900',
+        'light:data-[state=active]:hover:bg-neutral-200/80',
+      ),
     },
   },
   defaultVariants: {

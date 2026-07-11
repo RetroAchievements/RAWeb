@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 
@@ -118,6 +119,8 @@ describe('Component: UnsubscribeSuccessCard', () => {
 
   it('displays the manage email preferences link with correct href', () => {
     // ARRANGE
+    vi.mocked(route).mockReturnValue('settings?tab=notifications');
+
     render(<UnsubscribeSuccessCard isMutationPending={false} onUndo={vi.fn()} />, {
       pageProps: {
         descriptionKey: null,
@@ -129,6 +132,6 @@ describe('Component: UnsubscribeSuccessCard', () => {
     // ASSERT
     const link = screen.getByRole('link', { name: /manage all email preferences/i });
     expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', 'settings.show');
+    expect(link).toHaveAttribute('href', 'settings?tab=notifications');
   });
 });

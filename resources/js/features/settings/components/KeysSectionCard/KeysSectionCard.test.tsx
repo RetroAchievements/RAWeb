@@ -13,27 +13,14 @@ describe('Component: KeysSectionCard', () => {
     // ARRANGE
     const { container } = render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
       pageProps: {
-        can: {},
+        can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
     expect(container).toBeTruthy();
-  });
-
-  it("given the user doesn't have permission to manipulate their API keys, doesn't render", () => {
-    // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
-      pageProps: {
-        can: { manipulateApiKeys: false },
-        userSettings: createUser({ apiKey: 'mockApiKey' }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByRole('heading', { name: /keys/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('has a link to the RetroAchievements API documentation', () => {
@@ -51,6 +38,24 @@ describe('Component: KeysSectionCard', () => {
       'href',
       'https://api-docs.retroachievements.org',
     );
+  });
+
+  it('explains that the web API key should be treated like a password', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser(),
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        'This key grants full API access as you. Treat it like a password and never share it publicly.',
+      ),
+    ).toBeVisible();
   });
 
   it("shows an obfuscated version of the user's web API key", () => {
