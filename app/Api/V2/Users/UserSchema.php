@@ -100,6 +100,7 @@ class UserSchema extends Schema
             ArrayList::make('displayableRoles')->readOnly(),
 
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
+            HasMany::make('leaderboardEntries')->type('leaderboard-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
@@ -114,6 +115,7 @@ class UserSchema extends Schema
                     new UserUlidFilter('resolverUserId', 'resolver_id'),
                 )
                 ->readOnly(),
+            HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')

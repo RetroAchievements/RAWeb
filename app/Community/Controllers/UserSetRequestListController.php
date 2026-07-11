@@ -48,7 +48,9 @@ class UserSetRequestListController extends Controller
         $this->authorize('viewAny', [Game::class, $currentUser]);
 
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
-        $persistenceCookieName = 'datatable_view_preference_setrequest_games';
+        $persistenceCookieName = $targetUser
+            ? 'datatable_view_preference_setrequest_user_games'
+            : 'datatable_view_preference_setrequest_general_games';
 
         $request->setPersistenceCookieName($persistenceCookieName);
         $request->setDefaultPageSize(50);
