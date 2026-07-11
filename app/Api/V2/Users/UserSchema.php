@@ -21,6 +21,7 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
+use LaravelJsonApi\Eloquent\Filters\WhereNull;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -122,6 +123,7 @@ class UserSchema extends Schema
                     new UserUlidFilter('resolverUserId', 'resolver_id'),
                 )
                 ->readOnly(),
+            HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
@@ -158,6 +160,8 @@ class UserSchema extends Schema
     {
         return [
             Scope::make('role', 'withRole'),
+
+            WhereNull::make('ranked', 'unranked_at'),
         ];
     }
 
