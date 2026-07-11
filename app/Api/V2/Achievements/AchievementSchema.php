@@ -8,8 +8,6 @@ use App\Api\V2\Tickets\TicketStateFilter;
 use App\Api\V2\Tickets\TicketTypeFilter;
 use App\Api\V2\Tickets\UserUlidFilter;
 use App\Models\Achievement;
-use App\Models\Game;
-use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
@@ -142,11 +140,7 @@ class AchievementSchema extends Schema
     public function indexQuery(?object $model, Builder $query): Builder
     {
         // Exclude achievements belonging to hub, event, or soft-deleted games.
-        $query->whereNotIn('game_id', Game::query()
-            ->withTrashed()
-            ->whereIn('system_id', [System::Hubs, System::Events])
-            ->orWhereNotNull('deleted_at')
-            ->select('id'));
+        $query->whereFromRealGame();
 
         // Default to promoted only if no state filter is applied.
         // The filter will override this if explicitly set.

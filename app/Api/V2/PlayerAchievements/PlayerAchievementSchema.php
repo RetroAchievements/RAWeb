@@ -6,7 +6,6 @@ namespace App\Api\V2\PlayerAchievements;
 
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -130,7 +129,7 @@ class PlayerAchievementSchema extends Schema
     {
         return $query->whereHas('achievement', function ($achievementQuery) {
             $achievementQuery->whereHas('game', function ($gameQuery) {
-                $gameQuery->whereNotIn('system_id', System::getNonGameSystems());
+                $gameQuery->whereGameSystem();
             });
         });
     }

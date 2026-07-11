@@ -95,7 +95,7 @@ class LeaderboardEntrySchema extends Schema
         $leaderboard = $query->getParent();
 
         $isHiddenLeaderboard = $leaderboard->order_column < 0;
-        $isFromExcludedSystem = in_array($leaderboard->game->system_id, [System::Hubs, System::Events], true);
+        $isFromExcludedSystem = in_array($leaderboard->game->system_id, System::getNonGameSystems(), true);
 
         if ($isHiddenLeaderboard || $isFromExcludedSystem) {
             $query->whereRaw('1 = 0');

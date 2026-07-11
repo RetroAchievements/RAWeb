@@ -1214,6 +1214,15 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
      * @param Builder<Game> $query
      * @return Builder<Game>
      */
+    public function scopeWhereGameSystem(Builder $query): Builder
+    {
+        return $query->whereNotIn($query->qualifyColumn('system_id'), System::getNonGameSystems());
+    }
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
     public function scopeWhereHasPublishedAchievements($query): Builder
     {
         return $query->where('achievements_published', '>', 0);
