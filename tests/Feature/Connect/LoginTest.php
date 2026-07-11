@@ -50,7 +50,7 @@ class LoginTest extends TestCase
 
         /** @var User $user1 */
         $user1 = User::whereName($user->username)->first();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $user1->connect_token_expires_at);
 
         // === with token ===
 
