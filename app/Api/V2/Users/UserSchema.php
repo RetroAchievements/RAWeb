@@ -99,6 +99,7 @@ class UserSchema extends Schema
             ArrayList::make('displayableRoles')->readOnly(),
 
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
+            HasMany::make('leaderboardEntries')->type('leaderboard-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),

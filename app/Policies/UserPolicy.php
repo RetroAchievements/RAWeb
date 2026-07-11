@@ -71,6 +71,11 @@ class UserPolicy
         return $user?->is($model) ?? false;
     }
 
+    public function viewLeaderboardEntries(?User $user, User $model): bool
+    {
+        return true;
+    }
+
     public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;
