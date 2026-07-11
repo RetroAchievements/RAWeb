@@ -150,9 +150,9 @@ class PlayerAchievement extends BasePivot
         // below the next day's midnight. A literal <= against a bare date would
         // silently exclude everything after midnight on that day.
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
-            $endOfDayExclusive = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
+            $startOfNextDay = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
 
-            return $query->where('unlocked_at', '<', $endOfDayExclusive);
+            return $query->where('unlocked_at', '<', $startOfNextDay);
         }
 
         return $query->where('unlocked_at', '<=', $date);

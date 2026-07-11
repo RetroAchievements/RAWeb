@@ -294,9 +294,9 @@ class PlayerBadge extends BaseModel
         // below the next day's midnight. A literal <= against a bare date would
         // silently exclude everything after midnight on that day.
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
-            $endOfDayExclusive = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
+            $startOfNextDay = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
 
-            return $query->where('awarded_at', '<', $endOfDayExclusive);
+            return $query->where('awarded_at', '<', $startOfNextDay);
         }
 
         return $query->where('awarded_at', '<=', $date);
