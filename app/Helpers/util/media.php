@@ -4,6 +4,8 @@ use App\Actions\PurgeAvatarFromCloudflareCacheAction;
 use App\Models\User;
 use App\Platform\Enums\ImageType;
 use App\Support\Media\FilenameIterator;
+use App\Support\Media\UserAvatarUrl;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 function UploadToS3(string $filenameSrc, string $filenameDest): bool
@@ -153,7 +155,7 @@ function UploadGameImage(array $file, string $imageType): string
 /**
  * @throws Exception
  */
-function UploadAvatar(string $user, string $base64ImageData): void
+function UploadAvatar(string $user, string $base64ImageData): string
 {
     $file = createFileArrayFromDataUrl($base64ImageData);
     validateFile($file);
@@ -191,10 +193,7 @@ function UploadAvatar(string $user, string $base64ImageData): void
         throw new Exception('Cannot copy image to destination');
     }
 
-    // Touch the user entry.
-    User::where('username', $user)->update(['updated_at' => now()]);
-
-    (new PurgeAvatarFromCloudflareCacheAction())->execute($user);
+    return UserAvatarUrl::versioned($user, commitAvatarChange($user));
 }
 
 function removeAvatar(string $user): void
@@ -204,7 +203,33 @@ function removeAvatar(string $user): void
         unlink($avatarFile);
     }
 
-    (new PurgeAvatarFromCloudflareCacheAction())->execute($user);
+    commitAvatarChange($user);
+}
+
+/**
+ * Record that the user's avatar file just changed so the new image takes effect
+ * everywhere: stamps a new avatar version and purges the stale Cloudflare variants.
+ *
+ * Call this only after the avatar file write or delete has completed, otherwise the
+ * first fetch of the new versioned URL could pin the old image at the edge.
+ *
+ * The queries use withTrashed() because account deletion soft-deletes the user before
+ * removing the avatar file.
+ */
+function commitAvatarChange(string $username): Carbon
+{
+    $previousAvatarUpdatedAt = User::withTrashed()
+        ->where('username', $username)
+        ->value('avatar_updated_at');
+
+    $avatarUpdatedAt = now();
+    User::withTrashed()
+        ->where('username', $username)
+        ->update(['avatar_updated_at' => $avatarUpdatedAt]);
+
+    (new PurgeAvatarFromCloudflareCacheAction())->execute($username, $previousAvatarUpdatedAt, $avatarUpdatedAt);
+
+    return $avatarUpdatedAt;
 }
 
 /**
