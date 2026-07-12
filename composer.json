@@ -12,7 +12,6 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "ext-mysqli": "*",
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.235",
@@ -75,7 +74,6 @@
         "barryvdh/laravel-debugbar": "^4.2.5",
         "barryvdh/laravel-ide-helper": "^3.1",
         "brianium/paratest": "^7.2",
-        "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
         "laravel/boost": "^2.0",
@@ -88,9 +86,7 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.1",
         "predis/predis": "^2.0",
-        "rector/rector": "^2.0",
-        "spatie/laravel-ignition": "^2.9",
-        "worksome/envy": "^1.1"
+        "spatie/laravel-ignition": "^2.9"
     },
     "autoload": {
         "psr-4": {
@@ -144,7 +140,6 @@
         "mfs": "@php artisan migrate:refresh --seed",
         "octane": "@php artisan octane:start --watch --port=8888 --caddyfile=docker/octane/Caddyfile",
         "paratest": "@php artisan test --parallel",
-        "rector": "@php vendor/bin/rector process",
         "setup": [
             "@php composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
