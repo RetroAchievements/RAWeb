@@ -9,55 +9,87 @@ use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\User;
+use App\Models\UserRelation;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
-use Tests\TestCase;
 
-class GetFriendListTest extends TestCase
+uses(LazilyRefreshDatabase::class);
+uses(TestsConnect::class);
+
+class GetFriendListTestHelpers
 {
-    use BootstrapsConnect;
-    use RefreshDatabase;
-
-    public function testGetFriendList(): void
+    public static function createUser(Game $game, string $richPresence, Carbon $richPresenceUpdatedAt): User
     {
-        $date1 = Carbon::parse('2020-10-02 06:18:11');
-        $date2 = Carbon::parse('2024-03-05 17:53:03');
-        $date3 = Carbon::parse('2024-05-27 13:36:42');
+        return User::factory()->create([
+            'rich_presence_game_id' => $game->id,
+            'rich_presence' => $richPresence,
+            'rich_presence_updated_at' => $richPresenceUpdatedAt,
+        ]);
+    }
 
-        /** @var Game $game1 */
-        $game1 = $this->seedGame();
-        /** @var Game $game2 */
-        $game2 = $this->seedGame();
+    public static function createSession(User $user, Game $game, string $richPresence, Carbon $richPresenceUpdatedAt): void
+    {
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'rich_presence' => $richPresence,
+            'rich_presence_updated_at' => $richPresenceUpdatedAt,
+        ]);
+    }
 
-        /** @var User $user2 */
-        $user2 = User::factory()->create();
-        /** @var User $user3 */
-        $user3 = User::factory()->create();
-        /** @var User $user4 */
-        $user4 = User::factory()->create();
-        /** @var User $user5 */
-        $user5 = User::factory()->create();
-        /** @var User $user6 */
-        $user6 = User::factory()->create();
+    public static function followUser(User $user, User $userToFollow): void
+    {
+        UserRelation::create([
+            'user_id' => $user->id,
+            'related_user_id' => $userToFollow->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+    }
 
-        // no followed users
+    public static function unfollowUser(User $user, User $userToFollow): void
+    {
+        UserRelation::create([
+            'user_id' => $user->id,
+            'related_user_id' => $userToFollow->id,
+            'status' => UserRelationStatus::NotFollowing,
+        ]);
+    }
+
+    public static function blockUser(User $user, User $userToFollow): void
+    {
+        UserRelation::create([
+            'user_id' => $user->id,
+            'related_user_id' => $userToFollow->id,
+            'status' => UserRelationStatus::Blocked,
+        ]);
+    }
+}
+
+beforeEach(function () {
+    Carbon::setTestNow(Carbon::now()->startOfSecond());
+
+    $this->createConnectUser();
+});
+
+describe('get followed user activity', function () {
+    test('no followed users', function () {
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [],
             ]);
+    });
 
-        // user2 is playing game1
-        $user2->rich_presence_game_id = $game1->id;
-        $user2->rich_presence = "Running through a forest";
-        $user2->rich_presence_updated_at = $date1;
-        $user2->save();
-
-        // user is following user2 (legacy RP - no session)
-        changeFriendStatus($this->user, $user2, UserRelationStatus::Following);
+    test('rich presence from session', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $date2 = Carbon::parse('2024-03-05 17:53:03');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::createSession($user2, $game1, 'Titles', $date2);
+        GetFriendListTestHelpers::followUser($this->user, $user2);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -67,60 +99,34 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
+                        'AvatarUpdatedAt' => 0,
                         'RAPoints' => $user2->points_hardcore,
-                        'LastSeen' => $user2->rich_presence,
-                        'LastSeenTime' => $date1->unix(),
-                        'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->title,
-                        'LastGameIconUrl' => $game1->badge_url,
-                    ],
-                ],
-            ]);
-
-        // user3 is playing game2
-        $user3->rich_presence_game_id = $game2->id;
-        $user3->rich_presence = "Killing everything";
-        $user3->rich_presence_updated_at = $date2->clone()->subMinutes(45);
-        $user3->save();
-
-        PlayerSession::factory()->create([
-            'user_id' => $user3->id,
-            'game_id' => $game2->id,
-            'rich_presence' => "Titles",
-            'rich_presence_updated_at' => $date2,
-        ]);
-
-        // user4 is playing game2
-        $user4->rich_presence_game_id = $game2->id;
-        $user4->rich_presence = "Killing everything";
-        $user4->rich_presence_updated_at = $date3;
-        $user4->setAttribute('Permissions', Permissions::Banned);
-        $user4->save();
-
-        // user is following user3 (RP from session)
-        changeFriendStatus($this->user, $user3, UserRelationStatus::Following);
-
-        // user is following user4 (banned - should not be returned)
-        changeFriendStatus($this->user, $user4, UserRelationStatus::Following);
-
-        $this->get($this->apiUrl('getfriendlist'))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Friends' => [
-                    [
-                        'Friend' => $user3->display_name,
-                        'AvatarUrl' => $user3->avatar_url,
-                        'RAPoints' => $user3->points_hardcore,
-                        'LastSeen' => "Titles",
+                        'LastSeen' => 'Titles', // session rp is given preference
                         'LastSeenTime' => $date2->unix(),
-                        'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->title,
-                        'LastGameIconUrl' => $game2->badge_url,
+                        'LastGameId' => $game1->id,
+                        'LastGameTitle' => $game1->title,
+                        'LastGameIconUrl' => $game1->badge_url,
                     ],
+                ],
+            ]);
+    });
+
+    test('rich presence without session', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::followUser($this->user, $user2);
+
+        // some users may not have played since we started tracking sessions
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
+                        'AvatarUpdatedAt' => 0,
                         'RAPoints' => $user2->points_hardcore,
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
@@ -130,22 +136,12 @@ class GetFriendListTest extends TestCase
                     ],
                 ],
             ]);
+    });
 
-        // user5 is playing game2
-        $user5->rich_presence_game_id = $game2->id;
-        $user5->rich_presence = "Killing everything";
-        $user5->rich_presence_updated_at = $date3;
-        $user5->save();
-
-        // user5 is following user (inverse relationship)
-        changeFriendStatus($user5, $this->user, UserRelationStatus::Following);
-
-        // user6 has no activity
-        $user6->last_activity_at = $date3;
-        $user6->save();
-
-        // user is following user6 (legacy RP - no session)
-        changeFriendStatus($this->user, $user6, UserRelationStatus::Following);
+    test('no rich presence', function () {
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = User::factory()->create(['last_activity_at' => $date1]);
+        GetFriendListTestHelpers::followUser($this->user, $user2);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -153,21 +149,50 @@ class GetFriendListTest extends TestCase
                 'Success' => true,
                 'Friends' => [
                     [
-                        'Friend' => $user6->display_name,
-                        'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points_hardcore,
+                        'Friend' => $user2->display_name,
+                        'AvatarUrl' => $user2->avatar_url,
+                        'AvatarUpdatedAt' => 0,
+                        'RAPoints' => $user2->points_hardcore,
                         'LastSeen' => 'Unknown',
-                        'LastSeenTime' => $date3->unix(),
+                        'LastSeenTime' => $date1->unix(),
                         'LastGameId' => null,
                         'LastGameTitle' => null,
                         'LastGameIconUrl' => null,
                     ],
+                ],
+            ]);
+    });
+
+    test('multiple friends', function () {
+        $game1 = Game::factory()->create();
+        $game2 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $date2 = Carbon::parse('2024-03-05 17:53:03');
+        $date3 = Carbon::parse('2024-05-27 13:36:42');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::createSession($user2, $game1, 'Titles', $date2);
+        GetFriendListTestHelpers::followUser($this->user, $user2);
+        $user3 = GetFriendListTestHelpers::createUser($game2, 'Killing everything', $date3);
+        GetFriendListTestHelpers::createSession($user3, $game2, 'Killing everything', $date3);
+        GetFriendListTestHelpers::followUser($this->user, $user3);
+        $user4 = GetFriendListTestHelpers::createUser($game2, 'Killing everything', $date1);
+        GetFriendListTestHelpers::createSession($user3, $game2, 'Killing everything', $date1);
+        GetFriendListTestHelpers::followUser($this->user, $user4);
+        $user3->avatar_updated_at = $date2;
+        $user3->save();
+
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [ // newest activity first
                     [
                         'Friend' => $user3->display_name,
-                        'AvatarUrl' => $user3->avatar_url,
+                        'AvatarUrl' => media_asset("UserPic/{$user3->username}.png"), // version not included in avatar url
+                        'AvatarUpdatedAt' => $date2->unix(),
                         'RAPoints' => $user3->points_hardcore,
-                        'LastSeen' => "Titles",
-                        'LastSeenTime' => $date2->unix(),
+                        'LastSeen' => $user3->rich_presence,
+                        'LastSeenTime' => $date3->unix(),
                         'LastGameId' => $game2->id,
                         'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
@@ -175,49 +200,96 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
+                        'AvatarUpdatedAt' => 0,
                         'RAPoints' => $user2->points_hardcore,
-                        'LastSeen' => $user2->rich_presence,
-                        'LastSeenTime' => $date1->unix(),
+                        'LastSeen' => 'Titles', // session rp is given preference
+                        'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game1->id,
                         'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
-                ],
-            ]);
-
-        // user6 is playing game 2
-        $user6->rich_presence_game_id = $game2->id;
-        $user6->rich_presence = "Killing everything";
-        $user6->rich_presence_updated_at = $date3;
-        $user6->save();
-
-        // user has stopped following user2
-        changeFriendStatus($this->user, $user2, UserRelationStatus::NotFollowing);
-
-        // user has blocked user3
-        changeFriendStatus($this->user, $user3, UserRelationStatus::NotFollowing);
-
-        $this->get($this->apiUrl('getfriendlist'))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'Friends' => [
                     [
-                        'Friend' => $user6->display_name,
-                        'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points_hardcore,
-                        'LastSeen' => $user6->rich_presence,
-                        'LastSeenTime' => $date3->unix(),
+                        'Friend' => $user4->display_name,
+                        'AvatarUrl' => $user4->avatar_url,
+                        'AvatarUpdatedAt' => 0,
+                        'RAPoints' => $user4->points_hardcore,
+                        'LastSeen' => $user4->rich_presence,
+                        'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game2->id,
                         'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                 ],
             ]);
-    }
+    });
 
-    public function testSqlLeak(): void
-    {
+    test('banned user is not returned', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::followUser($this->user, $user2);
+
+        $user2->Permissions = Permissions::Banned;
+        $user2->banned_at = Carbon::now()->subDays(8);
+        $user2->save();
+
+        // some users may not have played since we started tracking sessions
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [],
+            ]);
+    });
+
+    test('unfollowed user is not returned', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::unfollowUser($user2, $this->user);
+
+        // some users may not have played since we started tracking sessions
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [],
+            ]);
+    });
+
+    test('blocked user is not returned', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::blockUser($user2, $this->user);
+
+        // some users may not have played since we started tracking sessions
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [],
+            ]);
+    });
+
+    test('user following caller is not returned', function () {
+        $game1 = Game::factory()->create();
+        $date1 = Carbon::parse('2020-10-02 06:18:11');
+        $user2 = GetFriendListTestHelpers::createUser($game1, 'Running through a forest', $date1);
+        GetFriendListTestHelpers::followUser($user2, $this->user);
+
+        // some users may not have played since we started tracking sessions
+        $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Friends' => [],
+            ]);
+    });
+});
+
+describe('validation', function () {
+    test('sql error does not leak sql', function () {
         // change the column name to force a query failure
         Schema::table('users', function (Blueprint $table) {
             $table->renameColumn('rich_presence', 'broken');
@@ -243,5 +315,5 @@ class GetFriendListTest extends TestCase
         $this->assertStringNotContainsStringIgnoringCase('INSERT', $errorMessage);
         $this->assertStringNotContainsStringIgnoringCase('FROM', $errorMessage);
         $this->assertStringNotContainsStringIgnoringCase('WHERE', $errorMessage);
-    }
-}
+    });
+});

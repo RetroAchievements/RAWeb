@@ -39,6 +39,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                 'users.rich_presence_updated_at',
                 'users.last_activity_at',
                 'users.rich_presence_game_id',
+                'users.avatar_updated_at',
             ])
             ->get();
 
@@ -98,6 +99,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
             $entry = [
                 'Friend' => $friend->display_name,
                 'AvatarUrl' => media_asset('UserPic/' . $friend->username . '.png'),
+                'AvatarUpdatedAt' => $friend->avatar_updated_at?->unix() ?? 0,
                 'RAPoints' => $friend->points_hardcore,
                 'LastSeen' => empty($friend->rich_presence) ? 'Unknown' : strip_tags($friend->rich_presence),
                 'LastSeenTime' => ($friend->rich_presence_updated_at ?? $friend->last_activity_at)?->unix(),
