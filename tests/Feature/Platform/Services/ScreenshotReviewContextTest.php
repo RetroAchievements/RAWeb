@@ -11,6 +11,7 @@ use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotReviewContext;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -432,6 +433,10 @@ describe('Review Plan', function () {
 });
 
 describe('Current Primary Context Items', function () {
+    beforeEach(function () {
+        Storage::fake('s3');
+    });
+
     it('returns the zoom label and image rendering for current primaries', function () {
         // ARRANGE
         $system = System::factory()->create(['supports_upscaled_screenshots' => true]);
