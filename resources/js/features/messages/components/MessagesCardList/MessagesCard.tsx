@@ -13,13 +13,14 @@ interface MessagesCardProps {
 }
 
 export const MessagesCard: FC<MessagesCardProps> = ({ messageThread }) => {
-  const { auth } = usePageProps();
+  const { auth, senderUserDisplayName } =
+    usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
 
   const { t } = useTranslation();
 
   const otherParticipant =
     (messageThread.participants?.find(
-      (p) => p.displayName !== auth?.user.displayName,
+      (p) => p.displayName !== senderUserDisplayName,
     ) as App.Data.User) ?? messageThread.participants?.[0];
 
   return (

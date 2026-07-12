@@ -94,4 +94,27 @@ describe('Component: MessagesCard', () => {
     // ASSERT
     expect(screen.getByRole('img', { name: /first user/i })).toBeVisible();
   });
+
+  it('given the user is viewing a delegated inbox, uses the delegated inbox owner to find the other participant', () => {
+    // ARRANGE
+    const delegatedInboxOwner = createUser({ displayName: 'QATeam' });
+    const recipient = createUser({ displayName: 'Recipient User' });
+    const thread = createMessageThread({
+      participants: [delegatedInboxOwner, recipient],
+    });
+    const authUser = createAuthenticatedUser({
+      displayName: 'QualityAssurance',
+    });
+
+    render(<MessagesCard messageThread={thread} />, {
+      pageProps: {
+        auth: { user: authUser },
+        senderUserDisplayName: delegatedInboxOwner.displayName,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /recipient user/i })).toBeVisible();
+    expect(screen.queryByRole('img', { name: /qateam/i })).not.toBeInTheDocument();
+  });
 });
