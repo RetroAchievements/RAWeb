@@ -201,17 +201,31 @@
                             @foreach ($card['data'] as $item)
                                 <div class="w-[76px] min-w-[76px] text-xs leading-tight">
                                     @if ($item['url'])
-                                        <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="block rounded bg-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
-                                            <img src="{{ $item['url'] }}" alt="{{ $item['typeLabel'] }} primary" class="block h-11 w-[76px] rounded object-contain" />
-                                        </a>
+                                        @php
+                                            $itemImageRenderingStyle = $item['imageRendering'] ? 'image-rendering: ' . $item['imageRendering'] . ';' : '';
+                                        @endphp
+
+                                        <button
+                                            type="button"
+                                            @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
+                                            class="block w-full cursor-zoom-in rounded bg-gray-950 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                                            title="{{ $item['label'] }}"
+                                        >
+                                            <img src="{{ $item['url'] }}" alt="{{ $item['typeLabel'] }} primary" class="block h-11 w-[76px] rounded object-contain" style="{{ $itemImageRenderingStyle }}" />
+                                        </button>
                                     @else
                                         <div class="h-11 w-[76px] rounded bg-gray-950"></div>
                                     @endif
 
                                     @if ($item['url'])
-                                        <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="mt-1 block text-gray-700 underline-offset-2 hover:underline dark:text-gray-300">
+                                        <button
+                                            type="button"
+                                            @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
+                                            class="mt-1 block w-full cursor-zoom-in rounded text-left text-gray-700 transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-gray-300 dark:hover:bg-gray-800"
+                                            title="{{ $item['label'] }}"
+                                        >
                                             {{ $item['typeLabel'] }}<br>{{ $item['resolution'] }}
-                                        </a>
+                                        </button>
                                     @else
                                         <span class="mt-1 block text-gray-700 dark:text-gray-300">{{ $item['typeLabel'] }}<br>{{ $item['resolution'] }}</span>
                                     @endif
