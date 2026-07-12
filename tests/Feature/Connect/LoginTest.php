@@ -22,6 +22,7 @@ beforeEach(function () {
 describe('login', function () {
     test('with password', function () {
         $password = 'Pa$$w0rd';
+        $this->user->display_name = 'DisplayName'; // unique display name
         $this->user->password = Hash::make($password);
         $this->user->Permissions = Permissions::JuniorDeveloper;
         $this->user->points_hardcore = 12345;
@@ -105,6 +106,66 @@ describe('login', function () {
         $this->assertTrue(Hash::check($password, $this->user->password));
         $this->assertEquals('', $this->user->legacy_salted_password);
     });
+
+    test('using display name', function () {
+        $password = 'Pa$$w0rd';
+        $this->user->display_name = 'DisplayName';
+        $this->user->password = Hash::make($password);
+        $this->user->Permissions = Permissions::JuniorDeveloper;
+        $this->user->points_hardcore = 12345;
+        $this->user->points = 4321;
+        $this->user->save();
+
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $this->user->display_name, 'p' => $password])
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'User' => $this->user->display_name,
+                'AvatarUrl' => $this->user->avatar_url,
+                'AvatarUpdatedAt' => 0,
+                'Token' => $this->user->connect_token,
+                'Score' => 12345,
+                'SoftcoreScore' => 4321,
+                'Messages' => 0,
+                'Permissions' => Permissions::JuniorDeveloper,
+                'AccountType' => 'Junior Developer',
+            ]);
+
+        // connect expiration should have been updated
+        $this->user->refresh();
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
+    });
+
+    // SQLite doesn't match case insensitively
+    // test('case insensitive', function () {
+    //     $password = 'Pa$$w0rd';
+    //     $this->user->display_name = 'DisplayName';
+    //     $this->user->username = 'UserName123';
+    //     $this->user->password = Hash::make($password);
+    //     $this->user->Permissions = Permissions::JuniorDeveloper;
+    //     $this->user->points_hardcore = 12345;
+    //     $this->user->points = 4321;
+    //     $this->user->save();
+
+    //     $this->post('dorequest.php', ['r' => 'login2', 'u' => 'username123', 'p' => $password])
+    //         ->assertStatus(200)
+    //         ->assertExactJson([
+    //             'Success' => true,
+    //             'User' => $this->user->display_name,
+    //             'AvatarUrl' => $this->user->avatar_url,
+    //             'AvatarUpdatedAt' => 0,
+    //             'Token' => $this->user->connect_token,
+    //             'Score' => 12345,
+    //             'SoftcoreScore' => 4321,
+    //             'Messages' => 0,
+    //             'Permissions' => Permissions::JuniorDeveloper,
+    //             'AccountType' => 'Junior Developer',
+    //         ]);
+
+    //     // connect expiration should have been updated
+    //     $this->user->refresh();
+    //     $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
+    // });
 
     test('avatar updated', function () {
         $this->user->avatar_updated_at = Carbon::parse('2026-07-02 10:00:00 UTC');
