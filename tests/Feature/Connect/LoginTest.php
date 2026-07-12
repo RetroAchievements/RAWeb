@@ -45,7 +45,7 @@ describe('login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 
     test('with token', function () {
@@ -71,7 +71,7 @@ describe('login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 
     test('with legacy password', function () {
@@ -99,7 +99,7 @@ describe('login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
 
         // password should be initialized and legacy salted password should have been discarded
         $this->assertTrue(Hash::check($password, $this->user->password));
@@ -153,7 +153,7 @@ describe('legacy login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 
     test('with token', function () {
@@ -179,7 +179,7 @@ describe('legacy login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 
     test('with legacy password', function () {
@@ -207,7 +207,7 @@ describe('legacy login', function () {
 
         // connect expiration should have been updated
         $this->user->refresh();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
 
         // password should be initialized and legacy salted password should have been discarded
         $this->assertTrue(Hash::check($password, $this->user->password));
@@ -447,7 +447,7 @@ describe('validation', function () {
         // a new connect token will have been generated with a future expiration
         $this->user->refresh();
         $this->assertNotEquals($token, $this->user->connect_token);
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 });
 
@@ -663,7 +663,7 @@ describe('legacy validation', function () {
         // a new connect token will have been generated with a future expiration
         $this->user->refresh();
         $this->assertNotEquals($token, $this->user->connect_token);
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $this->user->connect_token_expires_at);
+        $this->assertEquals(Carbon::now()->clone()->addDays(365)->startOfSecond(), $this->user->connect_token_expires_at);
     });
 
 });
