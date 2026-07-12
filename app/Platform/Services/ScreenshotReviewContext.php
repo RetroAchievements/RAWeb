@@ -397,14 +397,31 @@ final class ScreenshotReviewContext
     }
 
     /**
-     * @return array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null}>}|null
+     * @return Collection<int, GameScreenshot>
      */
-    public function otherPendingForGameContextData(): ?array
+    public function allPendingForGame(): Collection
     {
-        $submissions = $this->otherPendingForGame();
-        if ($submissions->isEmpty()) {
+        return $this->remember('allPendingForGame', fn (): Collection => $this->gameScreenshots()
+            ->filter(fn (GameScreenshot $screenshot): bool => $screenshot->status === GameScreenshotStatus::Pending)
+            ->sortBy([
+                fn (GameScreenshot $a, GameScreenshot $b): int => $a->type->sortOrder() <=> $b->type->sortOrder(),
+                ['created_at', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->values()
+        );
+    }
+
+    /**
+     * @return array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null, isCurrent: bool}>}|null
+     */
+    public function allPendingForGameContextData(): ?array
+    {
+        if ($this->otherPendingForGame()->isEmpty()) {
             return null;
         }
+
+        $submissions = $this->allPendingForGame();
 
         return [
             'items' => $submissions
@@ -414,6 +431,7 @@ final class ScreenshotReviewContext
                     'resolution' => $this->formatResolution($submission) ?? '?',
                     'submitterLabel' => $submission->capturedBy?->display_name ?? 'Unknown user',
                     'url' => $submission->media?->getUrl(),
+                    'isCurrent' => $submission->id === $this->screenshot->id,
                 ])
                 ->values()
                 ->all(),
