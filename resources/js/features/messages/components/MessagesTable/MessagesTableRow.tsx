@@ -9,6 +9,7 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
+import { getOtherParticipant } from '@/features/messages/utils/getOtherParticipant';
 
 interface MessagesTableRowProps {
   messageThread: App.Community.Data.MessageThread;
@@ -20,11 +21,7 @@ export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) =
 
   const { t } = useTranslation();
 
-  // Find who we're chatting with in order to populate the "With" column.
-  const otherParticipant =
-    (messageThread.participants?.find(
-      (p) => p.displayName !== senderUserDisplayName,
-    ) as App.Data.User) ?? messageThread.participants?.[0];
+  const otherParticipant = getOtherParticipant(messageThread, senderUserDisplayName);
 
   return (
     <BaseTableRow className={cn(messageThread.isUnread ? 'font-bold' : null)}>
@@ -35,7 +32,7 @@ export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) =
       </BaseTableCell>
 
       <BaseTableCell>
-        <UserAvatar {...otherParticipant} size={24} />
+        {otherParticipant ? <UserAvatar {...otherParticipant} size={24} /> : null}
       </BaseTableCell>
 
       <BaseTableCell className="text-right">
