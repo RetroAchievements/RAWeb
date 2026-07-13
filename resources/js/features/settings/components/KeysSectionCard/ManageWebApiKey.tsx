@@ -13,6 +13,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useResetWebApiKeyMutation } from '@/features/settings/hooks/mutations/useResetWebApiKeyMutation';
+import { safeFormatCredential } from '@/features/settings/utils/safeFormatCredential';
 
 export const ManageWebApiKey: FC = () => {
   const { userSettings, ziggy } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -59,7 +60,7 @@ export const ManageWebApiKey: FC = () => {
                 onClick={handleCopyApiKeyClick}
               >
                 <LuCopy />
-                <span className="font-mono">{safeFormatApiKey(currentWebApiKey)}</span>
+                <span className="font-mono">{safeFormatCredential(currentWebApiKey)}</span>
               </BaseButton>
             </BaseTooltipTrigger>
 
@@ -107,17 +108,3 @@ export const ManageWebApiKey: FC = () => {
     </div>
   );
 };
-
-/**
- * If someone is sharing their screen, we don't want them
- * to accidentally leak their web API key.
- */
-function safeFormatApiKey(apiKey: string): string {
-  // For safety, but this should never happen.
-  if (apiKey.length <= 12) {
-    return apiKey;
-  }
-
-  // "AAAAAA...123456"
-  return `${apiKey.slice(0, 6)}...${apiKey.slice(-6)}`;
-}

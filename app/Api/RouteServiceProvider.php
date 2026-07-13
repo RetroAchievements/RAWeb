@@ -10,6 +10,7 @@ use App\Api\Internal\Controllers\AchievementController as InternalAchievementCon
 use App\Api\Middleware\AddContentLengthHeader;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
+use App\Api\Middleware\RequireOAuthReadScope;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
@@ -98,6 +99,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::middleware([
                         LogApiRequest::class . ':v2',
                         'auth:api-token-header,oauth',
+                        RequireOAuthReadScope::class,
                         AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
@@ -108,6 +110,7 @@ class RouteServiceProvider extends ServiceProvider
                         ->middleware(
                             LogApiRequest::class . ':v2',
                             'auth:api-token-header,oauth',
+                            RequireOAuthReadScope::class,
                             AddContentLengthHeader::class,
                             'throttle:' . $rateLimit
                         )

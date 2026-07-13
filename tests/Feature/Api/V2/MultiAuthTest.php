@@ -7,6 +7,7 @@ namespace Tests\Feature\Api\V2;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\AccessToken;
 use Laravel\Passport\Passport;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use Tests\TestCase;
@@ -48,13 +49,14 @@ class MultiAuthTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function testItAuthenticatesViaPassportBearerToken(): void
+    public function testItAuthenticatesViaPassportAccessTokenWithReadScope(): void
     {
         // Arrange
         $user = User::factory()->create();
         System::factory()->create();
 
-        Passport::actingAs($user, [], 'oauth');
+        Passport::actingAs($user, ['data:read'], 'oauth');
+        $this->assertInstanceOf(AccessToken::class, $user->token());
 
         // Act
         $response = $this->jsonApi('v2')
@@ -78,6 +80,24 @@ class MultiAuthTest extends TestCase
 
         // Assert
         $response->assertUnauthorized();
+    }
+
+    public function testItRejectsPassportTokenWithoutReadScope(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        System::factory()->create();
+
+        Passport::actingAs($user, [], 'oauth');
+        $this->assertInstanceOf(AccessToken::class, $user->token());
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('systems')
+            ->get('/api/v2/systems');
+
+        // Assert
+        $response->assertForbidden();
     }
 
     public function testItRejectsRequestWithNoAuthentication(): void
@@ -121,7 +141,7 @@ class MultiAuthTest extends TestCase
         $user = User::factory()->create();
         System::factory()->create();
 
-        Passport::actingAs($user, [], 'oauth');
+        Passport::actingAs($user, ['data:read'], 'oauth');
 
         // Act
         $response = $this->jsonApi('v2')
