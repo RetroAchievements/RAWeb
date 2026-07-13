@@ -418,7 +418,7 @@ class UsersTest extends JsonApiResourceTestCase
         // Assert
         $response->assertSuccessful();
         $this->assertNull($response->json('data.relationships.lastGame.data'));
-        $this->assertEmpty($response->json('included', []));
+        $this->assertEmpty($response->json('included'));
     }
 
     public function testItDoesNotIncludeLastGameDataByDefault(): void
