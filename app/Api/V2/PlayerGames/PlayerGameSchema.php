@@ -16,8 +16,8 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
-use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
+use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -91,7 +91,8 @@ class PlayerGameSchema extends Schema
     {
         return [
             WhereIdIn::make($this)->delimiter(','),
-            Where::make('gameId', 'game_id'),
+            WhereIn::make('gameId', 'game_id')->delimiter(','),
+            new PlayerGameAwardKindFilter(),
         ];
     }
 

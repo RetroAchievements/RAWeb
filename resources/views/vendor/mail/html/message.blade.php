@@ -37,7 +37,7 @@
 @if($categoryUrl && $categoryText)
 [{{ $categoryText }}]({{ $categoryUrl }})
 @endif
-• [Manage all email preferences]({{ route('settings.show') }})
+• [Manage all email preferences]({{ route('settings', ['tab' => 'notifications']) }})
 @endif
 </x-mail::footer>
 </x-slot:footer>

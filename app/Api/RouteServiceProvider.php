@@ -16,12 +16,14 @@ use App\Api\V2\Controllers\AchievementController;
 use App\Api\V2\Controllers\AchievementSetClaimController;
 use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\AchievementSetVersionController;
+use App\Api\V2\Controllers\EventAchievementController;
 use App\Api\V2\Controllers\EventController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\HubController;
 use App\Api\V2\Controllers\LeaderboardController;
 use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\TicketController;
+use App\Api\V2\Controllers\UserAwardController;
 use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
@@ -134,9 +136,16 @@ class RouteServiceProvider extends ServiceProvider
                             $server->resource('achievement-set-versions', AchievementSetVersionController::class)
                                 ->only('index');
 
+                            $server->resource('event-achievements', EventAchievementController::class)
+                                ->only('show')
+                                ->readOnly();
+
                             $server->resource('events', EventController::class)
                                 ->only('index', 'show')
-                                ->readOnly();
+                                ->readOnly()
+                                ->relationships(function ($relationships) {
+                                    $relationships->hasMany('eventAchievements')->readOnly();
+                                });
 
                             $server->resource('games', GameController::class)
                                 ->only('index', 'show')
@@ -170,6 +179,9 @@ class RouteServiceProvider extends ServiceProvider
                             $server->resource('tickets', TicketController::class)
                                 ->only('index', 'show')
                                 ->readOnly();
+
+                            $server->resource('user-awards', UserAwardController::class)
+                                ->only('index');
 
                             $server->resource('users', UserController::class)
                                 ->only('index', 'show')

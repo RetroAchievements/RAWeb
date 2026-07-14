@@ -441,7 +441,7 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertNull($response->json('data.relationships'));
     }
 
-    public function testItIncludesProfileLink(): void
+    public function testItIncludesWebUrlLink(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -458,8 +458,8 @@ class UsersTest extends JsonApiResourceTestCase
         $links = $response->json('data.links');
 
         $this->assertArrayHasKey('self', $links);
-        $this->assertArrayHasKey('profile', $links);
-        $this->assertStringContainsString('/user/LinkTestUser', $links['profile']);
+        $this->assertArrayHasKey('webUrl', $links);
+        $this->assertStringContainsString('/user/LinkTestUser', $links['webUrl']);
     }
 
     public function testItReturnsVisibleRole(): void

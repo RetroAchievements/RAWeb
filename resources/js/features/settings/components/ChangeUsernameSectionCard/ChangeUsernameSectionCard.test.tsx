@@ -79,6 +79,8 @@ describe('Component: ChangeUsernameSectionCard', () => {
     // ASSERT
     expect(screen.getAllByLabelText(/new username/i)[0]).toBeVisible();
     expect(screen.getByLabelText(/confirm new username/i)).toBeVisible();
+    expect(screen.getByPlaceholderText('Enter your new username')).toBeVisible();
+    expect(screen.getByPlaceholderText('Confirm your new username')).toBeVisible();
   });
 
   it('given the user attempts to submit with non-matching usernames, does not submit', async () => {

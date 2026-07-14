@@ -88,10 +88,10 @@ class UserResource extends JsonApiResource
     public function links($request): Links
     {
         $selfLink = $this->selfLink();
-        $profileLink = new Link('profile', route('user.show', $this->resource));
+        $webLink = new Link('webUrl', route('user.show', $this->resource));
 
         return $selfLink
-            ? new Links($selfLink, $profileLink)
-            : new Links($profileLink);
+            ? new Links($selfLink, $webLink)
+            : new Links($webLink);
     }
 }
