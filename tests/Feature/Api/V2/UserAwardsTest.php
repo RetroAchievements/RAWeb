@@ -198,7 +198,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -211,7 +211,7 @@ class UserAwardsTest extends TestCase
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
 
-    public function testHighestGameAwardsOnlyComparesVisibleAwards(): void
+    public function testHighestGameAwardTierOnlyComparesVisibleAwards(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -243,7 +243,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -252,7 +252,7 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('beaten-hardcore', $response->json('data.0.attributes.kind'));
     }
 
-    public function testHighestGameAwardsOnlyComparesAwardsInsideTheFilteredDateRange(): void
+    public function testHighestGameAwardTierOnlyComparesAwardsInsideTheFilteredDateRange(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -284,7 +284,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -776,7 +776,7 @@ class UserAwardsTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function testItReturnsErrorWhenFilteringByInvalidGameAwardsMode(): void
+    public function testItReturnsErrorWhenFilteringByInvalidGameAwardTierMode(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -786,7 +786,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=collapsed");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=collapsed");
 
         // Assert
         $response->assertStatus(400);
