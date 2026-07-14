@@ -218,8 +218,6 @@ Find the commented out `DEBUGBAR_ENABLED` setting and uncomment it and set it to
 
 Find the commented out `QUEUE_CONNECTION` settings and add a new one that sets `QUEUE_CONNECTION` to `"sync"`
 
-Go to the end of the file and add `RA_PASSWORD_SALT=SaltySaltySaltFace`
-
 ```
 $ sudo apt install npm
 $ sudo npm install -g pnpm
