@@ -54,9 +54,13 @@ class StoreOAuthClientRequest extends FormRequest
             return in_array($host, ['localhost', '127.0.0.1', '::1'], true);
         }
 
-        $isPublicClient = (
-            $this->input('type') === 'public' || $this->route('client') instanceof OAuthClient
-        ) && !$this->route('client')->confidential();
+        $client = $this->route('client');
+
+        // A registered client's stored type always wins over the request input,
+        // because the client type is immutable after registration.
+        $isPublicClient = $client instanceof OAuthClient
+            ? !$client->confidential()
+            : $this->input('type') === 'public';
 
         return
             $isPublicClient

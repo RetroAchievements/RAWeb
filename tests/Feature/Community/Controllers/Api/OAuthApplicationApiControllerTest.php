@@ -54,6 +54,64 @@ it('rejects unsafe redirect URIs', function () {
     $response->assertUnprocessable()->assertJsonValidationErrors(['redirectUris.0']);
 });
 
+it('registers a public application with a custom scheme redirect URI', function () {
+    // ARRANGE
+    /** @var User $user */
+    $user = User::factory()->create(['email_verified_at' => now()]);
+    $this->actingAs($user);
+
+    // ACT
+    $response = $this->postJson(route('api.settings.applications.store'), [
+        'name' => 'Native Emulator',
+        'redirectUris' => ['myapp://oauth/callback'],
+        'type' => 'public',
+    ]);
+
+    // ASSERT
+    $response->assertSuccessful();
+
+    $client = OAuthClient::query()->findOrFail($response->json('id'));
+    expect($client->confidential())->toBeFalse();
+});
+
+it('rejects a custom scheme redirect URI for a confidential application', function () {
+    // ARRANGE
+    /** @var User $user */
+    $user = User::factory()->create(['email_verified_at' => now()]);
+    $this->actingAs($user);
+
+    // ACT
+    $response = $this->postJson(route('api.settings.applications.store'), [
+        'name' => 'Server Integration',
+        'redirectUris' => ['myapp://oauth/callback'],
+        'type' => 'confidential',
+    ]);
+
+    // ASSERT
+    $response->assertUnprocessable()->assertJsonValidationErrors(['redirectUris.0']);
+});
+
+it('keeps confidential redirect validation when an update tries to pass a public type', function () {
+    // ARRANGE
+    /** @var User $user */
+    $user = User::factory()->create(['email_verified_at' => now()]);
+    $client = OAuthClient::factory()->create([
+        'owner_type' => $user->getMorphClass(),
+        'owner_id' => $user->id,
+    ]);
+    $this->actingAs($user);
+
+    // ACT
+    $response = $this->putJson(route('api.settings.applications.update', ['client' => $client->id]), [
+        'name' => 'Still Confidential',
+        'redirectUris' => ['myapp://oauth/callback'],
+        'type' => 'public',
+    ]);
+
+    // ASSERT
+    $response->assertUnprocessable()->assertJsonValidationErrors(['redirectUris.0']);
+});
+
 it('rejects registration with a validation error when the user is at their quota', function () {
     // ARRANGE
     config()->set('oauth.max_applications_per_user', 1);
