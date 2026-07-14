@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Events;
 
+use App\Api\V2\EventAchievements\EventAchievementActiveFilter;
 use App\Models\Event;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -11,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -63,9 +65,9 @@ class EventSchema extends Schema
 
             HasMany::make('awards')->type('event-awards')->readOnly(),
 
-            // TODO add relations and relationship endpoints
-            // - achievements
-            // - awards
+            HasManyThrough::make('eventAchievements', 'achievements')
+                ->type('event-achievements')
+                ->withFilters(new EventAchievementActiveFilter()),
         ];
     }
 
