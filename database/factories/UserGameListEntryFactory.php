@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -23,5 +24,20 @@ class UserGameListEntryFactory extends Factory
             'type' => 'achievement_set_request',
             'game_id' => Game::factory(),
         ];
+    }
+
+    public function play(): static
+    {
+        return $this->state(fn () => ['type' => UserGameListType::Play]);
+    }
+
+    public function setRequest(): static
+    {
+        return $this->state(fn () => ['type' => UserGameListType::AchievementSetRequest]);
+    }
+
+    public function develop(): static
+    {
+        return $this->state(fn () => ['type' => UserGameListType::Develop]);
     }
 }

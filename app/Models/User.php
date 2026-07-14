@@ -412,6 +412,20 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
             return null;
         }
 
+        // When the column is already loaded, only the cache freshness check is
+        // needed. The service's DB fallback re-reads the same column and would
+        // cost one query per user on list endpoints.
+        if (array_key_exists('last_activity_at', $this->attributes)) {
+            $cached = app(UserLastActivityService::class)->getCachedLastActivity($this->id);
+            if ($cached !== null) {
+                return $cached;
+            }
+
+            $raw = $this->attributes['last_activity_at'];
+
+            return $raw !== null ? Carbon::parse($raw) : null;
+        }
+
         return app(UserLastActivityService::class)->getLastActivity($this->id);
     }
 

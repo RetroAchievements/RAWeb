@@ -18,6 +18,7 @@ class EventData extends Data
         public int $id,
         public ?Carbon $activeFrom,
         public ?Carbon $activeThrough,
+        public ?Carbon $activeUntil,
         public Lazy|GameData $legacyGame,
         /** @var EventAchievementData[] */
         public Lazy|array $eventAchievements,
@@ -33,6 +34,7 @@ class EventData extends Data
             id: $event->id,
             activeFrom: $event->active_from,
             activeThrough: $event->active_through,
+            activeUntil: $event->active_until,
             legacyGame: Lazy::create(fn () => GameData::fromGame($event->legacyGame)),
 
             eventAchievements: Lazy::create(fn () => $event->achievements->map(
@@ -45,6 +47,7 @@ class EventData extends Data
                     'activeFrom',
                     'activeThrough',
                     'activeUntil',
+                    'event',
                 )
             )->all()),
 

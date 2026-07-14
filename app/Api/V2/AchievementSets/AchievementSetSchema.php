@@ -55,6 +55,11 @@ class AchievementSetSchema extends Schema
             Number::make('achievementsPublished', 'achievements_published')->readOnly(),
             Number::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
 
+            Number::make('timesCompleted', 'times_completed')->readOnly(),
+            Number::make('timesMastered', 'times_completed_hardcore')->readOnly(),
+            Number::make('medianTimeToCompleteSeconds', 'median_time_to_complete')->readOnly(),
+            Number::make('medianTimeToMasterSeconds', 'median_time_to_complete_hardcore')->readOnly(),
+
             Str::make('badgeUrl')->readOnly(),
 
             DateTime::make('achievementsFirstPublishedAt', 'achievements_first_published_at')->readOnly(),

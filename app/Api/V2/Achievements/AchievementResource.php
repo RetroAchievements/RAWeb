@@ -44,6 +44,11 @@ class AchievementResource extends BaseJsonApiResource
             'unlockPercentage' => $this->resource->unlock_percentage,
             'unlockHardcorePercentage' => $this->resource->unlock_hardcore_percentage,
 
+            'medianTimeToUnlockSeconds' => $this->resource->median_time_to_unlock,
+            'medianTimeToUnlockHardcoreSeconds' => $this->resource->median_time_to_unlock_hardcore,
+            'medianTimeToUnlockSamples' => $this->resource->median_time_to_unlock_samples,
+            'medianTimeToUnlockHardcoreSamples' => $this->resource->median_time_to_unlock_hardcore_samples,
+
             'createdAt' => $this->resource->created_at,
             'modifiedAt' => $this->resource->modified_at,
         ];
