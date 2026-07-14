@@ -11,6 +11,7 @@ use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class PlayerBadge extends BaseModel
 {
@@ -289,6 +290,15 @@ class PlayerBadge extends BaseModel
      */
     public function scopeAwardedTo(Builder $query, string $date): Builder
     {
+        // A bare date is meant to include the whole final day. We'll compare strictly
+        // below the next day's midnight. A literal <= against a bare date would
+        // silently exclude everything after midnight on that day.
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
+            $startOfNextDay = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
+
+            return $query->where('awarded_at', '<', $startOfNextDay);
+        }
+
         return $query->where('awarded_at', '<=', $date);
     }
 

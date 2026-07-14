@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\V2\PlayerGames;
 
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -140,7 +139,7 @@ class PlayerGameSchema extends Schema
     private function excludeHubsAndEvents(Builder|Relation $query): Builder|Relation
     {
         return $query->whereHas('game', function ($gameQuery) {
-            $gameQuery->whereNotIn('system_id', [System::Hubs, System::Events]);
+            $gameQuery->whereGameSystem();
         });
     }
 }

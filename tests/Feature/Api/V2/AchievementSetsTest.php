@@ -50,6 +50,10 @@ class AchievementSetsTest extends JsonApiResourceTestCase
             'points_weighted' => 1000,
             'achievements_published' => 50,
             'achievements_unpublished' => 5,
+            'times_completed' => 120,
+            'times_completed_hardcore' => 80,
+            'median_time_to_complete' => 16860,
+            'median_time_to_complete_hardcore' => 29552,
         ]);
 
         GameAchievementSet::factory()->create([
@@ -72,6 +76,10 @@ class AchievementSetsTest extends JsonApiResourceTestCase
         $this->assertEquals(1000, $attributes['pointsWeighted']);
         $this->assertEquals(50, $attributes['achievementsPublished']);
         $this->assertEquals(5, $attributes['achievementsUnpublished']);
+        $this->assertEquals(120, $attributes['timesCompleted']);
+        $this->assertEquals(80, $attributes['timesMastered']);
+        $this->assertEquals(16860, $attributes['medianTimeToCompleteSeconds']);
+        $this->assertEquals(29552, $attributes['medianTimeToMasterSeconds']);
         $this->assertArrayHasKey('title', $attributes);
         $this->assertArrayHasKey('badgeUrl', $attributes);
         $this->assertArrayHasKey('types', $attributes);

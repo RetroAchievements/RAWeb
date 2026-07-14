@@ -45,8 +45,8 @@ class GameResource extends BaseJsonApiResource
 
             'timesBeaten' => $this->resource->times_beaten,
             'timesBeatenHardcore' => $this->resource->times_beaten_hardcore,
-            'medianTimeToBeatMinutes' => $this->resource->median_time_to_beat,
-            'medianTimeToBeatHardcoreMinutes' => $this->resource->median_time_to_beat_hardcore,
+            'medianTimeToBeatSeconds' => $this->resource->median_time_to_beat,
+            'medianTimeToBeatHardcoreSeconds' => $this->resource->median_time_to_beat_hardcore,
         ];
     }
 
