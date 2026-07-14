@@ -72,6 +72,7 @@ class GameResource extends BaseJsonApiResource
     {
         $links = [
             $this->selfLink(),
+            new Link('webUrl', route('game.show', ['game' => $this->resource->id])),
         ];
 
         if ($this->resource->forum_topic_id) {

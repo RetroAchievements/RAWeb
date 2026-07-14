@@ -22,8 +22,7 @@ trait ActsAsDeveloper
 
     public function hasActiveClaimOnGameId(int $gameId): bool
     {
-        return $this->loadMissing('achievementSetClaims')
-            ->achievementSetClaims()
+        return $this->achievementSetClaims()
             ->where('game_id', $gameId)
             ->active()
             ->exists();

@@ -1109,19 +1109,6 @@ beatenHardcore: App.Platform.Data.PlayerBadge | null;
 completed: App.Platform.Data.PlayerBadge | null;
 mastered: App.Platform.Data.PlayerBadge | null;
 };
-export type PlayerResettableGameAchievement = {
-id: number;
-title: string;
-points: number;
-isHardcore: boolean;
-};
-export type PlayerResettableGame = {
-id: number;
-title: string;
-consoleName: string;
-numAwarded: number;
-numPossible: number;
-};
 export type RankedGameTopAchiever = {
 rank: number;
 user: App.Data.User;

@@ -1,5 +1,3 @@
-import { resetIntersectionMocking } from 'react-intersection-observer/test-utils';
-
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createUser } from '@/test/factories';
@@ -7,10 +5,6 @@ import { createUser } from '@/test/factories';
 import { AccountTabPanel } from './AccountTabPanel';
 
 describe('Component: AccountTabPanel', () => {
-  afterEach(() => {
-    resetIntersectionMocking();
-  });
-
   it('given the user is muted and is email verified, does not show the change username section', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<AccountTabPanel />, {
