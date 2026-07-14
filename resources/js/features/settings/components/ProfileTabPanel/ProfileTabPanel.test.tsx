@@ -27,7 +27,6 @@ describe('Component: ProfileTabPanel', () => {
     expect(headings.map((heading) => heading.textContent)).toEqual([
       'Profile',
       'Avatar',
-      'Site Awards',
       'Preferences',
       'Locale',
     ]);
@@ -54,7 +53,6 @@ describe('Component: ProfileTabPanel', () => {
     // ASSERT
     expect(avatarHeading).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Profile' })).toBeVisible();
-    expect(screen.getByRole('heading', { name: 'Site Awards' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Preferences' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Locale' })).toBeVisible();
   });

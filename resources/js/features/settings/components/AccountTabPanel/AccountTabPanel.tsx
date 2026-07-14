@@ -7,7 +7,6 @@ import { ChangePasswordSectionCard } from '../ChangePasswordSectionCard';
 import { ChangeUsernameSectionCard } from '../ChangeUsernameSectionCard';
 import { DeleteAccountSectionCard } from '../DeleteAccountSectionCard';
 import { ResetEntireAccountSectionCard } from '../ResetEntireAccountSectionCard';
-import { ResetGameProgressSectionCard } from '../ResetGameProgressSectionCard';
 
 export const AccountTabPanel: FC = () => {
   const { auth, can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -20,7 +19,6 @@ export const AccountTabPanel: FC = () => {
       <ChangePasswordSectionCard />
 
       <div className="flex flex-col gap-4 border-t border-neutral-700 pt-6 light:border-neutral-300">
-        <ResetGameProgressSectionCard />
         {can.resetEntireAccount ? <ResetEntireAccountSectionCard /> : null}
         <DeleteAccountSectionCard />
       </div>

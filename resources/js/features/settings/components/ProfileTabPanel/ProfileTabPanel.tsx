@@ -6,7 +6,6 @@ import { AvatarSection } from '../AvatarSection';
 import { LocaleSectionCard } from '../LocaleSectionCard';
 import { PreferencesSectionCard } from '../PreferencesSectionCard';
 import { ProfileSectionCard } from '../ProfileSectionCard';
-import { SiteAwardsSection } from '../SiteAwardsSection';
 
 export const ProfileTabPanel: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -18,8 +17,6 @@ export const ProfileTabPanel: FC = () => {
       <ProfileSectionCard />
 
       {!auth?.user.isMuted ? <AvatarSection /> : null}
-
-      <SiteAwardsSection />
 
       <PreferencesSectionCard currentPreferencesBitfield={preferencesBitfield} />
 
