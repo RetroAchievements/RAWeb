@@ -6,6 +6,7 @@ namespace App\Api\V2\UserAwards;
 
 use App\Models\PlayerBadge;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -37,11 +38,20 @@ class UserAwardSchema extends Schema
 
     /**
      * Default sort order when client doesn't provide any.
-     * Mirrors the existing profile award ordering.
      *
-     * @var array<int, string>
+     * The top-level index is a site-wide recency feed over millions of rows,
+     * so it defaults to -awardedAt, which the awarded_at index can satisfy.
+     * The /users/{user}/awards relationship endpoint intentionally mirrors
+     * the profile award ordering instead.
      */
-    protected $defaultSort = ['displayOrder', 'awardedAt'];
+    public function defaultSort(): mixed
+    {
+        if ($this->isServingIndexRoute()) {
+            return '-awardedAt';
+        }
+
+        return ['displayOrder', 'awardedAt'];
+    }
 
     /**
      * Relationships that should always be eager loaded.
@@ -53,6 +63,7 @@ class UserAwardSchema extends Schema
         'gameIfApplicable',
         'gameIfApplicable.system',
         'siteAwardIfApplicable',
+        'user',
     ];
 
     /**
@@ -77,9 +88,12 @@ class UserAwardSchema extends Schema
             Str::make('badgeUrl', 'award_key')->readOnly(),
             Number::make('displayOrder', 'order_column')->sortable()->readOnly(),
             ArrayHash::make('context', 'award_key')->readOnly(),
+            Str::make('userDisplayName')->readOnly(),
+            Str::make('userId')->readOnly(),
 
             BelongsTo::make('event', 'eventIfApplicable')->type('events')->readOnly(),
             BelongsTo::make('game', 'gameIfApplicable')->type('games')->readOnly(),
+            BelongsTo::make('user')->type('users')->readOnly(),
         ];
     }
 
@@ -104,8 +118,35 @@ class UserAwardSchema extends Schema
      */
     public function pagination(): ?Paginator
     {
+        if ($this->isServingIndexRoute()) {
+            return UserAwardIndexPagination::make()
+                ->withDefaultPerPage(50)
+                ->withSimplePagination();
+        }
+
         return PagePagination::make()
             ->withDefaultPerPage(50);
+    }
+
+    /**
+     * Banned users' awards are hidden site-wide.
+     *
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function indexQuery(?Request $request, Builder $query): Builder
+    {
+        return $query->whereHas('user', fn (Builder $q) => $q->whereNull('banned_at'));
+    }
+
+    /**
+     * The schema serves both the top-level index and the users/{user}/awards
+     * relationship endpoint, and the two intentionally differ in default sort
+     * and pagination strategy.
+     */
+    private function isServingIndexRoute(): bool
+    {
+        return request()->routeIs('v2.user-awards.index');
     }
 
     /**
