@@ -226,7 +226,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -239,7 +239,7 @@ class UserAwardsTest extends TestCase
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
 
-    public function testHighestGameAwardsOnlyComparesVisibleAwards(): void
+    public function testHighestGameAwardTierOnlyComparesVisibleAwards(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -271,7 +271,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -280,7 +280,7 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('beaten-hardcore', $response->json('data.0.attributes.kind'));
     }
 
-    public function testHighestGameAwardsOnlyComparesAwardsInsideTheFilteredDateRange(): void
+    public function testHighestGameAwardTierOnlyComparesAwardsInsideTheFilteredDateRange(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -312,7 +312,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -804,7 +804,7 @@ class UserAwardsTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function testItReturnsErrorWhenFilteringByInvalidGameAwardsMode(): void
+    public function testItReturnsErrorWhenFilteringByInvalidGameAwardTierMode(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -814,7 +814,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=collapsed");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=collapsed");
 
         // Assert
         $response->assertStatus(400);
@@ -911,6 +911,8 @@ class UserAwardsTest extends TestCase
         $gameA = Game::factory()->create(['system_id' => $system->id]);
         $gameB = Game::factory()->create(['system_id' => $system->id]);
         $gameC = Game::factory()->create(['system_id' => $system->id]);
+        $gameD = Game::factory()->create(['system_id' => $system->id]);
+        $gameE = Game::factory()->create(['system_id' => $system->id]);
 
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
@@ -928,12 +930,28 @@ class UserAwardsTest extends TestCase
             'order_column' => 1,
             'awarded_at' => '2024-06-15 12:00:00',
         ]);
+        $lateFinalDayAward = PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameD->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 2,
+            'awarded_at' => '2024-09-01 23:59:59', // late in the final day, a bare-date awardedTo bound must still return this
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameE->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 3,
+            'awarded_at' => '2024-09-02 00:00:00', // midnight the day after the awardedTo bound, so it's always excluded
+        ]);
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $gameC->id,
             'award_tier' => UnlockMode::Hardcore,
-            'order_column' => 2,
+            'order_column' => 4,
             'awarded_at' => '2024-12-15 12:00:00',
         ]);
 
@@ -945,8 +963,11 @@ class UserAwardsTest extends TestCase
 
         // Assert
         $response->assertSuccessful();
-        $this->assertCount(1, $response->json('data'));
-        $this->assertEquals((string) $inRangeAward->id, $response->json('data.0.id'));
+        $data = $response->json('data');
+        $this->assertCount(2, $data);
+        $ids = array_column($data, 'id');
+        $this->assertContains((string) $inRangeAward->id, $ids);
+        $this->assertContains((string) $lateFinalDayAward->id, $ids); // a bare-date awardedTo bound is treated as end-of-day
     }
 
     public function testItCorrectlyAppliesVisibility(): void

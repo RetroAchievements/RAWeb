@@ -98,12 +98,6 @@ export const AvatarSection: FC = () => {
             </form>
           </BaseForm>
 
-          <p>
-            {t(
-              'After uploading, press Ctrl + F5. This refreshes your browser cache making the new image visible.',
-            )}
-          </p>
-
           <BaseButton
             className="gap-2"
             size="sm"

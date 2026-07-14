@@ -676,6 +676,7 @@ export type Event = {
 id: number;
 activeFrom: string | null;
 activeThrough: string | null;
+activeUntil: string | null;
 legacyGame?: App.Platform.Data.Game;
 eventAchievements?: Array<App.Platform.Data.EventAchievement>;
 eventAwards?: Array<App.Platform.Data.EventAward>;

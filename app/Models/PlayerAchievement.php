@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PlayerAchievement extends BasePivot
@@ -145,6 +146,15 @@ class PlayerAchievement extends BasePivot
      */
     public function scopeUnlockedTo(Builder $query, string $date): Builder
     {
+        // A bare date is meant to include the whole final day, so we'll compare strictly
+        // below the next day's midnight. A literal <= against a bare date would
+        // silently exclude everything after midnight on that day.
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
+            $startOfNextDay = Carbon::createFromFormat('Y-m-d', $date)->addDay()->startOfDay();
+
+            return $query->where('unlocked_at', '<', $startOfNextDay);
+        }
+
         return $query->where('unlocked_at', '<=', $date);
     }
 

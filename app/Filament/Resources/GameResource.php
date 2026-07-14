@@ -454,7 +454,7 @@ class GameResource extends Resource
                             return $query;
                         }
 
-                        $query = $query->whereNotIn('system_id', System::getNonGameSystems());
+                        $query = $query->whereGameSystem();
 
                         switch ($data['value']) {
                             case 'none':
@@ -553,13 +553,13 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query
                             ->whereNotNull('trigger_definition')
-                            ->whereNotIn('system_id', System::getNonGameSystems())
+                            ->whereGameSystem()
                             ->where(function (Builder $query) {
                                 $query->where('trigger_definition', 'LIKE', '%@%')
                                     ->orWhere('trigger_definition', 'LIKE', '%?%');
                             }),
                         false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('system_id', System::getNonGameSystems())
+                            ->whereGameSystem()
                             ->where(function (Builder $query) {
                                 $query->whereNull('trigger_definition')
                                     ->orWhere(function (Builder $query) {

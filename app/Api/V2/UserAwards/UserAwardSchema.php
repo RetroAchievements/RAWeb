@@ -108,7 +108,7 @@ class UserAwardSchema extends Schema
             Scope::make('awardedTo'),
             Scope::make('eventId', 'forEventId'),
             Scope::make('gameId', 'forGameId'),
-            new UserAwardGameAwardsFilter(),
+            new UserAwardGameAwardTierFilter(),
             new UserAwardKindFilter(),
         ];
     }

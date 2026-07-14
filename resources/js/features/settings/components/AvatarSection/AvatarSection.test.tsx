@@ -58,6 +58,34 @@ describe('Component: AvatarSection', () => {
     });
   });
 
+  it('given the upload response includes an avatar URL, updates navbar avatars to that URL', async () => {
+    // ARRANGE
+    const avatarUrl = 'https://media.example.test/UserPic/Scott.png?v=1782986400';
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { success: true, avatarUrl } });
+
+    const oldSrc = faker.internet.url();
+    const file = new File(['file content'], 'myfile.png', { type: 'image/png' });
+
+    render(
+      <div>
+        <img data-testid="old-avatar" className="userpic" src={oldSrc} alt="img" />
+        <AvatarSection />
+      </div>,
+      { pageProps: { auth: { user: createAuthenticatedUser() }, can: { updateAvatar: true } } },
+    );
+
+    // ACT
+    const fileInputEl = screen.getByLabelText(/new image/i);
+
+    await userEvent.upload(fileInputEl, file);
+    await userEvent.click(screen.getByRole('button', { name: /upload/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByTestId('old-avatar')).toHaveAttribute('src', avatarUrl);
+    });
+  });
+
   it('given an error occurs during file reading, pops an error toast', async () => {
     // ARRANGE
     const file = new File(['file content'], 'myfile.png', { type: 'image/png' });

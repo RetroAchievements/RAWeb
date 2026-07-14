@@ -8,6 +8,7 @@ use App\Api\V2\BaseJsonApiResource;
 use App\Models\Achievement;
 use App\Models\AchievementSetAchievement;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Link;
 use LaravelJsonApi\Core\Document\Links;
 
 /**
@@ -43,6 +44,11 @@ class AchievementResource extends BaseJsonApiResource
             'unlockPercentage' => $this->resource->unlock_percentage,
             'unlockHardcorePercentage' => $this->resource->unlock_hardcore_percentage,
 
+            'medianTimeToUnlockSeconds' => $this->resource->median_time_to_unlock,
+            'medianTimeToUnlockHardcoreSeconds' => $this->resource->median_time_to_unlock_hardcore,
+            'medianTimeToUnlockSamples' => $this->resource->median_time_to_unlock_samples,
+            'medianTimeToUnlockHardcoreSamples' => $this->resource->median_time_to_unlock_hardcore_samples,
+
             'createdAt' => $this->resource->created_at,
             'modifiedAt' => $this->resource->modified_at,
         ];
@@ -72,6 +78,7 @@ class AchievementResource extends BaseJsonApiResource
     {
         return new Links(
             $this->selfLink(),
+            new Link('webUrl', route('achievement.show', ['achievement' => $this->resource->id])),
         );
     }
 

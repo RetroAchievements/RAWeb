@@ -153,6 +153,24 @@ class LeaderboardInfoTest extends TestCase
             ]);
     }
 
+    public function testLeaderboardEntriesKeepAvatarUrlsCanonicalWhenAvatarVersionExists(): void
+    {
+        $game = $this->seedGame();
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'state' => LeaderboardState::Active,
+        ]);
+        /** @var User $player */
+        $player = User::factory()->create([
+            'avatar_updated_at' => Carbon::parse('2026-07-02 10:00:00 UTC'),
+        ]);
+        $this->addLeaderboardEntry($player, $leaderboard, 500);
+
+        $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
+            ->assertStatus(200)
+            ->assertJsonPath('LeaderboardData.Entries.0.AvatarUrl', media_asset("UserPic/{$player->username}.png"));
+    }
+
     public function testDisabledLeaderboardInfo(): void
     {
         $now = Carbon::now();

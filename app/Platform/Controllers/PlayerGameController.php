@@ -154,7 +154,7 @@ class PlayerGameController extends Controller
             ->games()
             ->with('system')
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->whereGameSystem()
             ->orderBy('title')
             ->select(['games.id', 'title', 'system_id', 'achievements_published', 'player_games.achievements_unlocked'])
             ->get()

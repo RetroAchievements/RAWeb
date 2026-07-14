@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\V2\PlayerGames;
 
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -17,8 +16,8 @@ use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
-use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
+use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -92,7 +91,8 @@ class PlayerGameSchema extends Schema
     {
         return [
             WhereIdIn::make($this)->delimiter(','),
-            Where::make('gameId', 'game_id'),
+            WhereIn::make('gameId', 'game_id')->delimiter(','),
+            new PlayerGameAwardKindFilter(),
         ];
     }
 
@@ -139,7 +139,7 @@ class PlayerGameSchema extends Schema
     private function excludeHubsAndEvents(Builder|Relation $query): Builder|Relation
     {
         return $query->whereHas('game', function ($gameQuery) {
-            $gameQuery->whereNotIn('system_id', [System::Hubs, System::Events]);
+            $gameQuery->whereGameSystem();
         });
     }
 }
