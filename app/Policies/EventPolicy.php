@@ -39,6 +39,13 @@ class EventPolicy
         return true;
     }
 
+    public function viewEventAchievements(?User $user, Event $event): bool
+    {
+        // the relationship route gates on the parent event, so future events'
+        // achievements stay hidden from the public just like the event itself
+        return $this->view($user, $event);
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([

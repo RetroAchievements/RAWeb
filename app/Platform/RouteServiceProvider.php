@@ -179,9 +179,6 @@ class RouteServiceProvider extends ServiceProvider
                         ->name('api.game-screenshot.destroy');
                 });
 
-                Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
-                Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
-
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');

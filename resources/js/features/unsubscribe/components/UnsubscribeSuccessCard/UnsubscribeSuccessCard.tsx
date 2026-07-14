@@ -46,7 +46,10 @@ export const UnsubscribeSuccessCard: FC<UnsubscribeSuccessCardProps> = ({
             </div>
           ) : null}
 
-          <InertiaLink href={route('settings.show')} prefetch="desktop-hover-only">
+          <InertiaLink
+            href={route('settings', { _query: { tab: 'notifications' } })}
+            prefetch="desktop-hover-only"
+          >
             {t('Manage All Email Preferences')}
           </InertiaLink>
         </div>

@@ -54,7 +54,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder={t('enter your new email address here...')}
+                        placeholder={t('Enter your new email address')}
                         required
                         {...field}
                       />
@@ -79,7 +79,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder={t('confirm your new email address here...')}
+                        placeholder={t('Confirm your new email address')}
                         required
                         {...field}
                       />

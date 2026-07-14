@@ -94,6 +94,12 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             return $this->gameNotFound();
         }
 
+        // if the game hash specifies a system id, use it instead of whatever is in the game record.
+        // this primarily allows for "event game" records where the game record is associated to System::Events.
+        if ($gameHash?->system_id) {
+            $response['ConsoleId'] = $gameHash->system_id;
+        }
+
         if ($this->clientSupportLevel !== ClientSupportLevel::Full && $game->achievements_published > 0) {
             if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
                 $this->replaceWithBlockedCoreWarning($response);

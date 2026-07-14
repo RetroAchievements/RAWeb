@@ -80,6 +80,26 @@ class LeaderboardEntry extends BaseModel
      * @param Builder<LeaderboardEntry> $query
      * @return Builder<LeaderboardEntry>
      */
+    public function scopeForGameIds(Builder $query, string $gameIds): Builder
+    {
+        $ids = collect(explode(',', $gameIds))
+            ->map(fn (string $id) => (int) trim($id))
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($ids === []) {
+            return $query->whereRaw('1 = 0'); // no valid IDs, return no results
+        }
+
+        return $query->whereHas('leaderboard', fn (Builder $q) => $q->whereIn('game_id', $ids));
+    }
+
+    /**
+     * @param Builder<LeaderboardEntry> $query
+     * @return Builder<LeaderboardEntry>
+     */
     public function scopeForUserIdentifier(Builder $query, string $identifier): Builder
     {
         $user = app(FindUserByIdentifierAction::class)->execute($identifier);

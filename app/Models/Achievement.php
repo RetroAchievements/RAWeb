@@ -763,6 +763,24 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
+     * Uses a game_id subquery instead of whereHas so large index queries stay performant.
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeWhereFromRealGame(Builder $query): Builder
+    {
+        return $query->whereNotIn('game_id', Game::query()
+            ->withTrashed()
+            ->where(function (Builder $gameQuery) {
+                $gameQuery
+                    ->whereIn('system_id', System::getNonGameSystems())
+                    ->orWhereNotNull('deleted_at');
+            })
+            ->select('id'));
+    }
+
+    /**
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */

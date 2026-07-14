@@ -6,7 +6,6 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Community\Enums\AwardType;
 use App\Models\Game;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
@@ -28,7 +27,7 @@ class RevisedGameStrategy implements GameSuggestionStrategy
          * - The user has a prior mastery award for.
          */
         return Game::query()
-            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->whereGameSystem()
             ->whereHas('playerGames', function (Builder $query) {
                 $query->whereUserId($this->user->id)->whereNotAllAchievementsUnlocked();
             })

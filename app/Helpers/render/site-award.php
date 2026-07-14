@@ -356,8 +356,9 @@ function RenderAward(
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
     } elseif ($awardTypeEnum === AwardType::MediaContribution) {
-        $displayTier = (int) ($award['display_award_tier'] ?? $awardData);
-        $description = getMediaContributionDescription($ownerUsername, $displayTier);
+        $displayTier = (int) ($award['display_award_tier'] ?? $awardDataExtra);
+        $actualTier = (int) $awardDataExtra;
+        $description = getMediaContributionDescription($ownerUsername, $actualTier);
         echo avatar("mediaContributionAward", $displayTier,
             tooltip: "<div class='p-2 w-fit max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
             iconUrl: mediaContributionBadgeUrl($displayTier),

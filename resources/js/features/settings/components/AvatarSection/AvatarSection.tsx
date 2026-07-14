@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { baseCardTitleClassNames } from '@/common/components/+vendor/BaseCard';
 import {
   BaseForm,
   BaseFormControl,
@@ -19,6 +18,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useResetAvatarMutation } from '../../hooks/mutations/useResetAvatarMutation';
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
+import { SectionStandardCard } from '../SectionStandardCard';
 import { useAvatarSectionForm } from './useAvatarSectionForm';
 
 export const AvatarSection: FC = () => {
@@ -55,72 +55,70 @@ export const AvatarSection: FC = () => {
   const imageData = useWatch({ name: 'imageData', control: form.control });
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className={baseCardTitleClassNames}>{t('Avatar')}</h3>
+    <SectionStandardCard t_headingLabel={t('Avatar')}>
+      <div className="flex flex-col gap-4">
+        {can.updateAvatar ? (
+          <>
+            <p>{t('PNG, JPEG, and GIF images are supported.')}</p>
 
-      {can.updateAvatar ? (
-        <>
-          <p>{t('Only png, jpeg, and gif files are supported.')}</p>
+            <BaseForm {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
+                <div className="@container">
+                  <BaseFormField
+                    control={form.control}
+                    name="imageData"
+                    render={({ field }) => (
+                      <BaseFormItem className="flex flex-col gap-2 @xl:flex-row @xl:items-center">
+                        <BaseFormLabel className="text-menu-link @xl:w-2/5">
+                          {t('New Image')}
+                        </BaseFormLabel>
 
-          <BaseForm {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
-              <div>
-                <BaseFormField
-                  control={form.control}
-                  name="imageData"
-                  render={({ field }) => (
-                    <BaseFormItem className="flex flex-col gap-2">
-                      <BaseFormLabel className="text-menu-link">{t('New Image')}</BaseFormLabel>
+                        <div className="flex flex-grow flex-col gap-1">
+                          <BaseFormControl>
+                            <BaseInput
+                              {...field}
+                              type="file"
+                              accept=".png,.jpeg,.jpg,.gif"
+                              value={(field.value as File & { fileName: string })?.fileName}
+                              onChange={(event) => {
+                                field.onChange(event.target.files![0]);
+                              }}
+                            />
+                          </BaseFormControl>
 
-                      <BaseFormControl>
-                        <BaseInput
-                          {...field}
-                          type="file"
-                          accept=".png,.jpeg,.jpg,.gif"
-                          value={(field.value as File & { fileName: string })?.fileName}
-                          onChange={(event) => {
-                            field.onChange(event.target.files![0]);
-                          }}
-                        />
-                      </BaseFormControl>
+                          <BaseFormMessage />
+                        </div>
+                      </BaseFormItem>
+                    )}
+                  />
+                </div>
 
-                      <BaseFormMessage />
-                    </BaseFormItem>
-                  )}
-                />
-              </div>
+                <div className="flex w-full justify-end">
+                  <BaseButton type="submit" disabled={!imageData || formMutation.isPending}>
+                    {t('Upload')}
+                  </BaseButton>
+                </div>
+              </form>
+            </BaseForm>
 
-              <div className="flex w-full justify-end">
-                <BaseButton type="submit" disabled={!imageData || formMutation.isPending}>
-                  {t('Upload')}
-                </BaseButton>
-              </div>
-            </form>
-          </BaseForm>
-
+            <BaseButton
+              className="gap-2 self-start"
+              size="sm"
+              variant="destructive"
+              onClick={handleResetAvatarClick}
+            >
+              <LuCircleAlert className="h-4 w-4" />
+              {t('Reset Avatar to Default')}
+            </BaseButton>
+          </>
+        ) : (
           <p>
             {t(
-              'After uploading, press Ctrl + F5. This refreshes your browser cache making the new image visible.',
+              'To upload an avatar, earn 250 points or wait until your account is at least 14 days old.',
             )}
           </p>
-
-          <BaseButton
-            className="gap-2"
-            size="sm"
-            variant="destructive"
-            onClick={handleResetAvatarClick}
-          >
-            <LuCircleAlert className="h-4 w-4" />
-            {t('Reset Avatar to Default')}
-          </BaseButton>
-        </>
-      ) : (
-        <p>
-          {t(
-            'To upload an avatar, earn 250 points or wait until your account is at least 14 days old.',
-          )}
-        </p>
-      )}
-    </div>
+        )}
+      </div>
+    </SectionStandardCard>
   );
 };
