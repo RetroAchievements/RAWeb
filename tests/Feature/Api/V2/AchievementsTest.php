@@ -413,6 +413,10 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertArrayHasKey('createdAt', $attributes);
         $this->assertArrayHasKey('modifiedAt', $attributes);
         $this->assertArrayHasKey('orderColumn', $attributes);
+
+        $links = $response->json('data.links');
+        $this->assertArrayHasKey('self', $links);
+        $this->assertStringEndsWith("/achievement/{$achievement->id}", $links['webUrl']);
     }
 
     public function testItCanIncludeAchievementSetRelationship(): void

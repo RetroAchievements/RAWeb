@@ -355,6 +355,10 @@ class LeaderboardsTest extends JsonApiResourceTestCase
         $this->assertEquals(5, $attributes['orderColumn']);
         $this->assertArrayHasKey('createdAt', $attributes);
         $this->assertArrayHasKey('updatedAt', $attributes);
+
+        $links = $response->json('data.links');
+        $this->assertArrayHasKey('self', $links);
+        $this->assertStringEndsWith("/leaderboard/{$leaderboard->id}", $links['webUrl']);
     }
 
     public function testItCanIncludeGameRelationship(): void

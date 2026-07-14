@@ -2,7 +2,7 @@
     $panels = [$currentPanel, $candidatePanel];
     $contextCards = array_filter([
         ['type' => 'primaries', 'data' => $currentPrimaries],
-        $otherPendingForGame ? ['type' => 'otherPendingForGame', 'data' => $otherPendingForGame] : null,
+        $allPendingForGame ? ['type' => 'allPendingForGame', 'data' => $allPendingForGame] : null,
         $approvedIngame ? ['type' => 'ingame', 'data' => $approvedIngame] : null,
     ]);
     $galleryZoomItems = [];
@@ -317,31 +317,47 @@
                         </div>
                     @endif
                 </section>
-            @elseif ($card['type'] === 'otherPendingForGame')
-                @php $otherPendingCount = count($card['data']['items']); @endphp
+            @elseif ($card['type'] === 'allPendingForGame')
+                @php $allPendingCount = count($card['data']['items']); @endphp
                 <section class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700/70 dark:bg-gray-900/60">
                     <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        Other pending for this game{{ $otherPendingCount > 3 ? ' (' . $otherPendingCount . ')' : '' }}
+                        All pending for this game{{ $allPendingCount > 3 ? ' (' . $allPendingCount . ')' : '' }}
                     </div>
                     <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
                         @foreach ($card['data']['items'] as $item)
-                            <button
-                                type="button"
-                                wire:click="replaceMountedScreenshotReview('{{ $item['recordKey'] }}', false)"
-                                wire:loading.attr="disabled"
-                                class="flex w-full min-w-0 shrink-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
-                            >
-                                @if ($item['url'])
-                                    <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" />
-                                @else
-                                    <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
-                                @endif
+                            @if ($item['isCurrent'])
+                                <div
+                                    aria-current="true"
+                                    class="flex w-full min-w-0 shrink-0 items-center gap-2 rounded-md bg-gray-100 p-1 text-left dark:bg-gray-800"
+                                >
+                            @else
+                                <button
+                                    type="button"
+                                    wire:click="replaceMountedScreenshotReview('{{ $item['recordKey'] }}', false)"
+                                    wire:loading.attr="disabled"
+                                    class="flex w-full min-w-0 shrink-0 items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-gray-800"
+                                >
+                            @endif
 
-                                <span class="min-w-0 text-xs leading-tight">
-                                    <span class="block font-semibold text-gray-950 dark:text-white">{{ $item['typeLabel'] }} · {{ $item['resolution'] }}</span>
-                                    <span class="block truncate text-gray-500 dark:text-gray-400">by {{ $item['submitterLabel'] }}</span>
-                                </span>
-                            </button>
+                            @if ($item['url'])
+                                <img src="{{ $item['url'] }}" alt="" class="block h-[34px] w-14 shrink-0 rounded bg-gray-950 object-contain" />
+                            @else
+                                <span class="block h-[34px] w-14 shrink-0 rounded bg-gray-950"></span>
+                            @endif
+
+                            <span class="min-w-0 text-xs leading-tight">
+                                <span class="block font-semibold text-gray-950 dark:text-white">{{ $item['typeLabel'] }} · {{ $item['resolution'] }}</span>
+                                <span class="block truncate text-gray-500 dark:text-gray-400">by {{ $item['submitterLabel'] }}</span>
+                            </span>
+                            @if ($item['isCurrent'])
+                                <span class="ml-auto shrink-0 text-[10px] font-medium text-gray-500 dark:text-gray-400">Viewing</span>
+                            @endif
+
+                            @if ($item['isCurrent'])
+                                </div>
+                            @else
+                                </button>
+                            @endif
                         @endforeach
                     </div>
                 </section>

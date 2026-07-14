@@ -146,6 +146,7 @@ class LoginAction extends BaseApiAction
             'Success' => true,
             'User' => $user->display_name,
             'AvatarUrl' => UserAvatarUrl::canonical($user->username),
+            'AvatarUpdatedAt' => $user->avatar_updated_at?->unix() ?? 0,
             'Token' => $user->connect_token,
             'Score' => $user->points_hardcore,
             'SoftcoreScore' => $user->points,
