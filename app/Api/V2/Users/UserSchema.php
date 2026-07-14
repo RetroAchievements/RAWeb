@@ -8,7 +8,7 @@ use App\Api\V2\Tickets\TicketableTypeFilter;
 use App\Api\V2\Tickets\TicketStateFilter;
 use App\Api\V2\Tickets\TicketTypeFilter;
 use App\Api\V2\Tickets\UserUlidFilter;
-use App\Api\V2\UserAwards\UserAwardGameAwardsFilter;
+use App\Api\V2\UserAwards\UserAwardGameAwardTierFilter;
 use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -133,7 +133,7 @@ class UserSchema extends Schema
                     Scope::make('awardedTo'),
                     Scope::make('eventId', 'forEventId'),
                     Scope::make('gameId', 'forGameId'),
-                    new UserAwardGameAwardsFilter(),
+                    new UserAwardGameAwardTierFilter(),
                     new UserAwardKindFilter(),
                 )
                 ->readOnly(),
