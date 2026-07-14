@@ -5,6 +5,24 @@
         $allPendingForGame ? ['type' => 'allPendingForGame', 'data' => $allPendingForGame] : null,
         $approvedIngame ? ['type' => 'ingame', 'data' => $approvedIngame] : null,
     ]);
+    $galleryZoomItems = [];
+    $galleryZoomIndexByItem = [];
+
+    if ($approvedIngame) {
+        foreach ($approvedIngame['items'] as $itemIndex => $galleryItem) {
+            if (! $galleryItem['url']) {
+                continue;
+            }
+
+            $galleryZoomIndexByItem[$itemIndex] = count($galleryZoomItems);
+            $galleryZoomItems[] = [
+                'url' => $galleryItem['url'],
+                'label' => $galleryItem['label'],
+                'imageRendering' => $galleryItem['imageRendering'],
+            ];
+        }
+    }
+
     $checkerboardStyle = 'background-color: #030712; background-image: linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(-45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%), linear-gradient(-45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%); background-size: 18px 18px; background-position: 0 0, 0 9px, 9px -9px, -9px 0;';
 @endphp
 
@@ -15,6 +33,9 @@
         zoomedUrl: null,
         zoomedLabel: '',
         zoomedImageRendering: null,
+        galleryZoomItems: @js($galleryZoomItems),
+        zoomItems: [],
+        zoomIndex: 0,
         zoomMode: 'scale',
         zoomScale: {{ $isPixelated ? 4 : 2 }},
         defaultScale: {{ $isPixelated ? 4 : 2 }},
@@ -59,14 +80,53 @@
         zoomImageStyle() {
             return `${this.imageRenderingStyle(this.zoomedImageRendering)} border: 1px solid #404040; ${this.zoomMode === 'fit' ? 'max-width: calc(100vw - 4rem); max-height: calc(100vh - 8rem);' : ''}`;
         },
-        openZoom(url, label, imageRendering) {
+        applyZoomItem(item) {
             this.naturalWidth = 0;
             this.naturalHeight = 0;
             this.zoomMode = 'scale';
             this.zoomScale = this.defaultScale;
-            this.zoomedLabel = label;
-            this.zoomedImageRendering = imageRendering;
-            this.zoomedUrl = url;
+            this.zoomedLabel = item.label;
+            this.zoomedImageRendering = item.imageRendering;
+            this.zoomedUrl = item.url;
+        },
+        openZoom(url, label, imageRendering) {
+            this.zoomItems = [];
+            this.zoomIndex = 0;
+            this.applyZoomItem({ url, label, imageRendering });
+        },
+        openGalleryZoom(index) {
+            this.zoomItems = this.galleryZoomItems;
+            this.zoomIndex = index;
+            this.applyZoomItem(this.zoomItems[this.zoomIndex]);
+        },
+        canGoPrevious() {
+            return this.zoomItems.length > 1 && this.zoomIndex > 0;
+        },
+        canGoNext() {
+            return this.zoomItems.length > 1 && this.zoomIndex < this.zoomItems.length - 1;
+        },
+        navigateZoom(direction) {
+            const nextIndex = this.zoomIndex + direction;
+
+            if (nextIndex < 0 || nextIndex >= this.zoomItems.length) {
+                return;
+            }
+
+            this.zoomIndex = nextIndex;
+            this.applyZoomItem(this.zoomItems[this.zoomIndex]);
+        },
+        handleZoomKey(direction, event) {
+            if (this.zoomedUrl === null || this.zoomItems.length <= 1) {
+                return;
+            }
+
+            const canNavigate = direction === -1 ? this.canGoPrevious() : this.canGoNext();
+            if (!canNavigate) {
+                return;
+            }
+
+            event.preventDefault();
+            this.navigateZoom(direction);
         },
         closeZoom() {
             this.zoomedUrl = null;
@@ -81,6 +141,8 @@
         },
     }"
     @keydown.escape.window="closeZoom()"
+    @keydown.left.window="handleZoomKey(-1, $event)"
+    @keydown.right.window="handleZoomKey(1, $event)"
 >
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         @foreach ($panels as $panel)
@@ -151,6 +213,34 @@
                 <span x-text="zoomedLabel" class="truncate text-sm font-semibold"></span>
 
                 <div class="flex items-center gap-2 text-sm">
+                    <template x-if="zoomItems.length > 1">
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                @click="navigateZoom(-1)"
+                                :disabled="!canGoPrevious()"
+                                class="rounded px-2.5 py-0.5 disabled:opacity-50"
+                                style="border: 1px solid #404040;"
+                            >
+                                Previous
+                            </button>
+                            <span x-text="`${zoomIndex + 1} / ${zoomItems.length}`" class="tabular-nums"></span>
+                            <button
+                                type="button"
+                                @click="navigateZoom(1)"
+                                :disabled="!canGoNext()"
+                                class="rounded px-2.5 py-0.5 disabled:opacity-50"
+                                style="border: 1px solid #404040;"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </template>
+                    <template x-if="zoomItems.length > 1">
+                        <span aria-hidden="true" class="flex h-5 items-center px-1.5">
+                            <span class="h-5 border-l border-neutral-700"></span>
+                        </span>
+                    </template>
                     <template x-for="option in zoomOptions()" :key="option">
                         <button
                             type="button"
@@ -162,7 +252,10 @@
                                 : 'border: 1px solid #404040;'"
                         ></button>
                     </template>
-                    <button type="button" @click="closeZoom()" class="ml-3 rounded px-2 py-0.5 hover:bg-neutral-800" style="border: 1px solid #404040;">
+                    <span aria-hidden="true" class="flex h-5 items-center px-1.5">
+                        <span class="h-5 border-l border-neutral-700"></span>
+                    </span>
+                    <button type="button" @click="closeZoom()" class="rounded px-2 py-0.5 hover:bg-neutral-800" style="border: 1px solid #404040;">
                         Close
                     </button>
                 </div>
@@ -279,14 +372,16 @@
 
                     @if ($card['data']['items'] !== [])
                         <div class="mt-2 flex max-h-[152px] flex-col gap-1.5 overflow-y-auto pr-1">
-                            @foreach ($card['data']['items'] as $item)
+                            @foreach ($card['data']['items'] as $itemIndex => $item)
                                 @php
                                     $itemImageRenderingStyle = $item['imageRendering'] ? 'image-rendering: ' . $item['imageRendering'] . ';' : '';
                                 @endphp
 
                                 <button
                                     type="button"
-                                    @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
+                                    @if ($item['url'])
+                                        @click="openGalleryZoom({{ $galleryZoomIndexByItem[$itemIndex] }})"
+                                    @endif
                                     class="flex w-full min-w-0 shrink-0 cursor-zoom-in items-center gap-2 rounded-md p-1 text-left transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-gray-800"
                                     title="{{ $item['label'] }}"
                                 >
