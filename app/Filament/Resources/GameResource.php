@@ -273,9 +273,11 @@ class GameResource extends Resource
                             ->visible(fn ($operation): bool => $operation === 'create')
                             ->getSearchResultsUsing(function (string $search): array {
                                 return System::gameSystems()
-                                    ->where('name_full', 'like', "%{$search}%")
-                                    ->orWhere('name_short', 'like', "%{$search}%")
-                                    ->orWhere('id', 'like', "%{$search}%")
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('name_full', 'like', "%{$search}%")
+                                          ->orWhere('name_short', 'like', "%{$search}%")
+                                          ->orWhere('id', 'like', "%{$search}%");
+                                    })
                                     ->limit(10)
                                     ->get()
                                     ->mapWithKeys(function ($system) {
