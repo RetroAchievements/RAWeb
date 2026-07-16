@@ -63,6 +63,86 @@ class Hashes extends ManageRelatedRecords
         return [$item];
     }
 
+    private static function getFormSchema(): array
+    {
+        return [
+            Schemas\Components\Section::make()
+                ->description("
+                    If you're not 100% sure of what you're doing, contact RAdmin and they'll help you out.
+                ")
+                ->icon('heroicon-c-exclamation-triangle')
+                ->schema([
+                    Schemas\Components\Grid::make()
+                        ->columns(['xl' => 2])
+                        ->schema([
+                            Forms\Components\TextInput::make('md5')
+                                ->columnSpan(['xl' => 2])
+                                ->label('MD5')
+                                ->hiddenOn('edit')
+                                ->required()
+                                ->unique(),
+
+                            Forms\Components\TextInput::make('name')
+                                ->label('File Name')
+                                ->required(),
+
+                            Forms\Components\TextInput::make('labels'),
+
+                            Forms\Components\Select::make('compatibility')
+                                ->options([
+                                    GameHashCompatibility::Compatible->value => GameHashCompatibility::Compatible->label(),
+                                    GameHashCompatibility::Incompatible->value => GameHashCompatibility::Incompatible->label(),
+                                    GameHashCompatibility::Untested->value => GameHashCompatibility::Untested->label(),
+                                    GameHashCompatibility::PatchRequired->value => GameHashCompatibility::PatchRequired->label(),
+                                ]),
+
+                            Forms\Components\Select::make('compatibility_tester_id')
+                                ->label('Compatibility Tester')
+                                ->helperText("If you're marking this hash as compatible based on a compatibility test, leave the tester assigned so they receive credit.")
+                                ->searchable()
+                                ->getSearchResultsUsing(function (string $search): array {
+                                    return User::search($search)
+                                        ->withTrashed()
+                                        ->take(50)
+                                        ->get()
+                                        ->pluck('display_name', 'id')
+                                        ->toArray();
+                                })
+                                ->getOptionLabelUsing(function (int $value): string {
+                                    $user = User::find($value);
+
+                                    return $user->display_name ?? '(unknown)';
+                                }),
+
+                        ]),
+
+                    Forms\Components\TextInput::make('patch_url')
+                        ->label('Patch URL')
+                        ->placeholder('https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
+                        ->helperText('This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
+                        ->regex('/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/(?:refs\/heads\/)?main\/.*\.(zip|7z)$/i'),
+
+                    Forms\Components\TextInput::make('source')
+                        ->label('Resource Page URL')
+                        ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.')
+                        ->activeUrl(),
+                ])
+                ->afterStateUpdated(function ($state, $old, $record) {
+                    $changedAttributes = [];
+                    foreach ($state as $key => $value) {
+                        if (!isset($old[$key]) || $old[$key] !== $value) {
+                            $key = match ($key) {
+                                'name' => 'Name',
+                                'labels' => 'Labels',
+                                default => $key,
+                            };
+                            $changedAttributes[$key] = $value;
+                        }
+                    }
+                }),
+        ];
+    }
+
     public function table(Table $table): Table
     {
         // TODO migrate to filament-comments
@@ -104,6 +184,18 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
+                Actions\CreateAction::make()
+                    ->label('Add Hash')
+                    ->modalHeading('Add hash to game')
+                    ->modalAutofocus(false)
+                    ->schema(Hashes::getFormSchema())
+                    ->visible(function (): bool {
+                        /** @var User $user */
+                        $user = Auth::user();
+
+                        return $user->can('create', GameHash::class);
+                    }),
+
                 Actions\Action::make('view-legacy-comments')
                     ->color('info')
                     ->label("View Legacy Hash Maintenance Comments ({$nonAutomatedCommentsCount})")
@@ -118,75 +210,7 @@ class Hashes extends ManageRelatedRecords
 
                 Actions\EditAction::make()
                     ->modalHeading(fn (GameHash $record) => "Edit game hash {$record->md5}")
-                    ->schema([
-                        Schemas\Components\Section::make()
-                            ->description("
-                                If you're not 100% sure of what you're doing, contact RAdmin and they'll help you out.
-                            ")
-                            ->icon('heroicon-c-exclamation-triangle')
-                            ->schema([
-                                Schemas\Components\Grid::make()
-                                    ->columns(['xl' => 2])
-                                    ->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->label('File Name')
-                                            ->required(),
-
-                                        Forms\Components\TextInput::make('labels'),
-
-                                        Forms\Components\Select::make('compatibility')
-                                            ->options([
-                                                GameHashCompatibility::Compatible->value => GameHashCompatibility::Compatible->label(),
-                                                GameHashCompatibility::Incompatible->value => GameHashCompatibility::Incompatible->label(),
-                                                GameHashCompatibility::Untested->value => GameHashCompatibility::Untested->label(),
-                                                GameHashCompatibility::PatchRequired->value => GameHashCompatibility::PatchRequired->label(),
-                                            ]),
-
-                                        Forms\Components\Select::make('compatibility_tester_id')
-                                            ->label('Compatibility Tester')
-                                            ->helperText("If you're marking this hash as compatible based on a compatibility test, leave the tester assigned so they receive credit.")
-                                            ->searchable()
-                                            ->getSearchResultsUsing(function (string $search): array {
-                                                return User::search($search)
-                                                    ->withTrashed()
-                                                    ->take(50)
-                                                    ->get()
-                                                    ->pluck('display_name', 'id')
-                                                    ->toArray();
-                                            })
-                                            ->getOptionLabelUsing(function (int $value): string {
-                                                $user = User::find($value);
-
-                                                return $user->display_name ?? '(unknown)';
-                                            }),
-
-                                    ]),
-
-                                Forms\Components\TextInput::make('patch_url')
-                                    ->label('Patch URL')
-                                    ->placeholder('https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
-                                    ->helperText('This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
-                                    ->regex('/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/(?:refs\/heads\/)?main\/.*\.(zip|7z)$/i'),
-
-                                Forms\Components\TextInput::make('source')
-                                    ->label('Resource Page URL')
-                                    ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.')
-                                    ->activeUrl(),
-                            ])
-                            ->afterStateUpdated(function ($state, $old, $record) {
-                                $changedAttributes = [];
-                                foreach ($state as $key => $value) {
-                                    if (!isset($old[$key]) || $old[$key] !== $value) {
-                                        $key = match ($key) {
-                                            'name' => 'Name',
-                                            'labels' => 'Labels',
-                                            default => $key,
-                                        };
-                                        $changedAttributes[$key] = $value;
-                                    }
-                                }
-                            }),
-                    ]),
+                    ->schema(Hashes::getFormSchema()),
 
                 Actions\Action::make('unlink')
                     ->label('Unlink hash')
