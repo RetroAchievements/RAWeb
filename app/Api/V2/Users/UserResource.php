@@ -71,12 +71,12 @@ class UserResource extends JsonApiResource
             'awards' => $this->relation('awards', 'playerBadges')->withoutLinks(),
             'followers' => $this->relation('followers', 'followedBy')->withoutLinks(),
             'following' => $this->relation('following', 'follows')->withoutLinks(),
+            'lastGame' => $this->relation('lastGame')->withoutLinks()->showDataIfLoaded(),
             'playerAchievements' => $this->relation('playerAchievements')->withoutLinks(),
             'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
             'playerGames' => $this->relation('playerGames')->withoutLinks(),
 
             // TODO add relationships
-            // 'lastGame' => $this->relation('lastGame'),
             // 'authoredAchievements' => $this->relation('authoredAchievements'),
             // 'claims' => $this->relation('claims'),
         ];
