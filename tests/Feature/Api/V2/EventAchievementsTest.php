@@ -79,6 +79,28 @@ class EventAchievementsTest extends JsonApiResourceTestCase
         $this->assertStringEndsWith("/api/v2/event-achievements/{$eventAchievement->id}", $response->json('data.links.self'));
     }
 
+    public function testItPreventsAccessToEventAchievementsForFutureEvents(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['players_total' => 1000]);
+        $mirror = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->addMonth()]);
+        $eventAchievement = EventAchievement::factory()->create([
+            'achievement_id' => $mirror->id,
+            'source_achievement_id' => Achievement::factory()->create()->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('event-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/event-achievements/{$eventAchievement->id}");
+
+        // Assert
+        $response->assertForbidden();
+    }
+
     public function testItReturnsEventAchievementsForAnEvent(): void
     {
         // Arrange
