@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Filament\Resources\GameResource;
+use App\Models\Game;
 use Filament\Resources\Pages\CreateRecord;
 
 class Create extends CreateRecord
@@ -14,6 +15,7 @@ class Create extends CreateRecord
 
     protected function afterCreate(): void
     {
+        /** @var Game $game */
         $game = $this->record;
 
         SubmitGameTitleAction::finalizeNewGame($game);
