@@ -57,6 +57,16 @@ class UserAwardPresenter
         };
     }
 
+    public function userId(): ?string
+    {
+        return $this->award->user?->ulid;
+    }
+
+    public function userDisplayName(): ?string
+    {
+        return $this->award->user?->display_name;
+    }
+
     public function context(): array
     {
         return match ($this->award->award_type) {
