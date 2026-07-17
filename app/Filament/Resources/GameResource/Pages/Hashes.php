@@ -78,6 +78,7 @@ class Hashes extends ManageRelatedRecords
                             Forms\Components\TextInput::make('md5')
                                 ->columnSpan(['xl' => 2])
                                 ->label('MD5')
+                                ->regex('/^[a-fA-F0-9]{32}$/')
                                 ->hiddenOn('edit')
                                 ->required()
                                 ->unique(),
@@ -193,7 +194,7 @@ class Hashes extends ManageRelatedRecords
                         /** @var User $user */
                         $user = Auth::user();
 
-                        return $user->can('create', GameHash::class);
+                        return $user->can('createFromFilament', Game::class);
                     }),
 
                 Actions\Action::make('view-legacy-comments')
