@@ -66,18 +66,6 @@ services:
             test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
             timeout: 5s
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        environment:
-            PMA_ARBITRARY: 1
-            PMA_HOST: mariadb
-            PMA_USER: '${DB_USERNAME}'
-            PMA_PASSWORD: '${DB_PASSWORD}'
-            PMA_PORT: 3306
-        ports:
-            - '${FORWARD_PHPMYADMIN_PORT:-8081}:80'
-        networks:
-            - raweb
     meilisearch:
         image: 'getmeili/meilisearch:latest'
         ports:

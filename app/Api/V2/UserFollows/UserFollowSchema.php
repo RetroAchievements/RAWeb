@@ -27,6 +27,8 @@ class UserFollowSchema extends Schema
      */
     public static string $model = UserRelation::class;
 
+    protected int $maxDepth = 2;
+
     /**
      * Default pagination parameters when client doesn't provide any.
      * This prevents unbounded result sets.

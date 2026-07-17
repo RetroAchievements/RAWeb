@@ -36,6 +36,7 @@ class Server extends BaseServer
             AchievementSets\AchievementSetSchema::class,
             AchievementSetVersions\AchievementSetVersionSchema::class,
             Comments\CommentSchema::class,
+            EventAchievements\EventAchievementSchema::class,
             EventAwards\EventAwardSchema::class,
             Events\EventSchema::class,
             GameHashes\GameHashSchema::class,

@@ -27,7 +27,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Platform\Services\UserApiCallCountService;
 use App\Platform\Services\UserLastActivityService;
-use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
@@ -188,32 +187,6 @@ class AppServiceProvider extends ServiceProvider
             $factoryBasename = Str::replaceLast('Factory', '', class_basename($factory));
 
             return 'App\\Models\\' . $factoryBasename;
-        });
-
-        // TODO remove
-        $this->app->singleton('mysqli', function () {
-            try {
-                $db = mysqli_connect(
-                    config('database.connections.mysql.host'),
-                    config('database.connections.mysql.username'),
-                    config('database.connections.mysql.password'),
-                    config('database.connections.mysql.database'),
-                    (int) config('database.connections.mysql.port')
-                );
-                if (!$db) {
-                    throw new Exception('Could not connect to database. Please try again later.');
-                }
-                mysqli_set_charset($db, config('database.connections.mysql.charset'));
-                mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
-
-                return $db;
-            } catch (Exception $exception) {
-                if (app()->environment('local', 'testing')) {
-                    throw $exception;
-                }
-                echo 'Could not connect to database. Please try again later.';
-                exit;
-            }
         });
     }
 }
