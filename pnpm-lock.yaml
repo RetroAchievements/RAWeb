@@ -262,9 +262,6 @@ importers:
       happy-dom:
         specifier: ^20.8.9
         version: 20.8.9
-      laravel-echo:
-        specifier: ^1.15.1
-        version: 1.16.1
       laravel-vite-plugin:
         specifier: ^3.0.1
         version: 3.0.1(vite@8.0.16(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.20.5)(yaml@2.8.3))
@@ -280,9 +277,6 @@ importers:
       postcss-nesting:
         specifier: ^12.1.5
         version: 12.1.5(postcss@8.5.15)
-      pusher-js:
-        specifier: ^8.2.0
-        version: 8.3.0
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.5.4
@@ -3756,10 +3750,6 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  laravel-echo@1.16.1:
-    resolution: {integrity: sha512-++Ylb6M3ariC9Rk5WE5gZjj6wcEV5kvLF8b+geJ5/rRIfdoOA+eG6b9qJPrarMD9rY28Apx+l3eelIrCc2skVg==}
-    engines: {node: '>=10'}
-
   laravel-precognition@2.0.0:
     resolution: {integrity: sha512-dmA4HGc9m+TsVNsJs9/XQBI8u6j7coilN+qKkBuhuXQzH3HypwS/c5dFQ4UqUGjBbcxIM7zdk91kM/SRZwIvWQ==}
     peerDependencies:
@@ -4464,9 +4454,6 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pusher-js@8.3.0:
-    resolution: {integrity: sha512-6GohP06WlVeomAQQe9qWh1IDzd3+InluWt+ZUOcecVK1SEQkg6a8uYVsvxSJm7cbccfmHhE0jDkmhKIhue8vmA==}
-
   qs-esm@7.0.3:
     resolution: {integrity: sha512-8jbjCR0PPbqoQcv83C2K/zvVeytRPwPpt3WPDbq51qyLAxcWGtXVRjSe6GHtLCoVbg9+NEFkv7GyUxqjcDIJzw==}
     engines: {node: '>=18'}
@@ -4975,9 +4962,6 @@ packages:
 
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
-
-  tweetnacl@1.0.3:
-    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -8732,8 +8716,6 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  laravel-echo@1.16.1: {}
-
   laravel-precognition@2.0.0(axios@1.16.0):
     dependencies:
       es-toolkit: 1.46.1
@@ -9594,10 +9576,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pusher-js@8.3.0:
-    dependencies:
-      tweetnacl: 1.0.3
-
   qs-esm@7.0.3: {}
 
   queue-microtask@1.2.3: {}
@@ -10230,8 +10208,6 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
     optional: true
-
-  tweetnacl@1.0.3: {}
 
   type-check@0.4.0:
     dependencies:
