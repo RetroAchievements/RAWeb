@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createOAuthClient, createZiggyProps } from '@/test/factories';
 
@@ -84,10 +85,11 @@ describe('Component: YourApplicationsSection', () => {
     expect(screen.getByText('You can register up to 2 applications.')).toBeVisible();
   });
 
-  it('given the user cannot create applications, tells them to verify their email address', () => {
+  it('given the user cannot create applications due to an unverified email, tells them to verify their email address', () => {
     // ARRANGE
     render(<YourApplicationsSection />, {
       pageProps: {
+        auth: { user: createAuthenticatedUser({ isEmailVerified: false }) },
         can: { createOAuthClients: false },
         oauthApplicationLimit: 5,
         oauthApplications: [],
@@ -102,6 +104,26 @@ describe('Component: YourApplicationsSection', () => {
 
     // ASSERT
     expect(verifyEmailMessage).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Register application' })).not.toBeInTheDocument();
+  });
+
+  it('given a verified user cannot create applications, tells them their account is too new', () => {
+    // ARRANGE
+    render(<YourApplicationsSection />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ isEmailVerified: true }) },
+        can: { createOAuthClients: false },
+        oauthApplicationLimit: 5,
+        oauthApplications: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    const tooNewMessage = screen.getByText('Your account is too new to register an application.');
+
+    // ASSERT
+    expect(tooNewMessage).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Register application' })).not.toBeInTheDocument();
   });
 });

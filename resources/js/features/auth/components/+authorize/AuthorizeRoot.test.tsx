@@ -61,7 +61,7 @@ describe('Component: AuthorizeRoot', () => {
     expect(screen.getByText(/test app wants to access your account/i)).toBeVisible();
 
     expect(screen.getByText(/this will allow test app to:/i)).toBeVisible();
-    expect(screen.getByText(/view your retroachievements data/i)).toBeVisible();
+    expect(screen.getByText(/view publicly visible retroachievements data/i)).toBeVisible();
 
     expect(screen.getByText(/currently signed in as/i)).toBeVisible();
     expect(screen.getByText('Scott')).toBeVisible();
@@ -88,7 +88,7 @@ describe('Component: AuthorizeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText('View your RetroAchievements data')).toBeVisible();
+    expect(screen.getByText('View publicly visible RetroAchievements data')).toBeVisible();
     expect(screen.getByText('data:mystery')).toBeVisible();
   });
 

@@ -413,7 +413,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::middleware('throttle:oauth-applications')->group(function () {
                         Route::post('applications', [OAuthApplicationApiController::class, 'store'])->name('api.settings.applications.store');
                         Route::put('applications/{client}', [OAuthApplicationApiController::class, 'update'])->name('api.settings.applications.update');
-                        Route::post('applications/{client}/rotate-secret', [OAuthApplicationApiController::class, 'rotateSecret'])->name('api.settings.applications.rotate-secret');
+                        Route::post('applications/{client}/regenerate-secret', [OAuthApplicationApiController::class, 'regenerateSecret'])->name('api.settings.applications.regenerate-secret');
                         Route::delete('applications/{client}', [OAuthApplicationApiController::class, 'destroy'])->name('api.settings.applications.destroy');
                         Route::delete('connected-applications/{client}', [ConnectedOAuthApplicationApiController::class, 'destroy'])->name('api.settings.connected-applications.destroy');
                     });

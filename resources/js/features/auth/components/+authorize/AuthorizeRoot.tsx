@@ -46,7 +46,7 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
    * An unrecognized scope falls back to its identifier rather than rendering nothing.
    */
   const scopeLabels: Record<string, string> = {
-    'data:read': t('View your RetroAchievements data'),
+    'data:read': t('View publicly visible RetroAchievements data'),
   };
 
   return (

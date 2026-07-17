@@ -26,10 +26,16 @@ class OAuthClientPolicy
      * The per-user application quota is deliberately not enforced here. Being at
      * the quota is a validation concern, so a user at their limit still holds
      * this ability and receives a validation error rather than a 403.
+     *
+     * New accounts are excluded because anyone can register one in seconds,
+     * and an OAuth application's name is shown to every user it asks for consent.
      */
     public function create(User $user): bool
     {
-        return $this->isFeatureEnabled() && $user->hasVerifiedEmail();
+        return
+            $this->isFeatureEnabled()
+            && $user->hasVerifiedEmail()
+            && $user->created_at > now()->subWeeks(2);
     }
 
     public function update(User $user, OAuthClient $client): bool

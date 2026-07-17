@@ -100,6 +100,45 @@ class MultiAuthTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function testItRejectsPassportTokenForCallerPrivateReads(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        Passport::actingAs($user, ['data:read'], 'oauth');
+
+        // Act
+        $followersResponse = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->get("/api/v2/users/{$user->ulid}/followers");
+        $followingResponse = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->get("/api/v2/users/{$user->ulid}/following");
+        $gameListResponse = $this->jsonApi('v2')
+            ->expects('user-game-list-entries')
+            ->get("/api/v2/users/{$user->ulid}/user-game-list-entries");
+
+        // Assert
+        $followersResponse->assertForbidden();
+        $followingResponse->assertForbidden();
+        $gameListResponse->assertForbidden();
+    }
+
+    public function testItAllowsApiKeyForCallerPrivateReads(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-api-key')
+            ->get("/api/v2/users/{$user->ulid}/followers");
+
+        // Assert
+        $response->assertSuccessful();
+    }
+
     public function testItRejectsRequestWithNoAuthentication(): void
     {
         // Arrange

@@ -6,11 +6,11 @@ interface Variables {
   clientId: string;
 }
 
-export function useRotateOAuthApplicationSecretMutation() {
+export function useRegenerateOAuthApplicationSecretMutation() {
   return useMutation({
     mutationFn: ({ clientId }: Variables) => {
       return axios.post<App.Data.OAuthClientCredentials>(
-        route('api.settings.applications.rotate-secret', { client: clientId }),
+        route('api.settings.applications.regenerate-secret', { client: clientId }),
       );
     },
   });

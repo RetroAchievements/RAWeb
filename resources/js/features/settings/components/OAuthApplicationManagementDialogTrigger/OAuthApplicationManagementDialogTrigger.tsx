@@ -22,7 +22,7 @@ import {
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useRotateOAuthApplicationSecretMutation } from '@/features/settings/hooks/mutations/useRotateOAuthApplicationSecretMutation';
+import { useRegenerateOAuthApplicationSecretMutation } from '@/features/settings/hooks/mutations/useRegenerateOAuthApplicationSecretMutation';
 
 import { OAuthCredentialField } from '../OAuthCredentialField';
 import { OAuthApplicationForm } from './OAuthApplicationForm';
@@ -37,27 +37,27 @@ export const OAuthApplicationManagementDialogTrigger: FC<
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [rotatedSecret, setRotatedSecret] = useState<string | null>(null);
+  const [regeneratedSecret, setRegeneratedSecret] = useState<string | null>(null);
 
-  const mutation = useRotateOAuthApplicationSecretMutation();
+  const mutation = useRegenerateOAuthApplicationSecretMutation();
 
-  const handleRotateClick = () => {
+  const handleRegenerateClick = () => {
     toastMessage.promise(mutation.mutateAsync({ clientId: application.id }), {
-      loading: t('Rotating secret...'),
+      loading: t('Regenerating secret...'),
       success: ({ data }) => {
-        setRotatedSecret(data.secret);
+        setRegeneratedSecret(data.secret);
 
-        return t('Client secret rotated.');
+        return t('Client secret regenerated.');
       },
       error: t('Something went wrong.'),
     });
   };
 
   /**
-   * A rotated secret is shown exactly once, so it must not be dismissed by accident.
+   * A regenerated secret is shown exactly once, so it must not be dismissed by accident.
    */
   const preventDismissWhileSecretIsVisible = (event: { preventDefault: () => void }) => {
-    if (rotatedSecret) {
+    if (regeneratedSecret) {
       event.preventDefault();
     }
   };
@@ -71,7 +71,7 @@ export const OAuthApplicationManagementDialogTrigger: FC<
       </BaseDialogTrigger>
 
       <BaseDialogContent
-        shouldShowCloseButton={!rotatedSecret}
+        shouldShowCloseButton={!regeneratedSecret}
         onEscapeKeyDown={preventDismissWhileSecretIsVisible}
         onPointerDownOutside={preventDismissWhileSecretIsVisible}
       >
@@ -89,11 +89,11 @@ export const OAuthApplicationManagementDialogTrigger: FC<
             <div>
               <h3 className="font-semibold">{t('Client secret')}</h3>
               <p className="text-sm text-neutral-400">
-                {t('Rotating the secret immediately stops the old secret from working.')}
+                {t('Regenerating the secret immediately stops the old secret from working.')}
               </p>
             </div>
 
-            {rotatedSecret ? (
+            {regeneratedSecret ? (
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-amber-400">
                   {t("You won't be able to see the client secret again.")}
@@ -102,10 +102,10 @@ export const OAuthApplicationManagementDialogTrigger: FC<
                 <OAuthCredentialField
                   credentialName={t('client secret')}
                   label={t('New secret')}
-                  value={rotatedSecret}
+                  value={regeneratedSecret}
                 />
 
-                <BaseButton className="self-end" onClick={() => setRotatedSecret(null)}>
+                <BaseButton className="self-end" onClick={() => setRegeneratedSecret(null)}>
                   {t("I've saved this secret")}
                 </BaseButton>
               </div>
@@ -114,13 +114,13 @@ export const OAuthApplicationManagementDialogTrigger: FC<
             <BaseAlertDialog>
               <BaseAlertDialogTrigger asChild>
                 <BaseButton className="self-start" variant="outline">
-                  {t('Rotate secret')}
+                  {t('Regenerate secret')}
                 </BaseButton>
               </BaseAlertDialogTrigger>
 
               <BaseAlertDialogContent>
                 <BaseAlertDialogHeader>
-                  <BaseAlertDialogTitle>{t('Rotate client secret?')}</BaseAlertDialogTitle>
+                  <BaseAlertDialogTitle>{t('Regenerate client secret?')}</BaseAlertDialogTitle>
                   <BaseAlertDialogDescription>
                     {t('The old secret will stop working immediately. This cannot be undone.')}
                   </BaseAlertDialogDescription>
@@ -128,8 +128,8 @@ export const OAuthApplicationManagementDialogTrigger: FC<
 
                 <BaseAlertDialogFooter>
                   <BaseAlertDialogCancel>{t('Cancel')}</BaseAlertDialogCancel>
-                  <BaseAlertDialogAction onClick={handleRotateClick}>
-                    {t('Rotate secret')}
+                  <BaseAlertDialogAction onClick={handleRegenerateClick}>
+                    {t('Regenerate secret')}
                   </BaseAlertDialogAction>
                 </BaseAlertDialogFooter>
               </BaseAlertDialogContent>

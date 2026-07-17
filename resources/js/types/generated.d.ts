@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.PlayerGames {
+export type PlayerGameAwardKind = 'beaten-casual' | 'beaten-hardcore';
+}
 declare namespace App.Api.V2.UserAwards {
 export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-casual' | 'beaten-hardcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
 }

@@ -18,7 +18,7 @@ beforeEach(function () {
 it('registers a confidential application and reveals the secret once', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $this->actingAs($user);
 
     // ACT
@@ -40,7 +40,7 @@ it('registers a confidential application and reveals the secret once', function 
 it('rejects unsafe redirect URIs', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $this->actingAs($user);
 
     // ACT
@@ -57,7 +57,7 @@ it('rejects unsafe redirect URIs', function () {
 it('registers a public application with a custom scheme redirect URI', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $this->actingAs($user);
 
     // ACT
@@ -77,7 +77,7 @@ it('registers a public application with a custom scheme redirect URI', function 
 it('rejects a custom scheme redirect URI for a confidential application', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $this->actingAs($user);
 
     // ACT
@@ -94,7 +94,7 @@ it('rejects a custom scheme redirect URI for a confidential application', functi
 it('keeps confidential redirect validation when an update tries to pass a public type', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->create([
         'owner_type' => $user->getMorphClass(),
         'owner_id' => $user->id,
@@ -117,7 +117,7 @@ it('rejects registration with a validation error when the user is at their quota
     config()->set('oauth.max_applications_per_user', 1);
 
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     OAuthClient::factory()->create(['owner_type' => $user->getMorphClass(), 'owner_id' => $user->id]);
     $this->actingAs($user);
 
@@ -150,12 +150,31 @@ it('forbids registration for an unverified user', function () {
     $response->assertForbidden();
 });
 
+it('forbids registration for a fresh account', function () {
+    // ARRANGE
+    /** @var User $user */
+    $user = User::factory()->create([
+        'email_verified_at' => now(),
+    ]);
+    $this->actingAs($user);
+
+    // ACT
+    $response = $this->postJson(route('api.settings.applications.store'), [
+        'name' => 'Fresh Account Client',
+        'redirectUris' => ['https://example.com/callback'],
+        'type' => 'confidential',
+    ]);
+
+    // ASSERT
+    $response->assertForbidden();
+});
+
 it('forbids registration when the OAuth feature is disabled', function () {
     // ARRANGE
     config()->set('feature.oauth', false);
 
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $this->actingAs($user);
 
     // ACT
@@ -172,7 +191,7 @@ it('forbids registration when the OAuth feature is disabled', function () {
 it('updates an application owned by the user', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->create([
         'owner_type' => $user->getMorphClass(),
         'owner_id' => $user->id,
@@ -195,7 +214,7 @@ it('forbids updating an application owned by someone else', function () {
     /** @var User $owner */
     $owner = User::factory()->create();
     /** @var User $otherUser */
-    $otherUser = User::factory()->create(['email_verified_at' => now()]);
+    $otherUser = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->create([
         'owner_type' => $owner->getMorphClass(),
         'owner_id' => $owner->id,
@@ -212,10 +231,10 @@ it('forbids updating an application owned by someone else', function () {
     $response->assertForbidden();
 });
 
-it('rotates the secret of a confidential application', function () {
+it('regenerates the secret of a confidential application', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->create([
         'owner_type' => $user->getMorphClass(),
         'owner_id' => $user->id,
@@ -224,17 +243,17 @@ it('rotates the secret of a confidential application', function () {
     $this->actingAs($user);
 
     // ACT
-    $response = $this->postJson(route('api.settings.applications.rotate-secret', ['client' => $client->id]));
+    $response = $this->postJson(route('api.settings.applications.regenerate-secret', ['client' => $client->id]));
 
     // ASSERT
     $response->assertSuccessful()->assertJsonStructure(['id', 'secret']);
     expect($client->refresh()->getRawOriginal('secret'))->not->toEqual($originalSecret);
 });
 
-it('refuses to rotate the secret of a public application', function () {
+it('refuses to regenerate the secret of a public application', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->public()->create([
         'owner_type' => $user->getMorphClass(),
         'owner_id' => $user->id,
@@ -242,7 +261,7 @@ it('refuses to rotate the secret of a public application', function () {
     $this->actingAs($user);
 
     // ACT
-    $response = $this->postJson(route('api.settings.applications.rotate-secret', ['client' => $client->id]));
+    $response = $this->postJson(route('api.settings.applications.regenerate-secret', ['client' => $client->id]));
 
     // ASSERT
     $response->assertUnprocessable();
@@ -251,7 +270,7 @@ it('refuses to rotate the secret of a public application', function () {
 it('deactivates an application and revokes its tokens', function () {
     // ARRANGE
     /** @var User $user */
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    $user = User::factory()->create(['email_verified_at' => now(), 'created_at' => now()->subMonths(1)]);
     $client = OAuthClient::factory()->create([
         'owner_type' => $user->getMorphClass(),
         'owner_id' => $user->id,

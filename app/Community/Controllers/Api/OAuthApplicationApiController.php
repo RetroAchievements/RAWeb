@@ -61,7 +61,7 @@ class OAuthApplicationApiController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function rotateSecret(OAuthClient $client, ClientRepository $clients): JsonResponse
+    public function regenerateSecret(OAuthClient $client, ClientRepository $clients): JsonResponse
     {
         $this->authorize('update', $client);
 

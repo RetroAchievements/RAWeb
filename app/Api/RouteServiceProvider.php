@@ -8,6 +8,7 @@ use App\Api\Controllers\CatchAllController;
 use App\Api\Controllers\HealthController;
 use App\Api\Internal\Controllers\AchievementController as InternalAchievementController;
 use App\Api\Middleware\AddContentLengthHeader;
+use App\Api\Middleware\DenyOAuthTokens;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\RequireOAuthReadScope;
@@ -192,14 +193,14 @@ class RouteServiceProvider extends ServiceProvider
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
                                     $relationships->hasMany('awards')->readOnly();
-                                    $relationships->hasMany('followers')->readOnly();
-                                    $relationships->hasMany('following')->readOnly();
+                                    $relationships->hasMany('followers')->readOnly()->middleware(DenyOAuthTokens::class);
+                                    $relationships->hasMany('following')->readOnly()->middleware(DenyOAuthTokens::class);
                                     $relationships->hasMany('leaderboardEntries')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();
                                     $relationships->hasMany('tickets')->readOnly();
-                                    $relationships->hasMany('userGameListEntries')->readOnly();
+                                    $relationships->hasMany('userGameListEntries')->readOnly()->middleware(DenyOAuthTokens::class);
                                     $relationships->hasMany('wallComments')->readOnly();
                                 });
                         });

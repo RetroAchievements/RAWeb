@@ -9,7 +9,7 @@ import { OAuthRegistrationDialogTrigger } from '../OAuthRegistrationDialogTrigge
 import { SectionStandardCard } from '../SectionStandardCard';
 
 export const YourApplicationsSection: FC = () => {
-  const { can, oauthApplicationLimit, oauthApplications } =
+  const { auth, can, oauthApplicationLimit, oauthApplications } =
     usePageProps<App.Community.Data.UserSettingsPageProps>();
   const { t } = useTranslation();
 
@@ -54,14 +54,16 @@ export const YourApplicationsSection: FC = () => {
         ) : null}
 
         {/*
-          This section only renders while OAuth is enabled, so the sole thing that can
-          withhold the create ability here is an unverified email address.
+          This section only renders while OAuth is enabled, so the create ability can
+          only be withheld by an unverified email address or a fresh account.
         */}
         {can.createOAuthClients ? (
           <OAuthRegistrationDialogTrigger disabled={hasReachedApplicationLimit} />
         ) : (
           <p className="text-sm text-neutral-400">
-            {t('Verify your email address to register an application.')}
+            {auth?.user.isEmailVerified
+              ? t('Your account is too new to register an application.')
+              : t('Verify your email address to register an application.')}
           </p>
         )}
       </div>

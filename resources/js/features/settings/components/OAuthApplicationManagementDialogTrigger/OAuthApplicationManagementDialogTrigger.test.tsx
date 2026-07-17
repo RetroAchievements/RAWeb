@@ -116,7 +116,7 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
     expect(screen.getByRole('dialog')).toBeVisible();
   });
 
-  it('given the user starts a secret rotation, requires confirmation first', async () => {
+  it('given the user starts a secret regeneration, requires confirmation first', async () => {
     // ARRANGE
     render(<OAuthApplicationManagementDialogTrigger application={createOAuthClient()} />, {
       pageProps: { ziggy: createZiggyProps() },
@@ -124,21 +124,21 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Manage' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Rotate secret' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Regenerate secret' }));
 
     // ASSERT
     expect(screen.getByRole('alertdialog')).toBeVisible();
-    expect(screen.getByText('Rotate client secret?')).toBeVisible();
+    expect(screen.getByText('Regenerate client secret?')).toBeVisible();
     expect(
       screen.getByText('The old secret will stop working immediately. This cannot be undone.'),
     ).toBeVisible();
   });
 
-  it('given a secret was just rotated, keeps the dialog open until it is acknowledged', async () => {
+  it('given a secret was just regenerated, keeps the dialog open until it is acknowledged', async () => {
     // ARRANGE
     const application = createOAuthClient();
     vi.spyOn(axios, 'post').mockResolvedValueOnce({
-      data: { id: application.id, secret: 'rotated-client-secret' },
+      data: { id: application.id, secret: 'regenerated-client-secret' },
     });
 
     render(<OAuthApplicationManagementDialogTrigger application={application} />, {
@@ -147,10 +147,10 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Manage' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Rotate secret' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Regenerate secret' }));
     await userEvent.click(
       within(screen.getByRole('alertdialog')).getByRole('button', {
-        name: 'Rotate secret',
+        name: 'Regenerate secret',
       }),
     );
     await screen.findByText("You won't be able to see the client secret again.");
@@ -158,14 +158,14 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
 
     // ASSERT
     expect(screen.getByRole('dialog')).toBeVisible();
-    expect(screen.getByText('rotate...secret')).toBeVisible();
+    expect(screen.getByText('regene...secret')).toBeVisible();
   });
 
-  it('given the rotated secret was acknowledged, allows the dialog to be dismissed', async () => {
+  it('given the regenerated secret was acknowledged, allows the dialog to be dismissed', async () => {
     // ARRANGE
     const application = createOAuthClient();
     vi.spyOn(axios, 'post').mockResolvedValueOnce({
-      data: { id: application.id, secret: 'rotated-client-secret' },
+      data: { id: application.id, secret: 'regenerated-client-secret' },
     });
 
     render(<OAuthApplicationManagementDialogTrigger application={application} />, {
@@ -174,10 +174,10 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Manage' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Rotate secret' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Regenerate secret' }));
     await userEvent.click(
       within(screen.getByRole('alertdialog')).getByRole('button', {
-        name: 'Rotate secret',
+        name: 'Regenerate secret',
       }),
     );
     await screen.findByText("You won't be able to see the client secret again.");
@@ -188,7 +188,7 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('given a public application, does not offer secret rotation', async () => {
+  it('given a public application, does not offer secret regeneration', async () => {
     // ARRANGE
     render(
       <OAuthApplicationManagementDialogTrigger
@@ -201,7 +201,7 @@ describe('Component: OAuthApplicationManagementDialogTrigger', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Manage' }));
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: 'Rotate secret' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Regenerate secret' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Client secret' })).not.toBeInTheDocument();
   });
 });
