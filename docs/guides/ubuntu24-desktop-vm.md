@@ -209,16 +209,6 @@ $ . ~/.bashrc
 
 ```
 $ cp .env.example .env
-$ nano .env
-```
-
-Find the commented out `APP_VERSION=DEV` setting and uncomment it
-
-Find the commented out `DEBUGBAR_ENABLED` setting and uncomment it and set it to `"true"`
-
-Find the commented out `QUEUE_CONNECTION` settings and add a new one that sets `QUEUE_CONNECTION` to `"sync"`
-
-```
 $ sudo apt install npm
 $ sudo npm install -g pnpm
 $ sudo add-apt-repository ppa:ondrej/php
