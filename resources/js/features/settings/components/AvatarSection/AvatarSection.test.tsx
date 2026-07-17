@@ -32,6 +32,7 @@ describe('Component: AvatarSection', () => {
 
     // ASSERT
     expect(screen.getByLabelText(/new image/i)).toBeVisible();
+    expect(screen.getByText('PNG, JPEG, and GIF images are supported.')).toBeVisible();
   });
 
   it('given the user tries to submit a new avatar image, attempts to upload it to the server', async () => {

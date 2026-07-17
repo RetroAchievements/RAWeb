@@ -6,8 +6,9 @@ import { route } from 'ziggy-js';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
+import { usePageNavigationTabs } from '@/common/hooks/usePageNavigationTabs';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useGameShowTabs } from '@/features/games/hooks/useGameShowTabs';
+import { currentTabAtom } from '@/features/games/state/games.atoms';
 
 import { SidebarClaimButtons } from './SidebarClaimButtons';
 import { SidebarToggleInReviewButton } from './SidebarToggleInReviewButton';
@@ -31,7 +32,7 @@ export const SidebarDevelopmentSection: FC = () => {
       userGameListType: 'develop',
     });
 
-  const { setCurrentTab } = useGameShowTabs();
+  const { setCurrentTab } = usePageNavigationTabs(currentTabAtom, 'achievements');
 
   const isDeveloper = auth?.user.roles.includes('developer');
 

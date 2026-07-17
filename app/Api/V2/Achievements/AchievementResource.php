@@ -8,6 +8,7 @@ use App\Api\V2\BaseJsonApiResource;
 use App\Models\Achievement;
 use App\Models\AchievementSetAchievement;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Link;
 use LaravelJsonApi\Core\Document\Links;
 
 /**
@@ -77,6 +78,7 @@ class AchievementResource extends BaseJsonApiResource
     {
         return new Links(
             $this->selfLink(),
+            new Link('webUrl', route('achievement.show', ['achievement' => $this->resource->id])),
         );
     }
 

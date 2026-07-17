@@ -136,7 +136,7 @@ class LoginAction extends BaseApiAction
 
     private function completeLogin(User $user): array
     {
-        // keep the token alive for another two weeks
+        // keep the token alive for another year
         $user->extendConnectTokenExpiry();
         $user->saveQuietly();
 
@@ -146,6 +146,7 @@ class LoginAction extends BaseApiAction
             'Success' => true,
             'User' => $user->display_name,
             'AvatarUrl' => UserAvatarUrl::canonical($user->username),
+            'AvatarUpdatedAt' => $user->avatar_updated_at?->unix() ?? 0,
             'Token' => $user->connect_token,
             'Score' => $user->points_hardcore,
             'SoftcoreScore' => $user->points,

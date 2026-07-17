@@ -8,7 +8,7 @@ use App\Api\V2\Tickets\TicketableTypeFilter;
 use App\Api\V2\Tickets\TicketStateFilter;
 use App\Api\V2\Tickets\TicketTypeFilter;
 use App\Api\V2\Tickets\UserUlidFilter;
-use App\Api\V2\UserAwards\UserAwardGameAwardsFilter;
+use App\Api\V2\UserAwards\UserAwardGameAwardTierFilter;
 use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,6 +18,7 @@ use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
@@ -104,6 +105,8 @@ class UserSchema extends Schema
             Str::make('richPresence', 'rich_presence')->readOnly(),
             DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
+            BelongsTo::make('lastGame')->type('games')->readOnly(),
+
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
 
@@ -133,7 +136,7 @@ class UserSchema extends Schema
                     Scope::make('awardedTo'),
                     Scope::make('eventId', 'forEventId'),
                     Scope::make('gameId', 'forGameId'),
-                    new UserAwardGameAwardsFilter(),
+                    new UserAwardGameAwardTierFilter(),
                     new UserAwardKindFilter(),
                 )
                 ->readOnly(),
@@ -148,7 +151,6 @@ class UserSchema extends Schema
                 ->readOnly(),
 
             // TODO add relationships and relationship endpoints
-            // - lastGame (BelongsTo Game)
             // - authoredAchievements (HasMany Achievement)
         ];
     }

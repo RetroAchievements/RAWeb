@@ -144,7 +144,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('messages/{user}', [MessageThreadController::class, 'index'])->name('message-thread.user.index');
                         Route::get('messages/{user}/create', [MessageThreadController::class, 'create'])->name('message-thread.user.create');
 
-                        Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
+                        Route::get('settings', [UserSettingsController::class, 'show'])->name('settings');
                     });
                 });
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -346,7 +347,101 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertArrayNotHasKey('deletedAt', $attributes);
     }
 
-    public function testItIncludesProfileLink(): void
+    public function testItCanIncludeLastGameRelationship(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['title' => 'Super Mario Bros.']);
+        $user = User::factory()->create();
+        $user->rich_presence_game_id = $game->id;
+        $user->save();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?include=lastGame");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('games', $response->json('data.relationships.lastGame.data.type'));
+        $this->assertEquals((string) $game->id, $response->json('data.relationships.lastGame.data.id'));
+
+        $included = collect($response->json('included'));
+        $includedGame = $included->firstWhere('type', 'games');
+        $this->assertNotNull($includedGame);
+        $this->assertEquals((string) $game->id, $includedGame['id']);
+        $this->assertEquals('Super Mario Bros.', $includedGame['attributes']['title']);
+    }
+
+    public function testItCanIncludeLastGameRelationshipOnIndex(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['title' => 'Super Mario Bros.']);
+        $user = User::factory()->create();
+        $user->rich_presence_game_id = $game->id;
+        $user->save();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?include=lastGame');
+
+        // Assert
+        $response->assertSuccessful();
+        $indexedUser = collect($response->json('data'))->firstWhere('id', $user->ulid);
+        $this->assertNotNull($indexedUser);
+        $this->assertEquals((string) $game->id, $indexedUser['relationships']['lastGame']['data']['id']);
+
+        $included = collect($response->json('included'));
+        $includedGame = $included->firstWhere('type', 'games');
+        $this->assertNotNull($includedGame);
+        $this->assertEquals((string) $game->id, $includedGame['id']);
+    }
+
+    public function testItReturnsNullLastGameRelationshipWhenUserHasNeverPlayed(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+        $user->rich_presence_game_id = 0;
+        $user->save();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?include=lastGame");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertNull($response->json('data.relationships.lastGame.data'));
+        $this->assertEmpty($response->json('included'));
+    }
+
+    public function testItDoesNotIncludeLastGameDataByDefault(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create();
+        $user = User::factory()->create();
+        $user->rich_presence_game_id = $game->id;
+        $user->save();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertNull($response->json('data.relationships'));
+    }
+
+    public function testItIncludesWebUrlLink(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -363,8 +458,8 @@ class UsersTest extends JsonApiResourceTestCase
         $links = $response->json('data.links');
 
         $this->assertArrayHasKey('self', $links);
-        $this->assertArrayHasKey('profile', $links);
-        $this->assertStringContainsString('/user/LinkTestUser', $links['profile']);
+        $this->assertArrayHasKey('webUrl', $links);
+        $this->assertStringContainsString('/user/LinkTestUser', $links['webUrl']);
     }
 
     public function testItReturnsVisibleRole(): void

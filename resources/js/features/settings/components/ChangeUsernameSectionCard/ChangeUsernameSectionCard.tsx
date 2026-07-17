@@ -79,7 +79,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                     <div className="flex flex-grow flex-col gap-1">
                       <BaseFormControl>
                         <BaseInput
-                          placeholder={t('enter your new username here...')}
+                          placeholder={t('Enter your new username')}
                           required
                           autoComplete="off"
                           minLength={4}
@@ -106,7 +106,7 @@ export const ChangeUsernameSectionCard: FC = () => {
                     <div className="flex flex-grow flex-col gap-1">
                       <BaseFormControl>
                         <BaseInput
-                          placeholder={t('confirm your new username here...')}
+                          placeholder={t('Confirm your new username')}
                           required
                           autoComplete="off"
                           minLength={4}
