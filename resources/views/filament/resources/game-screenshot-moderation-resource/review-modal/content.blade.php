@@ -49,7 +49,7 @@
             return window.innerHeight - 128;
         },
         needsFitZoom() {
-            return this.naturalWidth > this.maxViewportWidth() || this.naturalHeight > this.maxViewportHeight();
+            return this.naturalWidth * this.zoomScale > this.maxViewportWidth() || this.naturalHeight * this.zoomScale > this.maxViewportHeight();
         },
         zoomOptions() {
             return [...(this.needsFitZoom() ? ['fit'] : []), ...this.zoomLevels()];
@@ -204,7 +204,8 @@
             x-cloak
             x-transition.opacity
             @click.self="closeZoom()"
-            style="position: fixed; inset: 0; z-index: 9999999; background-color: rgba(0, 0, 0, 0.92); display: flex; flex-direction: column;"
+            class="flex flex-col"
+            style="position: fixed; inset: 0; z-index: 9999999; background-color: rgba(0, 0, 0, 0.92);"
         >
             <div
                 class="flex shrink-0 items-center justify-between gap-3 px-6 py-3 text-neutral-100"
@@ -262,7 +263,7 @@
             </div>
 
             <div class="flex-1 overflow-auto" @click.self="closeZoom()">
-                <div class="flex min-h-full min-w-full items-center justify-center p-8" @click.self="closeZoom()">
+                <div class="flex min-h-full w-max min-w-full items-center justify-center p-8" @click.self="closeZoom()">
                     <img
                         :src="zoomedUrl"
                         :alt="zoomedLabel"
