@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\ScreenshotResolutionService;
 use BackedEnum;
+use Closure;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
@@ -291,7 +292,14 @@ class GameResource extends Resource
                                 $system = System::find($value);
 
                                 return "[{$system->id}] {$system->name}";
-                            }),
+                            })
+                            ->rules([
+                                fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                                    if (!System::gameSystems()->whereKey($value)->exists()) {
+                                        $fail('Games cannot be created for this system.');
+                                    }
+                                },
+                            ]),
 
                         Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')

@@ -194,7 +194,7 @@ class Hashes extends ManageRelatedRecords
                         /** @var User $user */
                         $user = Auth::user();
 
-                        return $user->can('createFromFilament', Game::class);
+                        return $user->can('createFromFilament', GameHash::class);
                     }),
 
                 Actions\Action::make('view-legacy-comments')
