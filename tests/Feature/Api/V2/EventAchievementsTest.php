@@ -8,7 +8,9 @@ use App\Models\Achievement;
 use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Database\Eloquent\Model;
 
 class EventAchievementsTest extends JsonApiResourceTestCase
@@ -77,6 +79,56 @@ class EventAchievementsTest extends JsonApiResourceTestCase
 
         $this->assertStringEndsWith("/achievement/{$mirror->id}", $response->json('data.links.webUrl'));
         $this->assertStringEndsWith("/api/v2/event-achievements/{$eventAchievement->id}", $response->json('data.links.self'));
+    }
+
+    public function testItPreventsAccessWhenAnyMatchingEventIsInTheFuture(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['players_total' => 1000]);
+        $mirror = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->subMonth()]);
+        Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->addMonth()]);
+        $eventAchievement = EventAchievement::factory()->create([
+            'achievement_id' => $mirror->id,
+            'source_achievement_id' => Achievement::factory()->create()->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('event-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/event-achievements/{$eventAchievement->id}");
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testItAllowsEventManagersToAccessFutureEventAchievements(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        $user->assignRole(Role::EVENT_MANAGER);
+
+        $game = Game::factory()->create(['players_total' => 1000]);
+        $mirror = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->subMonth()]);
+        Event::factory()->create(['legacy_game_id' => $game->id, 'active_from' => now()->addMonth()]);
+        $eventAchievement = EventAchievement::factory()->create([
+            'achievement_id' => $mirror->id,
+            'source_achievement_id' => Achievement::factory()->create()->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('event-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/event-achievements/{$eventAchievement->id}");
+
+        // Assert
+        $response->assertSuccessful();
     }
 
     public function testItReturnsEventAchievementsForAnEvent(): void

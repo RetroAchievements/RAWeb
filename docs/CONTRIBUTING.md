@@ -86,12 +86,12 @@ Define abilities in policies.
 Authorize explicitly in controllers/actions. There is a variety of custom abilities, we don't want to end up in a hit or miss scenario.
 Do not use authorizeResource() in Controllers' constructor.
 
-Use FormRequests in controllers for validation. Ignore Form Requests' authorization capabilities (should be done in controllers/actions instead). 
+Use FormRequests in controllers for validation. Ignore Form Requests' authorization capabilities (should be done in controllers/actions instead).
 
 **Controllers, Actions, Reusable Action Classes**
 
 Controllers should be slim, start with an ability authorization, even if it's an "always-public" route.
- 
+
 In case of complex procedures, delegate to a reusable Action that can be injected from the container.
 If too much is going on in a controller's action it might be a good candidate to be extracted into a dedicated action.
 Especially if it's something that can be reused.
@@ -110,12 +110,12 @@ Back-office administration uses [Filament](https://filamentphp.com/). Admin reso
 
 **Routes**
 
-Middleware gets applied for basic abilities (guest, auth, can:accessManagementTools) - specific abilities should be authorized in controller actions. 
+Middleware gets applied for basic abilities (guest, auth, can:accessManagementTools) - specific abilities should be authorized in controller actions.
 
 Slugs are kebab-cased and _appended_ to model IDs (which in turn can be hashed/masked).
 This allows keeping /create, /edit, etc routes without having to deal with conflicts.
 
-Route keys for route model binding should be validated in the respective RouteServiceProvider. 
+Route keys for route model binding should be validated in the respective RouteServiceProvider.
 
 ## Translating the Application
 

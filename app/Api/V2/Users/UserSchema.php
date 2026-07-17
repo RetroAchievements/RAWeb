@@ -18,6 +18,7 @@ use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
@@ -104,6 +105,8 @@ class UserSchema extends Schema
             Str::make('richPresence', 'rich_presence')->readOnly(),
             DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
+            BelongsTo::make('lastGame')->type('games')->readOnly(),
+
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
 
@@ -148,7 +151,6 @@ class UserSchema extends Schema
                 ->readOnly(),
 
             // TODO add relationships and relationship endpoints
-            // - lastGame (BelongsTo Game)
             // - authoredAchievements (HasMany Achievement)
         ];
     }
