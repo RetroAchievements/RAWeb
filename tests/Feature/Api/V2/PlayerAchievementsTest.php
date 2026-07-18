@@ -378,9 +378,10 @@ class PlayerAchievementsTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id]);
         $achievement2 = Achievement::factory()->create(['game_id' => $game->id]);
         $achievement3 = Achievement::factory()->create(['game_id' => $game->id]);
+        $achievement4 = Achievement::factory()->create(['game_id' => $game->id]);
 
         $player = User::factory()->create();
-        PlayerAchievement::factory()->create([
+        $pa1 = PlayerAchievement::factory()->create([
             'user_id' => $player->id,
             'achievement_id' => $achievement1->id,
             'unlocked_at' => '2024-01-01 12:00:00',
@@ -388,25 +389,45 @@ class PlayerAchievementsTest extends TestCase
         $pa2 = PlayerAchievement::factory()->create([
             'user_id' => $player->id,
             'achievement_id' => $achievement2->id,
-            'unlocked_at' => '2024-06-15 12:00:00',
+            'unlocked_at' => '2024-03-01 00:00:00',
+        ]);
+        $pa3 = PlayerAchievement::factory()->create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement3->id,
+            'unlocked_at' => '2024-09-01 23:59:59', // late in the final day, a bare-date "to" bound must still return this
         ]);
         PlayerAchievement::factory()->create([
             'user_id' => $player->id,
-            'achievement_id' => $achievement3->id,
-            'unlocked_at' => '2024-12-01 12:00:00',
+            'achievement_id' => $achievement4->id,
+            'unlocked_at' => '2024-09-02 00:00:00', // midnight the day after the "to" bound, always excluded
         ]);
 
         // Act
-        $response = $this->jsonApi('v2')
+        $bareDateResponse = $this->jsonApi('v2')
             ->expects('player-achievements')
             ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$player->ulid}/player-achievements?filter[unlockedFrom]=2024-03-01&filter[unlockedTo]=2024-09-01");
 
+        $explicitTimestampResponse = $this->jsonApi('v2')
+            ->expects('player-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievements?filter[unlockedTo]=2024-09-01%2012:00:00");
+
         // Assert
-        $response->assertSuccessful();
-        $data = $response->json('data');
-        $this->assertCount(1, $data);
-        $this->assertEquals((string) $pa2->id, $data[0]['id']);
+        $bareDateResponse->assertSuccessful();
+        $data = $bareDateResponse->json('data');
+        $this->assertCount(2, $data);
+        $ids = array_column($data, 'id');
+        $this->assertContains((string) $pa2->id, $ids); // a bare-date "from" bound includes midnight of that day
+        $this->assertContains((string) $pa3->id, $ids); // a bare-date "to" bound is treated as end-of-day
+
+        // ... a "to" value carrying an explicit time component keeps the literal inclusive comparison ...
+        $explicitTimestampResponse->assertSuccessful();
+        $explicitData = $explicitTimestampResponse->json('data');
+        $this->assertCount(2, $explicitData);
+        $explicitIds = array_column($explicitData, 'id');
+        $this->assertContains((string) $pa1->id, $explicitIds);
+        $this->assertContains((string) $pa2->id, $explicitIds);
     }
 
     public function testItCanIncludeAchievementRelationship(): void

@@ -69,6 +69,27 @@ it('awards a tier 0 badge when eligible screenshots cross the first threshold', 
     );
 });
 
+it('keeps exactly one mediaContrib row when upgrading across multiple thresholds', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    createApprovedScreenshotsForRevalidateActionTest(100, $game, $submitter, $reviewer);
+
+    // ACT
+    $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
+
+    // ASSERT
+    expect($badge->award_key)->toEqual(2);
+    expect($badge->award_tier)->toEqual(2);
+    expect(
+        PlayerBadge::where('user_id', $submitter->id)
+            ->where('award_type', AwardType::MediaContribution)
+            ->count()
+    )->toEqual(1);
+});
+
 it('excludes self-approved screenshots from the eligible count', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
@@ -131,7 +152,7 @@ it('removes existing badges and returns null when no screenshots are eligible', 
         'user_id' => $submitter->id,
         'award_type' => AwardType::MediaContribution,
         'award_key' => 1,
-        'award_tier' => 0,
+        'award_tier' => 1,
     ]);
 
     // ACT
@@ -178,7 +199,40 @@ it('reuses an existing badge at the expected tier without dispatching an event',
     Event::assertNotDispatched(SiteBadgeAwarded::class);
 });
 
-it('downgrades by deleting higher tiers and returning the matching lower tier', function () {
+it('downgrades the existing row in place when eligibility drops to a lower tier', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    createApprovedScreenshotsForRevalidateActionTest(10, $game, $submitter, $reviewer);
+
+    $existing = PlayerBadge::factory()->create([
+        'user_id' => $submitter->id,
+        'award_type' => AwardType::MediaContribution,
+        'award_key' => 1,
+        'award_tier' => 1,
+    ]);
+
+    Event::fake([SiteBadgeAwarded::class]);
+
+    // ACT
+    $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
+
+    // ASSERT
+    expect($badge->id)->toEqual($existing->id);
+    expect($badge->award_key)->toEqual(0);
+    expect($badge->award_tier)->toEqual(0);
+    expect(
+        PlayerBadge::where('user_id', $submitter->id)
+            ->where('award_type', AwardType::MediaContribution)
+            ->count()
+    )->toEqual(1);
+
+    Event::assertNotDispatched(SiteBadgeAwarded::class);
+});
+
+it('clears display_award_tier on downgrade when the displayed tier is no longer earned', function () {
     // ARRANGE
     $game = Game::factory()->create(['system_id' => System::factory()]);
     $submitter = User::factory()->create();
@@ -189,29 +243,41 @@ it('downgrades by deleting higher tiers and returning the matching lower tier', 
     PlayerBadge::factory()->create([
         'user_id' => $submitter->id,
         'award_type' => AwardType::MediaContribution,
-        'award_key' => 0,
-        'award_tier' => 0,
+        'award_key' => 2,
+        'award_tier' => 2,
+        'display_award_tier' => 2,
     ]);
-    PlayerBadge::factory()->create([
-        'user_id' => $submitter->id,
-        'award_type' => AwardType::MediaContribution,
-        'award_key' => 1,
-        'award_tier' => 0,
-    ]);
-
-    Event::fake([SiteBadgeAwarded::class]);
 
     // ACT
     $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
 
     // ASSERT
-    expect($badge->award_key)->toEqual(0);
-    expect(PlayerBadge::where('user_id', $submitter->id)
-        ->where('award_type', AwardType::MediaContribution)
-        ->where('award_key', 1)
-        ->count())->toEqual(0);
+    expect($badge->award_tier)->toEqual(0);
+    expect($badge->display_award_tier)->toBeNull();
+});
 
-    Event::assertNotDispatched(SiteBadgeAwarded::class);
+it('preserves display_award_tier on downgrade when the displayed tier is still earned', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $submitter = User::factory()->create();
+    $reviewer = User::factory()->create();
+
+    createApprovedScreenshotsForRevalidateActionTest(30, $game, $submitter, $reviewer);
+
+    PlayerBadge::factory()->create([
+        'user_id' => $submitter->id,
+        'award_type' => AwardType::MediaContribution,
+        'award_key' => 2,
+        'award_tier' => 2,
+        'display_award_tier' => 0,
+    ]);
+
+    // ACT
+    $badge = (new RevalidateMediaContributionBadgeEligibilityAction())->execute($submitter);
+
+    // ASSERT
+    expect($badge->award_tier)->toEqual(1);
+    expect($badge->display_award_tier)->toEqual(0);
 });
 
 it('preserves the order_column from the previous highest tier when upgrading', function () {

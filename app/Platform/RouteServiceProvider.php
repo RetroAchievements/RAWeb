@@ -14,6 +14,7 @@ use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
+use App\Platform\Controllers\Api\UserDisplayedBadgePreferenceApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
@@ -157,6 +158,16 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/event-award-tier-preference', [UserEventAwardTierPreferenceApiController::class, 'update'])
                         ->name('api.user.event-award-tier-preference.update');
 
+                    Route::get('user/games/{game}/selectable-badges', [UserDisplayedBadgePreferenceApiController::class, 'gameSelectableBadges'])
+                        ->name('api.user.mastery-badge-preference.index');
+                    Route::post('user/mastery-badge-preference', [UserDisplayedBadgePreferenceApiController::class, 'updateGameBadge'])
+                        ->name('api.user.mastery-badge-preference.update');
+
+                    Route::get('user/media-contribution/selectable-tiers', [UserDisplayedBadgePreferenceApiController::class, 'mediaContributionSelectableTiers'])
+                        ->name('api.user.media-contribution-tier-preference.index');
+                    Route::put('user/media-contribution/tier-preference', [UserDisplayedBadgePreferenceApiController::class, 'updateMediaContributionTier'])
+                        ->name('api.user.media-contribution-tier-preference.update');
+
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
 
                     Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
@@ -167,9 +178,6 @@ class RouteServiceProvider extends ServiceProvider
                         ->middleware('throttle:10,1')
                         ->name('api.game-screenshot.destroy');
                 });
-
-                Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
-                Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');

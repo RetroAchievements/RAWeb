@@ -118,7 +118,7 @@ trait TestsPlayerBadges
         return $user->playerBadges()
             ->where('award_type', AwardType::Mastery)
             ->where('award_key', $game->id)
-            ->where('award_tier', UnlockMode::Softcore)
+            ->where('award_tier', UnlockMode::Casual)
             ->exists();
     }
 

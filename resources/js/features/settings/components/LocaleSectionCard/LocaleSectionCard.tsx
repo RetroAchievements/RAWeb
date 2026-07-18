@@ -85,7 +85,7 @@ export const LocaleSectionCard: FC = () => {
 
                 <BaseFormDescription>
                   <Trans
-                    i18nKey="Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>."
+                    i18nKey="Translations are community-contributed and a work in progress. Learn how to contribute <1>here</1>."
                     components={{
                       1: (
                         // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer

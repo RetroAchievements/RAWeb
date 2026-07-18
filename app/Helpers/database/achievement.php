@@ -3,8 +3,8 @@
 use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @return Collection<int, array>
@@ -18,146 +18,96 @@ function getAchievementsList(
     ?bool $isPromoted = null,
     ?User $developer = null,
 ): Collection {
-    $bindings = [
-        'offset' => $offset,
-        'limit' => $limit,
-        'isPromoted' => $isPromoted ?? true,
-    ];
-
-    $selectAwardedDate = ", NULL AS AwardedDate";
-    $joinPlayerAchievements = "";
-    $additionalWhereClauses = "";
-    $notExistsSubquery = "";
-
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
     if (($sortBy == 9 || $sortBy == 19) && !$user) {
         $sortBy = 0;
     }
 
+    // TODO slow query (18)
+    $query = DB::table('achievements as ach')
+        ->select([
+            'ach.id',
+            'ach.title as AchievementTitle',
+            'ach.description',
+            'ach.points',
+            'ach.points_weighted as TrueRatio',
+            'ach.type',
+            'ach.created_at as DateCreated',
+            'ach.modified_at as DateModified',
+            'ach.image_name as BadgeName',
+            'ach.game_id as GameID',
+            'gd.title as GameTitle',
+            'gd.image_icon_asset_path as GameIcon',
+            'gd.system_id as ConsoleID',
+            's.name as ConsoleName',
+            'ua.username as Author',
+        ])
+        ->join('users as ua', 'ua.id', '=', 'ach.user_id')
+        ->join('games as gd', 'gd.id', '=', 'ach.game_id')
+        ->join('systems as s', 's.id', '=', 'gd.system_id')
+        ->where('gd.system_id', '!=', System::Events)
+        ->where('ach.is_promoted', '=', $isPromoted ?? true)
+        ->whereNull('ach.deleted_at');
+
     if ($params === 1 && isset($user)) {
         // Achievements the user has unlocked.
-        $bindings['userId'] = $user->id;
+        $query->join('player_achievements as pa', function ($join) use ($user) {
+            $join->on('pa.achievement_id', '=', 'ach.id')
+                ->where('pa.user_id', '=', $user->id);
+        });
+        $query->addSelect('pa.unlocked_effective_at as AwardedDate');
+        $query->whereNotNull('pa.unlocked_at');
+    } else {
+        $query->selectRaw('NULL AS AwardedDate');
 
-        $joinPlayerAchievements = "INNER JOIN player_achievements AS pa ON pa.achievement_id = ach.id AND pa.user_id = :userId";
-        $selectAwardedDate = ", pa.unlocked_effective_at AS AwardedDate";
-        $additionalWhereClauses .= "AND pa.unlocked_at IS NOT NULL ";
-    } elseif ($params === 2) {
-        // Achievements the user hasn't unlocked.
-        $bindings['userId'] = $user->id;
-
-        $notExistsSubquery = "AND NOT EXISTS (
-            SELECT 1 FROM player_achievements pa
-            WHERE pa.achievement_id = ach.id AND pa.user_id = :userId
-        ) ";
+        if ($params === 2) {
+            // Achievements the user hasn't unlocked.
+            $query->whereNotExists(function ($subQuery) use ($user) {
+                $subQuery->selectRaw('1')
+                    ->from('player_achievements as pa')
+                    ->whereColumn('pa.achievement_id', 'ach.id')
+                    ->where('pa.user_id', '=', $user->id);
+            });
+        }
     }
 
-    // TODO slow query (18)
-    $query = "SELECT
-                ach.id,
-                ach.title AS AchievementTitle,
-                ach.description,
-                ach.points,
-                ach.points_weighted AS TrueRatio,
-                ach.type,
-                ach.created_at AS DateCreated,
-                ach.modified_at AS DateModified,
-                ach.image_name AS BadgeName,
-                ach.game_id AS GameID,
-                gd.title AS GameTitle,
-                gd.image_icon_asset_path AS GameIcon,
-                gd.system_id AS ConsoleID,
-                s.name AS ConsoleName,
-                ua.username AS Author
-                $selectAwardedDate
-            FROM achievements AS ach
-            $joinPlayerAchievements
-            INNER JOIN users AS ua ON ua.id = ach.user_id
-            INNER JOIN games AS gd ON gd.id = ach.game_id
-            INNER JOIN systems AS s ON s.id = gd.system_id
-            WHERE gd.system_id != " . System::Events . "
-            AND ach.is_promoted = :isPromoted
-            AND ach.deleted_at IS NULL ";
-
     if ($developer) {
-        $bindings['developerId'] = $developer->id;
-        $query .= "AND ach.user_id = :developerId ";
+        $query->where('ach.user_id', '=', $developer->id);
     }
 
     if ($sortBy === 4) {
-        $query .= "AND ach.points_weighted > 0 ";
+        $query->where('ach.points_weighted', '>', 0);
     }
 
-    $query .= $additionalWhereClauses;
+    $order = match ($sortBy) {
+        0, 1 => 'ach.title',
+        2 => 'ach.description',
+        3 => 'ach.points, GameTitle',
+        4 => 'ach.points_weighted, ach.points DESC, GameTitle',
+        5 => 'ua.username',
+        6 => 'GameTitle',
+        7 => 'ach.created_at',
+        8 => 'ach.modified_at',
+        9 => 'AwardedDate',
+        11 => 'ach.title DESC',
+        12 => 'ach.description DESC',
+        13 => 'ach.points DESC, GameTitle',
+        14 => 'ach.points_weighted DESC, ach.points, GameTitle',
+        15 => 'ua.username DESC',
+        16 => 'GameTitle DESC',
+        17 => 'ach.created_at DESC',
+        18 => 'ach.modified_at DESC',
+        19 => 'AwardedDate DESC',
+        default => 'ach.id',
+    };
 
-    if (!empty($notExistsSubquery)) {
-        $query .= $notExistsSubquery;
-    }
+    $query->orderByRaw($order);
 
-    switch ($sortBy) {
-        case 0:
-        case 1:
-            $query .= "ORDER BY ach.title ";
-            break;
-        case 2:
-            $query .= "ORDER BY ach.description ";
-            break;
-        case 3:
-            $query .= "ORDER BY ach.points, GameTitle ";
-            break;
-        case 4:
-            $query .= "ORDER BY ach.points_weighted, ach.points DESC, GameTitle ";
-            break;
-        case 5:
-            $query .= "ORDER BY ua.username ";
-            break;
-        case 6:
-            $query .= "ORDER BY GameTitle ";
-            break;
-        case 7:
-            $query .= "ORDER BY ach.created_at ";
-            break;
-        case 8:
-            $query .= "ORDER BY ach.modified_at ";
-            break;
-        case 9:
-            $query .= "ORDER BY AwardedDate ";
-            break;
-        case 11:
-            $query .= "ORDER BY ach.title DESC ";
-            break;
-        case 12:
-            $query .= "ORDER BY ach.description DESC ";
-            break;
-        case 13:
-            $query .= "ORDER BY ach.points DESC, GameTitle ";
-            break;
-        case 14:
-            $query .= "ORDER BY ach.points_weighted DESC, ach.points, GameTitle ";
-            break;
-        case 15:
-            $query .= "ORDER BY ua.username DESC ";
-            break;
-        case 16:
-            $query .= "ORDER BY GameTitle DESC ";
-            break;
-        case 17:
-            $query .= "ORDER BY ach.created_at DESC ";
-            break;
-        case 18:
-            $query .= "ORDER BY ach.modified_at DESC ";
-            break;
-        case 19:
-            $query .= "ORDER BY AwardedDate DESC ";
-            break;
-        default:
-            $query .= "ORDER BY ach.id ";
-            break;
-    }
-
-    $query .= "LIMIT :offset, :limit";
-
-    return legacyDbFetchAll($query, $bindings);
+    return $query->offset($offset)
+        ->limit($limit)
+        ->get()
+        ->map(fn ($row) => (array) $row);
 }
 
 function GetAchievementData(int $achievementId): ?array
@@ -204,19 +154,6 @@ function updateAchievementPromotedStatus(int|string|array $inputAchievementIds, 
 
     foreach ($achievements as $achievement) {
         $achievement->is_promoted = $isPromoted;
-        $achievement->save();
-    }
-}
-
-function updateAchievementType(int|string|array $inputAchievementIds, ?string $newType): void
-{
-    $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
-
-    $achievements = Achievement::whereIn('id', $achievementIds)->get();
-
-    foreach ($achievements as $achievement) {
-        $achievement->type = $newType;
-        $achievement->updated_at = Carbon::now();
         $achievement->save();
     }
 }

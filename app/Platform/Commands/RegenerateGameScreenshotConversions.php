@@ -79,8 +79,9 @@ class RegenerateGameScreenshotConversions extends Command
             ->all();
 
         $query = (clone $baseQuery)->where(function ($q) use ($expectedConversions) {
+            $base = $q->getQuery();
             foreach ($expectedConversions as $conversion) {
-                $q->orWhereNull("generated_conversions->{$conversion}")
+                $base->orWhereNull("generated_conversions->{$conversion}")
                     ->orWhere("generated_conversions->{$conversion}", false);
             }
         });

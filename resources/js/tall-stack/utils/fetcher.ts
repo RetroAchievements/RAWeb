@@ -1,7 +1,7 @@
 export function fetcher<T>(
   requestUrl: string,
   fetchOptions?: Partial<{
-    method: 'GET' | 'POST';
+    method: 'GET' | 'POST' | 'PUT';
     body: BodyInit;
     credentials: RequestCredentials;
     headers: HeadersInit;

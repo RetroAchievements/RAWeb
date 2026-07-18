@@ -9,9 +9,9 @@ use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\PlayerStat;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +26,7 @@ class UserProfileMeta extends Component
         private array $userJoinedGamesAndAwards = [],
         private array $userMassData = [],
         private int $totalHardcoreAchievements = 0,
-        private int $totalSoftcoreAchievements = 0,
+        private int $totalCasualAchievements = 0,
         private ?array $userClaims = null,
     ) {
     }
@@ -34,15 +34,15 @@ class UserProfileMeta extends Component
     public function render(): View
     {
         $hardcorePoints = $this->userMassData['TotalPoints'] ?? 0;
-        $softcorePoints = $this->userMassData['TotalSoftcorePoints'] ?? 0;
+        $casualPoints = $this->userMassData['TotalSoftcorePoints'] ?? 0;
 
         $hardcoreRankMeta = ['rank' => 0];
-        $softcoreRankMeta = ['rank' => 0];
+        $casualRankMeta = ['rank' => 0];
         if ($hardcorePoints >= Rank::MIN_POINTS) {
             $hardcoreRankMeta = $this->buildRankMetadata($this->user, predefinedRank: $this->userMassData['Rank']);
         }
-        if ($softcorePoints >= Rank::MIN_POINTS) {
-            $softcoreRankMeta = $this->buildRankMetadata($this->user, RankType::Softcore);
+        if ($casualPoints >= Rank::MIN_POINTS) {
+            $casualRankMeta = $this->buildRankMetadata($this->user, RankType::Casual);
         }
 
         $developerStats = [];
@@ -54,9 +54,9 @@ class UserProfileMeta extends Component
         return view('components.user.profile-meta', [
             'developerStats' => $developerStats,
             'hardcoreRankMeta' => $hardcoreRankMeta,
-            'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta),
+            'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $casualRankMeta),
             'socialStats' => $this->buildSocialStats($this->user),
-            'softcoreRankMeta' => $softcoreRankMeta,
+            'casualRankMeta' => $casualRankMeta,
             'user' => $this->user,
             'userClaims' => $this->userClaims,
             'userMassData' => $this->userMassData, // TODO: replace w/ props from user model
@@ -118,7 +118,7 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->yield_unlocks) {
-            $openTickets = array_sum(countOpenTicketsByDev($user));
+            $openTickets = array_sum(app(UserTicketCountService::class)->countOpenForDev($user));
         }
         $openTicketsStat = [
             'label' => 'Open tickets',
@@ -205,11 +205,11 @@ class UserProfileMeta extends Component
         User $user,
         array $userMassData,
         array $hardcoreRankMeta,
-        array $softcoreRankMeta,
+        array $casualRankMeta,
     ): array {
         $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
-        $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
-        $preferredMode = $softcorePoints > $hardcorePoints ? 'softcore' : 'hardcore';
+        $casualPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
+        $preferredMode = $casualPoints > $hardcorePoints ? 'casual' : 'hardcore';
 
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
@@ -249,7 +249,7 @@ class UserProfileMeta extends Component
         $startedGamesBeatenPercentageStat = [
             'label' => 'Started games beaten',
             'value' => $startedGamesBeatenPercentage . '%',
-            'isMuted' => $hardcorePoints === 0 && $softcorePoints === 0,
+            'isMuted' => $hardcorePoints === 0 && $casualPoints === 0,
         ];
 
         // Points earned in the last 7 days
@@ -269,8 +269,8 @@ class UserProfileMeta extends Component
         // Average points per week
         $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
             $this->user,
-            $preferredMode !== "softcore",
-            $preferredMode !== "softcore" ? $hardcorePoints : $softcorePoints,
+            $preferredMode !== 'casual',
+            $preferredMode !== 'casual' ? $hardcorePoints : $casualPoints,
         );
         $averagePointsPerWeekStat = [
             'label' => 'Average points per week',
@@ -295,7 +295,7 @@ class UserProfileMeta extends Component
                 'totalGamesBeatenStat',
             ),
             $this->buildHardcorePlayerStats($user, $userMassData, $hardcoreRankMeta),
-            $this->buildSoftcorePlayerStats($user, $userMassData, $softcoreRankMeta),
+            $this->buildCasualPlayerStats($user, $userMassData, $casualRankMeta),
         );
     }
 
@@ -353,56 +353,56 @@ class UserProfileMeta extends Component
         );
     }
 
-    private function buildSoftcorePlayerStats(User $user, array $userMassData, array $softcoreRankMeta): array
+    private function buildCasualPlayerStats(User $user, array $userMassData, array $casualRankMeta): array
     {
-        $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
+        $casualPoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 
-        // Softcore points
-        $softcorePointsStat = [
-            'label' => 'Points (softcore)',
-            'value' => localized_number($softcorePoints),
-            'isMuted' => !$softcorePoints,
+        // Casual points.
+        $casualPointsStat = [
+            'label' => 'Points (casual)',
+            'value' => localized_number($casualPoints),
+            'isMuted' => !$casualPoints,
         ];
 
-        // Softcore site rank
-        $softcoreSiteRankHrefLabel = null;
-        $softcoreSiteRankValue = '';
+        // Casual site rank.
+        $casualSiteRankHrefLabel = null;
+        $casualSiteRankValue = '';
         if ($userMassData['Untracked']) {
-            $softcoreSiteRankValue = 'Untracked';
-        } elseif ($softcorePoints > 0 && !$softcoreRankMeta['rank']) {
-            $softcoreSiteRankValue = 'requires ' . Rank::MIN_POINTS . ' points';
-        } elseif ($softcorePoints === 0 && !$softcoreRankMeta['rank']) {
-            $softcoreSiteRankValue = 'none';
+            $casualSiteRankValue = 'Untracked';
+        } elseif ($casualPoints > 0 && !$casualRankMeta['rank']) {
+            $casualSiteRankValue = 'requires ' . Rank::MIN_POINTS . ' points';
+        } elseif ($casualPoints === 0 && !$casualRankMeta['rank']) {
+            $casualSiteRankValue = 'none';
         } else {
-            $softcoreSiteRankHrefLabel = "#" . localized_number($softcoreRankMeta['rank']);
-            $softcoreSiteRankValue = "of " . localized_number($softcoreRankMeta['numRankedUsers']);
+            $casualSiteRankHrefLabel = "#" . localized_number($casualRankMeta['rank']);
+            $casualSiteRankValue = "of " . localized_number($casualRankMeta['numRankedUsers']);
         }
-        $softcoreSiteRankStat = [
-            'label' => 'Softcore rank',
-            'hrefLabel' => $softcoreSiteRankHrefLabel,
-            'value' => $softcoreSiteRankValue,
+        $casualSiteRankStat = [
+            'label' => 'Casual rank',
+            'hrefLabel' => $casualSiteRankHrefLabel,
+            'value' => $casualSiteRankValue,
             'isMuted' => (
                 $userMassData['Untracked']
-                || ($softcorePoints > 0 && !$softcoreRankMeta['rank'])
-                || ($softcorePoints === 0 && !$softcoreRankMeta['rank'])
+                || ($casualPoints > 0 && !$casualRankMeta['rank'])
+                || ($casualPoints === 0 && !$casualRankMeta['rank'])
             ),
             'shouldEnableBolding' => false,
-            'href' => !$userMassData['Untracked'] && isset($softcoreRankMeta['rankOffset'])
-                ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2'
+            'href' => !$userMassData['Untracked'] && isset($casualRankMeta['rankOffset'])
+                ? '/globalRanking.php?t=2&o=' . $casualRankMeta['rankOffset'] . '&s=2'
                 : null,
         ];
 
-        // Achievements unlocked (softcore)
-        $softcoreAchievementsUnlockedStat = [
-            'label' => 'Achievements unlocked (softcore)',
-            'value' => localized_number($this->totalSoftcoreAchievements),
-            'isMuted' => !$this->totalSoftcoreAchievements,
+        // Achievements unlocked (casual).
+        $casualAchievementsUnlockedStat = [
+            'label' => 'Achievements unlocked (casual)',
+            'value' => localized_number($this->totalCasualAchievements),
+            'isMuted' => !$this->totalCasualAchievements,
         ];
 
         return compact(
-            'softcoreAchievementsUnlockedStat',
-            'softcorePointsStat',
-            'softcoreSiteRankStat',
+            'casualAchievementsUnlockedStat',
+            'casualPointsStat',
+            'casualSiteRankStat',
         );
     }
 
@@ -437,7 +437,7 @@ class UserProfileMeta extends Component
 
         $pointsLast7Days = (int) Achievement::query()
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $sevenDaysAgo = now()->subDays(7)->startOfDay();
@@ -450,7 +450,7 @@ class UserProfileMeta extends Component
 
         $pointsLast30Days = (int) Achievement::query()
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $thirtyDaysAgo = now()->subDays(30)->startOfDay();

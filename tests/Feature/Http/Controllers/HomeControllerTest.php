@@ -140,7 +140,7 @@ private function createDominatingClaims(
             ->where('mostRecentGameMastered.game.system.iconUrl', $system->iconUrl)
 
             ->where('mostRecentGameMastered.user.displayName', $player->username)
-            ->where('mostRecentGameMastered.user.avatarUrl', $player->avatarUrl)
+            ->where('mostRecentGameMastered.user.avatarUrl', media_asset('UserPic/' . $player->username . '.png') . '?v=0')
         );
     }
 
@@ -171,7 +171,7 @@ private function createDominatingClaims(
             ->where('mostRecentGameBeaten.game.system.iconUrl', $system->iconUrl)
 
             ->where('mostRecentGameBeaten.user.displayName', $player->username)
-            ->where('mostRecentGameBeaten.user.avatarUrl', $player->avatarUrl)
+            ->where('mostRecentGameBeaten.user.avatarUrl', media_asset('UserPic/' . $player->username . '.png') . '?v=0')
         );
     }
 
@@ -372,7 +372,7 @@ private function createDominatingClaims(
             ->where('completedClaims.0.game.system.name', $system->name)
 
             ->where('completedClaims.0.users.0.displayName', $user->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $user->username . '.png') . '?v=0')
         );
     }
 
@@ -425,7 +425,7 @@ private function createDominatingClaims(
             ->where('completedClaims.0.game.system.name', $system->name)
 
             ->where('completedClaims.0.users.0.displayName', $user->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $user->username . '.png') . '?v=0')
         );
     }
 
@@ -479,9 +479,9 @@ private function createDominatingClaims(
             ->has('completedClaims.0.users', 2)
 
             ->where('completedClaims.0.users.0.displayName', $userOne->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $userOne->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $userOne->username . '.png') . '?v=0')
             ->where('completedClaims.0.users.1.displayName', $userTwo->display_name)
-            ->where('completedClaims.0.users.1.avatarUrl', $userTwo->avatar_url)
+            ->where('completedClaims.0.users.1.avatarUrl', media_asset('UserPic/' . $userTwo->username . '.png') . '?v=0')
         );
     }
 
@@ -699,7 +699,7 @@ private function createDominatingClaims(
             ->where('newClaims.0.game.system.name', $system->name)
 
             ->where('newClaims.0.users.0.displayName', $user->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $user->username . '.png') . '?v=0')
         );
     }
 
@@ -751,7 +751,7 @@ private function createDominatingClaims(
             ->where('newClaims.0.game.system.name', $system->name)
 
             ->where('newClaims.0.users.0.displayName', $user->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $user->username . '.png') . '?v=0')
         );
     }
 
@@ -804,9 +804,9 @@ private function createDominatingClaims(
             ->has('newClaims.0.users', 2)
 
             ->where('newClaims.0.users.0.displayName', $userOne->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $userOne->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', media_asset('UserPic/' . $userOne->username . '.png') . '?v=0')
             ->where('newClaims.0.users.1.displayName', $userTwo->display_name)
-            ->where('newClaims.0.users.1.avatarUrl', $userTwo->avatar_url)
+            ->where('newClaims.0.users.1.avatarUrl', media_asset('UserPic/' . $userTwo->username . '.png') . '?v=0')
         );
     }
 

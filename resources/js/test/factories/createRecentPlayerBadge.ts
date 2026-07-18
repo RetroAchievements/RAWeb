@@ -7,7 +7,7 @@ export const createRecentPlayerBadge = createFactory<App.Community.Data.RecentPl
     return {
       game: createGame(),
       awardType: faker.helpers.arrayElement([
-        'beaten-softcore',
+        'beaten-casual',
         'beaten-hardcore',
         'completed',
         'mastered',

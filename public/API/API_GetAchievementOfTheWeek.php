@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\DB;
  *   string     User                    user who unlocked the achievement
  *   string     ULID                    stable unique identifier of the user who unlocked the achievement
  *   int        RAPoints                number of points the user has
- *   int        RASoftcorePoints        number of softcore points the user has
+ *   int        RASoftcorePoints        number of casual points the user has
  *   datetime   DateAwarded             when the achievement was unlocked
  *   int        HardcoreMode            1 if unlocked in hardcore, otherwise 0
  */

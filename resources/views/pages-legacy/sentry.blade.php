@@ -82,7 +82,7 @@ $colors = [
         'background' => 'indianred',
         'border' => 'red',
     ],
-    'softcore_validation' => [ // validation hash for hardcore unlocks matches softcore validation hash
+    'softcore_validation' => [ // validation hash for hardcore unlocks matches casual validation hash
         'background' => 'indianred',
         'border' => 'red',
     ],
@@ -250,33 +250,33 @@ foreach ($clients as $client) {
                                 echo "&middot; <a href='" . e($sniff['link']) . "'>" . e($sniff['user']) . '</a>';
                                 if (!array_key_exists('userinfo', $sniff)) {
                                     echo ' (non-existant)';
-                                } elseif ($sniff['userinfo']['deleted_at'] ?? false) {
+                                } elseif ($sniff['userinfo']->deleted_at ?? false) {
                                     echo ' (deleted)';
-                                } elseif ($sniff['userinfo']['Permissions'] == Permissions::Banned) {
+                                } elseif ($sniff['userinfo']->Permissions == Permissions::Banned) {
                                     echo ' (banned)';
-                                } elseif ($sniff['userinfo']['unranked_at'] ?? false) {
+                                } elseif ($sniff['userinfo']->unranked_at ?? false) {
                                     echo ' (untracked)';
                                 }
                             }
                         ?>
                         <?php if ($sniff['achievement'] ?? null): ?>
-                            &middot; <a href="/achievement/<?= $sniff['achievement']['id'] ?>"><?= $sniff['achievement']['title'] ?></a>
+                            &middot; <a href="/achievement/<?= $sniff['achievement']->id ?>"><?= $sniff['achievement']->title ?></a>
                             <?php if ($sniff['hardcore']): ?>
                                 (hardcore)
                             <?php endif ?>
                         <?php endif ?>
+                        <?php // remove the additional data we added for the UI before dumping the record
+                        unset($sniff['achievement']);
+                        unset($sniff['game']);
+                        unset($sniff['leaderboard']);
+                        unset($sniff['link']);
+                        unset($sniff['userinfo']);
+                        ?>
                         <?php if ($sniff['leaderboard'] ?? null): ?>
-                            &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']['id'] ?>"><?= $sniff['leaderboard']['title'] ?></a>
+                            &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']->id ?>"><?= $sniff['leaderboard']->title ?></a>
                             &middot; <code><?= $sniff['score'] ?></code>
                         <?php endif ?>
                     </summary>
-                    <?php
-                    unset($sniff['achievement']);
-                    unset($sniff['game']);
-                    unset($sniff['leaderboard']);
-                    unset($sniff['link']);
-                    unset($sniff['userinfo']);
-                    ?>
                     <pre><?= e(json_encode($sniff, JSON_PRETTY_PRINT)) ?></pre>
                 </details>
             <?php endforeach ?>

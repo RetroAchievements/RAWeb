@@ -66,6 +66,7 @@ class ForumTopicController extends Controller
             topic: $topic,
             user: $request->user(),
             currentPage: $request->getCurrentPage($topic, perPage: ForumTopic::COMMENTS_PER_PAGE),
+            selectedCommentId: $request->integer('comment')
         );
 
         if ($actionResult['redirectToPage'] !== null) {

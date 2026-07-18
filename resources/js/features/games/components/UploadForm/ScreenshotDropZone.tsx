@@ -8,26 +8,22 @@ import { cn } from '@/common/utils/cn';
 
 import { ScreenshotPreviewMeta } from './ScreenshotPreviewMeta';
 
-const MAX_NATIVE_RESOLUTIONS_TO_SHOW = 3;
-
 interface ScreenshotDropZoneProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
   isResolutionValid: boolean;
   previewUrl: string | null;
-  screenshotResolutions: Array<{ width: number; height: number }>;
 
-  canonicalResolution?: string | null;
   hasConsistencyWarning?: boolean;
   hasPreview?: boolean;
   is1xCapture?: boolean;
   onDrop?: (e: DragEvent) => void;
   onFileChange?: (file: File | undefined) => void;
   previewDimensions?: { width: number; height: number } | null;
+  selectedType?: App.Platform.Enums.ScreenshotType;
   supportsUpscaledScreenshots?: boolean;
 }
 
 export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
-  canonicalResolution,
   fileInputRef,
   hasConsistencyWarning,
   hasPreview,
@@ -37,7 +33,7 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
   onFileChange,
   previewDimensions,
   previewUrl,
-  screenshotResolutions,
+  selectedType,
   supportsUpscaledScreenshots,
 }) => {
   const { t } = useTranslation();
@@ -97,12 +93,11 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
 
             {previewDimensions ? (
               <ScreenshotPreviewMeta
-                canonicalResolution={canonicalResolution}
                 hasConsistencyWarning={hasConsistencyWarning}
                 height={previewDimensions.height}
                 is1xCapture={is1xCapture}
                 isResolutionValid={isResolutionValid}
-                screenshotResolutions={screenshotResolutions}
+                selectedType={selectedType}
                 supportsUpscaledScreenshots={supportsUpscaledScreenshots}
                 width={previewDimensions.width}
               />
@@ -111,10 +106,7 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
             <p className="text-xs text-neutral-500">{t('Click or drag to replace')}</p>
           </m.div>
         ) : (
-          <EmptyState
-            screenshotResolutions={screenshotResolutions}
-            supportsUpscaledScreenshots={supportsUpscaledScreenshots}
-          />
+          <EmptyState supportsUpscaledScreenshots={supportsUpscaledScreenshots} />
         )}
       </div>
     </m.button>
@@ -122,22 +114,11 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
 };
 
 interface EmptyStateProps {
-  screenshotResolutions: Array<{ width: number; height: number }>;
   supportsUpscaledScreenshots?: boolean;
 }
 
-const EmptyState: FC<EmptyStateProps> = ({
-  screenshotResolutions,
-  supportsUpscaledScreenshots,
-}) => {
+const EmptyState: FC<EmptyStateProps> = ({ supportsUpscaledScreenshots }) => {
   const { t } = useTranslation();
-
-  const formattedNatives = screenshotResolutions.map((r) => `${r.width}x${r.height}`).join(', ');
-
-  const shouldShowNativeList =
-    !supportsUpscaledScreenshots &&
-    screenshotResolutions.length > 0 &&
-    screenshotResolutions.length <= MAX_NATIVE_RESOLUTIONS_TO_SHOW;
 
   return (
     <div className="flex flex-col items-center gap-3 py-8">
@@ -152,13 +133,11 @@ const EmptyState: FC<EmptyStateProps> = ({
           <p className="text-center text-xs text-balance text-neutral-500">
             {t('Upscaled screenshots look sharper. Render at 2x or 3x in your emulator.')}
           </p>
-        ) : null}
-
-        {shouldShowNativeList ? (
+        ) : (
           <p className="text-center text-xs text-balance text-neutral-500">
-            {t('Supported resolutions: {{resolutions}}', { resolutions: formattedNatives })}
+            {t("Use your emulator's screenshot tool. Don't manually resize.")}
           </p>
-        ) : null}
+        )}
       </div>
     </div>
   );

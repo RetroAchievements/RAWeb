@@ -60,8 +60,9 @@ describe('Component: TopLinks', () => {
     render(<TopLinks />, {
       pageProps: {
         config: {
-          services: { patreon: { userId: 5407777 } },
           app: { url: 'https://retroachievements.org' },
+          screenshots: { maxPendingSubmissions: 200 },
+          services: { patreon: { userId: 5407777 } },
         },
       },
     });
@@ -77,7 +78,11 @@ describe('Component: TopLinks', () => {
     // ARRANGE
     render(<TopLinks />, {
       pageProps: {
-        config: { services: { patreon: {} }, app: { url: 'https://retroachievements.org' } },
+        config: {
+          app: { url: 'https://retroachievements.org' },
+          screenshots: { maxPendingSubmissions: 200 },
+          services: { patreon: {} },
+        },
       },
     });
 

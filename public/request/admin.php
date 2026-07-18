@@ -30,20 +30,20 @@ if ($action === 'copy-unlocks') {
     $existing = PlayerAchievement::whereIn('achievement_id', $fromAchievementIds)
         ->select([
             'user_id',
-            DB::raw('count(unlocked_at) AS softcore_count'),
+            DB::raw('count(unlocked_at) AS casual_count'),
             DB::raw('count(unlocked_hardcore_at) AS hardcore_count'),
-            DB::raw('max(unlocked_at) AS unlocked_softcore_at'),
+            DB::raw('max(unlocked_at) AS unlocked_casual_at'),
             DB::raw('max(unlocked_hardcore_at) AS unlocked_hardcore_at'),
         ])
         ->groupBy('user_id')
-        ->having('softcore_count', '=', $fromAchievementCount)
+        ->having('casual_count', '=', $fromAchievementCount)
         ->get();
 
     // award the target achievements, copying the unlock times and hardcore state
     $unlockerId = request()->user()->id;
     foreach ($existing as $playerAchievement) {
         $hardcore = ($playerAchievement->hardcore_count == $fromAchievementCount);
-        $timestamp = Carbon::parse($hardcore ? $playerAchievement->unlocked_hardcore_at : $playerAchievement->unlocked_softcore_at);
+        $timestamp = Carbon::parse($hardcore ? $playerAchievement->unlocked_hardcore_at : $playerAchievement->unlocked_casual_at);
         foreach ($toAchievementIds as $toAchievementId) {
             dispatch(
                 new UnlockPlayerAchievementJob(

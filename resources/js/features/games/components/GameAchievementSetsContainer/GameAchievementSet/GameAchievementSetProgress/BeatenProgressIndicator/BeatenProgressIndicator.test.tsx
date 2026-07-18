@@ -42,7 +42,7 @@ describe('Component: BeatenProgressIndicator', () => {
     expect(button).toHaveClass('text-neutral-300/30');
   });
 
-  it('given the player has beaten the game in softcore, renders the indicator button with full opacity', () => {
+  it('given the player has beaten the game in casual, renders the indicator button with full opacity', () => {
     // ARRANGE
     const achievements = [
       createAchievement({
@@ -216,7 +216,7 @@ describe('Component: BeatenProgressIndicator', () => {
     expect(screen.getAllByText('Win Condition')[0]).toBeVisible();
   });
 
-  it('given the player has more softcore unlocks, shows "Beaten Progress (Softcore)" in the tooltip', async () => {
+  it('given the player has more casual unlocks, shows "Beaten Progress (Casual)" in the tooltip', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({
@@ -238,7 +238,7 @@ describe('Component: BeatenProgressIndicator', () => {
     await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
 
     // ASSERT
-    const elements = await screen.findAllByText('Beaten Progress (Softcore)');
+    const elements = await screen.findAllByText('Beaten Progress (Casual)');
     expect(elements[0]).toBeVisible();
   });
 
@@ -264,7 +264,7 @@ describe('Component: BeatenProgressIndicator', () => {
     expect(elements[0]).toBeVisible();
   });
 
-  it('given no beaten-related achievements are unlocked and the user has more softcore points than hardcore, shows the softcore label', async () => {
+  it('given no beaten-related achievements are unlocked and the user has more casual points than hardcore, shows the casual label', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({
@@ -287,11 +287,11 @@ describe('Component: BeatenProgressIndicator', () => {
     await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
 
     // ASSERT
-    const elements = await screen.findAllByText('Beaten Progress (Softcore)');
+    const elements = await screen.findAllByText('Beaten Progress (Casual)');
     expect(elements[0]).toBeVisible();
   });
 
-  it('given no beaten-related achievements are unlocked and the user has more hardcore points than softcore, does not show the softcore label', async () => {
+  it('given no beaten-related achievements are unlocked and the user has more hardcore points than casual, does not show the casual label', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({
@@ -317,7 +317,7 @@ describe('Component: BeatenProgressIndicator', () => {
     const elements = await screen.findAllByText('Beaten Progress');
     expect(elements[0]).toBeVisible();
 
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
   it('given achievements with mixed types including non-beaten types, only counts beaten-related achievements', async () => {
@@ -380,7 +380,7 @@ describe('Component: BeatenProgressIndicator', () => {
     expect(screen.getAllByText(/296h 14m/i)[0]).toBeVisible();
   });
 
-  it('given the game has both softcore and hardcore beaten dates, prioritizes hardcore stats', async () => {
+  it('given the game has both casual and hardcore beaten dates, prioritizes hardcore stats', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ type: 'progression', unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),

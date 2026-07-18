@@ -122,8 +122,8 @@ describe('returns entries', function () {
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals('awardachievement', $sniffs[0]['method']);
         $this->assertEquals($achievement1->id, $sniffs[0]['achievementId']);
-        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']['id']);
-        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']['title']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']->id);
+        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']->title);
         $this->assertEquals(1, $sniffs[0]['hardcore']);
         $this->assertEquals([
             'id_user_hardcore' => md5($achievement1->id . 'Player11'),
@@ -142,8 +142,8 @@ describe('returns entries', function () {
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals('awardachievement', $sniffs[0]['method']);
         $this->assertEquals($achievement1->id, $sniffs[0]['achievementId']);
-        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']['id']);
-        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']['title']);
+        $this->assertEquals($achievement1->id, $sniffs[0]['achievement']->id);
+        $this->assertEquals($achievement1->title, $sniffs[0]['achievement']->title);
         $this->assertEquals(1, $sniffs[0]['hardcore']);
         $this->assertEquals([
             'id_user_hardcore' => md5($achievement1->id . 'Player11'),
@@ -161,8 +161,8 @@ describe('returns entries', function () {
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals('submitlbentry', $sniffs[0]['method']);
         $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboardId']);
-        $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboard']['id']);
-        $this->assertEquals($leaderboard1->title, $sniffs[0]['leaderboard']['title']);
+        $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboard']->id);
+        $this->assertEquals($leaderboard1->title, $sniffs[0]['leaderboard']->title);
         $this->assertEquals(1234, $sniffs[0]['score']);
         $this->assertEquals([
             'id_user_score' => md5($leaderboard1->id . 'Player11234'),
@@ -181,8 +181,8 @@ describe('returns entries', function () {
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals('submitlbentry', $sniffs[0]['method']);
         $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboardId']);
-        $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboard']['id']);
-        $this->assertEquals($leaderboard1->title, $sniffs[0]['leaderboard']['title']);
+        $this->assertEquals($leaderboard1->id, $sniffs[0]['leaderboard']->id);
+        $this->assertEquals($leaderboard1->title, $sniffs[0]['leaderboard']->title);
         $this->assertEquals(1234, $sniffs[0]['score']);
         $this->assertEquals([
             'id_user_score' => md5($leaderboard1->id . 'Player11234'),
@@ -200,12 +200,12 @@ describe('returns entries', function () {
         $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->display_name, $sniffs[0]['user']);
-        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
-        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
-        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
-        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
-        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']->id);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']->username);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']->display_name);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']->Permissions);
+        $this->assertNull($sniffs[0]['userinfo']->deleted_at);
+        $this->assertNull($sniffs[0]['userinfo']->unranked_at);
     });
 
     test('user data by username', function () {
@@ -217,12 +217,12 @@ describe('returns entries', function () {
         $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->username, $sniffs[0]['user']);
-        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
-        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
-        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
-        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
-        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']->id);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']->username);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']->display_name);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']->Permissions);
+        $this->assertNull($sniffs[0]['userinfo']->deleted_at);
+        $this->assertNull($sniffs[0]['userinfo']->unranked_at);
     });
 
     test('deleted user data', function () {
@@ -235,12 +235,12 @@ describe('returns entries', function () {
         $sniffs = (new BuildConnectSniffsAction())->execute(Carbon::now(), $clients);
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->display_name, $sniffs[0]['user']);
-        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
-        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
-        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
-        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
-        $this->assertNotNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']->id);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']->username);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']->display_name);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']->Permissions);
+        $this->assertNotNull($sniffs[0]['userinfo']->deleted_at);
+        $this->assertNull($sniffs[0]['userinfo']->unranked_at);
     });
 
     test('only for user by display_name', function () {
@@ -253,12 +253,12 @@ describe('returns entries', function () {
         $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, 'DisplayName');
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->display_name, $sniffs[0]['user']);
-        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
-        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
-        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
-        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
-        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']->id);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']->username);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']->display_name);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']->Permissions);
+        $this->assertNull($sniffs[0]['userinfo']->deleted_at);
+        $this->assertNull($sniffs[0]['userinfo']->unranked_at);
     });
 
     test('only for user by username', function () {
@@ -271,12 +271,12 @@ describe('returns entries', function () {
         $sniffs = (new BuildConnectSniffsAction())->execute(null, $clients, 'UserName');
         $this->assertEquals(1, count($sniffs));
         $this->assertEquals($user1->username, $sniffs[0]['user']);
-        $this->assertEquals($user1->id, $sniffs[0]['userinfo']['id']);
-        $this->assertEquals($user1->username, $sniffs[0]['userinfo']['username']);
-        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']['display_name']);
-        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']['Permissions']);
-        $this->assertNull($sniffs[0]['userinfo']['deleted_at']);
-        $this->assertNull($sniffs[0]['userinfo']['unranked_at']);
+        $this->assertEquals($user1->id, $sniffs[0]['userinfo']->id);
+        $this->assertEquals($user1->username, $sniffs[0]['userinfo']->username);
+        $this->assertEquals($user1->display_name, $sniffs[0]['userinfo']->display_name);
+        $this->assertEquals($user1->Permissions, $sniffs[0]['userinfo']->Permissions);
+        $this->assertNull($sniffs[0]['userinfo']->deleted_at);
+        $this->assertNull($sniffs[0]['userinfo']->unranked_at);
     });
 
     test('session data', function () {

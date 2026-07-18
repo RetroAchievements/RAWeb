@@ -1,11 +1,10 @@
 <?php
 
 use App\Community\Enums\CommentableType;
-use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 function getIsCommentDoublePost(int $userID, array|int $commentableId, string $body): bool
 {
@@ -67,7 +66,7 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     $playerGames = PlayerGame::where('user_id', $user->id)
         ->whereHas('game', function ($query) {
-            $query->whereNotIn('system_id', System::getNonGameSystems());
+            $query->whereGameSystem();
         })
         ->with('game.system')
         ->orderByDesc('last_played_at')
@@ -104,35 +103,39 @@ function getArticleComments(
 ): int {
     $dataOut = [];
     $numArticleComments = 0;
-    $order = $recent ? ' DESC' : '';
+    $direction = $recent ? 'desc' : 'asc';
 
-    $commentableTypeValue = $commentableType->value;
+    $submittedStatement = unixTimestampStatement('c.created_at', 'Submitted');
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.banned_at, c.id AS ID, c.user_id,
-                     c.body AS CommentPayload,
-                     UNIX_TIMESTAMP(c.created_at) AS Submitted, c.updated_at AS Edited
-              FROM comments AS c
-              LEFT JOIN users AS ua ON ua.id = c.user_id
-              WHERE c.commentable_type='$commentableTypeValue' AND c.commentable_id=$commentableId AND c.deleted_at IS NULL
-              ORDER BY c.created_at$order, c.id$order
-              LIMIT $offset, $count";
+    $query = DB::table('comments as c')
+        ->select([
+            'ua.username as User',
+            'ua.banned_at',
+            'c.id as ID',
+            'c.user_id',
+            'c.body as CommentPayload',
+            DB::raw($submittedStatement),
+            'c.updated_at as Edited',
+        ])
+        ->leftJoin('users as ua', 'ua.id', '=', 'c.user_id')
+        ->where('c.commentable_type', $commentableType->value)
+        ->where('c.commentable_id', $commentableId)
+        ->whereNull('c.deleted_at')
+        ->orderBy('c.created_at', $direction)
+        ->orderBy('c.id', $direction)
+        ->offset($offset)
+        ->limit($count);
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numArticleComments] = $db_entry;
-            $numArticleComments++;
-        }
+    foreach ($query->get() as $dbEntry) {
+        $dataOut[$numArticleComments] = (array) $dbEntry;
+        $numArticleComments++;
+    }
 
-        if ($offset != 0 || $numArticleComments >= $count) {
-            $query = "SELECT FOUND_ROWS() AS NumResults";
-            $dbResult = s_mysql_query($query);
-            if ($dbResult !== false) {
-                $numArticleComments = mysqli_fetch_assoc($dbResult)['NumResults'];
-            }
-        }
-    } else {
-        log_sql_fail();
+    if ($offset != 0 || $numArticleComments >= $count) {
+        $numArticleComments = Comment::query()
+            ->where('commentable_type', $commentableType->value)
+            ->where('commentable_id', $commentableId)
+            ->count();
     }
 
     return (int) $numArticleComments;
@@ -150,37 +153,4 @@ function getRecentArticleComments(
     $dataOut = array_reverse($dataOut);
 
     return $numArticleComments;
-}
-
-function getLatestRichPresenceUpdates(): array
-{
-    $playersFound = [];
-
-    $recentMinutes = 10;
-    $permissionsCutoff = Permissions::Registered;
-
-    $ifRAPoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points_hardcore');
-    $ifRASoftcorePoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points');
-    $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
-
-    $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.rich_presence AS RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
-              FROM users AS ua
-              LEFT JOIN games AS gd ON gd.id = ua.rich_presence_game_id
-              LEFT JOIN systems AS s ON s.id = gd.system_id
-              WHERE ua.rich_presence_updated_at > $timestampStatement
-                AND ua.rich_presence_game_id != 0
-                AND ua.Permissions >= $permissionsCutoff
-              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.username ASC";
-
-    $dbResult = legacyDbFetchAll($query);
-
-    foreach ($dbResult as $dbEntry) {
-        $dbEntry['GameID'] = (int) $dbEntry['GameID'];
-        $dbEntry['RAPoints'] = (int) $dbEntry['RAPoints'];
-        $dbEntry['RASoftcorePoints'] = (int) $dbEntry['RASoftcorePoints'];
-        $playersFound[] = $dbEntry;
-    }
-
-    return $playersFound;
 }

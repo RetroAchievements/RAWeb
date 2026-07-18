@@ -38,7 +38,7 @@ class GameTopAchieversService
             });
     }
 
-    public function numBeatenSoftcore(): int
+    public function numBeatenCasual(): int
     {
         return $this->baseQuery()
             ->whereNotNull('beaten_at')
@@ -190,14 +190,14 @@ class GameTopAchieversService
         $numMasteries = $this->numMasteries();
         $numCompletions = $this->numCompletions();
         $numBeaten = $this->numBeaten();
-        $numBeatenSoftcore = $this->numBeatenSoftcore();
+        $numBeatenCasual = $this->numBeatenCasual();
         if ($numMasteries < 10) {
             return [
                 $numMasteries,
                 $this->convertPlayerGames($this->highestPointEarners()),
                 $numCompletions,
                 $numBeaten,
-                $numBeatenSoftcore,
+                $numBeatenCasual,
             ];
         }
 
@@ -206,7 +206,7 @@ class GameTopAchieversService
             $this->convertPlayerGames($this->recentMasteries()),
             $numCompletions,
             $numBeaten,
-            $numBeatenSoftcore,
+            $numBeatenCasual,
         ];
 
         // only cache the result if the masters list is full.

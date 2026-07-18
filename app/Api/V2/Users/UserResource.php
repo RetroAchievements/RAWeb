@@ -53,8 +53,9 @@ class UserResource extends JsonApiResource
             'richPresenceUpdatedAt' => $this->resource->rich_presence_updated_at,
 
             'visibleRole' => $this->resource->visibleRole?->name,
-            'displayableRoles' => $this->resource->displayableRoles()
-                ->get()
+            'displayableRoles' => ($this->resource->relationLoaded('roles')
+                ? $this->resource->roles->where('display', '>', 0)
+                : $this->resource->displayableRoles()->get())
                 ->pluck('name')
                 ->values()
                 ->all(),
@@ -68,14 +69,14 @@ class UserResource extends JsonApiResource
     {
         return [
             'awards' => $this->relation('awards', 'playerBadges')->withoutLinks(),
+            'followers' => $this->relation('followers', 'followedBy')->withoutLinks(),
+            'following' => $this->relation('following', 'follows')->withoutLinks(),
+            'lastGame' => $this->relation('lastGame')->withoutLinks()->showDataIfLoaded(),
             'playerAchievements' => $this->relation('playerAchievements')->withoutLinks(),
             'playerAchievementSets' => $this->relation('playerAchievementSets')->withoutLinks(),
             'playerGames' => $this->relation('playerGames')->withoutLinks(),
 
             // TODO add relationships
-            // 'lastGame' => $this->relation('lastGame'),
-            // 'following' => $this->relation('followedUsers'),
-            // 'followers' => $this->relation('followerUsers'),
             // 'authoredAchievements' => $this->relation('authoredAchievements'),
             // 'claims' => $this->relation('claims'),
         ];
@@ -87,10 +88,10 @@ class UserResource extends JsonApiResource
     public function links($request): Links
     {
         $selfLink = $this->selfLink();
-        $profileLink = new Link('profile', route('user.show', $this->resource));
+        $webLink = new Link('webUrl', route('user.show', $this->resource));
 
         return $selfLink
-            ? new Links($selfLink, $profileLink)
-            : new Links($profileLink);
+            ? new Links($selfLink, $webLink)
+            : new Links($webLink);
     }
 }

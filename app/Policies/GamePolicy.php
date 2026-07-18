@@ -87,11 +87,10 @@ class GamePolicy
 
     public function viewDeveloperInterest(User $user, Game $game): bool
     {
-        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
-            ->achievementSetClaims()
+        $hasActivePrimaryClaim = $user->achievementSetClaims()
             ->whereGameId($game->id)
             ->primaryClaim()
-            ->active()
+            ->activeOrInReview()
             ->exists();
 
         // Devs and JrDevs can see the page, but they need to have an
@@ -126,6 +125,11 @@ class GamePolicy
     public function viewHashes(?User $user, Game $game): bool
     {
         return true;
+    }
+
+    public function viewTickets(?User $user, Game $game): bool
+    {
+        return $user !== null;
     }
 
     public function create(User $user): bool

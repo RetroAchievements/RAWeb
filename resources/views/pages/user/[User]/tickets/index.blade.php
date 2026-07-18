@@ -16,7 +16,7 @@ render(function (View $view, User $user, TicketListService $ticketListService) {
     $ticketListService->perPage = 50;
     $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
+    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAssignee($user));
 
     return $view->with([
         'user' => $user,

@@ -14,7 +14,7 @@ class PlayerGameProgressionAwardsData extends Data
      * Represents all a player's awards for a specific game.
      */
     public function __construct(
-        public ?PlayerBadgeData $beatenSoftcore,
+        public ?PlayerBadgeData $beatenCasual,
         public ?PlayerBadgeData $beatenHardcore,
         public ?PlayerBadgeData $completed,
         public ?PlayerBadgeData $mastered,
@@ -27,7 +27,7 @@ class PlayerGameProgressionAwardsData extends Data
     public static function fromArray(array $awards): self
     {
         return new self(
-            beatenSoftcore: $awards['beaten-softcore'] ? PlayerBadgeData::fromPlayerBadge($awards['beaten-softcore']) : null,
+            beatenCasual: $awards['beaten-softcore'] ? PlayerBadgeData::fromPlayerBadge($awards['beaten-softcore']) : null,
             beatenHardcore: $awards['beaten-hardcore'] ? PlayerBadgeData::fromPlayerBadge($awards['beaten-hardcore']) : null,
             completed: $awards['completed'] ? PlayerBadgeData::fromPlayerBadge($awards['completed']) : null,
             mastered: $awards['mastered'] ? PlayerBadgeData::fromPlayerBadge($awards['mastered']) : null,

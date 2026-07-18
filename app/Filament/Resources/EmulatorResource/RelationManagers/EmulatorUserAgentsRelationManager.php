@@ -10,6 +10,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -39,15 +40,29 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->placeholder('PCSX2')
                     ->helperText('The client string to match (eg: "RALibRetro", "Dolphin", "PCSX2")'),
 
-                Forms\Components\TextInput::make('minimum_hardcore_version')
-                    ->label('Minimum Hardcore Version')
-                    ->placeholder('2.9.0')
-                    ->helperText('⚠️ Versions older than this only support softcore mode. This is the minimum version required for hardcore to be enabled.'),
+                Schemas\Components\Section::make('Minimum versions')
+                    ->icon('heroicon-s-shield-exclamation')
+                    ->schema([
+                        Forms\Components\TextInput::make('minimum_hardcore_version')
+                            ->label('Minimum Hardcore Version')
+                            ->placeholder('2.9.0')
+                            ->helperText('⚠️ Versions older than this only support casual mode. This is the minimum version required for hardcore to be enabled.'),
 
-                Forms\Components\TextInput::make('minimum_allowed_version')
-                    ->label('Minimum Allowed Version')
-                    ->placeholder('2.7.0')
-                    ->helperText('🔴 Versions older than this will be COMPLETELY BLOCKED from the server, even for softcore. Use this very sparingly, such as if a version of the emulator is DDoSing the server. Leave empty to allow all versions.'),
+                        Forms\Components\TextInput::make('minimum_allowed_version')
+                            ->label('Minimum Allowed Version')
+                            ->placeholder('2.7.0')
+                            ->helperText('🔴 Versions older than this will be COMPLETELY BLOCKED from the server, even for casual. Use this very sparingly, such as if a version of the emulator is DDoSing the server. Leave empty to allow all versions.'),
+
+                        Forms\Components\TextInput::make('pending_minimum_hardcore_version')
+                            ->label('Next Minimum Hardcore Version')
+                            ->placeholder('2.10.0')
+                            ->helperText('Will become the minimum hardcore version on the specified date.'),
+
+                        Forms\Components\DatePicker::make('pending_minimum_hardcore_version_at')
+                            ->label('Next Minimum Hardcore Version Cutover')
+                            ->helperText('When the next minimum hardcore version will become the minimum hardcore version.'),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -65,14 +80,20 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('minimum_allowed_version')
                     ->label('Minimum Allowed Version')
                     ->placeholder('—')
-                    ->tooltip('Versions older than this cannot connect to the server at all, even for softcore mode.')
+                    ->tooltip('Versions older than this cannot connect to the server at all, even for casual mode.')
                     ->formatStateUsing(fn ($state) => $state ?: 'No blocking'),
 
                 Tables\Columns\TextColumn::make('minimum_hardcore_version')
                     ->label('Minimum Hardcore Version')
                     ->placeholder('—')
-                    ->tooltip('Versions older than this can only play in softcore mode.')
-                    ->formatStateUsing(fn ($state) => $state ?: 'No restriction'),
+                    ->tooltip(fn ($record) => 'Versions older than this can only play in casual mode.' .
+                        ($record->pending_minimum_hardcore_version_at
+                            ? (' This will change to ' . $record->pending_minimum_hardcore_version . ' in ' . floor($record->pending_minimum_hardcore_version_at->diffInDays(now(), true)) . ' days.')
+                            : '')
+                    )
+                    ->formatStateUsing(fn ($state) => $state ?: 'No restriction')
+                    ->icon(fn ($record) => $record->pending_minimum_hardcore_version_at ? 'fas-circle-arrow-up' : null)
+                    ->iconPosition('after'),
             ])
             ->headerActions([
                 CreateAction::make()

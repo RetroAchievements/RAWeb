@@ -51,6 +51,19 @@ class GameListRequestTest extends TestCase
         ], $request->getFilters());
     }
 
+    public function testItIgnoresFilterQueryParamWhenPassedAsAScalarString(): void
+    {
+        // ACT
+        $request = GameListRequest::create('/games', 'GET', [
+            'filter' => 'only-games',
+        ]);
+
+        // ASSERT
+        $this->assertSame([
+            'achievementsPublished' => ['has'],
+        ], $request->getFilters());
+    }
+
     public function testItFallsBackToDefaultsWhenUrlAndCookieValuesAreAbsent(): void
     {
         // ACT

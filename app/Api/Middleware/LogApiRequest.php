@@ -8,6 +8,7 @@ use App\Models\ApiLogEntry;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class LogApiRequest
 {
@@ -19,25 +20,62 @@ class LogApiRequest
     public function handle(Request $request, Closure $next, ?string $apiVersion = null): Response
     {
         $startTime = microtime(true);
-        $version = $apiVersion ?? $this->apiVersion;
 
         $response = $next($request);
 
-        ApiLogEntry::logRequest(
-            $version,
-            $request->user()?->id,
-            $request->path(),
-            $request->method(),
-            $response->getStatusCode(),
-            $this->calculateResponseTime($startTime),
-            $this->calculateResponseSize($response),
-            $request->ip(),
-            $request->userAgent(),
-            $this->sanitizeRequestData($request),
-            $this->getErrorMessage($response)
-        );
+        $user = $request->user();
+        if ($user === null) {
+            return $response;
+        }
+
+        // Compute, but stash, the payload. We'll write the payload in
+        // `terminate()` so it stays off the request's latency path.
+        $request->attributes->set('apiLogPayload', [
+            'apiVersion' => $apiVersion ?? $this->apiVersion,
+            'userId' => $user->id,
+            'endpoint' => $request->path(),
+            'method' => $request->method(),
+            'responseCode' => $response->getStatusCode(),
+            'responseTimeMs' => $this->calculateResponseTime($startTime),
+            'responseSizeBytes' => $this->calculateResponseSize($response),
+            'ipAddress' => $request->ip(),
+            'userAgent' => $request->userAgent(),
+            'requestData' => $this->sanitizeRequestData($request),
+            'errorMessage' => $this->getErrorMessage($response),
+        ]);
 
         return $response;
+    }
+
+    /**
+     * Persist the log entry after the response has been sent to the client, so
+     * the database write is off the request's latency path.
+     */
+    public function terminate(Request $request, Response $response): void
+    {
+        /** @var array<string, mixed>|null $payload */
+        $payload = $request->attributes->get('apiLogPayload');
+        if ($payload === null) {
+            return;
+        }
+
+        try {
+            ApiLogEntry::logRequest(
+                $payload['apiVersion'],
+                $payload['userId'],
+                $payload['endpoint'],
+                $payload['method'],
+                $payload['responseCode'],
+                $payload['responseTimeMs'],
+                $payload['responseSizeBytes'],
+                $payload['ipAddress'],
+                $payload['userAgent'],
+                $payload['requestData'],
+                $payload['errorMessage'],
+            );
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     private function calculateResponseTime(float $startTime): int
@@ -45,6 +83,9 @@ class LogApiRequest
         return (int) round((microtime(true) - $startTime) * 1000);
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function sanitizeRequestData(Request $request): ?array
     {
         $data = $request->all();

@@ -9,8 +9,8 @@
  *   string     [key]                       unique identifier of the game
  *    int        NumPossibleAchievements    number of core achievements for the game
  *    string     PossibleScore              maximum number of points that can be earned from the game
- *    int        NumAchieved                number of achievements earned by the user in softcore
- *    string     ScoreAchieved              number of points earned by the user in softcore
+ *    int        NumAchieved                number of achievements earned by the user in casual mode
+ *    string     ScoreAchieved              number of casual points earned by the user
  *    int        NumAchievedHardcore        number of achievements earned by the user in hardcore
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */

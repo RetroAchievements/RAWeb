@@ -65,7 +65,7 @@ class EventAchievementObserverTest extends TestCase
 
         $this->addHardcoreUnlock($player1, $sourceAchievement, $time1);
         $this->addHardcoreUnlock($player2, $sourceAchievement, $time2);
-        $this->addSoftcoreUnlock($player3, $sourceAchievement, $time3);
+        $this->addCasualUnlock($player3, $sourceAchievement, $time3);
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(0, $achievement->playerAchievements()->count());
@@ -132,13 +132,13 @@ class EventAchievementObserverTest extends TestCase
         // unlocking achievement in softcore should not propogate to all active events
         /** @var User $player5 */
         $player5 = User::factory()->create();
-        $this->addSoftcoreUnlock($player5, $sourceAchievement, $time2b);
+        $this->addCasualUnlock($player5, $sourceAchievement, $time2b);
 
-        $this->assertDoesNotHaveSoftcoreUnlock($player5, $achievement);
-        $this->assertDoesNotHaveSoftcoreUnlock($player5, $achievement2);
-        $this->assertDoesNotHaveSoftcoreUnlock($player5, $achievement3);
-        $this->assertDoesNotHaveSoftcoreUnlock($player5, $achievement4);
-        $this->assertDoesNotHaveSoftcoreUnlock($player5, $achievement5);
+        $this->assertDoesNotHaveCasualUnlock($player5, $achievement);
+        $this->assertDoesNotHaveCasualUnlock($player5, $achievement2);
+        $this->assertDoesNotHaveCasualUnlock($player5, $achievement3);
+        $this->assertDoesNotHaveCasualUnlock($player5, $achievement4);
+        $this->assertDoesNotHaveCasualUnlock($player5, $achievement5);
 
         $this->assertDoesNotHaveHardcoreUnlock($player5, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($player5, $achievement2);

@@ -86,7 +86,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   const achievementsPublished = game?.achievementsPublished ?? 0;
   const pointsTotal = game.pointsTotal ?? 0;
   const achievementsUnlocked = playerGame?.achievementsUnlocked ?? 0;
-  const achievementsUnlockedSoftcore = playerGame?.achievementsUnlockedSoftcore ?? 0;
+  const achievementsUnlockedCasual = playerGame?.achievementsUnlockedCasual ?? 0;
   const achievementsUnlockedHardcore = playerGame?.achievementsUnlockedHardcore ?? 0;
   const pointsHardcore = playerGame?.pointsHardcore ?? 0;
   const points = (playerGame?.points ?? 0) - pointsHardcore;
@@ -121,12 +121,14 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
     (variant === 'minimal' && achievementsPublished !== pointsTotal) || variant !== 'minimal';
 
   const hasAchievementTooltipContent =
-    canShowDetailedProgress &&
-    (achievementsUnlockedHardcore > 0 || achievementsUnlockedSoftcore > 0);
+    canShowDetailedProgress && (achievementsUnlockedHardcore > 0 || achievementsUnlockedCasual > 0);
   const hasPointTooltipContent =
     canShowDetailedProgress && canShowTooltipPoints && (pointsHardcore > 0 || points > 0);
   const hasTooltipContent =
     hasAchievementTooltipContent || hasPointTooltipContent || !!highestAward;
+  const hasCasualTooltipContent =
+    canShowDetailedProgress &&
+    (achievementsUnlockedCasual > 0 || (canShowTooltipPoints && points > 0));
 
   const Wrapper = shouldLink ? 'a' : 'div';
 
@@ -158,7 +160,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
                 value: achievementsUnlockedHardcore,
                 className: 'bg-linear-to-r from-amber-500 to-[gold]',
               },
-              { value: achievementsUnlockedSoftcore, className: 'bg-neutral-500' },
+              { value: achievementsUnlockedCasual, className: 'bg-neutral-500' },
             ]}
           />
 
@@ -208,19 +210,30 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
             <>
               {achievementsUnlockedHardcore > 0 ? (
                 <p>
-                  {t('{{earned, number}} of {{total, number}} achievements unlocked', {
-                    earned: achievementsUnlockedHardcore,
-                    total: achievementsPublished,
-                  })}
+                  {hasCasualTooltipContent
+                    ? t(
+                        '{{earned, number}} of {{total, number}} achievements unlocked in hardcore mode',
+                        {
+                          earned: achievementsUnlockedHardcore,
+                          total: achievementsPublished,
+                        },
+                      )
+                    : t('{{earned, number}} of {{total, number}} achievements unlocked', {
+                        earned: achievementsUnlockedHardcore,
+                        total: achievementsPublished,
+                      })}
                 </p>
               ) : null}
 
-              {achievementsUnlockedSoftcore > 0 ? (
+              {achievementsUnlockedCasual > 0 ? (
                 <p>
-                  {t('{{earned, number}} of {{total, number}} softcore achievements unlocked', {
-                    earned: achievementsUnlockedSoftcore,
-                    total: achievementsPublished,
-                  })}
+                  {t(
+                    '{{earned, number}} of {{total, number}} achievements unlocked in casual mode',
+                    {
+                      earned: achievementsUnlockedCasual,
+                      total: achievementsPublished,
+                    },
+                  )}
                 </p>
               ) : null}
 
@@ -228,16 +241,24 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
                 <>
                   {pointsHardcore > 0 ? (
                     <p>
-                      {t('{{earned, number}} of {{total, number}} points earned', {
-                        earned: pointsHardcore,
-                        total: pointsTotal,
-                      })}
+                      {hasCasualTooltipContent
+                        ? t(
+                            '{{earned, number}} of {{total, number}} points earned in hardcore mode',
+                            {
+                              earned: pointsHardcore,
+                              total: pointsTotal,
+                            },
+                          )
+                        : t('{{earned, number}} of {{total, number}} points earned', {
+                            earned: pointsHardcore,
+                            total: pointsTotal,
+                          })}
                     </p>
                   ) : null}
 
                   {points > 0 ? (
                     <p>
-                      {t('{{earned, number}} of {{total, number}} softcore points earned', {
+                      {t('{{earned, number}} of {{total, number}} points earned in casual mode', {
                         earned: points,
                         total: pointsTotal,
                       })}

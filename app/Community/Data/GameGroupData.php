@@ -17,7 +17,7 @@ class GameGroupData extends Data
         public int $masteredCount,
         public int $completedCount,
         public int $beatenCount,
-        public int $beatenSoftcoreCount,
+        public int $beatenCasualCount,
 
         /** @var GameListEntryData[] */
         public array $games,

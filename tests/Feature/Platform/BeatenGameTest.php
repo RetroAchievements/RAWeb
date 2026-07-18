@@ -104,7 +104,7 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(0), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(1), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(2), Carbon::now());
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
+        $this->addCasualUnlock($user, $progressionAchievements->get(3), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
 
         $playerGame = $user->playerGame($game);
@@ -161,11 +161,11 @@ class BeatenGameTest extends TestCase
         $progressionAchievements = Achievement::factory()->promoted()->progression()->count(5)->create(['game_id' => $game->id]);
         $winConditionAchievement = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $game->id]);
 
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(0), Carbon::now());
+        $this->addCasualUnlock($user, $progressionAchievements->get(0), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(1), Carbon::now());
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(2), Carbon::now());
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
+        $this->addCasualUnlock($user, $progressionAchievements->get(2), Carbon::now());
+        $this->addCasualUnlock($user, $progressionAchievements->get(3), Carbon::now());
+        $this->addCasualUnlock($user, $progressionAchievements->get(4), Carbon::now());
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
 
         $playerGame = $user->playerGame($game);
@@ -189,7 +189,7 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
         $this->addHardcoreUnlock($user, $winConditionAchievements->get(0), Carbon::now());
-        $this->addSoftcoreUnlock($user, $winConditionAchievements->get(1), Carbon::now());
+        $this->addCasualUnlock($user, $winConditionAchievements->get(1), Carbon::now());
 
         $playerGame = $user->playerGame($game);
 
@@ -208,11 +208,11 @@ class BeatenGameTest extends TestCase
         $progressionAchievements = Achievement::factory()->promoted()->progression()->count(5)->create(['game_id' => $game->id]);
         $winConditionAchievement = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $game->id]);
 
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(0), Carbon::now()->subMinutes(30));
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(1), Carbon::now()->subMinutes(30));
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(2), Carbon::now()->subMinutes(30));
+        $this->addCasualUnlock($user, $progressionAchievements->get(0), Carbon::now()->subMinutes(30));
+        $this->addCasualUnlock($user, $progressionAchievements->get(1), Carbon::now()->subMinutes(30));
+        $this->addCasualUnlock($user, $progressionAchievements->get(2), Carbon::now()->subMinutes(30));
         $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now()->subMinutes(30));
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(15));
+        $this->addCasualUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(15));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(10));
 
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
@@ -220,7 +220,7 @@ class BeatenGameTest extends TestCase
             $user->playerBadges()
                 ->where('award_type', AwardType::GameBeaten)
                 ->where('award_key', $game->id)
-                ->where('award_tier', UnlockMode::Softcore)
+                ->where('award_tier', UnlockMode::Casual)
                 ->where('awarded_at', Carbon::now()->subMinutes(10))
                 ->first()
         );
@@ -290,9 +290,9 @@ class BeatenGameTest extends TestCase
         $winConditionAchievement = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $game->id]);
 
         // First, the user will get a softcore beaten award.
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(0), Carbon::now()->subMinutes(55));
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(1), Carbon::now()->subMinutes(50));
-        $this->addSoftcoreUnlock($user, $progressionAchievements->get(2), Carbon::now()->subMinutes(45));
+        $this->addCasualUnlock($user, $progressionAchievements->get(0), Carbon::now()->subMinutes(55));
+        $this->addCasualUnlock($user, $progressionAchievements->get(1), Carbon::now()->subMinutes(50));
+        $this->addCasualUnlock($user, $progressionAchievements->get(2), Carbon::now()->subMinutes(45));
         $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now()->subMinutes(40));
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(35));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(30));
@@ -312,12 +312,12 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
 
         // The user unlocks it in softcore.
-        $this->addSoftcoreUnlock($user, $newAchievement, Carbon::now()->subMinutes(10));
+        $this->addCasualUnlock($user, $newAchievement, Carbon::now()->subMinutes(10));
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
             ->where('award_key', $game->id)
-            ->where('award_tier', UnlockMode::Softcore)
+            ->where('award_tier', UnlockMode::Casual)
             ->where('awarded_at', Carbon::now()->subMinutes(10))
             ->first()
         );

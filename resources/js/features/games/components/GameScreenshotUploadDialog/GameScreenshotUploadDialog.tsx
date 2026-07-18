@@ -2,6 +2,7 @@ import * as m from 'motion/react-m';
 import type { FC } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuExternalLink } from 'react-icons/lu';
 
 import {
   BaseDialog,
@@ -16,7 +17,6 @@ import { cn } from '@/common/utils/cn';
 
 import { useDeleteGameScreenshotMutation } from '../../hooks/mutations/useDeleteGameScreenshotMutation';
 import { ScreenshotSlotConfig } from '../../models';
-import { screenshotSubmissionLimits } from '../../utils/screenshotSubmissionLimits';
 import { PendingSubmissionsList } from '../PendingSubmissionsList';
 import { ScreenshotSlotStatusIndicator } from '../ScreenshotSlotStatusIndicator';
 import { UploadForm } from '../UploadForm';
@@ -37,6 +37,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
   onOpenChange,
 }) => {
   const {
+    config,
     game,
     screenshotUploadConsistency,
     screenshotUploadStatuses,
@@ -48,6 +49,9 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
   const [selectedType, setSelectedType] = useState<App.Platform.Enums.ScreenshotType>('ingame');
   const [submissions, setSubmissions] = useState(screenshotUploadUserSubmissions ?? []);
   const [currentPendingCount, setCurrentPendingCount] = useState(screenshotUploadPendingCount ?? 0);
+
+  const maxPendingSubmissions = config.screenshots.maxPendingSubmissions;
+  const pendingWarningThreshold = Math.max(1, Math.floor(maxPendingSubmissions * 0.75));
 
   const deleteMutation = useDeleteGameScreenshotMutation();
 
@@ -72,8 +76,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
     setSubmissions((prev) => [screenshot, ...prev]);
   };
 
-  const showPendingWarning =
-    currentPendingCount >= screenshotSubmissionLimits.pendingWarningThreshold;
+  const showPendingWarning = currentPendingCount >= pendingWarningThreshold;
   const statuses = screenshotUploadStatuses ?? {};
 
   return (
@@ -82,6 +85,16 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
         <BaseDialogHeader>
           <BaseDialogTitle>{t('Upload Screenshot')}</BaseDialogTitle>
           <BaseDialogDescription className="sr-only">{game.title}</BaseDialogDescription>
+
+          <a
+            href="https://docs.retroachievements.org/guidelines/content/screenshot-guidelines.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-fit items-center gap-1 text-xs"
+          >
+            <LuExternalLink className="size-3" />
+            {t('View screenshot guidelines')}
+          </a>
         </BaseDialogHeader>
 
         <div className="flex flex-col gap-4">
@@ -89,7 +102,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
             <p className="rounded-lg border border-yellow-800 bg-yellow-950/30 px-3 py-2 text-xs text-yellow-300">
               {t('You have {{count}} of {{max}} pending submissions.', {
                 count: currentPendingCount,
-                max: screenshotSubmissionLimits.maxPendingSubmissions,
+                max: maxPendingSubmissions,
               })}
             </p>
           ) : null}
@@ -130,6 +143,7 @@ export const GameScreenshotUploadDialog: FC<GameScreenshotUploadDialogProps> = (
           {/* Upload drop zone */}
           <UploadForm
             gameId={game.id}
+            pendingSubmissions={submissions}
             screenshotUploadConsistency={screenshotUploadConsistency}
             screenshotResolutions={game.system?.screenshotResolutions ?? []}
             selectedType={selectedType}

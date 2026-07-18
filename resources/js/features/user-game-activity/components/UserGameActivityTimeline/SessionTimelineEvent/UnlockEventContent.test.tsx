@@ -63,7 +63,7 @@ describe('Component: UnlockEventContent', () => {
     expect(screen.getByRole('img')).toHaveClass('grayscale');
   });
 
-  it('given a softcore unlock, shows the softcore label', () => {
+  it('given a casual unlock, shows the casual label', () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 1,
@@ -89,10 +89,10 @@ describe('Component: UnlockEventContent', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/softcore/i)).toBeVisible();
+    expect(screen.getByText(/casual/i)).toBeVisible();
   });
 
-  it('given a hardcore unlock, does not show the softcore label', () => {
+  it('given a hardcore unlock, does not show the casual label', () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 1,
@@ -118,10 +118,10 @@ describe('Component: UnlockEventContent', () => {
     );
 
     // ASSERT
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
   });
 
-  it('given a softcore unlock where a hardcore unlock happened later, shows the relevant label', () => {
+  it('given a casual unlock where a hardcore unlock happened later, shows the relevant label', () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 1,

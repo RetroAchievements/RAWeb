@@ -10,6 +10,7 @@ export const createGameScreenshot = createFactory<App.Platform.Data.GameScreensh
     smWebpUrl: faker.internet.url(),
     mdWebpUrl: faker.internet.url(),
     lgWebpUrl: faker.internet.url(),
+    placeholderUrl: faker.internet.url(),
     thumbnailUrl: faker.internet.url(),
   };
 });

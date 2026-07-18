@@ -16,7 +16,7 @@ use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Facades\Auth;
 
 $gameID = (int) request()->query('i');
-$hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
+$hardcore = (int) request()->query('h', (string) UnlockMode::Casual);
 $requestedBy = Auth::user()->username;
 $isPromoted = Achievement::isPromotedFromLegacyFlags((int) request()->query('f', (string) Achievement::FLAG_PROMOTED)) ?? true;
 

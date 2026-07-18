@@ -6,11 +6,11 @@ import { cn } from '@/common/utils/cn';
 
 type ReferenceLineTooltipContentProps = ComponentProps<typeof BaseChartTooltipContent> & {
   buckets: App.Platform.Data.PlayerAchievementChartBucket[];
-  userAchievementCounts: { softcore: number | null; hardcore: number | null } | null;
+  userAchievementCounts: { casual: number | null; hardcore: number | null } | null;
   variant: 'game' | 'event';
 
   userHardcoreIndex?: number;
-  userSoftcoreIndex?: number;
+  userCasualIndex?: number;
 };
 
 export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> = ({
@@ -18,7 +18,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
   payload,
   buckets,
   userHardcoreIndex,
-  userSoftcoreIndex,
+  userCasualIndex,
   userAchievementCounts,
   variant,
   ...rest
@@ -34,10 +34,10 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
 
   // Check if this bucket has a reference line.
   const hasHardcoreLine = userHardcoreIndex !== undefined && currentIndex === userHardcoreIndex;
-  const hasSoftcoreLine = userSoftcoreIndex !== undefined && currentIndex === userSoftcoreIndex;
+  const hasCasualLine = userCasualIndex !== undefined && currentIndex === userCasualIndex;
 
   // If no reference lines, just return the standard content.
-  if (!hasHardcoreLine && !hasSoftcoreLine) {
+  if (!hasHardcoreLine && !hasCasualLine) {
     return <BaseChartTooltipContent active={active} payload={payload} {...rest} />;
   }
 
@@ -72,13 +72,13 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
           </div>
         ) : null}
 
-        {hasSoftcoreLine && userAchievementCounts?.softcore !== undefined ? (
+        {hasCasualLine && userAchievementCounts?.casual !== undefined ? (
           <div className="flex items-center gap-1.5">
             <div
               className="my-0.5 h-3 w-0 shrink-0 border-[1.5px] border-dashed"
               style={{ borderColor: '#737373' }}
             />
-            <span>{t('Your softcore progress')}</span>
+            <span>{t('Your casual progress')}</span>
           </div>
         ) : null}
       </div>

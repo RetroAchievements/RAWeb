@@ -18,14 +18,14 @@ class GetUserProgressionStatusCountsAction
     /**
      * @return array{
      *     avgCompletionPercentage: float,
-     *     systemProgress: array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, systemId: int}>,
+     *     systemProgress: array<int, array{unfinishedCount: int, beatenCasualCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}>,
      *     topSystemId: int|null,
-     *     totalCounts: array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int},
+     *     totalCounts: array{unfinished: int, beatenCasual: int, beatenHardcore: int, completed: int, mastered: int},
      *     totalHardcoreAchievements: int,
-     *     totalSoftcoreAchievements: int,
+     *     totalCasualAchievements: int,
      * }
      */
-    public function execute(User $user, ?int $recentSystemId = null): array
+    public function execute(User $user): array
     {
         // Subsets are identified by their core achievement set being linked to another game as a non-core type.
         $subsetExistsSubquery = "EXISTS (
@@ -42,11 +42,12 @@ class GetUserProgressionStatusCountsAction
         $masteryAwardType = AwardType::Mastery;
         $beatenAwardType = AwardType::GameBeaten;
         $hardcoreMode = UnlockMode::Hardcore;
-        $softcoreMode = UnlockMode::Softcore;
+        $casualMode = UnlockMode::Casual;
 
         $results = $this->buildQualifyingGamesQuery($user)
             ->selectRaw("
                 games.system_id,
+                MAX(player_games.last_played_at) as last_played_at,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
                 SUM(GREATEST(0, CAST(player_games.achievements_unlocked AS SIGNED) - CAST(player_games.achievements_unlocked_hardcore AS SIGNED))) as total_sc_achievements,
                 SUM(mastery_hc.id IS NOT NULL) as mastered_count,
@@ -67,11 +68,11 @@ class GetUserProgressionStatusCountsAction
                     ->where('mastery_hc.award_type', '=', $masteryAwardType)
                     ->where('mastery_hc.award_tier', '=', $hardcoreMode);
             })
-            ->leftJoin('user_awards as mastery_sc', function ($join) use ($masteryAwardType, $softcoreMode) {
+            ->leftJoin('user_awards as mastery_sc', function ($join) use ($masteryAwardType, $casualMode) {
                 $join->on('mastery_sc.user_id', '=', 'player_games.user_id')
                     ->on('mastery_sc.award_key', '=', 'player_games.game_id')
                     ->where('mastery_sc.award_type', '=', $masteryAwardType)
-                    ->where('mastery_sc.award_tier', '=', $softcoreMode);
+                    ->where('mastery_sc.award_tier', '=', $casualMode);
             })
             ->leftJoin('user_awards as beaten_hc', function ($join) use ($beatenAwardType, $hardcoreMode) {
                 $join->on('beaten_hc.user_id', '=', 'player_games.user_id')
@@ -79,19 +80,19 @@ class GetUserProgressionStatusCountsAction
                     ->where('beaten_hc.award_type', '=', $beatenAwardType)
                     ->where('beaten_hc.award_tier', '=', $hardcoreMode);
             })
-            ->leftJoin('user_awards as beaten_sc', function ($join) use ($beatenAwardType, $softcoreMode) {
+            ->leftJoin('user_awards as beaten_sc', function ($join) use ($beatenAwardType, $casualMode) {
                 $join->on('beaten_sc.user_id', '=', 'player_games.user_id')
                     ->on('beaten_sc.award_key', '=', 'player_games.game_id')
                     ->where('beaten_sc.award_type', '=', $beatenAwardType)
-                    ->where('beaten_sc.award_tier', '=', $softcoreMode);
+                    ->where('beaten_sc.award_tier', '=', $casualMode);
             })
             ->groupBy('games.system_id')
             ->get();
 
         $systemProgress = [];
-        $totalCounts = ['unfinished' => 0, 'beatenSoftcore' => 0, 'beatenHardcore' => 0, 'completed' => 0, 'mastered' => 0];
+        $totalCounts = ['unfinished' => 0, 'beatenCasual' => 0, 'beatenHardcore' => 0, 'completed' => 0, 'mastered' => 0];
         $totalHardcoreAchievements = 0;
-        $totalSoftcoreAchievements = 0;
+        $totalCasualAchievements = 0;
 
         foreach ($results as $row) {
             $systemId = (int) $row->system_id;
@@ -100,35 +101,50 @@ class GetUserProgressionStatusCountsAction
             $beatenHc = (int) $row->beaten_hc_count;
             $beatenSc = (int) $row->beaten_sc_count;
             $unfinished = (int) $row->unfinished_count;
+            $lastPlayedAt = $row->last_played_at?->format('Y-m-d H:i:s');
 
             $systemProgress[$systemId] = [
                 'unfinishedCount' => $unfinished,
-                'beatenSoftcoreCount' => $beatenSc,
+                'beatenCasualCount' => $beatenSc,
                 'beatenHardcoreCount' => $beatenHc,
                 'completedCount' => $completed,
                 'masteredCount' => $mastered,
+                'lastPlayedAt' => $lastPlayedAt,
                 'systemId' => $systemId,
             ];
 
             $totalCounts['unfinished'] += $unfinished;
-            $totalCounts['beatenSoftcore'] += $beatenSc;
+            $totalCounts['beatenCasual'] += $beatenSc;
             $totalCounts['beatenHardcore'] += $beatenHc;
             $totalCounts['completed'] += $completed;
             $totalCounts['mastered'] += $mastered;
 
             $totalHardcoreAchievements += (int) $row->total_hc_achievements;
-            $totalSoftcoreAchievements += (int) $row->total_sc_achievements;
+            $totalCasualAchievements += (int) $row->total_sc_achievements;
+        }
+
+        $avgCompletionPercentage = $this->calculateAvgCompletionExcludingSubsets($user);
+
+        // topSystem is the most recent valid system where the user has earned achievements.
+        $topSystemId = null;
+        $latestTimestamp = null;
+
+        foreach ($systemProgress as $systemId => $progress) {
+            if ($progress['lastPlayedAt'] === null) {
+                continue;
+            }
+
+            $timestamp = strtotime($progress['lastPlayedAt']) ?: 0;
+
+            if ($latestTimestamp === null || $timestamp > $latestTimestamp) {
+                $latestTimestamp = $timestamp;
+                $topSystemId = $systemId;
+            }
         }
 
         // Add counts for "orphan badges" - badges for games not in the main query.
         // This handles demoted games, games with < 6 achievements, etc.
         $this->addOrphanBadgeCounts($user, $systemProgress, $totalCounts);
-
-        $avgCompletionPercentage = $this->calculateAvgCompletionExcludingSubsets($user);
-
-        $topSystemId = ($recentSystemId !== null && isset($systemProgress[$recentSystemId]))
-            ? $recentSystemId
-            : array_key_first($systemProgress);
 
         // Sort: topSystem first, then by total games played descending.
         uasort($systemProgress, function ($a, $b) use ($topSystemId) {
@@ -139,8 +155,8 @@ class GetUserProgressionStatusCountsAction
                 return 1;
             }
 
-            $sumA = $a['unfinishedCount'] + $a['beatenSoftcoreCount'] + $a['beatenHardcoreCount'] + $a['completedCount'] + $a['masteredCount'];
-            $sumB = $b['unfinishedCount'] + $b['beatenSoftcoreCount'] + $b['beatenHardcoreCount'] + $b['completedCount'] + $b['masteredCount'];
+            $sumA = $a['unfinishedCount'] + $a['beatenCasualCount'] + $a['beatenHardcoreCount'] + $a['completedCount'] + $a['masteredCount'];
+            $sumB = $b['unfinishedCount'] + $b['beatenCasualCount'] + $b['beatenHardcoreCount'] + $b['completedCount'] + $b['masteredCount'];
 
             return $sumB <=> $sumA;
         });
@@ -151,7 +167,7 @@ class GetUserProgressionStatusCountsAction
             'topSystemId' => $topSystemId,
             'totalCounts' => $totalCounts,
             'totalHardcoreAchievements' => $totalHardcoreAchievements,
-            'totalSoftcoreAchievements' => $totalSoftcoreAchievements,
+            'totalCasualAchievements' => $totalCasualAchievements,
         ];
     }
 
@@ -159,8 +175,8 @@ class GetUserProgressionStatusCountsAction
      * Finds badges for games not included in the main query and adds them to the counts.
      * This handles edge cases like demoted games, etc.
      *
-     * @param array<int, array{unfinishedCount: int, beatenSoftcoreCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, systemId: int}> $systemProgress
-     * @param array{unfinished: int, beatenSoftcore: int, beatenHardcore: int, completed: int, mastered: int} $totalCounts
+     * @param array<int, array{unfinishedCount: int, beatenCasualCount: int, beatenHardcoreCount: int, completedCount: int, masteredCount: int, lastPlayedAt: string|null, systemId: int}> $systemProgress
+     * @param array{unfinished: int, beatenCasual: int, beatenHardcore: int, completed: int, mastered: int} $totalCounts
      */
     private function addOrphanBadgeCounts(User $user, array &$systemProgress, array &$totalCounts): void
     {
@@ -187,7 +203,7 @@ class GetUserProgressionStatusCountsAction
 
         // Group by game and find the highest award per game.
         $orphanGameAwards = [];
-        $priority = ['mastered' => 4, 'completed' => 3, 'beatenHardcore' => 2, 'beatenSoftcore' => 1];
+        $priority = ['mastered' => 4, 'completed' => 3, 'beatenHardcore' => 2, 'beatenCasual' => 1];
 
         foreach ($orphanBadges as $badge) {
             $gameId = $badge->game_id;
@@ -195,9 +211,9 @@ class GetUserProgressionStatusCountsAction
 
             $awardKind = match (true) {
                 $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Hardcore => 'mastered',
-                $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Softcore => 'completed',
+                $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Casual => 'completed',
                 $badge->award_type === AwardType::GameBeaten && $badge->award_tier === UnlockMode::Hardcore => 'beatenHardcore',
-                $badge->award_type === AwardType::GameBeaten && $badge->award_tier === UnlockMode::Softcore => 'beatenSoftcore',
+                $badge->award_type === AwardType::GameBeaten && $badge->award_tier === UnlockMode::Casual => 'beatenCasual',
                 default => null,
             };
 
@@ -219,10 +235,11 @@ class GetUserProgressionStatusCountsAction
             if (!isset($systemProgress[$systemId])) {
                 $systemProgress[$systemId] = [
                     'unfinishedCount' => 0,
-                    'beatenSoftcoreCount' => 0,
+                    'beatenCasualCount' => 0,
                     'beatenHardcoreCount' => 0,
                     'completedCount' => 0,
                     'masteredCount' => 0,
+                    'lastPlayedAt' => null,
                     'systemId' => $systemId,
                 ];
             }
@@ -231,7 +248,7 @@ class GetUserProgressionStatusCountsAction
                 'mastered' => [$systemProgress[$systemId]['masteredCount']++, $totalCounts['mastered']++],
                 'completed' => [$systemProgress[$systemId]['completedCount']++, $totalCounts['completed']++],
                 'beatenHardcore' => [$systemProgress[$systemId]['beatenHardcoreCount']++, $totalCounts['beatenHardcore']++],
-                'beatenSoftcore' => [$systemProgress[$systemId]['beatenSoftcoreCount']++, $totalCounts['beatenSoftcore']++],
+                'beatenCasual' => [$systemProgress[$systemId]['beatenCasualCount']++, $totalCounts['beatenCasual']++],
             };
         }
     }

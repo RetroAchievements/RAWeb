@@ -8,10 +8,10 @@ use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
-use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Contracts\Ticketable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -21,7 +21,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private ?Achievement $ticketable = null;
+    private ?Ticketable $ticketable = null;
     private ?Game $game = null;
 
     public function __construct(
@@ -35,10 +35,11 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
     ) {
         // If this is a ticket comment, fetch the ticket data in constructor.
         if ($this->commentableType === CommentableType::AchievementTicket) {
-            $ticket = Ticket::with(['achievement.game.system'])->find($this->activityId);
-            if ($ticket) {
-                $this->ticketable = $ticket->achievement;
-                $this->game = $ticket->achievement?->game;
+            $ticket = Ticket::with(['ticketable.game.system'])->find($this->activityId);
+            if ($ticket && $ticket->ticketable) {
+                $ticketable = $ticket->getTicketableModel();
+                $this->ticketable = $ticketable;
+                $this->game = $ticketable->getTicketableGame();
             }
         }
     }

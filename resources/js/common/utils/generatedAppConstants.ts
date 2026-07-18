@@ -1,13 +1,13 @@
 /* eslint-disable */
 /* generated with `composer types` */
 export const UnlockMode = {
-    Softcore: 0,
+    Casual: 0,
     Hardcore: 1,
 } as const;
 
 
 export const StringifiedUnlockMode = {
-    Softcore: '0',
+    Casual: '0',
     Hardcore: '1',
 } as const;
 

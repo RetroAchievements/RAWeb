@@ -62,8 +62,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
         $unlockTime = Carbon::now()->subDays(1);
         $hardcoreAchievement = $publishedAchievements->get(0);
         $this->addHardcoreUnlock($user, $hardcoreAchievement, $unlockTime);
-        $softcoreAchievement = $publishedAchievements->get(1);
-        $this->addSoftcoreUnlock($user, $softcoreAchievement, $unlockTime);
+        $casualAchievement = $publishedAchievements->get(1);
+        $this->addCasualUnlock($user, $casualAchievement, $unlockTime);
 
         $playerSession = $user->playerSessions()->where('game_id', $game->id)->first();
         $playerSession->rich_presence_updated_at = $unlockTime;
@@ -117,7 +117,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
                                        $publishedAchievements->get(1)->points +
                                        $publishedAchievements->get(2)->points,
                     'NumAchieved' => 2, // hardcore also unlocks softcore
-                    'ScoreAchieved' => $softcoreAchievement->points + $hardcoreAchievement->points,
+                    'ScoreAchieved' => $casualAchievement->points + $hardcoreAchievement->points,
                     'NumAchievedHardcore' => 1,
                     'ScoreAchievedHardcore' => $hardcoreAchievement->points,
                 ],

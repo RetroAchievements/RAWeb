@@ -334,7 +334,24 @@ class UserAgentService
         [$supportLevel, $coreRestriction] = $this->resolveBaseSupportLevel($emulatorUserAgent, $data, $userAgent);
 
         if ($supportLevel->allowsHardcoreUnlocks() && $this->hasOfflineSubmissionClient($data)) {
-            return [ClientSupportLevel::SoftcoreOnly, $coreRestriction];
+            return [ClientSupportLevel::CasualOnly, $coreRestriction];
+        }
+
+        if ($supportLevel === ClientSupportLevel::Full
+            && $emulatorUserAgent->pending_minimum_hardcore_version
+            && $emulatorUserAgent->pending_minimum_hardcore_version_at) {
+            if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->pending_minimum_hardcore_version) < 0) {
+                if ($emulatorUserAgent->pending_minimum_hardcore_version_at->isFuture()) {
+                    $supportLevel = ClientSupportLevel::CasualPending;
+                } else {
+                    // Version is already past-due. Perform the update now.
+                    $emulatorUserAgent->minimum_hardcore_version = $emulatorUserAgent->pending_minimum_hardcore_version;
+                    $emulatorUserAgent->pending_minimum_hardcore_version = null;
+                    $emulatorUserAgent->pending_minimum_hardcore_version_at = null;
+                    $emulatorUserAgent->save();
+                    $supportLevel = ClientSupportLevel::Outdated;
+                }
+            }
         }
 
         return [$supportLevel, $coreRestriction];
@@ -345,19 +362,19 @@ class UserAgentService
      */
     private function resolveBaseSupportLevel(EmulatorUserAgent $emulatorUserAgent, array $data, string|array $userAgent): array
     {
-        $isSoftcoreOnly = $emulatorUserAgent->emulator->softcore_only;
+        $isCasualOnly = $emulatorUserAgent->emulator->softcore_only;
 
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
             return [ClientSupportLevel::Blocked, null];
         }
 
-        // softcore_only wins over a stale minimum_hardcore_version.
+        // The legacy compatibility column wins over a stale minimum_hardcore_version.
         // Ordering matters: minimum_allowed_version still blocks ancient
         // clients above, and core restrictions below are intentionally
-        // bypassed because softcore_only is a blanket emulator-wide flag.
-        if ($isSoftcoreOnly) {
-            return [ClientSupportLevel::SoftcoreOnly, null];
+        // bypassed because this is a blanket emulator-wide flag.
+        if ($isCasualOnly) {
+            return [ClientSupportLevel::CasualOnly, null];
         }
 
         if ($emulatorUserAgent->minimum_hardcore_version) {

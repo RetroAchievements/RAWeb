@@ -7,7 +7,7 @@
 
     <select id="filter-by-award-kind" class="w-full" onchange="handleAwardTypeChanged(event)">
         <option value="all" @if (!$selectedAwardType) selected @endif>All</option>
-        <option value="beaten-softcore" @if ($selectedAwardType === 'beaten-softcore') selected @endif>Beaten (softcore)</option>
+        <option value="beaten-softcore" @if ($selectedAwardType === 'beaten-softcore') selected @endif>Beaten (casual)</option>
         <option value="beaten-hardcore" @if ($selectedAwardType === 'beaten-hardcore') selected @endif>Beaten</option>
         <option value="completed" @if ($selectedAwardType === 'completed') selected @endif>Completed</option>
         <option value="mastered" @if ($selectedAwardType === 'mastered') selected @endif>Mastered</option>

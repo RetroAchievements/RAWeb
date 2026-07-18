@@ -14,6 +14,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Services\UserTicketCountService;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -631,12 +632,23 @@ class AchievementResource extends Resource
             'is_active' => true,
         ]);
 
+        // Collect distinct prior assignees so we can bust their cached open-ticket counts.
+        // The bulk update below bypasses Eloquent events, so TicketObserver cannot catch it.
+        $priorAssigneeIds = $record->tickets()
+            ->open()
+            ->pluck('ticketable_author_id')
+            ->filter()
+            ->unique();
+
         // Reassign any open tickets for this achievement to the new maintainer.
         $record->tickets()
             ->open()
             ->update([
                 'ticketable_author_id' => $newMaintainerId,
             ]);
+
+        $userIdsToBust = $priorAssigneeIds->push((int) $newMaintainerId)->unique();
+        app(UserTicketCountService::class)->clearForUserIds($userIdsToBust);
 
         activity()
             ->performedOn($record)

@@ -43,7 +43,7 @@ $user = request()->user();
         <x-container>
             <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
                 <x-fas-exclamation-triangle/>
-                Your password has appeared in a data breach. Please <a href="{{ route('settings.show') }}" class="text-white underline">change your password</a> to secure your account.
+                Your password has appeared in a data breach. Please <a href="{{ route('settings', ['tab' => 'account']) }}" class="text-white underline">change your password</a> to secure your account.
             </div>
         </x-container>
     @endif

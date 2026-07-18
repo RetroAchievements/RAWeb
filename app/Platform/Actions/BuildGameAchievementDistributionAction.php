@@ -22,9 +22,9 @@ class BuildGameAchievementDistributionAction
         $numDistinctPlayers = $game->players_total ?? 0;
         $numAchievements = $game->achievements_published;
 
-        $softcoreUnlocks = getAchievementDistribution(
+        $casualUnlocks = getAchievementDistribution(
             $game->id,
-            UnlockMode::Softcore,
+            UnlockMode::Casual,
             $user?->username,
             isPromoted: true,
             numPlayers: $numDistinctPlayers
@@ -38,12 +38,12 @@ class BuildGameAchievementDistributionAction
         );
 
         [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
-        calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $softcoreUnlocks, $hardcoreUnlocks);
-        handleAllAchievementsCase($numAchievements, $softcoreUnlocks, $hardcoreUnlocks, $buckets);
+        calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $casualUnlocks, $hardcoreUnlocks);
+        handleAllAchievementsCase($numAchievements, $casualUnlocks, $hardcoreUnlocks, $buckets);
 
         $previousEnd = 0;
 
-        /** @var array<int, array{start?: int, end?: int, hardcore: int, softcore: int}> $buckets */
+        /** @var array<int, array{start?: int, end?: int, hardcore: int, casual: int}> $buckets */
         return collect($buckets)->map(function (array $bucket) use (&$previousEnd): PlayerAchievementChartBucketData {
             // Handle undefined start and end based on the previous bucket's end value.
             if (!isset($bucket['start']) || !isset($bucket['end'])) {

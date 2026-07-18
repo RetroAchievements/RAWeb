@@ -16,6 +16,7 @@ use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -69,8 +70,8 @@ class SubscriptionService
 
         return [
             'explicitlySubscribed' => $explicitSubscriberIds,
-            'implicitlySubscribedNotifyNow' => array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds)),
-            'implicitlySubscribedNotifyLater' => array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds)),
+            'implicitlySubscribedNotifyNow' => array_values(array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds))),
+            'implicitlySubscribedNotifyLater' => array_values(array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds))),
         ];
     }
 
@@ -259,7 +260,7 @@ class SubscriptionService
     {
         return match ($subjectType) {
             SubscriptionSubjectType::Achievement => new AchievementWallSubscriptionHandler(),
-            SubscriptionSubjectType::AchievementTicket => new AchievementTicketSubscriptionHandler(),
+            SubscriptionSubjectType::AchievementTicket => new TicketSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicSubscriptionHandler(),
             SubscriptionSubjectType::GameAchievements => new GameAchievementsSubscriptionHandler(),
             SubscriptionSubjectType::GameTickets => new GameTicketsSubscriptionHandler(),
@@ -442,7 +443,7 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
     }
 }
 
-class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
+class TicketSubscriptionHandler extends CommentSubscriptionHandler
 {
     protected function getCommentableType(): CommentableType
     {
@@ -454,17 +455,25 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
      */
     public function getSubjectQuery(array $subjectIds): Builder
     {
-        /** @var Builder<Model> $query */
-        $query = Ticket::whereIn(DB::raw('tickets.id'), $subjectIds)
+        /** @var Builder<Model> $achievementQuery */
+        $achievementQuery = Ticket::whereIn(DB::raw('tickets.id'), $subjectIds)
             ->join('achievements', DB::raw('tickets.ticketable_id'), '=', 'achievements.id')
-            ->where(DB::raw('tickets.ticketable_type'), 'achievement')
+            ->where(DB::raw('tickets.ticketable_type'), TicketableType::Achievement->value)
             ->select([
                 DB::raw('tickets.id as subject_id'),
                 DB::raw('achievements.title as title'),
-            ])
-            ->orderBy('title');
+            ]);
 
-        return $query;
+        /** @var Builder<Model> $leaderboardQuery */
+        $leaderboardQuery = Ticket::whereIn(DB::raw('tickets.id'), $subjectIds)
+            ->join('leaderboards', DB::raw('tickets.ticketable_id'), '=', 'leaderboards.id')
+            ->where(DB::raw('tickets.ticketable_type'), TicketableType::Leaderboard->value)
+            ->select([
+                DB::raw('tickets.id as subject_id'),
+                DB::raw('leaderboards.title as title'),
+            ]);
+
+        return $achievementQuery->union($leaderboardQuery)->orderBy('title');
     }
 
     /**
@@ -476,13 +485,16 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
         $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
 
         if ($subjectId !== null) {
-            $ticket = Ticket::with('achievement')->find($subjectId);
-            if ($ticket) {
-                // find any users subscribed to GameTickets for the game owning the ticketed achievement
+            $ticket = Ticket::with('ticketable')->find($subjectId);
+            if ($ticket && $ticket->ticketable) {
+                $ticketable = $ticket->getTicketableModel();
+                $ticketableGame = $ticketable->getTicketableGame();
+
+                // find any users subscribed to GameTickets for the game owning the ticketed achievement/leaderboard
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
-                    ->where('subject_id', $ticket->achievement->game_id)
+                    ->where('subject_id', $ticketableGame->id)
                     ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
@@ -514,23 +526,24 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                     $query->union($query3);
                 }
 
-                // achievement maintainer should also be implicitly subscribed if they still have a development role
-                $includeMaintainer = false;
-                $maintainer = $ticket->achievement->getMaintainerAt(now());
-                if ($maintainer && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+                // ticketable assignee (achievement maintainer or leaderboard author) should
+                // also be implicitly subscribed if they still have a development role
+                $includeAssignee = false;
+                $assignee = $ticketable->getTicketableAssignee(now());
+                if ($assignee && $assignee->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
                     if ($forUserId !== null) {
-                        $includeMaintainer = $maintainer->id === $forUserId;
+                        $includeAssignee = $assignee->id === $forUserId;
                     } else {
-                        $includeMaintainer = !$ignoreUserIds || !in_array($maintainer->id, $ignoreUserIds);
+                        $includeAssignee = !$ignoreUserIds || !in_array($assignee->id, $ignoreUserIds);
                     }
                 }
 
-                if ($includeMaintainer) {
+                if ($includeAssignee) {
                     /** @var Builder<Model> $query4 */
                     $query4 = Ticket::query()
                         ->where('id', $ticket->id)
                         ->select([
-                            DB::raw($maintainer->id . ' as user_id'),
+                            DB::raw($assignee->id . ' as user_id'),
                             DB::raw('id as subject_id'),
                         ]);
 

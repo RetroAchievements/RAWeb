@@ -69,12 +69,12 @@ describe('Component: DataTableProgressFilter', () => {
     expect(screen.queryByText(/completed only/i)).not.toBeInTheDocument();
   });
 
-  it('given the user prefers softcore mode, shows softcore specific options', async () => {
+  it('given the user prefers casual mode, shows casual specific options', async () => {
     // ARRANGE
     render(<DataTableProgressFilter table={createMockTable() as Table<any>} />, {
       pageProps: {
         auth: {
-          user: createAuthenticatedUser({ playerPreferredMode: 'softcore' }),
+          user: createAuthenticatedUser({ playerPreferredMode: 'casual' }),
         },
       },
     });

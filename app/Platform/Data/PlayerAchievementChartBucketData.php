@@ -10,7 +10,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 /**
  * Represents a bucket of achievement unlock data for chart visualization.
  * Each bucket contains a range of players who have unlocked a specific number
- * of achievements within a game, divided by unlock mode (softcore/hardcore).
+ * of achievements within a game, divided by unlock mode (casual/hardcore).
  */
 #[TypeScript('PlayerAchievementChartBucket')]
 class PlayerAchievementChartBucketData extends Data
@@ -20,8 +20,8 @@ class PlayerAchievementChartBucketData extends Data
         public int $start,
         /** The upper bound of this achievement count bucket (inclusive) */
         public int $end,
-        /** Number of players who have unlocked this many achievements in softcore mode */
-        public int $softcore,
+        /** Number of players who have unlocked this many achievements in casual mode */
+        public int $casual,
         /** Number of players who have unlocked this many achievements in hardcore mode */
         public int $hardcore,
     ) {

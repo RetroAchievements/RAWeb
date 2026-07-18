@@ -36,8 +36,8 @@ export function useAvatarSectionForm() {
       }),
       {
         loading: t('Uploading new avatar...'),
-        success: () => {
-          resetNavbarUserPic();
+        success: ({ data }) => {
+          resetNavbarUserPic(data.avatarUrl);
 
           return t('Uploaded!');
         },

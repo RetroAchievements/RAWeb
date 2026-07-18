@@ -59,7 +59,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
                 :numAwardedAchievements="$game['NumAwarded']"
                 :numPossibleAchievements="$game['MaxPossible']"
                 :numAwardedHardcorePoints="$game['ScoreEarnedHardcore'] ?? null"
-                :numAwardedSoftcorePoints="$game['ScoreEarnedSoftcore'] ?? null"
+                :numAwardedCasualPoints="$game['ScoreEarnedCasual'] ?? null"
                 :numPossiblePoints="$game['MaxPossibleScore'] ?? null"
                 :firstWonDate="$game['FirstWonDate']"
                 :mostRecentWonDate="$game['MostRecentWonDate']"
@@ -84,7 +84,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
                 </{{ $consoleTag }}>
 
                 <x-game-list-item.progress-bar
-                    :softcoreCompletionPercentage="$totalCompletionPercentage"
+                    :casualCompletionPercentage="$totalCompletionPercentage"
                     :hardcoreCompletionPercentage="$hardcoreCompletionPercentage"
                     :numPossible="$game['MaxPossible']"
                     :hasAward="isset($game['HighestAwardKind'])"

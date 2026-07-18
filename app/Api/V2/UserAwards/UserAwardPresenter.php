@@ -45,7 +45,7 @@ class UserAwardPresenter
             AwardType::Mastery, AwardType::GameBeaten => $this->award->gameIfApplicable?->badge_url,
 
             AwardType::Event => $this->award->eventIfApplicable?->awards
-                ?->firstWhere('tier_index', $this->award->award_tier)
+                ?->firstWhere('tier_index', $this->award->display_award_tier ?? $this->award->award_tier)
                 ?->badge_url ?? $this->award->eventIfApplicable?->badge_url,
 
             AwardType::Playtest => $this->award->siteAwardIfApplicable?->badge_url,
@@ -53,8 +53,18 @@ class UserAwardPresenter
             AwardType::AchievementPointsYield => asset("/assets/images/badge/contribPoints-{$this->award->award_key}.png"),
             AwardType::PatreonSupporter => asset('/assets/images/badge/patreon.png'),
             AwardType::CertifiedLegend => asset('/assets/images/badge/legend.png'),
-            AwardType::MediaContribution => asset("/assets/images/badge/mediaContrib-{$this->award->award_key}.png"),
+            AwardType::MediaContribution => mediaContributionBadgeUrl($this->award->displayed_tier),
         };
+    }
+
+    public function userId(): ?string
+    {
+        return $this->award->user?->ulid;
+    }
+
+    public function userDisplayName(): ?string
+    {
+        return $this->award->user?->display_name;
     }
 
     public function context(): array
@@ -62,7 +72,7 @@ class UserAwardPresenter
         return match ($this->award->award_type) {
             AwardType::Mastery, AwardType::GameBeaten => [
                 'gameId' => $this->award->award_key,
-                'mode' => $this->award->award_tier === UnlockMode::Hardcore ? 'hardcore' : 'softcore',
+                'mode' => $this->award->award_tier === UnlockMode::Hardcore ? 'hardcore' : 'casual',
             ],
             AwardType::Event => [
                 'eventId' => $this->award->award_key,
@@ -77,14 +87,26 @@ class UserAwardPresenter
                 'tier' => $this->award->award_key,
                 'threshold' => PlayerBadge::getBadgeThreshold($this->award->award_type, $this->award->award_key),
             ],
-            AwardType::MediaContribution => [
-                'tier' => $this->award->award_key,
-                'threshold' => PlayerBadge::getBadgeThreshold($this->award->award_type, $this->award->award_key),
-            ],
+            AwardType::MediaContribution => $this->mediaContributionContext(),
             AwardType::PatreonSupporter, AwardType::CertifiedLegend => [
                 'siteAwardType' => $this->award->award_type->value,
             ],
         };
+    }
+
+    /**
+     * @return array{tier: int, displayTierIndex: int, earnedTier: int, threshold: int}
+     */
+    private function mediaContributionContext(): array
+    {
+        $displayTier = $this->award->displayed_tier;
+
+        return [
+            'tier' => $displayTier,
+            'displayTierIndex' => $displayTier,
+            'earnedTier' => $this->award->award_tier,
+            'threshold' => PlayerBadge::getBadgeThreshold($this->award->award_type, $displayTier),
+        ];
     }
 
     public function hasGameRelationship(): bool

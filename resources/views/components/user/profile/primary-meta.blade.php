@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 @props([
     'hardcoreRankMeta' => [],
-    'softcoreRankMeta' => [],
+    'casualRankMeta' => [],
     'userMassData' => [],
     'user' => null, // User
 ])
@@ -112,14 +112,14 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
             {{-- Points --}}
             <x-user.profile.points-display
                 :hardcorePoints="$userMassData['TotalPoints']"
-                :softcorePoints="$userMassData['TotalSoftcorePoints']"
+                :casualPoints="$userMassData['TotalSoftcorePoints']"
                 :weightedPoints="$userMassData['TotalTruePoints']"
             />
 
             {{-- Site Rank --}}
             <x-user.profile.site-rank-display
                 :hardcoreRankMeta="$hardcoreRankMeta"
-                :softcoreRankMeta="$softcoreRankMeta"
+                :casualRankMeta="$casualRankMeta"
                 :userMassData="$userMassData"
                 :username="$user->username"
             />

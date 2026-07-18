@@ -12,7 +12,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
     <div class="flex flex-col-reverse gap-y-2 sm:gap-y-0 sm:flex-row sm:justify-between w-full mb-2">
         <x-user.progression-status.legend
             :totalBeatenHardcoreCount="$totalCounts['beatenHardcore']"
-            :totalBeatenSoftcoreCount="$totalCounts['beatenSoftcore']"
+            :totalBeatenCasualCount="$totalCounts['beatenCasual']"
             :totalCompletedCount="$totalCounts['completed']"
             :totalMasteredCount="$totalCounts['mastered']"
         />
@@ -34,7 +34,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             <x-user.progression-status.console-progression-list-item
                 label="Total"
                 :unfinishedCount="$totalCounts['unfinished']"
-                :beatenSoftcoreCount="$totalCounts['beatenSoftcore']"
+                :beatenCasualCount="$totalCounts['beatenCasual']"
                 :beatenHardcoreCount="$totalCounts['beatenHardcore']"
                 :completedCount="$totalCounts['completed']"
                 :masteredCount="$totalCounts['mastered']"
@@ -49,7 +49,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             <x-user.progression-status.console-progression-list-item
                 :consoleId="$topSystem"
                 :unfinishedCount="$systemProgress[$topSystem]['unfinishedCount'] ?? 1"
-                :beatenSoftcoreCount="$systemProgress[$topSystem]['beatenSoftcoreCount'] ?? 0"
+                :beatenCasualCount="$systemProgress[$topSystem]['beatenCasualCount'] ?? 0"
                 :beatenHardcoreCount="$systemProgress[$topSystem]['beatenHardcoreCount'] ?? 0"
                 :completedCount="$systemProgress[$topSystem]['completedCount'] ?? 0"
                 :masteredCount="$systemProgress[$topSystem]['masteredCount'] ?? 0"
@@ -69,7 +69,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
                         <x-user.progression-status.console-progression-list-item
                             :consoleId="$systemId"
                             :unfinishedCount="$progress['unfinishedCount']"
-                            :beatenSoftcoreCount="$progress['beatenSoftcoreCount']"
+                            :beatenCasualCount="$progress['beatenCasualCount']"
                             :beatenHardcoreCount="$progress['beatenHardcoreCount']"
                             :completedCount="$progress['completedCount']"
                             :masteredCount="$progress['masteredCount']"

@@ -55,7 +55,6 @@ describe('Component: UserGameActivityMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('listitem', { name: /all users/i })).toBeVisible();
     expect(screen.getByRole('listitem', { name: /scott/i })).toBeVisible();
     expect(screen.getByRole('listitem', { name: /sonic the hedgehog/i })).toBeVisible();
   });

@@ -9,9 +9,18 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class UpdateGameBeatenMetricsAction
 {
+    private const MEDIAN_FIELDS = [
+        'player_games.time_to_beat',
+        'player_games.time_to_beat_hardcore',
+        'player_achievement_sets.time_taken',
+        'player_achievement_sets.time_taken_hardcore',
+    ];
+
     public function execute(Game $game): void
     {
         if (!$game->achievements_published) {
@@ -20,7 +29,7 @@ class UpdateGameBeatenMetricsAction
             $game->times_beaten_hardcore = 0;
             $game->median_time_to_beat_hardcore = null;
         } else {
-            // Get median time to beat (softcore only - has time_to_beat but not time_to_beat_hardcore).
+            // Get median time to beat (casual only - has time_to_beat but not time_to_beat_hardcore).
             $query = PlayerGame::where('player_games.game_id', $game->id)
                 ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
                 ->whereNull('unranked_users.id')
@@ -56,7 +65,7 @@ class UpdateGameBeatenMetricsAction
                 // NOTE: This only finds masters of the current set.
                 // It ignores users who may have previously mastered it before a revision.
 
-                // Get median time to complete (softcore only - completed but NOT completed hardcore).
+                // Get median time to complete (casual only - completed but NOT completed hardcore).
                 $query = PlayerAchievementSet::where('player_achievement_sets.achievement_set_id', $achievementSet->id)
                     ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
                     ->whereNull('unranked_users.id')
@@ -83,24 +92,34 @@ class UpdateGameBeatenMetricsAction
      */
     private function getMedian(Builder $query, string $field): array
     {
-        $count = $query->count();
+        $field = $this->medianField($field);
+
+        $rankedQuery = (clone $query)
+            ->selectRaw($field . ' as median_value')
+            ->selectRaw('ROW_NUMBER() OVER (ORDER BY ' . $field . ') as median_row')
+            ->selectRaw('COUNT(*) OVER () as median_count');
+
+        $result = DB::query()
+            ->fromSub($rankedQuery->toBase(), 'ranked')
+            ->whereRaw('median_row between FLOOR((median_count + 1) / 2.0) and FLOOR((median_count + 2) / 2.0)')
+            ->selectRaw('MAX(median_count) as aggregate')
+            ->selectRaw('AVG(median_value) as median')
+            ->first();
+
+        $count = (int) ($result->aggregate ?? 0);
         if ($count === 0) {
             return [0, null];
         }
 
-        $query->select($field)->orderBy($field);
+        return [$count, $result->median !== null ? (float) $result->median : null];
+    }
 
-        if (($count % 2) == 1) {
-            // odd. just get the middle item
-            $query->offset((int) ($count / 2))->limit(1);
-            $median = $query->value($field);
-        } else {
-            // even. get the two items in the middle and average them together
-            $query->offset((int) ($count / 2) - 1)->limit(2);
-            $values = $query->pluck($field)->toArray();
-            $median = ($values[0] + $values[1]) / 2;
+    private function medianField(string $field): string
+    {
+        if (!in_array($field, self::MEDIAN_FIELDS, true)) {
+            throw new InvalidArgumentException("Unsupported median field [{$field}].");
         }
 
-        return [$count, $median];
+        return $field;
     }
 }

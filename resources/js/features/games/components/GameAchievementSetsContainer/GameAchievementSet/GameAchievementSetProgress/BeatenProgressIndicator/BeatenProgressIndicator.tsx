@@ -30,7 +30,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
 
   const {
     isBeaten,
-    isSoftcorePlayer,
+    isCasualPlayer,
     neededAchievementCount,
     progressionAchievements,
     unlockedAchievementCount,
@@ -74,7 +74,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
         <BaseTooltipContent>
           <div className="flex flex-col gap-1">
             <p className="font-semibold">
-              {isSoftcorePlayer ? t('Beaten Progress (Softcore)') : t('Beaten Progress')}
+              {isCasualPlayer ? t('Beaten Progress (Casual)') : t('Beaten Progress')}
             </p>
 
             <div className="flex flex-col gap-0.5">
@@ -189,28 +189,28 @@ function getBeatenProgressData(
     (ach) => ach.unlockedAt || ach.unlockedHardcoreAt,
   );
 
-  // Calculate hardcore vs softcore unlocks for beaten-related achievements.
+  // Calculate hardcore vs casual unlocks for beaten-related achievements.
   const unlockedProgressionHardcore = progressionAchievements.filter(
     (ach) => ach.unlockedHardcoreAt,
   ).length;
-  const unlockedProgressionSoftcore = progressionAchievements.filter(
+  const unlockedProgressionCasual = progressionAchievements.filter(
     (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
   ).length;
   const unlockedWinHardcore = winConditionAchievements.filter(
     (ach) => ach.unlockedHardcoreAt,
   ).length;
-  const unlockedWinSoftcore = winConditionAchievements.filter(
+  const unlockedWinCasual = winConditionAchievements.filter(
     (ach) => !ach.unlockedHardcoreAt && ach.unlockedAt,
   ).length;
 
   const totalHardcore = unlockedProgressionHardcore + unlockedWinHardcore;
-  const totalSoftcore = unlockedProgressionSoftcore + unlockedWinSoftcore;
+  const totalCasual = unlockedProgressionCasual + unlockedWinCasual;
 
-  // Determine if this is a softcore player.
-  const isSoftcorePlayer =
-    totalHardcore + totalSoftcore === 0
+  // Determine if this is a casual player.
+  const isCasualPlayer =
+    totalHardcore + totalCasual === 0
       ? user && user.pointsSoftcore > user.points
-      : totalSoftcore > totalHardcore;
+      : totalCasual > totalHardcore;
 
   const neededAchievementCount =
     progressionAchievements.length + (winConditionAchievements.length ? 1 : 0);
@@ -227,16 +227,16 @@ function getBeatenProgressData(
 
   return {
     isBeaten,
-    isSoftcorePlayer,
+    isCasualPlayer,
     neededAchievementCount,
     progressionAchievements,
     unlockedAchievementCount,
     unlockedProgression,
+    unlockedProgressionCasual,
     unlockedProgressionHardcore,
-    unlockedProgressionSoftcore,
     unlockedWin,
+    unlockedWinCasual,
     unlockedWinHardcore,
-    unlockedWinSoftcore,
     winConditionAchievements,
   };
 }

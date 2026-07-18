@@ -3,6 +3,7 @@
 use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
+use App\Support\Media\UserAvatarUrl;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -61,6 +62,13 @@ function userAvatar(
         return "<span class='inline whitespace-nowrap'><span class='inline-block'>$iconLabel $usernameLabel</span></span>";
     }
 
+    $iconUrl = null;
+    if ($icon !== false && ($icon || !$label)) {
+        $iconUrl = $user instanceof User
+            ? $user->avatar_url
+            : ($user['avatarUrl'] ?? UserAvatarUrl::canonical($username));
+    }
+
     return avatar(
         resource: 'user',
         id: $displayName,
@@ -68,7 +76,7 @@ function userAvatar(
         link: $link ?: route('user.show', $displayName),
         tooltip: is_array($tooltip) ? renderUserCard($tooltip) : $tooltip,
         class: 'inline whitespace-nowrap',
-        iconUrl: $icon !== false && ($icon || !$label) ? media_asset('/UserPic/' . $username . '.png') : null,
+        iconUrl: $iconUrl,
         iconSize: $iconSize,
         iconClass: $iconClass,
     );
@@ -79,25 +87,6 @@ function renderUserCard(string|array $user): string
     return Blade::render('<x-user-card :user="$user" />', [
         'user' => $user,
     ]);
-}
-
-function RenderUserPref(
-    int $websitePrefs,
-    int $userPref,
-    bool $setIfTrue,
-    ?string $state = null,
-    int $targetLoadingIcon = 1,
-): void {
-    echo "<input id='UserPreference$userPref' type='checkbox' ";
-    echo "onchange='DoChangeUserPrefs($targetLoadingIcon); return false;' value='1'";
-
-    if ($state) {
-        echo " $state";
-    } elseif (BitSet($websitePrefs, $userPref) === $setIfTrue) {
-        echo " checked";
-    }
-
-    echo " />";
 }
 
 function RenderUserList(string $header, array $users, UserRelationStatus $relationStatus, array $followingList): void

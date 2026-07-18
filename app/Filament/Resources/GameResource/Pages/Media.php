@@ -11,6 +11,7 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\User;
+use App\Platform\Actions\RecordGameBadgeChangeAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use App\Rules\DisallowAnimatedImageRule;
@@ -26,8 +27,10 @@ use Filament\Schemas;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use League\Flysystem\UnableToCheckFileExistence;
@@ -144,6 +147,7 @@ class Media extends EditRecord
 
         return [
             GameResource\RelationManagers\GameScreenshotsRelationManager::class,
+            GameResource\RelationManagers\GameBadgesRelationManager::class,
         ];
     }
 
@@ -312,6 +316,29 @@ class Media extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        /** @var Game $record */
+        $originalIconPath = $record->image_icon_asset_path;
+        $newIconPath = $data['image_icon_asset_path'] ?? $originalIconPath;
+        $didIconPathChange = $newIconPath !== $originalIconPath;
+
+        return DB::transaction(function () use ($record, $data, $didIconPathChange, $newIconPath) {
+            /** @var Game $record */
+            $record = parent::handleRecordUpdate($record, $data);
+
+            if ($didIconPathChange) {
+                (new RecordGameBadgeChangeAction())->execute(
+                    game: $record,
+                    imageAssetPath: $newIconPath,
+                    uploadedBy: Auth::user(),
+                );
+            }
+
+            return $record;
+        });
     }
 
     protected function afterSave(): void

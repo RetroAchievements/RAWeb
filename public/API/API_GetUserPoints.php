@@ -5,7 +5,7 @@
  *    u : username or user ULID
  *
  *  int        Points                  number of hardcore points the user has
- *  int        SoftcorePoints          number of softcore points the user has
+ *  int        SoftcorePoints          number of casual points the user has
  */
 
 use App\Actions\FindUserByIdentifierAction;

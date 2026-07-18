@@ -100,8 +100,8 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['order_column' => 0, 'award_tier' => UnlockMode::Hardcore, 'user_id' => $user->id]);
 
         // Completion awards
-        PlayerBadge::factory()->create(['order_column' => 0, 'award_tier' => UnlockMode::Softcore, 'user_id' => $user->id]);
-        PlayerBadge::factory()->create(['order_column' => 0, 'award_tier' => UnlockMode::Softcore, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['order_column' => 0, 'award_tier' => UnlockMode::Casual, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['order_column' => 0, 'award_tier' => UnlockMode::Casual, 'user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
@@ -121,8 +121,8 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['order_column' => 0, 'award_type' => AwardType::GameBeaten, 'award_tier' => UnlockMode::Hardcore, 'user_id' => $user->id]);
 
         // Beaten softcore awards
-        PlayerBadge::factory()->create(['order_column' => 0, 'award_type' => AwardType::GameBeaten, 'award_tier' => UnlockMode::Softcore, 'user_id' => $user->id]);
-        PlayerBadge::factory()->create(['order_column' => 0, 'award_type' => AwardType::GameBeaten, 'award_tier' => UnlockMode::Softcore, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['order_column' => 0, 'award_type' => AwardType::GameBeaten, 'award_tier' => UnlockMode::Casual, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['order_column' => 0, 'award_type' => AwardType::GameBeaten, 'award_tier' => UnlockMode::Casual, 'user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()

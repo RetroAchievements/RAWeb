@@ -149,7 +149,8 @@ class GameListRequest extends FormRequest
         $filters = [];
 
         // URL params take precedence over cookie preferences.
-        foreach ($this->query('filter', []) as $key => $value) {
+        $queryFilters = $this->query('filter', []);
+        foreach (is_array($queryFilters) ? $queryFilters : [] as $key => $value) {
             $filters[$key] = explode(',', $value);
         }
 

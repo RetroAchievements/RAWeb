@@ -20,10 +20,7 @@ $dev = $devUser->display_name; // get case-corrected username
 
 $userArchInfo = getUserAchievementInformation($devUser);
 
-// Only get stats if the user has a contribution count
-if (empty($userArchInfo)) {
-    abort_with(redirect(route('user.show', $dev)));
-}
+$hasPromotedAchievements = !empty($userArchInfo);
 
 $userContribCount = $devUser->yield_unlocks;
 $userContribYield = $devUser->yield_points;
@@ -148,67 +145,72 @@ $totalMemLegth = 0;
 $customBadgesCount = 0;
 $totalPoints = 0;
 $totalTruePoints = 0;
+$averagePoints = 0;
+$averageRetroPoints = 0;
+$averageMemLength = 0;
 $shortestMemAchievement = [];
 $longestMemAchievement = [];
 $easiestAchievement = [];
 $hardestAchievement = [];
 $firstAchievement = [];
 $lastAchievement = [];
-foreach ($userArchInfo as $achievement) {
-    if ($achievementCount == 0) {
-        $shortestMemAchievement = $achievement;
-        $longestMemAchievement = $achievement;
-        $easiestAchievement = $achievement;
-        $hardestAchievement = $achievement;
-        $firstAchievement = $achievement;
-        $lastAchievement = $achievement;
-    } else {
-        if ($hardestAchievement['Points'] == 0 || $hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
-            $hardestAchievement = $achievement;
-        }
-        if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && ($easiestAchievement['Points'] && $achievement['Points'] && ($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
-            $easiestAchievement = $achievement;
-        }
-        if ($shortestMemAchievement['MemLength'] > $achievement['MemLength']) {
-            $shortestMemAchievement = $achievement;
-        }
-        if ($longestMemAchievement['MemLength'] < $achievement['MemLength']) {
-            $longestMemAchievement = $achievement;
-        }
-    }
-
-    if (!in_array($achievement['BadgeName'], $defaultBadges)) {
-        $customBadgesCount++;
-    }
-    $achievementCount++;
-    $totalMemLegth += $achievement['MemLength'];
-    $totalPoints += $achievement['Points'];
-    $totalTruePoints += $achievement['TrueRatio'];
-    $lastAchievement = $achievement;
-}
-
-$averagePoints = $totalPoints / $achievementCount;
-$averageTruePoints = $totalTruePoints / $achievementCount;
-$averageMemLength = $totalMemLegth / $achievementCount;
-
-// Get own achievements earned info
-$ownAchievementsObtained = getOwnAchievementsObtained($devUser);
-
-// Initialize unique obtainers variables
+$ownAchievementsObtained = [];
 $uniqueObtainers = 0;
 $mostAchievementObtainer = [];
 
-// Get unique obtainers for user
-$obtainers = getObtainersOfSpecificUser($devUser);
-foreach ($obtainers as $obtainer) {
-    if ($uniqueObtainers == 0) {
-        $mostAchievementObtainer = $obtainer;
-    } else {
-        if ($mostAchievementObtainer['ObtainCount'] < $obtainer['ObtainCount']) {
-            $mostAchievementObtainer = $obtainer;
+if ($hasPromotedAchievements) {
+    foreach ($userArchInfo as $achievement) {
+        if ($achievementCount == 0) {
+            $shortestMemAchievement = $achievement;
+            $longestMemAchievement = $achievement;
+            $easiestAchievement = $achievement;
+            $hardestAchievement = $achievement;
+            $firstAchievement = $achievement;
+            $lastAchievement = $achievement;
+        } else {
+            if ($hardestAchievement['Points'] == 0 || $hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
+                $hardestAchievement = $achievement;
+            }
+            if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && ($easiestAchievement['Points'] && $achievement['Points'] && ($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
+                $easiestAchievement = $achievement;
+            }
+            if ($shortestMemAchievement['MemLength'] > $achievement['MemLength']) {
+                $shortestMemAchievement = $achievement;
+            }
+            if ($longestMemAchievement['MemLength'] < $achievement['MemLength']) {
+                $longestMemAchievement = $achievement;
+            }
         }
+
+        if (!in_array($achievement['BadgeName'], $defaultBadges)) {
+            $customBadgesCount++;
+        }
+        $achievementCount++;
+        $totalMemLegth += $achievement['MemLength'];
+        $totalPoints += $achievement['Points'];
+        $totalTruePoints += $achievement['TrueRatio'];
+        $lastAchievement = $achievement;
     }
-    $uniqueObtainers++;
+
+    $averagePoints = $totalPoints / $achievementCount;
+    $averageRetroPoints = $totalTruePoints / $achievementCount;
+    $averageMemLength = $totalMemLegth / $achievementCount;
+
+    // Get own achievements earned info
+    $ownAchievementsObtained = getOwnAchievementsObtained($devUser);
+
+    // Get unique obtainers for user
+    $obtainers = getObtainersOfSpecificUser($devUser);
+    foreach ($obtainers as $obtainer) {
+        if ($uniqueObtainers == 0) {
+            $mostAchievementObtainer = $obtainer;
+        } else {
+            if ($mostAchievementObtainer['ObtainCount'] < $obtainer['ObtainCount']) {
+                $mostAchievementObtainer = $obtainer;
+            }
+        }
+        $uniqueObtainers++;
+    }
 }
 
 // Initialize code note variables
@@ -344,7 +346,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
     });
 
     function drawChart() {
-        <?php if ($userContribCount > 0) { ?>
+        <?php if ($hasPromotedAchievements) { ?>
         var gamesData = google.visualization.arrayToDataTable([
             ['System', 'Number of Sets'],
             <?php
@@ -453,7 +455,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 </script>
     <div class="navpath">
         <?php
-        echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
+        echo "<b><a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
         ?>
     </div>
 
@@ -476,8 +478,12 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
     <?php
     echo "<h1>$dev's Developer Stats</h1>";
 
-    // Only show stats if the user has a contribute count
-    if ($userContribCount > 0) {
+    if (!$hasPromotedAchievements) {
+        echo "<p class='text-center text-lg my-8'>$dev has no published achievements yet.</p>";
+    }
+
+    // Only show achievement stats if the user has any promoted achievements.
+    if ($hasPromotedAchievements) {
         /*
          * Pie Charts
          */
@@ -566,7 +572,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "<tr><td>Average Achievement Points:</td><td>" . number_format($averagePoints, 2, '.', '') . "</td></tr>";
 
         // Average achievement retro points and retro ratio
-        echo "<tr><td>Average Achievement RetroPoints (Average RetroRatio):</td><td>" . number_format($averageTruePoints, 2, '.', '') . " (" . number_format($averageTruePoints / $averagePoints, 2, '.', '') . ")</td></tr>";
+        echo "<tr><td>Average Achievement RetroPoints (Average RetroRatio):</td><td>" . number_format($averageRetroPoints, 2, '.', '') . " (" . number_format($averageRetroPoints / $averagePoints, 2, '.', '') . ")</td></tr>";
 
         // Average achievement memory length
         echo "<tr><td>Average Achievement Memory Length:</td><td>" . number_format($averageMemLength, 2, '.', '') . "</td></tr>";
@@ -610,9 +616,9 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Number of own achievements obtained
         echo "<tr><td>Own Achievements Obtained:</td><td>";
-        $softcoreCount = $ownAchievementsObtained['SoftcoreCount'] ?? 0;
+        $casualCount = $ownAchievementsObtained['CasualCount'] ?? 0;
         $hardcoreCount = $ownAchievementsObtained['HardcoreCount'] ?? 0;
-        echo "$softcoreCount - " . number_format($softcoreCount / $achievementCount * 100, 2, '.', '') . "%";
+        echo "$casualCount - " . number_format($casualCount / $achievementCount * 100, 2, '.', '') . "%";
         echo " <b>($hardcoreCount - " . number_format($hardcoreCount / $achievementCount * 100, 2, '.', '') . "%)</b>";
         echo "</td></tr>";
 
@@ -622,7 +628,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         // User who has obtained the most of your achievements
         echo "<tr><td>User Who Obtained the Most Achievements:</td><td>";
         if (!empty($mostAchievementObtainer)) {
-            echo $mostAchievementObtainer['SoftcoreCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
+            echo $mostAchievementObtainer['CasualCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
             echo userAvatar($mostAchievementObtainer['User']);
         } else {
             echo "N/A";
@@ -658,10 +664,9 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
                 <a href="$feedRoute">Developer Feed</a>
             </p>
         HTML;
+    }
 
-        /*
-         * Code Notes
-         */
+    if ($userCodeNoteCount > 0) {
         echo "<h2 id='code-notes'>Code Notes</h2>";
         echo "<table><tbody>";
 
@@ -689,7 +694,9 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "</tbody></table>";
         echo "</div>";
         echo "</br></br>";
+    }
 
+    if ($hasPromotedAchievements) {
         /*
          * Tickets
          */
@@ -777,7 +784,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Tickets resolved for other users
         echo "<tr><td>Tickets Resolved for Others:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[achievement]' => 'core', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
         echo $closedResolvedTicketInfo['ResolvedCount'];
         echo "</a>";
         echo "</td></tr>";

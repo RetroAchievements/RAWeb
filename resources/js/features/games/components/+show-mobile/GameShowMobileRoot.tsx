@@ -16,13 +16,13 @@ import { PlayableHubsList } from '@/common/components/PlayableHubsList';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
+import { usePageNavigationTabs } from '@/common/hooks/usePageNavigationTabs';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
-import { useGameShowTabs } from '../../hooks/useGameShowTabs';
 import type { GameShowTab } from '../../models';
-import { currentListViewAtom } from '../../state/games.atoms';
+import { currentListViewAtom, currentTabAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
@@ -63,12 +63,12 @@ export const GameShowMobileRoot: FC = () => {
 
   const allMetaRowElements = useAllMetaRowElements(game, hubs);
 
-  const { currentTab, setCurrentTab } = useGameShowTabs();
+  const { currentTab, setCurrentTab } = usePageNavigationTabs(currentTabAtom, 'achievements');
 
   const currentListView = useAtomValue(currentListViewAtom);
 
   const hasBeatenGame =
-    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
+    !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -144,11 +144,11 @@ export const GameShowMobileRoot: FC = () => {
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
             <PlayableMainMedia
-              expectedHeight={game.system?.screenshotResolutions?.[0]?.height}
-              expectedWidth={game.system?.screenshotResolutions?.[0]?.width}
               hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
               hasBeatenGame={hasBeatenGame}
+              imageIngameDimensions={game.imageIngameDimensions}
               imageIngameUrl={game.imageIngameUrl!}
+              imageTitleDimensions={game.imageTitleDimensions}
               imageTitleUrl={game.imageTitleUrl!}
               isPixelated={!game.system!.supportsUpscaledScreenshots}
               numScreenshots={numScreenshots}

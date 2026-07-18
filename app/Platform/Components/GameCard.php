@@ -238,7 +238,6 @@ class GameCard extends Component
         $highestProgressionAwardDate = null;
 
         if ($userHighestGameAward) {
-            // 'beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'
             $highestProgressionStatus = $userHighestGameAward['highestAwardKind'];
 
             $highestProgressionAwardDate = Carbon::parse($userHighestGameAward['highestAward']->awarded_at);

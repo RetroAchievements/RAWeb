@@ -8,7 +8,7 @@ use App\Enums\Permissions;
     'hardcoreRankMeta' => [],
     'playerStats' => [],
     'socialStats' => [],
-    'softcoreRankMeta' => [],
+    'casualRankMeta' => [],
     'user' => null, // User
     'userClaims' => null, // ?array
     'userMassData' => [],
@@ -25,7 +25,7 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
 <div class="relative mb-2">
     <x-user.profile.primary-meta
         :hardcoreRankMeta="$hardcoreRankMeta"
-        :softcoreRankMeta="$softcoreRankMeta"
+        :casualRankMeta="$casualRankMeta"
         :userMassData="$userMassData"
         :user="$user"
     />

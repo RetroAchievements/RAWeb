@@ -21,24 +21,23 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return Cache::remember("rankedUserCount:$type",
         Carbon::now()->addMinute(),
         function () use ($type) {
-            $query = "SELECT COUNT(*) AS count FROM users ";
+            $query = User::withTrashed()->whereNull('unranked_at');
+
             switch ($type) {
                 case RankType::Hardcore:
-                    $query .= "WHERE points_hardcore >= " . Rank::MIN_POINTS;
+                    $query->where('points_hardcore', '>=', Rank::MIN_POINTS);
                     break;
 
-                case RankType::Softcore:
-                    $query .= "WHERE points >= " . Rank::MIN_POINTS;
+                case RankType::Casual:
+                    $query->where('points', '>=', Rank::MIN_POINTS);
                     break;
 
                 case RankType::TruePoints:
-                    $query .= "WHERE points_weighted >= " . Rank::MIN_TRUE_POINTS;
+                    $query->where('points_weighted', '>=', Rank::MIN_TRUE_POINTS);
                     break;
             }
 
-            $query .= " AND unranked_at IS NULL";
-
-            return (int) legacyDbFetch($query)['count'];
+            return $query->count();
         });
 }
 
@@ -79,7 +78,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         $field = match ($type) {
-            RankType::Softcore => 'points',
+            RankType::Casual => 'points',
             RankType::TruePoints => 'points_weighted',
             default => 'points_hardcore',
         };

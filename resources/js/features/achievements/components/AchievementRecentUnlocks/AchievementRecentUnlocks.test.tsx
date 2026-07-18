@@ -94,7 +94,7 @@ describe('Component: AchievementRecentUnlocks', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText('Softcore')).not.toBeInTheDocument();
+    expect(screen.queryByText('Casual')).not.toBeInTheDocument();
   });
 
   it('renders the user display name as a link', () => {

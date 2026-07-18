@@ -34,15 +34,15 @@ function handleAwardTypeChanged(event) {
     const selectedValue = event.target.value;
 
     const unlockModeHardcore = 'h';
-    const unlockModeSoftcore = 's';
+    const unlockModeCasual = 's';
 
     // A dictionary mapping the award kind to [awardType, unlockMode].
     /** @type Record<string, [number, string]> */
     const queryParamsMap = {
         mastered: [{{ $awardTypeMastery }}, unlockModeHardcore],
-        completed: [{{ $awardTypeMastery }}, unlockModeSoftcore],
+        completed: [{{ $awardTypeMastery }}, unlockModeCasual],
         'beaten-hardcore': [{{ $awardTypeGameBeaten }}, unlockModeHardcore],
-        'beaten-softcore': [{{ $awardTypeGameBeaten }}, unlockModeSoftcore],
+        'beaten-softcore': [{{ $awardTypeGameBeaten }}, unlockModeCasual],
     }
     
     if (queryParamsMap[selectedValue]) {

@@ -19,7 +19,7 @@ interface GameSectionProps {
   masteredCount?: number;
   completedCount?: number;
   beatenCount?: number;
-  beatenSoftcoreCount?: number;
+  beatenCasualCount?: number;
 }
 
 export const GameListSection: FC<GameSectionProps> = ({
@@ -30,7 +30,7 @@ export const GameListSection: FC<GameSectionProps> = ({
   masteredCount = 0,
   completedCount = 0,
   beatenCount = 0,
-  beatenSoftcoreCount = 0,
+  beatenCasualCount = 0,
 }) => {
   // eslint-disable-next-line react-compiler/react-compiler -- Reads isInitialRender.current during render, which the compiler can't track reactively.
   'use no memo';
@@ -50,8 +50,8 @@ export const GameListSection: FC<GameSectionProps> = ({
   if (completedCount > 0) {
     countsClauses.push(t('{{count, number}} completed', { count: completedCount }));
   }
-  if (beatenSoftcoreCount > 0) {
-    countsClauses.push(t('{{count, number}} beaten (softcore)', { count: beatenSoftcoreCount }));
+  if (beatenCasualCount > 0) {
+    countsClauses.push(t('{{count, number}} beaten (casual)', { count: beatenCasualCount }));
   }
   const countsClause = countsClauses.join(', ');
 

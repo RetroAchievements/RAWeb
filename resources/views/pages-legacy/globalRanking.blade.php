@@ -54,9 +54,9 @@ if ($friends == 1) {
 }
 
 $unlockMode = match ($sort % 10) {
-    2 => UnlockMode::Softcore, // Points
-    3 => UnlockMode::Softcore, // Achievements
-    8 => UnlockMode::Softcore, // Awards
+    2 => UnlockMode::Casual, // Points
+    3 => UnlockMode::Casual, // Achievements
+    8 => UnlockMode::Casual, // Awards
     default => UnlockMode::Hardcore,
 };
 ?>
@@ -112,10 +112,10 @@ $unlockMode = match ($sort % 10) {
     } else {
         echo "<a href='/globalRanking.php?s=5&t=$type&d=$date&f=$friends'>Hardcore</a> | ";
     }
-    if ($unlockMode == UnlockMode::Softcore) {
-        echo "<b><a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>*Softcore</a></b>";
+    if ($unlockMode == UnlockMode::Casual) {
+        echo "<b><a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>*Casual</a></b>";
     } else {
-        echo "<a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>Softcore</a>";
+        echo "<a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>Casual</a>";
     }
     echo "</div>";
 
@@ -171,9 +171,9 @@ $unlockMode = match ($sort % 10) {
     // Sortable Achievements header
     echo "<th class='text-right'>";
     if ($unlockMode == UnlockMode::Hardcore) {
-        $sortFilter('Hardcore Achievements', 4);
+        $sortFilter('Hardcore Unlocks', 4);
     } else {
-        $sortFilter('Softcore Achievements', 3);
+        $sortFilter('Casual Unlocks', 3);
     }
     echo "</th>";
 
@@ -183,7 +183,7 @@ $unlockMode = match ($sort % 10) {
         $sortFilter('Hardcore Points', 5);
         $sortFilter(' (RetroPoints)', 6);
     } else {
-        $sortFilter('Softcore Points', 2);
+        $sortFilter('Casual Points', 2);
     }
     echo "</th>";
 
@@ -249,7 +249,7 @@ $unlockMode = match ($sort % 10) {
                 // Values >10 indicate descending order, so we'll use modulo to get the base sort type.
                 $rank = match ($sort % 10) {
                     5 => getUserRank($dataPoint['User'], RankType::Hardcore),
-                    2 => getUserRank($dataPoint['User'], RankType::Softcore),
+                    2 => getUserRank($dataPoint['User'], RankType::Casual),
                     6 => getUserRank($dataPoint['User'], RankType::TruePoints),
                     default => $rowRank
                 };
@@ -338,7 +338,7 @@ $unlockMode = match ($sort % 10) {
                         } elseif ($sort == 6) {
                             echo "<td>" . localized_number(getUserRank($user, RankType::TruePoints)) . "</td>";
                         } elseif ($sort == 2) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::Softcore)) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user, RankType::Casual)) . "</td>";
                         } else {
                             echo "<td></td>";
                         }

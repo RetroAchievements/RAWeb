@@ -38,8 +38,8 @@ export const SessionModeToggleGroup: FC = () => {
                 {t('Hardcore')}
               </BaseToggleGroupItem>
 
-              <BaseToggleGroupItem value="softcore" aria-label={t('Toggle softcore')}>
-                {t('Softcore')}
+              <BaseToggleGroupItem value="casual" aria-label={t('Toggle casual')}>
+                {t('Casual')}
               </BaseToggleGroupItem>
             </BaseToggleGroup>
           </BaseFormControl>

@@ -5,14 +5,24 @@ declare(strict_types=1);
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Actions\ClearGameScreenshotsFromGamePageAction;
+use App\Platform\Actions\LogPrimaryScreenshotChangeAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Storage::fake('s3');
+    Storage::fake('media');
+});
 
 function createScreenshotMedia(Game $game, array $customProperties = []): Media
 {
@@ -280,4 +290,122 @@ it('given a primary screenshot of a type already exists, subsequent uploads stay
 
     // ASSERT
     expect($second->fresh()->is_primary)->toBeFalse();
+});
+
+it('writes a primaryScreenshotChanged audit row with old and new asset paths when promoting a screenshot to primary via the relation manager flow', function () {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $media1 = createScreenshotMedia($game, ['legacy_path' => '/Images/promote-old.png']);
+    $media2 = createScreenshotMedia($game, ['legacy_path' => '/Images/promote-new.png']);
+
+    $previousPrimary = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $media1->id,
+        'order_column' => 1,
+    ]);
+
+    $newPrimary = GameScreenshot::factory()->for($game)->ingame()->create([
+        'media_id' => $media2->id,
+        'is_primary' => false,
+        'order_column' => 2,
+    ]);
+
+    $previousPrimary->update(['is_primary' => false]);
+    $newPrimary->update([
+        'is_primary' => true,
+        'status' => GameScreenshotStatus::Approved,
+    ]);
+
+    Activity::query()->delete();
+
+    // ACT
+    (new LogPrimaryScreenshotChangeAction())->execute(
+        $game,
+        $newPrimary->type,
+        $previousPrimary,
+        $newPrimary,
+    );
+
+    // ASSERT
+    $row = Activity::sole();
+    expect($row->event)->toEqual('primaryScreenshotChanged');
+    expect($row->causer_id)->toEqual($causer->id);
+    expect($row->properties->get('old')['ingame_screenshot'])->toEqual('/Images/promote-old.png');
+    expect($row->properties->get('attributes')['ingame_screenshot'])->toEqual('/Images/promote-new.png');
+});
+
+it('writes one primaryScreenshotChanged row per type that had a primary when clearing screenshots', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_title_asset_path' => '/Images/title-pre.png',
+        'image_ingame_asset_path' => '/Images/ingame-pre.png',
+    ]);
+
+    $titleMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/title-pre.png']);
+    $ingameMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/ingame-pre.png']);
+    $completionMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/completion-pre.png']);
+
+    GameScreenshot::factory()->for($game)->title()->primary()->create([
+        'media_id' => $titleMedia->id,
+    ]);
+    GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $ingameMedia->id,
+    ]);
+    GameScreenshot::factory()->for($game)->completion()->primary()->create([
+        'media_id' => $completionMedia->id,
+    ]);
+
+    Activity::query()->delete();
+
+    // ACT
+    (new ClearGameScreenshotsFromGamePageAction())->execute($game);
+
+    // ASSERT
+    $rows = Activity::where('event', 'primaryScreenshotChanged')->get();
+    expect($rows)->toHaveCount(3);
+
+    $titleRow = $rows->first(fn ($row) => array_key_exists('title_screenshot', $row->properties->get('old')));
+    expect($titleRow->properties->get('old')['title_screenshot'])->toEqual('/Images/title-pre.png');
+    expect($titleRow->properties->get('attributes')['title_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+
+    $ingameRow = $rows->first(fn ($row) => array_key_exists('ingame_screenshot', $row->properties->get('old')));
+    expect($ingameRow->properties->get('old')['ingame_screenshot'])->toEqual('/Images/ingame-pre.png');
+    expect($ingameRow->properties->get('attributes')['ingame_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+
+    $completionRow = $rows->first(fn ($row) => array_key_exists('completion_screenshot', $row->properties->get('old')));
+    expect($completionRow->properties->get('old')['completion_screenshot'])->toEqual('/Images/completion-pre.png');
+    expect($completionRow->properties->get('attributes')['completion_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+});
+
+it('writes only the title primaryScreenshotChanged row when only a title primary existed', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_title_asset_path' => '/Images/title-only.png',
+    ]);
+
+    $titleMedia = createScreenshotMedia($game, ['legacy_path' => '/Images/title-only.png']);
+
+    GameScreenshot::factory()->for($game)->title()->primary()->create([
+        'media_id' => $titleMedia->id,
+    ]);
+
+    Activity::query()->delete();
+
+    // ACT
+    (new ClearGameScreenshotsFromGamePageAction())->execute($game);
+
+    // ASSERT
+    expect(Activity::where('event', 'primaryScreenshotChanged')->count())->toEqual(1);
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->properties->get('old'))->toHaveKey('title_screenshot');
 });

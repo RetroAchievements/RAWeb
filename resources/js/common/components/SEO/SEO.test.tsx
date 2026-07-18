@@ -9,6 +9,7 @@ describe('Component: SEO', () => {
   const defaultPageProps = {
     config: {
       app: { url: 'https://example.com' },
+      screenshots: { maxPendingSubmissions: 200 },
       services: { patreon: { userId: undefined } },
     },
   };

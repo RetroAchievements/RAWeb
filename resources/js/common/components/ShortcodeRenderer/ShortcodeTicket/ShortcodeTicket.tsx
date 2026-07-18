@@ -51,7 +51,22 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
     );
   }
 
-  // Other ticketable types aren't supported yet.
+  if (foundTicket.ticketableType === 'leaderboard') {
+    return (
+      <a
+        data-testid="leaderboard-ticket-embed"
+        href={route('ticket.show', { ticket: ticketId })}
+        {...cardTooltipProps}
+        className={cn(
+          'inline-block rounded px-1.5 py-0.5',
+          getTicketStateClassName(foundTicket.state),
+        )}
+      >
+        {t('Ticket #{{ticketId}}', { ticketId })}
+      </a>
+    );
+  }
+
   return null;
 };
 

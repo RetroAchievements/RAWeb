@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import type { TranslatedString } from '@/types/i18next';
@@ -23,32 +22,24 @@ interface UserBreadcrumbsProps {
 }
 
 export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, game, user }) => {
-  const { t } = useTranslation();
-
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem aria-label={t('All Users')}>
-            <BaseBreadcrumbLink href="/userList.php">{t('All Users')}</BaseBreadcrumbLink>
-          </BaseBreadcrumbItem>
-
           {user ? (
             <>
-              <BaseBreadcrumbSeparator />
-
               <BaseBreadcrumbItem aria-label={user.displayName}>
                 <BaseBreadcrumbLink href={route('user.show', { user: user.displayName })}>
                   {user.displayName}
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
+
+              <BaseBreadcrumbSeparator />
             </>
           ) : null}
 
           {game ? (
             <>
-              <BaseBreadcrumbSeparator />
-
               <BaseBreadcrumbItem aria-label={game.title}>
                 <BaseBreadcrumbLink asChild>
                   <InertiaLink
@@ -59,10 +50,10 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
                   </InertiaLink>
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
+
+              <BaseBreadcrumbSeparator />
             </>
           ) : null}
-
-          <BaseBreadcrumbSeparator />
 
           <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>

@@ -55,13 +55,14 @@ describe('Component: ZoomableImage', () => {
     expect(fullSizeImage).toHaveStyle({ imageRendering: 'pixelated' });
   });
 
-  it('given isPixelated is false, does not apply the pixelated image rendering style', async () => {
+  it('given a low-res source at or below the crisp-edges width threshold, applies crisp-edges', async () => {
     // ARRANGE
     render(
       <ZoomableImage
         src="test-image.jpg"
         alt={'test alt text' as TranslatedString}
         isPixelated={false}
+        srcWidth={320}
       >
         <span>Click me</span>
       </ZoomableImage>,
@@ -72,6 +73,28 @@ describe('Component: ZoomableImage', () => {
 
     // ASSERT
     const fullSizeImage = screen.getByAltText(/test alt text/i);
+    expect(fullSizeImage).toHaveStyle({ imageRendering: 'crisp-edges' });
+  });
+
+  it('given a hi-res source above the crisp-edges width threshold, applies no imageRendering hint', async () => {
+    // ARRANGE
+    render(
+      <ZoomableImage
+        src="test-image.jpg"
+        alt={'test alt text' as TranslatedString}
+        isPixelated={false}
+        srcWidth={1920}
+      >
+        <span>Click me</span>
+      </ZoomableImage>,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByText(/click me/i));
+
+    // ASSERT
+    const fullSizeImage = screen.getByAltText(/test alt text/i);
+    expect(fullSizeImage).not.toHaveStyle({ imageRendering: 'crisp-edges' });
     expect(fullSizeImage).not.toHaveStyle({ imageRendering: 'pixelated' });
   });
 });

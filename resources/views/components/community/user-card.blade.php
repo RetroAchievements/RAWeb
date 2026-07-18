@@ -22,13 +22,13 @@
         @endif
 
         {{-- Points --}}
-        @if($hardcorePoints > $softcorePoints)
+        @if($hardcorePoints > $casualPoints)
             <x-card.info-row label="Points">
                 {{ localized_number($hardcorePoints) }}
                 ({{ localized_number($retroPoints) }})
             </x-card.info-row>
-        @elseif($softcorePoints > 0)
-            <x-card.info-row label="Softcore Points">{{ localized_number($softcorePoints) }}</x-card.info-row>
+        @elseif($casualPoints > 0)
+            <x-card.info-row label="Casual Points">{{ localized_number($casualPoints) }}</x-card.info-row>
         @else
             <x-card.info-row label="Points">0</x-card.info-row>
         @endif

@@ -85,7 +85,7 @@ export const RecentAwardsTable: FC<RecentAwardsTableProps> = ({ recentPlayerBadg
   );
 };
 
-type UnprocessedAwardLabel = 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered';
+type UnprocessedAwardLabel = 'beaten-casual' | 'beaten-hardcore' | 'completed' | 'mastered';
 
 function useTranslateAwardLabel() {
   const { t } = useTranslation();
@@ -102,7 +102,7 @@ function useTranslateAwardLabel() {
         return t('Mastered');
 
       default:
-        return t('Beaten (softcore)');
+        return t('Beaten (casual)');
     }
   };
 

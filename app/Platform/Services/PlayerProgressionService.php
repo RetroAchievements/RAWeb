@@ -23,7 +23,7 @@ class PlayerProgressionService
         $metrics = [
             'numPlayed' => 0,
             'numUnfinished' => 0,
-            'numBeatenSoftcore' => 0,
+            'numBeatenCasual' => 0,
             'numBeatenHardcore' => 0,
             'numCompleted' => 0,
             'numMastered' => 0,
@@ -37,7 +37,7 @@ class PlayerProgressionService
                     $metrics['numUnfinished']++;
                 }
             } elseif ($game['HighestAwardKind'] === 'beaten-softcore') {
-                $metrics['numBeatenSoftcore']++;
+                $metrics['numBeatenCasual']++;
             } elseif ($game['HighestAwardKind'] === 'beaten-hardcore') {
                 $metrics['numBeatenHardcore']++;
             } elseif ($game['HighestAwardKind'] === 'completed') {
@@ -78,11 +78,11 @@ class PlayerProgressionService
 
             $awardKinds = [
                 AwardType::GameBeaten->toLegacyInteger() => [
-                    UnlockMode::Softcore => 'beaten-softcore',
+                    UnlockMode::Casual => 'beaten-softcore',
                     UnlockMode::Hardcore => 'beaten-hardcore',
                 ],
                 AwardType::Mastery->toLegacyInteger() => [
-                    UnlockMode::Softcore => 'completed',
+                    UnlockMode::Casual => 'completed',
                     UnlockMode::Hardcore => 'mastered',
                 ],
             ];

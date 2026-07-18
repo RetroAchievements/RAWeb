@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { CSSProperties, FC } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCamera } from 'react-icons/lu';
@@ -9,26 +9,42 @@ import { cn } from '@/common/utils/cn';
 import { ScreenshotGalleryDialog } from '../ScreenshotGalleryDialog';
 import { ZoomableImage } from '../ZoomableImage';
 
+interface ImageDimensions {
+  height: number;
+  width: number;
+}
+
 interface PlayableMainMediaProps {
   imageIngameUrl: string;
   imageTitleUrl: string;
 
-  /** Set width/height on img tags to reserve space and prevent layout shift. */
-  expectedHeight?: number | null;
-  expectedWidth?: number | null;
   hasAnalogTvOutput?: boolean;
   hasBeatenGame?: boolean;
+  imageIngameDimensions?: ImageDimensions | null;
+  imageTitleDimensions?: ImageDimensions | null;
   isPixelated?: boolean;
   numScreenshots?: number;
   screenshots?: App.Platform.Data.GameScreenshot[];
 }
 
+const getMediaFrameStyle = (dimensions?: ImageDimensions | null): CSSProperties | undefined => {
+  if (!dimensions?.width || !dimensions.height) {
+    return undefined;
+  }
+
+  return {
+    aspectRatio: `${dimensions.width} / ${dimensions.height}`,
+    maxWidth: '100%',
+    width: dimensions.width,
+  };
+};
+
 export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
-  expectedHeight,
-  expectedWidth,
   hasAnalogTvOutput,
   hasBeatenGame,
+  imageIngameDimensions,
   imageIngameUrl,
+  imageTitleDimensions,
   imageTitleUrl,
   isPixelated,
   screenshots,
@@ -52,13 +68,9 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   const hasGallery = numScreenshots > 0;
   const canOpenGallery = hasGallery && !!screenshots?.length;
 
-  const dimensionProps =
-    expectedWidth && expectedHeight ? { width: expectedWidth, height: expectedHeight } : {};
-
   // CRT systems displayed non-square pixels stretched to 4:3. The aspect
-  // ratio is always 4:3 regardless of the native pixel resolution.
+  // ratio is always 4:3 in the zoomed dialog regardless of native resolution.
   const aspectRatio = hasAnalogTvOutput ? 4 / 3 : undefined;
-  const aspectRatioStyle = aspectRatio ? { aspectRatio } : undefined;
 
   const handleOpenGallery = (type: 'title' | 'ingame') => {
     // Find the index of the first screenshot matching the clicked type.
@@ -68,18 +80,17 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
   };
 
   const imgProps = {
-    className: 'w-full rounded-xs',
-    style: isPixelated ? { imageRendering: 'pixelated' as const } : aspectRatioStyle,
-    ...dimensionProps,
+    className: 'h-full w-full rounded-xs object-contain',
+    style: isPixelated ? { imageRendering: 'pixelated' as const } : undefined,
   };
 
   return (
     <div
       className={cn(
-        'flex w-full items-center justify-around',
+        'grid w-full grid-cols-2 items-start justify-items-center',
         'border border-embed-highlight bg-zinc-900/50 light:bg-neutral-50',
         'gap-x-5 gap-y-1',
-        'xl:mx-0 xl:min-h-45 xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
+        'xl:mx-0 xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
       {hasGallery ? (
@@ -87,11 +98,12 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
           <button
             type="button"
             disabled={!canOpenGallery}
-            className="cursor-pointer"
+            className="cursor-pointer overflow-hidden"
+            style={getMediaFrameStyle(imageTitleDimensions)}
             onMouseEnter={preloadGameScreenshots}
             onClick={() => handleOpenGallery('title')}
           >
-            <div className="flex items-center justify-center overflow-hidden">
+            <div className="flex h-full w-full items-center justify-center overflow-hidden">
               <img src={imageTitleUrl} alt={t('title screenshot')} {...imgProps} />
             </div>
           </button>
@@ -99,11 +111,12 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
           <button
             type="button"
             disabled={!canOpenGallery}
-            className="relative cursor-pointer"
+            className="relative cursor-pointer overflow-hidden"
+            style={getMediaFrameStyle(imageIngameDimensions)}
             onMouseEnter={preloadGameScreenshots}
             onClick={() => handleOpenGallery('ingame')}
           >
-            <div className="flex items-center justify-center overflow-hidden">
+            <div className="flex h-full w-full items-center justify-center overflow-hidden">
               <img src={imageIngameUrl} alt={t('ingame screenshot')} {...imgProps} />
             </div>
 
@@ -139,8 +152,12 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             alt={t('title screenshot')}
             aspectRatio={aspectRatio}
             isPixelated={isPixelated}
+            srcWidth={imageTitleDimensions?.width}
           >
-            <div className="flex items-center justify-center overflow-hidden">
+            <div
+              className="flex w-full items-center justify-center overflow-hidden"
+              style={getMediaFrameStyle(imageTitleDimensions)}
+            >
               <img src={imageTitleUrl} alt={t('title screenshot')} {...imgProps} />
             </div>
           </ZoomableImage>
@@ -150,8 +167,12 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
             alt={t('ingame screenshot')}
             aspectRatio={aspectRatio}
             isPixelated={isPixelated}
+            srcWidth={imageIngameDimensions?.width}
           >
-            <div className="flex items-center justify-center overflow-hidden">
+            <div
+              className="flex w-full items-center justify-center overflow-hidden"
+              style={getMediaFrameStyle(imageIngameDimensions)}
+            >
               <img src={imageIngameUrl} alt={t('ingame screenshot')} {...imgProps} />
             </div>
           </ZoomableImage>

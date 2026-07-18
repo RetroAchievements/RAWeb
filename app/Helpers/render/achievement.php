@@ -124,7 +124,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $unlockedHtml = "<div class='smalldate'>Unlocked " . $unlockDate;
 
         if (!$data['HardcoreAchieved']) {
-            $unlockedHtml .= " (softcore)";
+            $unlockedHtml .= " (casual)";
         }
 
         $unlockedHtml .= "</div>";

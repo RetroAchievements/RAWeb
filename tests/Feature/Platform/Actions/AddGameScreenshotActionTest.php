@@ -5,13 +5,17 @@ declare(strict_types=1);
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Actions\AddGameScreenshotAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 uses(RefreshDatabase::class);
 
@@ -412,9 +416,10 @@ it('preserves the original capture to S3 when doubling an Atari 2600 screenshot'
 
     // ASSERT
     $media = $game->fresh()->getMedia('screenshots')->first();
-    $preservationPath = $media->getCustomProperty('original_capture_path');
+    expect($media->getCustomProperty('original_capture_path'))->toEqual('original-capture.png');
 
-    Storage::disk('s3')->assertExists($preservationPath);
+    $directory = PathGeneratorFactory::create($media)->getPath($media);
+    Storage::disk('s3')->assertExists($directory . 'original-capture.png');
 });
 
 it('does not double the width for a non-Atari system', function () {
@@ -456,4 +461,63 @@ it('doubles the width for a PAL Atari 2600 screenshot', function () {
     // ASSERT
     expect($screenshot->width)->toEqual(320);
     expect($screenshot->height)->toEqual(274);
+});
+
+it('writes a primaryScreenshotChanged row with placeholder old asset when auto-promoting the first screenshot of a type', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $file = UploadedFile::fake()->image('first.png', 256, 224);
+
+    Activity::query()->delete();
+
+    // ACT
+    (new AddGameScreenshotAction())->execute($game, $file, ScreenshotType::Ingame);
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->causer_id)->toEqual($causer->id);
+    expect($row->properties->get('old')['ingame_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+    expect($row->properties->get('attributes')['ingame_screenshot'])->not->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+});
+
+it('writes a primaryScreenshotChanged row capturing distinct old/new asset paths when isPrimary replaces an existing one', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+
+    $action->execute($game, UploadedFile::fake()->image('first.png', 256, 224), ScreenshotType::Title);
+
+    Activity::query()->delete();
+
+    // ACT
+    $action->execute($game, UploadedFile::fake()->image('second.png', 320, 240), ScreenshotType::Title, isPrimary: true);
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->properties->get('old')['title_screenshot'])->not->toEqual($row->properties->get('attributes')['title_screenshot']);
+    expect($row->properties->get('old')['title_screenshot'])->not->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
+});
+
+it('writes no primary-change row when uploading an additional non-primary gallery screenshot', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $action = new AddGameScreenshotAction();
+    $action->execute($game, UploadedFile::fake()->image('first.png', 256, 224), ScreenshotType::Ingame);
+
+    Activity::query()->delete();
+
+    // ACT
+    $action->execute($game, UploadedFile::fake()->image('second.png', 320, 240), ScreenshotType::Ingame);
+
+    // ASSERT
+    expect(Activity::where('event', 'primaryScreenshotChanged')->count())->toEqual(0);
 });

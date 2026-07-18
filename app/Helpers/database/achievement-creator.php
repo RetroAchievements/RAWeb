@@ -3,6 +3,7 @@
 use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
@@ -38,20 +39,19 @@ function getUserAchievementsPerConsole(User $user): array
  */
 function getUserSetsPerConsole(User $user): array
 {
-    $query = "SELECT COUNT(DISTINCT(a.game_id)) AS SetCount, s.name AS ConsoleName
-              FROM achievements AS a
-              LEFT JOIN games AS gd ON gd.id = a.game_id
-              LEFT JOIN systems AS s ON s.id = gd.system_id
-              WHERE a.user_id = :userId
-              AND a.is_promoted = :isPromoted
-              AND gd.system_id NOT IN (100, 101)
-              GROUP BY ConsoleName
-              ORDER BY SetCount DESC, ConsoleName";
-
-    return legacyDbFetchAll($query, [
-        'userId' => $user->id,
-        'isPromoted' => 1,
-    ])->toArray();
+    return DB::table('achievements as a')
+        ->leftJoin('games as gd', 'gd.id', '=', 'a.game_id')
+        ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
+        ->where('a.user_id', $user->id)
+        ->where('a.is_promoted', true)
+        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->groupBy('s.name')
+        ->orderByDesc('SetCount')
+        ->orderBy('s.name')
+        ->selectRaw('COUNT(DISTINCT(a.game_id)) AS SetCount, s.name AS ConsoleName')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->toArray();
 }
 
 /**
@@ -87,26 +87,22 @@ function getUserAchievementInformation(User $user): array
 }
 
 /**
- * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
+ * Gets the number of time the user has obtained (casual and hardcore) their own achievements.
  */
 function getOwnAchievementsObtained(User $user): array
 {
-    $query = "SELECT
-              SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
-              FROM player_achievements AS pa
-              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-              INNER JOIN games AS gd ON gd.id = ach.game_id
-              WHERE ach.user_id = :authorId
-              AND pa.user_id = :userId
-              AND ach.is_promoted = :isPromoted
-              AND gd.system_id NOT IN (100, 101)";
+    $row = DB::table('player_achievements as pa')
+        ->join('achievements as ach', 'ach.id', '=', 'pa.achievement_id')
+        ->join('games as gd', 'gd.id', '=', 'ach.game_id')
+        ->where('ach.user_id', $user->id)
+        ->where('pa.user_id', $user->id)
+        ->where('ach.is_promoted', true)
+        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS CasualCount')
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount')
+        ->first();
 
-    return legacyDbFetch($query, [
-        'authorId' => $user->id,
-        'userId' => $user->id,
-        'isPromoted' => 1,
-    ]);
+    return $row ? (array) $row : [];
 }
 
 /**
@@ -114,52 +110,23 @@ function getOwnAchievementsObtained(User $user): array
  */
 function getObtainersOfSpecificUser(User $user): array
 {
-    $query = "SELECT ua.username AS User, COUNT(ua.username) AS ObtainCount,
-              SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
-              FROM player_achievements AS pa
-              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-              INNER JOIN games AS gd ON gd.id = ach.game_id
-              INNER JOIN users AS ua ON ua.id = pa.user_id
-              WHERE ach.user_id = :authorId
-              AND pa.user_id != :userId
-              AND ach.is_promoted = :isPromoted
-              AND gd.system_id NOT IN (100, 101)
-              AND ua.unranked_at IS NULL
-              GROUP BY ua.username
-              ORDER BY ObtainCount DESC";
-
-    return legacyDbFetchAll($query, [
-        'authorId' => $user->id,
-        'userId' => $user->id,
-        'isPromoted' => 1,
-    ])->toArray();
-}
-
-/**
- * Get recent unlocks of a set of achievements
- */
-function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): array
-{
-    $query = "SELECT ua.username AS User,
-                     pa.unlocked_effective_at AS Date,
-                     CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
-                     ach.id AS AchievementID, ach.game_id AS GameID, ach.title AS Title, ach.description AS Description,
-                     ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio,
-                     gd.title AS GameTitle, gd.image_icon_asset_path as GameIcon, s.name AS ConsoleName
-              FROM player_achievements pa
-              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-              INNER JOIN games AS gd ON gd.id = ach.game_id
-              INNER JOIN systems AS s ON s.id = gd.system_id
-              INNER JOIN users AS ua ON ua.id = pa.user_id
-              WHERE ach.user_id = :authorId
-              AND gd.system_id NOT IN (100, 101)
-              ORDER BY Date DESC
-              LIMIT $offset, $count";
-
-    return legacyDbFetchAll($query, [
-        'authorId' => $user->id,
-    ])->toArray();
+    return DB::table('player_achievements as pa')
+        ->join('achievements as ach', 'ach.id', '=', 'pa.achievement_id')
+        ->join('games as gd', 'gd.id', '=', 'ach.game_id')
+        ->join('users as ua', 'ua.id', '=', 'pa.user_id')
+        ->where('ach.user_id', $user->id)
+        ->where('pa.user_id', '!=', $user->id)
+        ->where('ach.is_promoted', true)
+        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->whereNull('ua.unranked_at')
+        ->groupBy('ua.username')
+        ->orderByDesc('ObtainCount')
+        ->selectRaw('ua.username AS User, COUNT(ua.username) AS ObtainCount')
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS CasualCount')
+        ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->toArray();
 }
 
 /**

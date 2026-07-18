@@ -27,6 +27,9 @@ export interface AppGlobalProps extends PageProps {
     app: {
       url: string;
     };
+    screenshots: {
+      maxPendingSubmissions: number;
+    };
     services: {
       patreon: { userId?: string | number };
     };
@@ -70,6 +73,7 @@ export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
     app: {
       url: 'https://retroachievements.org',
     },
+    screenshots: { maxPendingSubmissions: 200 },
     services: { patreon: {} },
   },
 

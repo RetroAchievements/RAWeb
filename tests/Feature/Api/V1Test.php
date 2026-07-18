@@ -66,9 +66,9 @@ class V1Test extends TestCase
 
         $unpublishedAchievements = Achievement::factory()->count(5)->create(['game_id' => $game->id]);
         $this->addHardcoreUnlock($this->user, $unpublishedAchievements->get(0));
-        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(1));
-        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(2));
-        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(3));
+        $this->addCasualUnlock($this->user, $unpublishedAchievements->get(1));
+        $this->addCasualUnlock($this->user, $unpublishedAchievements->get(2));
+        $this->addCasualUnlock($this->user, $unpublishedAchievements->get(3));
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => -1]))
             ->assertSuccessful()
@@ -84,7 +84,7 @@ class V1Test extends TestCase
                 '5' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Casual]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -94,10 +94,10 @@ class V1Test extends TestCase
                 '5' => 0,
             ]);
 
-        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(2));
-        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(3));
+        $this->addCasualUnlock($this->user, $publishedAchievements->get(2));
+        $this->addCasualUnlock($this->user, $publishedAchievements->get(3));
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Casual]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -123,7 +123,7 @@ class V1Test extends TestCase
                 '6' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore, 'f' => Achievement::FLAG_UNPROMOTED]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Casual, 'f' => Achievement::FLAG_UNPROMOTED]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -161,8 +161,8 @@ class V1Test extends TestCase
         $achievement = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 100]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
-        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
-        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+        $this->addCasualUnlock($this->user, $achievement, $unlockTime);
+        $this->addCasualUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $achievement = Achievement::first();
 
@@ -185,7 +185,7 @@ class V1Test extends TestCase
                     'GameIcon' => $game->image_icon_asset_path,
                     'GameTitle' => $game->title,
                     'GameURL' => '/game/' . $game->id,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement->points,
                     'TrueRatio' => $achievement->points_weighted,
                     'Type' => AchievementType::Progression,
@@ -204,8 +204,8 @@ class V1Test extends TestCase
         $achievement = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 100]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
-        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
-        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+        $this->addCasualUnlock($this->user, $achievement, $unlockTime);
+        $this->addCasualUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $achievement = Achievement::first();
 
@@ -228,7 +228,7 @@ class V1Test extends TestCase
                     'GameIcon' => $game->image_icon_asset_path,
                     'GameTitle' => $game->title,
                     'GameURL' => '/game/' . $game->id,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement->points,
                     'TrueRatio' => $achievement->points_weighted,
                     'Type' => AchievementType::Progression,
@@ -247,8 +247,8 @@ class V1Test extends TestCase
         $achievement = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 100, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
-        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
-        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+        $this->addCasualUnlock($this->user, $achievement, $unlockTime);
+        $this->addCasualUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
@@ -272,7 +272,7 @@ class V1Test extends TestCase
                     'GameIcon' => $game->image_icon_asset_path,
                     'GameTitle' => $game->title,
                     'GameURL' => '/game/' . $game->id,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement->points,
                     'Type' => AchievementType::Progression,
                     'Title' => $achievement->title,
@@ -290,8 +290,8 @@ class V1Test extends TestCase
         $achievement = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 100, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
-        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
-        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+        $this->addCasualUnlock($this->user, $achievement, $unlockTime);
+        $this->addCasualUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
@@ -315,7 +315,7 @@ class V1Test extends TestCase
                     'GameIcon' => $game->image_icon_asset_path,
                     'GameTitle' => $game->title,
                     'GameURL' => '/game/' . $game->id,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement->points,
                     'Type' => AchievementType::Progression,
                     'Title' => $achievement->title,
@@ -341,7 +341,7 @@ class V1Test extends TestCase
             'user_id' => $achievementAuthor->id,
         ]);
 
-        $this->addSoftcoreUnlock($this->user, $achievement);
+        $this->addCasualUnlock($this->user, $achievement);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->id]))
             ->assertSuccessful()

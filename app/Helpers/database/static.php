@@ -1,13 +1,17 @@
 <?php
 
+use App\Models\StaticData;
+use Illuminate\Support\Facades\DB;
+
 /**
  * @deprecated
  */
 function static_addnewachievement(int $id): void
 {
-    $query = "UPDATE StaticData ";
-    $query .= "SET NumAchievements=NumAchievements+1, LastCreatedAchievementID=$id";
-    legacyDbStatement($query);
+    StaticData::query()->update([
+        'NumAchievements' => DB::raw('NumAchievements + 1'),
+        'LastCreatedAchievementID' => $id,
+    ]);
 }
 
 /**
@@ -15,14 +19,11 @@ function static_addnewachievement(int $id): void
  */
 function static_addnewregistereduser(string $user): void
 {
-    sanitize_sql_inputs($user);
-
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.NumRegisteredUsers = sd.NumRegisteredUsers+1, sd.LastRegisteredUser = '$user', sd.LastRegisteredUserAt = NOW()";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    StaticData::query()->update([
+        'NumRegisteredUsers' => DB::raw('NumRegisteredUsers + 1'),
+        'LastRegisteredUser' => $user,
+        'LastRegisteredUserAt' => now(),
+    ]);
 }
 
 /**
@@ -30,8 +31,7 @@ function static_addnewregistereduser(string $user): void
  */
 function static_setlastupdatedgame(int $id): void
 {
-    $query = "UPDATE StaticData SET LastUpdatedGameID = $id";
-    legacyDbStatement($query);
+    StaticData::query()->update(['LastUpdatedGameID' => $id]);
 }
 
 /**
@@ -39,6 +39,5 @@ function static_setlastupdatedgame(int $id): void
  */
 function static_setlastupdatedachievement(int $id): void
 {
-    $query = "UPDATE StaticData SET LastUpdatedAchievementID = $id";
-    legacyDbStatement($query);
+    StaticData::query()->update(['LastUpdatedAchievementID' => $id]);
 }

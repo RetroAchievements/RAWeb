@@ -311,9 +311,16 @@ class AchievementsTest extends JsonApiResourceTestCase
 
         $normalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
         $hubGame = Game::factory()->create(['system_id' => System::Hubs]);
+        $deletedHubGame = Game::factory()->create(['system_id' => System::Hubs]);
+        $deletedNormalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
 
         $normalAchievement = Achievement::factory()->promoted()->create(['game_id' => $normalGame->id]);
         $hubAchievement = Achievement::factory()->promoted()->create(['game_id' => $hubGame->id]);
+        $deletedHubAchievement = Achievement::factory()->promoted()->create(['game_id' => $deletedHubGame->id]);
+        $deletedNormalAchievement = Achievement::factory()->promoted()->create(['game_id' => $deletedNormalGame->id]);
+
+        $deletedHubGame->delete();
+        $deletedNormalGame->delete();
 
         // Act
         $response = $this->jsonApi('v2')
@@ -326,6 +333,8 @@ class AchievementsTest extends JsonApiResourceTestCase
         $ids = collect($response->json('data'))->pluck('id')->toArray();
         $this->assertContains((string) $normalAchievement->id, $ids);
         $this->assertNotContains((string) $hubAchievement->id, $ids);
+        $this->assertNotContains((string) $deletedHubAchievement->id, $ids);
+        $this->assertNotContains((string) $deletedNormalAchievement->id, $ids);
     }
 
     public function testItExcludesEventGameAchievements(): void
@@ -369,6 +378,10 @@ class AchievementsTest extends JsonApiResourceTestCase
             'points' => 10,
             'type' => AchievementType::Progression,
             'is_promoted' => true,
+            'median_time_to_unlock' => 58669,
+            'median_time_to_unlock_hardcore' => 41200,
+            'median_time_to_unlock_samples' => 300,
+            'median_time_to_unlock_hardcore_samples' => 180,
         ]);
 
         // Act
@@ -381,6 +394,10 @@ class AchievementsTest extends JsonApiResourceTestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.attributes');
 
+        $this->assertEquals(58669, $attributes['medianTimeToUnlockSeconds']);
+        $this->assertEquals(41200, $attributes['medianTimeToUnlockHardcoreSeconds']);
+        $this->assertEquals(300, $attributes['medianTimeToUnlockSamples']);
+        $this->assertEquals(180, $attributes['medianTimeToUnlockHardcoreSamples']);
         $this->assertEquals('Test Achievement', $attributes['title']);
         $this->assertEquals('Test Description', $attributes['description']);
         $this->assertEquals(10, $attributes['points']);
@@ -396,6 +413,10 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertArrayHasKey('createdAt', $attributes);
         $this->assertArrayHasKey('modifiedAt', $attributes);
         $this->assertArrayHasKey('orderColumn', $attributes);
+
+        $links = $response->json('data.links');
+        $this->assertArrayHasKey('self', $links);
+        $this->assertStringEndsWith("/achievement/{$achievement->id}", $links['webUrl']);
     }
 
     public function testItCanIncludeAchievementSetRelationship(): void

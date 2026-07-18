@@ -152,6 +152,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 
 $count = min((int) request()->query('c', '10'), 100);
@@ -285,11 +286,11 @@ $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
     $game = Game::where('id', $gameIDGiven)->with('system')->first();
     if ($game) {
-        $tickets = Ticket::forGame($game);
+        $tickets = Ticket::forGame($game)->forTicketableType(TicketableType::Achievement);
         if ($gamesTableFlag === Achievement::FLAG_UNPROMOTED) {
-            $tickets->unofficial();
+            $tickets->unpromoted();
         } else {
-            $tickets->officialCore();
+            $tickets->promoted();
         }
 
         $ticketData['GameID'] = $game->id;
@@ -327,7 +328,7 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$tickets = Ticket::officialCore()->open();
+$tickets = Ticket::forTicketableType(TicketableType::Achievement)->promoted()->open();
 $ticketData['OpenTickets'] = $tickets->count();
 $ticketData['URL'] = route('tickets.index');
 $ticketData['RecentTickets'] = $getTicketsInfo($tickets, $offset, $count);

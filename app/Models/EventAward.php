@@ -36,7 +36,7 @@ class EventAward extends BaseModel
         return PlayerBadge::query()
             ->where('award_type', AwardType::Event)
             ->where('award_key', $this->event_id)
-            ->where('award_tier', $this->tier_index)
+            ->where('award_tier', '>=', $this->tier_index)
             ->whereHas('user', function ($query) {
                 /** @var Builder<User> $query */
                 $query->tracked();

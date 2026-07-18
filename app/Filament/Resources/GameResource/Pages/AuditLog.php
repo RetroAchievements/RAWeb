@@ -9,7 +9,6 @@ use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
 use App\Models\Game;
-use App\Models\User;
 use Closure;
 use Filament\Actions;
 use Filament\Support\Enums\IconPosition;
@@ -86,6 +85,10 @@ class AuditLog extends ResourceAuditLog
         $fieldLabelMap['set_type'] = 'Set Type';
         $fieldLabelMap['set_title'] = 'Set Title';
 
+        $fieldLabelMap['title_screenshot'] = 'Title Screenshot';
+        $fieldLabelMap['ingame_screenshot'] = 'In-game Screenshot';
+        $fieldLabelMap['completion_screenshot'] = 'Completion Screenshot';
+
         return $fieldLabelMap;
     }
 
@@ -96,15 +99,7 @@ class AuditLog extends ResourceAuditLog
     {
         $fieldValueMap = parent::createFieldValueMap();
 
-        $fieldValueMap['hash_compatibility_tester_id'] = function (mixed $userId): string {
-            if (!$userId) {
-                return '';
-            }
-
-            $user = User::find($userId);
-
-            return $user?->display_name ?? "User ID: {$userId}";
-        };
+        $fieldValueMap['hash_compatibility_tester_id'] = fn (mixed $userId): string => $this->userDisplayNameFor($userId);
 
         return $fieldValueMap;
     }

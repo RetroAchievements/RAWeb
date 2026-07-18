@@ -1,52 +1,40 @@
+import type { TFunction } from 'i18next';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleCheckBig, LuCircleX, LuTriangleAlert } from 'react-icons/lu';
-
-import {
-  BaseTooltip,
-  BaseTooltipContent,
-  BaseTooltipPortal,
-  BaseTooltipTrigger,
-} from '@/common/components/+vendor/BaseTooltip';
 
 interface ScreenshotPreviewMetaProps {
   height: number;
   isResolutionValid: boolean;
   width: number;
 
-  canonicalResolution?: string | null;
   hasConsistencyWarning?: boolean;
   is1xCapture?: boolean;
-  screenshotResolutions?: Array<{ width: number; height: number }>;
+  selectedType?: App.Platform.Enums.ScreenshotType;
   supportsUpscaledScreenshots?: boolean;
 }
 
 export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
-  canonicalResolution,
   hasConsistencyWarning,
   height,
   is1xCapture,
   isResolutionValid,
+  selectedType,
   supportsUpscaledScreenshots,
   width,
-  screenshotResolutions = [],
 }) => {
   const { t } = useTranslation();
 
-  const consistencyMessage = canonicalResolution
-    ? t("Doesn't match existing screenshots ({{resolution}})", {
-        resolution: canonicalResolution,
-      })
-    : t("Doesn't match existing screenshots");
-
   const invalidExplanation = supportsUpscaledScreenshots
-    ? t("Use your emulator's screenshot tool, ideally at 2x or 3x internal resolution.")
-    : t("Use your emulator's screenshot tool, not a desktop capture.");
+    ? t(
+        "This doesn't look like a native capture. Use your emulator's screenshot tool at native, 2x, or 3x internal resolution, not a desktop capture or manual resize.",
+      )
+    : t(
+        "This doesn't look like a native capture. Use your emulator's screenshot tool at native resolution, not a desktop capture or manual resize.",
+      );
 
   const showUpscaleNudge = isResolutionValid && supportsUpscaledScreenshots && is1xCapture;
-  const showConsistencyWarning = isResolutionValid && hasConsistencyWarning && !showUpscaleNudge;
-
-  const showInvalidTooltip = !isResolutionValid && screenshotResolutions.length > 0;
+  const showConsistencyNudge = isResolutionValid && hasConsistencyWarning && !showUpscaleNudge;
 
   return (
     <div className="flex flex-col items-center gap-1 text-xs">
@@ -56,24 +44,6 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
             <LuCircleCheckBig className="size-3" />
             {t('Valid resolution')}
           </span>
-        ) : showInvalidTooltip ? (
-          <BaseTooltip>
-            <BaseTooltipTrigger asChild>
-              <span className="flex items-center gap-1 text-red-500 underline decoration-dotted underline-offset-2">
-                <LuCircleX className="size-3" />
-                {t('Invalid resolution')}
-              </span>
-            </BaseTooltipTrigger>
-
-            <BaseTooltipPortal>
-              <BaseTooltipContent className="max-w-xs">
-                <AcceptedSizesTooltip
-                  screenshotResolutions={screenshotResolutions}
-                  supportsUpscaledScreenshots={supportsUpscaledScreenshots}
-                />
-              </BaseTooltipContent>
-            </BaseTooltipPortal>
-          </BaseTooltip>
         ) : (
           <span className="flex items-center gap-1 text-red-500">
             <LuCircleX className="size-3" />
@@ -97,39 +67,32 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
         </div>
       ) : null}
 
-      {showConsistencyWarning ? (
-        <div className="flex items-center gap-1 text-yellow-500">
-          <LuTriangleAlert className="size-3 shrink-0" />
-          <span>{consistencyMessage}</span>
-        </div>
+      {showConsistencyNudge ? (
+        <p className="text-center text-balance text-neutral-400">
+          {buildConsistencyNudgeMessage(selectedType, t)}
+        </p>
       ) : null}
     </div>
   );
 };
 
-interface AcceptedSizesTooltipProps {
-  screenshotResolutions: Array<{ width: number; height: number }>;
-  supportsUpscaledScreenshots?: boolean;
+function buildConsistencyNudgeMessage(
+  selectedType: App.Platform.Enums.ScreenshotType | undefined,
+  t: TFunction,
+): string {
+  if (selectedType === 'title') {
+    return t(
+      'Submit this first, then submit a matching in-game screenshot at this resolution. Pairs are more likely to be accepted.',
+    );
+  }
+
+  if (selectedType === 'ingame') {
+    return t(
+      'Submit this first, then submit a matching title screenshot at this resolution. Pairs are more likely to be accepted.',
+    );
+  }
+
+  return t(
+    'Submit this first, then submit matching screenshots at this resolution. Pairs are more likely to be accepted.',
+  );
 }
-
-const AcceptedSizesTooltip: FC<AcceptedSizesTooltipProps> = ({
-  screenshotResolutions,
-  supportsUpscaledScreenshots,
-}) => {
-  const { t } = useTranslation();
-
-  // Sort by width, then by height.
-  const sortedResolutions = [...screenshotResolutions].sort(
-    (a, b) => a.width - b.width || a.height - b.height,
-  );
-  const nativeList = sortedResolutions.map((r) => `${r.width}x${r.height}`).join(', ');
-
-  return (
-    <div className="flex flex-col gap-1 text-xs">
-      <p>{nativeList}</p>
-      {supportsUpscaledScreenshots ? (
-        <p className="text-neutral-400">{t('or 2x or 3x of any of these')}</p>
-      ) : null}
-    </div>
-  );
-};

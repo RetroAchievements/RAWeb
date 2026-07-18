@@ -49,33 +49,64 @@ describe('Component: PlayableMainMedia', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('given expected dimensions, sets width and height on both images', () => {
+  it('given image dimensions, sizes the screenshot buttons to their reserved frames', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
         imageTitleUrl="https://example.com/title.jpg"
         imageIngameUrl="https://example.com/ingame.jpg"
-        expectedWidth={256}
-        expectedHeight={224}
+        imageTitleDimensions={{ width: 256, height: 384 }}
+        imageIngameDimensions={{ width: 256, height: 192 }}
+        numScreenshots={2}
+        screenshots={[
+          createGameScreenshot({ id: 1, type: 'title' }),
+          createGameScreenshot({ id: 2, type: 'ingame' }),
+        ]}
       />,
     );
 
     // ASSERT
-    const titleImage = screen.getByRole('img', { name: /title screenshot/i });
-    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+    const buttons = screen.getAllByRole('button');
 
-    expect(titleImage).toHaveAttribute('width', '256');
-    expect(titleImage).toHaveAttribute('height', '224');
-    expect(ingameImage).toHaveAttribute('width', '256');
-    expect(ingameImage).toHaveAttribute('height', '224');
+    expect(buttons[0]).toHaveStyle({ aspectRatio: '256 / 384' });
+    expect(buttons[0]).toHaveStyle({ maxWidth: '100%' });
+    expect(buttons[0]).toHaveStyle({ width: '256px' });
+    expect(buttons[1]).toHaveStyle({ aspectRatio: '256 / 192' });
+    expect(buttons[1]).toHaveStyle({ maxWidth: '100%' });
+    expect(buttons[1]).toHaveStyle({ width: '256px' });
   });
 
-  it('given no expected dimensions, does not set width and height on images', () => {
+  it('given null image dimensions, does not set aspect ratios on the screenshot buttons', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
         imageTitleUrl="https://example.com/title.jpg"
         imageIngameUrl="https://example.com/ingame.jpg"
+        imageTitleDimensions={null}
+        imageIngameDimensions={null}
+        numScreenshots={2}
+        screenshots={[
+          createGameScreenshot({ id: 1, type: 'title' }),
+          createGameScreenshot({ id: 2, type: 'ingame' }),
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const buttons = screen.getAllByRole('button');
+
+    expect(buttons[0].style.aspectRatio).toBe('');
+    expect(buttons[1].style.aspectRatio).toBe('');
+  });
+
+  it('given image dimensions, does not set width and height on images', () => {
+    // ARRANGE
+    render(
+      <PlayableMainMedia
+        imageTitleUrl="https://example.com/title.jpg"
+        imageIngameUrl="https://example.com/ingame.jpg"
+        imageTitleDimensions={{ width: 256, height: 384 }}
+        imageIngameDimensions={{ width: 256, height: 192 }}
       />,
     );
 
@@ -89,35 +120,12 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).not.toHaveAttribute('height');
   });
 
-  it('given the system has analog TV output and is not pixelated, applies a 4:3 aspect ratio to both images', () => {
+  it('given the system has analog TV output and is pixelated, keeps pixelated rendering on images', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
         imageTitleUrl="https://example.com/title.jpg"
         imageIngameUrl="https://example.com/ingame.jpg"
-        expectedWidth={256}
-        expectedHeight={224}
-        hasAnalogTvOutput={true}
-        isPixelated={false}
-      />,
-    );
-
-    // ASSERT
-    const titleImage = screen.getByRole('img', { name: /title screenshot/i });
-    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
-
-    expect(titleImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
-    expect(ingameImage).toHaveStyle({ aspectRatio: `${4 / 3}` });
-  });
-
-  it('given the system has analog TV output and is pixelated, does not apply a 4:3 aspect ratio', () => {
-    // ARRANGE
-    render(
-      <PlayableMainMedia
-        imageTitleUrl="https://example.com/title.jpg"
-        imageIngameUrl="https://example.com/ingame.jpg"
-        expectedWidth={256}
-        expectedHeight={224}
         hasAnalogTvOutput={true}
         isPixelated={true}
       />,
@@ -133,14 +141,31 @@ describe('Component: PlayableMainMedia', () => {
     expect(ingameImage).toHaveStyle({ imageRendering: 'pixelated' });
   });
 
-  it('given the system does not have analog TV output, does not apply a 4:3 aspect ratio', () => {
+  it('given the system is not pixelated, applies no imageRendering hint to inline thumbnails', () => {
     // ARRANGE
     render(
       <PlayableMainMedia
         imageTitleUrl="https://example.com/title.jpg"
         imageIngameUrl="https://example.com/ingame.jpg"
-        expectedWidth={256}
-        expectedHeight={224}
+      />,
+    );
+
+    // ASSERT
+    const titleImage = screen.getByRole('img', { name: /title screenshot/i });
+    const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
+
+    expect(titleImage).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+    expect(titleImage).not.toHaveStyle({ imageRendering: 'pixelated' });
+    expect(ingameImage).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+    expect(ingameImage).not.toHaveStyle({ imageRendering: 'pixelated' });
+  });
+
+  it('given the system does not have analog TV output, does not apply a 4:3 aspect ratio to images', () => {
+    // ARRANGE
+    render(
+      <PlayableMainMedia
+        imageTitleUrl="https://example.com/title.jpg"
+        imageIngameUrl="https://example.com/ingame.jpg"
         hasAnalogTvOutput={false}
       />,
     );

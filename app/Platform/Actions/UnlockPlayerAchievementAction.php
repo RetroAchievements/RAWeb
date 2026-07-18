@@ -45,7 +45,7 @@ class UnlockPlayerAchievementAction
         }
 
         $playerSession = null;
-        if ($unlockedBy || !System::isGameSystem($achievement->game->system->id)) {
+        if ($unlockedBy || !System::isGameSystem($achievement->game->system_id)) {
             // if it's a manual unlock or a non-game achievement, attach the game
             // but don't generate a session.
             app()->make(AttachPlayerGameAction::class)

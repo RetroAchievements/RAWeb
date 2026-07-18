@@ -26,9 +26,24 @@ class UserGameListEntryPolicy
         ]);
     }
 
-    public function view(User $user, User $targetUser): bool
+    public function view(User $user, User $targetUser, UserGameListType $type): bool
+    {
+        return match ($type) {
+            UserGameListType::Play => $this->viewPlayList($user, $targetUser),
+            UserGameListType::AchievementSetRequest => $this->viewSetRequestList($user, $targetUser),
+
+            UserGameListType::Develop => $user->is($targetUser),
+        };
+    }
+
+    private function viewPlayList(User $user, User $targetUser): bool
     {
         return $user->is($targetUser) || $user->isFriendsWith($targetUser);
+    }
+
+    private function viewSetRequestList(User $user, User $targetUser): bool
+    {
+        return true;
     }
 
     public function create(User $user, UserGameListType $type): bool

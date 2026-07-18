@@ -6,18 +6,6 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 
-function getUserPermissions(?string $user): int
-{
-    if ($user == null) {
-        return 0;
-    }
-
-    $query = "SELECT Permissions FROM users WHERE username = :user";
-    $row = legacyDbFetch($query, ['user' => $user]);
-
-    return $row ? (int) $row['Permissions'] : Permissions::Unregistered;
-}
-
 function SetAccountPermissionsJSON(
     string $actingUsername,
     int $actingUserPermissions,
@@ -31,8 +19,6 @@ function SetAccountPermissionsJSON(
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUsername not found";
     }
-
-    sanitize_sql_inputs($actingUsername, $targetUsername);
 
     $targetUserCurrentPermissions = (int) $targetUser->getAttribute('Permissions');
 

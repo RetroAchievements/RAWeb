@@ -154,7 +154,7 @@ class UserRecentlyPlayed extends Component
 
                 $processed['MaxPossibleScore'] = isset($awardedEntity['PossibleScore']) ? (int) $awardedEntity['PossibleScore'] : 0;
                 $processed['ScoreEarnedHardcore'] = (int) $awardedEntity['ScoreAchievedHardcore'];
-                $processed['ScoreEarnedSoftcore'] = (int) $awardedEntity['ScoreAchieved'];
+                $processed['ScoreEarnedCasual'] = (int) $awardedEntity['ScoreAchieved'];
             }
         }
 

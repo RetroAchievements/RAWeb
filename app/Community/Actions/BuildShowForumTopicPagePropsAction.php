@@ -28,6 +28,7 @@ class BuildShowForumTopicPagePropsAction
         ?User $user,
         int $currentPage,
         int $perPage = ForumTopic::COMMENTS_PER_PAGE,
+        ?int $selectedCommentId = null,
     ): array {
         $paginatedForumTopicComments = $topic->visibleComments()
             ->with(['sentBy', 'editedBy'])
@@ -114,6 +115,10 @@ class BuildShowForumTopicPagePropsAction
             }
         )->all();
 
+        $comments = collect($forumTopicComments);
+        /** @var ForumTopicComment $selectedComment */
+        $selectedComment = $comments->firstWhere('id', $selectedCommentId) ?? $comments->first();
+
         $props = new ShowForumTopicPagePropsData(
             accessibleTeamAccounts: $accessibleTeamAccounts,
             replyableTeamAccounts: $replyableTeamAccounts,
@@ -140,7 +145,7 @@ class BuildShowForumTopicPagePropsAction
                 total: $paginatedForumTopicComments->total(),
                 items: $forumTopicComments
             ),
-            metaDescription: Shortcode::stripAndClamp($updatedBodies[0], 220),
+            metaDescription: Shortcode::stripAndClamp($selectedComment->body, 220),
         );
 
         return ['props' => $props, 'redirectToPage' => null];

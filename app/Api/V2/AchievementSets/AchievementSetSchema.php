@@ -12,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
+use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -54,6 +55,11 @@ class AchievementSetSchema extends Schema
             Number::make('achievementsPublished', 'achievements_published')->readOnly(),
             Number::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
 
+            Number::make('timesCompleted', 'times_completed')->readOnly(),
+            Number::make('timesMastered', 'times_completed_hardcore')->readOnly(),
+            Number::make('medianTimeToCompleteSeconds', 'median_time_to_complete')->readOnly(),
+            Number::make('medianTimeToMasterSeconds', 'median_time_to_complete_hardcore')->readOnly(),
+
             Str::make('badgeUrl')->readOnly(),
 
             DateTime::make('achievementsFirstPublishedAt', 'achievements_first_published_at')->readOnly(),
@@ -64,6 +70,8 @@ class AchievementSetSchema extends Schema
             DateTime::make('updatedAt', 'updated_at')->readOnly(),
 
             BelongsToMany::make('games', 'linkedGames')->type('games')->readOnly(),
+
+            HasMany::make('achievementSetVersions', 'versions')->type('achievement-set-versions')->cannotEagerLoad()->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /achievement-sets/{id}/games

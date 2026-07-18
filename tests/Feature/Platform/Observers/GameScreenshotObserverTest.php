@@ -5,10 +5,13 @@ declare(strict_types=1);
 use App\Models\Game;
 use App\Models\GameScreenshot;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Enums\ScreenshotType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 uses(RefreshDatabase::class);
@@ -296,4 +299,67 @@ it('moves the auto-promoted screenshot to the top of its new type group on type 
     $fresh = $willChangeType->fresh();
     expect($fresh->is_primary)->toBeTrue();
     expect($fresh->order_column)->toBeLessThan($existingIngame->fresh()->order_column);
+});
+
+it('writes a primaryScreenshotChanged row attributing the deleter when the current primary is deleted and another exists', function () {
+    // ARRANGE
+    $deleter = User::factory()->create();
+    Auth::login($deleter);
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_ingame_asset_path' => '/Images/000002.png',
+    ]);
+
+    $primaryMedia = createMediaForGame($game, '/Images/old-primary.png');
+    $nextMedia = createMediaForGame($game, '/Images/promoted.png');
+
+    $primary = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $primaryMedia->id,
+        'order_column' => 1,
+    ]);
+
+    GameScreenshot::factory()->for($game)->ingame()->create([
+        'media_id' => $nextMedia->id,
+        'is_primary' => false,
+        'order_column' => 2,
+    ]);
+
+    Activity::query()->delete();
+
+    // ACT
+    $primary->delete();
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->causer_id)->toEqual($deleter->id);
+    expect($row->properties->get('old')['ingame_screenshot'])->toEqual('/Images/old-primary.png');
+    expect($row->properties->get('attributes')['ingame_screenshot'])->toEqual('/Images/promoted.png');
+});
+
+it('writes a primaryScreenshotChanged row with placeholder new asset when the last primary of a type is deleted', function () {
+    // ARRANGE
+    $deleter = User::factory()->create();
+    Auth::login($deleter);
+
+    $game = Game::factory()->create([
+        'system_id' => System::factory(),
+        'image_ingame_asset_path' => '/Images/000002.png',
+    ]);
+
+    $primaryMedia = createMediaForGame($game, '/Images/lonely.png');
+
+    $primary = GameScreenshot::factory()->for($game)->ingame()->primary()->create([
+        'media_id' => $primaryMedia->id,
+    ]);
+
+    Activity::query()->delete();
+
+    // ACT
+    $primary->delete();
+
+    // ASSERT
+    $row = Activity::where('event', 'primaryScreenshotChanged')->sole();
+    expect($row->properties->get('old')['ingame_screenshot'])->toEqual('/Images/lonely.png');
+    expect($row->properties->get('attributes')['ingame_screenshot'])->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
 });

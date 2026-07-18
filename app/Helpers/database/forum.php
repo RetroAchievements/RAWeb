@@ -14,102 +14,99 @@ use App\Models\User;
 use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 function getForumList(int $categoryID = 0): array
 {
-    $query = "  SELECT
-                    f.id AS ID, f.forum_category_id AS CategoryID, f.title AS Title, f.description AS Description, f.order_column AS DisplayOrder,
-                    fc.title AS CategoryName, fc.Description AS CategoryDescription,
-                    COUNT(DISTINCT ft.id) AS NumTopics, COUNT( ft.id ) AS NumPosts,
-                    ftc2.id AS LastPostID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
-                    ft2.title AS LastPostTopicName, ft2.id AS LastPostTopicID
-                FROM forums AS f
-                LEFT JOIN forum_categories AS fc ON fc.id = f.forum_category_id
-                LEFT JOIN forum_topics AS ft ON ft.forum_id = f.id
-                LEFT JOIN forum_topic_comments AS ftc ON ftc.forum_topic_id = ft.id
-                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.id = f.latest_comment_id
-                LEFT JOIN users AS ua ON ua.id = ftc2.author_id
-                LEFT JOIN forum_topics AS ft2 ON ft2.id = ftc2.forum_topic_id ";
+    $query = DB::table('forums as f')
+        ->selectRaw('
+            f.id AS ID, f.forum_category_id AS CategoryID, f.title AS Title, f.description AS Description, f.order_column AS DisplayOrder,
+            fc.title AS CategoryName, fc.Description AS CategoryDescription,
+            COUNT(DISTINCT ft.id) AS NumTopics, COUNT( ft.id ) AS NumPosts,
+            ftc2.id AS LastPostID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
+            ft2.title AS LastPostTopicName, ft2.id AS LastPostTopicID
+        ')
+        ->leftJoin('forum_categories as fc', 'fc.id', '=', 'f.forum_category_id')
+        ->leftJoin('forum_topics as ft', 'ft.forum_id', '=', 'f.id')
+        ->leftJoin('forum_topic_comments as ftc', 'ftc.forum_topic_id', '=', 'ft.id')
+        ->leftJoin('forum_topic_comments as ftc2', 'ftc2.id', '=', 'f.latest_comment_id')
+        ->leftJoin('users as ua', 'ua.id', '=', 'ftc2.author_id')
+        ->leftJoin('forum_topics as ft2', 'ft2.id', '=', 'ftc2.forum_topic_id');
 
     if ($categoryID > 0) {
-        $query .= "WHERE fc.id = '$categoryID' ";
+        $query->where('fc.id', $categoryID);
     }
-    $query .= "GROUP BY f.id ";
-    $query .= "ORDER BY fc.order_column, f.order_column, f.id ";
 
-    return legacyDbFetchAll($query)->toArray();
+    $query->groupBy('f.id')
+        ->orderBy('fc.order_column')
+        ->orderBy('f.order_column')
+        ->orderBy('f.id');
+
+    return $query->get()
+        ->map(fn ($row): array => (array) $row)
+        ->toArray();
 }
 
-function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
+function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): array
 {
-    $query = "  SELECT COUNT(*) FROM forum_topics AS ft
-                LEFT JOIN forum_topic_comments AS ftc ON ftc.id = ft.latest_comment_id
-                WHERE ft.forum_id = $forumID AND ftc.is_authorized = 1
-                AND ft.deleted_at IS NULL
-                AND ft.required_permissions <= $permissions";
+    $maxCountOut = DB::table('forum_topics')
+        ->join('forum_topic_comments as ftc', 'ftc.id', '=', 'forum_topics.latest_comment_id')
+        ->where('forum_topics.forum_id', $forumID)
+        ->where('ftc.is_authorized', 1)
+        ->where('forum_topics.required_permissions', '<=', $permissions)
+        ->whereNull('forum_topics.deleted_at')
+        ->count();
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $maxCountOut = (int) $data['COUNT(*)'];
-    }
+    $dataOut = DB::table('forum_topics as ft')
+        ->selectRaw('
+            f.title AS ForumTitle, ft.id AS ForumTopicID, ft.title AS TopicTitle, LEFT( ftc2.body, 54 ) AS TopicPreview,
+            ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID,
+            ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
+        ')
+        ->leftJoin('forum_topic_comments as ftc', 'ftc.id', '=', 'ft.latest_comment_id')
+        ->leftJoin('forums as f', 'f.id', '=', 'ft.forum_id')
+        ->leftJoin('forum_topic_comments as ftc2', function ($join): void {
+            $join->on('ftc2.forum_topic_id', '=', 'ft.id')
+                ->where('ftc2.is_authorized', '=', 1);
+        })
+        ->where('ft.forum_id', $forumID)
+        ->where('ft.required_permissions', '<=', $permissions)
+        ->whereNull('ft.deleted_at')
+        ->groupBy('ft.id', 'LatestCommentPostedDate')
+        ->havingRaw('NumTopicReplies >= 0')
+        ->orderByDesc('LatestCommentPostedDate')
+        ->offset($offset)
+        ->limit($count)
+        ->get()
+        ->map(fn ($row): array => (array) $row)
+        ->values()
+        ->toArray();
 
-    $query = "  SELECT f.title AS ForumTitle, ft.id AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.body, 54 ) AS TopicPreview, ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
-                FROM forum_topics AS ft
-                LEFT JOIN forum_topic_comments AS ftc ON ftc.id = ft.latest_comment_id
-                LEFT JOIN forums AS f ON f.id = ft.forum_id
-                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.forum_topic_id = ft.id AND ftc2.is_authorized = 1
-                WHERE ft.forum_id = $forumID
-                AND ft.required_permissions <= $permissions
-                AND ft.deleted_at IS NULL
-                GROUP BY ft.id, LatestCommentPostedDate
-                HAVING NumTopicReplies >= 0
-                ORDER BY LatestCommentPostedDate DESC
-                LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
-
-        $numResults = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
-        }
-
-        return $dataOut;
-    }
-    log_sql_fail();
-
-    return null;
+    return $dataOut;
 }
 
-function getUnauthorisedForumLinks(): ?array
+function getUnauthorisedForumLinks(): array
 {
-    $query = "  SELECT ft.id AS ForumTopicID, ft.title AS TopicTitle, LEFT( ftc2.body, 60 ) AS TopicPreview, ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
-                FROM forum_topics AS ft
-                LEFT JOIN forum_topic_comments AS ftc ON ftc.forum_topic_id = ft.id
-                LEFT JOIN forums AS f ON f.id = ft.forum_id
-                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.forum_topic_id = ft.id
-                WHERE ftc.is_authorized = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
-                GROUP BY ft.id, LatestCommentPostedDate
-                ORDER BY LatestCommentPostedDate DESC ";
+    $dataOut = DB::table('forum_topics as ft')
+        ->selectRaw('
+            ft.id AS ForumTopicID, ft.title AS TopicTitle, LEFT( ftc2.body, 60 ) AS TopicPreview,
+            ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID,
+            ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
+        ')
+        ->leftJoin('forum_topic_comments as ftc', 'ftc.forum_topic_id', '=', 'ft.id')
+        ->leftJoin('forums as f', 'f.id', '=', 'ft.forum_id')
+        ->leftJoin('forum_topic_comments as ftc2', 'ftc2.forum_topic_id', '=', 'ft.id')
+        ->where('ftc.is_authorized', 0)
+        ->whereNull('ftc.deleted_at')
+        ->whereNull('ft.deleted_at')
+        ->groupBy('ft.id', 'LatestCommentPostedDate')
+        ->orderByDesc('LatestCommentPostedDate')
+        ->get()
+        ->map(fn ($row): array => (array) $row)
+        ->values()
+        ->toArray();
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
-
-        $numResults = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
-        }
-
-        return $dataOut;
-    }
-    log_sql_fail();
-
-    return null;
+    return $dataOut;
 }
 
 /**
@@ -151,26 +148,6 @@ function setLatestCommentInForumTopic(ForumTopic $forumTopic, int $commentID): b
     }
 
     return true;
-}
-
-function editTopicComment(int $commentId, string $newPayload): void
-{
-    // Take any RA links and convert them to relevant shortcodes.
-    // eg: "https://retroachievements.org/game/1" --> "[game=1]"
-    $newPayload = normalize_shortcodes($newPayload);
-
-    // Convert [user=$user->username] to [user=$user->id].
-    $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
-
-    // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
-    $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
-
-    // Convert [game=X?set=Y] to [game=backingGameId].
-    $newPayload = Shortcode::convertGameSetShortcodesToBackingGame($newPayload);
-
-    $comment = ForumTopicComment::findOrFail($commentId);
-    $comment->body = $newPayload;
-    $comment->save();
 }
 
 // TODO convert to action
@@ -337,26 +314,30 @@ function getRecentForumPosts(
     ?int $permissions = Permissions::Unregistered,
     ?int $fromAuthorId = null,
 ): Collection {
-    $bindings = [
-        'fromOffset' => $offset,
-        'fromLimit' => $limit + 20,
-        'permissions' => $permissions ?? Permissions::Unregistered,
-        'limit' => $limit,
-    ];
+    $effectivePermissions = $permissions ?? Permissions::Unregistered;
 
-    if (!empty($fromAuthorId)) {
-        $bindings['fromAuthorId'] = $fromAuthorId;
-        $userClause = "ftc.author_id = :fromAuthorId";
-        if ($permissions < Permissions::Moderator) {
-            $userClause .= " AND ftc.is_authorized = 1";
-        }
-    } else {
-        $userClause = "ftc.is_authorized = 1";
-    }
+    $latestComments = DB::table('forum_topic_comments as ftc')
+        ->select('*')
+        ->when(
+            !empty($fromAuthorId),
+            function ($query) use ($fromAuthorId, $permissions): void {
+                $query->where('ftc.author_id', $fromAuthorId);
+                if ($permissions < Permissions::Moderator) {
+                    $query->where('ftc.is_authorized', 1);
+                }
+            },
+            function ($query): void {
+                $query->where('ftc.is_authorized', 1);
+            }
+        )
+        ->orderByDesc('ftc.created_at')
+        ->offset($offset)
+        ->limit($limit + 20); // cater for 20 spam messages
 
-    // 02:08 21/02/2014 - cater for 20 spam messages
-    $query = "
-        SELECT LatestComments.created_at AS PostedAt,
+    $query = DB::query()
+        ->fromSub($latestComments, 'LatestComments')
+        ->selectRaw('
+            LatestComments.created_at AS PostedAt,
             LatestComments.body AS Payload,
             ua.username as Author,
             ua.display_name as AuthorDisplayName,
@@ -364,44 +345,24 @@ function getRecentForumPosts(
             ft.title AS ForumTopicTitle,
             LatestComments.author_id AS author_id,
             LatestComments.id AS CommentID
-        FROM
-        (
-            SELECT *
-            FROM forum_topic_comments AS ftc
-            WHERE $userClause
-            ORDER BY ftc.created_at DESC
-            LIMIT :fromOffset, :fromLimit
-        ) AS LatestComments
-        INNER JOIN forum_topics AS ft ON ft.id = LatestComments.forum_topic_id
-        LEFT JOIN forums AS f ON f.id = ft.forum_id
-        LEFT JOIN users AS ua ON ua.id = LatestComments.author_id
-        WHERE ft.required_permissions <= :permissions AND ft.deleted_at IS NULL
-        ORDER BY LatestComments.created_at DESC
-        LIMIT 0, :limit";
+        ')
+        ->join('forum_topics as ft', 'ft.id', '=', 'LatestComments.forum_topic_id')
+        ->leftJoin('forums as f', 'f.id', '=', 'ft.forum_id')
+        ->leftJoin('users as ua', 'ua.id', '=', 'LatestComments.author_id')
+        ->where('ft.required_permissions', '<=', $effectivePermissions)
+        ->whereNull('ft.deleted_at')
+        ->orderByDesc('LatestComments.created_at')
+        ->limit($limit);
 
     /** @var Collection<int, non-empty-array> */
-    return legacyDbFetchAll($query, $bindings)
+    return $query->get()
+        ->map(fn ($row): array => (array) $row)
         ->map(function ($post) use ($numMessageChars) {
             $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);
             $post['IsTruncated'] = mb_strlen($post['Payload']) > $numMessageChars;
 
             return $post;
         });
-}
-
-function updateTopicPermissions(int $topicId, int $permissions): bool
-{
-    $query = "  UPDATE forum_topics AS ft
-                SET required_permissions='$permissions'
-                WHERE id=$topicId";
-
-    if (!s_mysql_query($query)) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    return true;
 }
 
 function authorizeAllForumPostsForUser(User $user): bool

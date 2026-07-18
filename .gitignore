@@ -105,7 +105,6 @@ nbproject
 # Misc
 .buildpath
 .rnd
-/resources/views/pages-legacy/interceptor/
 lang/php_*.json
 npm-debug.log
 yarn-error.log

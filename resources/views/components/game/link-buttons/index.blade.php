@@ -19,19 +19,14 @@
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Ticket;
+use App\Platform\Services\GameOpenTicketCountService;
 use Illuminate\Support\Facades\Auth;
 
 $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $gameTickets = Ticket::forGame($game)->open();
-    if ($isViewingOfficial) {
-        $gameTickets->officialCore();
-    } else {
-        $gameTickets->unofficial();
-    }
-    $numOpenTickets = $gameTickets->count();
+    $numOpenTickets = app(GameOpenTicketCountService::class)->count($game, $isViewingOfficial);
 }
 
 ?>
@@ -86,9 +81,9 @@ if ($canSeeOpenTickets) {
     @if ($canSeeOpenTickets)
         @php
             if ($isViewingOfficial) {
-                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'core']);
+                $href = route('game.tickets', ['game' => $game, 'filter[publishedStatus]' => 'published']);
             } else {
-                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'unofficial']);
+                $href = route('game.tickets', ['game' => $game, 'filter[publishedStatus]' => 'unpublished']);
             }
         @endphp
 

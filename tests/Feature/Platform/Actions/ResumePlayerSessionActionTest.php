@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -19,13 +20,13 @@ use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementSetType;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class ResumePlayerSessionActionTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     public function testResumePlayerSessionNormal(): void
     {
@@ -455,6 +456,182 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
         $this->assertEquals($backdateAt, $playerSession->created_at);
         $this->assertEquals(1, $playerSession->duration);
+    }
+
+    public function testResumePlayerSessionMultiDisc(): void
+    {
+        // this test mimicks the first part of testResumePlayerSessionNormal, but all calls
+        // after the first use a secondary hash of a multi-disc game. The session should be
+        // maintained and continue to point at the first hash.
+
+        $sessionStartAt = Carbon::parse('2025-04-01 12:34:56');
+        Carbon::setTestNow($sessionStartAt);
+
+        $user = $this->seedUser();
+        $game = $this->seedGame(achievements: 3);
+        $gameHash = $game->hashes->first();
+        $gameHash2 = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5(),
+            'name' => $gameHash->name . ' (disc 2)',
+            'description' => 'hash_' . $game->id,
+        ]);
+        $gameHash->name .= ' (disc 1)';
+        $gameHash->save();
+        $coreAchievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
+        $coreAchievementSet->achievements_first_published_at = $sessionStartAt->clone()->subDays(5);
+        $coreAchievementSet->save();
+
+        $this->assertEquals(true, $gameHash->isMultiDiscGameHash());
+        $this->assertEquals(true, $gameHash2->isMultiDiscGameHash());
+
+        // ===== new session =====
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash);
+
+        $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerGame);
+
+        $playerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals(0, $playerSession->hardcore);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+        $this->assertEquals($sessionStartAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration); // initial session always 1 minute
+
+        $playerAchievementSet = PlayerAchievementSet::where('user_id', $user->id)
+            ->where('achievement_set_id', $coreAchievementSet->id)
+            ->first();
+        $this->assertNotNull($playerAchievementSet);
+
+        // ===== first ping at 30 seconds (less than a minute has elapsed, no playtime will be captured) =====
+        $firstPingAt = $sessionStartAt->clone()->addSeconds(30);
+        Carbon::setTestNow($firstPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash2, 'Titles');
+
+        $playerSession->refresh();
+        $this->assertEquals('Titles', $playerSession->rich_presence);
+        $this->assertEquals($firstPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id); // original hash association should be kept
+        $this->assertEquals(1, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count()); // only original session should exist
+
+        // ===== second ping two minutes later, playtime will start to accumulate =====
+        $secondPingAt = $firstPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($secondPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Level 1');
+
+        $playerSession->refresh();
+        $this->assertEquals('Level 1', $playerSession->rich_presence);
+        $this->assertEquals($secondPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(2, $playerSession->duration); // session duration, in minutes
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id); // original hash association should be kept
+        $this->assertEquals(1, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count()); // only original session should exist
+
+        // ===== softcore unlock 45 seconds later (implicitly resumes session) =====
+        $achievement = $game->achievements->first();
+        $firstUnlockAt = $secondPingAt->clone()->addSeconds(45);
+        Carbon::setTestNow($firstUnlockAt);
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, false, $firstUnlockAt, null, $gameHash);
+
+        $playerSession->refresh();
+        $this->assertEquals('Level 1', $playerSession->rich_presence);
+        $this->assertEquals($firstUnlockAt, $playerSession->rich_presence_updated_at); // used to keep track of when session was last active, regardless of whether or not rich presence was updated
+        $this->assertEquals(3, $playerSession->duration); // floor(195/60)
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id); // original hash association should be kept
+        $this->assertEquals(1, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count()); // only original session should exist
+
+        // ===== third ping two minutes after second =====
+        $thirdPingAt = $secondPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($thirdPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Level 2');
+
+        $playerSession->refresh();
+        $this->assertEquals('Level 2', $playerSession->rich_presence);
+        $this->assertEquals($thirdPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(4, $playerSession->duration); // session duration, in minutes
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id); // original hash association should be kept
+        $this->assertEquals(1, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count()); // only original session should exist
+    }
+
+    public function testResumePlayerSessionMultiVersion(): void
+    {
+        // switching between versions should create separate sessions.
+
+        $sessionStartAt = Carbon::parse('2025-04-01 12:34:56');
+        Carbon::setTestNow($sessionStartAt);
+
+        $user = $this->seedUser();
+        $game = $this->seedGame(achievements: 3);
+        $gameHash = $game->hashes->first();
+        $gameHash2 = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5(),
+            'name' => $gameHash->name . ' (JP)',
+            'description' => 'hash_' . $game->id,
+        ]);
+        $gameHash->name .= ' (US)';
+        $gameHash->save();
+        $coreAchievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
+        $coreAchievementSet->achievements_first_published_at = $sessionStartAt->clone()->subDays(5);
+        $coreAchievementSet->save();
+
+        $this->assertEquals(false, $gameHash->isMultiDiscGameHash());
+        $this->assertEquals(false, $gameHash2->isMultiDiscGameHash());
+
+        // ===== new session (US) =====
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash);
+
+        $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerGame);
+
+        $playerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals(0, $playerSession->hardcore);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+        $this->assertEquals($sessionStartAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration); // initial session always 1 minute
+
+        $playerAchievementSet = PlayerAchievementSet::where('user_id', $user->id)
+            ->where('achievement_set_id', $coreAchievementSet->id)
+            ->first();
+        $this->assertNotNull($playerAchievementSet);
+
+        // ===== new session (JP) =====
+        $newSessionStartAt = $sessionStartAt->clone()->addSeconds(90);
+        Carbon::setTestNow($newSessionStartAt);
+
+        $action->execute($user, $game, $gameHash2);
+
+        // existing game and achievement set should be extended
+        $this->assertEquals(1, PlayerAchievementSet::where('user_id', $user->id)->where('achievement_set_id', $coreAchievementSet->id)->count());
+        $this->assertEquals(1, PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->count());
+        $playerGame->refresh();
+        $this->assertEquals($newSessionStartAt, $playerGame->last_played_at);
+
+        // if a user loads an alternate hash for non-multidisc game, it should start a second session
+        $playerSessions = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->get();
+        $this->assertEquals(2, $playerSessions->count());
+
+        $playerSession = $playerSessions->first();
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals($sessionStartAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration); // initial session always 1 minute
+
+        $playerSession = $playerSessions->get(1);
+        $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
+        $this->assertEquals($newSessionStartAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration); // initial session always 1 minute
     }
 
     public function testGameRecentPlayerUpdatedWhenPresenceIsEmpty(): void

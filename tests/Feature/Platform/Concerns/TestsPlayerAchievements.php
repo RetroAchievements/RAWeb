@@ -17,7 +17,7 @@ trait TestsPlayerAchievements
         User $user,
         Achievement $achievement,
         ?Carbon $hardcoreUnlockTime,
-        Carbon $softcoreUnlockTime,
+        Carbon $casualUnlockTime,
         ?GameHash $gameHash = null,
     ): void {
         (new UnlockPlayerAchievementAction())
@@ -25,7 +25,7 @@ trait TestsPlayerAchievements
                 $user,
                 $achievement,
                 $hardcoreUnlockTime !== null,
-                $hardcoreUnlockTime ?? $softcoreUnlockTime,
+                $hardcoreUnlockTime ?? $casualUnlockTime,
                 null,
                 $gameHash,
             );
@@ -39,7 +39,7 @@ trait TestsPlayerAchievements
         $this->addPlayerAchievement($user, $achievement, $when ?? Carbon::now(), $when ?? Carbon::now(), $gameHash);
     }
 
-    protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null, ?GameHash $gameHash = null): void
+    protected function addCasualUnlock(User $user, Achievement $achievement, ?Carbon $when = null, ?GameHash $gameHash = null): void
     {
         $this->addPlayerAchievement($user, $achievement, null, $when ?? Carbon::now(), $gameHash);
     }
@@ -66,9 +66,9 @@ trait TestsPlayerAchievements
         $this->assertHasUnlock($user, $achievement, UnlockMode::Hardcore);
     }
 
-    protected function assertHasSoftcoreUnlock(User $user, Achievement $achievement): void
+    protected function assertHasCasualUnlock(User $user, Achievement $achievement): void
     {
-        $this->assertHasUnlock($user, $achievement, UnlockMode::Softcore);
+        $this->assertHasUnlock($user, $achievement, UnlockMode::Casual);
     }
 
     protected function assertDoesNotHaveUnlockInMode(User $user, Achievement $achievement, int $mode): void
@@ -88,9 +88,9 @@ trait TestsPlayerAchievements
         $this->assertDoesNotHaveUnlockInMode($user, $achievement, UnlockMode::Hardcore);
     }
 
-    protected function assertDoesNotHaveSoftcoreUnlock(User $user, Achievement $achievement): void
+    protected function assertDoesNotHaveCasualUnlock(User $user, Achievement $achievement): void
     {
-        $this->assertDoesNotHaveUnlockInMode($user, $achievement, UnlockMode::Softcore);
+        $this->assertDoesNotHaveUnlockInMode($user, $achievement, UnlockMode::Casual);
     }
 
     protected function assertDoesNotHaveAnyUnlock(User $user, Achievement $achievement): void

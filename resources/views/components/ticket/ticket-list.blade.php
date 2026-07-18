@@ -10,6 +10,7 @@
 @php
 
 use App\Models\Game;
+use App\Platform\Enums\TicketableType;
 
 $gameCache = [];
 
@@ -41,7 +42,7 @@ $gameCache = [];
                     <tr class="do-not-highlight lg:sticky lg:top-[42px] z-11 bg-box">
                         <th class="text-right">ID</th>
                         <th>State</th>
-                        <th>Achievement</th>
+                        <th>Issue with</th>
                         <th>Game</th>
                         <th>Developer</th>
                         <th>Reporter</th>
@@ -59,11 +60,17 @@ $gameCache = [];
                                 <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->id }}</a>
                             </td>
                             <td>{{ $ticket->state->label() }}</td>
-                            <td>{!! achievementAvatar($ticket->achievement) !!}</td>
+                            <td>
+                                @if ($ticket->ticketable_type === TicketableType::Achievement->value)
+                                    {!! achievementAvatar($ticket->ticketable) !!}
+                                @else
+                                    <a href="{{ $ticket->ticketable->getTicketableUrl() }}">(LB) {{ $ticket->ticketable->getTicketableTitle() }}</a>
+                                @endif
+                            </td>
                             <td>
                                 @php
-                                    $game = $gameCache[$ticket->achievement->game_id] ??=
-                                        Game::where('id', $ticket->achievement->game_id)->with('system')->first();
+                                    $game = $gameCache[$ticket->ticketable->game_id] ??=
+                                        Game::where('id', $ticket->ticketable->game_id)->with('system')->first();
                                 @endphp
                                 <x-game.multiline-avatar
                                     :gameId="$game->id"

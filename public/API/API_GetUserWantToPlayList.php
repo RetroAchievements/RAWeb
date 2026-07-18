@@ -48,7 +48,7 @@ $policy = new UserGameListEntryPolicy();
 /** @var User $me */
 $me = Auth::user();
 
-if (!$policy->view($me, $targetUser)) {
+if (!$policy->view($me, $targetUser, UserGameListType::Play)) {
     return response()->json([], 401);
 }
 

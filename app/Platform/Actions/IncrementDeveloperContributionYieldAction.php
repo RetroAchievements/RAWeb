@@ -35,9 +35,9 @@ class IncrementDeveloperContributionYieldAction
             return;
         }
 
-        // If this is a hardcore unlock, check if it's just an upgrade of an existing softcore unlock.
+        // If this is a hardcore unlock, check if it's just an upgrade of an existing casual unlock.
         if ($isUnlock && $isHardcore) {
-            // If the player already had a softcore unlock, this is an upgrade - don't count it again.
+            // If the player already had a casual unlock, this is an upgrade so don't count it again.
             // Bail.
             if (
                 $playerAchievement->unlocked_at !== null
@@ -47,6 +47,7 @@ class IncrementDeveloperContributionYieldAction
             }
         }
 
+        $developer->refresh();
         $oldContribCount = $developer->yield_unlocks;
         $oldContribYield = $developer->yield_points;
 
@@ -69,20 +70,31 @@ class IncrementDeveloperContributionYieldAction
         // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
         // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
         // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
+        //
+        // This and the users update above are deliberately non-transactional.
+        // A single PK update can block but cannot deadlock. A crash between the two
+        // can leave author_yield_unlocks momentarily drifted from users.yield_*,
+        // which self-heals on the next full recalc. This is an accepted tradeoff for
+        // eliminating the deadlock cycle.
         if ($developer->id === $achievement->user_id) {
             $player = User::find($playerAchievement->user_id);
             if ($player && !$player->is_unranked) {
-                if ($isUnlock) {
-                    $achievement->increment('author_yield_unlocks');
-                } else {
-                    $achievement->decrement('author_yield_unlocks');
-                }
+                // Raw update of only author_yield_unlocks - not increment()/decrement(),
+                // which also bump updated_at and deadlock with the metrics recalc.
+                DB::table('achievements')
+                    ->where('id', $achievement->id)
+                    ->update([
+                        'author_yield_unlocks' => DB::raw(
+                            $isUnlock
+                                ? 'author_yield_unlocks + 1'
+                                : 'CASE WHEN author_yield_unlocks > 0 THEN author_yield_unlocks - 1 ELSE 0 END'
+                        ),
+                    ]);
             }
         }
 
         $developer->refresh();
 
-        // Only check for new badges if incrementing.
         if ($isUnlock) {
             $this->checkAndAwardNewBadges($developer, $oldContribYield, $oldContribCount);
         }

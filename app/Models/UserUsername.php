@@ -51,6 +51,7 @@ class UserUsername extends BaseModel
 
         $previousApprovedChanges = static::query()
             ->with('user')
+            ->whereHas('user')
             ->where('username', $this->username)
             ->where('id', '!=', $this->id)
             ->whereNotNull('approved_at')

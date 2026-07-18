@@ -92,7 +92,7 @@ const renderPage = async (page) => {
 
 if (import.meta.env.PROD) {
   createServer(renderPage, {
-    cluster: false, // enabling this seems to hurt perf more than help it on prod
+    cluster: process.env.INERTIA_SSR_CLUSTER === 'true',
     port: inertiaDaemonPort,
   });
 }

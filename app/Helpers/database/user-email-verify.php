@@ -61,10 +61,3 @@ function validateEmailVerificationToken(string $emailCookie, ?User &$user): bool
 
     return false;
 }
-
-function deleteExpiredEmailVerificationTokens(): bool
-{
-    EmailConfirmation::where('expires_at', '<=', Carbon::now())->delete();
-
-    return true;
-}

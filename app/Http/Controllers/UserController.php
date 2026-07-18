@@ -20,14 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    public function index(): View
-    {
-        $this->authorize('viewAny', User::class);
-
-        return view('resource.index')
-            ->with('resource', 'user');
-    }
-
     public function show(User $user): View
     {
         $this->authorize('view', $user);
@@ -92,9 +84,12 @@ class UserController extends Controller
         $this->authorize('updateAvatar', $user);
 
         try {
-            UploadAvatar($user->username, $request->imageData);
+            $avatarUrl = UploadAvatar($user->username, $request->imageData);
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'avatarUrl' => $avatarUrl,
+            ]);
         } catch (Exception $exception) {
             $error = $exception->getMessage();
 

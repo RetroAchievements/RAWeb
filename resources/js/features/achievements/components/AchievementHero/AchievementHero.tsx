@@ -40,7 +40,7 @@ export const AchievementHero: FC = () => {
   const playersTotal = achievement.game?.playersTotal as number;
   const unlocksTotal = achievement.unlocksTotal as number;
   const unlocksHardcoreTotal = achievement.unlocksHardcore as number;
-  const unlocksSoftcoreTotal = unlocksTotal - unlocksHardcoreTotal;
+  const unlocksCasualTotal = unlocksTotal - unlocksHardcoreTotal;
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
   const sourceAchievement = eventAchievement?.sourceAchievement;
@@ -268,7 +268,7 @@ export const AchievementHero: FC = () => {
               <p className="flex gap-1">
                 {!isEventGame ? (
                   <>
-                    <span>{t('{{val, number}} softcore', { val: unlocksSoftcoreTotal })}</span>
+                    <span>{t('{{val, number}} casual', { val: unlocksCasualTotal })}</span>
                     <span>{'·'}</span>
                   </>
                 ) : null}

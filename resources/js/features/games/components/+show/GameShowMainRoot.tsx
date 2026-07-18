@@ -25,7 +25,7 @@ export const GameShowMainRoot: FC = () => {
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const hasBeatenGame =
-    !!playerGameProgressionAwards?.beatenSoftcore || !!playerGameProgressionAwards?.beatenHardcore;
+    !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
 
   const currentListView = useAtomValue(currentListViewAtom);
 
@@ -44,11 +44,11 @@ export const GameShowMainRoot: FC = () => {
       {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
 
       <PlayableMainMedia
-        expectedHeight={game.system?.screenshotResolutions?.[0]?.height}
-        expectedWidth={game.system?.screenshotResolutions?.[0]?.width}
         hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
         hasBeatenGame={hasBeatenGame}
+        imageIngameDimensions={game.imageIngameDimensions}
         imageIngameUrl={game.imageIngameUrl!}
+        imageTitleDimensions={game.imageTitleDimensions}
         imageTitleUrl={game.imageTitleUrl!}
         isPixelated={!game.system!.supportsUpscaledScreenshots}
         numScreenshots={numScreenshots}

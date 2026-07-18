@@ -183,7 +183,7 @@ class AchievementsRelationManager extends RelationManager
                     ->placeholder('All')
                     ->trueLabel('Promoted')
                     ->falseLabel('Unpromoted')
-                    ->default(true),
+                    ->default(($this->getCoreAchievementSet()?->achievements_published ?? 0) > 0),
 
                 Tables\Filters\TernaryFilter::make('duplicate_badges')
                     ->label('Has duplicate badge')

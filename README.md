@@ -5,37 +5,10 @@ It is a Laravel application using [Inertia.js](https://inertiajs.com/) with Reac
 
 ## Requirements
 
-- Local web server
-- [PHP 8.4](http://php.net/manual/en/)
+- [Docker](https://docs.docker.com/get-docker/) (Windows, macOS, Linux)
 - [Composer](https://getcomposer.org/) PHP dependency manager
-- [MariaDB 10](https://mariadb.com/docs/server/)
-- [Node.js 24](https://nodejs.org/)
-- [pnpm 10](https://pnpm.io/)
- 
-Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 
-### **[Docker Compose](https://docs.docker.com/compose/install/)** (Windows, Linux, macOS)
-
-Recommended. See [Laravel Sail documentation](https://laravel.com/docs/sail).
-
-### **[XAMPP](https://www.apachefriends.org/download.html)** (Windows, Linux, macOS)
-
-Install the XAMPP version packaged with PHP 8.4 to run an Apache web server, MariaDB, and PHP on your system.
-
-You might have to enable some extensions in `php.ini` (see the `ext-*` requirements in [composer.json](composer.json)):
-```
-extension=curl
-extension=gmp
-extension=mysqli
-extension=pdo_mysql
-extension=gd
-extension=intl
-extension=sockets
-```
-
-### **[Laravel Valet](https://laravel.com/docs/valet)** (macOS only)
-
-A [local valet driver](LocalValetDriver.php) is provided.
+RAWeb runs in Docker via [Laravel Sail](https://laravel.com/docs/sail), which provides PHP, MariaDB, Node.js, and all other services in containers. Prefer to run the application directly on your host machine instead? See the [alternative environments guide](docs/guides/alternative-environments.md).
 
 ## Installation
 
@@ -43,163 +16,101 @@ A [local valet driver](LocalValetDriver.php) is provided.
 composer install
 ```
 
-### Run setup script
+### Run the setup script
 
 ```shell
 composer setup
 ```
 
-### Configure
+Among other things, this creates your environment configuration file (`.env`) by copying `.env.example`, which contains a sensible set of default values. The configuration automatically detects whether it's running via the Laravel Sail application container and adjusts hosts and ports accordingly. You might want to adjust the forwarded container port numbers to your liking (`APP_PORT`, `FORWARD_*`).
 
-The environment configuration file (`.env`) contains a sensible set of default values.
+### Start the containers
 
-**Docker/Laravel Sail**
-
-No additional configuration is needed; the configuration automatically detects whether it's running the application via the Laravel Sail application container and adjusts hosts and ports accordingly.
-
-However, you might want to adjust the forwarded container port numbers to your liking (`APP_PORT`, `FORWARD_*`).
-
-Now is a good time to create the containers. Sail forwards commands to Docker Compose:
+Sail forwards commands to Docker Compose:
 
 ```shell
-sail up
+./vendor/bin/sail up
+
 # Daemonize:
-sail up -d
+./vendor/bin/sail up -d
 ```
 
 > **Note**
-> Mentions of `sail` commands assume that it has been aliased to the `./sail` executable according to Sail's docs.
-> I.e. run `./sail up` if you haven't aliased it.
-
-**XAMPP/Valet** 
-
-Adjust the local environment configuration (`.env`):
-
-- Enter the credentials of your local database instance (`DB_*`)
-- Change the application URL (`APP_URL`) - static assets URL (`ASSET_URL`) should be the same as `APP_URL`
-
-> **Note**
-> `APP_URL` varies depending on your setup. By default it's configured to use the forwarded application Docker container port.
-> E.g. using an Apache vhost or linking a domain via Laravel Valet this should be adjusted accordingly:
-
-```dotenv
-APP_URL=https://raweb.test
-ASSET_URL=https://raweb.test
-```
-
-**Hybrid Docker setup**
-
-When running the application locally (i.e. web server and PHP via XAMPP/Valet) it's possible to use the provided Docker services, too.
-
-Use database and redis services:
-
-```dotenv
-DB_PORT=${FORWARD_DB_PORT}
-REDIS_PORT=${FORWARD_REDIS_PORT}
-```
-
-> **Note**
-> Connect with a database client of your choice using the forwarded ports
-> or use phpMyAdmin which runs at http://localhost:64080 by default. 
-
-Use mailpit as SMTP server for local mails testing:
-
-```dotenv
-MAIL_MAILER=smtp
-```
-
-> **Note**
-> Runs at http://localhost:64050 by default.
-
-Use minio as an AWS S3 drop-in replacement:
-
-```dotenv
-AWS_MINIO=true
-```
-
-> **Note**
-> In order to use S3 features you'll have to create a `local` bucket manually first.
-> Runs at http://localhost:64041/buckets/add-bucket by default.
+> Subsequent mentions of `sail` commands assume it has been aliased to `./vendor/bin/sail` according to [Sail's docs](https://laravel.com/docs/sail#configuring-a-shell-alias).
+> ie: run `./vendor/bin/sail pnpm dev` if you haven't aliased it.
 
 ### Build frontend assets
 
 ```shell
-pnpm install
-pnpm build
-# Using Sail:
 sail pnpm install
 sail pnpm build
-```
-
-### Development workflow
-
-For local development with hot module replacement:
-
-```shell
-pnpm dev
-```
-
-Before submitting a pull request, verify your changes pass all checks:
-
-```shell
-# Frontend
-pnpm verify  # Runs linting, TypeScript checks, and Vitest tests
-
-# Backend
-composer fix                            # Fix code style issues
-composer analyse                        # Run PHPStan static analysis
-composer test -- --filter=TestFileName  # Run an individual test suite
-composer test -- --parallel             # Run all back-end tests in parallel
-```
-
-To run specific frontend tests:
-
-```shell
-pnpm test:run SomeComponent  # Run tests matching "SomeComponent"
 ```
 
 ### Create filesystem symlinks
 
 ```shell
-php artisan ra:storage:link --relative
-# Using Sail:
 sail artisan ra:storage:link --relative
 ```
 
 ### Setup database
- 
+
 ```shell
-php artisan migrate
-# Using Sail:
 sail artisan migrate
 ```
 
 Seed your database with additional test data:
 
 ```shell
-php artisan db:seed
-# Using Sail:
 sail artisan db:seed
 ```
 
-### Open the application in your browser.
+### Open the application in your browser
 
-Depending on the setup you chose the application should run.
+The application runs at http://localhost:64000 by default.
 
-- Docker: http://localhost:64000
-- XAMPP: depending on Apache vhost configuration
-- Laravel Valet: e.g. https://raweb.test - depending on link / parked location and whether you chose to secure it or not 
+## Development workflow
+
+For local development with hot module replacement:
+
+```shell
+sail pnpm dev
+```
+
+Before submitting a pull request, verify your changes pass all checks:
+
+```shell
+# Frontend
+sail pnpm verify  # Runs linting, TypeScript checks, and Vitest tests
+
+# Backend
+sail composer fix                            # Fix code style issues
+sail composer analyse                        # Run PHPStan static analysis
+sail composer test -- --filter=TestFileName  # Run an individual test suite
+sail composer test -- --parallel             # Run all back-end tests in parallel
+```
+
+To run specific frontend tests:
+
+```shell
+sail pnpm test:run SomeComponent  # Run tests matching "SomeComponent"
+```
+
+## Bundled services
+
+Sail also provides supporting services out of the box:
+
+- Connect a database client of your choice to MariaDB using the forwarded port (64010 by default).
+- Mailpit catches local outbound mail and runs at http://localhost:64050.
+- MinIO acts as an AWS S3 drop-in replacement. Set `AWS_MINIO=true` in `.env` and create a `local` bucket manually at http://localhost:64041/buckets/add-bucket.
 
 ## Usage
 
 ### Developing achievements locally
 
 Add a `host.txt` file next to `RAIntegration.dll` in your local RALibRetro's directory.
-The file should contain the URL to your local RAServer instance. Any of the following will work:
+The file should contain the URL to your local RAServer instance:
 
 - `http://localhost:64000` when running the server via Docker, `composer start` or `artisan serve`.
-- `https://raweb.test` (example) when running the server via Valet
-- `http://raweb.test` (example) as a configured vhost
 
 ## Security Vulnerabilities
 

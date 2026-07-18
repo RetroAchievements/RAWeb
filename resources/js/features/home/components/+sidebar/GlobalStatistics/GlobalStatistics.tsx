@@ -61,13 +61,21 @@ export const GlobalStatistics: FC = () => {
             {formatNumber(staticData?.numHardcoreGameBeatenAwards)}
           </StatBox>
 
-          <StatBox
-            t_label={t('Registered Players')}
-            href="/userList.php"
-            anchorClassName={buildTrackingClassNames('Click Statistic Registered Players')}
-          >
-            {formatNumber(staticData?.numRegisteredUsers)}
-          </StatBox>
+          <div className="group flex h-full flex-col rounded border border-neutral-700/80 bg-embed px-2 py-2.5 light:border-neutral-400">
+            <span
+              id="registered-players-label"
+              className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950"
+            >
+              {t('Registered Players')}
+            </span>
+
+            <p
+              aria-labelledby="registered-players-label"
+              className="text-xl! leading-7 text-neutral-300 light:text-neutral-950"
+            >
+              {formatNumber(staticData?.numRegisteredUsers)}
+            </p>
+          </div>
 
           <StatBox
             t_label={t('Achievement Unlocks')}

@@ -50,8 +50,8 @@ class BuildAchievementChecklistActionTest extends TestCase
 
         $this->addHardcoreUnlock($user2, $achievement2, $time3);
         $this->addHardcoreUnlock($user2, $achievement4, $time2);
-        $this->addSoftcoreUnlock($user2, $achievement6, $time1);
-        $this->addSoftcoreUnlock($user2, $achievement8, $time4);
+        $this->addCasualUnlock($user2, $achievement6, $time1);
+        $this->addCasualUnlock($user2, $achievement8, $time4);
         $this->addHardcoreUnlock($user2, $achievement8, $time5);
         $this->addHardcoreUnlock($user2, $achievement10, $time6);
 
@@ -226,7 +226,7 @@ class BuildAchievementChecklistActionTest extends TestCase
         $this->assertEquals($expected, $converted);
     }
 
-    private function wrapAchievement(Achievement $achievement, ?Carbon $hardcoreUnlock = null, ?Carbon $softcoreUnlock = null): array
+    private function wrapAchievement(Achievement $achievement, ?Carbon $hardcoreUnlock = null, ?Carbon $casualUnlock = null): array
     {
         $achievement->loadMissing('game');
         $achievement->refresh(); // fetch updated aggregate values
@@ -238,7 +238,7 @@ class BuildAchievementChecklistActionTest extends TestCase
             'points' => $achievement->points,
             'badgeUnlockedUrl' => $achievement->badgeUnlockedUrl,
             'badgeLockedUrl' => $achievement->badgeLockedUrl,
-            'unlockedAt' => $softcoreUnlock ? $softcoreUnlock->format('c') : ($hardcoreUnlock ? $hardcoreUnlock->format('c') : null),
+            'unlockedAt' => $casualUnlock ? $casualUnlock->format('c') : ($hardcoreUnlock ? $hardcoreUnlock->format('c') : null),
             'unlockedHardcoreAt' => $hardcoreUnlock ? $hardcoreUnlock->format('c') : null,
             'unlocksTotal' => $achievement->unlocks_total,
             'unlocksHardcore' => $achievement->unlocks_hardcore,

@@ -10,37 +10,38 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
     if ($sortBy < 1 || $sortBy > 13) {
         $sortBy = 1;
     }
-    $orderCond = "";
-    if ($sortBy == 1) {        // Date, asc
-        $orderCond = "ORDER BY Date DESC ";
-    } elseif ($sortBy == 2) {    // Num Awarded, asc
-        $orderCond = "ORDER BY NumAwarded DESC ";
-    } elseif ($sortBy == 3) {    // Total Points earned, asc
-        $orderCond = "ORDER BY TotalPointsEarned DESC ";
-    } elseif ($sortBy == 11) {// Date, desc
-        $orderCond = "ORDER BY Date ASC ";
-    } elseif ($sortBy == 12) {// Num Awarded, desc
-        $orderCond = "ORDER BY NumAwarded ASC ";
-    } elseif ($sortBy == 13) {// Total Points earned, desc
-        $orderCond = "ORDER BY TotalPointsEarned ASC ";
+
+    [$orderColumn, $orderDirection] = match ($sortBy) {
+        1 => ['Date', 'desc'],
+        2 => ['NumAwarded', 'desc'],
+        3 => ['TotalPointsEarned', 'desc'],
+        11 => ['Date', 'asc'],
+        12 => ['NumAwarded', 'asc'],
+        13 => ['TotalPointsEarned', 'asc'],
+        default => [null, null],
+    };
+
+    $query = PlayerAchievement::query()
+        ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+        ->join('games', 'games.id', '=', 'achievements.game_id')
+        ->where('player_achievements.user_id', $user->id)
+        ->where('achievements.is_promoted', 1)
+        ->where('games.system_id', '!=', System::Events)
+        ->selectRaw('DATE(player_achievements.unlocked_effective_at) AS Date')
+        ->selectRaw('COUNT(*) AS NumAwarded')
+        ->selectRaw('SUM(achievements.points) AS TotalPointsEarned')
+        ->groupBy('Date');
+
+    if ($orderColumn !== null) {
+        $query->orderBy($orderColumn, $orderDirection);
     }
 
-    $query = "SELECT DATE(pa.unlocked_effective_at) AS Date, COUNT(*) AS NumAwarded, SUM(ach.points) AS TotalPointsEarned
-                FROM player_achievements pa
-                INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-                INNER JOIN games AS gd ON gd.id = ach.game_id
-                WHERE pa.user_id = :userId
-                AND ach.is_promoted = 1
-                AND gd.system_id != " . System::Events . "
-                GROUP BY Date
-                $orderCond
-                LIMIT :offset, :limit";
-
-    return legacyDbFetchAll($query, [
-        'userId' => $user->id,
-        'offset' => $offset,
-        'limit' => $limit,
-    ])->toArray();
+    return $query
+        ->offset($offset)
+        ->limit($limit)
+        ->get()
+        ->map(fn ($row) => $row->getAttributes())
+        ->toArray();
 }
 
 function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $user): array
@@ -52,26 +53,38 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
         'isPromoted' => 1,
     ];
 
-    $query = "SELECT pa.unlocked_effective_at AS Date,
-                     CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
-                     ach.id AS AchievementID, ach.title AS Title, ach.description AS Description,
-                     ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio, ach.type as Type,
-                     COALESCE(ua.display_name, ua.username) AS Author, ua.ulid AS AuthorULID,
-                     gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, ach.game_id AS GameID,
-                     s.name AS ConsoleName
-              FROM player_achievements pa
-              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
-              INNER JOIN games AS gd ON gd.id = ach.game_id
-              INNER JOIN systems AS s ON s.id = gd.system_id
-              INNER JOIN users AS ua on ua.id = ach.user_id
-              WHERE pa.user_id = :userid AND ach.is_promoted = :isPromoted
-              AND pa.unlocked_effective_at BETWEEN :dateStart AND :dateEnd
-              ORDER BY Date, HardcoreMode DESC
-              LIMIT 500";
-
     $cumulativeScore = 0;
 
-    return legacyDbFetchAll($query, $bindings)
+    return PlayerAchievement::query()
+        ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+        ->join('games', 'games.id', '=', 'achievements.game_id')
+        ->join('systems', 'systems.id', '=', 'games.system_id')
+        ->join('users', 'users.id', '=', 'achievements.user_id')
+        ->where('player_achievements.user_id', $bindings['userid'])
+        ->where('achievements.is_promoted', $bindings['isPromoted'])
+        ->whereBetween('player_achievements.unlocked_effective_at', [$bindings['dateStart'], $bindings['dateEnd']])
+        ->selectRaw(
+            'player_achievements.unlocked_effective_at AS Date, '
+            . 'CASE WHEN player_achievements.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode, '
+            . 'achievements.id AS AchievementID, '
+            . 'achievements.title AS Title, '
+            . 'achievements.description AS Description, '
+            . 'achievements.image_name AS BadgeName, '
+            . 'achievements.points AS Points, '
+            . 'achievements.points_weighted AS TrueRatio, '
+            . 'achievements.type AS Type, '
+            . 'COALESCE(users.display_name, users.username) AS Author, '
+            . 'users.ulid AS AuthorULID, '
+            . 'games.title AS GameTitle, '
+            . 'games.image_icon_asset_path AS GameIcon, '
+            . 'achievements.game_id AS GameID, '
+            . 'systems.name AS ConsoleName'
+        )
+        ->orderBy('Date')
+        ->orderByDesc('HardcoreMode')
+        ->limit(500)
+        ->get()
+        ->map(fn ($row) => $row->getAttributes())
         ->map(function ($entry) use (&$cumulativeScore) {
             $cumulativeScore += (int) $entry['Points'];
             $entry['CumulScore'] = $cumulativeScore;
@@ -133,22 +146,22 @@ function getAwardedList(
         ->get();
 
     $cumulHardcoreScore = 0;
-    $cumulSoftcoreScore = 0;
+    $cumulCasualScore = 0;
 
     return $rows
-        ->map(function ($row) use (&$cumulHardcoreScore, &$cumulSoftcoreScore) {
+        ->map(function ($row) use (&$cumulHardcoreScore, &$cumulCasualScore) {
             $hardcorePoints = (int) $row->HardcorePoints;
             $allPoints = (int) $row->SoftcorePoints;
 
             $cumulHardcoreScore += $hardcorePoints;
-            $cumulSoftcoreScore += $allPoints - $hardcorePoints;
+            $cumulCasualScore += $allPoints - $hardcorePoints;
 
             return [
                 'Date' => $row->Date,
                 'HardcorePoints' => $row->HardcorePoints,
                 'SoftcorePoints' => $row->SoftcorePoints,
                 'CumulHardcoreScore' => $cumulHardcoreScore,
-                'CumulSoftcoreScore' => $cumulSoftcoreScore,
+                'CumulCasualScore' => $cumulCasualScore,
             ];
         })
         ->values()

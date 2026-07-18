@@ -24,7 +24,15 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillAchievementSetVersionDefinitions;
+use App\Platform\Commands\BackfillAllGameBadgesCommand;
 use App\Platform\Commands\BackfillAuthorYieldUnlocks;
+use App\Platform\Commands\BackfillGameBadgesCollapseSameDayCommand;
+use App\Platform\Commands\BackfillGameBadgesCurrentCanonicalCommand;
+use App\Platform\Commands\BackfillGameBadgesFromAuditLogCommand;
+use App\Platform\Commands\BackfillGameBadgesFromCommentsCommand;
+use App\Platform\Commands\BackfillGameBadgesFromForumCommentsCommand;
+use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
@@ -35,6 +43,7 @@ use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
+use App\Platform\Commands\PruneWipGameBadgesCommand;
 use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
@@ -48,11 +57,13 @@ use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
+use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerCount;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
+use App\Platform\Commands\UpdateMinimumEmulatorVersions;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
@@ -77,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Achievements
+                BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
 
@@ -87,6 +99,7 @@ class AppServiceProvider extends ServiceProvider
                 PruneGameRecentPlayers::class,
                 RegenerateGameScreenshotConversions::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameAchievementUnlockMedians::class,
                 UpdateGameBeatenMetrics::class,
                 UpdateGameMetrics::class,
                 UpdateGamePlayerCount::class,
@@ -94,6 +107,15 @@ class AppServiceProvider extends ServiceProvider
                 VerifyAchievementSetIntegrity::class,
                 WriteGameSetSortTitles::class,
                 WriteGameSortTitles::class,
+
+                // Game Badges
+                BackfillAllGameBadgesCommand::class,
+                BackfillGameBadgesCollapseSameDayCommand::class,
+                BackfillGameBadgesCurrentCanonicalCommand::class,
+                BackfillGameBadgesFromAuditLogCommand::class,
+                BackfillGameBadgesFromCommentsCommand::class,
+                BackfillGameBadgesFromForumCommentsCommand::class,
+                PruneWipGameBadgesCommand::class,
 
                 // Game Hashes
                 NoIntroImport::class,
@@ -128,11 +150,15 @@ class AppServiceProvider extends ServiceProvider
 
                 // Developer
                 BackfillAuthorYieldUnlocks::class,
+                CheckDeveloperInactivity::class,
                 ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
                 // Events
                 CreateAchievementOfTheWeek::class,
+
+                // Emulators
+                UpdateMinimumEmulatorVersions::class,
 
                 // Sync
                 SyncUnrankedUsersTable::class,
@@ -143,19 +169,22 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->hourly();
-            $schedule->command(PruneGameRecentPlayers::class)->daily();
-            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
 
-            if (app()->environment() === 'production') {
-                $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
-                $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
-                $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-                $schedule->command(ProcessExpiringClaims::class)->hourly();
-                $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
-                $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
-                $schedule->command(CheckForAchievementSetChanges::class)->daily();
-            }
+            $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->hourly();
+            $schedule->command(ProcessExpiringClaims::class)->hourly();
+
+            $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
+
+            $schedule->command(PruneGameRecentPlayers::class)->daily();
+            $schedule->command(CheckDeveloperInactivity::class)->daily();
+            $schedule->command(CheckForAchievementSetChanges::class)->daily();
+            $schedule->command(UpdateMinimumEmulatorVersions::class)->daily();
+
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
+            $schedule->command(CrawlPlayerWeightedPoints::class)->weeklyOn(3, '10:00'); // Wednesdays at 10AM UTC
         });
 
         Relation::morphMap([

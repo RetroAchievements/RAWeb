@@ -45,12 +45,12 @@ class RevalidateAchievementSetBadgeEligibilityAction
         $badge = $playerGame->user->playerBadges()
             ->where('award_type', AwardType::GameBeaten)
             ->where('award_key', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $casualBadge = (clone $badge)->where('award_tier', UnlockMode::Casual);
         $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
-        if ($playerGame->beaten_at === null && $softcoreBadge->exists()) {
-            $this->dispatchBadgeLostEvent($softcoreBadge->first());
-            $softcoreBadge->delete();
+        if ($playerGame->beaten_at === null && $casualBadge->exists()) {
+            $this->dispatchBadgeLostEvent($casualBadge->first());
+            $casualBadge->delete();
 
             $statusChanged = true;
         }
@@ -62,12 +62,12 @@ class RevalidateAchievementSetBadgeEligibilityAction
             $statusChanged = true;
         }
 
-        if ($playerGame->beaten_hardcore_at === null && $playerGame->beaten_at !== null && !$softcoreBadge->exists()) {
+        if ($playerGame->beaten_hardcore_at === null && $playerGame->beaten_at !== null && !$casualBadge->exists()) {
             $badge = AddSiteAward(
                 $playerGame->user,
                 AwardType::GameBeaten,
                 $playerGame->game->id,
-                UnlockMode::Softcore,
+                UnlockMode::Casual,
                 $playerGame->beaten_at,
             );
             PlayerBadgeAwarded::dispatch($badge);
@@ -77,7 +77,7 @@ class RevalidateAchievementSetBadgeEligibilityAction
         }
 
         if ($playerGame->beaten_hardcore_at !== null && !$hardcoreBadge->exists()) {
-            $softcoreBadge->delete();
+            $casualBadge->delete();
 
             $badge = AddSiteAward(
                 $playerGame->user,
@@ -114,16 +114,16 @@ class RevalidateAchievementSetBadgeEligibilityAction
         $badge = $playerGame->user->playerBadges()
             ->where('award_type', AwardType::Mastery)
             ->where('award_key', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $casualBadge = (clone $badge)->where('award_tier', UnlockMode::Casual);
         $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
-        if ($playerGame->completed_at === null && $softcoreBadge->exists()) {
+        if ($playerGame->completed_at === null && $casualBadge->exists()) {
             // if the user has at least one unlock for the set, assume there was
             // a revision and do nothing. if they want to get rid of the badge,
             // they can reset one or more of the achievements they have.
             if (!$playerGame->achievements_unlocked && $playerGame->achievements_total) {
-                $this->dispatchBadgeLostEvent($softcoreBadge->first());
-                $softcoreBadge->delete();
+                $this->dispatchBadgeLostEvent($casualBadge->first());
+                $casualBadge->delete();
 
                 $statusChanged = true;
             }
@@ -145,12 +145,12 @@ class RevalidateAchievementSetBadgeEligibilityAction
             return $statusChanged;
         }
 
-        if ($playerGame->completed_hardcore_at === null && $playerGame->completed_at !== null && !$softcoreBadge->exists()) {
+        if ($playerGame->completed_hardcore_at === null && $playerGame->completed_at !== null && !$casualBadge->exists()) {
             $badge = AddSiteAward(
                 $playerGame->user,
                 AwardType::Mastery,
                 $playerGame->game->id,
-                UnlockMode::Softcore,
+                UnlockMode::Casual,
                 $playerGame->completed_at,
             );
             PlayerBadgeAwarded::dispatch($badge);
@@ -160,7 +160,7 @@ class RevalidateAchievementSetBadgeEligibilityAction
         }
 
         if ($playerGame->completed_hardcore_at !== null && !$hardcoreBadge->exists()) {
-            $softcoreBadge->delete();
+            $casualBadge->delete();
 
             $badge = AddSiteAward(
                 $playerGame->user,

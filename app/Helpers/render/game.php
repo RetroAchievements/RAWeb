@@ -222,11 +222,11 @@ function generateEmptyBucketsWithBounds(int $numAchievements): array
         if ($isDynamicBucketingEnabled) {
             $start = $i === 0 ? 1 : $currentUpperBound + 1;
             $end = intval(round($bucketSize * ($i + 1)));
-            $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
+            $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'casual' => 0];
 
             $currentUpperBound = $end;
         } else {
-            $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
+            $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'casual' => 0];
         }
     }
 
@@ -259,7 +259,7 @@ function calculateBuckets(
     array &$buckets,
     bool $isDynamicBucketingEnabled,
     int $numAchievements,
-    array $softcoreUnlocks,
+    array $casualUnlocks,
     array $hardcoreUnlocks,
 ): array {
     $largestWonByCount = 0;
@@ -270,21 +270,21 @@ function calculateBuckets(
         $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
 
         // Distribute the achievements into the bucket by adding the number of hardcore
-        // users who achieved it and the number of softcore users who achieved it to
+        // users who achieved it and the number of casual users who achieved it to
         // the respective counts.
         $buckets[$targetBucketIndex]['hardcore'] += $hardcoreUnlocks[$i] ?? 0;
-        $buckets[$targetBucketIndex]['softcore'] += $softcoreUnlocks[$i] ?? 0;
+        $buckets[$targetBucketIndex]['casual'] += $casualUnlocks[$i] ?? 0;
 
         // We need to also keep tracked of `largestWonByCount`, which is later used for chart
         // configuration, such as determining the number of gridlines to show.
-        $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
+        $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['casual'];
         $largestWonByCount = max($currentTotal, $largestWonByCount);
     }
 
     return [$buckets, $largestWonByCount];
 }
 
-function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks, array $hardcoreUnlocks, array &$buckets): int
+function handleAllAchievementsCase(int $numAchievements, array $casualUnlocks, array $hardcoreUnlocks, array &$buckets): int
 {
     if ($numAchievements <= 0) {
         return 0;
@@ -293,14 +293,14 @@ function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks,
     // Add a bucket for the users who have earned all achievements.
     $buckets[] = [
         'hardcore' => $hardcoreUnlocks[$numAchievements] ?? 0,
-        'softcore' => $softcoreUnlocks[$numAchievements] ?? 0,
+        'casual' => $casualUnlocks[$numAchievements] ?? 0,
     ];
 
     // Calculate the total count of users who have earned all achievements.
     // This will later be used for chart configuration in determining the
     // number of gridlines to show on one of the axes.
     $allAchievementsCount = (
-        ($hardcoreUnlocks[$numAchievements] ?? 0) + ($softcoreUnlocks[$numAchievements] ?? 0)
+        ($hardcoreUnlocks[$numAchievements] ?? 0) + ($casualUnlocks[$numAchievements] ?? 0)
     );
 
     return $allAchievementsCount;

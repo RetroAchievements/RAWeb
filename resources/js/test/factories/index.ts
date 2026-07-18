@@ -53,8 +53,6 @@ export * from './createPlayerGameActivityEvent';
 export * from './createPlayerGameActivitySession';
 export * from './createPlayerGameActivitySummary';
 export * from './createPlayerGameClientBreakdown';
-export * from './createPlayerResettableGame';
-export * from './createPlayerResettableGameAchievement';
 export * from './createRaEvent';
 export * from './createRankedGameTopAchiever';
 export * from './createRecentActiveForumTopic';

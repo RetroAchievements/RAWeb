@@ -7,25 +7,30 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\GameScreenshotModerationResource\Pages;
 use App\Models\GameScreenshot;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ApproveGameScreenshotAction;
-use App\Platform\Actions\RejectGameScreenshotAction;
 use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Platform\Enums\GameScreenshotRejectionReason;
 use App\Platform\Enums\GameScreenshotStatus;
+use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
-use App\Platform\Services\ScreenshotResolutionService;
+use App\Platform\Services\ScreenshotReviewContext;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\Width;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 use UnitEnum;
 
 class GameScreenshotModerationResource extends Resource
@@ -46,9 +51,7 @@ class GameScreenshotModerationResource extends Resource
             return null;
         }
 
-        return (string) self::applyReviewFeedScope(GameScreenshot::reviewableBy($user))
-            ->where('status', GameScreenshotStatus::Pending)
-            ->count();
+        return (string) self::pendingReviewQueryFor($user)->count();
     }
 
     public static function getNavigationBadgeColor(): ?string
@@ -72,7 +75,14 @@ class GameScreenshotModerationResource extends Resource
                 self::applyReviewFeedScope($query)
                     ->reviewableBy($user)
                     ->whereHas('game')
-                    ->with(['game.system', 'capturedBy', 'media']);
+                    ->with([
+                        'game.system',
+                        'capturedBy',
+                        'media',
+                        'game.gameScreenshots' => fn ($q) => $q
+                            ->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Pending])
+                            ->with(['media', 'capturedBy']),
+                    ]);
             })
             ->columns([
                 Tables\Columns\ImageColumn::make('thumbnail')
@@ -80,18 +90,25 @@ class GameScreenshotModerationResource extends Resource
                     ->state(fn (GameScreenshot $record) => $record->media?->getUrl())
                     ->width(64)
                     ->imageHeight(48)
-                    ->url(fn (GameScreenshot $record) => $record->media?->getUrl())
-                    ->openUrlInNewTab(),
+                    ->extraImgAttributes(fn (GameScreenshot $record): array => [
+                        'class' => $record->status === GameScreenshotStatus::Pending
+                            ? 'object-contain bg-gray-950 cursor-pointer'
+                            : 'object-contain bg-gray-950',
+                    ])
+                    ->action(function (GameScreenshot $record, Component $livewire): void {
+                        if ($record->status !== GameScreenshotStatus::Pending) {
+                            return;
+                        }
+
+                        if ($livewire instanceof Pages\Index) {
+                            $livewire->replaceMountedScreenshotReview((string) $record->getKey());
+                        }
+                    }),
 
                 Tables\Columns\TextColumn::make('game.title')
                     ->label('Game')
-                    ->description(fn (GameScreenshot $record) => $record->game?->system?->name)
-                    ->url(fn (GameScreenshot $record) => $record->game
-                        ? route('game.show', ['game' => $record->game])
-                        : null
-                    )
-                    ->extraAttributes(['class' => 'hover:underline'])
-                    ->openUrlInNewTab()
+                    ->formatStateUsing(fn (GameScreenshot $record): HtmlString => self::buildGameColumnContent($record))
+                    ->html()
                     ->searchable()
                     ->sortable(),
 
@@ -106,14 +123,16 @@ class GameScreenshotModerationResource extends Resource
                         ? route('user.show', ['user' => $record->capturedBy])
                         : null
                     )
-                    ->extraAttributes(['class' => 'underline'])
+                    ->extraAttributes(['class' => '[&_a]:no-underline [&_a:hover]:underline'])
                     ->openUrlInNewTab()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Submitted At')
-                    ->dateTime()
+                    ->label('Submitted')
+                    ->formatStateUsing(fn ($state): string => $state->diffForHumans(['short' => true]))
+                    ->tooltip(fn (GameScreenshot $record): string => $record->created_at->format('Y-m-d H:i:s'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('resolution')
@@ -122,9 +141,37 @@ class GameScreenshotModerationResource extends Resource
                         ? "{$record->width}x{$record->height}"
                         : null
                     )
+                    ->formatStateUsing(function (?string $state, GameScreenshot $record): string|HtmlString|null {
+                        $mismatches = ScreenshotReviewContext::make($record)->approvedResolutionMismatches();
+
+                        if (
+                            $state
+                            && !$record->has_wrong_resolution
+                            && !empty($mismatches)
+                        ) {
+                            return self::renderView('table.resolution-warning', [
+                                'state' => $state,
+                                'icon' => 'heroicon-o-exclamation-triangle',
+                            ]);
+                        }
+
+                        return $state;
+                    })
+                    ->html()
                     ->color(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'danger' : null)
                     ->icon(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'heroicon-o-exclamation-triangle' : null)
-                    ->tooltip(fn (GameScreenshot $record): ?string => $record->has_wrong_resolution ? 'Unsupported for this system.' : null),
+                    ->tooltip(function (GameScreenshot $record): ?string {
+                        if ($record->has_wrong_resolution) {
+                            return 'Unsupported for this system.';
+                        }
+
+                        $mismatches = ScreenshotReviewContext::make($record)->approvedResolutionMismatches();
+                        if (!empty($mismatches)) {
+                            return self::buildDiffersFromApprovedTooltip($mismatches);
+                        }
+
+                        return null;
+                    }),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -165,35 +212,30 @@ class GameScreenshotModerationResource extends Resource
                         ];
 
                         if ($record->rejection_notes) {
-                            $lines[] = '<div style="margin-top: 0.25rem;"><strong>Notes:</strong> ' . e($record->rejection_notes) . '</div>';
+                            $lines[] = '<div class="mt-1"><strong>Notes:</strong> ' . e($record->rejection_notes) . '</div>';
                         }
 
                         return new HtmlString(implode('', $lines));
-                    }),
+                    })
+                    ->visible(fn ($livewire): bool => $livewire instanceof Pages\Index
+                        ? self::shouldShowStatusColumn($livewire)
+                        : true
+                    ),
             ])
             ->defaultSort('created_at', 'asc')
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                        'replaced' => 'Replaced',
-                    ])
-                    ->query(function ($query, $state) {
-                        if (!isset($state['value'])) {
-                            return $query;
-                        }
+                Tables\Filters\SelectFilter::make('system')
+                    ->label('System')
+                    ->options(function ($livewire) use ($user): array {
+                        /** @var array<string, mixed> $statusFilterState */
+                        $statusFilterState = $livewire->getTableFilterFormState('status');
 
-                        return match ($state['value']) {
-                            'pending' => $query->where('status', GameScreenshotStatus::Pending),
-                            'approved' => $query->where('status', GameScreenshotStatus::Approved),
-                            'rejected' => $query->where('status', GameScreenshotStatus::Rejected),
-                            'replaced' => $query->where('status', GameScreenshotStatus::Replaced),
-                            default => $query,
-                        };
+                        return self::getSystemFilterOptions(
+                            $user,
+                            self::resolveStatusFilterValueForSystemOptions($statusFilterState),
+                        );
                     })
-                    ->default('pending'),
+                    ->query(fn (Builder $query, array $state): Builder => self::applySystemFilter($query, $state['value'] ?? null)),
 
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
@@ -201,126 +243,264 @@ class GameScreenshotModerationResource extends Resource
                         'ingame' => 'In-game',
                         'completion' => 'Completion',
                     ])
-                    ->query(function ($query, $state) {
-                        if (!isset($state['value'])) {
-                            return $query;
-                        }
+                    ->query(fn (Builder $query, array $state): Builder => filled($state['value'] ?? null)
+                        ? $query->where('type', $state['value'])
+                        : $query
+                    ),
 
-                        return $query->where('type', $state['value']);
-                    }),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'replaced' => 'Replaced',
+                    ])
+                    ->query(fn (Builder $query, array $state): Builder => self::applyStatusFilter($query, $state['value'] ?? null))
+                    ->default('pending'),
             ])
             ->recordActions([
-                Action::make('approve')
-                    ->label(fn (GameScreenshot $record) => self::getApproveLabel($record))
-                    ->action(function (GameScreenshot $record) use ($user) {
-                        try {
-                            (new ApproveGameScreenshotAction())->execute($record, $user);
-                            if ($record->capturedBy) {
-                                (new RevalidateMediaContributionBadgeEligibilityAction())->execute($record->capturedBy);
-                            }
+                Action::make('review')
+                    ->label('Review')
+                    ->action(function (GameScreenshot $record, array $arguments) use ($user): void {
+                        $decision = ScreenshotReviewDecision::from($arguments['decision'] ?? ScreenshotReviewDecision::Primary->value);
 
-                            Notification::make()
-                                ->success()
-                                ->title('Screenshot Approved')
-                                ->send();
-                        } catch (ValidationException $e) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Cannot Approve')
-                                ->body(collect($e->errors())->flatten()->first())
-                                ->send();
-                        }
+                        self::approve($record, $user, $decision);
                     })
                     ->visible(fn (GameScreenshot $record) => $record->status === GameScreenshotStatus::Pending)
-                    ->requiresConfirmation()
-                    ->modalIcon('heroicon-s-photo')
-                    ->modalHeading(fn (GameScreenshot $record) => self::getApproveHeading($record))
-                    ->modalSubmitActionLabel(fn (GameScreenshot $record) => self::getApproveLabel($record))
-                    ->modalSubmitAction(function (Action $action, GameScreenshot $record) {
-                        if (
-                            $record->type === ScreenshotType::Ingame
-                            && $record->game->gameScreenshots()->ofType(ScreenshotType::Ingame)->approved()->count() >= ScreenshotType::Ingame->approvedCap()
-                        ) {
-                            return $action->hidden();
-                        }
-
-                        return $action;
-                    })
-                    ->modalDescription(fn (GameScreenshot $record): HtmlString => self::buildApproveModalDescription($record))
-                    ->color('success')
-                    ->icon('heroicon-o-check'),
-
-                Action::make('reject')
-                    ->schema([
-                        Forms\Components\Select::make('rejection_reason')
-                            ->label('Reason')
-                            ->options(collect(GameScreenshotRejectionReason::cases())
-                                ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [$reason->value => $reason->label()])
-                                ->toArray()
-                            )
-                            ->required(),
-
-                        Forms\Components\Textarea::make('rejection_notes')
-                            ->label('Notes (optional)')
-                            ->maxLength(500),
+                    ->modalIcon(null)
+                    ->modalHeading(fn (GameScreenshot $record, Component $livewire): HtmlString => self::buildReviewModalHeader(
+                        $record,
+                        ScreenshotReviewContext::make($record)->formatResolution(),
+                        $user,
+                        $livewire instanceof Pages\Index ? $livewire : null,
+                    ))
+                    ->modalAlignment(Alignment::Start)
+                    ->modalWidth(Width::SevenExtraLarge)
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false)
+                    ->modalFooterActions([])
+                    ->registerModalActions([
+                        self::makeRejectModalAction(),
+                        self::makeConfirmReplacePrimaryModalAction(),
                     ])
-                    ->modalIcon('heroicon-s-photo')
-                    ->modalHeading('Reject Screenshot')
-                    ->modalSubmitActionLabel('Reject Screenshot')
-                    ->modalFooterActionsAlignment('end')
-                    ->modalFooterActions(fn (Action $action): array => array_values(array_filter([
-                        $action->getModalSubmitAction(),
-                        $action->getModalCancelAction(),
-                    ])))
-                    ->modalDescription(function (GameScreenshot $record): HtmlString {
-                        $gameName = $record->game?->title;
-                        $systemName = $record->game?->system?->name;
-                        $gameLabel = $systemName ? "{$gameName} ({$systemName})" : $gameName;
-                        $typeLabel = $record->type->label();
-                        $submissionUrl = $record->media?->getUrl();
-                        $submissionResolution = ($record->width && $record->height) ? "{$record->width}x{$record->height}" : null;
-
-                        $submissionPreview = $submissionUrl
-                            ? <<<HTML
-                                <a href="{$submissionUrl}" target="_blank" style="display: block; flex: none;">
-                                    <img src="{$submissionUrl}" style="display: block; width: 132px; max-width: 132px; height: auto; border-radius: 0.25rem; cursor: pointer;" />
-                                </a>
-                                HTML
-                            : '';
-                        $submissionMeta = $submissionResolution ? " · {$submissionResolution}" : '';
-
-                        return new HtmlString(<<<HTML
-                            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-top: 0.75rem;">
-                                {$submissionPreview}
-                                <div style="min-width: 0;">
-                                    <p style="font-weight: 600; margin: 0;">{$gameLabel}</p>
-                                    <p style="margin: 0.35rem 0 0; color: #9ca3af;">{$typeLabel} submission{$submissionMeta}</p>
-                                </div>
-                            </div>
-                            HTML);
-                    })
-                    ->action(function (GameScreenshot $record, array $data) use ($user) {
-                        (new RejectGameScreenshotAction())->execute(
-                            screenshot: $record,
-                            reviewer: $user,
-                            reason: GameScreenshotRejectionReason::from($data['rejection_reason']),
-                            notes: $data['rejection_notes'] ?? null,
-                        );
-
-                        Notification::make()
-                            ->success()
-                            ->title('Screenshot Rejected')
-                            ->send();
-                    })
-                    ->visible(fn (GameScreenshot $record) => $record->status === GameScreenshotStatus::Pending)
-                    ->color('danger')
-                    ->icon('heroicon-o-x-mark'),
+                    ->modalContent(fn (GameScreenshot $record): View => self::reviewModalContentView($record))
+                    ->modalContentFooter(fn (GameScreenshot $record): View => self::reviewModalFooterView($record))
+                    ->color('primary')
+                    ->icon('heroicon-o-eye'),
             ])
             ->paginated([50])
             ->defaultPaginationPageOption(50)
             ->searchPlaceholder('Search (Game, User)')
             ->toolbarActions([])
             ->emptyStateHeading('No screenshots to review');
+    }
+
+    public static function approve(GameScreenshot $record, User $user, ScreenshotReviewDecision $decision): bool
+    {
+        try {
+            (new ApproveGameScreenshotAction())->execute($record, $user, $decision);
+            if ($record->capturedBy) {
+                (new RevalidateMediaContributionBadgeEligibilityAction())->execute($record->capturedBy);
+            }
+
+            return true;
+        } catch (ValidationException $e) {
+            Notification::make()
+                ->danger()
+                ->title('Cannot Approve')
+                ->body(collect($e->errors())->flatten()->first())
+                ->send();
+
+            return false;
+        }
+    }
+
+    /**
+     * @return Builder<GameScreenshot>
+     */
+    public static function reviewFeedQueryFor(User $user): Builder
+    {
+        return self::applyReviewFeedScope(GameScreenshot::query())
+            ->reviewableBy($user)
+            ->whereHas('game');
+    }
+
+    /**
+     * @return Builder<GameScreenshot>
+     */
+    public static function pendingReviewQueryFor(User $user): Builder
+    {
+        return self::reviewFeedQueryFor($user)
+            ->where('status', GameScreenshotStatus::Pending);
+    }
+
+    /**
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    private static function applyStatusFilter(Builder $query, ?string $status): Builder
+    {
+        $statusEnum = $status !== null ? GameScreenshotStatus::tryFrom($status) : null;
+
+        return $statusEnum ? $query->where('status', $statusEnum) : $query;
+    }
+
+    /**
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    private static function applySystemFilter(Builder $query, mixed $systemId): Builder
+    {
+        if (!filled($systemId)) {
+            return $query;
+        }
+
+        return $query->whereHas('game', fn (Builder $query) => $query->where('system_id', $systemId));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function getSystemFilterOptions(User $user, ?string $status): array
+    {
+        $systemIds = self::applyStatusFilter(self::reviewFeedQueryFor($user), $status)
+            ->join('games', 'games.id', '=', 'game_screenshots.game_id')
+            ->distinct()
+            ->pluck('games.system_id');
+
+        return System::query()
+            ->whereKey($systemIds)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * @param array<string, mixed> $statusFilterState
+     */
+    private static function resolveStatusFilterValueForSystemOptions(array $statusFilterState): ?string
+    {
+        if (!array_key_exists('value', $statusFilterState)) {
+            return GameScreenshotStatus::Pending->value;
+        }
+
+        $status = $statusFilterState['value'];
+
+        return is_string($status) && $status !== '' ? $status : null;
+    }
+
+    private static function shouldShowStatusColumn(Pages\Index $livewire): bool
+    {
+        /** @var array<string, mixed> $statusFilterState */
+        $statusFilterState = $livewire->getTableFilterFormState('status');
+
+        return ($statusFilterState['value'] ?? null) !== GameScreenshotStatus::Pending->value;
+    }
+
+    /**
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    public static function applyAdjacentReviewCursor(Builder $query, GameScreenshot $record, bool $previous, bool $reorder = false): Builder
+    {
+        $operator = $previous ? '<' : '>';
+
+        $query->where(function (Builder $query) use ($record, $operator): void {
+            $query
+                ->where('created_at', $operator, $record->created_at)
+                ->orWhere(function (Builder $query) use ($record, $operator): void {
+                    $query
+                        ->where('created_at', $record->created_at)
+                        ->where('id', $operator, $record->id);
+                });
+        });
+
+        if ($reorder) {
+            $query->reorder();
+        }
+
+        return $previous
+            ? $query->orderByDesc('created_at')->orderByDesc('id')
+            : $query->orderBy('created_at')->orderBy('id');
+    }
+
+    private static function makeRejectModalAction(): Action
+    {
+        return Action::make('rejectScreenshot')
+            ->label('Reject')
+            ->schema([
+                Forms\Components\Select::make('rejection_reason')
+                    ->label('Reason')
+                    ->options(collect(GameScreenshotRejectionReason::cases())
+                        ->mapWithKeys(fn (GameScreenshotRejectionReason $reason) => [
+                            $reason->value => $reason === GameScreenshotRejectionReason::InappropriateContent
+                                ? $reason->label() . ' (alerts the moderation team)' // don't leak this into user-facing surfaces
+                                : $reason->label(),
+                        ])
+                        ->sortBy(function (string $label, string $value): array {
+                            $bucket = match ($value) {
+                                GameScreenshotRejectionReason::InappropriateContent->value => 1,
+                                GameScreenshotRejectionReason::Other->value => 2,
+                                default => 0,
+                            };
+
+                            return [$bucket, $label];
+                        })
+                        ->toArray()
+                    )
+                    ->default(fn (GameScreenshot $record): ?string => ScreenshotReviewContext::make($record)->suggestedRejectionReason()?->value)
+                    ->required(),
+
+                Forms\Components\Textarea::make('rejection_notes')
+                    ->label('Notes (optional)')
+                    ->maxLength(500),
+            ])
+            ->modalIcon('heroicon-o-x-mark')
+            ->modalHeading('Reject Screenshot')
+            ->modalSubmitActionLabel('Reject Screenshot')
+            ->modalDescription(fn (GameScreenshot $record): HtmlString => self::buildRejectModalDescription($record))
+            ->action(function (GameScreenshot $record, array $data, Component $livewire): void {
+                abort_unless($livewire instanceof Pages\Index, 500);
+
+                $livewire->rejectMountedScreenshotReview(
+                    recordKey: (string) $record->getKey(),
+                    reason: $data['rejection_reason'],
+                    notes: $data['rejection_notes'] ?? null,
+                );
+            })
+            ->cancelParentActions('review')
+            ->color('danger')
+            ->icon('heroicon-o-x-mark');
+    }
+
+    private static function makeConfirmReplacePrimaryModalAction(): Action
+    {
+        return Action::make('confirmReplacePrimaryScreenshot')
+            ->label('Replace Primary')
+            ->schema([
+                Forms\Components\Checkbox::make('keep_current_in_gallery')
+                    ->label('Keep the current primary in the gallery')
+                    ->helperText('If left unchecked, the current primary will be unpublished and hidden from view.')
+                    ->default(false)
+                    ->visible(fn (GameScreenshot $record): bool => ScreenshotReviewContext::make($record)->canKeepReplacedPrimaryInGallery()),
+            ])
+            ->modalIcon('heroicon-o-arrow-path')
+            ->modalWidth(Width::Medium)
+            ->modalHeading('Replace current primary?')
+            ->modalSubmitActionLabel('Replace Primary')
+            ->modalDescription(fn (GameScreenshot $record): HtmlString => self::buildReplacePrimaryConfirmationDescription($record))
+            ->action(function (GameScreenshot $record, array $data, Component $livewire): void {
+                abort_unless($livewire instanceof Pages\Index, 500);
+
+                $decision = ($data['keep_current_in_gallery'] ?? false)
+                    ? ScreenshotReviewDecision::PrimaryKeepGallery
+                    : ScreenshotReviewDecision::Primary;
+
+                $livewire->approveMountedScreenshotReview((string) $record->getKey(), $decision->value);
+            })
+            ->cancelParentActions('review')
+            ->color('primary')
+            ->icon('heroicon-o-arrow-path');
     }
 
     public static function getRelations(): array
@@ -355,358 +535,363 @@ class GameScreenshotModerationResource extends Resource
             });
     }
 
-    private static function buildApproveModalDescription(GameScreenshot $record): HtmlString
+    private static function view(string $name, array $data = []): View
     {
-        $submissionUrl = $record->media?->getUrl();
-        $submissionResolution = ($record->width && $record->height) ? "{$record->width}x{$record->height}" : null;
-        $subjectLine = self::buildApproveSubjectLine($record);
-        $mixedResolutionWarning = self::buildMixedPrimaryResolutionWarning($record);
-
-        if ($record->type === ScreenshotType::Ingame) {
-            return self::buildApproveIngameDescription(
-                record: $record,
-                subjectLine: $subjectLine,
-                submissionUrl: $submissionUrl,
-                submissionResolution: $submissionResolution,
-                mixedResolutionWarning: $mixedResolutionWarning,
-            );
-        }
-
-        return self::buildApprovePrimaryDescription(
-            record: $record,
-            subjectLine: $subjectLine,
-            submissionUrl: $submissionUrl,
-            submissionResolution: $submissionResolution,
-            mixedResolutionWarning: $mixedResolutionWarning,
-        );
+        return view("filament.resources.game-screenshot-moderation-resource.{$name}", $data);
     }
 
-    private static function buildApproveIngameDescription(
-        GameScreenshot $record,
-        string $subjectLine,
-        ?string $submissionUrl,
-        ?string $submissionResolution,
-        string $mixedResolutionWarning,
-    ): HtmlString {
-        $approvedCount = $record->game->gameScreenshots()
-            ->ofType(ScreenshotType::Ingame)
-            ->approved()
-            ->count();
-
-        $countLabel = $approvedCount === 1 ? 'screenshot' : 'screenshots';
-        $mediaPageUrl = GameResource::getUrl('media', ['record' => $record->game]);
-        $cap = ScreenshotType::Ingame->approvedCap();
-
-        if ($approvedCount >= $cap) {
-            return new HtmlString(
-                $subjectLine
-                . self::buildApproveExplanation("This game already has {$approvedCount} in-game screenshots approved.&nbsp;({$cap}&nbsp;max)")
-                . self::buildApproveExplanation("To approve this submission, first remove a screenshot from the <a href=\"{$mediaPageUrl}\" target=\"_blank\" style=\"text-decoration: underline;\">game's media page</a>.")
-                . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
-            );
-        }
-
-        if (self::willReplaceIngamePrimary($record)) {
-            $existingPrimary = $record->game->gameScreenshots()
-                ->ofType(ScreenshotType::Ingame)
-                ->approved()
-                ->primary()
-                ->with('media')
-                ->first();
-
-            $currentResolution = "{$existingPrimary->width}x{$existingPrimary->height}";
-            $currentResolutionLabel = "<span style=\"color: #ef4444;\">⚠ {$currentResolution} (invalid)</span>";
-
-            return new HtmlString(
-                $subjectLine
-                . self::buildApproveExplanation('This will replace the current primary in-game screenshot (invalid resolution) and add it to the gallery.')
-                . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;({$cap}&nbsp;max)")
-                . $mixedResolutionWarning
-                . self::buildComparisonPreview(
-                    currentLabel: 'Current Primary (' . $currentResolutionLabel . ')',
-                    currentHtml: self::buildApproveImageTag($existingPrimary->media?->getUrl()),
-                    submissionLabel: 'New Submission (' . ($submissionResolution ?? '?') . ')',
-                    submissionHtml: self::buildApproveImageTag($submissionUrl),
-                )
-            );
-        }
-
-        return new HtmlString(
-            $subjectLine
-            . self::buildApproveExplanation("This will add the screenshot to the game's gallery.")
-            . self::buildApproveExplanation("{$approvedCount} in-game {$countLabel} currently approved.&nbsp;({$cap}&nbsp;max)")
-            . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
-        );
-    }
-
-    private static function buildApprovePrimaryDescription(
-        GameScreenshot $record,
-        string $subjectLine,
-        ?string $submissionUrl,
-        ?string $submissionResolution,
-        string $mixedResolutionWarning,
-    ): HtmlString {
-        $existing = $record->game->gameScreenshots()
-            ->ofType($record->type)
-            ->approved()
-            ->with('media')
-            ->first();
-
-        $typeLabel = $record->type->label();
-
-        if (!$existing) {
-            return new HtmlString(
-                $subjectLine
-                . self::buildApproveExplanation("This game does not currently have a {$typeLabel} screenshot.")
-                . $mixedResolutionWarning
-                . self::buildCenteredPreview(self::buildApproveImageTag($submissionUrl, $submissionResolution, ''))
-            );
-        }
-
-        $resolutionService = new ScreenshotResolutionService();
-        $system = $record->game?->system;
-
-        $currentResolution = "{$existing->width}x{$existing->height}";
-        $hasResolutionIssue = $system
-            && !empty($system->screenshot_resolutions)
-            && !$resolutionService->isValidResolution($existing->width, $existing->height, $system);
-        $currentResolutionLabel = $hasResolutionIssue
-            ? "<span style=\"color: #ef4444;\">⚠ {$currentResolution} (invalid)</span>"
-            : $currentResolution;
-
-        return new HtmlString(
-            $subjectLine
-            . $mixedResolutionWarning
-            . self::buildComparisonPreview(
-                currentLabel: 'Current (' . $currentResolutionLabel . ')',
-                currentHtml: self::buildApproveImageTag($existing->media?->getUrl()),
-                submissionLabel: 'New Submission (' . ($submissionResolution ?? '?') . ')',
-                submissionHtml: self::buildApproveImageTag($submissionUrl),
-            )
-        );
-    }
-
-    private static function buildApproveSubjectLine(GameScreenshot $record): string
+    private static function renderView(string $name, array $data = []): HtmlString
     {
-        $gameName = $record->game?->title;
-        $systemName = $record->game?->system?->name;
-        $gameLabel = $systemName ? "{$gameName} ({$systemName})" : $gameName;
-
-        return '<p style="font-weight: 600; margin: 0.75rem 0 0;">' . $gameLabel . '</p>';
+        return new HtmlString(self::view($name, $data)->render());
     }
 
-    private static function buildApproveExplanation(string $text): string
+    private static function buildGameColumnContent(GameScreenshot $record): HtmlString
     {
-        return '<p style="margin: 0.5rem 0 0;">' . $text . '</p>';
-    }
-
-    private static function buildApproveImageTag(
-        ?string $url,
-        ?string $resolution = null,
-        string $fallback = '<em>No preview</em>',
-    ): string {
-        if (!$url) {
-            return $fallback;
-        }
-
-        $resolutionMarkup = $resolution
-            ? <<<HTML
-                <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">{$resolution}</div>
-                HTML
-            : '';
-
-        return <<<HTML
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <a href="{$url}" target="_blank"><img src="{$url}" style="max-width: 100%; max-height: 200px; border-radius: 0.25rem; cursor: pointer;" /></a>
-                {$resolutionMarkup}
-            </div>
-            HTML;
-    }
-
-    private static function buildCenteredPreview(string $previewHtml): string
-    {
-        return <<<HTML
-            <div style="display: flex; justify-content: center; margin-top: 1rem;">
-                {$previewHtml}
-            </div>
-            HTML;
-    }
-
-    private static function buildComparisonPreview(
-        string $currentLabel,
-        string $currentHtml,
-        string $submissionLabel,
-        string $submissionHtml,
-    ): string {
-        return <<<HTML
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <div style="flex: 1; text-align: center;">
-                    <div style="font-size: 0.75rem; margin-bottom: 0.25rem; color: #9ca3af;">{$currentLabel}</div>
-                    {$currentHtml}
-                </div>
-                <div style="flex: 1; text-align: center;">
-                    <div style="font-size: 0.75rem; margin-bottom: 0.25rem; color: #9ca3af;">{$submissionLabel}</div>
-                    {$submissionHtml}
-                </div>
-            </div>
-            HTML;
+        return self::renderView('table.game-column', [
+            'gameTitle' => $record->game?->title ?? 'Unknown Game',
+            'gameUrl' => $record->game ? route('game.show', ['game' => $record->game]) : null,
+            'systemName' => $record->game?->system?->name,
+            'cues' => self::getReviewCueBadgeData($record),
+        ]);
     }
 
     /**
-     * @return array{message: string, resolutions: array<string, string>}|null
+     * @return array<int, array{label: string, tone: 'danger'|'warning'|'success', title: string, icon: string}>
      */
-    public static function getMixedPrimaryResolutionWarningData(GameScreenshot $record): ?array
+    private static function getReviewCueBadgeData(GameScreenshot $record): array
     {
-        if (!$record->width || !$record->height) {
-            return null;
+        // we already pop a warning in the Resolution column
+        if ($record->has_wrong_resolution) {
+            return [];
         }
 
-        $system = $record->game?->system;
-        if (!$system || empty($system->screenshot_resolutions)) {
-            return null;
+        return collect(ScreenshotReviewContext::make($record)->candidateImageCues())
+            ->map(fn (array $cue): array => [
+                'label' => $cue['badgeLabel'],
+                'tone' => $cue['tone'],
+                'title' => $cue['modalLabel'],
+                'icon' => self::cueIconFor($cue['tone']),
+            ])
+            ->all();
+    }
+
+    private static function cueIconFor(string $tone): string
+    {
+        return match ($tone) {
+            'success' => 'heroicon-m-check-circle',
+            'warning' => 'heroicon-m-exclamation-triangle',
+            'danger' => 'heroicon-m-x-circle',
+            default => 'heroicon-m-information-circle',
+        };
+    }
+
+    private static function buildReviewModalHeader(GameScreenshot $record, ?string $submissionResolution, User $user, ?Pages\Index $livewire = null): HtmlString
+    {
+        $game = $record->game;
+        $capturedBy = $record->capturedBy;
+
+        return self::renderView('review-modal.heading', [
+            'heading' => 'Review ' . $record->type->label() . ' Screenshot',
+            'icon' => 'heroicon-o-photo',
+            'gameTitle' => $game?->title ?? 'Unknown Game',
+            'gameUrl' => $game ? route('game.show', ['game' => $game]) : null,
+            'systemName' => $game?->system?->name,
+            'typeLabel' => $record->type->label(),
+            'resolution' => $submissionResolution ?? '?',
+            'submitterLabel' => $capturedBy?->display_name ?? 'Unknown user',
+            'submitterUrl' => $capturedBy ? route('user.show', ['user' => $capturedBy]) : null,
+            'submitted' => $record->created_at->diffForHumans(['short' => true]),
+            'navigation' => self::getReviewNavigationViewData($record, $user, $livewire),
+        ]);
+    }
+
+    /**
+     * @return array<int, array{label: string, recordKey: string|null, disabled: bool}>
+     */
+    private static function getReviewNavigationViewData(GameScreenshot $record, User $user, ?Pages\Index $livewire = null): array
+    {
+        $adjacent = fn (bool $previous): ?GameScreenshot => $livewire
+            ? $livewire->getAdjacentFilteredReviewRecord($record, previous: $previous)
+            : self::applyAdjacentReviewCursor(self::pendingReviewQueryFor($user), $record, $previous)->first();
+
+        $previous = $adjacent(true);
+        $next = $adjacent(false);
+
+        if (!$previous && !$next) {
+            return [];
         }
 
-        if (
-            $record->type === ScreenshotType::Ingame
-            && !self::willReplaceIngamePrimary($record)
-        ) {
-            return null;
-        }
-
-        $resolutionService = new ScreenshotResolutionService();
-
-        if (!$resolutionService->isValidResolution($record->width, $record->height, $system)) {
-            return null;
-        }
-
-        $primaryResolutions = [
-            $record->type->label() => "{$record->width}x{$record->height}",
+        return [
+            [
+                'label' => 'Previous',
+                'recordKey' => $previous ? (string) $previous->getKey() : null,
+                'disabled' => $previous === null,
+            ],
+            [
+                'label' => 'Next',
+                'recordKey' => $next ? (string) $next->getKey() : null,
+                'disabled' => $next === null,
+            ],
         ];
+    }
 
-        $otherPrimaries = $record->game->gameScreenshots()
-            ->where('id', '!=', $record->id)
-            ->where('type', '!=', $record->type)
-            ->approved()
-            ->primary()
-            ->whereNotNull('width')
-            ->whereNotNull('height')
-            ->get();
+    private static function reviewModalContentView(GameScreenshot $record): View
+    {
+        return self::view('review-modal.content', self::getReviewModalContentViewData($record));
+    }
 
-        foreach ($otherPrimaries as $otherPrimary) {
-            if (!$resolutionService->isValidResolution($otherPrimary->width, $otherPrimary->height, $system)) {
-                continue;
-            }
+    private static function reviewModalFooterView(GameScreenshot $record): View
+    {
+        return self::view('review-modal.footer', [
+            'cards' => self::getReviewDecisionCardViewData($record),
+            'suggestedPathTooltip' => 'Based on current primary, gallery cap, and resolution. Review image quality before approving.',
+        ]);
+    }
 
-            $primaryResolutions[$otherPrimary->type->label()] = "{$otherPrimary->width}x{$otherPrimary->height}";
+    /**
+     * @return array{
+     *     recordKey: string,
+     *     isPixelated: bool,
+     *     currentPanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
+     *     candidatePanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
+     *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
+     *     allPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null, isCurrent: bool}>}|null,
+     *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>}|null,
+     * }
+     */
+    private static function getReviewModalContentViewData(GameScreenshot $record): array
+    {
+        $context = ScreenshotReviewContext::make($record);
+        $record->loadMissing(['capturedBy', 'media']);
+
+        $submissionResolution = $context->formatResolution();
+        $currentPrimary = $context->currentPrimaryForType($record->type);
+        $currentPrimary?->loadMissing('media');
+        $isPixelated = $context->isPixelated();
+
+        return [
+            'recordKey' => (string) $record->getKey(),
+            'isPixelated' => $isPixelated, // similar to the game page dialog
+            'currentPanel' => [
+                'label' => $currentPrimary
+                    ? 'Current primary (' . $context->formatResolution($currentPrimary) . ')'
+                    : 'No current primary',
+                'url' => $currentPrimary?->media?->getUrl(),
+                'placeholder' => $currentPrimary ? 'No preview' : 'No current image',
+                'imageRendering' => $context->imageRenderingFor($currentPrimary),
+                'cues' => self::getCurrentImageCueViewData($context, $currentPrimary),
+            ],
+            'candidatePanel' => [
+                'label' => 'Submission (' . ($submissionResolution ?? '?') . ')',
+                'url' => $record->media?->getUrl(),
+                'placeholder' => 'No preview',
+                'imageRendering' => $context->imageRenderingFor($record),
+                'cues' => self::getCandidateImageCueViewData($context),
+            ],
+            'currentPrimaries' => $context->currentPrimaryContextItems(),
+            'allPendingForGame' => $context->allPendingForGameContextData(),
+            'approvedIngame' => self::getApprovedIngameContextViewData($context),
+        ];
+    }
+
+    /**
+     * @return array<int, array{label: string, tone: string, icon: string}>
+     */
+    private static function getCurrentImageCueViewData(ScreenshotReviewContext $context, ?GameScreenshot $currentPrimary): array
+    {
+        if (!$currentPrimary) {
+            return [[
+                'label' => 'Approving creates this primary',
+                'tone' => 'success',
+                'icon' => self::cueIconFor('success'),
+            ]];
         }
 
-        if (count($primaryResolutions) < 2 || count(array_unique($primaryResolutions)) < 2) {
+        if ($context->canFixCurrentPrimary()) {
+            return [[
+                'label' => 'Invalid size',
+                'tone' => 'warning',
+                'icon' => self::cueIconFor('warning'),
+            ]];
+        }
+
+        $mismatchCue = $context->currentPrimaryMismatchCueLabels($currentPrimary);
+        if ($mismatchCue !== null) {
+            return [[
+                'label' => $mismatchCue['modalLabel'],
+                'tone' => 'warning',
+                'icon' => self::cueIconFor('warning'),
+            ]];
+        }
+
+        if ($context->screenshot()->type !== ScreenshotType::Ingame) {
+            return [[
+                'label' => 'Current primary will be retired if approved',
+                'tone' => 'warning',
+                'icon' => self::cueIconFor('warning'),
+            ]];
+        }
+
+        return [[
+            'label' => 'Primary stays visible if added to gallery',
+            'tone' => 'neutral',
+            'icon' => self::cueIconFor('neutral'),
+        ]];
+    }
+
+    /**
+     * @return array<int, array{label: string, tone: string, icon: string}>
+     */
+    private static function getCandidateImageCueViewData(ScreenshotReviewContext $context): array
+    {
+        return collect($context->candidateImageCues())
+            ->map(fn (array $cue): array => [
+                'label' => $cue['modalLabel'],
+                'tone' => $cue['tone'],
+                'icon' => self::cueIconFor($cue['tone']),
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>}|null
+     */
+    private static function getApprovedIngameContextViewData(ScreenshotReviewContext $context): ?array
+    {
+        $record = $context->screenshot();
+
+        if ($record->type !== ScreenshotType::Ingame) {
             return null;
         }
 
         return [
-            'message' => 'Primary screenshots will no longer match in size.',
-            'resolutions' => $primaryResolutions,
+            'count' => $context->approvedIngameCount(),
+            'cap' => ScreenshotType::Ingame->approvedCap(),
+            'mediaPageUrl' => GameResource::getUrl('media', ['record' => $record->game]),
+            'items' => $context->approvedGalleryItemsViewData(),
         ];
     }
 
-    private static function buildMixedPrimaryResolutionWarning(GameScreenshot $record): string
+    /**
+     * @return array<int, array{title: string, help: string, detail: string|null, tone: string, icon: string, wireClick: string, recommended: bool}>
+     */
+    private static function getReviewDecisionCardViewData(GameScreenshot $record): array
     {
-        $warningData = self::getMixedPrimaryResolutionWarningData($record);
-        if (!$warningData) {
-            return '';
-        }
+        $recordKey = (string) $record->getKey();
+        $context = ScreenshotReviewContext::make($record);
+        $recommendation = $context->recommendedAction();
+        $cards = [];
 
-        $resolutionOrder = [
-            ScreenshotType::Title->label() => 0,
-            ScreenshotType::Ingame->label() => 1,
-            ScreenshotType::Completion->label() => 2,
+        $cards[] = [
+            'title' => 'Promote to ' . strtolower($record->type->label()) . ' primary',
+            'help' => $context->primaryDecisionHelp(),
+            'detail' => $context->primaryDecisionDetail(),
+            'tone' => 'primary',
+            'icon' => 'heroicon-o-star',
+            'wireClick' => $context->currentPrimaryForType($record->type) !== null
+                ? "mountAction('confirmReplacePrimaryScreenshot')"
+                : "approveMountedScreenshotReview('{$recordKey}', '" . ScreenshotReviewDecision::Primary->value . "')",
+            'recommended' => $recommendation === ScreenshotReviewDecision::Primary,
         ];
 
-        $resolutionLines = collect($warningData['resolutions'])
-            ->sortKeysUsing(fn (string $a, string $b): int => ($resolutionOrder[$a] ?? 99) <=> ($resolutionOrder[$b] ?? 99))
-            ->map(fn (string $resolution, string $label): string => '<li><strong>' . $label . ':</strong> ' . $resolution . '</li>')
-            ->implode('');
+        if ($context->canApproveToGallery()) {
+            $cards[] = [
+                'title' => 'Add to gallery',
+                'help' => 'Approve as a non-primary. Primary stays visible.',
+                'detail' => $context->galleryDecisionDetail(),
+                'tone' => 'warning',
+                'icon' => 'heroicon-o-photo',
+                'wireClick' => "approveMountedScreenshotReview('{$recordKey}', '" . ScreenshotReviewDecision::Gallery->value . "')",
+                'recommended' => $recommendation === ScreenshotReviewDecision::Gallery,
+            ];
+        }
 
-        $message = $warningData['message'];
+        $rejectIsRecommended = $recommendation === ScreenshotReviewDecision::Reject;
+        $cards[] = [
+            'title' => 'Reject',
+            'help' => 'Send back to the submitter with a reason.',
+            'detail' => $rejectIsRecommended
+                ? 'No other pending screenshot for this game would unify the sizes if you approved one instead.'
+                : null,
+            'tone' => 'danger',
+            'icon' => 'heroicon-o-x-mark',
+            'wireClick' => "mountAction('rejectScreenshot')",
+            'recommended' => $rejectIsRecommended,
+        ];
 
-        return <<<HTML
-            <div style="margin-top: 0.75rem; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.22);">
-                <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #fcd34d;">Warning</div>
-                <div style="margin-top: 0.2rem; font-weight: 600; color: #f9fafb;">{$message}</div>
-                <ul style="margin: 0.375rem 0 0 1rem; padding: 0; color: #d1d5db;">{$resolutionLines}</ul>
-            </div>
-            HTML;
+        return $cards;
     }
 
-    private static function willReplaceIngamePrimary(GameScreenshot $record): bool
+    private static function buildReplacePrimaryConfirmationDescription(GameScreenshot $record): HtmlString
     {
-        if ($record->type !== ScreenshotType::Ingame) {
-            return false;
-        }
-
-        $existingPrimary = $record->game->gameScreenshots()
-            ->ofType(ScreenshotType::Ingame)
-            ->approved()
-            ->primary()
-            ->first();
-
-        if (!$existingPrimary) {
-            return false;
-        }
-
-        $system = $record->game?->system;
-        if (!$system || empty($system->screenshot_resolutions)) {
-            return false;
-        }
-
-        $resolutionService = new ScreenshotResolutionService();
-
-        $primaryHasInvalidResolution = !$resolutionService->isValidResolution(
-            $existingPrimary->width,
-            $existingPrimary->height,
-            $system,
-        );
-
-        $newHasValidResolution = $resolutionService->isValidResolution(
-            $record->width,
-            $record->height,
-            $system,
-        );
-
-        return $primaryHasInvalidResolution && $newHasValidResolution;
-    }
-
-    private static function getApproveLabel(GameScreenshot $record): string
-    {
-        if ($record->type === ScreenshotType::Ingame) {
-            return self::willReplaceIngamePrimary($record)
-                ? 'Set as Primary'
-                : 'Add to Gallery';
-        }
-
-        $existing = $record->game->gameScreenshots()
-            ->ofType($record->type)
-            ->approved()
-            ->exists();
-
-        return $existing ? 'Replace Current' : 'Use Screenshot';
-    }
-
-    private static function getApproveHeading(GameScreenshot $record): string
-    {
-        if ($record->type === ScreenshotType::Ingame) {
-            return self::getApproveLabel($record);
-        }
-
+        $context = ScreenshotReviewContext::make($record);
+        $replacementTarget = $context->currentPrimaryForType($record->type);
         $typeLabel = $record->type->label();
-        $existing = $record->game->gameScreenshots()
-            ->ofType($record->type)
-            ->approved()
-            ->exists();
+        $currentResolution = $replacementTarget
+            ? ($context->formatResolution($replacementTarget) ?? 'unknown resolution')
+            : 'unknown resolution';
+        $submissionResolution = $context->formatResolution() ?? 'unknown resolution';
 
-        return $existing
-            ? "Replace {$typeLabel} Screenshot"
-            : "Set as {$typeLabel} Screenshot";
+        return self::renderView('review-modal.replace-primary-description', [
+            'typeLabel' => $typeLabel,
+            'currentResolution' => $currentResolution,
+            'submissionResolution' => $submissionResolution,
+        ]);
+    }
+
+    private static function buildRejectModalDescription(GameScreenshot $record): HtmlString
+    {
+        $gameName = $record->game?->title ?? 'Unknown Game';
+        $systemName = $record->game?->system?->name;
+        $gameLabel = $systemName ? "{$gameName} ({$systemName})" : $gameName;
+        $typeLabel = $record->type->label();
+        $submissionUrl = $record->media?->getUrl();
+        $submissionResolution = ($record->width && $record->height) ? "{$record->width}x{$record->height}" : null;
+
+        return self::renderView('review-modal.reject-description', [
+            'gameLabel' => $gameLabel,
+            'typeLabel' => $typeLabel,
+            'submissionResolution' => $submissionResolution,
+            'submissionUrl' => $submissionUrl,
+        ]);
+    }
+
+    /**
+     * @param array<string, array{count: int, types: array<string, int>}> $mismatches
+     */
+    public static function buildDiffersFromApprovedTooltip(array $mismatches): string
+    {
+        $segments = self::buildApprovedResolutionMismatchSegments($mismatches);
+
+        return "Differs from approved: {$segments}";
+    }
+
+    /**
+     * @param array<string, array{count: int, types: array<string, int>}> $mismatches
+     */
+    private static function buildApprovedResolutionMismatchSegments(array $mismatches): string
+    {
+        $typeOrder = collect(ScreenshotType::cases())
+            ->mapWithKeys(fn (ScreenshotType $type): array => [$type->label() => $type->sortOrder()])
+            ->all();
+
+        $sortKey = fn (array $entry): int => collect($entry['types'])
+            ->keys()
+            ->map(fn (string $type): int => $typeOrder[$type] ?? 99)
+            ->min() ?? 99;
+
+        $segments = collect($mismatches)
+            ->sortBy($sortKey)
+            ->map(function (array $entry, string $resolution) use ($typeOrder): string {
+                $typeBreakdown = collect($entry['types'])
+                    ->sortKeysUsing(fn (string $a, string $b): int => ($typeOrder[$a] ?? 99) <=> ($typeOrder[$b] ?? 99))
+                    ->map(fn (int $count, string $type): string => "{$count} " . strtolower($type))
+                    ->implode(', ');
+
+                return "{$resolution} ({$typeBreakdown})";
+            })
+            ->implode(', ');
+
+        return $segments;
     }
 }

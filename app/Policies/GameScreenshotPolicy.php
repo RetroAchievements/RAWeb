@@ -46,7 +46,16 @@ class GameScreenshotPolicy
             return false;
         }
 
+        // retired games (~Z~ prefix) shouldn't accept new screenshots
+        if (str_starts_with($game->title, '~Z~')) {
+            return false;
+        }
+
         if (!$user->hasRole(Role::ROOT) && !config('feature.game_screenshot_uploads')) {
+            return false;
+        }
+
+        if (!$user->hasRole(Role::ROOT) && !$user->enable_beta_features) {
             return false;
         }
 

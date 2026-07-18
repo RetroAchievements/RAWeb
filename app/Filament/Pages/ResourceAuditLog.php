@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Achievement;
+use App\Models\User;
 use BackedEnum;
 use Closure;
 use Filament\Forms;
@@ -115,6 +116,17 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         ]);
     }
 
+    protected function userDisplayNameFor(mixed $userId): string
+    {
+        if (!$userId) {
+            return '';
+        }
+
+        $user = User::find($userId);
+
+        return $user?->display_name ?? "User ID: {$userId}";
+    }
+
     protected function transformFieldValues(array $values): array
     {
         $fieldValueMap = $this->createFieldValueMap();
@@ -145,6 +157,11 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'image_title_asset_path',
             'image_ingame_asset_path',
             'screenshot',
+
+            // Per-type audit payload keys used by primaryScreenshotChanged rows.
+            'title_screenshot',
+            'ingame_screenshot',
+            'completion_screenshot',
 
             // Legacy column names for historical audit log entries.
             'ImageIcon',
@@ -189,12 +206,15 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'multisetEnabled' => 'info',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
+            'primaryScreenshotChanged' => 'info',
             'rejectedScreenshot' => 'danger',
             'releaseCreated' => 'success',
             'releaseDeleted' => 'danger',
             'releaseUpdated' => 'info',
+            'removedGameBadge' => 'danger',
             'reorderedScreenshots' => 'info',
             'resetAllLeaderboardEntries' => 'danger',
+            'restoredGameBadge' => 'success',
             'setScreenshotAsPrimary' => 'info',
             'unlinkedHash' => 'danger',
             'unpublishedScreenshot' => 'warning',

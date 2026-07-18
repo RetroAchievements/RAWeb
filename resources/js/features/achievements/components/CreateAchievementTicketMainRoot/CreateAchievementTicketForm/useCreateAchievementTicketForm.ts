@@ -14,7 +14,7 @@ const createAchievementTicketFormSchema = z.object({
   emulator: z.string().min(1),
   emulatorVersion: z.string().optional(),
   core: z.string().optional(),
-  mode: z.enum(['hardcore', 'softcore']),
+  mode: z.enum(['hardcore', 'casual']),
   hash: z.string().min(1),
   description: z.string().min(25, { message: 'Please be more detailed in your description.' }),
 });

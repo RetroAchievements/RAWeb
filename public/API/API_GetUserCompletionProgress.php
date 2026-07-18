@@ -18,7 +18,7 @@
  *    int         ConsoleID                 unique identifier of the console associated to the game
  *    string      ConsoleName               name of the console associated to the game
  *    int         MaxPossible               number of core achievements associated to the game
- *    int         NumAwarded                number of softcore achievements earned by the user for the game
+ *    int         NumAwarded                number of achievements earned by the user for the game in casual mode
  *    int         NumAwardedHardcore        number of hardcore achievements earned by the user for the game
  *    ?datetime   MostRecentAwardedDate     an ISO8601 timestamp string, or null, for when the most recent achievement was unlocked by the user
  *    ?string     HighestAwardKind          "mastered", "completed", "beaten-hardcore", "beaten-softcore", or null

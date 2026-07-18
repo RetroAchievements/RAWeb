@@ -30,6 +30,11 @@ class AchievementSetPolicy
         return true;
     }
 
+    public function viewAchievementSetVersions(?User $user, AchievementSet $achievementSet): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([

@@ -28,28 +28,24 @@ class ResetPlayerProgressAction
             $clause = "AND ach.game_id=$gameID";
         }
 
-        $affectedAchievements = legacyDbFetchAll("
-            SELECT
-                COALESCE(ua.display_name, ua.username) AS Author,
-                ach.game_id AS GameID,
-                CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
-                COUNT(ach.id) AS Count, SUM(ach.points) AS Points,
-                SUM(ach.points_weighted) AS TruePoints
-            FROM player_achievements pa
-            INNER JOIN achievements ach ON ach.id = pa.achievement_id
-            INNER JOIN users AS ua ON ua.id = ach.user_id
-            WHERE ach.is_promoted = 1
-            AND pa.user_id = {$user->id} $clause
-            GROUP BY ach.user_id, ach.game_id, HardcoreMode
-        ");
+        $affectedAchievements = DB::table('player_achievements')
+            ->join('achievements as ach', 'ach.id', '=', 'player_achievements.achievement_id')
+            ->join('users as ua', 'ua.id', '=', 'ach.user_id')
+            ->where('ach.is_promoted', true)
+            ->where('player_achievements.user_id', $user->id)
+            ->when($achievementID !== null, fn ($query) => $query->where('ach.id', $achievementID))
+            ->when($achievementID === null && $gameID !== null, fn ($query) => $query->where('ach.game_id', $gameID))
+            ->groupBy('ach.user_id', 'ach.game_id')
+            ->selectRaw('COALESCE(ua.display_name, ua.username) AS Author, ach.game_id AS GameID')
+            ->get();
 
         $affectedGames = collect();
         $authorUsernames = collect();
         foreach ($affectedAchievements as $achievementData) {
-            if ($achievementData['Author'] !== $user->username) {
-                $authorUsernames->push($achievementData['Author']);
+            if ($achievementData->Author !== $user->username) {
+                $authorUsernames->push($achievementData->Author);
             }
-            $affectedGames->push($achievementData['GameID']);
+            $affectedGames->push($achievementData->GameID);
         }
 
         $maintainers = DB::select("
@@ -124,7 +120,7 @@ class ResetPlayerProgressAction
                 $playerBadge = $user->playerBadges()
                     ->where('award_type', AwardType::Mastery)
                     ->where('award_key', $achievement->game_id)
-                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
+                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Casual)
                     ->first();
                 if ($playerBadge) {
                     PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);

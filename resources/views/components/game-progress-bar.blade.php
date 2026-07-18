@@ -1,23 +1,23 @@
 @props([
-    'awardIndicator' => null, // 'unfinished' | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered' | null
+    'awardIndicator' => null,
     'containerClassNames' => '',
     'hardcoreProgress' => 0,
     'maxProgress' => 100,
-    'softcoreProgress' => 0,
+    'casualProgress' => 0,
     'tooltipLabel' => null, // ?string
 ])
 
 <?php
-    $hardcoreProgressBarWidth = $softcoreProgressBarWidth = '0';
+    $hardcoreProgressBarWidth = $casualProgressBarWidth = '0';
     settype($hardcoreProgress, 'integer');
-    settype($softcoreProgress, 'integer');
+    settype($casualProgress, 'integer');
     settype($maxProgress, 'integer');
 
     if ($maxProgress > 0) {
-        if ($softcoreProgress >= $maxProgress) {
-            $softcoreProgressBarWidth = sprintf("%01.2f", ($maxProgress - $hardcoreProgress) * 100 / $maxProgress);
-        } elseif ($softcoreProgress > 0) {
-            $softcoreProgressBarWidth = sprintf("%01.2f", ($softcoreProgress - $hardcoreProgress) * 100 / $maxProgress);
+        if ($casualProgress >= $maxProgress) {
+            $casualProgressBarWidth = sprintf("%01.2f", ($maxProgress - $hardcoreProgress) * 100 / $maxProgress);
+        } elseif ($casualProgress > 0) {
+            $casualProgressBarWidth = sprintf("%01.2f", ($casualProgress - $hardcoreProgress) * 100 / $maxProgress);
         }
 
         if ($hardcoreProgress >= $maxProgress) {
@@ -28,15 +28,15 @@
     }
 
     if (!$tooltipLabel) {
-        if ($hardcoreProgress === $softcoreProgress) {
+        if ($hardcoreProgress === $casualProgress) {
             // Same progress for both modes.
             $tooltipLabel = "Progress: {$hardcoreProgress}/{$maxProgress} (hardcore)";
-        } else if ($hardcoreProgress === 0 && $softcoreProgress > 0) {
-            // Only softcore progress.
-            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore)";
+        } else if ($hardcoreProgress === 0 && $casualProgress > 0) {
+            // Only casual progress.
+            $tooltipLabel = "Progress: {$casualProgress}/{$maxProgress} (casual)";
         } else {
             // Mixed progress.
-            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore), {$hardcoreProgress}/{$maxProgress} (hardcore)";
+            $tooltipLabel = "Progress: {$casualProgress}/{$maxProgress} (casual), {$hardcoreProgress}/{$maxProgress} (hardcore)";
         }
     }
 ?>
@@ -46,7 +46,7 @@
         role="progressbar"
         aria-valuemin="0"
         aria-valuemax="{{ $maxProgress }}"
-        aria-valuenow="{{ $softcoreProgress }}"
+        aria-valuenow="{{ $casualProgress }}"
         aria-label="{{ $tooltipLabel }}"
         class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l-sm' : 'rounded-sm' }}"
     >
@@ -57,9 +57,9 @@
             ></div>
         @endif
 
-        @if ($softcoreProgress > $hardcoreProgress)
+        @if ($casualProgress > $hardcoreProgress)
             <div
-                style="width: {{ $softcoreProgressBarWidth }}%"
+                style="width: {{ $casualProgressBarWidth }}%"
                 class="bg-neutral-500 h-full"
             ></div>
         @endif
@@ -69,7 +69,7 @@
         @php
             $awardTitles = [
                 'unfinished' => 'Unfinished',
-                'beaten-softcore' => 'Beaten (softcore)',
+                'beaten-softcore' => 'Beaten (casual)',
                 'beaten-hardcore' => 'Beaten',
                 'completed' => 'Completed',
                 'mastered' => 'Mastered',

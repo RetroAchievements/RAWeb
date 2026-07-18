@@ -4,6 +4,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
+import axios from 'axios';
 import {
   resetIntersectionMocking,
   setupIntersectionMocking,
@@ -42,6 +43,11 @@ process.stderr.write = function (chunk: any, ...args: any[]) {
 vi.mock('@/common/components/GlobalSearch', () => ({
   GlobalSearch: () => null,
 }));
+
+// Prevent unmocked Axios calls from leaking into local services.
+axios.defaults.adapter = async () => {
+  throw new Error('Unexpected Axios request in test.');
+};
 
 // Mock Inertia globally for all tests.
 vi.mock('@inertiajs/react', async (importOriginal) => {

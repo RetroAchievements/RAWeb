@@ -7,8 +7,10 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketState;
 use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
+use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
@@ -21,7 +23,10 @@ use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementRestored;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpromoted;
+use App\Platform\Services\GameOpenTicketCountService;
+use App\Platform\Services\UserTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
+use Carbon\CarbonInterface;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -36,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -51,7 +57,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 /**
  * @implements HasVersionedTrigger<Achievement>
  */
-class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
+class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger, Ticketable
 {
     /*
      * Community Traits
@@ -161,23 +167,38 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
                     AchievementMoved::dispatch($achievement, $originalGame);
                 }
             }
+
+            if ($achievement->wasChanged(['game_id', 'is_promoted'])) {
+                $service = app(GameOpenTicketCountService::class);
+                $service->clearForGameId((int) $achievement->game_id);
+                $originalGameId = $achievement->getOriginal('game_id');
+                if ($achievement->wasChanged('game_id') && $originalGameId !== null) {
+                    $service->clearForGameId((int) $originalGameId);
+                }
+            }
         });
 
         static::deleting(function (Achievement $achievement) {
+            $affectedUserIds = self::affectedTicketUserIdsForCacheInvalidation($achievement);
+
             // If we're force deleting the achievement, force delete the tickets.
             if ($achievement->isForceDeleting()) {
                 $achievement->tickets()->forceDelete();
-
-                return;
+            } else {
+                // Otherwise, soft delete the tickets.
+                $achievement->tickets()->delete();
             }
 
-            // Otherwise, soft delete the tickets.
-            $achievement->tickets()->delete();
+            app(UserTicketCountService::class)->clearForUserIds($affectedUserIds);
         });
 
         // When restoring an achievement, restore its tickets.
         static::restoring(function (Achievement $achievement) {
+            $affectedUserIds = self::affectedTicketUserIdsForCacheInvalidation($achievement, onlyTrashed: true);
+
             $achievement->tickets()->restore();
+
+            app(UserTicketCountService::class)->clearForUserIds($affectedUserIds);
         });
 
         static::restored(function (Achievement $achievement) {
@@ -197,12 +218,24 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
-     * Convert is_promoted boolean to the legacy Flags integer value.
-     * For backwards compatibility with legacy code.
+     * @return Collection<int, int>
      */
-    public function getFlagsAttribute(): int
+    private static function affectedTicketUserIdsForCacheInvalidation(Achievement $achievement, bool $onlyTrashed = false): Collection
     {
-        return $this->is_promoted ? self::FLAG_PROMOTED : self::FLAG_UNPROMOTED;
+        $tickets = $achievement->tickets();
+
+        if ($onlyTrashed) {
+            $tickets->onlyTrashed();
+        }
+
+        return $tickets
+            ->whereIn('state', [TicketState::Open->value, TicketState::Request->value])
+            ->get(['ticketable_author_id', 'reporter_id'])
+            ->flatMap(fn (Ticket $ticket): array => [$ticket->ticketable_author_id, $ticket->reporter_id])
+            ->filter()
+            ->map(fn ($userId): int => (int) $userId)
+            ->unique()
+            ->values();
     }
 
     /**
@@ -260,6 +293,64 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->is_promoted;
     }
 
+    // == ticketable
+
+    public function getTicketableType(): TicketableType
+    {
+        return TicketableType::Achievement;
+    }
+
+    public function getTicketableGame(): Game
+    {
+        return $this->game;
+    }
+
+    public function getTicketableGameId(): int
+    {
+        return $this->game_id;
+    }
+
+    public function getTicketableAssignee(?CarbonInterface $at = null): ?User
+    {
+        return $this->getMaintainerAt($at ?? now());
+    }
+
+    public function getTicketableTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getTicketableUrl(): string
+    {
+        return $this->getCanonicalUrlAttribute();
+    }
+
+    public function getTicketableIconUrl(): string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
+    public function getTicketableBadgeUrl(): ?string
+    {
+        return $this->getBadgeUrlAttribute();
+    }
+
+    public function demoteForTicket(User $byUser): void
+    {
+        if (!$this->is_promoted) {
+            return;
+        }
+
+        updateAchievementPromotedStatus($this->id, false);
+        addArticleComment(
+            'Server',
+            CommentableType::Achievement,
+            $this->id,
+            "{$byUser->display_name} demoted this achievement to Unofficial.",
+            $byUser->display_name,
+        );
+    }
+
     // == helpers
 
     public function ensureAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
@@ -270,7 +361,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         );
     }
 
-    public function getMaintainerAt(Carbon $timestamp): ?User
+    public function getMaintainerAt(CarbonInterface $timestamp): ?User
     {
         $maintainer = $this->maintainers()
             ->where('effective_from', '<=', $timestamp)
@@ -361,6 +452,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             ->exists();
 
         return !$hasNonCoreLink;
+    }
+
+    /**
+     * Convert is_promoted boolean to the legacy Flags integer value.
+     * For backwards compatibility with legacy code.
+     */
+    public function getFlagsAttribute(): int
+    {
+        return $this->is_promoted ? self::FLAG_PROMOTED : self::FLAG_UNPROMOTED;
     }
 
     public function getPermalinkAttribute(): string
@@ -660,6 +760,24 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function scopeMissable(Builder $query): Builder
     {
         return $this->scopeType($query, AchievementType::Missable);
+    }
+
+    /**
+     * Uses a game_id subquery instead of whereHas so large index queries stay performant.
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeWhereFromRealGame(Builder $query): Builder
+    {
+        return $query->whereNotIn('game_id', Game::query()
+            ->withTrashed()
+            ->where(function (Builder $gameQuery) {
+                $gameQuery
+                    ->whereIn('system_id', System::getNonGameSystems())
+                    ->orWhereNotNull('deleted_at');
+            })
+            ->select('id'));
     }
 
     /**

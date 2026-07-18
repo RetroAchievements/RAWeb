@@ -112,7 +112,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
         $this->assertEquals($followedUser->id, $result->first()->user->id->resolve());
         $this->assertEquals(5, $result->first()->playerGame->achievementsUnlocked);
         $this->assertEquals(3, $result->first()->playerGame->achievementsUnlockedHardcore);
-        $this->assertEquals(2, $result->first()->playerGame->achievementsUnlockedSoftcore);
+        $this->assertEquals(2, $result->first()->playerGame->achievementsUnlockedCasual);
         $this->assertEquals(50, $result->first()->playerGame->points);
         $this->assertEquals(30, $result->first()->playerGame->pointsHardcore);
     }

@@ -27,8 +27,8 @@ export function useAchievementDistributionChart({
   }
 
   const chartConfig = {
-    softcore: {
-      label: t('Softcore Players'),
+    casual: {
+      label: t('Casual Players'),
       color: '#737373',
     },
     hardcore: {
@@ -37,12 +37,12 @@ export function useAchievementDistributionChart({
     },
   } satisfies BaseChartConfig;
 
-  const { userHardcoreIndex, userSoftcoreIndex } = getUserBucketIndexes(buckets, playerGame);
+  const { userHardcoreIndex, userCasualIndex } = getUserBucketIndexes(buckets, playerGame);
 
   // Get the player achievement counts for tooltips.
   const userAchievementCounts = playerGame
     ? {
-        softcore: playerGame.achievementsUnlocked,
+        casual: playerGame.achievementsUnlocked,
         hardcore: playerGame.achievementsUnlockedHardcore,
       }
     : null;
@@ -77,6 +77,6 @@ export function useAchievementDistributionChart({
     formatXAxisTick,
     userAchievementCounts,
     userHardcoreIndex,
-    userSoftcoreIndex,
+    userCasualIndex,
   };
 }

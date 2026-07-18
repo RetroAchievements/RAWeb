@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Users;
 
-use App\Api\V2\UserAwards\UserAwardGameAwardsFilter;
+use App\Api\V2\Tickets\TicketableTypeFilter;
+use App\Api\V2\Tickets\TicketStateFilter;
+use App\Api\V2\Tickets\TicketTypeFilter;
+use App\Api\V2\Tickets\UserUlidFilter;
+use App\Api\V2\UserAwards\UserAwardGameAwardTierFilter;
 use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,9 +18,11 @@ use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
+use LaravelJsonApi\Eloquent\Filters\WhereNull;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -32,6 +38,14 @@ class UserSchema extends Schema
      * This prevents unbounded result sets.
      */
     protected ?array $defaultPagination = ['number' => 1];
+
+    /**
+     * Relationships that should always be eager loaded.
+     *
+     * The visibleRole and displayableRoles attributes both derive from roles,
+     * and lazily loading them costs two queries per user on the index.
+     */
+    protected array $with = ['roles'];
 
     /**
      * Default sort order when client doesn't provide any.
@@ -91,13 +105,28 @@ class UserSchema extends Schema
             Str::make('richPresence', 'rich_presence')->readOnly(),
             DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
+            BelongsTo::make('lastGame')->type('games')->readOnly(),
+
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
 
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
+            HasMany::make('leaderboardEntries')->type('leaderboard-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
+            HasMany::make('tickets', 'authoredTickets')
+                ->type('tickets')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    new TicketStateFilter(),
+                    new TicketTypeFilter(),
+                    new TicketableTypeFilter(),
+                    new UserUlidFilter('reporterUserId', 'reporter_id'),
+                    new UserUlidFilter('resolverUserId', 'resolver_id'),
+                )
+                ->readOnly(),
+            HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('awards', 'playerBadges')
                 ->type('user-awards')
@@ -107,15 +136,21 @@ class UserSchema extends Schema
                     Scope::make('awardedTo'),
                     Scope::make('eventId', 'forEventId'),
                     Scope::make('gameId', 'forGameId'),
-                    new UserAwardGameAwardsFilter(),
+                    new UserAwardGameAwardTierFilter(),
                     new UserAwardKindFilter(),
                 )
                 ->readOnly(),
 
+            HasMany::make('followers', 'followedBy')
+                ->type('user-follows')
+                ->cannotEagerLoad()
+                ->readOnly(),
+            HasMany::make('following', 'follows')
+                ->type('user-follows')
+                ->cannotEagerLoad()
+                ->readOnly(),
+
             // TODO add relationships and relationship endpoints
-            // - lastGame (BelongsTo Game)
-            // - following (BelongsToMany User) - users this user follows
-            // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
         ];
     }
@@ -127,6 +162,8 @@ class UserSchema extends Schema
     {
         return [
             Scope::make('role', 'withRole'),
+
+            WhereNull::make('ranked', 'unranked_at'),
         ];
     }
 

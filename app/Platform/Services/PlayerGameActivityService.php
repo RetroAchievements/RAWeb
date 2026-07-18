@@ -547,7 +547,7 @@ class PlayerGameActivityService
         $startTime = $this->getAchievementEarningStartTime($achievementSet);
 
         return [
-            'beatPlaytimeSoftcore' => $playerGame->beaten_at ? $this->calculatePlaytime($startTime, $playerGame->beaten_at, UnlockMode::Softcore) : null,
+            'beatPlaytimeCasual' => $playerGame->beaten_at ? $this->calculatePlaytime($startTime, $playerGame->beaten_at, UnlockMode::Casual) : null,
             'beatPlaytimeHardcore' => $playerGame->beaten_hardcore_at ? $this->calculatePlaytime($startTime, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
         ];
     }
@@ -555,14 +555,14 @@ class PlayerGameActivityService
     public function getAchievementSetMetrics(AchievementSet $achievementSet): array
     {
         $metrics = [
-            'firstUnlockTimeSoftcore' => null,
+            'firstUnlockTimeCasual' => null,
             'firstUnlockTimeHardcore' => null,
-            'lastUnlockTimeSoftcore' => null,
+            'lastUnlockTimeCasual' => null,
             'lastUnlockTimeHardcore' => null,
         ];
 
         if ($achievementSet->achievements_published === 0) {
-            $metrics['achievementPlaytimeSoftcore'] = 0;
+            $metrics['achievementPlaytimeCasual'] = 0;
             $metrics['achievementPlaytimeHardcore'] = 0;
 
             // assume entire playtime has been development work
@@ -576,7 +576,7 @@ class PlayerGameActivityService
             [PlayerGameActivitySessionType::Player, PlayerGameActivitySessionType::Reconstructed]);
 
         // if no player-initiated unlocks were found, check for manual unlocks
-        if (!$metrics['firstUnlockTimeSoftcore'] || !$metrics['firstUnlockTimeHardcore']) {
+        if (!$metrics['firstUnlockTimeCasual'] || !$metrics['firstUnlockTimeHardcore']) {
             $this->getFilteredAchievementSetMetrics($achievementSet, $metrics,
                 [PlayerGameActivitySessionType::ManualUnlock]);
         }
@@ -587,18 +587,18 @@ class PlayerGameActivityService
             $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
 
             // if the user has completed the game, stop tracking at the last achievement earned
-            $endTimeSoftcore = ($playerGame && !$playerGame->completed_at) ? null : $metrics['lastUnlockTimeSoftcore'];
+            $endTimeCasual = ($playerGame && !$playerGame->completed_at) ? null : $metrics['lastUnlockTimeCasual'];
             $endTimeHardcore = ($playerGame && !$playerGame->completed_hardcore_at) ? null : $metrics['lastUnlockTimeHardcore'];
 
-            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $endTimeSoftcore, UnlockMode::Softcore);
+            $metrics['achievementPlaytimeCasual'] = $this->calculatePlaytime($startTime, $endTimeCasual, UnlockMode::Casual);
             $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $endTimeHardcore, UnlockMode::Hardcore);
         } else {
             // don't count any playtime if achievements haven't been published yet
-            $metrics['achievementPlaytimeSoftcore'] = 0;
+            $metrics['achievementPlaytimeCasual'] = 0;
             $metrics['achievementPlaytimeHardcore'] = 0;
         }
 
-        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementSet->achievements_first_published_at, UnlockMode::Softcore);
+        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementSet->achievements_first_published_at, UnlockMode::Casual);
 
         return $metrics;
     }
@@ -631,16 +631,16 @@ class PlayerGameActivityService
                     }
                     $metrics['lastUnlockTimeHardcore'] = $event['when'];
                 } else {
-                    if (!$metrics['firstUnlockTimeSoftcore']) {
-                        $metrics['firstUnlockTimeSoftcore'] = $event['when'];
+                    if (!$metrics['firstUnlockTimeCasual']) {
+                        $metrics['firstUnlockTimeCasual'] = $event['when'];
                     }
-                    $metrics['lastUnlockTimeSoftcore'] = $event['when'];
+                    $metrics['lastUnlockTimeCasual'] = $event['when'];
                 }
             }
         }
 
-        $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
-        $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
+        $metrics['firstUnlockTimeCasual'] ??= $metrics['firstUnlockTimeHardcore'];
+        $metrics['lastUnlockTimeCasual'] ??= $metrics['lastUnlockTimeHardcore'];
     }
 
     /**
@@ -736,14 +736,14 @@ class PlayerGameActivityService
                     }
 
                     if ($event['hardcore']) {
-                        $keepSession = true; // hardcore event also implies softcore
+                        $keepSession = true; // hardcore event also implies casual
 
                         if ($unlockMode === UnlockMode::Hardcore) {
                             $lastHardcore = true;
                             $firstNonHardcore = null;
                         }
                     } else {
-                        if ($unlockMode === UnlockMode::Softcore) {
+                        if ($unlockMode === UnlockMode::Casual) {
                             $keepSession = true;
                             break;
                         }

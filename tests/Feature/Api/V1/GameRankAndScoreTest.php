@@ -46,7 +46,7 @@ class GameRankAndScoreTest extends TestCase
         $user2 = User::factory()->create();
         $this->addHardcoreUnlock($user2, $ach1);
         $this->addHardcoreUnlock($user2, $ach2);
-        $this->addSoftcoreUnlock($user2, $ach3);
+        $this->addCasualUnlock($user2, $ach3);
 
         // $user3 has not completed the game
         /** @var User $user3 */

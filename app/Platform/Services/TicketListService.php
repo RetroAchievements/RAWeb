@@ -6,8 +6,11 @@ namespace App\Platform\Services;
 
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\Leaderboard;
 use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -38,7 +41,7 @@ class TicketListService
         $validatedData = $request->validate([
             'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
             'filter.type' => 'sometimes|integer|min:0|max:2',
-            'filter.achievement' => 'sometimes|string|in:all,core,unofficial',
+            'filter.publishedStatus' => 'sometimes|string|in:all,published,unpublished',
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
             'filter.developer' => 'sometimes|string|in:all,self,others',
@@ -49,7 +52,7 @@ class TicketListService
         return [
             'status' => $validatedData['filter']['status'] ?? 'unresolved',
             'type' => (int) ($validatedData['filter']['type'] ?? 0),
-            'achievement' => $validatedData['filter']['achievement'] ?? 'all',
+            'publishedStatus' => $validatedData['filter']['publishedStatus'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
             'developerType' => $validatedData['filter']['developerType'] ?? 'all',
             'developer' => $validatedData['filter']['developer'] ?? 'all',
@@ -60,7 +63,7 @@ class TicketListService
 
     public function getSelectFilters(
         bool $showStatus = true,
-        bool $showAchievementType = true,
+        bool $showPublishedStatus = true,
         bool $showDevType = true,
         bool $showDeveloper = false,
         bool $showReporter = false,
@@ -91,14 +94,14 @@ class TicketListService
             ],
         ];
 
-        if ($showAchievementType) {
+        if ($showPublishedStatus) {
             $availableSelectFilters[] = [
-                'kind' => 'achievement',
-                'label' => 'Achievement Type',
+                'kind' => 'publishedStatus',
+                'label' => 'Published Status',
                 'options' => [
                     'all' => 'All',
-                    'core' => 'Core',
-                    'unofficial' => 'Unofficial',
+                    'published' => 'Published',
+                    'unpublished' => 'Unpublished',
                 ],
             ];
         }
@@ -109,7 +112,7 @@ class TicketListService
             'options' => [
                 'all' => 'All',
                 'hardcore' => 'Hardcore',
-                'softcore' => 'Softcore',
+                'softcore' => 'Casual',
                 'unspecified' => 'Unspecified',
             ],
         ];
@@ -192,7 +195,8 @@ class TicketListService
             $tickets = Ticket::query();
         }
 
-        $tickets->whereHas('achievement'); // don't include tickets where the achievement is hard deleted
+        // Don't include tickets where the ticketable is hard deleted.
+        $tickets->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
 
         $this->totalTickets = $tickets->count();
 
@@ -215,13 +219,13 @@ class TicketListService
             $tickets->where('type', $ticketType);
         }
 
-        switch ($filterOptions['achievement']) {
-            case 'core':
-                $tickets->officialCore();
+        switch ($filterOptions['publishedStatus']) {
+            case 'published':
+                $tickets->promoted();
                 break;
 
-            case 'unofficial':
-                $tickets->unofficial();
+            case 'unpublished':
+                $tickets->unpromoted();
                 break;
         }
 
@@ -241,28 +245,31 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query->whereHas('developer', function ($query2) {
-                        $query2->where('Permissions', '>=', Permissions::JuniorDeveloper);
-                    });
+                $tickets->whereHas('author', function ($query) {
+                    $query->where('Permissions', '>=', Permissions::JuniorDeveloper);
                 });
                 break;
 
             case 'junior':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query->whereHas('developer', function ($query2) {
-                        $query2->where('Permissions', '=', Permissions::JuniorDeveloper);
-                    });
+                $tickets->whereHas('author', function ($query) {
+                    $query->where('Permissions', '=', Permissions::JuniorDeveloper);
                 });
                 break;
 
             case 'inactive':
-                $tickets->whereHas('achievement', function ($query) {
-                    $query
-                        ->whereDoesntHave('activeMaintainer')
-                        ->whereHas('developer', function ($query2) {
-                            $query2->where('Permissions', '<', Permissions::JuniorDeveloper);
-                        });
+                // For achievement tickets, also exclude any with an active maintainer.
+                // Leaderboards don't have a maintainer concept, so author permissions
+                // alone are checked.
+                $tickets->where(function ($query) {
+                    $query->where(function ($achievementQuery) {
+                        $achievementQuery
+                            ->where('ticketable_type', TicketableType::Achievement->value)
+                            ->whereHasMorph('ticketable', [Achievement::class], function ($ticketableQuery) {
+                                $ticketableQuery->whereDoesntHave('activeMaintainer');
+                            });
+                    })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
+                })->whereHas('author', function ($query) {
+                    $query->where('Permissions', '<', Permissions::JuniorDeveloper);
                 });
                 break;
         }
@@ -273,15 +280,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
-                        $query->where('user_id', '=', $filterOptions['userId']);
-                    });
+                    $tickets->where('ticketable_author_id', '=', $filterOptions['userId']);
                     break;
 
                 case 'others':
-                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
-                        $query->where('user_id', '!=', $filterOptions['userId']);
-                    });
+                    $tickets->where('ticketable_author_id', '!=', $filterOptions['userId']);
                     break;
             }
 
@@ -322,6 +325,6 @@ class TicketListService
             $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
         }
 
-        return $tickets->with(['achievement', 'author', 'reporter', 'resolver']);
+        return $tickets->with(['ticketable', 'author', 'reporter', 'resolver']);
     }
 }

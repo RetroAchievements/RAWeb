@@ -320,11 +320,11 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertRichPresenceEvent($session['events'][0], $playerSession->rich_presence, $time1);
 
         $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
-        $this->assertNull($subsetMetrics['firstUnlockTimeSoftcore']);
-        $this->assertNull($subsetMetrics['lastUnlockTimeSoftcore']);
+        $this->assertNull($subsetMetrics['firstUnlockTimeCasual']);
+        $this->assertNull($subsetMetrics['lastUnlockTimeCasual']);
         $this->assertNull($subsetMetrics['firstUnlockTimeHardcore']);
         $this->assertNull($subsetMetrics['lastUnlockTimeHardcore']);
-        $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeSoftcore']);
+        $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeCasual']);
         $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
 
         // ==== Unlock one subset achievement at time2 (in hardcore) and one at time3 (in softcore) ====
@@ -334,7 +334,7 @@ class PlayerGameActivityServiceTest extends TestCase
 
         $time3 = $time2->clone()->addMinutes(3);
         $ach2 = $subsetGame->achievements()->skip(1)->first();
-        $this->addSoftcoreUnlock($user, $ach2, $time3, gameHash: $gameHash);
+        $this->addCasualUnlock($user, $ach2, $time3, gameHash: $gameHash);
 
         // ===== play for some extra time without any unlocks =====
         $time4 = $time3->clone()->addMinutes(6);
@@ -361,12 +361,12 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertRichPresenceEvent($session['events'][2], $playerSession->rich_presence, $time4);
 
         $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
-        $this->assertEquals($time3, $subsetMetrics['firstUnlockTimeSoftcore']);
-        $this->assertEquals($time3, $subsetMetrics['lastUnlockTimeSoftcore']);
+        $this->assertEquals($time3, $subsetMetrics['firstUnlockTimeCasual']);
+        $this->assertEquals($time3, $subsetMetrics['lastUnlockTimeCasual']);
         $this->assertEquals($time2, $subsetMetrics['firstUnlockTimeHardcore']);
         $this->assertEquals($time2, $subsetMetrics['lastUnlockTimeHardcore']);
         // softcore session continues past last unlock until game is completed
-        $this->assertEquals($time4->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeSoftcore']);
+        $this->assertEquals($time4->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeCasual']);
         // hardcore session is assumed to end when a softcore unlock occurs
         $this->assertEquals($time3->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
     }

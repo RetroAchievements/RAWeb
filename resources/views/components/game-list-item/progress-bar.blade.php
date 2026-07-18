@@ -1,14 +1,14 @@
 @props([
-    'softcoreCompletionPercentage' => 0,
+    'casualCompletionPercentage' => 0,
     'hardcoreCompletionPercentage' => 0,
     'numPossible' => 0,
     'hasAward' => false,
 ])
 
 <?php
-$softcoreBarWidth = 0;
-if ($softcoreCompletionPercentage > 0) {
-    $softcoreBarWidth = $softcoreCompletionPercentage - $hardcoreCompletionPercentage;
+$casualBarWidth = 0;
+if ($casualCompletionPercentage > 0) {
+    $casualBarWidth = $casualCompletionPercentage - $hardcoreCompletionPercentage;
 }
 ?>
 
@@ -18,7 +18,7 @@ if ($softcoreCompletionPercentage > 0) {
         role="progressbar"
         aria-valuemin="0"
         aria-valuemax="100"
-        aria-valuenow="{{ $softcoreCompletionPercentage }}"
+        aria-valuenow="{{ $casualCompletionPercentage }}"
     >
         @if ($numPossible > 0)
             {{-- .cprogress-pbar__root > div[role='progressbar'] > div:first-child --}}
@@ -29,8 +29,8 @@ if ($softcoreCompletionPercentage > 0) {
 
             {{-- .cprogress-pbar__root > div[role='progressbar'] > div:last-child --}}
             <div
-                style="width: {{ $softcoreBarWidth }}%"
-                class="{{ $hardcoreCompletionPercentage == 0 ? 'rounded-l-sm' : '' }} {{ $softcoreCompletionPercentage == 100 ? 'rounded-r' : '' }}"
+                style="width: {{ $casualBarWidth }}%"
+                class="{{ $hardcoreCompletionPercentage == 0 ? 'rounded-l-sm' : '' }} {{ $casualCompletionPercentage == 100 ? 'rounded-r' : '' }}"
             ></div>
         @elseif ($numPossible === 0 && !$hasAward)
             {{-- render an empty bar, there are no achievements yet --}}
@@ -47,7 +47,7 @@ if ($softcoreCompletionPercentage > 0) {
         @elseif ($numPossible === 0 && !$hasAward)
             No achievements yet
         @else
-            {{ $softcoreCompletionPercentage }}%
+            {{ $casualCompletionPercentage }}%
         @endif
     </p>
 </div>

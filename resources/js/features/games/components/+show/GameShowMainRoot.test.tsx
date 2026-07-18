@@ -79,14 +79,14 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
   });
 
-  it('given the system has screenshot resolutions, passes expected dimensions to the media component', () => {
+  it('given the game has screenshot dimensions, passes reserved frame dimensions to the media component', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
       gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageIngameDimensions: { width: 256, height: 224 },
       system: createSystem({
         iconUrl: 'icon.jpg',
-        screenshotResolutions: [{ width: 256, height: 224 }],
       }),
       imageIngameUrl: 'ingame.jpg',
       imageTitleUrl: 'title.jpg',
@@ -102,6 +102,7 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        numScreenshots: 1,
         recentPlayers: [],
         recentVisibleComments: [],
         ziggy: createZiggyProps(),
@@ -110,8 +111,14 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     const ingameImage = screen.getByRole('img', { name: /ingame screenshot/i });
-    expect(ingameImage).toHaveAttribute('width', '256');
-    expect(ingameImage).toHaveAttribute('height', '224');
+    const ingameFrame = ingameImage.closest('button');
+
+    expect(ingameFrame).not.toBeNull();
+    expect(ingameFrame).toHaveStyle({
+      aspectRatio: '256 / 224',
+      maxWidth: '100%',
+      width: '256px',
+    });
   });
 
   it('given the game has media URLs, shows them in the desktop media viewer', () => {

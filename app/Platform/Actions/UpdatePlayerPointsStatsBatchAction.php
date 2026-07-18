@@ -69,14 +69,14 @@ class UpdatePlayerPointsStatsBatchAction
             $userAchievements = $allAchievements->get($userId, collect());
 
             // Separate achievements by type.
-            ['hardcore' => $hardcoreAchievements, 'softcore' => $softcoreAchievements] =
+            ['hardcore' => $hardcoreAchievements, 'casual' => $casualAchievements] =
                 $this->separateAchievementsByType($userAchievements);
 
             foreach ($statIntervals as $period => $interval) {
                 $hardcorePoints = $this->calculatePointsForInterval($hardcoreAchievements, $interval);
-                $softcorePoints = $this->calculatePointsForInterval($softcoreAchievements, $interval);
+                $casualPoints = $this->calculatePointsForInterval($casualAchievements, $interval);
 
-                $periodStats = $this->buildStatsForPeriod($userId, $hardcorePoints, $softcorePoints, $period);
+                $periodStats = $this->buildStatsForPeriod($userId, $hardcorePoints, $casualPoints, $period);
 
                 // Add timestamps for bulk insert.
                 foreach ($periodStats as $stat) {

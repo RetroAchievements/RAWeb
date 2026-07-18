@@ -37,6 +37,16 @@ return [
 
         'throw_on_error' => (bool) env('INERTIA_SSR_THROW_ON_ERROR', false),
 
+        /*
+         * HTTP timeouts (in seconds) for the SSR dispatch call. SSR should be
+         * fast and local. When it isn't, we want Octane workers to abandon the
+         * call quickly and fall back to client-side rendering instead of
+         * piling up waiting on a stalled SSR process.
+         */
+        'connect_timeout' => (float) env('INERTIA_SSR_CONNECT_TIMEOUT', 1),
+
+        'timeout' => (float) env('INERTIA_SSR_TIMEOUT', 2),
+
     ],
 
     /*

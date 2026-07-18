@@ -64,8 +64,8 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
           </div>
         ) : playerGame && playerGame.beatenAt ? (
           <div className="flex items-center gap-1">
-            <AwardIndicator awardKind="beaten-softcore" />
-            {t('Beaten (softcore) {{beatenDate}}', {
+            <AwardIndicator awardKind="beaten-casual" />
+            {t('Beaten (casual) {{beatenDate}}', {
               beatenDate: formatDate(playerGame.beatenAt, 'lll'),
             })}
           </div>

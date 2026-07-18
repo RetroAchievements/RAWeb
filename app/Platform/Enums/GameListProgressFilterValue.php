@@ -11,9 +11,9 @@ enum GameListProgressFilterValue: string
 {
     case Unstarted = 'unstarted';
     case Unfinished = 'unfinished';
-    case GteBeatenSoftcore = 'gte_beaten_softcore';
+    case GteBeatenCasual = 'gte_beaten_softcore';
     case GteBeatenHardcore = 'gte_beaten_hardcore';
-    case EqBeatenSoftcore = 'eq_beaten_softcore';
+    case EqBeatenCasual = 'eq_beaten_softcore';
     case EqBeatenHardcore = 'eq_beaten_hardcore';
     case GteCompleted = 'gte_completed';
     case EqCompleted = 'eq_completed';

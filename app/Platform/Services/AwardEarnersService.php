@@ -29,7 +29,7 @@ class AwardEarnersService
         return PlayerBadge::query()
             ->where('award_type', $this->awardType)
             ->where('award_key', $this->awardId)
-            ->where('award_tier', $this->awardExtra)
+            ->where('award_tier', '>=', $this->awardExtra)
             ->whereNotExists(function ($query) {
                 $query->select('user_id')
                     ->from('unranked_users')

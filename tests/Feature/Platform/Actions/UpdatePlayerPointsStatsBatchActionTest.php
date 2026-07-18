@@ -38,13 +38,13 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
 
         // ... user 2 has 1 softcore achievement ...
         $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 15]);
-        $this->addSoftcoreUnlock($users[1], $achievement3, Carbon::now()->subMinutes(30));
+        $this->addCasualUnlock($users[1], $achievement3, Carbon::now()->subMinutes(30));
 
         // ... user 3 has a mix of hardcore and softcore achievements ...
         $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 5]);
         $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 25]);
         $this->addHardcoreUnlock($users[2], $achievement4, Carbon::now()->subDays(2));
-        $this->addSoftcoreUnlock($users[2], $achievement5, Carbon::now()->subHours(3));
+        $this->addCasualUnlock($users[2], $achievement5, Carbon::now()->subHours(3));
 
         // Act
         (new UpdatePlayerPointsStatsBatchAction())->execute($users->pluck('id')->toArray());
@@ -55,12 +55,12 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
         $this->assertEquals(30, $user1Stats->where('type', PlayerStatType::PointsHardcoreWeek)->first()->value);
 
         $user2Stats = PlayerStat::where('user_id', $users[1]->id)->get();
-        $this->assertEquals(15, $user2Stats->where('type', PlayerStatType::PointsSoftcoreDay)->first()->value);
-        $this->assertEquals(15, $user2Stats->where('type', PlayerStatType::PointsSoftcoreWeek)->first()->value);
+        $this->assertEquals(15, $user2Stats->where('type', PlayerStatType::PointsCasualDay)->first()->value);
+        $this->assertEquals(15, $user2Stats->where('type', PlayerStatType::PointsCasualWeek)->first()->value);
 
         $user3Stats = PlayerStat::where('user_id', $users[2]->id)->get();
-        $this->assertEquals(25, $user3Stats->where('type', PlayerStatType::PointsSoftcoreDay)->first()->value);
-        $this->assertEquals(25, $user3Stats->where('type', PlayerStatType::PointsSoftcoreWeek)->first()->value);
+        $this->assertEquals(25, $user3Stats->where('type', PlayerStatType::PointsCasualDay)->first()->value);
+        $this->assertEquals(25, $user3Stats->where('type', PlayerStatType::PointsCasualWeek)->first()->value);
         $this->assertNull($user3Stats->where('type', PlayerStatType::PointsHardcoreDay)->first()); // Outside day window.
         $this->assertEquals(5, $user3Stats->where('type', PlayerStatType::PointsHardcoreWeek)->first()->value);
     }

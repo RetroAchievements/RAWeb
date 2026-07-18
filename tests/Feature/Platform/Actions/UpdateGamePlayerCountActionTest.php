@@ -87,8 +87,10 @@ describe('core set', function () {
         UpdateGamePlayerCountActionTestHelpers::addPlayers($game, 2, true);
 
         // unrank one hardcore and one softcore player
-        UnrankedUser::create(['user_id' => PlayerGame::where('achievements_unlocked_hardcore', 0)->first()->user_id]);
-        UnrankedUser::create(['user_id' => PlayerGame::where('achievements_unlocked_hardcore', '!=', 0)->first()->user_id]);
+        $casualUserId = PlayerGame::where('achievements_unlocked_hardcore', 0)->first()->user_id;
+        $hardcoreUserId = PlayerGame::where('achievements_unlocked_hardcore', '!=', 0)->first()->user_id;
+        UnrankedUser::create(['user_id' => $casualUserId]);
+        UnrankedUser::create(['user_id' => $hardcoreUserId]);
 
         (new UpdateGamePlayerCountAction())->execute($game);
 
@@ -374,6 +376,72 @@ describe('core set', function () {
         $this->assertEquals(1, $achievement->unlocks_hardcore);
         $this->assertEquals(1.0, $achievement->unlock_percentage);
         $this->assertEquals(1.0, $achievement->unlock_hardcore_percentage);
+    });
+
+    test('recounts achievement unlock counts without counting unranked users', function () {
+        $game = UpdateGamePlayerCountActionTestHelpers::createGame();
+        $game->players_total = 2;
+        $game->players_hardcore = 1;
+        $game->save();
+
+        $rankedSoftcoreUser = User::factory()->create();
+        $rankedHardcoreUser = User::factory()->create();
+        $unrankedUser = User::factory()->create();
+
+        $partiallyRankedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 5,
+            'unlocks_total' => 0,
+            'unlocks_hardcore' => 0,
+        ]);
+
+        $onlyUnrankedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 5,
+            'unlocks_total' => 1,
+            'unlocks_hardcore' => 1,
+        ]);
+
+        PlayerAchievement::create([
+            'user_id' => $rankedSoftcoreUser->id,
+            'achievement_id' => $partiallyRankedAchievement->id,
+            'unlocked_at' => now(),
+        ]);
+
+        PlayerAchievement::create([
+            'user_id' => $rankedHardcoreUser->id,
+            'achievement_id' => $partiallyRankedAchievement->id,
+            'unlocked_at' => now(),
+            'unlocked_hardcore_at' => now(),
+        ]);
+
+        PlayerAchievement::create([
+            'user_id' => $unrankedUser->id,
+            'achievement_id' => $partiallyRankedAchievement->id,
+            'unlocked_at' => now(),
+            'unlocked_hardcore_at' => now(),
+        ]);
+
+        PlayerAchievement::create([
+            'user_id' => $unrankedUser->id,
+            'achievement_id' => $onlyUnrankedAchievement->id,
+            'unlocked_at' => now(),
+            'unlocked_hardcore_at' => now(),
+        ]);
+
+        UnrankedUser::create(['user_id' => $unrankedUser->id]);
+        UnrankedUser::create(['user_id' => $unrankedUser->id]);
+
+        app(UpdateAchievementMetricsAction::class)
+            ->update($game, collect([$partiallyRankedAchievement, $onlyUnrankedAchievement]));
+
+        $partiallyRankedAchievement->refresh();
+        $onlyUnrankedAchievement->refresh();
+
+        $this->assertEquals(2, $partiallyRankedAchievement->unlocks_total);
+        $this->assertEquals(1, $partiallyRankedAchievement->unlocks_hardcore);
+        $this->assertEquals(0, $onlyUnrankedAchievement->unlocks_total);
+        $this->assertEquals(0, $onlyUnrankedAchievement->unlocks_hardcore);
     });
 });
 

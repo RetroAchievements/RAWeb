@@ -91,7 +91,7 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(labelEl).toHaveTextContent(/have not unlocked this achievement/i);
   });
 
-  it('given the user has a session but only has a softcore unlock, tells them', () => {
+  it('given the user has a session but only has a casual unlock, tells them', () => {
     // ARRANGE
     const achievement = createAchievement({
       unlockedAt: faker.date.recent().toISOString(),
@@ -110,7 +110,7 @@ describe('Component: ReportIssueMainRoot', () => {
     const labelEl = screen.getByTestId(testId);
 
     expect(labelEl).toBeVisible();
-    expect(labelEl).toHaveTextContent(/have unlocked this achievement in softcore/i);
+    expect(labelEl).toHaveTextContent(/have unlocked this achievement in casual/i);
   });
 
   it('given the user has a session and has a hardcore unlock, tells them', () => {
@@ -133,7 +133,7 @@ describe('Component: ReportIssueMainRoot', () => {
 
     expect(labelEl).toBeVisible();
     expect(labelEl).toHaveTextContent(/have unlocked this achievement/i);
-    expect(labelEl).not.toHaveTextContent(/in softcore/i);
+    expect(labelEl).not.toHaveTextContent(/in casual/i);
   });
 
   it('given the user has no session, they do not see a link to open a ticket', () => {
@@ -214,7 +214,7 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
   });
 
-  it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime`, only shows one Create Ticket link', () => {
+  it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime`, shows the correct issue report links', () => {
     // ARRANGE
     const achievement = createAchievement({
       unlockedAt: undefined,
@@ -232,18 +232,14 @@ describe('Component: ReportIssueMainRoot', () => {
 
     // ASSERT
     expect(
-      screen.queryByText(/met the requirements, but the achievement did not trigger/i),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByText(/achievement triggered, but the unlock didn't appear/i),
-    ).not.toBeInTheDocument();
-
-    expect(
       screen.getByText(/unlocked this achievement without meeting the requirements/i),
     ).toBeVisible();
 
-    expect(screen.getAllByText(/create ticket/i).length).toEqual(1);
+    expect(
+      screen.getByText(/the achievement did not trigger. it did trigger on a later attempt/i),
+    ).toBeVisible();
+
+    expect(screen.getAllByText(/create ticket/i).length).toEqual(2);
   });
 
   it('given the user comes in with an `extra` query param, passes that along to the Create Ticket page', () => {
@@ -266,9 +262,13 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /create ticket/i });
+    expect(screen.getAllByText(/create ticket/i).length).toEqual(2);
 
+    const linkEl = screen.getAllByRole('link', { name: /create ticket/i })[0];
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('achievement.tickets.create'));
+
+    const linkEl2 = screen.getAllByRole('link', { name: /create ticket/i })[1];
+    expect(linkEl2).toHaveAttribute('href', expect.stringContaining('achievement.tickets.create'));
   });
 
   it('always shows the user various team account reporting links', () => {

@@ -1,11 +1,16 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor } from '@/test';
+import { act, fireEvent, render, screen, waitFor } from '@/test';
 import { createGameScreenshot } from '@/test/factories';
 
 import { ScreenshotGalleryDialog } from './ScreenshotGalleryDialog';
 
 describe('Component: ScreenshotGalleryDialog', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
@@ -172,6 +177,39 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given a non-pixelated source at or below the crisp-edges width threshold, applies crisp-edges', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame', width: 320, height: 240 })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).toHaveStyle({ imageRendering: 'crisp-edges' });
+    });
+  });
+
+  it('given a non-pixelated source above the crisp-edges width threshold, applies no imageRendering hint', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 1920, height: 1440 }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const image = screen.getByRole('presentation');
+      expect(image).not.toHaveStyle({ imageRendering: 'crisp-edges' });
+      expect(image).not.toHaveStyle({ imageRendering: 'pixelated' });
+    });
+  });
+
   it('given a low-res screenshot, uses the original lossless URL', async () => {
     // ARRANGE
     const screenshots = [
@@ -292,6 +330,178 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
+  it('given a non-pixelated screenshot, renders a blurred placeholder image underneath', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        placeholderUrl: 'https://example.com/blur.webp',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const allImages = screen.getAllByRole('presentation', { hidden: true });
+      expect(allImages).toHaveLength(2);
+
+      const [placeholder] = allImages;
+      expect(placeholder).toHaveAttribute('src', 'https://example.com/blur.webp');
+      expect(placeholder).toHaveAttribute('aria-hidden', 'true');
+      expect(placeholder).toHaveAttribute('alt', '');
+      expect(placeholder).toHaveStyle({ filter: 'blur(16px)', transform: 'scale(1.1)' });
+    });
+  });
+
+  it('given a pixelated screenshot, does not render the blurred placeholder image', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({
+        id: 1,
+        type: 'ingame',
+        placeholderUrl: 'https://example.com/blur.webp',
+      }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const allImages = screen.getAllByRole('presentation', { hidden: true });
+      expect(allImages).toHaveLength(1);
+    });
+  });
+
+  it('given a screenshot, reserves layout space with width and height on the real image', async () => {
+    // ARRANGE
+    const screenshots = [
+      createGameScreenshot({ id: 1, type: 'ingame', width: 1920, height: 1080 }),
+    ];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const realImage = screen.getByRole('presentation');
+      expect(realImage).toHaveAttribute('width', '1920');
+      expect(realImage).toHaveAttribute('height', '1080');
+      expect(realImage).toHaveAttribute('loading', 'lazy');
+      expect(realImage).toHaveAttribute('decoding', 'async');
+    });
+  });
+
+  it('given a non-pixelated screenshot has not loaded yet, hides the real image so the placeholder shows through', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const realImage = screen.getByRole('presentation');
+      expect(realImage).toHaveClass('opacity-0');
+    });
+  });
+
+  it('given the real image load fires more than once, replaces the placeholder hide timer', async () => {
+    // ARRANGE
+    vi.useFakeTimers();
+
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    const realImage = screen.getByRole('presentation');
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+
+    // ACT
+    fireEvent.load(realImage);
+    fireEvent.load(realImage);
+
+    // ASSERT
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('given the placeholder opacity transition does not fire, removes the placeholder after the fallback delay', async () => {
+    // ARRANGE
+    vi.useFakeTimers();
+
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    const realImage = screen.getByRole('presentation');
+
+    // ACT
+    fireEvent.load(realImage);
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('presentation', { hidden: true })).toHaveLength(1);
+  });
+
+  it('given the real image was already loaded before ref attachment, marks it as loaded', async () => {
+    // ARRANGE
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(1);
+
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog screenshots={screenshots} isOpen={true} onOpenChange={vi.fn()} />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const realImage = screen.getByRole('presentation');
+      expect(realImage).not.toHaveClass('opacity-0');
+    });
+  });
+
+  it('given a pixelated screenshot, snaps the real image in without an opacity fade', async () => {
+    // ARRANGE
+    const screenshots = [createGameScreenshot({ id: 1, type: 'ingame' })];
+
+    render(
+      <ScreenshotGalleryDialog
+        screenshots={screenshots}
+        isOpen={true}
+        onOpenChange={vi.fn()}
+        isPixelated={true}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      const realImage = screen.getByRole('presentation');
+      expect(realImage).not.toHaveClass('opacity-0');
+    });
+  });
+
   it('given the user clicks the close button, calls onOpenChange with false', async () => {
     // ARRANGE
     const onOpenChange = vi.fn();
@@ -337,7 +547,7 @@ describe('Component: ScreenshotGalleryDialog', () => {
     });
   });
 
-  it('given the user clicks the backdrop area around the images, calls onOpenChange with false', async () => {
+  it('given the user clicks the dark area around the images, calls onOpenChange with false', async () => {
     // ARRANGE
     const onOpenChange = vi.fn();
 
@@ -350,8 +560,8 @@ describe('Component: ScreenshotGalleryDialog', () => {
     );
 
     // ACT
-    const dialogContent = screen.getByRole('dialog');
-    await userEvent.click(dialogContent);
+    const scrollContainer = screen.getByRole('dialog').firstElementChild as HTMLElement;
+    await userEvent.click(scrollContainer);
 
     // ASSERT
     expect(onOpenChange).toHaveBeenCalledWith(false);

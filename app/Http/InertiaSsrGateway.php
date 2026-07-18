@@ -38,9 +38,15 @@ class InertiaSsrGateway extends HttpGateway
 
         $failure = null;
 
+        $connectTimeout = (float) config('inertia.ssr.connect_timeout', 1);
+        $timeout = (float) config('inertia.ssr.timeout', 2);
+
         foreach ($attempts as [$url, $hostHeader]) {
             try {
-                $response = Http::withHeaders($hostHeader ? ['Host' => $hostHeader] : [])->post($url, $page);
+                $response = Http::withHeaders($hostHeader ? ['Host' => $hostHeader] : [])
+                    ->connectTimeout($connectTimeout)
+                    ->timeout($timeout)
+                    ->post($url, $page);
 
                 if ($response->failed()) {
                     $failure = $response->json();

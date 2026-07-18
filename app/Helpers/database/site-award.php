@@ -4,9 +4,11 @@ use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameBadgePreference;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @deprecated use PlayerBadge model
@@ -47,13 +49,17 @@ function AddSiteAward(
         ->first();
 }
 
-function getUsersSiteAwards(?User $user): array
+function getUsersSiteAwards(?User $user, bool $applyBadgePreferences = false): array
 {
     $dbResult = [];
 
     if (!$user) {
         return $dbResult;
     }
+
+    // On the user's own profile, show the badge the user chose for each game (if any).
+    // Everywhere else, including the public APIs that also call this, show the canonical badge.
+    [$gameBadgeJoin, $gameBadgeImageIcon] = UserGameBadgePreference::imageIconJoin($applyBadgePreferences, 'saw.user_id', 'saw.award_key');
 
     $bindings = [
         'userId' => $user->id,
@@ -66,10 +72,10 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon, NULL AS display_award_tier
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, {$gameBadgeImageIcon} AS ImageIcon, NULL AS display_award_tier
             FROM user_awards AS saw
             LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
-            LEFT JOIN systems AS s ON s.id = gd.system_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id{$gameBadgeJoin}
             WHERE
                 saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId
@@ -104,7 +110,7 @@ function getUsersSiteAwards(?User $user): array
                 AND saw.user_id = :userId4
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, MAX( saw.display_award_tier )
             FROM user_awards AS saw
             WHERE
                 saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "','" . AwardType::Playtest->value . "')
@@ -112,7 +118,9 @@ function getUsersSiteAwards(?User $user): array
             GROUP BY saw.award_type
         ORDER BY order_column, AwardedAt, award_type, award_tier ASC";
 
-    $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
+    $dbResult = collect(DB::select($query, $bindings))
+        ->map(fn (object $row): array => (array) $row)
+        ->toArray();
 
     foreach ($dbResult as &$award) {
         unset($award['user_id']);
@@ -214,23 +222,24 @@ function getRecentProgressionAwardData(
             LEFT JOIN systems AS sys ON sys.id = gd.system_id
             LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_key = saw.award_key AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
             $onlyAwardTypeClause AND saw.award_key > 0 AND $onlyUnlockModeClause $friendCondAward
-            AND saw.awarded_at BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
+            AND saw.awarded_at BETWEEN TIMESTAMP(:date) AND DATE_ADD(:date2, INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) sub
         JOIN users AS ua ON ua.id = sub.user_id
         WHERE sub.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
-            $db_entry['AwardData'] = (int) $db_entry['award_key'];
-            $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
-            unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
+    $dbResult = collect(DB::select($query, ['date' => $date, 'date2' => $date]))
+        ->map(fn (object $row): array => (array) $row)
+        ->toArray();
 
-            $retVal[] = $db_entry;
-        }
+    foreach ($dbResult as $db_entry) {
+        $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
+        $db_entry['AwardData'] = (int) $db_entry['award_key'];
+        $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
+        unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
+
+        $retVal[] = $db_entry;
     }
 
     return $retVal;
@@ -259,8 +268,7 @@ function getUserEventAwardCount(User $user): int
 
 /**
  * Retrieves a target user's site award metadata for a given game ID.
- * An array is returned with keys "beaten-softcore", "beaten-hardcore",
- * "completed", and "mastered", which contain corresponding award details.
+ * An array is returned with legacy award-kind keys containing corresponding award details.
  * If no progression awards are found, or if the target username is not provided,
  * no awards are fetched or returned.
  *
@@ -285,9 +293,9 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
 
         $key = '';
         if ($awardType === AwardType::Mastery) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'completed' : 'mastered';
+            $key = $awardExtra == UnlockMode::Casual ? 'completed' : 'mastered';
         } elseif ($awardType === AwardType::GameBeaten) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'beaten-softcore' : 'beaten-hardcore';
+            $key = $awardExtra == UnlockMode::Casual ? 'beaten-softcore' : 'beaten-hardcore';
         }
 
         if ($key && is_null($userGameProgressionAwards[$key])) {

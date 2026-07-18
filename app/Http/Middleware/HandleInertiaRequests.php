@@ -120,6 +120,9 @@ class HandleInertiaRequests extends Middleware
                 'services' => [
                     'patreon' => ['userId' => config('services.patreon.user_id')],
                 ],
+                'screenshots' => [
+                    'maxPendingSubmissions' => max(1, (int) config('screenshots.max_pending_submissions_per_user')),
+                ],
             ],
 
             'metaKey' => $metaKey,

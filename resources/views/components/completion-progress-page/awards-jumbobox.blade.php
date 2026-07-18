@@ -1,7 +1,7 @@
 @props([
     'playedCount' => 0,
     'unfinishedCount' => 0,
-    'beatenSoftcoreCount' => 0,
+    'beatenCasualCount' => 0,
     'beatenHardcoreCount' => 0,
     'completedCount' => 0,
     'masteredCount' => 0,
@@ -14,14 +14,14 @@ if (isset($currentQueryParams['filter']['status'])) {
     unset($currentQueryParams['filter']['status']);
 }
 
-$canShowBeatenSoftcore = $beatenSoftcoreCount > 0;
-$canShowBeatenHardcore = $beatenHardcoreCount > 0 || ($beatenHardcoreCount === 0 && $beatenSoftcoreCount === 0);
+$canShowBeatenCasual = $beatenCasualCount > 0;
+$canShowBeatenHardcore = $beatenHardcoreCount > 0 || ($beatenHardcoreCount === 0 && $beatenCasualCount === 0);
 $canShowCompleted = $completedCount > 0;
 $canShowMastered = $masteredCount > 0 || ($masteredCount === 0 && $completedCount === 0);
 
 $playedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'null']));
 $unfinishedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'unawarded']));
-$beatenSoftcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-softcore']));
+$beatenCasualUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-softcore']));
 $beatenHardcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-hardcore']));
 $completedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-completed']));
 $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-mastered']));
@@ -37,9 +37,9 @@ $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQue
             <span class="font-bold">{{ localized_number($unfinishedCount )}}</span> Unfinished
         </a>
         
-        @if ($canShowBeatenSoftcore)
-            <a href="{{ $beatenSoftcoreUrl }}">
-                <span class="font-bold">{{ localized_number($beatenSoftcoreCount) }}</span> Beaten (softcore)
+        @if ($canShowBeatenCasual)
+            <a href="{{ $beatenCasualUrl }}">
+                <span class="font-bold">{{ localized_number($beatenCasualCount) }}</span> Beaten (casual)
             </a>
         @endif
         
@@ -73,10 +73,10 @@ $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQue
             <p>Unfinished</p>
         </a>
 
-        @if ($canShowBeatenSoftcore)
-            <a href="{{ $beatenSoftcoreUrl }}" class="flex flex-col items-center" data-testid="beaten-softcore-link">
-                <p class="text-lg">{{ localized_number($beatenSoftcoreCount) }}</p>
-                <p class="whitespace-nowrap">Beaten (softcore)</p>
+        @if ($canShowBeatenCasual)
+            <a href="{{ $beatenCasualUrl }}" class="flex flex-col items-center" data-testid="beaten-casual-link">
+                <p class="text-lg">{{ localized_number($beatenCasualCount) }}</p>
+                <p class="whitespace-nowrap">Beaten (casual)</p>
             </a>
         @endif
 

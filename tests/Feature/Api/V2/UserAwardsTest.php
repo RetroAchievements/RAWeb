@@ -12,14 +12,42 @@ use App\Models\SiteAward;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
+use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
 use Tests\TestCase;
 
 class UserAwardsTest extends TestCase
 {
     use RefreshDatabase;
     use MakesJsonApiRequests;
+    use TestsJsonApiIndex;
+
+    protected function resourceType(): string
+    {
+        return 'user-awards';
+    }
+
+    protected function resourceEndpoint(): string
+    {
+        return '/api/v2/user-awards';
+    }
+
+    protected function createResource(): Model
+    {
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        return PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+    }
 
     public function testItRequiresAuthentication(): void
     {
@@ -102,7 +130,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 01:30:00',
         ]);
@@ -118,7 +146,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 02:00:00',
         ]);
@@ -145,7 +173,7 @@ class UserAwardsTest extends TestCase
         $this->assertSame(['beaten-hardcore', 'mastered'], $kinds);
         $this->assertEquals(2, $response->json('meta.totalAwardsCount'));
         $this->assertEquals(1, $response->json('meta.beatenHardcoreAwardsCount'));
-        $this->assertEquals(0, $response->json('meta.beatenSoftcoreAwardsCount'));
+        $this->assertEquals(0, $response->json('meta.beatenCasualAwardsCount'));
         $this->assertEquals(1, $response->json('meta.masteryAwardsCount'));
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
@@ -165,7 +193,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 01:30:00',
         ]);
@@ -181,7 +209,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => '2017-06-21 02:00:00',
         ]);
@@ -198,7 +226,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -206,12 +234,12 @@ class UserAwardsTest extends TestCase
         $this->assertSame(['mastered'], collect($response->json('data'))->pluck('attributes.kind')->all());
         $this->assertEquals(1, $response->json('meta.totalAwardsCount'));
         $this->assertEquals(0, $response->json('meta.beatenHardcoreAwardsCount'));
-        $this->assertEquals(0, $response->json('meta.beatenSoftcoreAwardsCount'));
+        $this->assertEquals(0, $response->json('meta.beatenCasualAwardsCount'));
         $this->assertEquals(1, $response->json('meta.masteryAwardsCount'));
         $this->assertEquals(0, $response->json('meta.completionAwardsCount'));
     }
 
-    public function testHighestGameAwardsOnlyComparesVisibleAwards(): void
+    public function testHighestGameAwardTierOnlyComparesVisibleAwards(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -243,7 +271,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -252,7 +280,7 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('beaten-hardcore', $response->json('data.0.attributes.kind'));
     }
 
-    public function testHighestGameAwardsOnlyComparesAwardsInsideTheFilteredDateRange(): void
+    public function testHighestGameAwardTierOnlyComparesAwardsInsideTheFilteredDateRange(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -284,7 +312,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwards]=highest");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[awardedFrom]=2024-03-01&filter[awardedTo]=2024-09-01&filter[gameAwardTier]=highest");
 
         // Assert
         $response->assertSuccessful();
@@ -305,7 +333,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
         ]);
 
@@ -336,7 +364,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
         ]);
 
@@ -470,6 +498,88 @@ class UserAwardsTest extends TestCase
         ));
     }
 
+    public function testItUsesTheDisplayTierBadgeUrlForEventAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $legacyGame = Game::factory()->create(['title' => 'Tiered Event']);
+
+        // ... create the highest tier first so we can attach a second tier to the same event ...
+        $highTierAward = EventAward::factory()->create([
+            'tier_index' => 2,
+            'image_asset_path' => '/Images/event-tier-2.png',
+        ]);
+        $event = $highTierAward->event()->first();
+        $event->legacy_game_id = $legacyGame->id;
+        $event->image_asset_path = '/Images/event.png';
+        $event->save();
+
+        EventAward::factory()->create([
+            'event_id' => $event->id,
+            'tier_index' => 1,
+            'image_asset_path' => '/Images/event-tier-1.png',
+        ]);
+
+        // ... the user earned tier 2 but prefers to display tier 1 ...
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Event,
+            'award_key' => $event->id,
+            'award_tier' => 2,
+            'display_award_tier' => 1,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/Images/event-tier-1.png', $response->json('data.0.attributes.badgeUrl'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.tierIndex'));
+        $this->assertEquals(1, $response->json('data.0.attributes.context.displayTierIndex'));
+    }
+
+    public function testItFallsBackToTheEarnedTierBadgeUrlForEventAwardsWithNoDisplayPreference(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $legacyGame = Game::factory()->create(['title' => 'Tiered Event']);
+
+        $eventAward = EventAward::factory()->create([
+            'tier_index' => 2,
+            'image_asset_path' => '/Images/event-tier-2.png',
+        ]);
+        $event = $eventAward->event()->first();
+        $event->legacy_game_id = $legacyGame->id;
+        $event->image_asset_path = '/Images/event.png';
+        $event->save();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Event,
+            'award_key' => $event->id,
+            'award_tier' => 2,
+            'display_award_tier' => null,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/Images/event-tier-2.png', $response->json('data.0.attributes.badgeUrl'));
+    }
+
     public function testItUsesTheSiteAwardLabelAsThePlaytestTitle(): void
     {
         // Arrange
@@ -511,7 +621,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 2,
-            'award_tier' => 0,
+            'award_tier' => 2,
             'order_column' => 0,
         ]);
 
@@ -529,8 +639,40 @@ class UserAwardsTest extends TestCase
         $this->assertEquals('Media Contribution', $response->json('data.0.attributes.title'));
         $this->assertStringEndsWith('/assets/images/badge/mediaContrib-2.png', $response->json('data.0.attributes.badgeUrl'));
         $this->assertEquals(2, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.displayTierIndex'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.earnedTier'));
         $this->assertEquals(100, $response->json('data.0.attributes.context.threshold'));
         $this->assertEquals(1, $response->json('meta.siteAwardsCount'));
+    }
+
+    public function testItUsesTheDisplayTierBadgeUrlForMediaContributionAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::MediaContribution,
+            'award_key' => 2,
+            'award_tier' => 2,
+            'display_award_tier' => 0,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[kind]=media-contribution");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertStringEndsWith('/assets/images/badge/mediaContrib-0.png', $response->json('data.0.attributes.badgeUrl'));
+        $this->assertEquals(0, $response->json('data.0.attributes.context.tier'));
+        $this->assertEquals(0, $response->json('data.0.attributes.context.displayTierIndex'));
+        $this->assertEquals(2, $response->json('data.0.attributes.context.earnedTier'));
+        $this->assertEquals(10, $response->json('data.0.attributes.context.threshold'));
     }
 
     public function testItCanSortByAwardedAtDescending(): void
@@ -592,7 +734,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $gameB->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 1,
         ]);
 
@@ -607,6 +749,43 @@ class UserAwardsTest extends TestCase
         $this->assertCount(1, $response->json('data'));
         $this->assertEquals('mastered', $response->json('data.0.attributes.kind'));
         $this->assertEquals('Mastered Game', $response->json('data.0.attributes.title'));
+    }
+
+    public function testItCanFilterByBeatenCasualKind(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $beatenHardcoreGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Hardcore Beaten Game']);
+        $beatenCasualGame = Game::factory()->create(['system_id' => $system->id, 'title' => 'Casual Beaten Game']);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $beatenHardcoreGame->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $beatenCasualGame->id,
+            'award_tier' => UnlockMode::Casual,
+            'order_column' => 1,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[kind]=beaten-casual");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals('beaten-casual', $response->json('data.0.attributes.kind'));
+        $this->assertEquals('Casual Beaten Game', $response->json('data.0.attributes.title'));
     }
 
     public function testItReturnsErrorWhenFilteringByInvalidKind(): void
@@ -625,7 +804,7 @@ class UserAwardsTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function testItReturnsErrorWhenFilteringByInvalidGameAwardsMode(): void
+    public function testItReturnsErrorWhenFilteringByInvalidGameAwardTierMode(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -635,7 +814,7 @@ class UserAwardsTest extends TestCase
         $response = $this->jsonApi('v2')
             ->expects('user-awards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwards]=collapsed");
+            ->get("/api/v2/users/{$player->ulid}/awards?filter[gameAwardTier]=collapsed");
 
         // Assert
         $response->assertStatus(400);
@@ -661,7 +840,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::GameBeaten,
             'award_key' => $gameB->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 1,
         ]);
 
@@ -732,6 +911,8 @@ class UserAwardsTest extends TestCase
         $gameA = Game::factory()->create(['system_id' => $system->id]);
         $gameB = Game::factory()->create(['system_id' => $system->id]);
         $gameC = Game::factory()->create(['system_id' => $system->id]);
+        $gameD = Game::factory()->create(['system_id' => $system->id]);
+        $gameE = Game::factory()->create(['system_id' => $system->id]);
 
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
@@ -749,12 +930,28 @@ class UserAwardsTest extends TestCase
             'order_column' => 1,
             'awarded_at' => '2024-06-15 12:00:00',
         ]);
+        $lateFinalDayAward = PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameD->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 2,
+            'awarded_at' => '2024-09-01 23:59:59', // late in the final day, a bare-date awardedTo bound must still return this
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameE->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 3,
+            'awarded_at' => '2024-09-02 00:00:00', // midnight the day after the awardedTo bound, so it's always excluded
+        ]);
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $gameC->id,
             'award_tier' => UnlockMode::Hardcore,
-            'order_column' => 2,
+            'order_column' => 4,
             'awarded_at' => '2024-12-15 12:00:00',
         ]);
 
@@ -766,8 +963,11 @@ class UserAwardsTest extends TestCase
 
         // Assert
         $response->assertSuccessful();
-        $this->assertCount(1, $response->json('data'));
-        $this->assertEquals((string) $inRangeAward->id, $response->json('data.0.id'));
+        $data = $response->json('data');
+        $this->assertCount(2, $data);
+        $ids = array_column($data, 'id');
+        $this->assertContains((string) $inRangeAward->id, $ids);
+        $this->assertContains((string) $lateFinalDayAward->id, $ids); // a bare-date awardedTo bound is treated as end-of-day
     }
 
     public function testItCorrectlyAppliesVisibility(): void
@@ -782,7 +982,7 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::Mastery,
             'award_key' => $game->id,
-            'award_tier' => UnlockMode::Softcore,
+            'award_tier' => UnlockMode::Casual,
             'order_column' => 0,
             'awarded_at' => now()->subDay(),
         ]);
@@ -855,12 +1055,14 @@ class UserAwardsTest extends TestCase
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 1,
+            'award_tier' => 1,
             'order_column' => 0,
         ]);
         PlayerBadge::factory()->create([
             'user_id' => $player->id,
             'award_type' => AwardType::MediaContribution,
             'award_key' => 2,
+            'award_tier' => 2,
             'order_column' => 0,
         ]);
 
@@ -925,5 +1127,335 @@ class UserAwardsTest extends TestCase
 
         // Assert
         $response->assertNotFound();
+    }
+
+    public function testIndexRequiresAuthentication(): void
+    {
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertUnauthorized();
+    }
+
+    public function testItHasNoShowRoute(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $award = $this->createResource();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/user-awards/{$award->id}");
+
+        // Assert
+        $response->assertStatus(404);
+    }
+
+    public function testIndexSortsByRecencyByDefault(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $playerA = User::factory()->create();
+        $playerB = User::factory()->create();
+        $system = System::factory()->create();
+        $gameA = Game::factory()->create(['system_id' => $system->id, 'title' => 'Older Feed Game']);
+        $gameB = Game::factory()->create(['system_id' => $system->id, 'title' => 'Newer Feed Game']);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $playerA->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameA->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-01-01 12:00:00',
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $playerB->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameB->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-06-15 12:00:00',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title')->all();
+        $this->assertSame(['Newer Feed Game', 'Older Feed Game'], $titles);
+
+        // ... the index uses simple pagination, so there is no expensive total count ...
+        $this->assertEquals(1, $response->json('meta.page.currentPage'));
+        $this->assertNull($response->json('meta.page.total'));
+    }
+
+    public function testIndexSupportsExplicitSorting(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $gameA = Game::factory()->create(['system_id' => $system->id, 'title' => 'Older Feed Game']);
+        $gameB = Game::factory()->create(['system_id' => $system->id, 'title' => 'Newer Feed Game']);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameA->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-01-01 12:00:00',
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameB->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-06-15 12:00:00',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards?sort=awardedAt');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title')->all();
+        $this->assertSame(['Older Feed Game', 'Newer Feed Game'], $titles);
+    }
+
+    public function testUserAwardsRelationshipStillDefaultsToProfileOrder(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $gameA = Game::factory()->create(['system_id' => $system->id, 'title' => 'Pinned First']);
+        $gameB = Game::factory()->create(['system_id' => $system->id, 'title' => 'Pinned Second']);
+
+        // ... gameB's award is more recent, so a recency default would return it first ...
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameA->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+            'awarded_at' => '2024-01-01 12:00:00',
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameB->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 1,
+            'awarded_at' => '2024-06-15 12:00:00',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/awards");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title')->all();
+        $this->assertSame(['Pinned First', 'Pinned Second'], $titles);
+    }
+
+    public function testIndexCanFilterByKind(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $gameA = Game::factory()->create(['system_id' => $system->id, 'title' => 'Mastered Game']);
+        $gameB = Game::factory()->create(['system_id' => $system->id, 'title' => 'Beaten Game']);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $gameA->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $gameB->id,
+            'award_tier' => UnlockMode::Casual,
+            'order_column' => 1,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards?filter[kind]=mastered');
+        $invalidResponse = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards?filter[kind]=events');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals('mastered', $response->json('data.0.attributes.kind'));
+        $this->assertEquals('Mastered Game', $response->json('data.0.attributes.title'));
+
+        $invalidResponse->assertStatus(400);
+    }
+
+    public function testIndexExcludesBannedUsers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $bannedPlayer = User::factory()->create(['banned_at' => now()]);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Visible Game']);
+
+        $visibleAward = PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $bannedPlayer->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertSuccessful();
+        $response->assertFetchedMany([
+            ['type' => 'user-awards', 'id' => (string) $visibleAward->id],
+        ]);
+    }
+
+    public function testIndexDoesNotCollapseOrHideAwards(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Casual,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => -1,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(3, $response->json('data'));
+    }
+
+    public function testIndexIncludesUserAttributes(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create(['display_name' => 'AwardWinner']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('AwardWinner', $response->json('data.0.attributes.userDisplayName'));
+        $this->assertEquals($player->ulid, $response->json('data.0.attributes.userId'));
+    }
+
+    public function testIndexCanIncludeUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create(['display_name' => 'AwardWinner']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        PlayerBadge::factory()->create([
+            'user_id' => $player->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+            'order_column' => 0,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-awards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/user-awards?include=user');
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = collect($response->json('included'));
+        $this->assertTrue($included->contains(
+            fn (array $resource) => $resource['type'] === 'users' && $resource['id'] === $player->ulid
+        ));
     }
 }

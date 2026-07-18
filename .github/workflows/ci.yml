@@ -162,7 +162,7 @@ jobs:
 
       - name: Run tests with sharding
         if: ${{ needs.changes.outputs.php == 'true' }}
-        run: ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        run: ./vendor/bin/pest --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
   merge-php-test-reports:
     needs: [changes, php-tests]

@@ -12,6 +12,7 @@ use App\Models\GameAchievementSet;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Models\LeaderboardEntry;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Observers\EventAchievementObserver;
 use App\Observers\GameAchievementSetObserver;
@@ -19,6 +20,7 @@ use App\Observers\GameObserver;
 use App\Observers\GameSetLinkObserver;
 use App\Observers\GameSetObserver;
 use App\Observers\LeaderboardEntryObserver;
+use App\Observers\TicketObserver;
 use App\Observers\UserObserver;
 use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Auth\Events\Login;
@@ -88,6 +90,8 @@ class EventServiceProvider extends ServiceProvider
         GameSet::observe(GameSetObserver::class);
 
         LeaderboardEntry::observe(LeaderboardEntryObserver::class);
+
+        Ticket::observe(TicketObserver::class);
     }
 
     /**

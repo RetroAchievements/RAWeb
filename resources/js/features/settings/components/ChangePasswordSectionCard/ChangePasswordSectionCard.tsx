@@ -58,7 +58,7 @@ export const ChangePasswordSectionCard: FC = () => {
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder={t('enter your current password here...')}
+                      placeholder={t('Enter your current password')}
                       autoComplete="current-password"
                       required
                       {...field}
@@ -84,7 +84,7 @@ export const ChangePasswordSectionCard: FC = () => {
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder={t('enter a new password here...')}
+                      placeholder={t('Enter a new password')}
                       autoComplete="new-password"
                       required
                       minLength={10}
@@ -108,14 +108,14 @@ export const ChangePasswordSectionCard: FC = () => {
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
                 <BaseFormLabel className="text-menu-link @xl:w-2/5">
-                  {t('Confirm Password')}
+                  {t('Confirm New Password')}
                 </BaseFormLabel>
 
                 <div className="flex grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder={t('confirm your new password here...')}
+                      placeholder={t('Confirm your new password')}
                       autoComplete="new-password"
                       required
                       minLength={10}

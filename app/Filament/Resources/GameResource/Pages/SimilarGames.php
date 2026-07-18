@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Exceptions\SimilarGamesCapExceededException;
 use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\GameResource;
 use App\Filament\Resources\SystemResource;
@@ -61,7 +62,8 @@ class SimilarGames extends ManageRelatedRecords
     {
         $item = parent::getNavigationItems($urlParameters)[0];
         if (($record = $urlParameters['record'] ?? null) instanceof Game) {
-            $item->badge((string) $record->similarGamesList->count());
+            $count = $record->similarGamesList->count();
+            $item->badge("{$count} / " . LinkSimilarGamesAction::MAX_SIMILAR_GAMES);
         }
 
         return [$item];
@@ -127,6 +129,10 @@ class SimilarGames extends ManageRelatedRecords
             ->headerActions([
                 Actions\Action::make('add')
                     ->label('Add similar games')
+                    ->disabled(fn (): bool => $this->isSimilarGamesCapReached())
+                    ->tooltip(fn (): ?string => $this->isSimilarGamesCapReached()
+                        ? 'This game is at the ' . LinkSimilarGamesAction::MAX_SIMILAR_GAMES . '-similar-game cap. Remove a game before adding more.'
+                        : null)
                     ->schema([
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
@@ -181,18 +187,34 @@ class SimilarGames extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        $gameIds = [];
+                        $selectIds = !empty($data['game_ids']) ? array_map('intval', $data['game_ids']) : [];
+                        $csvIds = !empty($data['game_ids_csv'])
+                            ? (new ParseIdsFromCsvAction())->execute($data['game_ids_csv'])
+                            : [];
+                        $gameIds = array_values(array_unique(array_merge($selectIds, $csvIds)));
 
-                        // Handle select field input.
-                        if (!empty($data['game_ids'])) {
-                            $gameIds = $data['game_ids'];
-                            (new LinkSimilarGamesAction())->execute($game, $gameIds);
+                        if (empty($gameIds)) {
+                            return;
                         }
 
-                        // Handle CSV input.
-                        if (!empty($data['game_ids_csv'])) {
-                            $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
+                        try {
                             (new LinkSimilarGamesAction())->execute($game, $gameIds);
+                        } catch (SimilarGamesCapExceededException $e) {
+                            if ($e->offendingGameId === $game->id) {
+                                $body = "Adding these games would push this game's similar list over the {$e->cap}-similar-game cap. Remove an entry or add fewer games.";
+                            } else {
+                                $offending = Game::find($e->offendingGameId);
+                                $title = $offending?->title ?? "Game #{$e->offendingGameId}";
+                                $body = "{$title} is already at the {$e->cap}-similar-game cap and cannot be linked.";
+                            }
+
+                            Notification::make()
+                                ->danger()
+                                ->title('Cap exceeded')
+                                ->body($body)
+                                ->send();
+
+                            return;
                         }
 
                         Notification::make()
@@ -214,6 +236,7 @@ class SimilarGames extends ManageRelatedRecords
                         $game = $this->getOwnerRecord();
 
                         (new UnlinkSimilarGamesAction())->execute($game, [$similarGame->id]);
+                        $this->isSimilarGamesCapReached = null;
 
                         Notification::make()
                             ->success()
@@ -237,6 +260,7 @@ class SimilarGames extends ManageRelatedRecords
                             $game,
                             $similarGames->pluck('id')->toArray()
                         );
+                        $this->isSimilarGamesCapReached = null;
 
                         $this->deselectAllTableRecords();
 
@@ -247,6 +271,20 @@ class SimilarGames extends ManageRelatedRecords
                             ->send();
                     }),
             ]);
+    }
+
+    private ?bool $isSimilarGamesCapReached = null;
+
+    private function isSimilarGamesCapReached(): bool
+    {
+        if ($this->isSimilarGamesCapReached === null) {
+            /** @var Game $game */
+            $game = $this->getOwnerRecord();
+            $similarGamesCount = $game->similarGamesList()->count();
+            $this->isSimilarGamesCapReached = $similarGamesCount >= LinkSimilarGamesAction::MAX_SIMILAR_GAMES;
+        }
+
+        return $this->isSimilarGamesCapReached;
     }
 
     /**

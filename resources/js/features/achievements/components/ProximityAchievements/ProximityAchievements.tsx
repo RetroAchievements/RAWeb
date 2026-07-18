@@ -68,7 +68,10 @@ export const ProximityAchievements: FC = () => {
                       {proximityAchievement.title}
                     </p>
 
-                    <p className="truncate text-2xs text-text">
+                    <p
+                      className="truncate text-2xs text-text"
+                      title={proximityAchievement.description}
+                    >
                       {proximityAchievement.description}
                     </p>
 

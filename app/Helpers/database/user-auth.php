@@ -68,45 +68,6 @@ function authenticateFromCookie(
 }
 
 /*
- * TOKEN
- */
-
-/**
- * @param-out int|null $permissionOut
- */
-function authenticateFromAppToken(
-    ?string &$userOut,
-    string $token,
-    ?int &$permissionOut,
-): bool {
-    if (empty($userOut)) {
-        return false;
-    }
-    if (empty($token)) {
-        return false;
-    }
-
-    /** @var ?User $user */
-    $user = auth('connect-token')->user();
-
-    $doesUsernameMatch = $user && (
-        strcasecmp($user->username, $userOut) == 0
-        || strcasecmp($user->display_name, $userOut) == 0
-    );
-
-    if (!$doesUsernameMatch) {
-        return false;
-    }
-
-    $userOut = $user->username; // always normalize to the username field
-    /** @var int|null $permissions */
-    $permissions = $user->Permissions;
-    $permissionOut = $permissions;
-
-    return true;
-}
-
-/*
  * WEB API Key
  * TODO replace with passport personal token
  */

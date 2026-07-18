@@ -45,7 +45,6 @@ describe('Component: UserCommentsMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('listitem', { name: /all users/i })).toBeVisible();
     expect(screen.getByRole('listitem', { name: /scott/i })).toBeVisible();
   });
 

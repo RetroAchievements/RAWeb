@@ -88,7 +88,7 @@ class PatchDataTest extends TestCase
         return $this->getWarningAchievementPatchData(
             title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
+                ClientSupportLevel::CasualOnly => 'Warning: Casual Only',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
@@ -563,6 +563,63 @@ class PatchDataTest extends TestCase
                     'Leaderboards' => [],
                 ],
             ]);
+
+        $emulatorUserAgent = EmulatorUserAgent::where('client', 'MyClient')->first();
+        $emulatorUserAgent->pending_minimum_hardcore_version = '1.6';
+        $emulatorUserAgent->pending_minimum_hardcore_version_at = Carbon::now()->addDays(5);
+        $emulatorUserAgent->save();
+
+        // valid for now user agent
+        $this->withHeaders(['User-Agent' => 'MyClient/1.5'])
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            'Warning: Outdated Emulator in 5 days (please update)',
+                            'Hardcore unlocks will not be earnable using this emulator in less than 5 days.'
+                        ),
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // still valid after pending change user agent
+        $this->withHeaders(['User-Agent' => 'MyClient/1.6'])
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
     }
 
     public function testCoreRestrictionUserAgent(): void
@@ -703,7 +760,7 @@ class PatchDataTest extends TestCase
                     'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(
-                            ClientSupportLevel::SoftcoreOnly,
+                            ClientSupportLevel::CasualOnly,
                         ),
                         $this->getAchievementPatchData($achievement1),
                     ],

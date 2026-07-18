@@ -12,14 +12,16 @@ interface ResponsiveManageChipProps {
 }
 
 export const ResponsiveManageChip: FC<ResponsiveManageChipProps> = ({ className }) => {
-  const { can, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { can, backingGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <a
-      href={can.updateGame ? `/manage/games/${game.id}/edit` : `/manage/games/${game.id}`}
+      href={
+        can.updateGame ? `/manage/games/${backingGame.id}/edit` : `/manage/games/${backingGame.id}`
+      }
       target="_blank"
       aria-label={t('Manage')}
       className={cn(responsiveHeaderChipClassNames, 'gap-0! rounded-full! px-2.5!', className)}

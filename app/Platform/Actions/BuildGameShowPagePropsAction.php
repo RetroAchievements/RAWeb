@@ -18,7 +18,6 @@ use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
-use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
@@ -41,6 +40,7 @@ use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\GameLeaderboardService;
+use App\Platform\Services\GameOpenTicketCountService;
 use App\Platform\Services\ScreenshotResolutionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
@@ -57,6 +57,7 @@ class BuildGameShowPagePropsAction
         protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
         protected GameLeaderboardService $gameLeaderboardService,
+        protected GameOpenTicketCountService $gameOpenTicketCountService,
         protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
@@ -105,7 +106,7 @@ class BuildGameShowPagePropsAction
             $backingGame = $game;
         }
 
-        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore] =
+        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenCasual] =
             $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
@@ -284,7 +285,9 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
                 'imageBoxArtUrl',
+                'imageIngameDimensions',
                 'imageIngameUrl',
+                'imageTitleDimensions',
                 'imageTitleUrl',
                 'medianTimeToBeat',
                 'medianTimeToBeatHardcore',
@@ -347,13 +350,11 @@ class BuildGameShowPagePropsAction
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $targetAchievementSet),
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
-            numBeatenSoftcore: $numBeatenSoftcore,
+            numBeatenCasual: $numBeatenCasual,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,
-            numOpenTickets: $isPromoted
-                ? Ticket::forGame($backingGame)->open()->officialCore()->count()
-                : Ticket::forGame($backingGame)->open()->unofficial()->count(),
+            numOpenTickets: $this->gameOpenTicketCountService->count($backingGame, $isPromoted),
 
             numScreenshots: $game->gameScreenshots()->approved()->count(),
             screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()
@@ -604,12 +605,18 @@ class BuildGameShowPagePropsAction
         $system = $game->system;
         $resolutionService = new ScreenshotResolutionService();
 
-        $existingResolutions = $game->gameScreenshots()
+        $rawScreenshots = $game->gameScreenshots()
             ->approved()
             ->where('is_primary', true)
             ->whereNotNull('width')
             ->whereNotNull('height')
-            ->get(['width', 'height'])
+            ->get(['width', 'height']);
+
+        if ($rawScreenshots->isEmpty()) {
+            return null;
+        }
+
+        $existingResolutions = $rawScreenshots
             ->map(fn (GameScreenshot $screenshot) => $system
                 ? $resolutionService->getNormalizedResolution($screenshot->width, $screenshot->height, $system)
                 : ['width' => $screenshot->width, 'height' => $screenshot->height]
@@ -619,10 +626,6 @@ class BuildGameShowPagePropsAction
             ->sortBy(fn (array $resolution) => "{$resolution['width']}x{$resolution['height']}")
             ->values()
             ->all();
-
-        if ($existingResolutions === []) {
-            return null;
-        }
 
         $canonicalResolution = count($existingResolutions) === 1
             ? "{$existingResolutions[0]['width']}x{$existingResolutions[0]['height']}"

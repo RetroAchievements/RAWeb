@@ -43,7 +43,9 @@ export const EventShowMainRoot: FC = () => {
 
       <div className="hidden sm:block">
         <PlayableMainMedia
+          imageIngameDimensions={legacyGame.imageIngameDimensions}
           imageIngameUrl={legacyGame.imageIngameUrl!}
+          imageTitleDimensions={legacyGame.imageTitleDimensions}
           imageTitleUrl={legacyGame.imageTitleUrl!}
         />
       </div>
