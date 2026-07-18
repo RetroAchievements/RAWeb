@@ -7,6 +7,7 @@ use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -92,28 +93,34 @@ if ($propertyType === UserAction::PatreonBadge) {
         'value' => ['required', 'integer', Rule::in([1, 2])],
     ]);
 
-    $hasBadge = HasPatreonBadge($foundTargetUser);
-    $hasSupporterRole = $foundTargetUser->hasRole(Role::SUPPORTER);
-    $currentTier = $hasBadge ? ($hasSupporterRole ? 2 : 1) : 0;
+    $comment = DB::transaction(function () use ($foundTargetUser, $value) {
+        User::whereKey($foundTargetUser->id)->lockForUpdate()->first();
 
-    if ($value === $currentTier) {
-        SetPatreonSupporter($foundTargetUser, false);
-        if ($hasSupporterRole) {
-            $foundTargetUser->removeRole(Role::SUPPORTER);
+        $hasBadge = HasPatreonBadge($foundTargetUser);
+        $hasSupporterRole = $foundTargetUser->hasRole(Role::SUPPORTER);
+        $currentTier = $hasBadge ? ($hasSupporterRole ? 2 : 1) : 0;
+
+        if ($value === $currentTier) {
+            SetPatreonSupporter($foundTargetUser, false);
+            if ($hasSupporterRole) {
+                $foundTargetUser->removeRole(Role::SUPPORTER);
+            }
+
+            return sprintf('revoked $%d Patreon supporter status', $currentTier);
         }
 
-        $comment = sprintf('revoked $%d Patreon supporter status', $currentTier);
-    } elseif ($value === 1) {
-        if (!$hasBadge) {
-            SetPatreonSupporter($foundTargetUser, true);
+        if ($value === 1) {
+            if (!$hasBadge) {
+                SetPatreonSupporter($foundTargetUser, true);
+            }
+
+            if ($hasSupporterRole) {
+                $foundTargetUser->removeRole(Role::SUPPORTER);
+            }
+
+            return 'awarded $1 Patreon supporter status';
         }
 
-        if ($hasSupporterRole) {
-            $foundTargetUser->removeRole(Role::SUPPORTER);
-        }
-
-        $comment = 'awarded $1 Patreon supporter status';
-    } else {
         if (!$hasBadge) {
             SetPatreonSupporter($foundTargetUser, true);
         }
@@ -122,8 +129,8 @@ if ($propertyType === UserAction::PatreonBadge) {
             $foundTargetUser->assignRole(Role::SUPPORTER);
         }
 
-        $comment = 'awarded $2 Patreon supporter status';
-    }
+        return 'awarded $2 Patreon supporter status';
+    });
 
     addArticleComment(
         'Server',
