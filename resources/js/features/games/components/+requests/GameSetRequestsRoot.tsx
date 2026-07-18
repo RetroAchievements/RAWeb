@@ -18,7 +18,7 @@ export const GameSetRequestsRoot: FC = () => {
   return (
     <div className="flex flex-col gap-5">
       <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Set Requests')} />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <GameHeading game={game} wrapperClassName="mb-1!">
         {t('Set Requests')}
       </GameHeading>
 

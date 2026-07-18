@@ -39,11 +39,11 @@ export const AchievementGroupSection: FC<AchievementSectionProps> = ({
       }}
     >
       <BaseCollapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <div className="flex items-center rounded bg-embed px-3 py-1.5">
+        <div className="flex items-center rounded-sm bg-embed px-3 py-1.5">
           <BaseCollapsibleTrigger className="flex flex-1 items-center justify-between text-neutral-300 light:text-neutral-700">
             <span className="flex items-center gap-2 text-sm font-medium">
               {iconUrl ? (
-                <img src={iconUrl} alt="" className="size-8 rounded-sm" loading="lazy" />
+                <img src={iconUrl} alt="" className="size-8 rounded-xs" loading="lazy" />
               ) : null}
 
               {title}

@@ -9,7 +9,7 @@ interface MarkdownRendererProps {
 
 export const MarkdownRenderer: FC<MarkdownRendererProps> = ({ children }) => {
   return (
-    <div className="prose prose-sm prose-invert max-w-none light:prose">
+    <div className="prose prose-sm max-w-none prose-invert light:prose">
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
         {children}
       </ReactMarkdown>

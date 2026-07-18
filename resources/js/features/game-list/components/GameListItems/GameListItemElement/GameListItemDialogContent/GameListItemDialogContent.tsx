@@ -77,7 +77,7 @@ export const GameListItemDialogContent: FC<GameListItemDialogContentProps> = ({
                */}
               <InertiaLink
                 href={route('game.show', { game: game.id })}
-                className="z-20 text-balance px-1.5 text-center text-lg tracking-tight text-text"
+                className="z-20 px-1.5 text-center text-lg tracking-tight text-balance text-text"
               >
                 <GameTitle title={game.title} />
               </InertiaLink>

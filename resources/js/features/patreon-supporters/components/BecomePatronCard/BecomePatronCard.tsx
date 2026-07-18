@@ -30,17 +30,17 @@ export const BecomePatronCard: FC = () => {
           </div>
         </div>
 
-        <BaseCardTitle className="text-balance text-center text-xl">
+        <BaseCardTitle className="text-center text-xl text-balance">
           {t('Thank you to all our amazing Patreon supporters')}
         </BaseCardTitle>
         <BaseCardDescription className="flex flex-col gap-2">
-          <span className="text-balance text-center">
+          <span className="text-center text-balance">
             <Trans
               i18nKey="This is a passion project. Donating is appreciated, but <1>never</1> required."
               components={{ 1: <span className="underline" /> }}
             />
           </span>
-          <span className="text-balance text-center text-neutral-300 light:text-neutral-700">
+          <span className="text-center text-balance text-neutral-300 light:text-neutral-700">
             {t('Your contribution goes directly towards helping keep the servers alive.')}
           </span>
         </BaseCardDescription>

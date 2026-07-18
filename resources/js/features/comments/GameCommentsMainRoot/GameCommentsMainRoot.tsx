@@ -27,7 +27,7 @@ export const GameCommentsMainRoot: FC = () => {
   return (
     <div>
       <GameBreadcrumbs game={game!} system={game!.system} t_currentPageLabel={t('Comments')} />
-      <GameHeading game={game!} wrapperClassName="!mb-1">
+      <GameHeading game={game!} wrapperClassName="mb-1!">
         {t('Comments')}
       </GameHeading>
 

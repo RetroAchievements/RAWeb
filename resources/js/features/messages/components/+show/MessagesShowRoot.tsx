@@ -68,7 +68,7 @@ export const MessagesShowRoot: FC = () => {
           delegatedUserDisplayName={isDelegating ? senderUserDisplayName : undefined}
           t_currentPageLabel={messageThread.title as TranslatedString}
         />
-        <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">
+        <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:text-[2.0em]!">
           {messageThread.title}
         </h1>
 

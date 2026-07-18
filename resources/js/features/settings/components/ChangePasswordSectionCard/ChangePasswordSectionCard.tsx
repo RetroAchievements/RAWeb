@@ -54,7 +54,7 @@ export const ChangePasswordSectionCard: FC = () => {
                   {t('Current Password')}
                 </BaseFormLabel>
 
-                <div className="flex flex-grow flex-col gap-1">
+                <div className="flex grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
@@ -80,7 +80,7 @@ export const ChangePasswordSectionCard: FC = () => {
                   {t('New Password')}
                 </BaseFormLabel>
 
-                <div className="flex flex-grow flex-col gap-1">
+                <div className="flex grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
@@ -111,7 +111,7 @@ export const ChangePasswordSectionCard: FC = () => {
                   {t('Confirm New Password')}
                 </BaseFormLabel>
 
-                <div className="flex flex-grow flex-col gap-1">
+                <div className="flex grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"

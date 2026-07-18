@@ -43,7 +43,7 @@ render(function (View $view, Game $game, TicketListService $ticketListService) {
     />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! gameAvatar($game, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! gameAvatar($game, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 

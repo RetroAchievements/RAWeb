@@ -1,6 +1,6 @@
 .glowing-image-root {
   position: relative;
-  @apply rounded;
+  border-radius: 0.125rem;
 }
 
 .glowing-image-root::before {

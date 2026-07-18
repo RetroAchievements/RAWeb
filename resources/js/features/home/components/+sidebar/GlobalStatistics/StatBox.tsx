@@ -32,7 +32,7 @@ export const StatBox: FC<StatBoxProps> = ({
     <Wrapper
       href={href}
       className={cn(
-        'group flex h-full flex-col rounded border bg-embed px-2 py-2.5',
+        'group flex h-full flex-col rounded-sm border bg-embed px-2 py-2.5',
         'border-neutral-700/80 hover:border-neutral-50',
         'light:border-neutral-400 light:hover:border-neutral-900 light:hover:bg-neutral-100',
         anchorClassName,
@@ -51,7 +51,7 @@ export const StatBox: FC<StatBoxProps> = ({
       <p
         aria-labelledby={labelId}
         className={cn(
-          '!text-[20px] leading-7 text-neutral-300',
+          'text-xl! leading-7 text-neutral-300',
           'group-hover:text-neutral-50 light:text-neutral-950 light:group-hover:text-neutral-950',
         )}
       >

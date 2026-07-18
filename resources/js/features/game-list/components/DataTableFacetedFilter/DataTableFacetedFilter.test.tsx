@@ -570,7 +570,7 @@ describe('Component: DataTableFacetedFilter', () => {
     );
 
     // ASSERT
-    // ... the BaseCommand component should have rounded borders when drawer + single select ...
+    // ... the BaseCommand component should have rounded-sm borders when drawer + single select ...
     const commandContainer = screen.getByTestId('command-container');
     expect(commandContainer).toHaveClass('rounded-md');
     expect(commandContainer).toHaveClass('border');
@@ -579,7 +579,7 @@ describe('Component: DataTableFacetedFilter', () => {
 
     // ... the BaseCommandList should have max-height when drawer + single select ...
     const commandList = screen.getByTestId('command-list');
-    expect(commandList).toHaveClass('max-h-[200px]');
+    expect(commandList).toHaveClass('max-h-50');
   });
 
   it('given drawer variant with multi-select mode, applies proper styling to the command container', () => {
@@ -597,7 +597,7 @@ describe('Component: DataTableFacetedFilter', () => {
     // ASSERT
     // ... the BaseCommand component should have fixed height and borders when drawer + multi-select ...
     const commandContainer = screen.getByTestId('command-container');
-    expect(commandContainer).toHaveClass('h-[168px]');
+    expect(commandContainer).toHaveClass('h-42');
     expect(commandContainer).toHaveClass('rounded-md');
     expect(commandContainer).toHaveClass('border');
     expect(commandContainer).toHaveClass('border-neutral-800');

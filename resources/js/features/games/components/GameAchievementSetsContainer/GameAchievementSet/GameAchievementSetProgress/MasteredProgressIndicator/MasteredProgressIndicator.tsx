@@ -192,12 +192,12 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
         </div>
 
         <BaseProgress
-          className="h-2 w-[184px] bg-zinc-800"
+          className="h-2 w-46 bg-zinc-800"
           max={achievements.length}
           segments={[
             {
               value: unlockedHardcoreCount,
-              className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+              className: 'bg-linear-to-r from-amber-500 to-[gold]',
             },
             {
               value: unlockedCasualCount,
@@ -254,7 +254,7 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
       {unlockedHardcoreCount || unlockedCasualCount ? (
         <BaseButton
           size="sm"
-          className="mb-1 mt-3 h-fit py-0.5"
+          className="mt-3 mb-1 h-fit py-0.5"
           onClick={() => setIsResetAllProgressDialogOpen(true)}
         >
           {t('Manage progress')}

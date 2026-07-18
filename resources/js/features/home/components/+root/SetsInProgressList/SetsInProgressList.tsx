@@ -30,7 +30,7 @@ export const SetsInProgressList: FC = () => {
       <HomeHeading>{t('Latest Sets in Progress')}</HomeHeading>
 
       {!newClaims?.length ? (
-        <div className="rounded bg-embed">
+        <div className="rounded-sm bg-embed">
           <EmptyState>{t("Couldn't find any sets in progress.")}</EmptyState>
         </div>
       ) : null}
