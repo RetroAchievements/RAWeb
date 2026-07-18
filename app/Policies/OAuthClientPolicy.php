@@ -35,7 +35,7 @@ class OAuthClientPolicy
         return
             $this->isFeatureEnabled()
             && $user->hasVerifiedEmail()
-            && $user->created_at > now()->subWeeks(2);
+            && $user->created_at->isBefore(now()->subWeeks(2));
     }
 
     public function update(User $user, OAuthClient $client): bool
