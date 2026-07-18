@@ -356,8 +356,9 @@ function RenderAward(
         $ownerUser = User::whereName($ownerUsername)->first();
         $isSupporterTier = $ownerUser && $ownerUser->hasRole(Role::SUPPORTER);
 
-        $description = ($isSupporterTier ? '$2 ' : '')
-            . 'Patreon supporter. Thank you so much for your support!';
+        $description = $isSupporterTier
+            ? '$2 Patreon supporter. Thank you so much for your support!'
+            : 'Thank you so much for your support!';
 
         echo avatar('patreonSupporterAward', $awardData,
             link: route('patreon-supporter.index'),
