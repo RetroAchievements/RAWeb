@@ -77,7 +77,7 @@ export const CurrentlyOnline: FC = () => {
         ) : null}
       </div>
 
-      <div className="rounded-xs bg-embed p-4">
+      <div className="rounded-sm bg-embed p-4">
         <BaseChartContainer config={chartConfig} className="w-full" style={{ height: 160 }}>
           <AreaChart accessibilityLayer={true} data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />

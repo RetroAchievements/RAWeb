@@ -72,7 +72,7 @@ export const EventDesktopBanner: FC = () => {
             src={legacyGame.badgeUrl}
             alt={legacyGame.title}
             className={cn(
-              'size-20 rounded-xs bg-neutral-950/50 object-cover md:size-24',
+              'size-20 rounded-sm bg-neutral-950/50 object-cover md:size-24',
               'ring-1 ring-white/20 ring-offset-2 ring-offset-black/50',
               'shadow-md shadow-black/50 md:shadow-xl',
               'light:bg-white/50 light:shadow-black/20 light:ring-black/20 light:ring-offset-white/50',

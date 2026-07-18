@@ -56,7 +56,7 @@ export const AchievementHero: FC = () => {
   });
 
   return (
-    <div className="rounded-xs bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
+    <div className="rounded-sm bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
           <div className="shrink-0">

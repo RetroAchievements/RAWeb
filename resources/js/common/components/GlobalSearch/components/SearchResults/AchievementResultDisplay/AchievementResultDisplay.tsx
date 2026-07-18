@@ -12,7 +12,7 @@ export const AchievementResultDisplay: FC<AchievementResultDisplayProps> = ({ ac
       <img
         src={achievement.badgeUnlockedUrl}
         alt={achievement.title}
-        className="size-10 rounded-xs"
+        className="size-10 rounded-sm"
       />
 
       <div className="flex flex-col gap-0.5">

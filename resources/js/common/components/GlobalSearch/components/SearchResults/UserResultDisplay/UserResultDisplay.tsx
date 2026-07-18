@@ -16,7 +16,7 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
   return (
     <div className="flex w-full items-center gap-3">
       <div className="relative">
-        <img src={user.avatarUrl} alt={user.displayName} className="size-10 rounded-xs" />
+        <img src={user.avatarUrl} alt={user.displayName} className="size-10 rounded-sm" />
 
         {isActive ? (
           <div

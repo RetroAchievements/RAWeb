@@ -43,12 +43,12 @@ export const PendingSubmissionsList: FC<PendingSubmissionsListProps> = ({
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, delay: index * 0.05 }}
-          className="flex items-center gap-3 rounded-xs border border-neutral-700 p-2"
+          className="flex items-center gap-3 rounded-sm border border-neutral-700 p-2"
         >
           <img
             src={submission.smWebpUrl}
             alt="your upload" // intentionally untranslated
-            className="h-12 w-16 rounded-xs object-cover"
+            className="h-12 w-16 rounded-sm object-cover"
             loading="lazy"
           />
 
@@ -56,7 +56,7 @@ export const PendingSubmissionsList: FC<PendingSubmissionsListProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium">{screenshotTypeLabels[submission.type]}</span>
 
-              <span className="rounded-xs bg-yellow-900/30 px-1.5 py-0.5 text-[10px] text-yellow-400">
+              <span className="rounded-sm bg-yellow-900/30 px-1.5 py-0.5 text-[10px] text-yellow-400">
                 {t('Pending')}
               </span>
             </div>

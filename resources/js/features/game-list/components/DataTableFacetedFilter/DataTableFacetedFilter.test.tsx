@@ -570,7 +570,7 @@ describe('Component: DataTableFacetedFilter', () => {
     );
 
     // ASSERT
-    // ... the BaseCommand component should have rounded-xs borders when drawer + single select ...
+    // ... the BaseCommand component should have rounded-sm borders when drawer + single select ...
     const commandContainer = screen.getByTestId('command-container');
     expect(commandContainer).toHaveClass('rounded-md');
     expect(commandContainer).toHaveClass('border');

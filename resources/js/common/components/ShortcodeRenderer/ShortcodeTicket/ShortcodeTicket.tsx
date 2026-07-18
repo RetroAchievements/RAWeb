@@ -34,7 +34,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
         data-testid="achievement-ticket-embed"
         href={route('ticket.show', { ticket: ticketId })}
         {...cardTooltipProps}
-        className={cn('inline-block rounded-xs', getTicketStateClassName(foundTicket.state))}
+        className={cn('inline-block rounded-sm', getTicketStateClassName(foundTicket.state))}
       >
         <img
           loading="lazy"

@@ -8,6 +8,11 @@
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "./resources/css/app.css"
+    }
+  },
   "ignorePatterns": [
     "**/generated.d.ts",
     "**/ziggy.d.ts",

@@ -9,7 +9,7 @@ export const RedirectRoot: FC = () => {
 
   return (
     <div className="grid gap-y-6">
-      <div className="w-full rounded-xs bg-linear-to-b from-amber-400 to-yellow-700 p-2">
+      <div className="w-full rounded-sm bg-linear-to-b from-amber-400 to-yellow-700 p-2">
         <div className="flex flex-col items-center gap-y-2 md:flex-row md:gap-x-6">
           <img
             src="/assets/images/cheevo/popcorn.webp"
@@ -26,7 +26,7 @@ export const RedirectRoot: FC = () => {
         </div>
       </div>
 
-      <div className="rounded-xs border border-embed-highlight bg-embed p-4 md:text-center">
+      <div className="rounded-sm border border-embed-highlight bg-embed p-4 md:text-center">
         <div className="flex flex-col gap-y-4">
           <p>
             <Trans

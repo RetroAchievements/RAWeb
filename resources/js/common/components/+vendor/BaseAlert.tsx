@@ -7,7 +7,7 @@ import { cn } from '@/common/utils/cn';
 
 const baseAlertVariants = cva(
   cn(
-    'relative w-full rounded-xs border light:border-neutral-200 p-4',
+    'relative w-full rounded-sm border light:border-neutral-200 p-4',
     '[&>svg~*]:pl-7 [&>svg+div]:-translate-y-0.75 [&>svg]:absolute [&>svg]:left-3.5 [&>svg]:top-4 light:[&>svg]:text-neutral-950',
     'border-neutral-800 [&>svg]:text-neutral-50',
   ),

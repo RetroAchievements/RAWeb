@@ -27,7 +27,7 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
       {selectableGameAchievementSets.length > 1 ? (
         <div
           className={cn(
-            '-mb-3 flex w-full items-center gap-4 rounded-xs bg-embed px-2 py-1.5',
+            '-mb-3 flex w-full items-center gap-4 rounded-sm bg-embed px-2 py-1.5',
             'light:bg-white',
           )}
         >

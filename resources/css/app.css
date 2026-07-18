@@ -59,12 +59,7 @@
 @source not "../../public/assets/build";
 
 @plugin "tailwindcss-animate";
-@plugin "@tailwindcss/forms" {
-  strategy: "class";
-}
 @plugin "@tailwindcss/typography";
-@plugin "@tailwindcss/aspect-ratio";
-@plugin "@tailwindcss/container-queries";
 
 @custom-variant light {
   [data-scheme="light"] & {

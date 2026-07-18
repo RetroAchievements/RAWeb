@@ -38,7 +38,7 @@ export const AchievementOfTheWeek: FC = () => {
       <HomeHeading>{t('Achievement of the Week')}</HomeHeading>
 
       <div className="flex flex-col gap-2">
-        <div className="overflow-hidden rounded-xs bg-embed px-2 pt-2">
+        <div className="overflow-hidden rounded-sm bg-embed px-2 pt-2">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <AchievementAvatar

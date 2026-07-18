@@ -124,7 +124,7 @@ export const PlayableMainMedia: FC<PlayableMainMediaProps> = ({
               <span
                 className={cn(
                   'absolute bottom-1.5 right-1.5 flex items-center gap-1',
-                  'rounded-xs bg-black/80 px-1.5 py-0.5 text-2xs text-white/90',
+                  'rounded-sm bg-black/80 px-1.5 py-0.5 text-2xs text-white/90',
                 )}
               >
                 <LuCamera className="size-3" />

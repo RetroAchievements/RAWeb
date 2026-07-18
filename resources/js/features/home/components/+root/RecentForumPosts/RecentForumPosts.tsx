@@ -19,7 +19,7 @@ export const RecentForumPosts: FC = () => {
       <HomeHeading>{t('Recent Forum Posts')}</HomeHeading>
 
       {!recentForumPosts?.length ? (
-        <div className="rounded-xs bg-embed">
+        <div className="rounded-sm bg-embed">
           <EmptyState>{t('No recent forum posts were found.')}</EmptyState>
         </div>
       ) : null}

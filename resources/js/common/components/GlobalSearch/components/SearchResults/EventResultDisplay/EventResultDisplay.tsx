@@ -16,7 +16,7 @@ export const EventResultDisplay: FC<EventResultDisplayProps> = ({ event }) => {
       <img
         src={event.legacyGame!.badgeUrl}
         alt={event.legacyGame!.title}
-        className="size-10 rounded-xs"
+        className="size-10 rounded-sm"
       />
 
       <div className="flex flex-col gap-0.5">

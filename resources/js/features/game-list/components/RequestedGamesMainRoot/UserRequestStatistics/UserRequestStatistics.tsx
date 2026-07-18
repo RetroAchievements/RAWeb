@@ -18,7 +18,7 @@ export const UserRequestStatistics: FC<UserRequestStatisticsProps> = ({
   const isOwnRequests = auth?.user?.displayName === targetUser.displayName;
 
   return (
-    <div className="rounded-xs bg-embed p-4">
+    <div className="rounded-sm bg-embed p-4">
       <div className="flex flex-col gap-1">
         <p>
           {t('{{used, number}} of {{total, number}} requests made', {

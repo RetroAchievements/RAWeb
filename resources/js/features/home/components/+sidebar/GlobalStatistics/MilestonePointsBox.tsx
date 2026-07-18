@@ -28,7 +28,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
         <div
           data-testid="milestone-points"
           className={cn(
-            'group flex h-full cursor-help flex-col rounded-xs bg-embed px-2 py-2.5',
+            'group flex h-full cursor-help flex-col rounded-sm bg-embed px-2 py-2.5',
             'relative overflow-hidden',
             'border border-amber-400/30 bg-linear-to-br from-embed to-amber-950/10',
             'before:absolute before:inset-0 before:bg-linear-to-r',

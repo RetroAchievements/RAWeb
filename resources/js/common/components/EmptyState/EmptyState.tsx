@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 export const EmptyState: FC<EmptyStateProps> = ({ children, shouldShowImage = true }) => {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-y-2 rounded-xs py-8">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-y-2 rounded-sm py-8">
       {shouldShowImage ? (
         <img
           src="/assets/images/cheevo/confused.webp"

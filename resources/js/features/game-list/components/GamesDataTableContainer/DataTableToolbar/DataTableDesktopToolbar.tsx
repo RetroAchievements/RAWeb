@@ -55,7 +55,7 @@ export function DataTableDesktopToolbar<TData>({
 
   return (
     <div className="flex w-full flex-col justify-between gap-2">
-      <div className="flex w-full flex-col items-center justify-between gap-3 rounded-xs bg-embed py-2 pr-3 pl-2 md:flex-row">
+      <div className="flex w-full flex-col items-center justify-between gap-3 rounded-sm bg-embed py-2 pr-3 pl-2 md:flex-row">
         <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:gap-x-3">
           {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
             <DataTableSystemFilter

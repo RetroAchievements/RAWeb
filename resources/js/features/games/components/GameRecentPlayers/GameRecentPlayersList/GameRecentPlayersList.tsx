@@ -74,7 +74,7 @@ export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
               type="button"
               className={cn(
                 'text-left text-2xs',
-                'rounded-xs focus:outline-hidden focus:ring-1 focus:ring-text focus:ring-offset-0',
+                'rounded-sm focus:outline-hidden focus:ring-1 focus:ring-text focus:ring-offset-0',
 
                 canToggleExpanded ? 'cursor-pointer' : null,
                 !isExpanded ? 'truncate' : null,

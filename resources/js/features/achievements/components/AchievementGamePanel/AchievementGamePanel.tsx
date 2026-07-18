@@ -9,7 +9,7 @@ export const AchievementGamePanel: FC = () => {
   const game = achievement.game as App.Platform.Data.Game;
 
   return (
-    <div className="rounded-xs bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
+    <div className="rounded-sm bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
       <GameAvatar {...game} size={40} showSystemChip={true} gameTitleClassName="line-clamp-1" />
     </div>
   );

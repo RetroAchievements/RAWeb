@@ -38,7 +38,7 @@ export const EventAchievementSection: FC<AchievementSectionProps> = ({
       }}
     >
       <BaseCollapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <div className="flex items-center rounded-xs bg-embed px-3 py-1.5">
+        <div className="flex items-center rounded-sm bg-embed px-3 py-1.5">
           <BaseCollapsibleTrigger className="flex flex-1 items-center justify-between text-neutral-300 light:text-neutral-700">
             <span className="items-center text-sm font-medium">
               {title}

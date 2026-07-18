@@ -35,7 +35,7 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
       id={`${message.id}`}
       data-testid={`message-${message.id}`}
       className={cn(
-        'scroll-mt-14 rounded-xs bg-embed px-2.5 py-1.5',
+        'scroll-mt-14 rounded-sm bg-embed px-2.5 py-1.5',
         isHighlighted ? 'outline-2' : null,
       )}
     >

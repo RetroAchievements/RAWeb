@@ -16,7 +16,7 @@ const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
           type === 'file' ? '' : 'h-10',
           'flex w-full rounded-md border px-3 text-sm light:border-neutral-200 light:bg-white',
 
-          'file:my-1 file:mr-3 file:rounded-xs file:border-0 file:bg-embed file:p-2 file:text-sm file:font-medium file:text-link file:outline-1 file:outline-neutral-700',
+          'file:my-1 file:mr-3 file:rounded-sm file:border-0 file:bg-embed file:p-2 file:text-sm file:font-medium file:text-link file:outline-1 file:outline-neutral-700',
           'file:cursor-pointer hover:file:bg-embed-highlight hover:file:text-link-hover hover:file:outline-link-hover',
           'file:light:bg-white file:light:outline-link light:hover:file:bg-neutral-100 light:hover:file:text-link',
 

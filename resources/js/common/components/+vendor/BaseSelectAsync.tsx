@@ -205,8 +205,8 @@ const DefaultLoadingSkeleton: FC = () => {
           <div className="flex w-full items-center gap-2">
             <div className="bg-muted h-6 w-6 animate-pulse rounded-full" />
             <div className="flex flex-1 flex-col gap-1">
-              <div className="bg-muted h-4 w-24 animate-pulse rounded-xs" />
-              <div className="bg-muted h-3 w-16 animate-pulse rounded-xs" />
+              <div className="bg-muted h-4 w-24 animate-pulse rounded-sm" />
+              <div className="bg-muted h-3 w-16 animate-pulse rounded-sm" />
             </div>
           </div>
         </BaseCommandItem>

@@ -77,7 +77,7 @@
   @apply flex flex-col w-full sm:w-auto items-center gap-y-1 sm:pl-4;
 
   > div[role='progressbar'] {
-    @apply min-w-[120px] w-full sm:w-auto md:min-w-[150px] lg:min-w-[120px] xl:min-w-[150px] h-1.5 bg-zinc-950 light:bg-zinc-300 rounded-xs flex;
+    @apply min-w-[120px] w-full sm:w-auto md:min-w-[150px] lg:min-w-[120px] xl:min-w-[150px] h-1.5 bg-zinc-950 light:bg-zinc-300 rounded-sm flex;
   }
 
   > div[role='progressbar'] > div:first-child {

@@ -1,6 +1,6 @@
 @layer components {
   .btn-base {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-xs text-sm font-medium light:ring-offset-white;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-sm text-sm font-medium light:ring-offset-white;
     @apply focus-visible:outline-hidden focus-visible:ring-1 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2;
     @apply disabled:pointer-events-none disabled:opacity-50;
     @apply ring-offset-neutral-950 focus-visible:ring-neutral-300 select-none;

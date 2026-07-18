@@ -73,7 +73,7 @@ export const AchievementChangelog: FC = () => {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <ul ref={contentRef} className="ml-5 flex flex-col rounded-xs bg-embed p-3">
+              <ul ref={contentRef} className="ml-5 flex flex-col rounded-sm bg-embed p-3">
                 {prePromotion.map((entry, index) => (
                   <AchievementChangelogEntry key={`pre-promo-${index}`} entry={entry} />
                 ))}

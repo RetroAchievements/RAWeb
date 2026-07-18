@@ -30,7 +30,7 @@ export const PersonalizedSuggestionsMainRoot: FC = () => {
       </UserHeading>
 
       <div className="flex flex-col gap-2">
-        <div className="flex justify-end rounded-xs bg-embed p-2">
+        <div className="flex justify-end rounded-sm bg-embed p-2">
           <BaseButton onClick={handleReload} size="sm" className="group gap-1">
             <LuDices className="size-4 transition-transform duration-100 group-hover:rotate-12" />
             <span className="hidden sm:inline">{t('Roll again')}</span>

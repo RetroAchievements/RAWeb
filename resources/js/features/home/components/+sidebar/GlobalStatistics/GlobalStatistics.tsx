@@ -89,7 +89,7 @@ export const GlobalStatistics: FC = () => {
         {isBillionPointMilestone ? (
           <MilestonePointsBox totalPoints={staticData.totalPointsEarned} />
         ) : (
-          <div className="group flex h-full flex-col rounded-xs bg-embed px-2 py-2.5">
+          <div className="group flex h-full flex-col rounded-sm bg-embed px-2 py-2.5">
             <p className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950">
               {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
             </p>

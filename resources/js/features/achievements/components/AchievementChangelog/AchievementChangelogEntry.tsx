@@ -97,9 +97,9 @@ const FieldChangeDiff: FC<FieldChangeDiffProps> = ({ change, type }) => {
   if (type === 'badge-updated') {
     return (
       <div className="flex items-center gap-2">
-        <img src={change.oldValue!} alt="Old badge" className="size-12 rounded-xs" />
+        <img src={change.oldValue!} alt="Old badge" className="size-12 rounded-sm" />
         <LuArrowRight className="text-neutral-500" />
-        <img src={change.newValue!} alt="New badge" className="size-12 rounded-xs" />
+        <img src={change.newValue!} alt="New badge" className="size-12 rounded-sm" />
       </div>
     );
   }
@@ -107,13 +107,13 @@ const FieldChangeDiff: FC<FieldChangeDiffProps> = ({ change, type }) => {
   return (
     <div className="flex flex-col gap-0.5 text-2xs">
       {change.oldValue ? (
-        <span className="rounded-xs bg-red-950/40 px-1 py-px text-red-400 line-through light:bg-red-100 light:text-red-700">
+        <span className="rounded-sm bg-red-950/40 px-1 py-px text-red-400 line-through light:bg-red-100 light:text-red-700">
           {change.oldValue}
         </span>
       ) : null}
 
       {change.newValue ? (
-        <span className="rounded-xs bg-green-950/40 px-1 py-px text-green-400 light:bg-green-100 light:text-green-700">
+        <span className="rounded-sm bg-green-950/40 px-1 py-px text-green-400 light:bg-green-100 light:text-green-700">
           {change.newValue}
         </span>
       ) : null}

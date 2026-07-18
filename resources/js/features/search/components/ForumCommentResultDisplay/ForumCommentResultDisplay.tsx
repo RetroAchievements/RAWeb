@@ -25,10 +25,10 @@ export const ForumCommentResultDisplay: FC<ForumCommentResultDisplayProps> = ({ 
         <img
           src={forumComment.user.avatarUrl}
           alt={forumComment.user.displayName}
-          className="size-10 rounded-xs"
+          className="size-10 rounded-sm"
         />
       ) : (
-        <div className="flex size-10 items-center justify-center rounded-xs bg-neutral-700 light:bg-neutral-200">
+        <div className="flex size-10 items-center justify-center rounded-sm bg-neutral-700 light:bg-neutral-200">
           <LuMessageSquare className="size-5 text-neutral-400" />
         </div>
       )}

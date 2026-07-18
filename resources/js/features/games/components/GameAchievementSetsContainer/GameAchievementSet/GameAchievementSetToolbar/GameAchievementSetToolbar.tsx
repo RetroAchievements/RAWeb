@@ -84,7 +84,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
     <div
       data-testid="game-achievement-set-toolbar"
       className={cn(
-        '-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded-xs bg-embed px-2 py-1.5 sm:flex-row',
+        '-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded-sm bg-embed px-2 py-1.5 sm:flex-row',
         'light:border light:border-neutral-200 light:bg-white',
       )}
     >

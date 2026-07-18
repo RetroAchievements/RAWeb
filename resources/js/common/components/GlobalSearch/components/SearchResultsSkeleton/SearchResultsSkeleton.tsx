@@ -21,7 +21,7 @@ export const SearchResultsSkeleton: FC = () => {
               key={`skeleton-item-${sectionIndex}-${itemIndex}`}
               className="flex items-center gap-3 px-2 py-3"
             >
-              <BaseSkeleton className="size-8 rounded-xs" />
+              <BaseSkeleton className="size-8 rounded-sm" />
 
               <div className="flex-1">
                 <BaseSkeleton className="mb-1 h-4 w-3/4" />

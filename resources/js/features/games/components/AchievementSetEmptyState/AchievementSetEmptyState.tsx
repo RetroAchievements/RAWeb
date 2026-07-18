@@ -18,7 +18,7 @@ export const AchievementSetEmptyState: FC = () => {
   }
 
   return (
-    <div className="mb-16 w-full rounded-xs bg-embed p-8 text-neutral-500 light:border light:border-embed-highlight light:bg-neutral-50">
+    <div className="mb-16 w-full rounded-sm bg-embed p-8 text-neutral-500 light:border light:border-embed-highlight light:bg-neutral-50">
       <div className="flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
           <LuTrophy className="size-12 text-neutral-700" />
