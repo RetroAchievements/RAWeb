@@ -88,14 +88,48 @@ if ($propertyType === UserAction::UpdateForumPostPermissions) {
 }
 
 if ($propertyType === UserAction::PatreonBadge) {
+    Validator::validate(['value' => $value], [
+        'value' => ['required', 'integer', Rule::in([1, 2])],
+    ]);
+
     $hasBadge = HasPatreonBadge($foundTargetUser);
-    SetPatreonSupporter($foundTargetUser, !$hasBadge);
+    $hasSupporterRole = $foundTargetUser->hasRole(Role::SUPPORTER);
+    $currentTier = $hasBadge ? ($hasSupporterRole ? 2 : 1) : 0;
+
+    if ($value === $currentTier) {
+        SetPatreonSupporter($foundTargetUser, false);
+        if ($hasSupporterRole) {
+            $foundTargetUser->removeRole(Role::SUPPORTER);
+        }
+
+        $comment = sprintf('revoked $%d Patreon supporter status', $currentTier);
+    } elseif ($value === 1) {
+        if (!$hasBadge) {
+            SetPatreonSupporter($foundTargetUser, true);
+        }
+
+        if ($hasSupporterRole) {
+            $foundTargetUser->removeRole(Role::SUPPORTER);
+        }
+
+        $comment = 'awarded $1 Patreon supporter status';
+    } else {
+        if (!$hasBadge) {
+            SetPatreonSupporter($foundTargetUser, true);
+        }
+
+        if (!$hasSupporterRole) {
+            $foundTargetUser->assignRole(Role::SUPPORTER);
+        }
+
+        $comment = 'awarded $2 Patreon supporter status';
+    }
 
     addArticleComment(
         'Server',
         CommentableType::UserModeration,
         $foundTargetUser->id,
-        $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
+        $foundSourceUser->display_name . ' ' . $comment
     );
 
     return back()->with('success', __('legacy.success.ok'));
