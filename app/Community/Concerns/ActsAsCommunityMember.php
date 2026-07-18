@@ -85,6 +85,14 @@ trait ActsAsCommunityMember
     }
 
     /**
+     * @return HasMany<UserGameListEntry, $this>
+     */
+    public function userGameListEntries(): HasMany
+    {
+        return $this->gameListEntries();
+    }
+
+    /**
      * @return BelongsToMany<SpatieRole, $this>
      */
     public function displayableRoles(): BelongsToMany

@@ -26,7 +26,7 @@ export const GameOtherNamesRow: FC<GameOtherNamesRowProps> = ({ nonCanonicalTitl
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
       <BaseTableHead
         scope="row"
-        className="h-auto whitespace-nowrap text-right align-top text-text"
+        className="h-auto text-right align-top whitespace-nowrap text-text"
       >
         {t('metaOtherName', { count: nonCanonicalTitles.length })}
       </BaseTableHead>

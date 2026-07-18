@@ -433,12 +433,12 @@ describe('Component: GameListDataTable', () => {
 
       // ASSERT
       const tableContainer = screen.getByRole('table').parentElement;
-      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
-      expect(tableContainer).not.toHaveClass('xl:!overflow-x-scroll');
+      expect(tableContainer).toHaveClass('lg:overflow-x-scroll!');
+      expect(tableContainer).not.toHaveClass('xl:overflow-x-scroll!');
 
       const headerRow = screen.getAllByRole('row')[0];
-      expect(headerRow).toHaveClass('lg:!top-0');
-      expect(headerRow).not.toHaveClass('xl:!top-0');
+      expect(headerRow).toHaveClass('lg:top-0!');
+      expect(headerRow).not.toHaveClass('xl:top-0!');
     });
 
     it('given there are 11 visible columns, applies the correct overflow scroll styles', () => {
@@ -454,12 +454,12 @@ describe('Component: GameListDataTable', () => {
 
       // ASSERT
       const tableContainer = screen.getByRole('table').parentElement;
-      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
-      expect(tableContainer).toHaveClass('xl:!overflow-x-scroll');
+      expect(tableContainer).toHaveClass('lg:overflow-x-scroll!');
+      expect(tableContainer).toHaveClass('xl:overflow-x-scroll!');
 
       const headerRow = screen.getAllByRole('row')[0];
-      expect(headerRow).toHaveClass('lg:!top-0');
-      expect(headerRow).toHaveClass('xl:!top-0');
+      expect(headerRow).toHaveClass('lg:top-0!');
+      expect(headerRow).toHaveClass('xl:top-0!');
     });
   });
 

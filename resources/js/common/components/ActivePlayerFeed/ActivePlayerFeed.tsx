@@ -80,7 +80,7 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
 
       <div
         ref={scrollRef as Ref<HTMLDivElement>}
-        className="z-50 h-[325px] w-full overflow-y-auto rounded bg-embed"
+        className="z-50 h-81.25 w-full overflow-y-auto rounded-sm bg-embed"
       >
         {players.length ? (
           <ActivePlayerFeedList players={players} onLoadMore={loadMore} />

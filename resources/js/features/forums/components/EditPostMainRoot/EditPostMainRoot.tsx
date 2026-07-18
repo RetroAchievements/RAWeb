@@ -27,7 +27,7 @@ export const EditPostMainRoot: FC = () => {
       <EditPostForm onPreview={initiatePreview} />
 
       {previewContent ? (
-        <div data-testid="preview-content" className="mb-3 mt-7">
+        <div data-testid="preview-content" className="mt-7 mb-3">
           <ForumPostCard body={previewContent} />
         </div>
       ) : null}

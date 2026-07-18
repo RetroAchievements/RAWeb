@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V2;
 
 use App\Community\Enums\UserRelationStatus;
+use App\Models\Game;
 use App\Models\User;
 use App\Models\UserRelation;
 use Carbon\Carbon;
@@ -255,6 +256,41 @@ class UserFollowsTest extends TestCase
         $this->assertEquals('Playing Stage 2', $included[0]['attributes']['richPresence']);
         $this->assertNotNull($included[0]['attributes']['lastActivityAt']);
         $this->assertNotNull($included[0]['attributes']['richPresenceUpdatedAt']);
+    }
+
+    public function testItCanIncludeLastGameForUsersOnFollowing(): void
+    {
+        // Arrange
+        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $game = Game::factory()->create(['title' => 'Super Mario Bros.']);
+        $followed = User::factory()->create(['rich_presence_game_id' => $game->id]);
+
+        UserRelation::create([
+            'user_id' => $auth->id,
+            'related_user_id' => $followed->id,
+            'status' => UserRelationStatus::Following,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('user-follows')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$auth->ulid}/following?include=user.lastGame");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = collect($response->json('included'));
+        $includedUser = $included->firstWhere('type', 'users');
+        $includedGame = $included->firstWhere('type', 'games');
+
+        $this->assertNotNull($includedUser);
+        $this->assertEquals($followed->ulid, $includedUser['id']);
+        $this->assertEquals((string) $game->id, $includedUser['relationships']['lastGame']['data']['id']);
+
+        $this->assertNotNull($includedGame);
+        $this->assertEquals((string) $game->id, $includedGame['id']);
+        $this->assertEquals('Super Mario Bros.', $includedGame['attributes']['title']);
     }
 
     public function testIsMutualIsTrueWhenBothFollow(): void

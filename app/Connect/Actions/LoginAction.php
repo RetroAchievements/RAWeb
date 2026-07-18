@@ -7,6 +7,7 @@ namespace App\Connect\Actions;
 use App\Connect\Support\BaseApiAction;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Support\Media\UserAvatarUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -135,7 +136,7 @@ class LoginAction extends BaseApiAction
 
     private function completeLogin(User $user): array
     {
-        // keep the token alive for another two weeks
+        // keep the token alive for another year
         $user->extendConnectTokenExpiry();
         $user->saveQuietly();
 
@@ -144,7 +145,8 @@ class LoginAction extends BaseApiAction
         return [
             'Success' => true,
             'User' => $user->display_name,
-            'AvatarUrl' => $user->avatar_url,
+            'AvatarUrl' => UserAvatarUrl::canonical($user->username),
+            'AvatarUpdatedAt' => $user->avatar_updated_at?->unix() ?? 0,
             'Token' => $user->connect_token,
             'Score' => $user->points_hardcore,
             'SoftcoreScore' => $user->points,

@@ -194,7 +194,7 @@ const GameListItems: FC<GameListItemsProps> = ({
         {dataInfiniteQuery.hasNextPage || !isLastPageResultsVisible ? (
           <div className="my-2" onClick={handleShowNextPageClick}>
             <BaseButton
-              className="w-full hover:!border-neutral-700 hover:!bg-embed hover:!text-link"
+              className="w-full hover:border-neutral-700! hover:bg-embed! hover:text-link!"
               onClick={handleShowNextPageClick}
             >
               {t('Load more')}

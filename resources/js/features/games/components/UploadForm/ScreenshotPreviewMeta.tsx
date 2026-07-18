@@ -57,7 +57,7 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
       </div>
 
       {!isResolutionValid ? (
-        <p className="text-balance text-center text-red-500/80">{invalidExplanation}</p>
+        <p className="text-center text-balance text-red-500/80">{invalidExplanation}</p>
       ) : null}
 
       {showUpscaleNudge ? (
@@ -68,7 +68,7 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
       ) : null}
 
       {showConsistencyNudge ? (
-        <p className="text-balance text-center text-neutral-400">
+        <p className="text-center text-balance text-neutral-400">
           {buildConsistencyNudgeMessage(selectedType, t)}
         </p>
       ) : null}

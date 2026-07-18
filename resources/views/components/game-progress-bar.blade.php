@@ -48,12 +48,12 @@
         aria-valuemax="{{ $maxProgress }}"
         aria-valuenow="{{ $casualProgress }}"
         aria-label="{{ $tooltipLabel }}"
-        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded' }}"
+        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l-sm' : 'rounded-sm' }}"
     >
         @if ($hardcoreProgress > 0)
             <div
                 style="width: {{ $hardcoreProgressBarWidth }}%"
-                class="bg-gradient-to-r from-amber-500 to-[gold] light:bg-yellow-500 h-full"
+                class="bg-linear-to-r from-amber-500 to-[gold] light:bg-yellow-500 h-full"
             ></div>
         @endif
 

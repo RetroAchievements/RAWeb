@@ -35,7 +35,7 @@ export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }
             <CommentMetaChip>{t('Unverified')}</CommentMetaChip>
           </BaseTooltipTrigger>
 
-          <BaseTooltipContent className="max-w-80 text-balance text-center">
+          <BaseTooltipContent className="max-w-80 text-center text-balance">
             <span className="text-xs">
               {t(
                 'Not yet visible to the public. Please wait for a moderator to authorize this comment.',
@@ -75,7 +75,7 @@ export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }
         <>
           <span className="ml-0.5 text-neutral-400/80 light:text-neutral-700">{'·'}</span>
 
-          <span className="mt-px flex items-center gap-1.5 whitespace-nowrap text-[x-small] text-neutral-400/80 light:text-neutral-700">
+          <span className="mt-px flex items-center gap-1.5 text-[x-small] whitespace-nowrap text-neutral-400/80 light:text-neutral-700">
             <Trans
               i18nKey="Last edited by <1>{{username}}</1>"
               values={{ username: comment.editedBy.displayName }}

@@ -32,6 +32,7 @@ describe('Component: AvatarSection', () => {
 
     // ASSERT
     expect(screen.getByLabelText(/new image/i)).toBeVisible();
+    expect(screen.getByText('PNG, JPEG, and GIF images are supported.')).toBeVisible();
   });
 
   it('given the user tries to submit a new avatar image, attempts to upload it to the server', async () => {
@@ -55,6 +56,34 @@ describe('Component: AvatarSection', () => {
         expect.anything(),
         expect.anything(),
       );
+    });
+  });
+
+  it('given the upload response includes an avatar URL, updates navbar avatars to that URL', async () => {
+    // ARRANGE
+    const avatarUrl = 'https://media.example.test/UserPic/Scott.png?v=1782986400';
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { success: true, avatarUrl } });
+
+    const oldSrc = faker.internet.url();
+    const file = new File(['file content'], 'myfile.png', { type: 'image/png' });
+
+    render(
+      <div>
+        <img data-testid="old-avatar" className="userpic" src={oldSrc} alt="img" />
+        <AvatarSection />
+      </div>,
+      { pageProps: { auth: { user: createAuthenticatedUser() }, can: { updateAvatar: true } } },
+    );
+
+    // ACT
+    const fileInputEl = screen.getByLabelText(/new image/i);
+
+    await userEvent.upload(fileInputEl, file);
+    await userEvent.click(screen.getByRole('button', { name: /upload/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByTestId('old-avatar')).toHaveAttribute('src', avatarUrl);
     });
   });
 

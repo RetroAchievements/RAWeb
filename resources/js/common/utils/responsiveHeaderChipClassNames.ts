@@ -2,7 +2,7 @@ import { cn } from '@/common/utils/cn';
 
 export const responsiveHeaderChipClassNames = cn(
   'flex max-w-fit items-center rounded-full',
-  'border bg-black/70 shadow-md backdrop-blur-sm',
+  'border bg-black/70 shadow-md backdrop-blur-xs',
   'gap-1 border-white/30 px-2.5 py-1',
 
   'sm:gap-1.5 sm:border-white/20 sm:px-3 sm:py-1.5',

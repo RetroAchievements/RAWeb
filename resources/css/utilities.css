@@ -4,7 +4,7 @@
   }
 
   .container {
-    @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
+    @apply sm:max-w-(--breakpoint-lg) xl:max-w-(--breakpoint-xl);
   }
 
   .zebra-list > * {

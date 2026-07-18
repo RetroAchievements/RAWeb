@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Api\Middleware;
 
 use App\Models\User;
+use App\Platform\Services\UserApiCallCountService;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Sentry\State\Scope;
 
 use function Sentry\configureScope;
@@ -19,7 +19,7 @@ class LogLegacyApiUsage
         /** @var User $user */
         $user = $request->user('api-token');
 
-        DB::transaction(fn () => $user->increment('web_api_calls'), attempts: 3);
+        app(UserApiCallCountService::class)->record($user);
 
         // Tag the method so Sentry can group by endpoint. Using setTag
         // instead of setTransaction because Sentry's Laravel integration

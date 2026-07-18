@@ -29,7 +29,7 @@ export const GameHeaderSlotContent: FC = () => {
     <div className="flex items-center gap-2">
       <BaseButton
         onClick={() => toggleWantToPlay()}
-        className="flex items-center gap-1.5 rounded-full !py-0 !text-xs"
+        className="flex items-center gap-1.5 rounded-full py-0! text-xs!"
         size="sm"
         aria-pressed={isOnWantToPlayList}
       >

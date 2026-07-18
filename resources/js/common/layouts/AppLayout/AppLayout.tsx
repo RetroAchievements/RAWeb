@@ -9,7 +9,7 @@ interface AppLayoutBaseProps {
 
 const AppLayoutBase: FC<AppLayoutBaseProps> = ({ children, withSidebar }) => {
   return (
-    <div className="container lg:max-w-none xl:max-w-screen-xl">
+    <div className="container lg:max-w-none xl:max-w-(--breakpoint-xl)">
       <main className={withSidebar ? 'with-sidebar' : undefined} data-scroll-target>
         {children}
       </main>
@@ -25,7 +25,7 @@ interface AppLayoutMainProps {
 
 const AppLayoutMain: FC<AppLayoutMainProps> = ({ children, className }) => {
   return (
-    <article className={cn('relative z-10 min-w-0 !px-2.5 sm:!px-4 md:!px-5', className)}>
+    <article className={cn('relative z-10 min-w-0 px-2.5! sm:px-4! md:px-5!', className)}>
       {children}
     </article>
   );
@@ -36,7 +36,7 @@ interface AppLayoutSidebarProps {
 }
 
 const AppLayoutSidebar: FC<AppLayoutSidebarProps> = ({ children }) => {
-  return <aside className="relative z-[5]">{children}</aside>;
+  return <aside className="relative z-5">{children}</aside>;
 };
 
 interface AppLayoutBannerProps {

@@ -32,10 +32,11 @@ class Server extends BaseServer
     {
         return [
             Achievements\AchievementSchema::class,
-            AchievementSets\AchievementSetSchema::class,
             AchievementSetClaims\AchievementSetClaimSchema::class,
+            AchievementSets\AchievementSetSchema::class,
             AchievementSetVersions\AchievementSetVersionSchema::class,
             Comments\CommentSchema::class,
+            EventAchievements\EventAchievementSchema::class,
             EventAwards\EventAwardSchema::class,
             Events\EventSchema::class,
             GameHashes\GameHashSchema::class,
@@ -50,6 +51,7 @@ class Server extends BaseServer
             Tickets\TicketSchema::class,
             UserAwards\UserAwardSchema::class,
             UserFollows\UserFollowSchema::class,
+            UserGameListEntries\UserGameListEntrySchema::class,
             Users\UserSchema::class,
         ];
     }

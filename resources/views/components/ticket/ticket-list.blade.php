@@ -39,7 +39,7 @@ $gameCache = [];
         <div class="overflow-x-auto lg:overflow-x-visible">
             <table class='table-highlight mb-4'>
                 <thead>
-                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[11] bg-box">
+                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-11 bg-box">
                         <th class="text-right">ID</th>
                         <th>State</th>
                         <th>Issue with</th>

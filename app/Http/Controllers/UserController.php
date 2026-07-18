@@ -84,9 +84,12 @@ class UserController extends Controller
         $this->authorize('updateAvatar', $user);
 
         try {
-            UploadAvatar($user->username, $request->imageData);
+            $avatarUrl = UploadAvatar($user->username, $request->imageData);
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'avatarUrl' => $avatarUrl,
+            ]);
         } catch (Exception $exception) {
             $error = $exception->getMessage();
 

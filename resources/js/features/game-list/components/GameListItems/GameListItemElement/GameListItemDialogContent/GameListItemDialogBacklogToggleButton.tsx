@@ -23,7 +23,7 @@ export const GameListItemDialogBacklogToggleButton: FC<
     <button
       className={cn(
         'flex items-center gap-1 whitespace-nowrap rounded-full bg-embed',
-        'border border-neutral-700 px-2.5 py-1 backdrop-blur-sm transition-all',
+        'border border-neutral-700 px-2.5 py-1 backdrop-blur-xs transition-all',
         'light:border-link light:bg-white light:backdrop-blur-md',
       )}
       aria-pressed={backlogState.isInBacklogMaybeOptimistic}
