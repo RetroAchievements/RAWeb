@@ -842,7 +842,7 @@ describe('developer', function () {
         $achievementSet = GameAchievementSet::where('game_id', $game->id)->first();
 
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
-            's' => $achievementSet->id,
+            's' => $achievementSet->achievement_set_id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
