@@ -13,7 +13,6 @@ use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class LeaderboardEntriesTest extends TestCase
