@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class LeaderboardEntriesTest extends TestCase
@@ -352,6 +353,47 @@ class LeaderboardEntriesTest extends TestCase
         $this->assertCount(1, $data);
 
         $this->assertEquals(2, $data[0]['attributes']['rank']);
+    }
+
+    public function testItCanFilterLeaderboardEntriesByMaxRank(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'rank_asc' => false,
+        ]);
+
+        $firstPlaceEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'score' => 1000,
+        ]);
+        $tiedFirstPlaceEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => User::factory()->create()->id,
+            'score' => 1000,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => User::factory()->create()->id,
+            'score' => 500,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/leaderboards/{$leaderboard->id}/entries?filter[maxRank]=1");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEqualsCanonicalizing([
+            (string) $firstPlaceEntry->id,
+            (string) $tiedFirstPlaceEntry->id,
+        ], collect($response->json('data'))->pluck('id')->all());
     }
 
     public function testItReturnsFormattedScore(): void
@@ -730,6 +772,149 @@ class LeaderboardEntriesTest extends TestCase
         $ids = collect($multiData)->pluck('id')->toArray();
         $this->assertContains((string) $entries[$game1->id]->id, $ids);
         $this->assertContains((string) $entries[$game2->id]->id, $ids);
+    }
+
+    public function testUserEntriesCanFilterByMaxRank(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $player = User::factory()->create();
+
+        $entries = [];
+        foreach ([0, 4, 19] as $index => $betterEntryCount) {
+            $leaderboard = Leaderboard::factory()->create([
+                'game_id' => $game->id,
+                'order_column' => $index + 1,
+                'rank_asc' => false,
+            ]);
+
+            $entries[] = LeaderboardEntry::factory()->create([
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $player->id,
+                'score' => 1000,
+            ]);
+
+            if ($betterEntryCount > 0) {
+                foreach (range(1, $betterEntryCount) as $score) {
+                    LeaderboardEntry::factory()->create([
+                        'leaderboard_id' => $leaderboard->id,
+                        'user_id' => User::factory()->create()->id,
+                        'score' => 1000 + $score,
+                    ]);
+                }
+            }
+        }
+
+        // Act
+        $topFiveResponse = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/leaderboard-entries?filter[maxRank]=5");
+        $firstPlaceResponse = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/leaderboard-entries?filter[maxRank]=1");
+
+        // Assert
+        $topFiveResponse->assertSuccessful();
+        $topFiveEntries = collect($topFiveResponse->json('data'));
+        $this->assertEquals([1, 5], $topFiveEntries->pluck('attributes.rank')->all());
+        $this->assertEquals([
+            (string) $entries[0]->id,
+            (string) $entries[1]->id,
+        ], $topFiveEntries->pluck('id')->all());
+
+        $firstPlaceResponse->assertSuccessful();
+        $this->assertEquals([(string) $entries[0]->id], collect($firstPlaceResponse->json('data'))->pluck('id')->all());
+    }
+
+    public function testUserEntriesMaxRankIgnoresUnrankedCompetitors(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'rank_asc' => false,
+        ]);
+        $player = User::factory()->create();
+        $unrankedRival = User::factory()->create(['unranked_at' => now()]);
+        UnrankedUser::create(['user_id' => $unrankedRival->id]);
+
+        $entry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $player->id,
+            'score' => 500,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $unrankedRival->id,
+            'score' => 1000,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/leaderboard-entries?filter[maxRank]=1");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals([(string) $entry->id], collect($response->json('data'))->pluck('id')->all());
+        $this->assertEquals(1, $response->json('data.0.attributes.rank'));
+    }
+
+    public function testUserEntriesMaxRankHandlesAscendingLeaderboardsAndDeletedCompetitors(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'rank_asc' => true,
+        ]);
+        $player = User::factory()->create();
+
+        $entry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $player->id,
+            'score' => 500,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => User::factory()->create()->id,
+            'score' => 400,
+        ]);
+        $deletedBetterEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => User::factory()->create()->id,
+            'score' => 300,
+        ]);
+        $deletedBetterEntry->delete();
+
+        // Act
+        $topTwoResponse = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/leaderboard-entries?filter[maxRank]=2");
+        $firstPlaceResponse = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/leaderboard-entries?filter[maxRank]=1");
+
+        // Assert
+        $topTwoResponse->assertSuccessful();
+        $this->assertEquals([(string) $entry->id], collect($topTwoResponse->json('data'))->pluck('id')->all());
+        $this->assertEquals(2, $topTwoResponse->json('data.0.attributes.rank'));
+
+        $firstPlaceResponse->assertSuccessful();
+        $this->assertEmpty($firstPlaceResponse->json('data'));
     }
 
     public function testUserEntriesExcludesHiddenAndExcludedSystemLeaderboards(): void
