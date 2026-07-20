@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
@@ -460,6 +461,10 @@ class AchievementsTest extends JsonApiResourceTestCase
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         $developer = User::factory()->create(['display_name' => 'TestDeveloper']);
+        $developerRole = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $artistRole = Role::create(['name' => Role::ARTIST, 'display' => 2]);
+        $developer->assignRole($developerRole);
+        $developer->assignRole($artistRole);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create([
@@ -484,6 +489,44 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertNotEmpty($included);
         $this->assertEquals('users', $included[0]['type']);
         $this->assertEquals('TestDeveloper', $included[0]['attributes']['displayName']);
+        $this->assertEquals(Role::DEVELOPER, $included[0]['attributes']['visibleRole']);
+        $this->assertEquals([Role::DEVELOPER, Role::ARTIST], $included[0]['attributes']['displayableRoles']);
+    }
+
+    public function testItCanIncludeDeveloperRelationshipWithSparseUserFields(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $developer = User::factory()->create([
+            'display_name' => 'SparseDeveloper',
+            'motto' => 'Do not include this',
+        ]);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/achievements/{$achievement->id}?include=developer&fields[users]=displayName,avatarUrl");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('users', $response->json('data.relationships.developer.data.type'));
+        $this->assertEquals($developer->ulid, $response->json('data.relationships.developer.data.id'));
+
+        $includedDeveloper = collect($response->json('included'))->firstWhere('type', 'users');
+        $this->assertNotNull($includedDeveloper);
+        $this->assertEquals($developer->ulid, $includedDeveloper['id']);
+        $this->assertEquals('SparseDeveloper', $includedDeveloper['attributes']['displayName']);
+        $this->assertEquals(['displayName', 'avatarUrl'], array_keys($includedDeveloper['attributes']));
+        $this->assertArrayNotHasKey('motto', $includedDeveloper['attributes']);
+        $this->assertArrayNotHasKey('points', $includedDeveloper['attributes']);
+        $this->assertArrayNotHasKey('visibleRole', $includedDeveloper['attributes']);
     }
 
     public function testItHandlesDeletedDeveloperAttributes(): void
