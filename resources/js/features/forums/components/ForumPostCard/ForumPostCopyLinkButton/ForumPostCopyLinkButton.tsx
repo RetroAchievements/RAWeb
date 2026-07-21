@@ -38,10 +38,10 @@ export const ForumPostCopyLinkButton: FC<ForumPostCopyLinkButtonProps> = ({ comm
         <BaseButton
           aria-label={t('Copy post link')}
           size="sm"
-          className="max-h-[22px] !p-1 !text-2xs lg:!text-xs"
+          className="max-h-5.5 p-1! text-2xs! lg:text-xs!"
           onClick={handleClick}
         >
-          <FaLink className="!size-3" />
+          <FaLink className="size-3!" />
         </BaseButton>
       </BaseTooltipTrigger>
 

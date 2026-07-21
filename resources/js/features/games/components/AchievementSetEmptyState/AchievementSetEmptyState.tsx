@@ -18,13 +18,13 @@ export const AchievementSetEmptyState: FC = () => {
   }
 
   return (
-    <div className="mb-16 w-full rounded bg-embed p-8 text-neutral-500 light:border light:border-embed-highlight light:bg-neutral-50">
+    <div className="mb-16 w-full rounded-sm bg-embed p-8 text-neutral-500 light:border light:border-embed-highlight light:bg-neutral-50">
       <div className="flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
           <LuTrophy className="size-12 text-neutral-700" />
         </div>
 
-        <div className="flex flex-col items-center gap-1 text-balance text-center">
+        <div className="flex flex-col items-center gap-1 text-center text-balance">
           <p className="text-base text-neutral-400">{t('No achievements yet')}</p>
           <p>{t('Set requests help developers decide what games to work on next.')}</p>
         </div>

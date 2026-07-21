@@ -43,15 +43,15 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
 
   return (
     <OAuthPageLayout>
-      <BaseCard className="rounded-2xl p-8 shadow-lg shadow-black/20 ring-1 ring-white/5">
-        <BaseCardHeader className="text-balance px-0 pt-0 text-center">
+      <BaseCard className="rounded-2xl p-8 shadow-lg ring-1 shadow-black/20 ring-white/5">
+        <BaseCardHeader className="px-0 pt-0 text-center text-balance">
           <div className="mb-6 flex justify-center">
             <div className="rounded-xl bg-amber-500/10 p-3">
               <LuGamepad2 className="size-8 text-amber-500 light:text-amber-600" />
             </div>
           </div>
 
-          <BaseCardTitle className="text-base font-semibold leading-normal text-neutral-300 light:text-neutral-900">
+          <BaseCardTitle className="text-base leading-normal font-semibold text-neutral-300 light:text-neutral-900">
             {t('{{clientName}} wants to access your account', { clientName: client.name })}
           </BaseCardTitle>
           <BaseCardDescription className="text-neutral-500 light:text-neutral-700">

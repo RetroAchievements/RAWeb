@@ -62,7 +62,7 @@ export function ManualPaginatorField<TData>({
                 min={1}
                 max={totalPages}
                 className={cn(
-                  'h-8 max-w-[80px] pt-[5px] text-[13px] text-neutral-200 light:text-neutral-900',
+                  'h-8 max-w-20 pt-1.25 text-[13px] text-neutral-200 light:text-neutral-900',
 
                   // Hide the number spinner on desktop browsers -- it can obstruct the input field.
                   'appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',

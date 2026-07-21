@@ -94,7 +94,7 @@ export function DataTableColumnHeader<TData, TValue>({
           <BaseButton
             variant="ghost"
             size="sm"
-            className="data-[state=open]:bg-accent -ml-3 h-8 !transform-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
+            className="data-[state=open]:bg-accent -ml-3 h-8 transform-none! focus-visible:ring-0! focus-visible:ring-offset-0!"
             data-testid={`column-header-${column.columnDef.meta?.t_label}`}
           >
             <span>{column.columnDef.meta?.t_label}</span>

@@ -25,7 +25,7 @@ export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
   const AnchorTag = shouldUseClientSideRoute ? InertiaLink : 'a';
 
   return (
-    <li className="flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-3 py-2 sm:flex-row">
+    <li className="flex w-full flex-col items-center justify-between gap-2 rounded-sm bg-embed px-3 py-2 sm:flex-row">
       <p>{children}</p>
 
       <div className="self-end sm:self-auto">

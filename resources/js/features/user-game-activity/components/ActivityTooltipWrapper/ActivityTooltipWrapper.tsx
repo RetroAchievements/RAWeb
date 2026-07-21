@@ -32,7 +32,7 @@ export const ActivityTooltipWrapper: FC<ActivityTooltipWrapperProps> = ({
         </div>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent className="max-w-[320px]">
+      <BaseTooltipContent className="max-w-80">
         <p className="text-xs">{t_tooltip}</p>
       </BaseTooltipContent>
     </BaseTooltip>

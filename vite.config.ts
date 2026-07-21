@@ -1,6 +1,7 @@
 import inertia from '@inertiajs/vite';
 import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
 import laravel from 'laravel-vite-plugin';
@@ -57,6 +58,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         ssr: 'resources/js/ssr.tsx',
         refresh: ['resources/views/**'],
       }),
+
+      tailwindcss(),
 
       react(),
 

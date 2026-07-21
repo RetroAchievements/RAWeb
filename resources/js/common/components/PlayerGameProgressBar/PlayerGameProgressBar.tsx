@@ -139,9 +139,9 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
       <BaseTooltipTrigger
         className={cn(
           'group',
-          achievementsUnlocked === 0 ? '!cursor-auto' : '',
+          achievementsUnlocked === 0 ? 'cursor-auto!' : '',
           !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
-          isTooltipDisabled ? 'pointer-events-none [&>*]:pointer-events-auto' : '',
+          isTooltipDisabled ? 'pointer-events-none *:pointer-events-auto' : '',
           className,
         )}
         style={{ minWidth: width, maxWidth: width }}
@@ -158,7 +158,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
             segments={[
               {
                 value: achievementsUnlockedHardcore,
-                className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                className: 'bg-linear-to-r from-amber-500 to-[gold]',
               },
               { value: achievementsUnlockedCasual, className: 'bg-neutral-500' },
             ]}

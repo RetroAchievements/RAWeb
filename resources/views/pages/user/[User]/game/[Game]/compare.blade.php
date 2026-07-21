@@ -41,7 +41,7 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
     />
 
     <div class="mt-3 mb-3 w-full relative flex gap-x-3">
-        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">Compare Unlocks</h1>
 
         @can('viewSessionHistory', App\Models\PlayerGame::class)
@@ -88,13 +88,13 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
         <div class="overflow-x-auto lg:overflow-x-visible">
             <table class="table-highlight mb-4">
                 <thead>
-                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
+                    <tr class="do-not-highlight lg:sticky lg:top-[42px] z-1 bg-box">
                         <th style="width:40%">Achievement</th>
                         <th style="width:30%">
-                        {!! userAvatar($otherUser, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
+                        {!! userAvatar($otherUser, label: true, icon: true, iconSize: 24, iconClass: 'rounded-xs') !!}
                         </th>
                         <th style="width:30%">
-                        {!! userAvatar($user, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
+                        {!! userAvatar($user, label: true, icon: true, iconSize: 24, iconClass: 'rounded-xs') !!}
                         </th>
                     </tr>
                 </thead>

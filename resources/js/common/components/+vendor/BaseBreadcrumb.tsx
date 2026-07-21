@@ -25,7 +25,7 @@ const BaseBreadcrumbList = forwardRef<HTMLOListElement, ComponentPropsWithoutRef
     <ol
       ref={ref}
       className={cn(
-        'flex flex-wrap items-center gap-1.5 break-words text-xs text-neutral-400 light:text-neutral-500 sm:gap-2.5',
+        'flex flex-wrap items-center gap-1.5 wrap-break-word text-xs text-neutral-400 light:text-neutral-500 sm:gap-2.5',
         className,
       )}
       {...props}

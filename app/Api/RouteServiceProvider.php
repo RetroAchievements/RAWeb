@@ -18,6 +18,7 @@ use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\AchievementSetVersionController;
 use App\Api\V2\Controllers\EventAchievementController;
 use App\Api\V2\Controllers\EventController;
+use App\Api\V2\Controllers\GameAchievementDistributionController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\HubController;
 use App\Api\V2\Controllers\LeaderboardController;
@@ -104,6 +105,10 @@ class RouteServiceProvider extends ServiceProvider
                         'throttle:' . $rateLimit,
                     ])->group(function () {
                         Route::get('health', [HealthController::class, 'check'])->name('v2.health');
+
+                        Route::get('games/{gameId}/achievement-distribution', GameAchievementDistributionController::class)
+                            ->whereNumber('gameId')
+                            ->name('v2.games.achievement-distribution');
                     });
 
                     JsonApiRoute::server('v2')

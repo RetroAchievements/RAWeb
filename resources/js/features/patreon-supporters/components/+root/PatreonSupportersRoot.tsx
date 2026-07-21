@@ -31,7 +31,7 @@ export const PatreonSupportersRoot: FC = () => {
           <h2 className="border-b-0 text-center text-sm font-semibold sm:text-left sm:text-xl">
             {t('Our Newest Patreon Supporters')}
           </h2>
-          <div className="grid grid-cols-1 gap-3 rounded-lg border-2 border-embed-highlight bg-embed-highlight p-2 light:bg-white sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 rounded-lg border-2 border-embed-highlight bg-embed-highlight p-2 sm:grid-cols-2 lg:grid-cols-4 light:bg-white">
             {recentSupporters.map((supporter) => (
               <UserGridLinkItem key={supporter.id} user={supporter} />
             ))}

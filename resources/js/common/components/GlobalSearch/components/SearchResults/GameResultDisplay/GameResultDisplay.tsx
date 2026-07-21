@@ -17,7 +17,7 @@ export const GameResultDisplay: FC<GameResultDisplayProps> = ({ game }) => {
 
   return (
     <div className="flex items-center gap-3">
-      <img src={game.badgeUrl} alt={game.title} className="size-10 rounded" />
+      <img src={game.badgeUrl} alt={game.title} className="size-10 rounded-sm" />
 
       <div className="flex flex-col gap-0.5">
         <div className="line-clamp-1 font-medium text-link">
@@ -31,17 +31,17 @@ export const GameResultDisplay: FC<GameResultDisplayProps> = ({ game }) => {
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <ImTrophy className="!size-3" />
+            <ImTrophy className="size-3!" />
             {formatNumber(game.achievementsPublished ?? 0, { locale: i18n.language })}
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <PiMedalFill className="!size-3" />
+            <PiMedalFill className="size-3!" />
             {formatNumber(game.pointsTotal ?? 0, { locale: i18n.language })}
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">
-            <LuUsers className="!size-3" />
+            <LuUsers className="size-3!" />
             {formatNumber(game.playersTotal ?? 0, { locale: i18n.language })}
           </div>
         </div>

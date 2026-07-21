@@ -62,7 +62,7 @@ export const SetSelectionDropdown: FC<SetSelectionDropdownProps> = ({ activeTab 
             <img
               src={gas.achievementSet.imageAssetPathUrl}
               alt={gas.title ?? BASE_SET_LABEL}
-              className="size-6 select-none rounded-sm"
+              className="size-6 rounded-xs select-none"
             />
 
             {gas.title ?? BASE_SET_LABEL}
