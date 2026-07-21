@@ -13,6 +13,7 @@ use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
+use App\Api\V2\Controllers\AchievementOfTheWeekController;
 use App\Api\V2\Controllers\AchievementSetClaimController;
 use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\AchievementSetVersionController;
@@ -109,6 +110,9 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('games/{gameId}/achievement-distribution', GameAchievementDistributionController::class)
                             ->whereNumber('gameId')
                             ->name('v2.games.achievement-distribution');
+
+                        Route::get('event-achievements/achievement-of-the-week', AchievementOfTheWeekController::class)
+                            ->name('v2.event-achievements.achievement-of-the-week');
                     });
 
                     JsonApiRoute::server('v2')
