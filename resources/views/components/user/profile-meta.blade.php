@@ -66,7 +66,7 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
 >
     <div>
         <div class="flex w-full justify-between items-center">
-            <h2 class="text-h4 !mb-0">User Stats</h2>
+            <h2 class="text-h4 mb-0!">User Stats</h2>
 
             <button @click="handleToggle" class="btn transition-transform lg:active:scale-95 duration-75">
                 <div
@@ -83,10 +83,10 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
         @if (!$isUserStatsDefaultExpanded) x-cloak @endif
         x-show="isExpanded"
         x-transition:enter="ease-in-out duration-300"
-        x-transition:enter-start="opacity-0 max-h-0 -translate-y-1.5 overflow-hidden"
-        x-transition:enter-end="opacity-1 max-h-[1000px] translate-y-0 overflow-hidden"
+        x-transition:enter-start="opacity-0 max-h-0 transform-[translateY(-0.375rem)] overflow-hidden"
+        x-transition:enter-end="opacity-100 max-h-[1000px] transform-[translateY(0)] overflow-hidden"
         x-transition:leave="ease-in-out duration-200"
-        x-transition:leave-start="opacity-1 max-h-[1000px] overflow-hidden"
+        x-transition:leave-start="opacity-100 max-h-[1000px] overflow-hidden"
         x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
         class="transition-all"
     >

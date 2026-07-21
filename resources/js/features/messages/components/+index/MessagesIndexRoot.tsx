@@ -56,7 +56,7 @@ export const MessagesIndexRoot: FC = () => {
               : t('Your Inbox')
           }
         />
-        <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">
+        <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:text-[2.0em]!">
           {t('Messages Inbox')}
         </h1>
 

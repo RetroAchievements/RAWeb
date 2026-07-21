@@ -31,7 +31,7 @@ export const LeaderboardCommentsMainRoot: FC = () => {
         system={leaderboard!.game?.system}
         t_currentPageLabel={t('Comments')}
       />
-      <GameHeading game={leaderboard!.game!} wrapperClassName="!mb-1">
+      <GameHeading game={leaderboard!.game!} wrapperClassName="mb-1!">
         {t('Comments: {{leaderboardTitle}}', { leaderboardTitle: leaderboard!.title })}
       </GameHeading>
 

@@ -69,7 +69,7 @@ export const AllSystemsDialog: FC = () => {
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-neutral-300">
+            <div className="pointer-events-none absolute inset-y-0 inset-s-0 flex items-center justify-center ps-3 text-neutral-300">
               <RxMagnifyingGlass className="size-5" />
             </div>
           </div>
@@ -84,7 +84,7 @@ export const AllSystemsDialog: FC = () => {
                   baseButtonVariants({
                     className: cn(
                       'flex flex-col items-center justify-center gap-1 border border-neutral-800 bg-neutral-950',
-                      'text-balance rounded-lg px-2 py-3 text-center tracking-tight !transition',
+                      'text-balance rounded-lg px-2 py-3 text-center tracking-tight transition!',
                       'h-20 text-xs text-link hover:bg-neutral-900 hover:text-link-hover',
                     ),
                   }),

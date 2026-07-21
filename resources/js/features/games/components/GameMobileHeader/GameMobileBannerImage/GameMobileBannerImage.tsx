@@ -95,14 +95,14 @@ export const GameMobileBannerImage: FC = () => {
       {/* Background image gradient */}
       <div
         className={cn(
-          'absolute inset-0 bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
+          'absolute inset-0 bg-linear-to-b from-black/40 from-0% via-black/50 via-60% to-black',
           'light:from-black/20 light:via-black/30 light:to-black/50',
         )}
       />
 
       {/* Additional darkening behind the badge */}
       <div
-        className="bg-radial-gradient absolute -left-10 -top-8 size-40"
+        className="bg-radial-gradient absolute -top-8 -left-10 size-40"
         style={{
           background:
             'radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 30%, transparent 70%)',

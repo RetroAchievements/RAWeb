@@ -53,7 +53,7 @@ export const PlaytimeLabel: FC<PlaytimeLabelProps> = ({ session }) => {
           ) : null}
         </BaseTooltipTrigger>
 
-        <BaseTooltipContent className="max-w-[280px]">
+        <BaseTooltipContent className="max-w-70">
           <p className="text-xs">
             {t(
               'The player launched the game and then either experienced network issues or closed the game within 60 seconds.',

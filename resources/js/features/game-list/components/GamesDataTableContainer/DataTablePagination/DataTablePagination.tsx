@@ -109,7 +109,7 @@ export function DataTablePagination<TData>({
   };
 
   const buttonClassNames = cn(
-    'border-none hover:outline hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
+    'border-none hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
     'aria-disabled:pointer-events-none aria-disabled:opacity-50',
   );
 

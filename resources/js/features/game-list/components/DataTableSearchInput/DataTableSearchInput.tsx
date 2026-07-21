@@ -100,8 +100,8 @@ export function DataTableSearchInput<TData>({
           value={rawInputValue}
           onChange={(event) => setRawInputValue(event.target.value)}
           className={cn(
-            'peer h-8 w-full sm:w-[180px] md:w-[280px]',
-            device === 'mobile' ? '!w-full text-[16px]' : '',
+            'peer h-8 w-full sm:w-45 md:w-70',
+            device === 'mobile' ? 'w-full! text-base' : '',
           )}
           aria-describedby="search-shortcut"
         />

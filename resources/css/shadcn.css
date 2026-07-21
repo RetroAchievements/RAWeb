@@ -1,7 +1,7 @@
 @layer components {
   .btn-base {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium light:ring-offset-white;
-    @apply focus-visible:outline-none focus-visible:ring-1 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-sm text-sm font-medium light:ring-offset-white;
+    @apply focus-visible:outline-hidden focus-visible:ring-1 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2;
     @apply disabled:pointer-events-none disabled:opacity-50;
     @apply ring-offset-neutral-950 focus-visible:ring-neutral-300 select-none;
     @apply lg:active:translate-y-[1px] lg:active:scale-[0.98] lg:disabled:active:scale-100 lg:disabled:active:translate-y-0 lg:transition-transform lg:duration-100;
@@ -14,6 +14,10 @@
     @apply disabled:light:hover:bg-white disabled:light:hover:text-link disabled:light:hover:border-link;
   }
 
+  .btn-base--default.border-dashed:hover {
+    @apply !bg-neutral-800 light:!bg-neutral-100;
+  }
+
   .btn-base--default-disabled {
     @apply opacity-50 lg:active:!scale-100 lg:active:!translate-y-0 lg:!transition-none;
     @apply bg-embed text-link border border-neutral-700;
@@ -23,7 +27,9 @@
   }
 
   .btn-base--destructive {
-    @apply bg-embed border btn-danger hover:text-link-hover hover:border-menu-link;
+    @apply bg-embed border hover:text-link-hover hover:border-menu-link;
+    color: var(--color-red-500);
+    border-color: var(--color-red-500);
   }
 
   .btn-base--outline {

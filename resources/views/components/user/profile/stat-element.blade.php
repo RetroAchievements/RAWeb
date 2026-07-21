@@ -10,11 +10,11 @@
 ])
 
 <div class="relative flex w-full items-center justify-between text-2xs">
-    <p class="z-[2] bg-embed pr-2">{{ $label }}</p>
+    <p class="z-2 bg-embed pr-2">{{ $label }}</p>
 
     <div class="absolute left-0 right-0 border-t border-dotted border-text-muted"></div>
 
-    <p class="z-[2] bg-embed pl-2 {{ $isMuted ? 'text-muted italic' : '' }} {{ $shouldEnableBolding && !$isMuted ? 'font-bold' : '' }}">
+    <p class="z-2 bg-embed pl-2 {{ $isMuted ? 'text-muted italic' : '' }} {{ $shouldEnableBolding && !$isMuted ? 'font-bold' : '' }}">
         @if ($href)
             {{-- Allows for only fragments to be linked --}}
             @if (!$isHrefLabelBeforeLabel && $hrefLabel && $value)

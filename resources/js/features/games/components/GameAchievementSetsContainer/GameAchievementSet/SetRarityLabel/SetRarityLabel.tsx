@@ -30,7 +30,7 @@ export const SetRarityLabel: FC<SetRarityLabelProps> = ({ pointsTotal, pointsWei
       </BaseTooltipTrigger>
 
       <BaseTooltipContent className="flex max-w-80 flex-col gap-1">
-        <span className="flex max-w-80 flex-col gap-1 text-wrap text-left text-xs">
+        <span className="flex max-w-80 flex-col gap-1 text-left text-xs text-wrap">
           {/* Intentionally untranslated, this is a branding term */}
           <span className="font-bold">{'RetroRatio'}</span>
 

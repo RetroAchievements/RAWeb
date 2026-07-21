@@ -3,10 +3,6 @@
     @apply placeholder:text-neutral-600 placeholder:light:text-neutral-400/50;
   }
 
-  .container {
-    @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
-  }
-
   .zebra-list > * {
     @apply outline outline-1 outline-transparent -outline-offset-1;
   }

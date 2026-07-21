@@ -20,10 +20,10 @@ export const TableHeader: FC<TableHeaderProps> = ({ table, visibleColumnCount })
         <BaseTableRow
           key={headerGroup.id}
           className={cn(
-            'do-not-highlight bg-embed lg:sticky lg:top-[41px] lg:z-10',
+            'do-not-highlight bg-embed lg:sticky lg:top-10.25 lg:z-10',
 
-            visibleColumnCount > 8 ? 'lg:!top-0' : '',
-            visibleColumnCount > 10 ? 'xl:!top-0' : '',
+            visibleColumnCount > 8 ? 'lg:top-0!' : '',
+            visibleColumnCount > 10 ? 'xl:top-0!' : '',
           )}
         >
           {headerGroup.headers.map((header) => (
