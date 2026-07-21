@@ -347,6 +347,75 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertArrayNotHasKey('deletedAt', $attributes);
     }
 
+    public function testItSupportsSparseUserFieldsWithoutChangingTheFullUserShape(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'SparseFieldsUser']);
+        $role = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $user->assignRole($role);
+
+        // Act
+        $sparseResponse = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?fields[users]=displayName,avatarUrl");
+        $fullResponse = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        // Assert
+        $sparseResponse->assertSuccessful();
+        $sparseAttributes = $sparseResponse->json('data.attributes');
+        $this->assertSame(['displayName', 'avatarUrl'], array_keys($sparseAttributes));
+        $this->assertSame('SparseFieldsUser', $sparseAttributes['displayName']);
+
+        $fullResponse->assertSuccessful();
+        $this->assertSame(Role::DEVELOPER, $fullResponse->json('data.attributes.visibleRole'));
+        $this->assertSame([Role::DEVELOPER], $fullResponse->json('data.attributes.displayableRoles'));
+    }
+
+    public function testItComputesVisibleRoleWhenRequestedWithoutIncludingDisplayableRoles(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['display_name' => 'VisibleRoleUser']);
+        $role = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $user->assignRole($role);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?fields[users]=displayName,visibleRole");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertSame(Role::DEVELOPER, $response->json('data.attributes.visibleRole'));
+        $this->assertArrayNotHasKey('displayableRoles', $response->json('data.attributes'));
+    }
+
+    public function testItDoesNotTrimUserFieldsForOtherResourceFieldsets(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+        $role = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $user->assignRole($role);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?fields[achievements]=title");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertSame(Role::DEVELOPER, $response->json('data.attributes.visibleRole'));
+        $this->assertSame([Role::DEVELOPER], $response->json('data.attributes.displayableRoles'));
+    }
+
     public function testItCanIncludeLastGameRelationship(): void
     {
         // Arrange
