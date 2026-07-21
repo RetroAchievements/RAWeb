@@ -42,7 +42,6 @@
   "rules": {
     "eqeqeq": "error",
     "no-else-return": "error",
-    "no-return-await": "error",
     "no-undef": "off",
     "no-useless-escape": "off",
     "object-shorthand": "error",
@@ -99,12 +98,13 @@
     "typescript/no-explicit-any": "error",
     "typescript/ban-ts-comment": "error",
 
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+
     "react/display-name": "off",
-    "react/jsx-no-leaked-render": "error",
     "react/jsx-no-literals": "error",
     "react/jsx-no-target-blank": "off",
     "react/no-unescaped-entities": "off",
-    "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "error",

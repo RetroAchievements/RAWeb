@@ -29,6 +29,11 @@ class UserResource extends JsonApiResource
      */
     public function attributes($request): iterable
     {
+        $requestedUserFields = $request?->input('fields.users');
+        $userFieldset = is_string($requestedUserFields) ? explode(',', $requestedUserFields) : null;
+        $shouldIncludeVisibleRole = $userFieldset === null || in_array('visibleRole', $userFieldset, true);
+        $shouldIncludeDisplayableRoles = $userFieldset === null || in_array('displayableRoles', $userFieldset, true);
+
         return [
             'displayName' => $this->resource->display_name,
 
@@ -52,13 +57,19 @@ class UserResource extends JsonApiResource
             'richPresence' => $this->resource->rich_presence,
             'richPresenceUpdatedAt' => $this->resource->rich_presence_updated_at,
 
-            'visibleRole' => $this->resource->visibleRole?->name,
-            'displayableRoles' => ($this->resource->relationLoaded('roles')
-                ? $this->resource->roles->where('display', '>', 0)
-                : $this->resource->displayableRoles()->get())
-                ->pluck('name')
-                ->values()
-                ->all(),
+            'visibleRole' => $this->when(
+                $shouldIncludeVisibleRole,
+                fn () => $this->resource->visibleRole?->name,
+            ),
+            'displayableRoles' => $this->when(
+                $shouldIncludeDisplayableRoles,
+                fn () => ($this->resource->relationLoaded('roles')
+                    ? $this->resource->roles->where('display', '>', 0)
+                    : $this->resource->displayableRoles()->get())
+                    ->pluck('name')
+                    ->values()
+                    ->all(),
+            ),
         ];
     }
 
