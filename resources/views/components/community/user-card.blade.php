@@ -37,6 +37,8 @@
         <x-card.info-row :label="$rankLabel">
             @if($isUntracked)
                 <span>Untracked</span>
+            @elseif($isRankUpdating)
+                <span class="italic">Will appear shortly.</span>
             @else
                 {{ $siteRank === 0 ? "Needs at least $rankMinPoints points" : "#" . localized_number($siteRank) }}
                 {{ $rankPctLabel }}

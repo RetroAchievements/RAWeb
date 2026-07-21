@@ -6,14 +6,17 @@ namespace App\Api\V2\Controllers;
 
 use App\Api\V2\UserAwards\UserAwardKind;
 use App\Api\V2\UserFollows\UserFollowResource;
+use App\Community\Enums\RankType;
 use App\Community\Enums\UserRelationStatus;
 use App\Models\PlayerBadge;
+use App\Models\PlayerGlobalRankingTotal;
 use App\Models\User;
 use App\Models\UserRelation;
 use App\Policies\UserCommentPolicy;
 use Illuminate\Support\Collection;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use LaravelJsonApi\Core\Pagination\Page;
+use LaravelJsonApi\Core\Responses\DataResponse;
 use LaravelJsonApi\Core\Responses\RelatedResponse;
 use LaravelJsonApi\Laravel\Http\Controllers\Actions;
 use LaravelJsonApi\Laravel\Http\Controllers\JsonApiController;
@@ -24,6 +27,20 @@ class UserController extends JsonApiController
     use Actions\FetchMany;
     use Actions\FetchOne;
     use Actions\FetchRelated;
+
+    protected function read(User $user, ResourceQuery $request): DataResponse
+    {
+        return DataResponse::make($user)
+            ->withMeta($this->rankedUserMeta())
+            ->withQueryParameters($request);
+    }
+
+    protected function searched(Page $data, ResourceQuery $request): DataResponse
+    {
+        return DataResponse::make($data)
+            ->withMeta($this->rankedUserMeta())
+            ->withQueryParameters($request);
+    }
 
     protected function readRelatedAwards(
         User $user,
@@ -138,6 +155,23 @@ class UserController extends JsonApiController
             UserFollowResource::RECIPROCAL_IDS_ATTRIBUTE,
             array_fill_keys($ids->all(), true),
         );
+    }
+
+    /**
+     * @return array{rankedUsers: array{hardcore: int, casual: int}}
+     */
+    private function rankedUserMeta(): array
+    {
+        $counts = PlayerGlobalRankingTotal::query()
+            ->whereIn('rank_type', [RankType::Hardcore, RankType::Casual])
+            ->pluck('total', 'rank_type');
+
+        return [
+            'rankedUsers' => [
+                'hardcore' => (int) ($counts[RankType::Hardcore] ?? 0),
+                'casual' => (int) ($counts[RankType::Casual] ?? 0),
+            ],
+        ];
     }
 
     private function abortIfWallCommentsAreHidden(User $user, ResourceQuery $request): void

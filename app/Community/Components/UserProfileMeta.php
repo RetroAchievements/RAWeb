@@ -306,6 +306,17 @@ class UserProfileMeta extends Component
     ): array {
         $rank = $predefinedRank ?? getUserRank($user->username, $rankType);
         $numRankedUsers = countRankedUsers($rankType);
+
+        if ($rank === null || $numRankedUsers === 0) {
+            return [
+                'rank' => 0,
+                'numRankedUsers' => 0,
+                'rankPercent' => '0.00',
+                'rankPercentLabel' => '',
+                'rankOffset' => 0,
+            ];
+        }
+
         $rankPercent = sprintf("%1.2f", ($rank / $numRankedUsers) * 100.0);
         $rankPercentLabel = $rank > 100 ? "(Top $rankPercent%)" : "";
         $rankOffset = (int) (($rank - 1) / 25) * 25;
