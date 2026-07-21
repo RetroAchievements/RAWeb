@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\ClaimType;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
 use App\Models\EventAchievement;
 use App\Models\Game;
@@ -219,6 +221,64 @@ describe('developer', function () {
         $game->refresh();
         $this->assertEquals(0, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
+    });
+
+    test('can create new achievement for collaboration claim', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $claim = UploadAchievementTestHelpers::addClaim($game, $this->user);
+        $claim->claim_type = ClaimType::Collaboration;
+        $claim->save();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
+            ]);
+
+        $achievement = Achievement::findOrFail(1);
+        $this->assertEquals($game->id, $achievement->game_id);
+        $this->assertEquals('Title1', $achievement->title);
+        $this->assertEquals('Description1', $achievement->description);
+        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
+        $this->assertEquals(5, $achievement->points);
+        $this->assertFalse($achievement->is_promoted);
+        $this->assertNull($achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(0, $game->achievements_published);
+        $this->assertEquals(1, $game->achievements_unpublished);
+        $this->assertEquals(0, $game->points_total); // unpromoted achievements don't contribute to points_total
+
+        // achievement should have a trigger, but it should be unversioned
+        $this->assertNotNull($achievement->trigger);
+        $this->assertEquals('0xH0000=1', $achievement->trigger->conditions);
+        $this->assertNull($achievement->trigger->version);
+
+        // achievement should also be added to the core achievement set
+        $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
+        $this->assertEquals(1, $coreSet->achievements()->count());
+        $this->assertEquals($achievement->id, $coreSet->achievements()->first()->id);
+        $this->assertEquals(0, $coreSet->achievements_published);
+        $this->assertEquals(1, $coreSet->achievements_unpublished);
+        $this->assertEquals(0, $coreSet->points_total);
+
+        // creation audit log entry should be made
+        $activity = $achievement->auditLog->where('event', 'created')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
     test('can update unpromoted own', function () {
@@ -690,13 +750,19 @@ describe('developer', function () {
 
     test('can create new achievement via set id', function () {
         $this->user->assignRole(Role::DEVELOPER);
+
+        // create a dummy AchievementSet so the id and achievement_set_id on the
+        // GameAchievementSet for our test game differ.
+        AchievementSet::factory()->create();
+
         $game = UploadAchievementTestHelpers::createGame();
         UploadAchievementTestHelpers::addClaim($game, $this->user);
 
         $achievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+        $this->assertNotEquals($achievementSet->id, $achievementSet->achievement_set_id);
 
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
-            's' => $achievementSet->id,
+            's' => $achievementSet->achievement_set_id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -735,6 +801,48 @@ describe('developer', function () {
 
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'g' => VirtualGameIdService::encodeVirtualGameId($game->id, GameHashCompatibility::Untested),
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
+            ]);
+
+        $achievement = Achievement::findOrFail(1);
+        $this->assertEquals($game->id, $achievement->game_id);
+        $this->assertEquals('Title1', $achievement->title);
+        $this->assertEquals('Description1', $achievement->description);
+        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
+        $this->assertEquals(5, $achievement->points);
+        $this->assertFalse($achievement->is_promoted);
+        $this->assertNull($achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(0, $game->achievements_published);
+        $this->assertEquals(1, $game->achievements_unpublished);
+        $this->assertEquals(0, $game->points_total); // unpromoted achievements don't contribute to points_total
+    });
+
+    test('can create new achievement via set id for collaboration claim', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $claim = UploadAchievementTestHelpers::addClaim($game, $this->user);
+        $claim->claim_type = ClaimType::Collaboration;
+        $claim->save();
+
+        $achievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            's' => $achievementSet->achievement_set_id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -832,6 +940,46 @@ describe('junior developer', function () {
         $game->refresh();
         $this->assertEquals(0, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
+    });
+
+    test('can create new achievement with collaboration claim', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadAchievementTestHelpers::createGame();
+        $claim = UploadAchievementTestHelpers::addClaim($game, $this->user);
+        $claim->claim_type = ClaimType::Collaboration;
+        $claim->save();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
+            ]);
+
+        $achievement = Achievement::findOrFail(1);
+        $this->assertEquals($game->id, $achievement->game_id);
+        $this->assertEquals('Title1', $achievement->title);
+        $this->assertEquals('Description1', $achievement->description);
+        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
+        $this->assertEquals(5, $achievement->points);
+        $this->assertFalse($achievement->is_promoted);
+        $this->assertNull($achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(0, $game->achievements_published);
+        $this->assertEquals(1, $game->achievements_unpublished);
+        $this->assertEquals(0, $game->points_total); // unpromoted achievements don't contribute to points_total
     });
 
     test('cannot promote own', function () {
@@ -1520,6 +1668,48 @@ describe('subset', function () {
         $game->refresh();
         $this->assertEquals(0, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
+    });
+
+    test('can create new achievement for collaboration claim', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $game->title .= ' [Subset - Testing]';
+        $game->save();
+        $claim = UploadAchievementTestHelpers::addClaim($game, $this->user);
+        $claim->claim_type = ClaimType::Collaboration;
+        $claim->save();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
+            ]);
+
+        $achievement = Achievement::findOrFail(1);
+        $this->assertEquals($game->id, $achievement->game_id);
+        $this->assertEquals('Title1', $achievement->title);
+        $this->assertEquals('Description1', $achievement->description);
+        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
+        $this->assertEquals(5, $achievement->points);
+        $this->assertFalse($achievement->is_promoted);
+        $this->assertNull($achievement->type);
+        $this->assertEquals($this->user->id, $achievement->user_id);
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotNull($achievement->modified_at);
+
+        $game->refresh();
+        $this->assertEquals(0, $game->achievements_published);
+        $this->assertEquals(1, $game->achievements_unpublished);
+        $this->assertEquals(0, $game->points_total); // unpromoted achievements don't contribute to points_total
     });
 
     test('cannot set progression on new achievement', function () {
