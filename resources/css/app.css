@@ -1,48 +1,74 @@
 /* tailwind */
-@import "tailwindcss/base";
-@import "tailwindcss/components";
+@import "tailwindcss" source(none);
+@import "./tailwind-v3-compat.css";
 
-@import "reset.css";
+@import "./reset.css" layer(base);
 
 /* base */
-@import "layout.css";
-@import "theme.css";
-@import "typography.css";
+@import "./layout.css" layer(base);
+@import "./theme.css" layer(base);
+@import "./typography.css" layer(base);
 
 /* TODO split */
-@import "legacy.css";
+@import "./legacy.css" layer(components);
 
 /* components */
-@import "background.css";
-@import "badge.css";
-@import "brand-top.css";
-@import "breadcrumb.css";
-@import "button.css";
-@import "chart.css";
-@import "completion-progress.css";
-@import "dropdown.css";
-@import "embed.css";
-@import "footer.css";
-@import "form.css";
-@import "game-set.css";
-@import "icon.css";
-@import "nav.css";
-@import "progress.css";
-@import "progression-status.css";
-@import "shadcn.css";
-@import "status-message.css";
-@import "tab.css";
-@import "tag.css";
-@import "table.css";
-@import "tooltip.css";
+@import "./background.css" layer(components);
+@import "./badge.css" layer(components);
+@import "./brand-top.css" layer(components);
+@import "./breadcrumb.css" layer(components);
+@import "./button.css" layer(components);
+@import "./chart.css" layer(components);
+@import "./completion-progress.css" layer(components);
+@import "./dropdown.css" layer(components);
+@import "./embed.css" layer(components);
+@import "./footer.css" layer(components);
+@import "./form.css" layer(components);
+@import "./game-set.css" layer(components);
+@import "./icon.css" layer(components);
+@import "./nav.css" layer(components);
+@import "./progress.css" layer(components);
+@import "./progression-status.css" layer(components);
+@import "./shadcn.css" layer(components);
+@import "./status-message.css" layer(components);
+@import "./tab.css" layer(components);
+@import "./tag.css" layer(components);
+@import "./table.css" layer(components);
+@import "./tooltip.css" layer(components);
 
 /* TODO split into components or replace with utility classes */
-@import "comment.css";
-@import "devbox.css";
-@import "motto.css";
-@import "ticket-manager.css";
+@import "./comment.css" layer(components);
+@import "./devbox.css" layer(components);
+@import "./motto.css" layer(components);
+@import "./ticket-manager.css" layer(components);
 
 /* utilities come last to allow for overrides */
-@import "tailwindcss/utilities";
+@import "./utilities.css" layer(utilities);
 
-@import "utilities.css";
+/* opt-in paths for content scanning */
+@source "../../app/Helpers/render";
+@source "../../app/Helpers/util";
+@source "../../public";
+@source "../../resources/js";
+@source "../../resources/views";
+@source "../../storage/framework/views";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views";
+
+@source not "../../public/build";
+@source not "../../public/fi-build";
+@source not "../../public/assets/build";
+
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+@custom-variant light {
+  [data-scheme="light"] & {
+    @slot;
+  }
+  @media (prefers-color-scheme: light) {
+    [data-scheme="system"] & {
+      @slot;
+    }
+  }
+}
+@custom-variant black ([data-scheme="black"] &);

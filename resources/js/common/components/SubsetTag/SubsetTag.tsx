@@ -27,7 +27,7 @@ export const SubsetTag: FC<SubsetTagProps> = ({ className, type }) => {
   return (
     <BaseChip
       className={cn(
-        'rounded bg-menu-link px-2 py-0 text-sm text-neutral-950 light:bg-neutral-600 light:text-white',
+        'rounded-sm bg-menu-link px-2 py-0 text-sm text-neutral-950 light:bg-neutral-600 light:text-white',
         className,
       )}
     >

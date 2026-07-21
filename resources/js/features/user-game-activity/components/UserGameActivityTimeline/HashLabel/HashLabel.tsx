@@ -22,7 +22,7 @@ export const HashLabel: FC<HashLabelProps> = ({ session }) => {
           <span>{t('Unknown Hash')}</span>
         </BaseTooltipTrigger>
 
-        <BaseTooltipContent className="max-w-[280px]">
+        <BaseTooltipContent className="max-w-70">
           <p className="text-xs">
             {t(
               "Either the user's emulator isn't reporting what hash they're using, the user's session was created before we started recording hashes, the user closed the game very quickly, or the user's hash was later unlinked from the game.",
@@ -50,7 +50,7 @@ export const HashLabel: FC<HashLabelProps> = ({ session }) => {
             </span>
           </BaseTooltipTrigger>
 
-          <BaseTooltipContent className="max-w-[280px]">
+          <BaseTooltipContent className="max-w-70">
             <p className="text-xs">
               {t(
                 'This is a game with multiple discs. The hash shown here will only reflect the first disc loaded in the session.',

@@ -27,7 +27,7 @@ $completedUrl = url()->current() . '?' . http_build_query(array_merge($currentQu
 $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-mastered']));
 ?>
 
-<div class="bg-embed rounded px-4 py-2">
+<div class="bg-embed rounded-sm px-4 py-2">
     <div class="grid grid-cols-2 sm:hidden">
         <a href="{{ $playedUrl }}">
             <span class="font-bold">{{ localized_number($playedCount) }}</span> Played

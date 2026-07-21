@@ -24,7 +24,7 @@ export const ResponsiveManageChip: FC<ResponsiveManageChipProps> = ({ className 
       }
       target="_blank"
       aria-label={t('Manage')}
-      className={cn(responsiveHeaderChipClassNames, '!gap-0 !rounded-full !px-2.5', className)}
+      className={cn(responsiveHeaderChipClassNames, 'gap-0! rounded-full! px-2.5!', className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -37,7 +37,7 @@ export const ResponsiveManageChip: FC<ResponsiveManageChipProps> = ({ className 
             animate={{ width: 'auto', opacity: 1, marginLeft: 6 }}
             exit={{ width: 0, opacity: 0, marginLeft: 0 }}
             transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-            className="overflow-hidden whitespace-nowrap text-xs font-medium sm:text-sm"
+            className="overflow-hidden text-xs font-medium whitespace-nowrap sm:text-sm"
           >
             {t('Manage')}
           </motion.span>

@@ -103,7 +103,7 @@ const PlayerCompletionList: FC<PlayerCompletionListProps> = ({ completions, game
           className="flex w-full items-center justify-between gap-2 p-2 first:rounded-t-lg last:rounded-b-lg"
           key={`completion-${completion.user.displayName}`}
         >
-          <span className="lg:w-[130px] xl:w-[176px]">
+          <span className="lg:w-32.5 xl:w-44">
             <UserAvatar {...completion.user} size={24} labelClassName="truncate" />
           </span>
 

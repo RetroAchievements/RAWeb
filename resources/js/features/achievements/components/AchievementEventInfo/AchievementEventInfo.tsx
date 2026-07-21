@@ -39,7 +39,7 @@ export const AchievementEventInfo: FC = () => {
                 {t('From')}
               </BaseTableHead>
 
-              <BaseTableCell className="h-[42px]">
+              <BaseTableCell className="h-10.5">
                 <GameAvatar {...sourceGame} size={24} />
               </BaseTableCell>
             </BaseTableRow>

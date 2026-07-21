@@ -133,7 +133,7 @@
 
                                     <tr
                                         x-show="!collapseAddAddress || {{ $condition['Flag'] === 'Add Address' ? 'false' : 'true' }}"
-                                        class="{{ $loop->even ? 'bg-gray-950/[0.025] dark:bg-white/[0.04]' : '' }} hover:bg-gray-950/[0.05] dark:hover:bg-white/[0.06]"
+                                        class="{{ $loop->even ? 'bg-gray-950/2.5 dark:bg-white/4' : '' }} hover:bg-gray-950/5 dark:hover:bg-white/6"
                                         :class="{ 'border-l-2 border-l-purple-500 dark:border-l-purple-400': collapseAddAddress && {{ $isEndOfAddAddressChain ? 'true' : 'false' }} }"
                                     >
                                         {{-- Condition number --}}
@@ -327,12 +327,12 @@
                                 Code Notes ({{ count($group['Notes']) }})
                             </summary>
 
-                            <div class="mx-4 mb-4 px-4 py-3 max-h-64 overflow-y-auto rounded-lg bg-gray-950/[0.02] dark:bg-white/[0.03]">
+                            <div class="mx-4 mb-4 px-4 py-3 max-h-64 overflow-y-auto rounded-lg bg-gray-950/2 dark:bg-white/3">
                                 <div class="divide-y divide-gray-950/5 dark:divide-white/5">
                                     @foreach ($group['Notes'] as $addr => $note)
                                         <div class="flex gap-3 text-xs py-2 first:pt-0 last:pb-0">
                                             <code class="shrink-0 font-medium text-blue-600 dark:text-blue-400">{{ sprintf($addrFormat, $addr) }}</code>
-                                            <span class="font-mono text-neutral-600 dark:text-neutral-400 break-words whitespace-pre-wrap">{{ $note }}</span>
+                                            <span class="font-mono text-neutral-600 dark:text-neutral-400 wrap-break-word whitespace-pre-wrap">{{ $note }}</span>
                                         </div>
                                     @endforeach
                                 </div>

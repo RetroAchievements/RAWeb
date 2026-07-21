@@ -114,7 +114,7 @@ use \Illuminate\Support\Js;
                                     {{ $this->getFieldLabel($field) }}
                                 </td>
 
-                                <td class="fi-ta-cell px-4 py-2 align-top break-all !whitespace-normal" width="40%">
+                                <td class="fi-ta-cell px-4 py-2 align-top break-all whitespace-normal!" width="40%">
                                     @if ($oldRelatedModels->isNotEmpty() && isset($oldRelatedModels->first()->name))
                                         @foreach ($oldRelatedModels as $relatedModel)
                                             <div class="inline-block">
@@ -137,11 +137,11 @@ use \Illuminate\Support\Js;
                                     @endif
                                 </td>
 
-                                <td class="fi-ta-cell px-4 py-2 align-top text-center break-all !whitespace-normal" width="5%">
+                                <td class="fi-ta-cell px-4 py-2 align-top text-center break-all whitespace-normal!" width="5%">
                                     <x-fas-arrow-right class="h-4 inline" />
                                 </td>
 
-                                <td class="fi-ta-cell px-4 py-2 align-top break-all !whitespace-normal" width="40%">
+                                <td class="fi-ta-cell px-4 py-2 align-top break-all whitespace-normal!" width="40%">
                                     @if ($newRelatedModels->isNotEmpty() && isset($newRelatedModels->first()->name))
                                         @foreach ($newRelatedModels as $relatedModel)
                                             <div class="inline-block">

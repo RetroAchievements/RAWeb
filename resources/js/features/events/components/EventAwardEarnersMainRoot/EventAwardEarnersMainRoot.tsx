@@ -48,7 +48,7 @@ export const EventAwardEarnersMainRoot: FC = () => {
         </span>
       </PlayableHeader>
 
-      <div className="mb-3 mt-3 flex w-full justify-between">
+      <div className="mt-3 mb-3 flex w-full justify-between">
         <FullPaginator
           onPageSelectValueChange={handlePageSelectValueChange}
           paginatedData={paginatedUsers}

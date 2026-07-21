@@ -149,7 +149,7 @@ export const ScreenshotGalleryImage: FC<ScreenshotGalleryImageProps> = ({
           )}
           onClick={() => setHasUserRevealed(true)}
         >
-          <span className="text-xs uppercase tracking-widest text-neutral-300">
+          <span className="text-xs tracking-widest text-neutral-300 uppercase">
             {t('Completion screenshot')}
           </span>
 

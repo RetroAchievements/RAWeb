@@ -50,7 +50,7 @@ export const CommentResultDisplay: FC<CommentResultDisplayProps> = ({ comment })
       <img
         src={comment.user.avatarUrl}
         alt={comment.user.displayName}
-        className="size-10 rounded"
+        className="size-10 rounded-sm"
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">

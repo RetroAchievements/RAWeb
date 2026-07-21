@@ -29,7 +29,7 @@ export const RecentUnlocksTable: FC<RecentUnlocksTableProps> = ({ recentUnlocks 
     <div className="flex flex-col">
       <h2 className="border-b-0 text-xl font-semibold">{t('Recent Unlocks')}</h2>
 
-      <div className="h-[500px] max-h-[500px] overflow-auto rounded border border-neutral-800 bg-embed light:border-neutral-300">
+      <div className="h-125 max-h-125 overflow-auto rounded-sm border border-neutral-800 bg-embed light:border-neutral-300">
         {recentUnlocks.length ? (
           <BaseTable>
             <BaseTableHeader className="sticky top-0 z-10 bg-embed">

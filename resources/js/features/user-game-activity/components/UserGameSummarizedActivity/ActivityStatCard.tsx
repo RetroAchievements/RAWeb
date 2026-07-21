@@ -22,7 +22,7 @@ export const ActivityStatCard: FC<ActivityStatCardProps> = ({ children, t_label,
 
   return (
     <BaseCard>
-      <BaseCardHeader className="flex flex-row items-center gap-1 px-4 pb-0 pt-4">
+      <BaseCardHeader className="flex flex-row items-center gap-1 px-4 pt-4 pb-0">
         {t_label}
 
         {t_tooltip ? (
@@ -32,7 +32,7 @@ export const ActivityStatCard: FC<ActivityStatCardProps> = ({ children, t_label,
               <span className="sr-only">{t('See more info')}</span>
             </BaseTooltipTrigger>
 
-            <BaseTooltipContent sideOffset={12} className="max-w-[280px]">
+            <BaseTooltipContent sideOffset={12} className="max-w-70">
               <span className="text-xs">{t_tooltip}</span>
             </BaseTooltipContent>
           </BaseTooltip>

@@ -23,7 +23,7 @@ const Contact: AppPage = () => {
 
         <div className="grid gap-2 lg:grid-cols-2 lg:gap-4">
           <div className="flex flex-col gap-2 lg:gap-4">
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Admins and Moderators')}</h2>
                 <p>
@@ -54,7 +54,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Developer Compliance')}</h2>
                 <p>
@@ -78,7 +78,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Quality Assurance')}</h2>
                 <p>
@@ -98,7 +98,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Art Team')}</h2>
                 <p>
@@ -119,7 +119,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('DevQuest')}</h2>
                 <p>
@@ -136,7 +136,7 @@ const Contact: AppPage = () => {
           </div>
 
           <div className="flex flex-col gap-2 lg:gap-4">
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Cheating Reports')}</h2>
                 <p className="mb-2">
@@ -158,7 +158,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Writing Team')}</h2>
                 <p>
@@ -183,7 +183,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('RANews')}</h2>
                 <p>
@@ -204,7 +204,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('Unlock Team')}</h2>
                 <p>
@@ -220,7 +220,7 @@ const Contact: AppPage = () => {
               </div>
             </div>
 
-            <div className="rounded bg-embed p-4">
+            <div className="rounded-sm bg-embed p-4">
               <div>
                 <h2 className="text-h4">{t('RAEvents')}</h2>
                 <p className="mb-4">

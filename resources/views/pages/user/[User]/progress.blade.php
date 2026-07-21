@@ -43,7 +43,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
         <x-user.breadcrumbs :user="$user" currentPage="Completion Progress" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-3">
-            {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+            {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
             <h1 class="mt-[10px] w-full">{{ $seo['pageTitle'] }}</h1>
         </div>
 
@@ -90,7 +90,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
         </div>
 
         @if ($totalInList === 0)
-            <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
+            <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded-sm py-8">
                 <img src="/assets/images/cheevo/confused.webp" alt="No sets in progress">
                 <p>
                     {{ $isMe ? "You don't" : $user->display_name . " doesn't" }}

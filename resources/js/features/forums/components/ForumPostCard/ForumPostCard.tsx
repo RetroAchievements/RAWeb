@@ -46,7 +46,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
             'relative -mx-2 w-[calc(100%+16px)] rounded-lg bg-embed-highlight px-1 py-2 even:bg-embed',
             'light:border light:border-neutral-300 light:bg-white',
             'sm:mx-0 sm:w-full lg:flex',
-            isHighlighted ? 'outline outline-2' : null,
+            isHighlighted ? 'outline-2' : null,
           )}
         >
           <ForumPostAuthorBox comment={comment} />
@@ -56,7 +56,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
               {comment && topic ? (
                 <ForumPostCardMeta comment={comment} topic={topic} />
               ) : (
-                <p className="text-2xs leading-[14px] text-neutral-400">{t('Preview')}</p>
+                <p className="text-2xs leading-3.5 text-neutral-400">{t('Preview')}</p>
               )}
 
               {comment && topic ? (
@@ -72,7 +72,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                       })}
                       className={baseButtonVariants({
                         size: 'sm',
-                        className: 'max-h-[22px] !p-1 !text-2xs lg:!text-xs',
+                        className: 'max-h-5.5 p-1! text-2xs! lg:text-xs!',
                       })}
                     >
                       {t('Edit')}
@@ -89,7 +89,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                       })}
                       className={baseButtonVariants({
                         size: 'sm',
-                        className: 'max-h-[22px] gap-1 !p-1 !text-2xs lg:!text-xs',
+                        className: 'max-h-5.5 gap-1 p-1! text-2xs! lg:text-xs!',
                       })}
                     >
                       <LuFlag className="size-3" />

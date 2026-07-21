@@ -90,25 +90,6 @@ class ContentSecurityPolicy extends Policy
         $this->add(Directive::FONT, 'data:');
 
         /*
-         * websockets
-         */
-        $this->add(
-            Directive::CONNECT,
-            (config('websockets.ssl.local_cert') ? 'wss' : 'ws') . '://'
-            . request()->getHost() . ':' . config('broadcasting.connections.pusher.options.port')
-        );
-
-        /*
-         * websockets dashboard
-         * note: websockets routes are excluded from csp middleware
-         */
-        // $this->add(Directive::SCRIPT, 'cdn.plot.ly');
-        // $this->add(Directive::SCRIPT, 'cdn.jsdelivr.net');
-        // $this->add(Directive::SCRIPT, 'js.pusher.com');
-        // $this->add(Directive::SCRIPT, 'code.jquery.com');
-        // $this->add(Directive::STYLE, 'stackpath.bootstrapcdn.com');
-
-        /*
          * route-usage
          * note: horizon has its assets published
          */

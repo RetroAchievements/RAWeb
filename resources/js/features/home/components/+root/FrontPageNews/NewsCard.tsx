@@ -46,12 +46,10 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         className,
       )}
     >
-      <div
-        className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-[197px]' : null)}
-      >
+      <div className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-49.25' : null)}>
         {news.pinnedAt && ziggy.device === 'mobile' ? (
-          <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
-            <LuPin className="mr-[2px] size-5 text-white" />
+          <div className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
+            <LuPin className="mr-0.5 size-5 text-white" />
             <p className="sr-only">{t('Pinned')}</p>
           </div>
         ) : null}
@@ -62,9 +60,9 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
       <div className="relative w-full">
         {news.pinnedAt && ziggy.device === 'desktop' ? (
           <BaseTooltip>
-            <BaseTooltipTrigger className="absolute -right-2 -top-2">
-              <div className="flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
-                <LuPin className="mr-[2px] size-5 text-white" />
+            <BaseTooltipTrigger className="absolute -top-2 -right-2">
+              <div className="flex size-8 items-center justify-center rounded-tr-lg rounded-bl bg-amber-600">
+                <LuPin className="mr-0.5 size-5 text-white" />
                 <p className="sr-only">{t('Pinned')}</p>
               </div>
             </BaseTooltipTrigger>
@@ -86,7 +84,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           )}
         >
           {isRecentPost ? (
-            <BaseBadge className="mr-2 max-h-[16px] bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
+            <BaseBadge className="mr-2 max-h-4 bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
               {t('new')}
             </BaseBadge>
           ) : null}
@@ -128,7 +126,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
   const [isImageValid, setIsImageValid] = useState(!!src);
 
   return (
-    <div className="overflow-hidden rounded">
+    <div className="overflow-hidden rounded-sm">
       {/* eslint-disable-next-line jsx-a11y/alt-text -- only img tags can detect if the image is invalid/broken (via onError) */}
       <img
         data-testid="hidden-image"
@@ -143,19 +141,19 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
           role="img"
           aria-label="news post photo"
           className={cn(
-            'h-28 w-full rounded bg-cover bg-center',
-            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
+            'h-28 w-full rounded-sm bg-cover bg-center',
+            ziggy.device === 'desktop' ? 'sm:w-49.25' : null,
           )}
           style={{ backgroundImage: `url(${src})` }}
         />
       ) : (
         <div
           className={cn(
-            'flex h-28 w-full items-center justify-center rounded bg-gradient-to-br',
+            'flex h-28 w-full items-center justify-center rounded-sm bg-linear-to-br',
             'from-slate-800 to-zinc-950',
             'light:from-slate-100 light:to-slate-300',
 
-            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
+            ziggy.device === 'desktop' ? 'sm:w-49.25' : null,
           )}
         >
           <img
