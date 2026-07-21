@@ -52,7 +52,7 @@ export const ScreenshotPreviewMeta: FC<ScreenshotPreviewMetaProps> = ({
         )}
 
         <span className="text-neutral-400">
-          {width}x{height}
+          {`${width}x${height}`}
         </span>
       </div>
 
