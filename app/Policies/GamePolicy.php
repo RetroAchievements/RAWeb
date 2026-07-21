@@ -140,6 +140,15 @@ class GamePolicy
         ]);
     }
 
+    public function createFromFilament(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+        ]);
+    }
+
     public function createForumTopic(User $user, Game $game): bool
     {
         if ($game->forum_topic_id) {
