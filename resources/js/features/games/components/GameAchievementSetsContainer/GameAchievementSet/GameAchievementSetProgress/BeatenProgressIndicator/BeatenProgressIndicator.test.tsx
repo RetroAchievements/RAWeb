@@ -39,7 +39,7 @@ describe('Component: BeatenProgressIndicator', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });
-    expect(button).toHaveClass('text-opacity-30');
+    expect(button).toHaveClass('text-neutral-300/30');
   });
 
   it('given the player has beaten the game in casual, renders the indicator button with full opacity', () => {
@@ -61,7 +61,7 @@ describe('Component: BeatenProgressIndicator', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });
-    expect(button).toHaveClass('text-opacity-100');
+    expect(button).not.toHaveClass('text-neutral-300/30');
   });
 
   it('given the player has beaten the game in hardcore, renders the indicator button with full opacity', () => {
@@ -81,7 +81,7 @@ describe('Component: BeatenProgressIndicator', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });
-    expect(button).toHaveClass('text-opacity-100');
+    expect(button).not.toHaveClass('text-neutral-300/30');
   });
 
   it('given only progression achievements exist and none are unlocked, shows correct counts', async () => {

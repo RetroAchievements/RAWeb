@@ -8,6 +8,11 @@
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "./resources/css/app.css"
+    }
+  },
   "ignorePatterns": [
     "**/generated.d.ts",
     "**/ziggy.d.ts",
@@ -21,6 +26,7 @@
     "bootstrap/cache/**"
   ],
   "jsPlugins": [
+    "oxlint-tailwindcss",
     "eslint-plugin-testing-library",
     "eslint-plugin-simple-import-sort",
     "eslint-plugin-sort-keys-shorthand",
@@ -36,7 +42,6 @@
   "rules": {
     "eqeqeq": "error",
     "no-else-return": "error",
-    "no-return-await": "error",
     "no-undef": "off",
     "no-useless-escape": "off",
     "object-shorthand": "error",
@@ -93,12 +98,13 @@
     "typescript/no-explicit-any": "error",
     "typescript/ban-ts-comment": "error",
 
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+
     "react/display-name": "off",
-    "react/jsx-no-leaked-render": "error",
     "react/jsx-no-literals": "error",
     "react/jsx-no-target-blank": "off",
     "react/no-unescaped-entities": "off",
-    "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "error",
@@ -110,6 +116,13 @@
     "unicorn/no-array-for-each": "error",
     "unicorn/no-array-reduce": "error",
     "unicorn/prefer-includes": "error",
+
+    "tailwindcss/no-duplicate-classes": "error",
+    "tailwindcss/no-conflicting-classes": "error",
+    "tailwindcss/no-deprecated-classes": "error",
+    "tailwindcss/no-unnecessary-whitespace": "error",
+    "tailwindcss/enforce-canonical": "error",
+    "tailwindcss/enforce-consistent-important-position": "error",
 
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",

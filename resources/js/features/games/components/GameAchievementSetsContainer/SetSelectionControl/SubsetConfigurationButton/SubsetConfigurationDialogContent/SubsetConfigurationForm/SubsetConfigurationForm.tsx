@@ -43,7 +43,7 @@ export const SubsetConfigurationForm: FC<SubsetConfigurationFormProps> = ({
           {hasBothTypes ? (
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-3">
-                <p className="text-xs font-bold uppercase tracking-wide text-neutral-300 light:text-neutral-600">
+                <p className="text-xs font-bold tracking-wide text-neutral-300 uppercase light:text-neutral-600">
                   {t('No extra setup needed')}
                 </p>
 
@@ -53,7 +53,7 @@ export const SubsetConfigurationForm: FC<SubsetConfigurationFormProps> = ({
               </div>
 
               <div className="flex flex-col gap-3">
-                <p className="text-xs font-bold uppercase tracking-wide text-neutral-300 light:text-neutral-600">
+                <p className="text-xs font-bold tracking-wide text-neutral-300 uppercase light:text-neutral-600">
                   {t('Requires a patched game file')}
                 </p>
 

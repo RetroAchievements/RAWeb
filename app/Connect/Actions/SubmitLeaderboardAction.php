@@ -194,7 +194,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
     private function createLeaderboard(): array
     {
         if ($this->achievementSetId) {
-            $gameAchievementSet = GameAchievementSet::find($this->achievementSetId);
+            $gameAchievementSet = GameAchievementSet::core()->where('achievement_set_id', $this->achievementSetId)->first();
             if (!$gameAchievementSet) {
                 return $this->resourceNotFound('achievement set');
             }

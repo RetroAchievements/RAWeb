@@ -113,7 +113,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
         </div>
       </div>
 
-      <div className="absolute right-1 top-2 hidden sm:block">
+      <div className="absolute top-2 right-1 hidden sm:block">
         <GameAchievementSetProgress
           achievements={achievements}
           gameAchievementSet={gameAchievementSet}

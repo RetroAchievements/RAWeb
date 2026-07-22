@@ -102,7 +102,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
         @if ($isAchievementTicket)
-            {!! achievementAvatar($ticketable, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+            {!! achievementAvatar($ticketable, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         @endif
         <h1 class="mt-[10px] w-full">{{ $ticketableTitle }} ({{ $ticket->type->label() }})</h1>
     </div>
@@ -110,7 +110,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
         <div class="flex flex-col gap-y-1">
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Ticket Information</p>
-            <div class="relative w-full p-2 bg-embed rounded">
+            <div class="relative w-full p-2 bg-embed rounded-sm">
                 <x-ticket.stat-element label="State">{{ $ticket->state->label() }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->created_at->unix()) }}</x-ticket.stat-element>
@@ -144,7 +144,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
         <div class="flex flex-col gap-y-1">
             @if ($isAchievementTicket)
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Achievement Information</p>
-                <div class="relative w-full p-2 bg-embed rounded">
+                <div class="relative w-full p-2 bg-embed rounded-sm">
                     <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticketable, iconSize: 16) !!}</x-ticket.stat-element>
                     <x-ticket.stat-element label="Game">{!! gameAvatar($ticketableGame, iconSize: 16) !!}</x-ticket.stat-element>
                     @php
@@ -216,7 +216,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                 </p>
             </div>
 
-            <div class="relative w-full p-2 bg-embed rounded">
+            <div class="relative w-full p-2 bg-embed rounded-sm">
                 <div class="w-full relative flex gap-x-3">
                     <x-user.client-list :clients="$clients" />
 

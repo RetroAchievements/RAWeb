@@ -73,7 +73,7 @@ export const AvatarSection: FC = () => {
                           {t('New Image')}
                         </BaseFormLabel>
 
-                        <div className="flex flex-grow flex-col gap-1">
+                        <div className="flex grow flex-col gap-1">
                           <BaseFormControl>
                             <BaseInput
                               {...field}

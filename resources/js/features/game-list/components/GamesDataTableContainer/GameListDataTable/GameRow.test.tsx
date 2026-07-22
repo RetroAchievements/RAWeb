@@ -56,7 +56,7 @@ describe('Component: GameRow', () => {
 
     // ASSERT
     const rowEl = screen.getByRole('row');
-    expect(rowEl).toHaveClass('!bg-transparent');
+    expect(rowEl).toHaveClass('bg-transparent!');
   });
 
   it('given shouldShowGroups is false, does not render transparent background styles', () => {
@@ -70,7 +70,7 @@ describe('Component: GameRow', () => {
 
     // ASSERT
     const rowEl = screen.getByRole('row');
-    expect(rowEl).not.toHaveClass('!bg-transparent');
+    expect(rowEl).not.toHaveClass('bg-transparent!');
   });
 
   it('given a cell with right alignment, renders with right alignment styles', () => {

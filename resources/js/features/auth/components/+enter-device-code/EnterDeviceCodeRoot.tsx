@@ -34,8 +34,8 @@ export const EnterDeviceCodeRoot: FC = () => {
 
   return (
     <OAuthPageLayout initial={hasError ? false : { opacity: 0, y: 12 }}>
-      <BaseCard className="rounded-2xl p-8 shadow-lg shadow-black/20 ring-1 ring-white/5">
-        <BaseCardHeader className="text-balance px-0 pt-0 text-center">
+      <BaseCard className="rounded-2xl p-8 shadow-lg ring-1 shadow-black/20 ring-white/5">
+        <BaseCardHeader className="px-0 pt-0 text-center text-balance">
           <BaseCardTitle className="text-neutral-300 light:text-neutral-900">
             {t('Link your app')}
           </BaseCardTitle>

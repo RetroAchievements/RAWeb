@@ -104,27 +104,8 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
             } else {
                 // no title match, it's a new game
                 $game = new Game(['title' => $this->gameTitle, 'system_id' => $this->systemId]);
-                // these properties are not fillable, so have to be set manually
-                $game->players_total = 0;
-                $game->players_hardcore = 0;
-                $game->points_total = 0;
-                $game->achievements_published = 0;
-                $game->achievements_unpublished = 0;
-                $game->save();
 
-                // create the initial canonical title in game_releases
-                $game->releases()->create([
-                    'title' => $this->gameTitle,
-                    'is_canonical_game_title' => true,
-                ]);
-
-                // create an empty GameAchievementSet and AchievementSet
-                (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
-
-                // attempt to auto-attach subset games to their parent game
-                if (str_contains($this->gameTitle, '[Subset -')) {
-                    $this->tryAutoAttachSubsetToParent($game);
-                }
+                SubmitGameTitleAction::finalizeNewGame($game);
             }
         }
 
@@ -155,6 +136,31 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
         ];
     }
 
+    public static function finalizeNewGame(Game $game): void
+    {
+        // these properties are not fillable, so have to be set manually
+        $game->players_total = 0;
+        $game->players_hardcore = 0;
+        $game->points_total = 0;
+        $game->achievements_published = 0;
+        $game->achievements_unpublished = 0;
+        $game->save();
+
+        // create the initial canonical title in game_releases
+        $game->releases()->create([
+            'title' => $game->title,
+            'is_canonical_game_title' => true,
+        ]);
+
+        // create an empty GameAchievementSet and AchievementSet
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        // attempt to auto-attach subset games to their parent game
+        if (str_contains($game->title, '[Subset -')) {
+            SubmitGameTitleAction::tryAutoAttachSubsetToParent($game);
+        }
+    }
+
     /**
      * When developers create subset games (eg: "Mega Man 2 [Subset - Bonus]"), the subset's
      * achievement set would normally be orphaned and only accessible via /game/{subsetGameId}.
@@ -167,7 +173,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
      * If no parent game is found, the subset remains orphaned and can be manually attached
      * later via the Filament admin panel.
      */
-    private function tryAutoAttachSubsetToParent(Game $subsetGame): void
+    private static function tryAutoAttachSubsetToParent(Game $subsetGame): void
     {
         /**
          * Try to extract the parent game title and subset title from `$this->gameTitle`.
@@ -176,7 +182,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
          *      - parent title: "Mega Man 2"
          *      - subset title: "Bonus"
          */
-        if (!preg_match('/^(.+?)\s*\[Subset\s*-\s*(.+?)\]/', $this->gameTitle, $matches)) {
+        if (!preg_match('/^(.+?)\s*\[Subset\s*-\s*(.+?)\]/', $subsetGame->title, $matches)) {
             return;
         }
 
@@ -185,7 +191,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
 
         // Now, try to find the parent game by an exact title match on the same system.
         $parentGame = Game::where('title', $parentTitle)
-            ->where('system_id', $this->systemId)
+            ->where('system_id', $subsetGame->system_id)
             ->first();
 
         if (!$parentGame) {

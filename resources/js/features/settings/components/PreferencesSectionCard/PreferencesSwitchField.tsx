@@ -63,7 +63,7 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
                   />
                 </BaseTooltipTrigger>
 
-                <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+                <BaseTooltipContent className="max-w-72 leading-normal font-normal">
                   <span className="text-xs font-normal">{t_infoText}</span>
                 </BaseTooltipContent>
               </BaseTooltip>

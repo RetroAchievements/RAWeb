@@ -38,7 +38,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Achievement Distribution')}</h2>
 
       <div className="flex flex-col gap-3 rounded-lg bg-embed p-3 light:border light:border-neutral-200 light:bg-white">
-        <BaseChartContainer config={chartConfig} className="h-[260px] w-full">
+        <BaseChartContainer config={chartConfig} className="h-65 w-full">
           <BarChart accessibilityLayer data={buckets}>
             <CartesianGrid vertical={false} />
             <XAxis tickMargin={8} angle={0} tickFormatter={formatXAxisTick} />
@@ -46,7 +46,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
             <BaseChartTooltip
               content={
                 <ReferenceLineTooltipContent
-                  className="min-w-[196px]"
+                  className="min-w-49"
                   buckets={buckets}
                   labelFormatter={formatTooltipLabel}
                   userAchievementCounts={userAchievementCounts}

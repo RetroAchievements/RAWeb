@@ -62,7 +62,7 @@ const GameAwardCard: FC<GameAwardCardProps> = ({ game, user }) => {
   const system = game.system as App.Platform.Data.System;
 
   return (
-    <div className="flex h-20 gap-2.5 rounded bg-embed p-2">
+    <div className="flex h-20 gap-2.5 rounded-sm bg-embed p-2">
       <GameAvatar {...game} size={64} showLabel={false} />
 
       <div className="flex flex-col gap-1">

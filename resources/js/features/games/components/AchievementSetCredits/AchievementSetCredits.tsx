@@ -40,7 +40,7 @@ export const AchievementSetCredits: FC = () => {
         designCreditUsers={designCreditUsers}
       />
 
-      <div className="hidden w-full items-center rounded sm:flex lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
+      <div className="hidden w-full items-center rounded-sm sm:flex lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 xl:gap-4">
           {aggregateCredits.achievementsAuthors.length ? (
             <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />

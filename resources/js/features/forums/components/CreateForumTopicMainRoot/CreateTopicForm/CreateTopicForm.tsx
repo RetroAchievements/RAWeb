@@ -63,7 +63,7 @@ export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
                 control={form.control}
                 name="postAsUserId"
                 render={({ field }) => (
-                  <BaseFormItem className="flex w-full flex-col gap-1 md:w-[320px] md:min-w-[320px]">
+                  <BaseFormItem className="flex w-full flex-col gap-1 md:w-80 md:min-w-80">
                     <BaseFormLabel>{t('Post as')}</BaseFormLabel>
 
                     <BaseFormControl>
