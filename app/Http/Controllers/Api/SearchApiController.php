@@ -228,7 +228,7 @@ class SearchApiController extends Controller
             $filteredUsers = $users->filter(fn ($user) => $user->email_verified_at !== null);
 
             $results = $filteredUsers->map(function ($user) {
-                return UserData::fromUser($user)->include('lastActivityAt', 'points', 'pointsSoftcore');
+                return UserData::fromUser($user)->include('lastActivityAt', 'points', 'pointsSoftcore', 'roles');
             });
 
             return $this->buildSearchResponse($results, 0.5, $this->buildPaginationMeta($paginator));
@@ -245,7 +245,7 @@ class SearchApiController extends Controller
             ->take(self::MAX_RESULTS_PER_SCOPE);
 
         $results = $filteredUsers->map(function ($user) {
-            return UserData::fromUser($user)->include('lastActivityAt', 'points', 'pointsSoftcore');
+            return UserData::fromUser($user)->include('lastActivityAt', 'points', 'pointsSoftcore', 'roles');
         });
 
         // Calculate average relevance for section ordering.
