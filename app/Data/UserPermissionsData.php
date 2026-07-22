@@ -10,6 +10,7 @@ use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
+use App\Models\OAuthClient;
 use App\Models\User;
 use App\Policies\AchievementCommentPolicy;
 use App\Policies\GameCommentPolicy;
@@ -30,6 +31,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createGameScreenshot,
         public Lazy|bool $createMessageThreads,
         public Lazy|bool $createModerationReports,
+        public Lazy|bool $createOAuthClients,
         public Lazy|bool $createTicket,
         public Lazy|bool $createUserBetaFeedbackSubmission,
         public Lazy|bool $createUsernameChangeRequest,
@@ -62,6 +64,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $updateMotto,
         public Lazy|bool $viewAchievementLogic,
         public Lazy|bool $viewAnyAchievementSetClaim,
+        public Lazy|bool $viewAnyOAuthClients,
         public Lazy|bool $viewDeveloperInterest,
     ) {
     }
@@ -103,6 +106,7 @@ class UserPermissionsData extends Data
             ),
             createMessageThreads: Lazy::create(fn () => $user ? $user->can('create', \App\Models\MessageThread::class) : false),
             createModerationReports: Lazy::create(fn () => $user ? $user->can('createModerationReports', User::class) : false),
+            createOAuthClients: Lazy::create(fn () => $user ? $user->can('create', OAuthClient::class) : false),
             createTicket: Lazy::create(fn () => $user && $triggerable
                 ? $user->can('createFor', [\App\Models\Ticket::class, $triggerable])
                 : $user?->can('create', \App\Models\Ticket::class) ?? false
@@ -162,6 +166,7 @@ class UserPermissionsData extends Data
                 : false
             ),
             viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
+            viewAnyOAuthClients: Lazy::create(fn () => $user ? $user->can('viewAny', OAuthClient::class) : false),
             viewDeveloperInterest: Lazy::create(fn () => $user && $game
                 ? $user->can('viewDeveloperInterest', $game)
                 : false
