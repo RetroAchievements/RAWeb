@@ -263,11 +263,15 @@ class UploadLeaderboardTest extends TestCase
 
         $this->assertEquals(2, Leaderboard::count());
 
+        // create a dummy AchievementSet so the id and achievement_set_id on the
+        // GameAchievementSet for our test game differ.
+        AchievementSet::factory()->create();
+
         // ----------------------------
         // third new leaderboard for valid achievement set
         $achievementSet = GameAchievementSet::create(['game_id' => $game->id, 'achievement_set_id' => AchievementSet::create()->id]);
         $this->post('dorequest.php', $this->checksumParams([
-            'p' => $achievementSet->id,
+            'p' => $achievementSet->achievement_set_id,
             'n' => 'Title5',
             'd' => 'Description5',
             's' => '15=0',
@@ -374,7 +378,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals(true, $leaderboard4->rank_asc);
         $this->assertEquals('VALUE', $leaderboard4->format);
         $this->assertEquals(1, $leaderboard4->order_column);
-   }
+    }
 
     public function testUploadLeaderboardJuniorDeveloper(): void
     {

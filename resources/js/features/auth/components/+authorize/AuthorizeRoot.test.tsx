@@ -29,6 +29,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -52,6 +53,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -59,11 +61,35 @@ describe('Component: AuthorizeRoot', () => {
     expect(screen.getByText(/test app wants to access your account/i)).toBeVisible();
 
     expect(screen.getByText(/this will allow test app to:/i)).toBeVisible();
-    expect(screen.getByText(/access your profile information/i)).toBeVisible();
-    expect(screen.getByText(/make api calls on your behalf/i)).toBeVisible();
+    expect(screen.getByText(/view publicly visible retroachievements data/i)).toBeVisible();
 
     expect(screen.getByText(/currently signed in as/i)).toBeVisible();
     expect(screen.getByText('Scott')).toBeVisible();
+  });
+
+  it('translates known scopes and falls back to the identifier for unknown ones', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['data:read', 'data:mystery'],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('View publicly visible RetroAchievements data')).toBeVisible();
+    expect(screen.getByText('data:mystery')).toBeVisible();
   });
 
   it('displays both deny and authorize buttons', () => {
@@ -82,6 +108,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -106,6 +133,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -133,6 +161,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -162,6 +191,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -191,6 +221,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: 'request-state-123',
         },
+        scopes: ['data:read'],
       },
     });
 
@@ -219,6 +250,7 @@ describe('Component: AuthorizeRoot', () => {
         request: {
           state: null, // !!
         },
+        scopes: ['data:read'],
       },
     });
 

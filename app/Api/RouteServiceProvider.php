@@ -8,11 +8,14 @@ use App\Api\Controllers\CatchAllController;
 use App\Api\Controllers\HealthController;
 use App\Api\Internal\Controllers\AchievementController as InternalAchievementController;
 use App\Api\Middleware\AddContentLengthHeader;
+use App\Api\Middleware\DenyOAuthTokens;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
+use App\Api\Middleware\RequireOAuthReadScope;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
+use App\Api\V2\Controllers\AchievementOfTheWeekController;
 use App\Api\V2\Controllers\AchievementSetClaimController;
 use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\AchievementSetVersionController;
@@ -101,6 +104,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::middleware([
                         LogApiRequest::class . ':v2',
                         'auth:api-token-header,oauth',
+                        RequireOAuthReadScope::class,
                         AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
@@ -109,12 +113,16 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('games/{gameId}/achievement-distribution', GameAchievementDistributionController::class)
                             ->whereNumber('gameId')
                             ->name('v2.games.achievement-distribution');
+
+                        Route::get('event-achievements/achievement-of-the-week', AchievementOfTheWeekController::class)
+                            ->name('v2.event-achievements.achievement-of-the-week');
                     });
 
                     JsonApiRoute::server('v2')
                         ->middleware(
                             LogApiRequest::class . ':v2',
                             'auth:api-token-header,oauth',
+                            RequireOAuthReadScope::class,
                             AddContentLengthHeader::class,
                             'throttle:' . $rateLimit
                         )
@@ -194,14 +202,14 @@ class RouteServiceProvider extends ServiceProvider
                                 ->relationships(function ($relationships) {
                                     $relationships->hasMany('achievementSetClaims')->readOnly();
                                     $relationships->hasMany('awards')->readOnly();
-                                    $relationships->hasMany('followers')->readOnly();
-                                    $relationships->hasMany('following')->readOnly();
+                                    $relationships->hasMany('followers')->readOnly()->middleware(DenyOAuthTokens::class);
+                                    $relationships->hasMany('following')->readOnly()->middleware(DenyOAuthTokens::class);
                                     $relationships->hasMany('leaderboardEntries')->readOnly();
                                     $relationships->hasMany('playerAchievements')->readOnly();
                                     $relationships->hasMany('playerAchievementSets')->readOnly();
                                     $relationships->hasMany('playerGames')->readOnly();
                                     $relationships->hasMany('tickets')->readOnly();
-                                    $relationships->hasMany('userGameListEntries')->readOnly();
+                                    $relationships->hasMany('userGameListEntries')->readOnly()->middleware(DenyOAuthTokens::class);
                                     $relationships->hasMany('wallComments')->readOnly();
                                 });
                         });
