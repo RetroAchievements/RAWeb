@@ -23,6 +23,8 @@ class PatreonSupportersPagePropsData extends Data
         public Collection $initialSupporters,
         public DeferProp|Collection $deferredSupporters,
         public int $totalCount,
+        /** @var int[] $tier2SupporterIds */
+        public array $tier2SupporterIds,
     ) {
     }
 }

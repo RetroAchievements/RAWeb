@@ -90,7 +90,8 @@ export const UserRole = {
     ARCHITECT: 'architect',
     ENGINEER: 'engineer',
     TEAM_ACCOUNT: 'team-account',
-    SUPPORTER: 'supporter',
     COMMUNITY_MANAGER: 'community-manager',
     DEVELOPER_RETIRED: 'developer-retired',
+    SUPPORTER: 'supporter',
 } as const;
+

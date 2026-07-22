@@ -96,40 +96,24 @@ if ($propertyType === UserAction::PatreonBadge) {
     $comment = DB::transaction(function () use ($foundTargetUser, $value) {
         User::whereKey($foundTargetUser->id)->lockForUpdate()->first();
 
-        $hasBadge = HasPatreonBadge($foundTargetUser);
-        $hasSupporterRole = $foundTargetUser->hasRole(Role::SUPPORTER);
-        $currentTier = $hasBadge ? ($hasSupporterRole ? 2 : 1) : 0;
+        $currentTier = GetPatreonSupporterTier($foundTargetUser);
 
         if ($value === $currentTier) {
-            SetPatreonSupporter($foundTargetUser, false);
-            if ($hasSupporterRole) {
-                $foundTargetUser->removeRole(Role::SUPPORTER);
-            }
+            SetPatreonSupporter($foundTargetUser, 0);
+            $foundTargetUser->removeRole(Role::SUPPORTER);
 
             return sprintf('revoked $%d Patreon supporter status', $currentTier);
         }
 
-        if ($value === 1) {
-            if (!$hasBadge) {
-                SetPatreonSupporter($foundTargetUser, true);
-            }
+        SetPatreonSupporter($foundTargetUser, $value);
 
-            if ($hasSupporterRole) {
-                $foundTargetUser->removeRole(Role::SUPPORTER);
-            }
-
-            return 'awarded $1 Patreon supporter status';
-        }
-
-        if (!$hasBadge) {
-            SetPatreonSupporter($foundTargetUser, true);
-        }
-
-        if (!$hasSupporterRole) {
+        if ($value === 2) {
             $foundTargetUser->assignRole(Role::SUPPORTER);
+        } else {
+            $foundTargetUser->removeRole(Role::SUPPORTER);
         }
 
-        return 'awarded $2 Patreon supporter status';
+        return sprintf('awarded $%d Patreon supporter status', $value);
     });
 
     addArticleComment(

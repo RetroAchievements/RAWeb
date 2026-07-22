@@ -37,6 +37,14 @@ class PatreonSupportersController extends Controller
             ->orderBy('users.display_name', 'asc')
             ->get();
 
+        // Let the UI distinguish higher-tier supporters.
+        $tier2SupporterIds = $allSupporters
+            ->where('award_tier', 2)
+            ->pluck('user_id')
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+
         // Split the supporters into initial and deferred groups.
         $initialSupporters = $allSupporters->take(100);
         $deferredSupporters = $allSupporters->skip(100);
@@ -55,6 +63,7 @@ class PatreonSupportersController extends Controller
             initialSupporters: $initialSupportersData,
             deferredSupporters: Inertia::defer(fn () => $deferredSupportersData),
             totalCount: $allSupporters->count(),
+            tier2SupporterIds: $tier2SupporterIds,
         );
 
         return Inertia::render('community/patreon-supporters', $props);

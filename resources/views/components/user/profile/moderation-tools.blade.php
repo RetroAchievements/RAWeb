@@ -3,7 +3,6 @@ use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 use App\Models\ConnectWarning;
-use App\Models\Role;
 ?>
 
 @props([
@@ -27,9 +26,7 @@ for ($i = Permissions::Banned; $i <= $myPermissions; $i++) {
     ];
 }
 
-$hasPatreonBadge = HasPatreonBadge($targetUser);
-$hasSupporterRole = $targetUser->roles()->where('name', Role::SUPPORTER)->exists();
-$patreonSupporterTier = $hasPatreonBadge ? ($hasSupporterRole ? 2 : 1) : 0;
+$patreonSupporterTier = GetPatreonSupporterTier($targetUser);
 $patreonSupporterActions = [
     1 => [
         'label' => $patreonSupporterTier === 1 ? 'Remove $1 supporter' : 'Set $1 supporter',

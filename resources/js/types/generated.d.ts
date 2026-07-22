@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.PlayerGames {
+export type PlayerGameAwardKind = 'beaten-casual' | 'beaten-hardcore';
+}
 declare namespace App.Api.V2.UserAwards {
 export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-casual' | 'beaten-hardcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
 }
@@ -126,6 +129,7 @@ recentSupporters: Array<App.Data.User>;
 initialSupporters: Array<App.Data.User>;
 deferredSupporters: any | any;
 totalCount: number;
+tier2SupporterIds: Array<number>;
 };
 export type RecentLeaderboardEntry = {
 leaderboard: App.Platform.Data.Leaderboard;
@@ -492,7 +496,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'supporter' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired' | 'supporter';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {

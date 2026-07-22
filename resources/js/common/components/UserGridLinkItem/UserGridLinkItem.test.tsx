@@ -41,4 +41,26 @@ describe('Component: UserGridLinkItem', () => {
     expect(avatar).toBeVisible();
     expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.png');
   });
+
+  it('given the item is highlighted, applies the accent styling', () => {
+    // ARRANGE
+    const supporter = createUser();
+    render(<UserGridLinkItem user={supporter} isHighlighted={true} />);
+
+    // ASSERT
+    const link = screen.getByRole('link');
+    expect(link.className).toContain('border-amber-400/60');
+    expect(link.className).not.toContain('border-embed-highlight');
+  });
+
+  it('given the item is not highlighted, applies the default styling', () => {
+    // ARRANGE
+    const supporter = createUser();
+    render(<UserGridLinkItem user={supporter} isHighlighted={false} />);
+
+    // ASSERT
+    const link = screen.getByRole('link');
+    expect(link.className).toContain('border-embed-highlight');
+    expect(link.className).not.toContain('border-amber-400/60');
+  });
 });

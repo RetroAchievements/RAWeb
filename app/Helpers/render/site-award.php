@@ -5,7 +5,6 @@ use App\Models\Event;
 use App\Models\EventAward;
 use App\Models\GameScreenshot;
 use App\Models\PlayerBadge;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -351,10 +350,7 @@ function RenderAward(
     //     $imagepath = "/Badge/00083.png";
     //     $linkdest = ''; // TBD: referrals page?
     } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
-        // The supporter tier is not stored on the badge itself. It can only be
-        // derived from whether the user holds the publicly-visible Supporter role.
-        $ownerUser = User::whereName($ownerUsername)->first();
-        $isSupporterTier = $ownerUser && $ownerUser->hasRole(Role::SUPPORTER);
+        $isSupporterTier = (int) $awardDataExtra === 2;
 
         $description = $isSupporterTier
             ? '$2 Patreon supporter. Thank you so much for your support!'
