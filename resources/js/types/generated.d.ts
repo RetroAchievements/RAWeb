@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.PlayerGames {
+export type PlayerGameAwardKind = 'beaten-casual' | 'beaten-hardcore';
+}
 declare namespace App.Api.V2.UserAwards {
 export type UserAwardKind = 'achievement-points-yield' | 'achievement-unlocks-yield' | 'beaten-casual' | 'beaten-hardcore' | 'certified-legend' | 'completed' | 'event' | 'mastered' | 'media-contribution' | 'patreon-supporter' | 'playtest';
 }
@@ -185,8 +188,11 @@ export type UserSettingsPageProps = {
 userSettings: App.Data.User;
 can: App.Data.UserPermissions;
 displayableRoles: Array<App.Data.Role>;
+oauthApplicationLimit: number;
 requestedUsername: string | null;
 initialTab: App.Community.Enums.UserSettingsPageTab;
+oauthApplications: Array<App.Data.OAuthClient>;
+connectedOAuthApplications: Array<App.Data.ConnectedOAuthApplication>;
 };
 }
 declare namespace App.Community.Enums {
@@ -225,6 +231,12 @@ client: App.Data.OAuthClient;
 scopes: Array<string>;
 request: App.Data.DeviceAuthorizationRequest;
 authToken: string;
+};
+export type ConnectedOAuthApplication = {
+clientId: string;
+name: string;
+scopes: Array<any>;
+connectedAt: string;
 };
 export type CreateForumTopicPageProps = {
 forum: App.Data.Forum;
@@ -309,6 +321,10 @@ scopes: Array<string>;
 request: App.Data.OAuthRequest;
 authToken: string;
 };
+export type OAuthClientCredentials = {
+id: string;
+secret: string | null;
+};
 export type OAuthClient = {
 id: string;
 name: string;
@@ -317,6 +333,7 @@ grantTypes: Array<string>;
 revoked: boolean;
 createdAt: string;
 updatedAt: string;
+confidential: boolean;
 };
 export type OAuthRequest = {
 clientId: string;
@@ -406,6 +423,7 @@ createGameForumTopic?: boolean;
 createGameScreenshot?: boolean;
 createMessageThreads?: boolean;
 createModerationReports?: boolean;
+createOAuthClients?: boolean;
 createTicket?: boolean;
 createUserBetaFeedbackSubmission?: boolean;
 createUsernameChangeRequest?: boolean;
@@ -438,12 +456,14 @@ updateForumTopic?: boolean;
 updateMotto?: boolean;
 viewAchievementLogic?: boolean;
 viewAnyAchievementSetClaim?: boolean;
+viewAnyOAuthClients?: boolean;
 viewDeveloperInterest?: boolean;
 };
 }
 declare namespace App.Enums {
 export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
+export type OAuthScope = 'data:read';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
