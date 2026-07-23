@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\RankType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Facades\Auth;
 
@@ -119,18 +118,8 @@ $unlockMode = match ($sort % 10) {
     }
     echo "</div>";
 
-    // Create the custom date filter
-    echo "<form action='/globalRanking.php'>";
-    echo "<label for='d'><b>Custom Date: </b></label>";
-    echo "<input type='hidden' name='s' value=" . $sort . ">";
-    echo "<input type='hidden' name='t' value=" . $type . ">";
-    echo "<input type='date' name='d' value=" . $date . " min='2012-01-01' max=" . date("Y-m-d") . "> ";
-    echo "<input type='hidden' name='f' value=" . $friends . ">";
-    echo "<button class='btn'>Go to Date</button>";
-    echo "</form>";
-
     // Clear filter
-    if (($sort != 5 && $sort != 2) || $type != 0 || $date != date("Y-m-d") || $friends != 0) {
+    if (($sort != 5 && $sort != 2) || $type != 0 || $friends != 0) {
         echo "<div>";
         if ($sort == 2) {
             echo "<a href='/globalRanking.php?s=2'>Clear Filter</a>";
@@ -190,7 +179,7 @@ $unlockMode = match ($sort % 10) {
     // Sortable RetroRatio header
     if ($unlockMode == UnlockMode::Hardcore) {
         echo "<th class='text-right'>";
-        $sortFilter('RetroRatio', 7);
+        echo 'RetroRatio';
         echo "</th>";
     }
 
@@ -242,21 +231,10 @@ $unlockMode = match ($sort % 10) {
             $findUserRank = true;
         }
 
-        if ($dataPoint[$rankField] != $rankValue) {
-            if ($rankValue === null && $friends === 0 && $type === 2 && $offset > 0) {
-                // The first rank of subsequent pages for all users / all time should be calculated,
-                // as it might be tied with users on the previous page.
-                // Values >10 indicate descending order, so we'll use modulo to get the base sort type.
-                $rank = match ($sort % 10) {
-                    5 => getUserRank($dataPoint['User'], RankType::Hardcore),
-                    2 => getUserRank($dataPoint['User'], RankType::Casual),
-                    6 => getUserRank($dataPoint['User'], RankType::TruePoints),
-                    default => $rowRank
-                };
-            } else {
-                $rank = $rowRank;
-            }
-
+        if ($dataPoint['RankNumber'] !== null) {
+            $rank = $dataPoint['RankNumber'];
+        } elseif ($dataPoint[$rankField] != $rankValue) {
+            $rank = $rowRank;
             $rankValue = $dataPoint[$rankField];
         }
 
@@ -325,24 +303,9 @@ $unlockMode = match ($sort % 10) {
                 echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
                 echo "<tr style='outline: thin solid'>";
 
-                // Get the user rank when sorting by points or retro points
-                if ($friends == 1) {
-                    echo "<td>" . localized_number($userRank) . "</td>";
-                } elseif ($type != 2) {
-                    // Don't show rank on pages you are not actually ranked in. This would require rerunning the query just to find yourself
-                    echo "<td></td>";
-                } else {
-                    if ($sort < 10 && $sort % 10 != 1) {
-                        if ($sort == 5) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::Hardcore)) . "</td>";
-                        } elseif ($sort == 6) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::TruePoints)) . "</td>";
-                        } elseif ($sort == 2) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::Casual)) . "</td>";
-                        } else {
-                            echo "<td></td>";
-                        }
-                    }
+                if ($sort < 10 && $sort % 10 != 1) {
+                    $rank = $userData[0]['RankNumber'] ?? ($friends == 1 ? $userRank : null);
+                    echo "<td>" . ($rank !== null ? localized_number($rank) : '') . "</td>";
                 }
                 echo "<td>";
                 echo userAvatar([
