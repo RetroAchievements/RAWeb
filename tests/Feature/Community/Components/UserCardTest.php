@@ -139,4 +139,48 @@ class UserCardTest extends TestCase
 
         $view->assertSeeText("Needs at least " . Rank::MIN_POINTS . " points");
     }
+
+    public function testItShowsLastActivityForANormalUser(): void
+    {
+        User::factory()->create([
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
+            'unranked_at' => null,
+            'Permissions' => Permissions::Registered,
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
+        ]);
+
+        $view = $this->blade('<x-user-card user="mockUser" />');
+
+        $view->assertSeeText('Last Activity');
+    }
+
+    public function testItHidesLastActivityForATeamAccount(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'username' => 'mockTeam',
+            'motto' => 'teamMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
+            'unranked_at' => null,
+            'Permissions' => Permissions::Registered,
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
+        ]);
+        $user->assignRole(Role::TEAM_ACCOUNT);
+
+        $view = $this->blade('<x-user-card user="mockTeam" />');
+
+        $view->assertDontSeeText('Last Activity');
+        $view->assertSeeText('mockTeam');
+        $view->assertSeeText('5,000');
+    }
 }

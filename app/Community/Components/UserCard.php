@@ -7,6 +7,7 @@ namespace App\Community\Components;
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Enums\Permissions;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
@@ -64,6 +65,7 @@ class UserCard extends Component
                     ...$foundUser->toArray(),
                     'isBanned' => $foundUser->isBanned(),
                     'isMuted' => $foundUser->isMuted(),
+                    'isTeamAccount' => $foundUser->hasRole(Role::TEAM_ACCOUNT),
                     'visibleRoleName' => $foundUser->visible_role?->name,
                 ] : null;
             }
@@ -90,7 +92,9 @@ class UserCard extends Component
         $isUntracked = $rawUserData['unranked_at'] !== null;
         $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;
         $memberSince = $rawUserData['created_at'] ?? Carbon::now();
-        $lastActivity = $rawUserData['last_activity_at'] ? Carbon::parse($rawUserData['last_activity_at'])->diffForHumans() : null;
+        $lastActivity = $rawUserData['last_activity_at'] && !($rawUserData['isTeamAccount'] ?? false)
+            ? Carbon::parse($rawUserData['last_activity_at'])->diffForHumans()
+            : null;
 
         return compact(
             'username',
