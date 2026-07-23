@@ -49,7 +49,14 @@
             return window.innerHeight - 128;
         },
         needsFitZoom() {
-            return this.naturalWidth * this.zoomScale > this.maxViewportWidth() || this.naturalHeight * this.zoomScale > this.maxViewportHeight();
+            return this.naturalWidth > this.maxViewportWidth() || this.naturalHeight > this.maxViewportHeight();
+        },
+        bestFittingScale() {
+            const fitting = this.zoomLevels().filter((level) =>
+                this.naturalWidth * level <= this.maxViewportWidth() && this.naturalHeight * level <= this.maxViewportHeight()
+            );
+
+            return fitting.length ? Math.min(Math.max(...fitting), this.defaultScale) : null;
         },
         zoomOptions() {
             return [...(this.needsFitZoom() ? ['fit'] : []), ...this.zoomLevels()];
@@ -59,11 +66,6 @@
         },
         canUse4xZoom() {
             return Math.max(this.naturalWidth, this.naturalHeight) < this.max4xDimension;
-        },
-        clampZoomScale() {
-            if (!this.zoomLevels().includes(this.zoomScale)) {
-                this.zoomScale = Math.max(...this.zoomLevels());
-            }
         },
         isZoomSelected(option) {
             return option === 'fit' ? this.zoomMode === 'fit' : this.zoomMode === 'scale' && this.zoomScale === option;
@@ -134,9 +136,12 @@
         onZoomImageLoad(event) {
             this.naturalWidth = event.target.naturalWidth;
             this.naturalHeight = event.target.naturalHeight;
-            this.clampZoomScale();
-            if (this.needsFitZoom()) {
+            const scale = this.bestFittingScale();
+            if (scale === null) {
                 this.zoomMode = 'fit';
+            } else {
+                this.zoomMode = 'scale';
+                this.zoomScale = scale;
             }
         },
     }"
