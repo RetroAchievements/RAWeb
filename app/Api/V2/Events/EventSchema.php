@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Api\V2\Events;
 
 use App\Api\V2\EventAchievements\EventAchievementActiveFilter;
+use App\Api\V2\EventAchievements\EventAchievementEventIdFilter;
+use App\Api\V2\EventAchievements\EventAchievementEvergreenFilter;
 use App\Models\Event;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -67,7 +69,11 @@ class EventSchema extends Schema
 
             HasManyThrough::make('eventAchievements', 'achievements')
                 ->type('event-achievements')
-                ->withFilters(new EventAchievementActiveFilter()),
+                ->withFilters(
+                    new EventAchievementActiveFilter(),
+                    new EventAchievementEventIdFilter(),
+                    new EventAchievementEvergreenFilter(),
+                ),
         ];
     }
 
