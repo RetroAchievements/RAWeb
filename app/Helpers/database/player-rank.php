@@ -4,7 +4,6 @@ use App\Community\Enums\RankType;
 use App\Models\PlayerGlobalRanking;
 use App\Models\PlayerGlobalRankingTotal;
 use App\Models\User;
-use App\Platform\Enums\GlobalRankingMode;
 use App\Platform\Enums\GlobalRankingWindow;
 use App\Platform\Events\PlayerRankedStatusChanged;
 
@@ -16,7 +15,7 @@ function SetUserUntrackedStatus(User $user, bool $isUntracked): void
     PlayerRankedStatusChanged::dispatch($user);
 }
 
-function countRankedUsers(int $type = RankType::Hardcore): int
+function countRankedUsers(RankType $type = RankType::Hardcore): int
 {
     return PlayerGlobalRankingTotal::forRankType($type);
 }
@@ -47,24 +46,18 @@ function getTopUsersByScore(int $count): array
 /**
  * Gets the points or retro points rank of the user.
  */
-function getUserRank(string $username, int $type = RankType::Hardcore): ?int
+function getUserRank(string $username, RankType $type = RankType::Hardcore): ?int
 {
     $user = User::whereName($username)->first(['id', 'unranked_at']);
     if ($user === null || $user->unranked_at !== null) {
         return null;
     }
 
-    [$mode, $rankColumn] = match ($type) {
-        RankType::Casual => [GlobalRankingMode::Casual, 'rank_number'],
-        RankType::TruePoints => [GlobalRankingMode::Hardcore, 'weighted_rank_number'],
-        default => [GlobalRankingMode::Hardcore, 'rank_number'],
-    };
-
     $rank = PlayerGlobalRanking::query()
         ->where('user_id', $user->id)
         ->where('window', GlobalRankingWindow::AllTime)
-        ->where('mode', $mode)
-        ->value($rankColumn);
+        ->where('mode', $type->mode())
+        ->value($type->rankColumn());
 
     return $rank !== null ? (int) $rank : null;
 }

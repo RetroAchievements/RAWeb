@@ -53,7 +53,7 @@ class RecalculateAchievementWeightedPoints extends Command
     {
         $minPlayers = CalculateAchievementWeightedPointsAction::MIN_RANKED_PLAYERS;
 
-        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
+        $rankedPlayerCount = countRankedUsers(RankType::RetroPoints);
         if ($rankedPlayerCount < $minPlayers) {
             $this->warn("Ranked player count ({$rankedPlayerCount}) is below {$minPlayers} - using minimum for formula stability.");
             $rankedPlayerCount = $minPlayers;

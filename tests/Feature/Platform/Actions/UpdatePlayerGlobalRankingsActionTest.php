@@ -80,7 +80,7 @@ it('builds all-time ranks and persisted totals', function () {
         ->and(findPlayerGlobalRanking($tied, GlobalRankingMode::Casual)->achievements_unlocked)->toBe(0)
         ->and(PlayerGlobalRankingTotal::forRankType(RankType::Hardcore))->toBe(2)
         ->and(PlayerGlobalRankingTotal::forRankType(RankType::Casual))->toBe(2)
-        ->and(PlayerGlobalRankingTotal::forRankType(RankType::TruePoints))->toBe(3);
+        ->and(PlayerGlobalRankingTotal::forRankType(RankType::RetroPoints))->toBe(3);
 });
 
 it('materializes sub-threshold players with null rank numbers', function () {

@@ -168,8 +168,8 @@ class UserController extends JsonApiController
 
         return [
             'rankedUsers' => [
-                'hardcore' => (int) ($counts[RankType::Hardcore] ?? 0),
-                'casual' => (int) ($counts[RankType::Casual] ?? 0),
+                'hardcore' => (int) ($counts[RankType::Hardcore->value] ?? 0),
+                'casual' => (int) ($counts[RankType::Casual->value] ?? 0),
             ],
         ];
     }

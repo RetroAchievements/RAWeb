@@ -164,7 +164,7 @@ class UserCardTest extends TestCase
         $view->assertDontSeeText('Needs at least ' . Rank::MIN_POINTS . ' points');
     }
 
-    private function createRanking(User $user, int $rankType, GlobalRankingMode $mode): void
+    private function createRanking(User $user, RankType $rankType, GlobalRankingMode $mode): void
     {
         PlayerGlobalRanking::factory()->create([
             'user_id' => $user->id,

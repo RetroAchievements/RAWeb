@@ -206,34 +206,20 @@ class UpdatePlayerGlobalRankingsAction
 
     private function replaceRankedUserTotals(): void
     {
-        $rankings = PlayerGlobalRanking::query()->where('window', GlobalRankingWindow::AllTime);
-
         PlayerGlobalRankingTotal::query()->delete();
-        PlayerGlobalRankingTotal::insert([
-            [
-                'rank_type' => RankType::Hardcore,
-                'total' => (clone $rankings)
-                    ->where('mode', GlobalRankingMode::Hardcore)
-                    ->whereNotNull('rank_number')
-                    ->count(),
-                'created_at' => now(),
-            ],
-            [
-                'rank_type' => RankType::Casual,
-                'total' => (clone $rankings)
-                    ->where('mode', GlobalRankingMode::Casual)
-                    ->whereNotNull('rank_number')
-                    ->count(),
-                'created_at' => now(),
-            ],
-            [
-                'rank_type' => RankType::TruePoints,
-                'total' => (clone $rankings)
-                    ->where('mode', GlobalRankingMode::Hardcore)
-                    ->whereNotNull('weighted_rank_number')
-                    ->count(),
-                'created_at' => now(),
-            ],
-        ]);
+        PlayerGlobalRankingTotal::insert(
+            array_map(
+                fn (RankType $rankType): array => [
+                    'rank_type' => $rankType,
+                    'total' => PlayerGlobalRanking::query()
+                        ->where('window', GlobalRankingWindow::AllTime)
+                        ->where('mode', $rankType->mode())
+                        ->whereNotNull($rankType->rankColumn())
+                        ->count(),
+                    'created_at' => now(),
+                ],
+                RankType::cases(),
+            ),
+        );
     }
 }

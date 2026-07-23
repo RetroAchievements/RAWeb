@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Community\Enums\RankType;
 use App\Models\Game;
 use App\Models\PlayerGlobalRanking;
 use App\Models\PlayerGlobalRankingTotal;
@@ -438,8 +439,8 @@ class UsersTest extends JsonApiResourceTestCase
             'rank_number' => 3,
         ]);
         PlayerGlobalRankingTotal::query()->insert([
-            ['rank_type' => 1, 'total' => 20, 'created_at' => now()],
-            ['rank_type' => 2, 'total' => 30, 'created_at' => now()],
+            ['rank_type' => RankType::Hardcore, 'total' => 20, 'created_at' => now()],
+            ['rank_type' => RankType::Casual, 'total' => 30, 'created_at' => now()],
         ]);
 
         $response = $this->jsonApi('v2')
@@ -461,8 +462,8 @@ class UsersTest extends JsonApiResourceTestCase
         $apiUser = User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create();
         PlayerGlobalRankingTotal::query()->insert([
-            ['rank_type' => 1, 'total' => 20, 'created_at' => now()],
-            ['rank_type' => 2, 'total' => 30, 'created_at' => now()],
+            ['rank_type' => RankType::Hardcore, 'total' => 20, 'created_at' => now()],
+            ['rank_type' => RankType::Casual, 'total' => 30, 'created_at' => now()],
         ]);
 
         $response = $this->jsonApi('v2')

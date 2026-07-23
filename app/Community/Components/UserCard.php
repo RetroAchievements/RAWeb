@@ -118,7 +118,7 @@ class UserCard extends Component
 
         if ($isUntracked) {
             $siteRank = 'Untracked';
-            $rankType = 'Untracked';
+            $rankType = null;
         } else {
             $rankedPoints = $hardcorePoints;
             if ($casualPoints > $hardcorePoints && $casualPoints > 0) {
@@ -133,7 +133,7 @@ class UserCard extends Component
             }
         }
 
-        if ($rankType !== 'Untracked') {
+        if ($rankType !== null) {
             $totalRankedUsersCount = countRankedUsers($rankType);
 
             // Don't divide by zero.

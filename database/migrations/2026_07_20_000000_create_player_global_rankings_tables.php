@@ -35,7 +35,7 @@ return new class extends Migration {
         // this lets us do a constant-time lookup for counts instead of repeatedly
         // counting the number of ranking rows.
         Schema::create('player_global_ranking_totals', function (Blueprint $table) {
-            $table->unsignedTinyInteger('rank_type')->primary(); // 1 = hardcore, 2 = casual, 3 = weighted (hardcore)
+            $table->string('rank_type', 20)->primary(); // RankType: hardcore, casual, retro_points
             $table->unsignedInteger('total');
             $table->timestamp('created_at')->nullable();
         });

@@ -301,7 +301,7 @@ class UserProfileMeta extends Component
 
     private function buildRankMetadata(
         User $user,
-        int $rankType = RankType::Hardcore,
+        RankType $rankType = RankType::Hardcore,
         ?int $predefinedRank = null,
     ): array {
         $rank = $predefinedRank ?? getUserRank($user->username, $rankType);
