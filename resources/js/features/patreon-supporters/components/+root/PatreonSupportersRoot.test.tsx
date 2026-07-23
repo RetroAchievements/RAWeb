@@ -9,10 +9,13 @@ describe('Component: PatreonSupportersRoot', () => {
     const { container } = render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 0,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
@@ -25,10 +28,13 @@ describe('Component: PatreonSupportersRoot', () => {
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: '12345' } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 0,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
@@ -41,10 +47,13 @@ describe('Component: PatreonSupportersRoot', () => {
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 0,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
@@ -62,10 +71,13 @@ describe('Component: PatreonSupportersRoot', () => {
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [recentSupporter1, recentSupporter2],
-        totalCount: 2,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
@@ -80,10 +92,13 @@ describe('Component: PatreonSupportersRoot', () => {
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 0,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
@@ -91,77 +106,113 @@ describe('Component: PatreonSupportersRoot', () => {
     expect(screen.queryByText(/our newest patreon supporters/i)).not.toBeInTheDocument();
   });
 
-  it('given there are initial supporters, renders them in the all supporters section', () => {
+  it('given there are $2 supporters, renders them in their own section above the $1 supporters', () => {
     // ARRANGE
-    const supporter1 = createUser({ displayName: 'Supporter1' });
-    const supporter2 = createUser({ displayName: 'Supporter2' });
+    const tier2Supporter = createUser({ displayName: 'BigSpender' });
+    const tier1Supporter = createUser({ displayName: 'RegularSupporter' });
 
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [supporter1, supporter2],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [tier1Supporter],
+        initialTier2Supporters: [tier2Supporter],
         recentSupporters: [],
-        totalCount: 2,
+        tier1Count: 1,
+        tier2Count: 1,
       },
     });
 
     // ASSERT
-    expect(screen.getByText(/all supporters \(2\)/i)).toBeVisible();
-    expect(screen.getByRole('link', { name: /supporter1/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /supporter2/i })).toBeVisible();
+    const tier2Heading = screen.getByText(/\$2 supporters \(1\)/i);
+    const tier1Heading = screen.getByText(/\$1 supporters \(1\)/i);
+
+    expect(tier2Heading).toBeVisible();
+    expect(tier1Heading).toBeVisible();
+
+    expect(screen.getByRole('link', { name: /bigspender/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /regularsupporter/i })).toBeVisible();
   });
 
-  it('given deferred supporters have loaded, renders both initial and deferred supporters', () => {
+  it('given there are no $2 supporters, does not render the $2 supporters section', () => {
     // ARRANGE
-    const initialSupporter = createUser({ displayName: 'InitialSupporter' });
-    const deferredSupporter = createUser({ displayName: 'DeferredSupporter' });
-
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: [deferredSupporter],
-        initialSupporters: [initialSupporter],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 2,
+        tier1Count: 0,
+        tier2Count: 0,
       },
     });
 
     // ASSERT
+    expect(screen.queryByText(/\$2 supporters/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/\$1 supporters \(0\)/i)).toBeVisible();
+  });
+
+  it('given deferred supporters have loaded for both tiers, renders the initial and deferred supporters', () => {
+    // ARRANGE
+    const initialTier2Supporter = createUser({ displayName: 'InitialBigSpender' });
+    const deferredTier2Supporter = createUser({ displayName: 'DeferredBigSpender' });
+    const initialTier1Supporter = createUser({ displayName: 'InitialSupporter' });
+    const deferredTier1Supporter = createUser({ displayName: 'DeferredSupporter' });
+
+    render(<PatreonSupportersRoot />, {
+      pageProps: {
+        config: { services: { patreon: { userId: null } } } as any,
+        deferredTier1Supporters: [deferredTier1Supporter],
+        deferredTier2Supporters: [deferredTier2Supporter],
+        initialTier1Supporters: [initialTier1Supporter],
+        initialTier2Supporters: [initialTier2Supporter],
+        recentSupporters: [],
+        tier1Count: 2,
+        tier2Count: 2,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /initialbigspender/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /deferredbigspender/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /initialsupporter/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /deferredsupporter/i })).toBeVisible();
   });
 
-  it('given deferred supporters are still loading and there are more supporters than shown, displays loading text', () => {
+  it('given both tiers have supporters still loading, displays a loading state for each tier', () => {
     // ARRANGE
-    const supporter = createUser();
-
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [supporter],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [createUser()],
+        initialTier2Supporters: [createUser()],
         recentSupporters: [],
-        totalCount: 10, // !! more than the 1 we're showing
+        tier1Count: 10, // !! more than the 1 we're showing
+        tier2Count: 10, // !! more than the 1 we're showing
       },
     });
 
     // ASSERT
-    expect(screen.getByText(/loading/i)).toBeVisible();
+    expect(screen.getAllByText(/loading/i)).toHaveLength(2);
   });
 
   it('given all supporters have loaded, does not display loading text', () => {
     // ARRANGE
-    const supporter1 = createUser();
-    const supporter2 = createUser();
-
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: [supporter2],
-        initialSupporters: [supporter1],
+        deferredTier1Supporters: [createUser()],
+        deferredTier2Supporters: [createUser()],
+        initialTier1Supporters: [createUser()],
+        initialTier2Supporters: [createUser()],
         recentSupporters: [],
-        totalCount: 2,
+        tier1Count: 2,
+        tier2Count: 2,
       },
     });
 
@@ -169,19 +220,23 @@ describe('Component: PatreonSupportersRoot', () => {
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
   });
 
-  it('displays the correct total count in the all supporters heading', () => {
+  it('displays the correct counts in the tier headings', () => {
     // ARRANGE
     render(<PatreonSupportersRoot />, {
       pageProps: {
         config: { services: { patreon: { userId: null } } } as any,
-        deferredSupporters: null,
-        initialSupporters: [],
+        deferredTier1Supporters: null,
+        deferredTier2Supporters: null,
+        initialTier1Supporters: [],
+        initialTier2Supporters: [],
         recentSupporters: [],
-        totalCount: 100,
+        tier1Count: 1419,
+        tier2Count: 120,
       },
     });
 
     // ASSERT
-    expect(screen.getByText(/all supporters \(100\)/i)).toBeVisible();
+    expect(screen.getByText(/\$1 supporters \(1,419\)/i)).toBeVisible();
+    expect(screen.getByText(/\$2 supporters \(120\)/i)).toBeVisible();
   });
 });

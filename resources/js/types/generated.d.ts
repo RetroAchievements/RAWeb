@@ -126,10 +126,12 @@ senderUserDisplayName: string;
 };
 export type PatreonSupportersPageProps = {
 recentSupporters: Array<App.Data.User>;
-initialSupporters: Array<App.Data.User>;
-deferredSupporters: any | any;
-totalCount: number;
-tier2SupporterIds: Array<number>;
+initialTier2Supporters: Array<App.Data.User>;
+deferredTier2Supporters: any | any;
+tier2Count: number;
+initialTier1Supporters: Array<App.Data.User>;
+deferredTier1Supporters: any | any;
+tier1Count: number;
 };
 export type RecentLeaderboardEntry = {
 leaderboard: App.Platform.Data.Leaderboard;
