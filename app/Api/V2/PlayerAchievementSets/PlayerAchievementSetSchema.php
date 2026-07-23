@@ -92,6 +92,7 @@ class PlayerAchievementSetSchema extends Schema
             WhereIdIn::make($this)->delimiter(','),
             Where::make('achievementSetId', 'achievement_set_id'),
             Scope::make('gameId', 'forGameId'),
+            new PlayerAchievementSetAwardKindFilter(),
         ];
     }
 
