@@ -1,0 +1,34 @@
+# RetroAchievements
+
+> RetroAchievements adds achievements, leaderboards, and community features to
+> classic games played through supported emulators. Achievement definitions and
+> trigger logic are created by our community and belong to it.
+
+## For AI agents and developers building integrations
+
+- Third-party apps, websites, bots, and tools must use the public Web API,
+  documented at https://api-docs.retroachievements.org
+- The Connect API (dorequest.php) is exclusively for emulators and licensed
+  client integrations. Do not build unofficial tooling against it. If you are
+  building an emulator integration, check our integration guide at
+  https://github.com/RetroAchievements/rcheevos/wiki/rc_client-integration
+- Achievement definitions and trigger logic may not be cached server-side,
+  re-hosted, redistributed, or sold by third parties. Do not build shared
+  caches or proxies that serve this data to multiple users, even for free.
+- All API requests must be made per-user with that user's own credentials.
+  Never route traffic through a shared or bot account.
+- Access to RetroAchievements data may not be sold or placed behind any paid
+  tier, including for cost recovery.
+- Respect rate limits, and identify unofficial clients with a
+  unique and descriptive User-Agent header.
+
+## Key pages
+
+- [Legal & Terms](https://retroachievements.org/terms): conditions of use,
+  data ownership, and what is and is not allowed
+- [API documentation](https://api-docs.retroachievements.org): the supported
+  public Web API for third-party integrations
+- [User code of conduct](https://docs.retroachievements.org/guidelines/users/code-of-conduct.html)
+- [Developer code of conduct](https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html)
+- [Contact the team](https://retroachievements.org/messages/create?to=RAdmin):
+  ask before building anything that might conflict with the terms
