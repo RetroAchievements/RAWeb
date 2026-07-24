@@ -15,25 +15,19 @@ jobs:
     runs-on: ubuntu-22.04
     name: Apply labels
     steps:
-      - name: Check changed files
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            migration:
-              - 'database/migrations/**'
-
       - name: Sync the migration label
         env:
           APPLIED: ${{ contains(github.event.pull_request.labels.*.name, 'includes migration') }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
-          HAS_MIGRATION: ${{ steps.filter.outputs.migration }}
           LABEL: 'includes migration'
           PR: ${{ github.event.pull_request.number }}
         run: |
-          if [[ "$HAS_MIGRATION" == 'true' && "$APPLIED" == 'false' ]]; then
+          changed=$(gh pr diff "$PR" --name-only)
+          has_migration=$(grep -q '^database/migrations/' <<< "$changed" && echo true || echo false)
+
+          if [[ "$has_migration" == 'true' && "$APPLIED" == 'false' ]]; then
             gh pr edit "$PR" --add-label "$LABEL"
-          elif [[ "$HAS_MIGRATION" != 'true' && "$APPLIED" == 'true' ]]; then
+          elif [[ "$has_migration" == 'false' && "$APPLIED" == 'true' ]]; then
             gh pr edit "$PR" --remove-label "$LABEL"
           fi
