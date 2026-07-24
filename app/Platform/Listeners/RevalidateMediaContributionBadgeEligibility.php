@@ -28,7 +28,7 @@ class RevalidateMediaContributionBadgeEligibility implements ShouldQueue
         $hasScreenshotOnGame = GameScreenshot::query()
             ->where('captured_by_user_id', $developer->id)
             ->whereIn('game_id', array_unique($gameIds))
-            ->approved()
+            ->countsTowardMediaContributionStatus()
             ->exists();
         if (!$hasScreenshotOnGame) {
             return;

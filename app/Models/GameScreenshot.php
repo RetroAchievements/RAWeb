@@ -155,6 +155,18 @@ class GameScreenshot extends BaseModel
     }
 
     /**
+     * @param Builder<GameScreenshot> $query
+     * @return Builder<GameScreenshot>
+     */
+    public function scopeCountsTowardMediaContributionStatus(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            GameScreenshotStatus::Approved,
+            GameScreenshotStatus::Replaced,
+        ]);
+    }
+
+    /**
      * Grab screenshots that currently count toward a user's media contribution badge.
      *
      * @param Builder<GameScreenshot> $query
@@ -162,9 +174,21 @@ class GameScreenshot extends BaseModel
      */
     public function scopeEligibleForMediaContributionBy(Builder $query, User $user): Builder
     {
-        return $query->approved()
+        return $query->countsTowardMediaContributionStatus()
             ->where('captured_by_user_id', $user->id)
             ->whereColumn('captured_by_user_id', '!=', 'reviewed_by_user_id')
+            ->where(function (Builder $query) use ($user) {
+                $query
+                    ->where('status', '!=', GameScreenshotStatus::Replaced)
+                    ->orWhereNotExists(function ($subquery) use ($user) {
+                        $subquery->selectRaw('1')
+                            ->from('game_screenshots as sibling_approved')
+                            ->whereColumn('sibling_approved.game_id', 'game_screenshots.game_id')
+                            ->whereColumn('sibling_approved.type', 'game_screenshots.type')
+                            ->where('sibling_approved.captured_by_user_id', $user->id)
+                            ->where('sibling_approved.status', GameScreenshotStatus::Approved);
+                    });
+            })
             ->whereDoesntHave('game.achievements', function (Builder $query) use ($user) {
                 /** @var Builder<Achievement> $query */
                 $query->withTrashed()->where('user_id', $user->id);
