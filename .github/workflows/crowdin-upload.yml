@@ -8,6 +8,13 @@ on:
       - 'lang/en_US.json' # trigger when this file changes
   workflow_dispatch: # also allow manual triggering
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   upload-translations:
     runs-on: ubuntu-latest

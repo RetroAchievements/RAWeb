@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * 3' # 00:00 UTC on Wednesday
   workflow_dispatch: # Allow the workflow to be manually dispatched.
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   sync-translations:
     runs-on: ubuntu-latest
@@ -42,7 +46,7 @@ jobs:
           fi
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         if: steps.git-check.outputs.changes == 'true'
         with:
           commit-message: 'chore: sync translations from Crowdin'
