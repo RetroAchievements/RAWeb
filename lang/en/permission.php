@@ -8,13 +8,11 @@ return [
         Role::ADMINISTRATOR => __('Admin'),
 
         // moderation & platform staff roles
-
         Role::MODERATOR => __('Moderator'),
         Role::RELEASE_MANAGER => __('Release Manager'),
         Role::GAME_HASH_MANAGER => __('Hash Manager'),
 
         // creator roles
-
         Role::DEV_COMPLIANCE => __('Developer Compliance'),
         Role::QUALITY_ASSURANCE => __('Quality Assurance'),
         Role::CODE_REVIEWER => __('Code Reviewer'),
@@ -26,7 +24,6 @@ return [
         Role::PLAY_TESTER => __('Playtester'),
 
         // community staff roles
-
         Role::FORUM_MANAGER => __('Forum Manager'),
         Role::TICKET_MANAGER => __('Ticket Manager'),
         Role::MANUAL_UNLOCKER => __('Manual Unlocker'),
@@ -38,15 +35,14 @@ return [
         Role::CHEAT_INVESTIGATOR => __('Cheat Investigator'),
 
         // vanity roles assigned by root
-
         Role::FOUNDER => __('Founder'),
         Role::ARCHITECT => __('Architect'),
         Role::ENGINEER => __('Engineer'),
         Role::TEAM_ACCOUNT => __('Team Account'),
 
         // vanity roles assigned by admins
-
         Role::COMMUNITY_MANAGER => __('Community Manager'),
         Role::DEVELOPER_RETIRED => __('Developer (retired)'),
+        Role::SUPPORTER => __('Supporter'),
     ],
 ];

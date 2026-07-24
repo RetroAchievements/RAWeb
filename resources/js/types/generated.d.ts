@@ -126,9 +126,12 @@ senderUserDisplayName: string;
 };
 export type PatreonSupportersPageProps = {
 recentSupporters: Array<App.Data.User>;
-initialSupporters: Array<App.Data.User>;
-deferredSupporters: any | any;
-totalCount: number;
+initialTier2Supporters: Array<App.Data.User>;
+deferredTier2Supporters: any | any;
+tier2Count: number;
+initialTier1Supporters: Array<App.Data.User>;
+deferredTier1Supporters: any | any;
+tier1Count: number;
 };
 export type RecentLeaderboardEntry = {
 leaderboard: App.Platform.Data.Leaderboard;
@@ -512,7 +515,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired' | 'supporter';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
