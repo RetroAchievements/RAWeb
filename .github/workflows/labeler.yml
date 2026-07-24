@@ -1,0 +1,33 @@
+name: Labeler
+
+on: [pull_request_target]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    runs-on: ubuntu-22.04
+    name: Apply labels
+    steps:
+      - name: Sync the migration label
+        env:
+          APPLIED: ${{ contains(github.event.pull_request.labels.*.name, 'includes migration') }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          LABEL: 'includes migration'
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          changed=$(gh pr diff "$PR" --name-only)
+          has_migration=$(grep -q '^database/migrations/' <<< "$changed" && echo true || echo false)
+
+          if [[ "$has_migration" == 'true' && "$APPLIED" == 'false' ]]; then
+            gh pr edit "$PR" --add-label "$LABEL"
+          elif [[ "$has_migration" == 'false' && "$APPLIED" == 'true' ]]; then
+            gh pr edit "$PR" --remove-label "$LABEL"
+          fi

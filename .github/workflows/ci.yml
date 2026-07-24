@@ -2,6 +2,9 @@ name: CI
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,7 +18,7 @@ jobs:
       node: ${{ steps.filter.outputs.node }}
     steps:
       - name: Check changed files
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
         id: filter
         with:
           filters: |
@@ -44,19 +47,19 @@ jobs:
     steps:
       - name: Checkout code
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: 10.17
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
 
@@ -84,13 +87,13 @@ jobs:
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.4
           extensions: mbstring, :psr
@@ -103,7 +106,7 @@ jobs:
 
       - name: Restore PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: tmp
           key: phpstan-result-cache-${{ github.run_id }}
@@ -117,7 +120,7 @@ jobs:
 
       - name: Save PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: tmp
           key: phpstan-result-cache-${{ github.run_id }}
@@ -139,13 +142,13 @@ jobs:
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.4
           extensions: mbstring, :psr
@@ -205,19 +208,19 @@ jobs:
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: 10.17
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
 
@@ -227,7 +230,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.4
           extensions: mbstring
@@ -263,19 +266,19 @@ jobs:
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: 10.17
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
 
@@ -285,7 +288,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.4
           extensions: mbstring
@@ -309,7 +312,7 @@ jobs:
 
       - name: Upload blob report
         if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: blob-report-${{ matrix.shardIndex }}
           path: .vitest-reports/*
@@ -324,17 +327,17 @@ jobs:
     if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
           version: 10.17
 
       - name: Use Node 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
 
@@ -342,7 +345,7 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Download blob reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: .vitest-reports
           pattern: blob-report-*
