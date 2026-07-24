@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Platform\Actions\RevalidateMediaContributionBadgeEligibilityAction;
 use App\Platform\Enums\GameScreenshotStatus;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class BackfillReplacedGameScreenshotAttributionCommand extends Command
 {
@@ -29,6 +30,10 @@ class BackfillReplacedGameScreenshotAttributionCommand extends Command
                     ->where('type', $screenshot->type)
                     ->where('id', '>', $screenshot->id)
                     ->whereIn('status', [GameScreenshotStatus::Approved, GameScreenshotStatus::Replaced])
+                    ->where(function (Builder $query) {
+                        $query->where('is_primary', true)
+                            ->orWhere('status', GameScreenshotStatus::Replaced);
+                    })
                     ->orderBy('id')
                     ->value('captured_by_user_id');
 
