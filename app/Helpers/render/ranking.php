@@ -3,46 +3,26 @@
 declare(strict_types=1);
 
 use App\Community\Enums\AwardType;
-use App\Community\Enums\Rank;
+use App\Enums\Permissions;
 use App\Models\PlayerBadge;
-use App\Platform\Enums\UnlockMode;
-use Illuminate\Support\Facades\DB;
+use App\Models\PlayerGlobalRanking;
+use App\Models\User;
+use App\Platform\Enums\GlobalRankingMode;
+use App\Platform\Enums\GlobalRankingWindow;
 
 /**
- * Gets all the global ranking information.
- * This includes User, achievements obtained in hardcore, points, retro points
- * retro ratio, completed awards and mastered awards.
+ * Gets global ranking data from the materialized rankings store.
  *
- * Results are configurable based on input parameters, allowing sorting on each of the
- * above stats, returning data for a specific user, returning data for a specific users friends,
- * tracked/untracked filtering, and filtering on a day/week/month/year/all time based on any input date.
- *
- * @param int $lbType Leaderboard timeframe type
- *            0 - Daily
- *            1 - Weekly
- *            2 - All Time
- * @param int $sort Stats to sort by
- *            1 - User
- *            2 - Casual Points (used to be Total Achievements)
- *            3 - Casual Unlocks
- *            4 - Hardcore Achievements
- *            5 - Hardcore Points
- *            6 - Retro Points
- *            7 - Retro Ratio
- *            8 - Completed Awards
- *            9 - Mastered Awards
- * @param string $date Date to grab information from
- * @param string|null $user User to get data for
- * @param string|null $friendsOf User to get friends data for
- * @param int $untracked Option to include or exclude untracked users
- *            0 - Tracked users only
- *            1 - Untracked users only
- *            2 - Tracked and untracked user
- * @param int $offset starting point to return rows
- * @param int $count number of rows to return
- * @param int $info amount of information to pull from the database
- *            0 - All ranking stats
- *            1 - Just Hardcore Points and Retro Points. Used for the sidebar rankings.
+ * @param int $lbType 0 daily, 1 weekly, 2 all-time
+ * @param int $sort legacy ranking sort identifier
+ * @param string $date retained for legacy callers; current windows always use UTC
+ * @param string|null $user a single user to return
+ * @param string|null $friendsOf a user whose followed users constrain the board
+ * @param int $untracked retained for legacy callers; untracked users have no store rows
+ * @param int $offset starting row offset
+ * @param int $count maximum rows to return
+ * @param int $info retained for legacy callers
+ * @return array<int, array<string, int|float|string|null>>
  */
 function getGlobalRankingData(
     int $lbType,
@@ -55,268 +35,135 @@ function getGlobalRankingData(
     int $count = 50,
     int $info = 0,
 ): array {
-    $pointRequirement = "";
-
-    $unlockMode = UnlockMode::Hardcore;
-
-    $typeCond = match ($lbType) {
-        // Daily
-        0 => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
-        // Weekly
-        1 => "BETWEEN TIMESTAMP(SUBDATE('$date', DAYOFWEEK('$date') - 1)) AND DATE_ADD(DATE_ADD(SUBDATE('$date', DAYOFWEEK('$date') - 1), INTERVAL 6 DAY), INTERVAL 24 * 60 * 60 - 1 SECOND)",
-        // Daily by default
-        default => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
-    };
-
-    // Determine ascending or descending order
-    if ($sort < 10) {
-        $sortOrder = "DESC";
-    } else {
-        $sortOrder = "ASC";
-        $sort = $sort - 10;
+    if ($untracked === 1) {
+        return [];
     }
 
-    // Determines the condition to get data for single user
-    $singleUserAchievementCond = "";
-    $singleUserAwardCond = "";
-    $singleUserCond = "";
+    $window = match ($lbType) {
+        0 => GlobalRankingWindow::Daily,
+        1 => GlobalRankingWindow::Weekly,
+        2 => GlobalRankingWindow::AllTime,
+        default => GlobalRankingWindow::Daily,
+    };
+    [$sort, $descending] = normalizeGlobalRankingSort($sort, $window);
+    $mode = in_array($sort, [2, 3, 8], true)
+        ? GlobalRankingMode::Casual
+        : GlobalRankingMode::Hardcore;
+    $sortColumn = match ($sort) {
+        3, 4 => 'achievements_unlocked',
+        6 => 'points_weighted',
+        8, 9 => 'awards_count',
+        default => 'points',
+    };
+
+    $query = PlayerGlobalRanking::query()
+        ->select('player_global_rankings.*')
+        ->addSelect([
+            'username' => 'users.username',
+            'display_name' => 'users.display_name',
+            'deleted_at' => 'users.deleted_at',
+        ])
+        ->join('users', 'users.id', '=', 'player_global_rankings.user_id')
+        ->whereNull('users.deleted_at')
+        ->where('player_global_rankings.window', $window)
+        ->where('player_global_rankings.mode', $mode);
+
+    if ($window === GlobalRankingWindow::AllTime && $friendsOf === null) {
+        $query->whereNotNull('player_global_rankings.' . ($sort === 6 ? 'weighted_rank_number' : 'rank_number'));
+    }
+
     if ($user !== null) {
-        $singleUserAchievementCond = "AND ua.username LIKE '$user'";
-        $singleUserAwardCond = "AND ua.username LIKE '$user'";
-        $singleUserCond = "AND ua.username LIKE '$user'";
+        $query->where(function ($query) use ($user): void {
+            $query->where('users.username', $user)
+                ->orWhere('users.display_name', $user);
+        });
     }
 
-    // Determine the friends condition
-    $friendCondAchievement = "";
-    $friendCondAward = "";
-    $friendCondAllTime = "";
     if ($friendsOf !== null) {
-        $friendsSubquery = GetFriendsSubquery($friendsOf);
-
-        $friendCondAchievement = "AND ua.username IN ($friendsSubquery)";
-        $friendCondAward = "AND ua.username IN ($friendsSubquery)";
-        $friendCondAllTime = "AND ua.username IN ($friendsSubquery)";
-    }
-
-    // Determine the ORDER BY condition
-    switch ($sort) {
-        case 2: // Casual Points
-            $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
-            $unlockMode = UnlockMode::Casual;
-            break;
-        case 3: // Casual Unlocks
-            $orderCond = "ORDER BY AchievementCount " . $sortOrder . ", Points DESC, User ASC";
-            $unlockMode = UnlockMode::Casual;
-            break;
-        case 4: // Hardcore Achievements
-            $orderCond = "ORDER BY AchievementCount " . $sortOrder . ", Points DESC, User ASC";
-            break;
-        default: // Hardcore Points by default
-        case 5: // Hardcore Points
-            $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
-            break;
-        case 6: // Retro Points
-            $orderCond = "ORDER BY RetroPoints " . $sortOrder . ", User ASC";
-            break;
-        case 7: // Retro Ratio
-            $orderCond = "ORDER BY RetroRatio " . $sortOrder . ", User ASC";
-            break;
-        case 8: // Completed Awards
-            $orderCond = "ORDER BY TotalAwards " . $sortOrder . ", User ASC";
-            $unlockMode = UnlockMode::Casual;
-            break;
-        case 9: // Mastered Awards
-            $orderCond = "ORDER BY TotalAwards " . $sortOrder . ", User ASC";
-            break;
-    }
-
-    $masteryCond = "AND award_type = '" . AwardType::Mastery->value . "'";
-
-    $untrackedCond = match ($untracked) {
-        0 => "AND unranked_at IS NULL",
-        1 => "AND unranked_at IS NOT NULL",
-        default => "",
-    };
-
-    if ($unlockMode == UnlockMode::Hardcore) {
-        $totalAwards = "SUM(" . ifStatement('award_tier > 0', 1, 0) . ")";
-    } else {
-        $totalAwards = "COUNT(*)";
-        $pointRequirement = "AND ua.points >= 0"; // if someone resets a casual-mode unlock without resetting the hardcore, the query can return negative points
-    }
-
-    $retVal = [];
-    if ($lbType == 2) { // Run the All-Time ranking query
-        if ($friendsOf === null) {
-            // if not comparing against friends, only look at the ranked users
-            if ($unlockMode == UnlockMode::Casual) {
-                $pointRequirement = "AND ua.points >= " . Rank::MIN_POINTS;
-            } elseif ($sort == 6) {
-                $pointRequirement = "AND ua.points_weighted >= " . Rank::MIN_TRUE_POINTS;
-            } else {
-                $pointRequirement = "AND ua.points_hardcore >= " . Rank::MIN_POINTS;
-            }
+        $friend = User::whereName($friendsOf)->first();
+        if ($friend === null) {
+            return [];
         }
 
-        if ($info == 0) {
-            if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        ua.display_name AS DisplayName,
-                        ua.deleted_at AS DeletedAt,
-                        COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.points_hardcore, 0) AS Points,
-                        COALESCE(ua.points_weighted, 0) AS RetroPoints,
-                        COALESCE(ROUND(ua.points_weighted/ua.points_hardcore, 2), 0) AS RetroRatio ";
-            } else {
-                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        ua.display_name AS DisplayName,
-                        ua.deleted_at AS DeletedAt,
-                        COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.points, 0) AS Points,
-                        0 AS RetroPoints,
-                        0 AS RetroRatio ";
-            }
-        } else {
-            if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        ua.display_name AS DisplayName,
-                        ua.deleted_at AS DeletedAt,
-                        COALESCE(ua.points_hardcore, 0) AS Points,
-                        COALESCE(ua.points_weighted, 0) AS RetroPoints ";
-            } else {
-                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        ua.display_name AS DisplayName,
-                        ua.deleted_at AS DeletedAt,
-                        COALESCE(ua.points, 0) AS Points,
-                        0 AS RetroPoints ";
-            }
-        }
-
-        // TODO slow query (60)
-        $query = "$selectQuery
-                    FROM users AS ua
-                    WHERE TRUE $untrackedCond $singleUserCond $pointRequirement $friendCondAllTime
-                    $orderCond, ua.username
-                    LIMIT $offset, $count";
-
-        $retVal = collect(DB::select($query))
-            ->map(fn ($row) => (array) $row)
-            ->toArray();
-
-        if (!empty($retVal)) {
-            $userIds = array_map(static fn (array $dbEntry): int => (int) $dbEntry['ID'], $retVal);
-            $totalAwardsSelect = $unlockMode === UnlockMode::Hardcore
-                ? 'COALESCE(SUM(CASE WHEN award_tier > 0 THEN 1 ELSE 0 END), 0) AS TotalAwards'
-                : 'COUNT(*) AS TotalAwards';
-            $totalAwardsByUserId = PlayerBadge::query()
-                ->select('user_id')
-                ->selectRaw($totalAwardsSelect)
-                ->whereIn('user_id', $userIds)
-                ->where('award_type', AwardType::Mastery->value)
-                ->groupBy('user_id')
-                ->get()
-                ->mapWithKeys(
-                    fn (PlayerBadge $playerBadge): array => [
-                        (int) $playerBadge->user_id => (int) $playerBadge->getAttribute('TotalAwards'),
-                    ]
-                )->all();
-
-            foreach ($retVal as &$dbEntry) {
-                $dbEntry['TotalAwards'] = $totalAwardsByUserId[(int) $dbEntry['ID']] ?? 0;
-            }
-            unset($dbEntry);
-        }
-
-        return $retVal;
+        $followedUserIds = $friend->followedUsers()
+            ->where('Permissions', '>=', Permissions::Unregistered)
+            ->pluck('users.id')
+            ->push($friend->id);
+        $query->whereIn('player_global_rankings.user_id', $followedUserIds);
     }
 
-    if ($unlockMode == UnlockMode::Hardcore) {
-        $whereDateAchievement = 'AND aw.unlocked_hardcore_at';
-    } else {
-        $whereDateAchievement = 'AND aw.unlocked_at';
+    $query->orderBy("player_global_rankings.{$sortColumn}", $descending ? 'desc' : 'asc')
+        ->orderBy('users.username');
+
+    $rankings = $query
+        ->offset($offset)
+        ->limit($count)
+        ->get();
+
+    $awardsByUserId = $window === GlobalRankingWindow::AllTime
+        ? globalRankingAwardsByUserId($rankings->pluck('user_id')->all(), $mode)
+        : [];
+
+    return $rankings->map(function (PlayerGlobalRanking $ranking) use ($mode, $sort, $awardsByUserId, $friendsOf): array {
+        $retroPoints = $mode === GlobalRankingMode::Hardcore ? $ranking->points_weighted : 0;
+
+        $rankNumber = $friendsOf !== null ? null : match ($sort) {
+            2, 5 => $ranking->rank_number,
+            6 => $ranking->weighted_rank_number,
+            default => null,
+        };
+
+        return [
+            'ID' => $ranking->user_id,
+            'User' => $ranking->getAttribute('username'),
+            'DisplayName' => $ranking->getAttribute('display_name'),
+            'DeletedAt' => $ranking->getAttribute('deleted_at'),
+            'AchievementCount' => $ranking->achievements_unlocked,
+            'Points' => $ranking->points,
+            'RetroPoints' => $retroPoints,
+            'RetroRatio' => $ranking->points === 0 ? 0 : round($retroPoints / $ranking->points, 2),
+            'TotalAwards' => $awardsByUserId[$ranking->user_id] ?? $ranking->awards_count,
+            'RankNumber' => $rankNumber,
+        ];
+    })->all();
+}
+
+/**
+ * @return array{int, bool}
+ */
+function normalizeGlobalRankingSort(int $sort, GlobalRankingWindow $window): array
+{
+    $descending = $sort < 10;
+    $sort = $descending ? $sort : $sort - 10;
+
+    if ($sort === 7 || ($window === GlobalRankingWindow::AllTime && in_array($sort, [8, 9], true))) {
+        return [5, true];
     }
 
-    // Just Hardcore Points and Retro Points. Used for the sidebar rankings
-    if ($info == 1) {
-        return collect(DB::select("
-            SELECT ua.username AS User,
-            SUM(ach.points) AS Points,
-            SUM(ach.points_weighted) AS RetroPoints
-            FROM player_achievements AS aw
-            INNER JOIN achievements AS ach ON ach.id = aw.achievement_id
-            INNER JOIN users AS ua ON ua.id = aw.user_id
-            WHERE TRUE $whereDateAchievement $typeCond
-            $friendCondAchievement
-            $singleUserAchievementCond
-            $untrackedCond
-            GROUP BY ua.username
-            $orderCond
-            LIMIT $offset, $count
-        "))->map(fn ($row) => (array) $row)->toArray();
+    return [$sort, $descending];
+}
+
+/**
+ * @param array<int, int> $userIds
+ * @return array<int, int>
+ */
+function globalRankingAwardsByUserId(array $userIds, GlobalRankingMode $mode): array
+{
+    if ($userIds === []) {
+        return [];
     }
 
-    // All ranking stats
+    $awardCount = $mode === GlobalRankingMode::Hardcore
+        ? 'COALESCE(SUM(CASE WHEN award_tier > 0 THEN 1 ELSE 0 END), 0)'
+        : 'COUNT(*)';
 
-    if ($unlockMode == UnlockMode::Hardcore) {
-        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points ELSE 0 END";
-        $achCount = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END";
-        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points_weighted ELSE 0 END";
-    } else {
-        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.points ELSE -ach.points END";
-        $achCount = "CASE WHEN aw.unlocked_at IS NOT NULL THEN 1 ELSE -1 END";
-        $achTruePoints = 0;
-    }
-
-    return collect(DB::select("
-        SELECT User, DisplayName, MAX(DeletedAt) AS DeletedAt,
-            COALESCE(MAX(AchievementCount), 0) AS AchievementCount,
-            COALESCE(MAX(Points), 0) AS Points,
-            COALESCE(MAX(RetroPoints), 0) AS RetroPoints,
-            ROUND(RetroPoints/Points, 2) AS RetroRatio,
-            COALESCE(MAX(TotalAwards), 0) AS TotalAwards
-        FROM
-        (
-            (
-                SELECT ua.username AS User,
-                    ua.display_name AS DisplayName,
-                    ua.deleted_at AS DeletedAt,
-                    ua.id as user_id,
-                    SUM($achCount) AS AchievementCount,
-                    SUM($achPoints) as Points,
-                    SUM($achTruePoints) AS RetroPoints,
-                    NULL AS TotalAwards
-                FROM player_achievements AS aw
-                LEFT JOIN achievements AS ach ON ach.id = aw.achievement_id
-                LEFT JOIN users AS ua ON ua.id = aw.user_id
-                WHERE TRUE $whereDateAchievement $typeCond
-                    $friendCondAchievement
-                    $singleUserAchievementCond
-                    $untrackedCond
-                GROUP BY ua.id
-            )
-            UNION
-            (
-                SELECT ua.username AS User,
-                    ua.display_name AS DisplayName,
-                    ua.deleted_at AS DeletedAt,
-                    ua.id AS user_id,
-                    NULL AS AchievementCount,
-                    NULL AS Points,
-                    NULL AS RetroPoints,
-                    $totalAwards AS TotalAwards
-                FROM user_awards AS sa
-                LEFT JOIN users AS ua ON ua.id = sa.user_id
-                WHERE TRUE AND sa.awarded_at $typeCond
-                    $friendCondAward
-                    $singleUserAwardCond
-                    $masteryCond
-                    $untrackedCond
-                GROUP BY ua.id
-            )
-        ) AS Query
-        GROUP BY user_id
-        HAVING Points > 0 AND AchievementCount > 0
-        $orderCond
-        LIMIT $offset, $count
-    "))->map(fn ($row) => (array) $row)->toArray();
+    return PlayerBadge::query()
+        ->select('user_id')
+        ->selectRaw("{$awardCount} AS awards_count")
+        ->whereIn('user_id', $userIds)
+        ->where('award_type', AwardType::Mastery->value)
+        ->groupBy('user_id')
+        ->pluck('awards_count', 'user_id')
+        ->map(fn ($count): int => (int) $count)
+        ->all();
 }

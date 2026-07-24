@@ -45,21 +45,6 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "card-data");
     }
 
-    /**
-     * @param int $rankType the type of the rank which should correspond to values in the `RankType` enum.
-     *                      1 for 'Hardcore' (default), 2 for 'Casual', 3 for 'TruePoints'.
-     */
-    public static function buildUserRankCacheKey(string $username, int $rankType = 1): string
-    {
-        $rankTypeParam = match ($rankType) {
-            default => 'hardcore',
-            2 => 'softcore',
-            3 => 'truepoints',
-        };
-
-        return self::buildNormalizedUserCacheKey($username, "rank", [$rankTypeParam]);
-    }
-
     public static function buildUserRequestTicketsCacheKey(int $userId): string
     {
         return self::buildNormalizedCacheKey("user", $userId, "request-tickets");

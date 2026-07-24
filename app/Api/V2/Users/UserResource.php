@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\V2\Users;
 
 use App\Models\User;
+use App\Platform\Enums\GlobalRankingMode;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Core\Document\Link;
 use LaravelJsonApi\Core\Document\Links;
@@ -29,10 +30,10 @@ class UserResource extends JsonApiResource
      */
     public function attributes($request): iterable
     {
-        $requestedUserFields = $request?->input('fields.users');
-        $userFieldset = is_string($requestedUserFields) ? explode(',', $requestedUserFields) : null;
+        $userFieldset = $this->requestedUserFieldset($request);
         $shouldIncludeVisibleRole = $userFieldset === null || in_array('visibleRole', $userFieldset, true);
         $shouldIncludeDisplayableRoles = $userFieldset === null || in_array('displayableRoles', $userFieldset, true);
+        $shouldIncludeRanks = $userFieldset === null || array_intersect(['rankHardcore', 'rankCasual'], $userFieldset) !== [];
 
         return [
             'displayName' => $this->resource->display_name,
@@ -43,6 +44,8 @@ class UserResource extends JsonApiResource
             'points' => $this->resource->points,
             'pointsHardcore' => $this->resource->points_hardcore,
             'pointsWeighted' => $this->resource->points_weighted,
+            'rankHardcore' => $this->when($shouldIncludeRanks, fn (): ?int => $this->rankFor(GlobalRankingMode::Hardcore)),
+            'rankCasual' => $this->when($shouldIncludeRanks, fn (): ?int => $this->rankFor(GlobalRankingMode::Casual)),
 
             'yieldUnlocks' => $this->resource->yield_unlocks,
             'yieldPoints' => $this->resource->yield_points,
@@ -104,5 +107,31 @@ class UserResource extends JsonApiResource
         return $selfLink
             ? new Links($selfLink, $webLink)
             : new Links($webLink);
+    }
+
+    /**
+     * The sparse fieldset requested for users, or null when the client wants all fields.
+     *
+     * @return array<int, string>|null
+     */
+    private function requestedUserFieldset(?Request $request): ?array
+    {
+        $requestedUserFields = $request?->input('fields.users');
+
+        return is_string($requestedUserFields)
+            ? array_map('trim', explode(',', $requestedUserFields))
+            : null;
+    }
+
+    private function rankFor(GlobalRankingMode $mode): ?int
+    {
+        if ($this->resource->unranked_at !== null) {
+            return null;
+        }
+
+        $ranking = $this->resource->allTimeGlobalRankings
+            ->firstWhere('mode', $mode);
+
+        return $ranking?->rank_number;
     }
 }

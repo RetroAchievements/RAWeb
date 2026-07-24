@@ -41,6 +41,8 @@ if ($casualPoints > $hardcorePoints) {
             <span>
                 @if ($rankPoints < Rank::MIN_POINTS)
                     <span class="italic">Requires at least {{ Rank::MIN_POINTS }} points.</span>
+                @elseif (!$rankMeta['rank'] || $rankMeta['numRankedUsers'] === 0)
+                    <span class="italic">Will appear shortly.</span>
                 @else
                     <a href="{{ '/globalRanking.php?t=2&o=' . $rankMeta['rankOffset'] . '&s=' . ($rankMode === 'casual' ? '2' : '5') }}">
                         #{{ localized_number($rankMeta['rank']) }}
