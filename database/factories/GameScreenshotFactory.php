@@ -44,6 +44,7 @@ class GameScreenshotFactory extends Factory
             'status' => GameScreenshotStatus::Approved,
             'description' => null,
             'captured_by_user_id' => null,
+            'replaced_by_user_id' => null,
             'reviewed_by_user_id' => null,
             'reviewed_at' => null,
             'rejection_reason' => null,

@@ -37,6 +37,7 @@ class GameScreenshot extends BaseModel
         'status',
         'description',
         'captured_by_user_id',
+        'replaced_by_user_id',
         'reviewed_by_user_id',
         'reviewed_at',
         'rejection_reason',
@@ -177,17 +178,11 @@ class GameScreenshot extends BaseModel
         return $query->countsTowardMediaContributionStatus()
             ->where('captured_by_user_id', $user->id)
             ->whereColumn('captured_by_user_id', '!=', 'reviewed_by_user_id')
-            ->where(function (Builder $query) use ($user) {
+            ->where(function (Builder $query) {
                 $query
                     ->where('status', '!=', GameScreenshotStatus::Replaced)
-                    ->orWhereNotExists(function ($subquery) use ($user) {
-                        $subquery->selectRaw('1')
-                            ->from('game_screenshots as sibling_approved')
-                            ->whereColumn('sibling_approved.game_id', 'game_screenshots.game_id')
-                            ->whereColumn('sibling_approved.type', 'game_screenshots.type')
-                            ->where('sibling_approved.captured_by_user_id', $user->id)
-                            ->where('sibling_approved.status', GameScreenshotStatus::Approved);
-                    });
+                    ->orWhereNull('replaced_by_user_id')
+                    ->orWhereColumn('replaced_by_user_id', '!=', 'captured_by_user_id');
             })
             ->whereDoesntHave('game.achievements', function (Builder $query) use ($user) {
                 /** @var Builder<Achievement> $query */
