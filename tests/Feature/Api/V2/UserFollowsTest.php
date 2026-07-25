@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserRelation;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use Tests\TestCase;
 
@@ -49,49 +50,53 @@ class UserFollowsTest extends TestCase
     public function testItForbidsReadingAnotherUsersFollowers(): void
     {
         // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'follows:read'], 'oauth');
         $other = User::factory()->create();
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$other->ulid}/followers");
 
         // Assert
         $response->assertStatus(403);
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItForbidsReadingAnotherUsersFollowing(): void
     {
         // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'follows:read'], 'oauth');
         $other = User::factory()->create();
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$other->ulid}/following");
 
         // Assert
         $response->assertStatus(403);
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItReturnsAnEmptyListWhenTheAuthUserHasNoFollows(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
 
         // Act
         $followers = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         $following = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -106,7 +111,9 @@ class UserFollowsTest extends TestCase
     public function testItListsTheAuthUsersFollowersWithInlineContext(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $follower = User::factory()->create([
             'display_name' => 'FollowerOne',
             'points' => 1234,
@@ -122,7 +129,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         // Assert
@@ -143,7 +149,9 @@ class UserFollowsTest extends TestCase
     public function testItListsTheAuthUsersFollowingWithInlineContext(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $followed = User::factory()->create([
             'display_name' => 'FollowedOne',
             'points' => 100,
@@ -159,7 +167,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -179,8 +186,9 @@ class UserFollowsTest extends TestCase
         // Arrange
         $auth = User::factory()->create([
             'display_name' => 'AuthenticatedUser',
-            'web_api_key' => 'test-key',
         ]);
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $follower = User::factory()->create([
             'display_name' => 'FollowerWithPresence',
             'last_activity_at' => Carbon::parse('2026-06-01 12:00:00'),
@@ -197,7 +205,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers?include=user");
 
         // Assert
@@ -221,8 +228,9 @@ class UserFollowsTest extends TestCase
         // Arrange
         $auth = User::factory()->create([
             'display_name' => 'AuthenticatedUser',
-            'web_api_key' => 'test-key',
         ]);
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $followed = User::factory()->create([
             'display_name' => 'FollowedWithPresence',
             'last_activity_at' => Carbon::parse('2026-06-02 12:00:00'),
@@ -239,7 +247,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following?include=user");
 
         // Assert
@@ -261,7 +268,9 @@ class UserFollowsTest extends TestCase
     public function testItCanIncludeLastGameForUsersOnFollowing(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $game = Game::factory()->create(['title' => 'Super Mario Bros.']);
         $followed = User::factory()->create(['rich_presence_game_id' => $game->id]);
 
@@ -274,7 +283,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following?include=user.lastGame");
 
         // Assert
@@ -296,7 +304,9 @@ class UserFollowsTest extends TestCase
     public function testIsMutualIsTrueWhenBothFollow(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $other = User::factory()->create();
 
         UserRelation::create([
@@ -313,12 +323,10 @@ class UserFollowsTest extends TestCase
         // Act
         $followingResponse = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         $followersResponse = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         // Assert
@@ -331,7 +339,9 @@ class UserFollowsTest extends TestCase
     public function testIsMutualIsFalseOnFollowingWhenTheOtherUserDoesNotFollowBack(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $notReciprocating = User::factory()->create();
 
         UserRelation::create([
@@ -343,7 +353,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -354,7 +363,9 @@ class UserFollowsTest extends TestCase
     public function testIsMutualIsFalseOnFollowersWhenTheAuthUserDoesNotFollowBack(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $follower = User::factory()->create();
 
         UserRelation::create([
@@ -366,7 +377,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         // Assert
@@ -377,7 +387,9 @@ class UserFollowsTest extends TestCase
     public function testItDefaultsToFollowedAtDescendingOnFollowing(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $oldest = User::factory()->create(['display_name' => 'Oldest']);
         $middle = User::factory()->create(['display_name' => 'Middle']);
         $newest = User::factory()->create(['display_name' => 'Newest']);
@@ -409,7 +421,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -424,7 +435,9 @@ class UserFollowsTest extends TestCase
     public function testItDefaultsToFollowedAtDescendingOnFollowers(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $oldest = User::factory()->create(['display_name' => 'OldestFollower']);
         $newest = User::factory()->create(['display_name' => 'NewestFollower']);
 
@@ -447,7 +460,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         // Assert
@@ -462,7 +474,9 @@ class UserFollowsTest extends TestCase
     public function testItCanSortFollowingByDisplayedUserPoints(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $casual = User::factory()->create([
             'display_name' => 'Casual',
             'points' => 100,
@@ -487,7 +501,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following?sort=-points");
 
         // Assert
@@ -498,7 +511,9 @@ class UserFollowsTest extends TestCase
     public function testItCanSortFollowersByDisplayedUserDisplayName(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $alpha = User::factory()->create([
             'display_name' => 'FollowerAlpha',
         ]);
@@ -520,7 +535,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers?sort=displayName");
 
         // Assert
@@ -531,7 +545,9 @@ class UserFollowsTest extends TestCase
     public function testItExcludesBlockedAndNotFollowingRows(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $followed = User::factory()->create(['display_name' => 'Followed']);
         $blocked = User::factory()->create(['display_name' => 'Blocked']);
         $notFollowing = User::factory()->create(['display_name' => 'NotFollowing']);
@@ -555,7 +571,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -570,7 +585,9 @@ class UserFollowsTest extends TestCase
     public function testItExcludesRowsWhereOtherUserIsBanned(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $active = User::factory()->create(['display_name' => 'Active']);
         $banned = User::factory()->create([
             'display_name' => 'Banned',
@@ -591,7 +608,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert
@@ -606,7 +622,9 @@ class UserFollowsTest extends TestCase
     public function testItExcludesFollowerRowsWhereTheFollowerIsBanned(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $activeFollower = User::factory()->create(['display_name' => 'ActiveFollower']);
         $bannedFollower = User::factory()->create([
             'display_name' => 'BannedFollower',
@@ -627,7 +645,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/followers");
 
         // Assert
@@ -642,7 +659,9 @@ class UserFollowsTest extends TestCase
     public function testItPaginatesWithA50PerPageDefault(): void
     {
         // Arrange
-        $auth = User::factory()->create(['web_api_key' => 'test-key']);
+        $auth = User::factory()->create();
+
+        Passport::actingAs($auth, ['data:read', 'follows:read'], 'oauth');
         $others = User::factory()->count(63)->create();
         foreach ($others as $other) {
             UserRelation::create([
@@ -655,7 +674,6 @@ class UserFollowsTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-follows')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$auth->ulid}/following");
 
         // Assert

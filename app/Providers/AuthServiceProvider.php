@@ -41,9 +41,20 @@ class AuthServiceProvider extends ServiceProvider
             Passport::ignoreRoutes();
         }
 
-        Passport::tokensCan([
-            OAuthScope::Read->value => OAuthScope::Read->description(),
-        ]);
+        /**
+         * Driven off the enum so a newly added scope can never be missing from
+         * the registry that backs consent and token issuance.
+         */
+        Passport::tokensCan(
+            collect(OAuthScope::cases())
+                ->mapWithKeys(fn (OAuthScope $scope): array => [$scope->value => $scope->description()])
+                ->all()
+        );
+
+        /**
+         * Only the umbrella read scope is granted without being asked for.
+         * Anything caller-private must be requested and consented to explicitly.
+         */
         Passport::defaultScopes([OAuthScope::Read->value]);
         Passport::tokensExpireIn(now()->addDays(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));

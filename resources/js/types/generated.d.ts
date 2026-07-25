@@ -1,3 +1,6 @@
+declare namespace App.Api.V2.PlayerAchievementSets {
+export type PlayerAchievementSetAwardKind = 'completed' | 'mastered';
+}
 declare namespace App.Api.V2.PlayerGames {
 export type PlayerGameAwardKind = 'beaten-casual' | 'beaten-hardcore';
 }
@@ -463,7 +466,7 @@ viewDeveloperInterest?: boolean;
 declare namespace App.Enums {
 export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
-export type OAuthScope = 'data:read';
+export type OAuthScope = 'data:read' | 'follows:read' | 'game-lists:read';
 export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';

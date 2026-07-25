@@ -20,6 +20,8 @@ namespace App\Enums;
 enum OAuthScope: string
 {
     case Read = 'data:read';
+    case FollowsRead = 'follows:read';
+    case GameListsRead = 'game-lists:read';
 
     /**
      * Used by Passport::tokensCan() to document each scope.
@@ -29,6 +31,8 @@ enum OAuthScope: string
     {
         return match ($this) {
             self::Read => 'View publicly visible RetroAchievements data',
+            self::FollowsRead => 'See who you follow and who follows you',
+            self::GameListsRead => 'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
         };
     }
 }

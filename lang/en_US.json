@@ -1513,5 +1513,7 @@
     "Regenerating secret...": "Regenerating secret...",
     "The old secret will stop working immediately. This cannot be undone.": "The old secret will stop working immediately. This cannot be undone.",
     "Update the application name and redirect URI.": "Update the application name and redirect URI.",
-    "https://example.com/oauth/callback": "https://example.com/oauth/callback"
+    "https://example.com/oauth/callback": "https://example.com/oauth/callback",
+    "See who you follow and who follows you": "See who you follow and who follows you",
+    "See game lists you can view, such as Want to Play, Want to Develop, and set requests": "See game lists you can view, such as Want to Play, Want to Develop, and set requests"
 }
