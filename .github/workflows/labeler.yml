@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   label:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     name: Apply labels
     steps:
       - name: Sync the migration label

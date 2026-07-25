@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     name: Check for changes
     outputs:
       php: ${{ steps.filter.outputs.php }}
@@ -42,7 +42,7 @@ jobs:
 
   node-setup:
     needs: changes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Node.js Setup
     steps:
       - name: Checkout code
@@ -65,7 +65,7 @@ jobs:
 
   php-checks:
     needs: changes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: PHP Checks
     strategy:
       matrix:
@@ -127,7 +127,7 @@ jobs:
 
   php-tests:
     needs: changes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: PHP Checks (test)
     strategy:
       matrix:
@@ -169,7 +169,7 @@ jobs:
 
   merge-php-test-reports:
     needs: [changes, php-tests]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     name: Merge PHP Test Reports
     if: ${{ always() }}
     steps:
@@ -187,7 +187,7 @@ jobs:
 
   node-checks:
     needs: [changes, node-setup]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Node.js Checks
     strategy:
       matrix:
@@ -251,7 +251,7 @@ jobs:
 
   node-tests:
     needs: [changes, node-setup]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Node.js Checks (test)
     strategy:
       matrix:
@@ -321,7 +321,7 @@ jobs:
 
   merge-test-reports:
     needs: [changes, node-tests]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Merge Node.js Test Reports
     # Only run if there are Node.js changes AND any of the test jobs were successful.
     if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
