@@ -125,7 +125,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
             />
 
             {{-- Last Activity --}}
-            @if ($userMassData['LastActivity'])
+            @if ($userMassData['LastActivity'] && !$user->hasRole(Role::TEAM_ACCOUNT))
                 <p>
                     <span class="font-bold">Last Activity:</span>
                     <span class="cursor-help" title="{{ getNiceDate(strtotime($userMassData['LastActivity'])) }}">

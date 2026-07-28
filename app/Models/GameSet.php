@@ -284,6 +284,11 @@ class GameSet extends BaseModel implements HasPermalink
     public const DeveloperEventsHubId = 5;
     public const FreePointsHubId = 3796;
 
+    /**
+     * @var string[]
+     */
+    public const GenreHubTitlePrefixes = ['[Genre - ', '[Subgenre - '];
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions
@@ -330,6 +335,21 @@ class GameSet extends BaseModel implements HasPermalink
     public function getIsEventHubAttribute(): bool
     {
         return in_array($this->id, EventHubIdCacheService::getEventHubIds());
+    }
+
+    public function getIsGenreHubAttribute(): bool
+    {
+        if ($this->type !== GameSetType::Hub) {
+            return false;
+        }
+
+        foreach (self::GenreHubTitlePrefixes as $prefix) {
+            if (str_starts_with($this->title ?? '', $prefix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getPermalinkAttribute(): string

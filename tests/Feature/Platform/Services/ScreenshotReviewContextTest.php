@@ -11,6 +11,7 @@ use App\Platform\Enums\ScreenshotReviewDecision;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Services\ScreenshotReviewContext;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -428,6 +429,82 @@ describe('Review Plan', function () {
 
         // ASSERT
         expect(ScreenshotReviewContext::make($pending)->currentPrimaryForType(ScreenshotType::Title)?->id)->toEqual($existingPrimary->id);
+    });
+});
+
+describe('Current Primary Context Items', function () {
+    beforeEach(function () {
+        Storage::fake('s3');
+    });
+
+    it('returns the zoom label and image rendering for current primaries', function () {
+        // ARRANGE
+        $system = System::factory()->create(['supports_upscaled_screenshots' => true]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        [$titlePrimary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->title()->primary()->create([
+                    'width' => 320,
+                    'height' => 238,
+                ]),
+                GameScreenshot::factory()->for($game)->title()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$titlePrimary, $pending]);
+
+        // ACT
+        $context = ScreenshotReviewContext::make($pending);
+        $item = $context->currentPrimaryContextItems()[0];
+
+        // ASSERT
+        expect($item['label'])->toBe('Title primary (320x238)');
+        expect($item['imageRendering'])->toBe('crisp-edges');
+    });
+
+    it('returns pixelated image rendering for primaries on systems without upscaled screenshot support', function () {
+        // ARRANGE
+        $system = System::factory()->create(['supports_upscaled_screenshots' => false]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        [$titlePrimary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->title()->primary()->create(),
+                GameScreenshot::factory()->for($game)->title()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$titlePrimary, $pending]);
+
+        // ACT
+        $item = ScreenshotReviewContext::make($pending)->currentPrimaryContextItems()[0];
+
+        // ASSERT
+        expect($item['imageRendering'])->toBe('pixelated');
+    });
+
+    it('uses an unknown resolution placeholder when a primary has unknown dimensions', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()]);
+
+        [$titlePrimary, $pending] = GameScreenshot::withoutEvents(function () use ($game) {
+            return [
+                GameScreenshot::factory()->for($game)->title()->primary()->create([
+                    'width' => null,
+                    'height' => null,
+                ]),
+                GameScreenshot::factory()->for($game)->title()->pending()->create(),
+            ];
+        });
+
+        setReviewGameScreenshots($pending, $game, [$titlePrimary, $pending]);
+
+        // ACT
+        $item = ScreenshotReviewContext::make($pending)->currentPrimaryContextItems()[0];
+
+        // ASSERT
+        expect($item['label'])->toBe('Title primary (?)');
     });
 });
 

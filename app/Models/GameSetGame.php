@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// TODO drop deleted_at, it's unused in prod
 class GameSetGame extends BasePivot
 {
     /** @use HasFactory<GameSetGameFactory> */

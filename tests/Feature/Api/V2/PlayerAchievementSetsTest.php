@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PlayerAchievementSetsTest extends TestCase
@@ -705,5 +706,146 @@ class PlayerAchievementSetsTest extends TestCase
             ->values()
             ->toArray();
         $this->assertEquals(['bonus', 'core'], $setContextTypes);
+    }
+
+    /**
+     * @return array<string, array{string, list<string>}>
+     */
+    public static function awardKindFilterProvider(): array
+    {
+        return [
+            'completed includes mastered' => ['completed', ['completed', 'mastered']],
+            'mastered is hardcore-only' => ['mastered', ['mastered']],
+        ];
+    }
+
+    #[DataProvider('awardKindFilterProvider')]
+    public function testItCanFilterByAwardKind(string $awardKind, array $expectedKeys): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $fixture = $this->createAwardKindFilterFixture();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$fixture['player']->ulid}/player-achievement-sets?filter[awardKind]={$awardKind}");
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->all();
+        $this->assertCount(count($expectedKeys), $ids);
+
+        foreach ($expectedKeys as $key) {
+            $this->assertContains((string) $fixture[$key]->id, $ids);
+        }
+        $this->assertNotContains((string) $fixture['inProgress']->id, $ids);
+    }
+
+    public function testItCanFilterByMultipleAwardKinds(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $fixture = $this->createAwardKindFilterFixture();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$fixture['player']->ulid}/player-achievement-sets?filter[awardKind]=completed,mastered");
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->all();
+        $this->assertCount(2, $ids);
+        $this->assertContains((string) $fixture['completed']->id, $ids);
+        $this->assertContains((string) $fixture['mastered']->id, $ids);
+        $this->assertNotContains((string) $fixture['inProgress']->id, $ids);
+    }
+
+    public function testItRejectsInvalidAwardKindValues(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $player = User::factory()->create();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievement-sets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$player->ulid}/player-achievement-sets?filter[awardKind]=bogus");
+
+        // Assert
+        $response->assertStatus(400);
+        $this->assertEquals('invalid_filter', $response->json('errors.0.code'));
+    }
+
+    /**
+     * @return array{
+     *     player: User,
+     *     inProgress: PlayerAchievementSet,
+     *     completed: PlayerAchievementSet,
+     *     mastered: PlayerAchievementSet
+     * }
+     */
+    private function createAwardKindFilterFixture(): array
+    {
+        $system = System::factory()->create();
+        $player = User::factory()->create();
+
+        $inProgressGame = Game::factory()->create(['system_id' => $system->id]);
+        $completedGame = Game::factory()->create(['system_id' => $system->id]);
+        $masteredGame = Game::factory()->create(['system_id' => $system->id]);
+
+        $inProgressSet = AchievementSet::factory()->create();
+        $completedSet = AchievementSet::factory()->create();
+        $masteredSet = AchievementSet::factory()->create();
+
+        GameAchievementSet::factory()->create([
+            'game_id' => $inProgressGame->id,
+            'achievement_set_id' => $inProgressSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $completedGame->id,
+            'achievement_set_id' => $completedSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $masteredGame->id,
+            'achievement_set_id' => $masteredSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+
+        $inProgress = PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $inProgressSet->id,
+            'completed_at' => null,
+            'completed_hardcore_at' => null,
+            'last_unlock_at' => now()->subDays(3),
+        ]);
+        $completed = PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $completedSet->id,
+            'completed_at' => now()->subDays(2),
+            'completed_hardcore_at' => null,
+            'last_unlock_at' => now()->subDays(2),
+        ]);
+        $mastered = PlayerAchievementSet::factory()->create([
+            'user_id' => $player->id,
+            'achievement_set_id' => $masteredSet->id,
+            'completed_at' => now()->subDay(),
+            'completed_hardcore_at' => now()->subHours(12),
+            'last_unlock_at' => now()->subDay(),
+            'last_unlock_hardcore_at' => now()->subHours(12),
+        ]);
+
+        return [
+            'player' => $player,
+            'inProgress' => $inProgress,
+            'completed' => $completed,
+            'mastered' => $mastered,
+        ];
     }
 }
