@@ -478,7 +478,7 @@ final class ScreenshotReviewContext
     }
 
     /**
-     * @return array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>
+     * @return array<int, array{typeLabel: string, resolution: string, label: string, url: string|null, invalid: bool, imageRendering: string|null}>
      */
     public function currentPrimaryContextItems(): array
     {
@@ -494,12 +494,15 @@ final class ScreenshotReviewContext
                 }
 
                 $primary->loadMissing('media');
+                $resolution = $this->formatResolution($primary) ?? '?';
 
                 return [
                     'typeLabel' => $type->label(),
-                    'resolution' => $this->formatResolution($primary) ?? '?',
+                    'resolution' => $resolution,
+                    'label' => "{$type->label()} primary ({$resolution})",
                     'url' => $primary->media?->getUrl(),
                     'invalid' => $this->hasInvalidResolution($primary),
+                    'imageRendering' => $this->imageRenderingFor($primary),
                 ];
             })
             ->filter()

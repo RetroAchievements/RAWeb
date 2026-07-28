@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Community\Enums\RankType;
 use App\Models\Game;
+use App\Models\PlayerGlobalRanking;
+use App\Models\PlayerGlobalRankingTotal;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Enums\GlobalRankingMode;
+use App\Platform\Enums\GlobalRankingWindow;
 use Illuminate\Database\Eloquent\Model;
 use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
 
@@ -414,6 +419,107 @@ class UsersTest extends JsonApiResourceTestCase
         $response->assertSuccessful();
         $this->assertSame(Role::DEVELOPER, $response->json('data.attributes.visibleRole'));
         $this->assertSame([Role::DEVELOPER], $response->json('data.attributes.displayableRoles'));
+    }
+
+    public function testItReturnsMaterializedRanksAndRankedUserMeta(): void
+    {
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        PlayerGlobalRanking::factory()->create([
+            'user_id' => $user->id,
+            'window' => GlobalRankingWindow::AllTime,
+            'mode' => GlobalRankingMode::Hardcore,
+            'rank_number' => 2,
+        ]);
+        PlayerGlobalRanking::factory()->create([
+            'user_id' => $user->id,
+            'window' => GlobalRankingWindow::AllTime,
+            'mode' => GlobalRankingMode::Casual,
+            'rank_number' => 3,
+        ]);
+        PlayerGlobalRankingTotal::query()->insert([
+            ['rank_type' => RankType::Hardcore, 'total' => 20, 'created_at' => now()],
+            ['rank_type' => RankType::Casual, 'total' => 30, 'created_at' => now()],
+        ]);
+
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        $response->assertSuccessful();
+        $this->assertSame(2, $response->json('data.attributes.rankHardcore'));
+        $this->assertSame(3, $response->json('data.attributes.rankCasual'));
+        $this->assertSame(20, $response->json('meta.rankedUsers.hardcore'));
+        $this->assertSame(30, $response->json('meta.rankedUsers.casual'));
+        $this->assertArrayNotHasKey('rankedUsersHardcore', $response->json('data.attributes'));
+        $this->assertArrayNotHasKey('rankedUsersCasual', $response->json('data.attributes'));
+    }
+
+    public function testItReturnsRankedUserCountsAsResponseMetaForUserCollections(): void
+    {
+        $apiUser = User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+        PlayerGlobalRankingTotal::query()->insert([
+            ['rank_type' => RankType::Hardcore, 'total' => 20, 'created_at' => now()],
+            ['rank_type' => RankType::Casual, 'total' => 30, 'created_at' => now()],
+        ]);
+
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users');
+
+        $response->assertSuccessful();
+        $this->assertSame(20, $response->json('meta.rankedUsers.hardcore'));
+        $this->assertSame(30, $response->json('meta.rankedUsers.casual'));
+        $this->assertArrayHasKey('page', $response->json('meta'));
+
+        foreach ($response->json('data') as $resource) {
+            $this->assertArrayNotHasKey('rankedUsersHardcore', $resource['attributes']);
+            $this->assertArrayNotHasKey('rankedUsersCasual', $resource['attributes']);
+        }
+    }
+
+    public function testItReturnsNullMaterializedRanksForUnrankedUsers(): void
+    {
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->untracked()->create();
+        PlayerGlobalRanking::factory()->create([
+            'user_id' => $user->id,
+            'window' => GlobalRankingWindow::AllTime,
+            'mode' => GlobalRankingMode::Hardcore,
+            'rank_number' => 1,
+        ]);
+
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}");
+
+        $response->assertSuccessful();
+        $this->assertNull($response->json('data.attributes.rankHardcore'));
+        $this->assertNull($response->json('data.attributes.rankCasual'));
+    }
+
+    public function testItOmitsMaterializedRanksWhenTheSparseFieldsetExcludesThem(): void
+    {
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create();
+
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/users/{$user->ulid}?fields[users]=displayName");
+
+        $response->assertSuccessful();
+        $this->assertArrayNotHasKey('rankHardcore', $response->json('data.attributes'));
+        $this->assertArrayNotHasKey('rankCasual', $response->json('data.attributes'));
+        $this->assertArrayNotHasKey('rankedUsersHardcore', $response->json('data.attributes'));
+        $this->assertArrayNotHasKey('rankedUsersCasual', $response->json('data.attributes'));
+        $this->assertSame(0, $response->json('meta.rankedUsers.hardcore'));
+        $this->assertSame(0, $response->json('meta.rankedUsers.casual'));
     }
 
     public function testItCanIncludeLastGameRelationship(): void
