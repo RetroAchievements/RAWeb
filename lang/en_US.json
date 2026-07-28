@@ -1514,6 +1514,6 @@
     "The old secret will stop working immediately. This cannot be undone.": "The old secret will stop working immediately. This cannot be undone.",
     "Update the application name and redirect URI.": "Update the application name and redirect URI.",
     "https://example.com/oauth/callback": "https://example.com/oauth/callback",
-    "See who you follow and who follows you": "See who you follow and who follows you",
-    "See game lists you can view, such as Want to Play, Want to Develop, and set requests": "See game lists you can view, such as Want to Play, Want to Develop, and set requests"
+    "View the people you follow and the people who follow you": "View the people you follow and the people who follow you",
+    "View your personal game lists, such as Want to Play and Want to Develop": "View your personal game lists, such as Want to Play and Want to Develop"
 }

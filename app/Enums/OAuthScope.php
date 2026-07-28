@@ -31,8 +31,8 @@ enum OAuthScope: string
     {
         return match ($this) {
             self::Read => 'View publicly visible RetroAchievements data',
-            self::FollowsRead => 'See who you follow and who follows you',
-            self::GameListsRead => 'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
+            self::FollowsRead => 'View the people you follow and the people who follow you',
+            self::GameListsRead => 'View your personal game lists, such as Want to Play and Want to Develop',
         };
     }
 }

@@ -113,7 +113,9 @@ describe('Component: AuthorizeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText('See who you follow and who follows you')).toBeVisible();
+    expect(
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
     expect(screen.queryByText('follows:read')).not.toBeInTheDocument();
   });
 
@@ -139,9 +141,7 @@ describe('Component: AuthorizeRoot', () => {
 
     // ASSERT
     expect(
-      screen.getByText(
-        'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
-      ),
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
     ).toBeVisible();
     expect(screen.queryByText('game-lists:read')).not.toBeInTheDocument();
   });
@@ -168,11 +168,11 @@ describe('Component: AuthorizeRoot', () => {
 
     // ASSERT
     expect(screen.getByText('View publicly visible RetroAchievements data')).toBeVisible();
-    expect(screen.getByText('See who you follow and who follows you')).toBeVisible();
     expect(
-      screen.getByText(
-        'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
-      ),
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
+    expect(
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
     ).toBeVisible();
   });
 
@@ -197,11 +197,11 @@ describe('Component: AuthorizeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText('See who you follow and who follows you')).toBeVisible();
     expect(
-      screen.getByText(
-        'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
-      ),
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
+    expect(
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
     ).toBeVisible();
   });
 

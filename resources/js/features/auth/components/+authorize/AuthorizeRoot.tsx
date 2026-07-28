@@ -47,10 +47,8 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
    */
   const scopeLabels: Record<string, string> = {
     'data:read': t('View publicly visible RetroAchievements data'),
-    'follows:read': t('See who you follow and who follows you'),
-    'game-lists:read': t(
-      'See game lists you can view, such as Want to Play, Want to Develop, and set requests',
-    ),
+    'follows:read': t('View the people you follow and the people who follow you'),
+    'game-lists:read': t('View your personal game lists, such as Want to Play and Want to Develop'),
   };
 
   return (
