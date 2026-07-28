@@ -150,7 +150,7 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index');
 
                             $server->resource('event-achievements', EventAchievementController::class)
-                                ->only('show')
+                                ->only('index', 'show')
                                 ->readOnly();
 
                             $server->resource('events', EventController::class)

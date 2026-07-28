@@ -167,4 +167,34 @@ class EventAchievement extends BaseModel
             $q->promoted();
         });
     }
+
+    /**
+     * @param Builder<EventAchievement> $query
+     * @return Builder<EventAchievement>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
+    {
+        $visibleEventGameIds = Event::query()
+            ->visibleTo($user)
+            ->select('legacy_game_id');
+        $hiddenEventGameIds = Event::query()
+            ->whereNotIn('id', Event::query()->visibleTo($user)->select('id'))
+            ->select('legacy_game_id');
+
+        return $query
+            ->promoted()
+            ->whereHas('achievement', fn (Builder $query) => $query
+                ->whereIn('game_id', $visibleEventGameIds)
+                ->whereNotIn('game_id', $hiddenEventGameIds));
+    }
+
+    /**
+     * @param Builder<EventAchievement> $query
+     * @param list<int> $eventIds
+     * @return Builder<EventAchievement>
+     */
+    public function scopeForEventIds(Builder $query, array $eventIds): Builder
+    {
+        return $query->whereHas('event', fn (Builder $query) => $query->whereKey($eventIds));
+    }
 }

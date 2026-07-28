@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\Rank;
+use App\Community\Enums\RankType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameRelease;
 use App\Models\PlayerGame;
+use App\Models\PlayerGlobalRanking;
+use App\Models\PlayerGlobalRankingTotal;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Enums\GameReleaseRegion;
+use App\Platform\Enums\GlobalRankingMode;
+use App\Platform\Enums\GlobalRankingWindow;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -205,6 +210,23 @@ class UserSummaryTest extends TestCase
         // make sure $this->user is ranked higher than $user
         $this->user->points_hardcore = 1_234_567;
         $this->user->save();
+
+        PlayerGlobalRanking::factory()->create([
+            'user_id' => $this->user->id,
+            'window' => GlobalRankingWindow::AllTime,
+            'mode' => GlobalRankingMode::Hardcore,
+            'rank_number' => 1,
+        ]);
+        PlayerGlobalRanking::factory()->create([
+            'user_id' => $user->id,
+            'window' => GlobalRankingWindow::AllTime,
+            'mode' => GlobalRankingMode::Hardcore,
+            'rank_number' => 2,
+        ]);
+        PlayerGlobalRankingTotal::query()->create([
+            'rank_type' => RankType::Hardcore,
+            'total' => 2,
+        ]);
 
         // default parameters returns no games
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->username]))
