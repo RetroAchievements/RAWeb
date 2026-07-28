@@ -89,7 +89,6 @@ class SystemSchema extends Schema
      */
     public function indexQuery(?object $model, Builder $query): Builder
     {
-        return $query->where('id', '!=', System::Hubs)
-            ->where('id', '!=', System::Events);
+        return $query->gameSystems();
     }
 }

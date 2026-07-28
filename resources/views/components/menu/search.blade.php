@@ -26,7 +26,7 @@
 
     <kbd
         @class([
-            'pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-neutral-700',
+            'pointer-events-none hidden h-5 select-none items-center gap-1 rounded-sm border border-neutral-700',
             'bg-neutral-800 px-1.5 font-mono text-[10px] font-medium text-neutral-400',
             'light:border-neutral-300 light:bg-white light:text-neutral-600',
             'sm:flex',

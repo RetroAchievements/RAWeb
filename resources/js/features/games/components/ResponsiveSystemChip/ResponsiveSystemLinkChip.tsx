@@ -14,11 +14,7 @@ export const ResponsiveSystemLinkChip: FC = () => {
       className={responsiveHeaderChipClassNames}
       prefetch="desktop-hover-only"
     >
-      <img
-        src={game.system?.iconUrl}
-        alt={game.system?.nameShort}
-        className="size-4 sm:size-[18px]"
-      />
+      <img src={game.system?.iconUrl} alt={game.system?.nameShort} className="size-4 sm:size-4.5" />
 
       <span className="text-xs font-medium sm:text-sm">
         <span className="sm:hidden">{game.system?.nameShort}</span>

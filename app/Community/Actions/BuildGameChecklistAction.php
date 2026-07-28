@@ -121,7 +121,7 @@ class BuildGameChecklistAction
             $masteredCount = 0;
             $completedCount = 0;
             $beatenCount = 0;
-            $beatenSoftcoreCount = 0;
+            $beatenCasualCount = 0;
 
             $gameList = [];
             foreach ($group['gameIds'] as $gameId) {
@@ -150,7 +150,7 @@ class BuildGameChecklistAction
                         if ($playerGame->beaten_hardcore_at) {
                             $beatenCount++;
                         } elseif ($playerGame->beaten_at) {
-                            $beatenSoftcoreCount++;
+                            $beatenCasualCount++;
                         } else {
                             $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::GameBeaten)->first();
                             if ($gameBadge) {
@@ -159,7 +159,7 @@ class BuildGameChecklistAction
                                     $playerGame->beaten_hardcore_at = $gameBadge->awarded_at;
                                     $playerGame->beaten_at = $gameBadge->awarded_at;
                                 } else {
-                                    $beatenSoftcoreCount++;
+                                    $beatenCasualCount++;
                                     $playerGame->beaten_at = $gameBadge->awarded_at;
                                 }
                             }
@@ -185,7 +185,7 @@ class BuildGameChecklistAction
                 $masteredCount,
                 $completedCount,
                 $beatenCount,
-                $beatenSoftcoreCount,
+                $beatenCasualCount,
                 $gameList
             );
         }

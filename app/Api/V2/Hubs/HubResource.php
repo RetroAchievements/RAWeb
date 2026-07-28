@@ -64,6 +64,7 @@ class HubResource extends BaseJsonApiResource
     {
         $links = [
             $this->selfLink(),
+            new Link('webUrl', route('hub.show', ['gameSet' => $this->resource->id])),
         ];
 
         if ($this->resource->forum_topic_id) {

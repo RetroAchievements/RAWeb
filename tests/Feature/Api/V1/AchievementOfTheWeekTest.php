@@ -44,7 +44,7 @@ class AchievementOfTheWeekTest extends TestCase
         $time1 = $now->clone()->startOfSecond();
         $this->addHardcoreUnlock($this->user, $achievement1, $time1);
         $time2 = $time1->clone()->subMinutes(5);
-        $this->addSoftcoreUnlock($user2, $achievement1, $time2);
+        $this->addCasualUnlock($user2, $achievement1, $time2);
         $time3 = $time2->clone()->addMinutes(10);
         $this->addHardcoreUnlock($user3, $achievement1, $time3);
 

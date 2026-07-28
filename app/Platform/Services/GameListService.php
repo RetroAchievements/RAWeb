@@ -70,7 +70,7 @@ class GameListService
             ]);
 
         if (!$allowNonGameSystems) {
-            $gameModelsQuery->whereNotIn('system_id', System::getNonGameSystems());
+            $gameModelsQuery->whereGameSystem();
         }
 
         if ($this->withLeaderboardCounts) {
@@ -334,7 +334,7 @@ class GameListService
                 // Check if a higher-ranked award ('completed' or 'mastered') is already present.
                 if (!isset($awardsLookup[$gameId]) || ($awardsLookup[$gameId] != 'completed' && $awardsLookup[$gameId] != 'mastered')) {
                     $awardsLookup[$gameId] =
-                        $award['AwardDataExtra'] == UnlockMode::Softcore
+                        $award['AwardDataExtra'] == UnlockMode::Casual
                             ? 'beaten-softcore'
                             : 'beaten-hardcore';
 
@@ -342,7 +342,7 @@ class GameListService
                 }
             } elseif ($award['AwardType'] == AwardType::Mastery->toLegacyInteger()) {
                 $awardsLookup[$gameId] =
-                    $award['AwardDataExtra'] == UnlockMode::Softcore
+                    $award['AwardDataExtra'] == UnlockMode::Casual
                         ? 'completed'
                         : 'mastered';
 
@@ -528,22 +528,22 @@ class GameListService
                     echo '<td></td>';
                 } else {
                     $gameProgress = $this->userProgress[$game['id']] ?? null;
-                    $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
+                    $casualProgress = $gameProgress['achievements_unlocked'] ?? 0;
                     $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
                     $highestAwardKind = $gameProgress['HighestAwardKind'] ?? 'unfinished';
-                    $tooltip = "$softcoreProgress of {$game['achievements_published']} unlocked";
+                    $tooltip = "$casualProgress of {$game['achievements_published']} unlocked";
 
                     echo '<td class="text-center">';
                     echo Blade::render('
                         <x-game-progress-bar
                             :awardIndicator="$awardIndicator"
-                            :softcoreProgress="$softcoreProgress"
+                            :casualProgress="$casualProgress"
                             :hardcoreProgress="$hardcoreProgress"
                             :maxProgress="$maxProgress"
                             :tooltip="$tooltip"
                         />', [
                         'awardIndicator' => $highestAwardKind,
-                        'softcoreProgress' => $softcoreProgress,
+                        'casualProgress' => $casualProgress,
                         'hardcoreProgress' => $hardcoreProgress,
                         'maxProgress' => $game['achievements_published'],
                         'tooltip' => $tooltip,

@@ -2,7 +2,7 @@
     'label' => null,
     'consoleId' => 0,
     'unfinishedCount' => 0,
-    'beatenSoftcoreCount' => 0,
+    'beatenCasualCount' => 0,
     'beatenHardcoreCount' => 0,
     'completedCount' => 0,
     'masteredCount' => 0,
@@ -11,9 +11,9 @@
 
 <?php
 
-$totalBeatenGamesCount = $beatenSoftcoreCount + $beatenHardcoreCount;
+$totalBeatenGamesCount = $beatenCasualCount + $beatenHardcoreCount;
 $totalMasteredGamesCount = $completedCount + $masteredCount;
-$totalGamesCount = $unfinishedCount + $beatenSoftcoreCount + $beatenHardcoreCount + $completedCount + $masteredCount;
+$totalGamesCount = $unfinishedCount + $beatenCasualCount + $beatenHardcoreCount + $completedCount + $masteredCount;
 
 $widthsPreference = request()->cookie('progression_status_widths_preference');
 
@@ -50,7 +50,7 @@ $cellUrls = [
 <li class="progression-status-row">
     <a
         href="{{ $cellUrls['totals'] }}"
-        class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l hover:border-link-hover"
+        class="border-embed-highlight w-[102px] min-w-[92px]! pl-2 rounded-l-sm hover:border-link-hover"
         @if (!$label) title="{{ $consoleTooltipLabel }}" @endif
     >
         <img
@@ -76,17 +76,17 @@ $cellUrls = [
         cellType="beaten"
         :href="$cellUrls['any-beaten']"
         :widthMode="$widthMode"
-        :cellGamesCounts="[$beatenSoftcoreCount, $beatenHardcoreCount]"
+        :cellGamesCounts="[$beatenCasualCount, $beatenHardcoreCount]"
         :totalGamesCount="$totalGamesCount"
     >
-        @if ($beatenSoftcoreCount > 0)
+        @if ($beatenCasualCount > 0)
             <div class="tally text-zinc-400 light:text-zinc-600 group-hover:text-link-hover">
                 <div class="dot border border-zinc-400 light:border-zinc-600 group-hover:border-link-hover"></div>
-                {{ $beatenSoftcoreCount }}
+                {{ $beatenCasualCount }}
             </div>
         @endif
 
-        @if ($beatenHardcoreCount > 0 || !$beatenSoftcoreCount)
+        @if ($beatenHardcoreCount > 0 || !$beatenCasualCount)
             <div class="tally group-hover:text-link-hover">
                 <div class="dot bg-zinc-300 light:bg-zinc-500 group-hover:bg-link-hover"></div>
                 {{ $beatenHardcoreCount }}

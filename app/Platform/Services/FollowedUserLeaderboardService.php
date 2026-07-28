@@ -12,8 +12,8 @@ class FollowedUserLeaderboardService
     private array $statTypeMap = [
         'PointsHardcoreDay' => PlayerStatType::PointsHardcoreDay,
         'PointsHardcoreWeek' => PlayerStatType::PointsHardcoreWeek,
-        'PointsSoftcoreDay' => PlayerStatType::PointsSoftcoreDay,
-        'PointsSoftcoreWeek' => PlayerStatType::PointsSoftcoreWeek,
+        'PointsCasualDay' => PlayerStatType::PointsCasualDay,
+        'PointsCasualWeek' => PlayerStatType::PointsCasualWeek,
         'PointsWeightedDay' => PlayerStatType::PointsWeightedDay,
         'PointsWeightedWeek' => PlayerStatType::PointsWeightedWeek,
     ];
@@ -29,8 +29,8 @@ class FollowedUserLeaderboardService
                 $types = [
                     PlayerStatType::PointsHardcoreDay,
                     PlayerStatType::PointsHardcoreWeek,
-                    PlayerStatType::PointsSoftcoreDay,
-                    PlayerStatType::PointsSoftcoreWeek,
+                    PlayerStatType::PointsCasualDay,
+                    PlayerStatType::PointsCasualWeek,
                     PlayerStatType::PointsWeightedDay,
                     PlayerStatType::PointsWeightedWeek,
                 ];
@@ -63,7 +63,7 @@ class FollowedUserLeaderboardService
                 $statsAllTime[] = [
                     'user' => $followedUser->display_name,
                     'points_hardcore' => $followedUser->points_hardcore,
-                    'points_softcore' => $followedUser->points,
+                    'points_casual' => $followedUser->points,
                     'points_weighted' => $followedUser->points_weighted,
                 ];
             }
@@ -82,7 +82,7 @@ class FollowedUserLeaderboardService
         $statsAllTime[] = [
             'user' => $user->display_name,
             'points_hardcore' => $user->points_hardcore,
-            'points_softcore' => $user->points,
+            'points_casual' => $user->points,
             'points_weighted' => $user->points_weighted,
         ];
 
@@ -116,12 +116,12 @@ class FollowedUserLeaderboardService
     private function aggregateStats(mixed $playerStats, string $timeframe): array
     {
         $hardcore = $this->getStatTypeEnumValue("PointsHardcore", $timeframe);
-        $softcore = $this->getStatTypeEnumValue("PointsSoftcore", $timeframe);
+        $casual = $this->getStatTypeEnumValue("PointsCasual", $timeframe);
         $weighted = $this->getStatTypeEnumValue("PointsWeighted", $timeframe);
 
         return [
             'points_hardcore' => $hardcore ? $playerStats->where('type', $hardcore)->value('value') ?? 0 : 0,
-            'points_softcore' => $softcore ? $playerStats->where('type', $softcore)->value('value') ?? 0 : 0,
+            'points_casual' => $casual ? $playerStats->where('type', $casual)->value('value') ?? 0 : 0,
             'points_weighted' => $weighted ? $playerStats->where('type', $weighted)->value('value') ?? 0 : 0,
         ];
     }

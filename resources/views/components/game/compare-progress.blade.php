@@ -127,7 +127,7 @@ function selectSearchBoxUser() {
                         >
                             <x-game-progress-bar
                                 containerClassNames="py-2.5"
-                                :softcoreProgress="$completion['achievements_unlocked']"
+                                :casualProgress="$completion['achievements_unlocked']"
                                 :hardcoreProgress="$completion['achievements_unlocked_hardcore']"
                                 :maxProgress="$completion['achievements_total']"
                             />

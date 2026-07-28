@@ -49,7 +49,7 @@ $dateEnd = Carbon::now()->addMinutes(1)->format('Y-m-d H:i:s');
 
 $data = getAchievementsEarnedBetween($dateStart, $dateEnd, $user);
 
-// filter out softcore unlocks when hardcore unlocks are present
+// filter out casual unlocks when hardcore unlocks are present
 $hardcoreIDs = [];
 
 foreach ($data as &$nextData) {

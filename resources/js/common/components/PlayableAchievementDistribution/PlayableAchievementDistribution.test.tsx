@@ -26,9 +26,9 @@ describe('Component: PlayableAchievementDistribution', () => {
     },
     formatTooltipLabel: vi.fn((value) => `Formatted: ${value}`),
     formatXAxisTick: vi.fn((value) => `Tick: ${value}`),
-    userAchievementCounts: { hardcore: 5, softcore: 3 },
+    userAchievementCounts: { hardcore: 5, casual: 3 },
     userHardcoreIndex: 2,
-    userSoftcoreIndex: 4,
+    userCasualIndex: 4,
   };
 
   beforeEach(() => {
@@ -44,8 +44,8 @@ describe('Component: PlayableAchievementDistribution', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     const { container } = render(
@@ -68,8 +68,8 @@ describe('Component: PlayableAchievementDistribution', () => {
   it('given buckets data, renders the chart with the correct title', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     render(<PlayableAchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
@@ -81,8 +81,8 @@ describe('Component: PlayableAchievementDistribution', () => {
   it('given buckets and playerGame data, passes correct props to the hook', () => {
     // ARRANGE
     const buckets = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ] as App.Platform.Data.PlayerAchievementChartBucket[];
 
     const playerGame = createPlayerGame();
@@ -104,8 +104,8 @@ describe('Component: PlayableAchievementDistribution', () => {
   it('given a playerGame with hardcore achievements, renders with the right user indices', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     vi.spyOn(
@@ -114,7 +114,7 @@ describe('Component: PlayableAchievementDistribution', () => {
     ).mockReturnValue({
       ...defaultHookReturnValue,
       userHardcoreIndex: 2,
-      userSoftcoreIndex: undefined,
+      userCasualIndex: undefined,
     } as any);
 
     render(<PlayableAchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
@@ -126,14 +126,14 @@ describe('Component: PlayableAchievementDistribution', () => {
       .mock.results[0].value;
 
     expect(hookData.userHardcoreIndex).toEqual(2);
-    expect(hookData.userSoftcoreIndex).toBeUndefined();
+    expect(hookData.userCasualIndex).toBeUndefined();
   });
 
-  it('given a playerGame with softcore achievements, renders with the right user indices', () => {
+  it('given a playerGame with casual mode unlocks, renders with the right user indices', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     // !! set specific mock return to test reference lines
@@ -143,7 +143,7 @@ describe('Component: PlayableAchievementDistribution', () => {
     ).mockReturnValue({
       ...defaultHookReturnValue,
       userHardcoreIndex: undefined,
-      userSoftcoreIndex: 4,
+      userCasualIndex: 4,
     } as any);
 
     render(<PlayableAchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
@@ -153,14 +153,14 @@ describe('Component: PlayableAchievementDistribution', () => {
       .mock.results[0].value;
 
     expect(hookData.userHardcoreIndex).toBeUndefined();
-    expect(hookData.userSoftcoreIndex).toEqual(4);
+    expect(hookData.userCasualIndex).toEqual(4);
   });
 
   it('given a playerGame with both achievement types, renders with both indices', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     // !! set specific mock return to test both reference lines
@@ -170,7 +170,7 @@ describe('Component: PlayableAchievementDistribution', () => {
     ).mockReturnValue({
       ...defaultHookReturnValue,
       userHardcoreIndex: 2,
-      userSoftcoreIndex: 4,
+      userCasualIndex: 4,
     } as any);
 
     render(<PlayableAchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
@@ -180,14 +180,14 @@ describe('Component: PlayableAchievementDistribution', () => {
       .mock.results[0].value;
 
     expect(hookData.userHardcoreIndex).toEqual(2);
-    expect(hookData.userSoftcoreIndex).toEqual(4);
+    expect(hookData.userCasualIndex).toEqual(4);
   });
 
   it('given no achievement indices from the hook, renders without reference lines', () => {
     // ARRANGE
     const buckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-      { start: 0, end: 9, hardcore: 10, softcore: 5 },
-      { start: 10, end: 19, hardcore: 15, softcore: 8 },
+      { start: 0, end: 9, hardcore: 10, casual: 5 },
+      { start: 10, end: 19, hardcore: 15, casual: 8 },
     ];
 
     vi.spyOn(
@@ -196,7 +196,7 @@ describe('Component: PlayableAchievementDistribution', () => {
     ).mockReturnValue({
       ...defaultHookReturnValue,
       userHardcoreIndex: undefined,
-      userSoftcoreIndex: undefined,
+      userCasualIndex: undefined,
     } as any);
 
     render(<PlayableAchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
@@ -206,6 +206,6 @@ describe('Component: PlayableAchievementDistribution', () => {
       .mock.results[0].value;
 
     expect(hookData.userHardcoreIndex).toBeUndefined();
-    expect(hookData.userSoftcoreIndex).toBeUndefined();
+    expect(hookData.userCasualIndex).toBeUndefined();
   });
 });

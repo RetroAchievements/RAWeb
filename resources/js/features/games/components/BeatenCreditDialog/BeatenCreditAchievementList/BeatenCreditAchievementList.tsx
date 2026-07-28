@@ -85,7 +85,7 @@ function getAchievementCardClassName(
   type: 'progression' | 'win_condition',
   isUnlocked: boolean,
 ): string {
-  const baseClasses = 'flex items-center gap-4 rounded border p-3';
+  const baseClasses = 'flex items-center gap-4 rounded-sm border p-3';
 
   if (type === 'progression') {
     return cn(

@@ -47,6 +47,11 @@ class LoadEventWithRelationsAction
             },
         ]);
 
+        // loop reference back to event for each achievement so a fallback active range can be derived.
+        foreach ($event->achievements as &$achievement) {
+            $achievement->setRelation('event', $event);
+        }
+
         return $event;
     }
 }

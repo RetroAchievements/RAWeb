@@ -46,12 +46,12 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                         Forms\Components\TextInput::make('minimum_hardcore_version')
                             ->label('Minimum Hardcore Version')
                             ->placeholder('2.9.0')
-                            ->helperText('⚠️ Versions older than this only support softcore mode. This is the minimum version required for hardcore to be enabled.'),
+                            ->helperText('⚠️ Versions older than this only support casual mode. This is the minimum version required for hardcore to be enabled.'),
 
                         Forms\Components\TextInput::make('minimum_allowed_version')
                             ->label('Minimum Allowed Version')
                             ->placeholder('2.7.0')
-                            ->helperText('🔴 Versions older than this will be COMPLETELY BLOCKED from the server, even for softcore. Use this very sparingly, such as if a version of the emulator is DDoSing the server. Leave empty to allow all versions.'),
+                            ->helperText('🔴 Versions older than this will be COMPLETELY BLOCKED from the server, even for casual. Use this very sparingly, such as if a version of the emulator is DDoSing the server. Leave empty to allow all versions.'),
 
                         Forms\Components\TextInput::make('pending_minimum_hardcore_version')
                             ->label('Next Minimum Hardcore Version')
@@ -80,13 +80,13 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('minimum_allowed_version')
                     ->label('Minimum Allowed Version')
                     ->placeholder('—')
-                    ->tooltip('Versions older than this cannot connect to the server at all, even for softcore mode.')
+                    ->tooltip('Versions older than this cannot connect to the server at all, even for casual mode.')
                     ->formatStateUsing(fn ($state) => $state ?: 'No blocking'),
 
                 Tables\Columns\TextColumn::make('minimum_hardcore_version')
                     ->label('Minimum Hardcore Version')
                     ->placeholder('—')
-                    ->tooltip(fn ($record) => 'Versions older than this can only play in softcore mode.' .
+                    ->tooltip(fn ($record) => 'Versions older than this can only play in casual mode.' .
                         ($record->pending_minimum_hardcore_version_at
                             ? (' This will change to ' . $record->pending_minimum_hardcore_version . ' in ' . floor($record->pending_minimum_hardcore_version_at->diffInDays(now(), true)) . ' days.')
                             : '')

@@ -36,9 +36,9 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 5, 'points_weighted' => 7, 'user_id' => $author->id]);
 
-        $this->addSoftcoreUnlock($user, $achievement);
+        $this->addCasualUnlock($user, $achievement);
 
-        $this->assertHasSoftcoreUnlock($user, $achievement);
+        $this->assertHasCasualUnlock($user, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($user, $achievement);
         $this->assertEquals($achievement->points, $user->points);
         $this->assertEquals(0, $user->points_hardcore);
@@ -85,7 +85,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievement);
         $achievement->refresh();
 
-        $this->assertHasSoftcoreUnlock($user, $achievement);
+        $this->assertHasCasualUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
         $this->assertEquals(0, $user->points);
         $this->assertEquals($achievement->points, $user->points_hardcore);
@@ -129,7 +129,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievement);
         $achievement->refresh(); // achievement unlock may adjust weighted points
 
-        $this->assertHasSoftcoreUnlock($user, $achievement);
+        $this->assertHasCasualUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
         $this->assertEquals(0, $user->points);
         $this->assertEquals($achievement->points, $user->points_hardcore);
@@ -163,19 +163,19 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
-        $this->addSoftcoreUnlock($user, $achievement);
+        $this->addCasualUnlock($user, $achievement);
         $this->addHardcoreUnlock($user2, $achievement);
 
-        $this->assertHasSoftcoreUnlock($user, $achievement);
+        $this->assertHasCasualUnlock($user, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($user, $achievement);
-        $this->assertHasSoftcoreUnlock($user2, $achievement);
+        $this->assertHasCasualUnlock($user2, $achievement);
         $this->assertHasHardcoreUnlock($user2, $achievement);
 
         (new ResetPlayerProgressAction())->execute($user, $achievement->id);
         $user->refresh();
 
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
-        $this->assertHasSoftcoreUnlock($user2, $achievement);
+        $this->assertHasCasualUnlock($user2, $achievement);
         $this->assertHasHardcoreUnlock($user2, $achievement);
     }
 
@@ -197,7 +197,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveMasteryBadge($user, $game);
 
         // repeat for softcore unlock/reset
-        $this->addSoftcoreUnlock($user, $achievements->get(1));
+        $this->addCasualUnlock($user, $achievements->get(1));
         $this->assertHasCompletionBadge($user, $game);
 
         (new ResetPlayerProgressAction())->execute($user, $achievements->get(1)->id);

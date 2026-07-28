@@ -11,6 +11,7 @@ use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\FlushUserActivityToDatabase;
+use App\Console\Commands\FlushUserApiCallCounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\ProcessFallbackBanner;
@@ -24,8 +25,8 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Services\UserApiCallCountService;
 use App\Platform\Services\UserLastActivityService;
-use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,9 +56,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(HttpGateway::class, InertiaSsrGateway::class);
         $this->app->bind(Gateway::class, HttpGateway::class);
 
-        // Track user recent activity timestamps in Redis and flush them periodically to the DB.
-        // This keeps the users table indexes from constantly rebalancing 24/7.
+        // Track high-frequency user write paths in Redis and flush them periodically to the DB.
+        // This avoids constantly dirtying users rows on request paths.
         $this->app->singleton(UserLastActivityService::class);
+        $this->app->singleton(UserApiCallCountService::class);
 
         // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
         $this->app->singleton(Optimus::class, function () {
@@ -80,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
                 DeleteOverdueUserAccounts::class,
+                FlushUserApiCallCounts::class,
                 FlushUserActivityToDatabase::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
@@ -131,6 +134,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command('model:prune')->dailyAt('9:00'); // ~4:00AM US Eastern
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes()->evenInMaintenanceMode();
             $schedule->command(FlushUserActivityToDatabase::class)->everyMinute()->withoutOverlapping();
+            $schedule->command(FlushUserApiCallCounts::class)->everyFiveMinutes()->withoutOverlapping();
 
             if (app()->environment() === 'production') {
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
@@ -183,32 +187,6 @@ class AppServiceProvider extends ServiceProvider
             $factoryBasename = Str::replaceLast('Factory', '', class_basename($factory));
 
             return 'App\\Models\\' . $factoryBasename;
-        });
-
-        // TODO remove
-        $this->app->singleton('mysqli', function () {
-            try {
-                $db = mysqli_connect(
-                    config('database.connections.mysql.host'),
-                    config('database.connections.mysql.username'),
-                    config('database.connections.mysql.password'),
-                    config('database.connections.mysql.database'),
-                    (int) config('database.connections.mysql.port')
-                );
-                if (!$db) {
-                    throw new Exception('Could not connect to database. Please try again later.');
-                }
-                mysqli_set_charset($db, config('database.connections.mysql.charset'));
-                mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
-
-                return $db;
-            } catch (Exception $exception) {
-                if (app()->environment('local', 'testing')) {
-                    throw $exception;
-                }
-                echo 'Could not connect to database. Please try again later.';
-                exit;
-            }
         });
     }
 }

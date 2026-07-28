@@ -10,7 +10,7 @@
  *   object      [value]
  *    string     User                       username
  *    int        Points                     number of hardcore points the user has earned
- *    int        PointsSoftcore             number of softcore points the user has earned
+ *    int        PointsSoftcore             number of casual points the user has earned
  *    boolean    IsFollowingMe              whether the followed user follows the caller user back
  */
 

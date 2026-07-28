@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\V2\Leaderboards;
 
 use App\Models\Leaderboard;
-use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
@@ -105,8 +104,7 @@ class LeaderboardSchema extends Schema
     public function indexQuery(?object $model, Builder $query): Builder
     {
         return $query
-            ->whereHas('game', fn (Builder $gameQuery) => $gameQuery
-                ->whereNotIn('system_id', [System::Hubs, System::Events]))
+            ->whereHas('game', fn (Builder $gameQuery) => $gameQuery->whereGameSystem())
             ->where('order_column', '>=', 0);
     }
 }

@@ -77,7 +77,7 @@ export const CurrentlyOnline: FC = () => {
         ) : null}
       </div>
 
-      <div className="rounded bg-embed p-4">
+      <div className="rounded-sm bg-embed p-4">
         <BaseChartContainer config={chartConfig} className="w-full" style={{ height: 160 }}>
           <AreaChart accessibilityLayer={true} data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -94,10 +94,7 @@ export const CurrentlyOnline: FC = () => {
 
             <BaseChartTooltip
               content={
-                <BaseChartTooltipContent
-                  className="min-w-[164px]"
-                  labelFormatter={formatTooltipLabel}
-                />
+                <BaseChartTooltipContent className="min-w-41" labelFormatter={formatTooltipLabel} />
               }
             />
 

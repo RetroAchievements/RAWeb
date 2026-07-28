@@ -6,7 +6,6 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\GameSet;
-use App\Models\System;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
@@ -36,7 +35,7 @@ class SimilarGameStrategy implements GameSuggestionStrategy
         }
 
         $this->selectedGame = Game::query()
-            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->whereGameSystem()
             ->whereHas('gameSets', function ($query) use ($gameSetIds) {
                 $query->whereIn('game_sets.id', $gameSetIds);
             })

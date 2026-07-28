@@ -5,17 +5,18 @@ import { LuChevronRight } from 'react-icons/lu';
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
+import { usePageNavigationTabs } from '@/common/hooks/usePageNavigationTabs';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-import { useGameShowTabs } from '../../hooks/useGameShowTabs';
+import { currentTabAtom } from '../../state/games.atoms';
 
 export const CommentsPreviewCard: FC = () => {
   const { auth, numComments, recentVisibleComments } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const { setCurrentTab } = useGameShowTabs();
+  const { setCurrentTab } = usePageNavigationTabs(currentTabAtom, 'achievements');
 
   // Filter out automated comments and then get unique users ordered by the most recent comment.
   const nonAutomatedComments = recentVisibleComments.filter((c) => !c.isAutomated);

@@ -30,7 +30,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
 
   const {
     isBeaten,
-    isSoftcorePlayer,
+    isCasualPlayer,
     neededAchievementCount,
     progressionAchievements,
     unlockedAchievementCount,
@@ -61,8 +61,8 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
               className={cn(
                 'flex items-center gap-1 pl-3.5 pr-4 text-neutral-300',
                 isBeaten
-                  ? 'text-opacity-100 light:text-neutral-600'
-                  : 'text-opacity-30 light:text-neutral-500 light:text-opacity-40',
+                  ? 'light:text-neutral-600'
+                  : 'text-neutral-300/30 light:text-neutral-500/40',
               )}
             >
               <Icon className="size-5" />
@@ -74,7 +74,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
         <BaseTooltipContent>
           <div className="flex flex-col gap-1">
             <p className="font-semibold">
-              {isSoftcorePlayer ? t('Beaten Progress (Softcore)') : t('Beaten Progress')}
+              {isCasualPlayer ? t('Beaten Progress (Casual)') : t('Beaten Progress')}
             </p>
 
             <div className="flex flex-col gap-0.5">
@@ -92,7 +92,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   <BaseProgress
                     className={cn(
                       'h-2 bg-zinc-800',
-                      winConditionAchievements.length ? 'w-40' : 'w-[184px]',
+                      winConditionAchievements.length ? 'w-40' : 'w-46',
                     )}
                     max={progressionAchievements.length}
                     segments={[
@@ -108,7 +108,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   <BaseProgress
                     className={cn(
                       'h-2 bg-zinc-800',
-                      progressionAchievements.length ? 'w-6' : 'w-[184px]',
+                      progressionAchievements.length ? 'w-6' : 'w-46',
                     )}
                     max={1}
                     segments={[
@@ -189,28 +189,28 @@ function getBeatenProgressData(
     (ach) => ach.unlockedAt || ach.unlockedHardcoreAt,
   );
 
-  // Calculate hardcore vs softcore unlocks for beaten-related achievements.
+  // Calculate hardcore vs casual unlocks for beaten-related achievements.
   const unlockedProgressionHardcore = progressionAchievements.filter(
     (ach) => ach.unlockedHardcoreAt,
   ).length;
-  const unlockedProgressionSoftcore = progressionAchievements.filter(
+  const unlockedProgressionCasual = progressionAchievements.filter(
     (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
   ).length;
   const unlockedWinHardcore = winConditionAchievements.filter(
     (ach) => ach.unlockedHardcoreAt,
   ).length;
-  const unlockedWinSoftcore = winConditionAchievements.filter(
+  const unlockedWinCasual = winConditionAchievements.filter(
     (ach) => !ach.unlockedHardcoreAt && ach.unlockedAt,
   ).length;
 
   const totalHardcore = unlockedProgressionHardcore + unlockedWinHardcore;
-  const totalSoftcore = unlockedProgressionSoftcore + unlockedWinSoftcore;
+  const totalCasual = unlockedProgressionCasual + unlockedWinCasual;
 
-  // Determine if this is a softcore player.
-  const isSoftcorePlayer =
-    totalHardcore + totalSoftcore === 0
+  // Determine if this is a casual player.
+  const isCasualPlayer =
+    totalHardcore + totalCasual === 0
       ? user && user.pointsSoftcore > user.points
-      : totalSoftcore > totalHardcore;
+      : totalCasual > totalHardcore;
 
   const neededAchievementCount =
     progressionAchievements.length + (winConditionAchievements.length ? 1 : 0);
@@ -227,16 +227,16 @@ function getBeatenProgressData(
 
   return {
     isBeaten,
-    isSoftcorePlayer,
+    isCasualPlayer,
     neededAchievementCount,
     progressionAchievements,
     unlockedAchievementCount,
     unlockedProgression,
+    unlockedProgressionCasual,
     unlockedProgressionHardcore,
-    unlockedProgressionSoftcore,
     unlockedWin,
+    unlockedWinCasual,
     unlockedWinHardcore,
-    unlockedWinSoftcore,
     winConditionAchievements,
   };
 }

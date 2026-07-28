@@ -54,7 +54,7 @@ export const GameActivity: FC = () => {
             size="sm"
             value="popular"
             aria-label={t('Toggle popular')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
             disabled={!hasPopular}
           >
             {t('Popular')}
@@ -64,7 +64,7 @@ export const GameActivity: FC = () => {
             size="sm"
             value="trending"
             aria-label={t('Toggle trending')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
             disabled={!hasTrending}
           >
             {t('Trending')}
@@ -109,7 +109,7 @@ const SnapshotLabel: FC<SnapshotLabelProps> = ({ snapshot, viewMode }) => {
     return (
       <InertiaLink
         href={route('event.show', { event: snapshot.event.id })}
-        className="absolute bottom-0 right-0 text-2xs text-link"
+        className="absolute right-0 bottom-0 text-2xs text-link"
       >
         {snapshot.event.legacyGame.title}
       </InertiaLink>
@@ -117,11 +117,11 @@ const SnapshotLabel: FC<SnapshotLabelProps> = ({ snapshot, viewMode }) => {
   }
 
   if (viewMode === 'trending' && snapshot.trendingReason) {
-    return <p className="absolute bottom-0 right-0 text-2xs">{t(snapshot.trendingReason)}</p>;
+    return <p className="absolute right-0 bottom-0 text-2xs">{t(snapshot.trendingReason)}</p>;
   }
 
   return (
-    <p className="absolute bottom-0 right-0 text-2xs">
+    <p className="absolute right-0 bottom-0 text-2xs">
       {t('playerCount', { count: snapshot.playerCount, val: snapshot.playerCount })}
     </p>
   );

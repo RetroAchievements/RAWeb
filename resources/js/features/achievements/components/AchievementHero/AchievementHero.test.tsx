@@ -147,7 +147,7 @@ describe('Component: AchievementHero', () => {
     expect(screen.getByText(/unlocked hardcore/i)).toBeVisible();
   });
 
-  it('given the user unlocked softcore only, shows the softcore unlock label', () => {
+  it('given the user unlocked casual only, shows the casual unlock label', () => {
     // ARRANGE
     const achievement = createAchievement({
       unlockedAt: '2024-06-15T08:30:00Z',
@@ -238,7 +238,7 @@ describe('Component: AchievementHero', () => {
     expect(progressBarEl).toHaveAttribute('aria-valuemax', '100');
   });
 
-  it('displays softcore and hardcore unlock counts', () => {
+  it('displays casual and hardcore unlock counts', () => {
     // ARRANGE
     const achievement = createAchievement({
       isPromoted: true,
@@ -252,7 +252,7 @@ describe('Component: AchievementHero', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/200 softcore/i)).toBeVisible();
+    expect(screen.getByText(/200 casual/i)).toBeVisible();
     expect(screen.getByText(/300 hardcore/i)).toBeVisible();
   });
 
@@ -271,7 +271,7 @@ describe('Component: AchievementHero', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText(/200 softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/200 casual/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/300 hardcore/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/unlock rate/i)).not.toBeInTheDocument();
   });
@@ -703,7 +703,7 @@ describe('Component: AchievementHero', () => {
     expect(screen.getByText('Regular Achievement')).toBeVisible();
   });
 
-  it('given the achievement is for an event game, shows "unlocks" instead of "softcore" and "hardcore"', () => {
+  it('given the achievement is for an event game, shows "unlocks" instead of "casual" and "hardcore"', () => {
     // ARRANGE
     const achievement = createAchievement({
       game: createGame({ playersTotal: 500 }),
@@ -719,7 +719,7 @@ describe('Component: AchievementHero', () => {
 
     // ASSERT
     expect(screen.getByText(/200 unlocks/i)).toBeVisible();
-    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/hardcore/i)).not.toBeInTheDocument();
   });
 });

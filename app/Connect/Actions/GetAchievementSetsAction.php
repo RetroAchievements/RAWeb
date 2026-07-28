@@ -94,6 +94,12 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             return $this->gameNotFound();
         }
 
+        // if the game hash specifies a system id, use it instead of whatever is in the game record.
+        // this primarily allows for "event game" records where the game record is associated to System::Events.
+        if ($gameHash?->system_id) {
+            $response['ConsoleId'] = $gameHash->system_id;
+        }
+
         if ($this->clientSupportLevel !== ClientSupportLevel::Full && $game->achievements_published > 0) {
             if ($this->clientSupportLevel === ClientSupportLevel::Blocked) {
                 $this->replaceWithBlockedCoreWarning($response);
@@ -490,7 +496,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                 if ($this->coreRestriction->recommendation) {
                     $description .= " {$this->coreRestriction->recommendation}";
                 }
-            } elseif ($this->clientSupportLevel === ClientSupportLevel::SoftcorePending) {
+            } elseif ($this->clientSupportLevel === ClientSupportLevel::CasualPending) {
                 $userAgentService = new UserAgentService();
                 $emulatorUserAgent = $userAgentService->getEmulatorUserAgent($this->userAgent);
                 if (!$emulatorUserAgent || !$emulatorUserAgent->pending_minimum_hardcore_version_at) {
@@ -507,7 +513,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             } else {
                 $title = match ($this->clientSupportLevel) {
                     ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                    ClientSupportLevel::SoftcoreOnly => 'Warning: Softcore Only',
+                    ClientSupportLevel::CasualOnly => 'Warning: Casual Only',
                     ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                     default => 'Warning: Unknown Emulator',
                 };

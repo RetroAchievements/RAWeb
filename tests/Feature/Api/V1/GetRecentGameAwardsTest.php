@@ -44,9 +44,9 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
+        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Casual, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
-        $this->addMasteryBadge($playerThree, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(1));
+        $this->addMasteryBadge($playerThree, $game, UnlockMode::Casual, Carbon::now()->subMinutes(1));
         $this->addMasteryBadge($playerFour, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(15));
 
         $this->get($this->apiUrl('GetRecentGameAwards'))
@@ -116,9 +116,9 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
+        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Casual, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
-        $this->addMasteryBadge($playerThree, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(1));
+        $this->addMasteryBadge($playerThree, $game, UnlockMode::Casual, Carbon::now()->subMinutes(1));
         $this->addMasteryBadge($playerFour, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(15));
 
         $this->get($this->apiUrl('GetRecentGameAwards', ['k' => 'completed,beaten-softcore']))
@@ -172,7 +172,7 @@ class GetRecentGameAwardsTest extends TestCase
 
         $this->addGameBeatenAward($playerOne, $game, UnlockMode::Hardcore, $earlyToday);
         $this->addMasteryBadge($playerTwo, $game, UnlockMode::Hardcore, $lateToday);
-        $this->addGameBeatenAward($playerThree, $game, UnlockMode::Softcore, $tomorrowMorning);
+        $this->addGameBeatenAward($playerThree, $game, UnlockMode::Casual, $tomorrowMorning);
 
         $this->get($this->apiUrl('GetRecentGameAwards', ['d' => Carbon::today()->format('Y-m-d')]))
             ->assertSuccessful()
@@ -248,9 +248,9 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
+        $this->addGameBeatenAward($playerOne, $game, UnlockMode::Casual, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
-        $this->addMasteryBadge($playerThree, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(1));
+        $this->addMasteryBadge($playerThree, $game, UnlockMode::Casual, Carbon::now()->subMinutes(1));
         $this->addMasteryBadge($playerFour, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(15));
 
         $this->get($this->apiUrl('GetRecentGameAwards', ['o' => '3']))

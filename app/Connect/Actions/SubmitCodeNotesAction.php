@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 
 class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
 {
+    private const MAX_NOTES_PER_REQUEST = 500;
+
     protected int $gameId;
     protected array $notes;
 
@@ -31,12 +33,23 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
+        // Reject callers without proper perms before parsing.
+        // Without this, an unauthenticated user could still force the server
+        // to parse a multi-MB payload and build a wide `IN()`.
+        if (!$this->user->can('create', MemoryNote::class)) {
+            return $this->mustBeDeveloper();
+        }
+
         $this->notes = [];
         $this->gameId = request()->integer('g', 0);
         $notes = request()->input('n') ?? '';
         foreach (explode("\n", $notes) as $line) {
             if (empty($line)) {
                 continue;
+            }
+
+            if (count($this->notes) >= self::MAX_NOTES_PER_REQUEST) {
+                return $this->invalidParameter('Too many notes in a single request.');
             }
 
             $index = strpos($line, ':');
@@ -67,6 +80,8 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
             ->whereIn('address', array_keys($this->notes))
             ->get();
 
+        $canCreate = $this->user->can('create', MemoryNote::class);
+
         $accessDenied = [];
         $successful = [];
         foreach ($this->notes as $address => $note) {
@@ -83,7 +98,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
                 }
             } else {
                 if (!$memoryNote) {
-                    if (!$this->user->can('create', MemoryNote::class)) {
+                    if (!$canCreate) {
                         $accessDenied[] = $address;
                         continue;
                     }
@@ -93,7 +108,7 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
                         'address' => $address,
                     ]);
                 } elseif ($memoryNote->trashed()) {
-                    if (!$this->user->can('create', MemoryNote::class)) {
+                    if (!$canCreate) {
                         $accessDenied[] = $address;
                         continue;
                     }

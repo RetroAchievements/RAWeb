@@ -131,19 +131,19 @@ class UpdatePlayerGameMetricsAction
             }
 
             $summary = $activityService->getAchievementSetMetrics($achievementSet);
-            $playerAchievementSet->time_taken = $summary['achievementPlaytimeSoftcore'] ?? 0;
+            $playerAchievementSet->time_taken = $summary['achievementPlaytimeCasual'] ?? 0;
             $playerAchievementSet->time_taken_hardcore = $summary['achievementPlaytimeHardcore'] ?? 0;
-            $playerAchievementSet->last_unlock_at = $summary['lastUnlockTimeSoftcore'];
+            $playerAchievementSet->last_unlock_at = $summary['lastUnlockTimeCasual'];
             $playerAchievementSet->last_unlock_hardcore_at = $summary['lastUnlockTimeHardcore'];
 
-            // if the user has at least one softcore unlock, count a later hardcore unlock also as a softcore unlock
+            // if the user has at least one casual unlock, count a later hardcore unlock also as a casual unlock
             if ($playerAchievementSet->last_unlock_at && $playerAchievementSet->last_unlock_hardcore_at > $playerAchievementSet->last_unlock_at) {
                 $lastUnlockAt = $playerAchievementSet->last_unlock_at;
                 if ($playerAchievementSet->completed_at > $playerAchievementSet->last_unlock_at) {
                     // completed_at was previously set based on a hardcore unlock - use that
                     $playerAchievementSet->last_unlock_at = $playerAchievementSet->completed_at;
                 } elseif (!$playerAchievementSet->completed_at) {
-                    // game hasn't been completed yet, also count the hardcore unlock as a softcore unlock
+                    // game hasn't been completed yet, also count the hardcore unlock as a casual unlock
                     $playerAchievementSet->last_unlock_at = $playerAchievementSet->last_unlock_hardcore_at;
                 }
 
@@ -190,7 +190,7 @@ class UpdatePlayerGameMetricsAction
         $playerGame->fill($this->beatProgressMetrics($playerGame, $coreAchievementSet, $achievementsUnlocked));
 
         $beatSummary = $activityService->getBeatProgressMetrics($coreAchievementSet, $playerGame);
-        $playerGame->time_to_beat = $beatSummary['beatPlaytimeSoftcore'];
+        $playerGame->time_to_beat = $beatSummary['beatPlaytimeCasual'];
         $playerGame->time_to_beat_hardcore = $beatSummary['beatPlaytimeHardcore'];
         $beatenChanged = $playerGame->isDirty(['time_to_beat', 'time_to_beat_hardcore']);
 
@@ -306,9 +306,9 @@ class UpdatePlayerGameMetricsAction
         $progressionUnlocksHardcore = $progressionUnlocks->filter(fn (PlayerAchievement $playerAchievement) => $playerAchievement->unlocked_hardcore_at !== null);
         $winConditionUnlocks = $achievementsUnlocked->whereIn('id', $winConditionIds)->pluck('pivot');
         $winConditionUnlocksHardcore = $winConditionUnlocks->filter(fn (PlayerAchievement $playerAchievement) => $playerAchievement->unlocked_hardcore_at !== null);
-        $progressionUnlocksSoftcoreCount = $progressionUnlocks->count();
+        $progressionUnlocksCasualCount = $progressionUnlocks->count();
         $progressionUnlocksHardcoreCount = $progressionUnlocksHardcore->count();
-        $winConditionUnlocksSoftcoreCount = $winConditionUnlocks->count();
+        $winConditionUnlocksCasualCount = $winConditionUnlocks->count();
         $winConditionUnlocksHardcoreCount = $winConditionUnlocksHardcore->count();
 
         // If there are no Win Condition achievements in the set, the game is considered beaten
@@ -317,10 +317,10 @@ class UpdatePlayerGameMetricsAction
         $totalProgressions = count($progressionAchievementIds);
 
         $beatenDates = $playerGame->beaten_dates ?? [];
-        $isBeatenSoftcore =
-            $progressionUnlocksSoftcoreCount === $totalProgressions
-            && $winConditionUnlocksSoftcoreCount >= $neededWinConditionAchievements;
-        if ($isBeatenSoftcore) {
+        $isBeatenCasual =
+            $progressionUnlocksCasualCount === $totalProgressions
+            && $winConditionUnlocksCasualCount >= $neededWinConditionAchievements;
+        if ($isBeatenCasual) {
             $beatenAt = collect([
                 $progressionUnlocks->max('unlocked_at'),
                 $winConditionUnlocks->min('unlocked_at'),

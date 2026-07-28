@@ -8,7 +8,16 @@
 .devbox > span {
   cursor: pointer;
   display: block;
-  @apply btn;
+  background-color: var(--embed-color);
+  color: var(--link-color);
+  border: 1px solid var(--embed-highlight-color);
+  line-height: 1em;
+  padding: 0.4em 0.6em;
+  border-radius: 4px;
+  text-align: left;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: small;
+  white-space: nowrap;
 }
 
 .devbox > div, .codetags, .devboxcontainer {

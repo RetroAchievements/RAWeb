@@ -106,7 +106,7 @@ class BuildGameShowPagePropsAction
             $backingGame = $game;
         }
 
-        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore] =
+        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenCasual] =
             $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
@@ -350,7 +350,7 @@ class BuildGameShowPagePropsAction
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $targetAchievementSet),
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
-            numBeatenSoftcore: $numBeatenSoftcore,
+            numBeatenCasual: $numBeatenCasual,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->gameLeaderboardService->getCount($backingGame, $isPromoted),
             numMasters: $numMasters,

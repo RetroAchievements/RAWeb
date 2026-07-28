@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
-use App\Models\System;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +42,7 @@ class RandomGameStrategy implements GameSuggestionStrategy
         // and randomly pick one of the values.
 
         $baseQuery = Game::whereHasPublishedAchievements()
-            ->whereNotIn('system_id', System::getNonGameSystems());
+            ->whereGameSystem();
 
         $totalCount = $baseQuery->count();
 

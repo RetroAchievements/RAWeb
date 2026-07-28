@@ -9,7 +9,7 @@
         </p>
     </div>
 
-    <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded">
+    <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded-sm">
         <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
             @if ($targetUser->is_muted)
                 <x-user.profile.stat-element

@@ -50,11 +50,11 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     {t('New Email Address')}
                   </BaseFormLabel>
 
-                  <div className="flex flex-grow flex-col gap-1">
+                  <div className="flex grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder={t('enter your new email address here...')}
+                        placeholder={t('Enter your new email address')}
                         required
                         {...field}
                       />
@@ -75,11 +75,11 @@ export const ChangeEmailAddressSectionCard: FC = () => {
                     {t('Confirm New Email Address')}
                   </BaseFormLabel>
 
-                  <div className="flex flex-grow flex-col gap-1">
+                  <div className="flex grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder={t('confirm your new email address here...')}
+                        placeholder={t('Confirm your new email address')}
                         required
                         {...field}
                       />

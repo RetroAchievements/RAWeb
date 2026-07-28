@@ -616,9 +616,9 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Number of own achievements obtained
         echo "<tr><td>Own Achievements Obtained:</td><td>";
-        $softcoreCount = $ownAchievementsObtained['SoftcoreCount'] ?? 0;
+        $casualCount = $ownAchievementsObtained['CasualCount'] ?? 0;
         $hardcoreCount = $ownAchievementsObtained['HardcoreCount'] ?? 0;
-        echo "$softcoreCount - " . number_format($softcoreCount / $achievementCount * 100, 2, '.', '') . "%";
+        echo "$casualCount - " . number_format($casualCount / $achievementCount * 100, 2, '.', '') . "%";
         echo " <b>($hardcoreCount - " . number_format($hardcoreCount / $achievementCount * 100, 2, '.', '') . "%)</b>";
         echo "</td></tr>";
 
@@ -628,7 +628,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         // User who has obtained the most of your achievements
         echo "<tr><td>User Who Obtained the Most Achievements:</td><td>";
         if (!empty($mostAchievementObtainer)) {
-            echo $mostAchievementObtainer['SoftcoreCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
+            echo $mostAchievementObtainer['CasualCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
             echo userAvatar($mostAchievementObtainer['User']);
         } else {
             echo "N/A";

@@ -30,7 +30,7 @@ export const ProgressBar: FC<ProgressBarProps> = ({
     >
       {completionPercentage > 0 && completionPercentage < 99 ? (
         <p
-          className="absolute bottom-2 select-none text-[0.65rem] text-yellow-500 opacity-0 group-hover:opacity-100 light:text-yellow-700"
+          className="absolute bottom-2 text-[0.65rem] text-yellow-500 opacity-0 select-none group-hover:opacity-100 light:text-yellow-700"
           style={{ left: `calc(${completionPercentage}% - 10px)` }}
         >
           {formatPercentage(completionPercentage / 100, {

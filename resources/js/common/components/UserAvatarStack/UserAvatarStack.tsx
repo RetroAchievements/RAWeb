@@ -95,7 +95,7 @@ export const UserAvatarStack: FC<UserAvatarStackProps> = ({
             </div>
           </BaseTooltipTrigger>
 
-          <BaseTooltipContent className="max-w-[300px] text-pretty">
+          <BaseTooltipContent className="max-w-75 text-pretty">
             <p>{remainingNames}</p>
           </BaseTooltipContent>
         </BaseTooltip>

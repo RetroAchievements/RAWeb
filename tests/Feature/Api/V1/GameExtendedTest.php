@@ -81,14 +81,14 @@ class GameExtendedTest extends TestCase
         $this->addHardcoreUnlock($this->user, $achievement3);
 
         // user2 has all achievements unlocked in softcore
-        $this->addSoftcoreUnlock($user2, $achievement1);
-        $this->addSoftcoreUnlock($user2, $achievement2);
-        $this->addSoftcoreUnlock($user2, $achievement3);
+        $this->addCasualUnlock($user2, $achievement1);
+        $this->addCasualUnlock($user2, $achievement2);
+        $this->addCasualUnlock($user2, $achievement3);
 
         // user3 has all achievements unlocked, mix of hardcore and softcore
         $this->addHardcoreUnlock($user3, $achievement1);
-        $this->addSoftcoreUnlock($user3, $achievement2);
-        $this->addSoftcoreUnlock($user3, $achievement3);
+        $this->addCasualUnlock($user3, $achievement2);
+        $this->addCasualUnlock($user3, $achievement3);
 
         // user4 only has two achievements unlocked
         $this->addHardcoreUnlock($user4, $achievement1);

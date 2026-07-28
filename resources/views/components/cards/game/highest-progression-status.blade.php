@@ -13,7 +13,7 @@
         @if ($isEvent)
             Awarded
         @elseif ($highestProgressionStatus === 'beaten-softcore')
-            Beaten (softcore)
+            Beaten (casual)
         @elseif ($highestProgressionStatus === 'beaten-hardcore')
             Beaten
         @elseif ($highestProgressionStatus === 'completed')

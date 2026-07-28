@@ -120,7 +120,7 @@ class ResetPlayerProgressAction
                 $playerBadge = $user->playerBadges()
                     ->where('award_type', AwardType::Mastery)
                     ->where('award_key', $achievement->game_id)
-                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
+                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Casual)
                     ->first();
                 if ($playerBadge) {
                     PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);

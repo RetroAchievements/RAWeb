@@ -35,8 +35,8 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
       id={`${message.id}`}
       data-testid={`message-${message.id}`}
       className={cn(
-        'scroll-mt-14 rounded bg-embed px-2.5 py-1.5',
-        isHighlighted ? 'outline outline-2' : null,
+        'scroll-mt-14 rounded-sm bg-embed px-2.5 py-1.5',
+        isHighlighted ? 'outline-2' : null,
       )}
     >
       <div className="flex w-full flex-col justify-between gap-1 sm:flex-row sm:items-center sm:gap-2">
@@ -56,7 +56,7 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
               })}
               className={baseButtonVariants({
                 size: 'sm',
-                className: 'max-h-[22px] gap-1 !p-1 !text-2xs',
+                className: 'max-h-5.5 gap-1 p-1! text-2xs!',
               })}
             >
               <LuFlag className="size-3" />

@@ -30,7 +30,7 @@ export const ManageConnectApiKey: FC = () => {
 
         <div className="col-span-3 flex flex-col gap-2">
           <BaseButton
-            className="flex w-full gap-2 @lg:max-w-fit"
+            className="flex gap-2 self-start"
             size="sm"
             variant="destructive"
             onClick={handleResetApiKeyClick}

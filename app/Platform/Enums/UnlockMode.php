@@ -9,14 +9,14 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 abstract class UnlockMode
 {
-    public const Softcore = 0;
+    public const Casual = 0;
 
     public const Hardcore = 1;
 
     public static function cases(): array
     {
         return [
-            self::Softcore,
+            self::Casual,
             self::Hardcore,
         ];
     }
@@ -29,7 +29,7 @@ abstract class UnlockMode
     public static function toString(int $type): string
     {
         return match ($type) {
-            UnlockMode::Softcore => 'Softcore',
+            UnlockMode::Casual => 'Casual',
             UnlockMode::Hardcore => 'Hardcore',
             default => 'Unknown',
         };

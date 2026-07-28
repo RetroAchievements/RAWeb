@@ -39,7 +39,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         }
     }
 
-    protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
+    protected function addCasualUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
     {
         if ($when === null) {
             $when = Carbon::now();
@@ -135,7 +135,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertPointBadgeTier($author, 1);
 
         // new unlock does not reach next tier (softcode vs. hardcore doesn't matter)
-        $this->addSoftcoreUnlock($player2, $achievements[2]);
+        $this->addCasualUnlock($player2, $achievements[2]);
         $action->execute($author);
         $this->assertEquals(2, $author->yield_unlocks);
         $this->assertEquals(2499, $author->yield_points);

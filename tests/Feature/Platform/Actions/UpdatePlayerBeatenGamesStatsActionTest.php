@@ -38,9 +38,9 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $system = System::factory()->create();
         $games = Game::factory()->count(3)->create(['system_id' => $system->id]);
 
-        $this->addGameBeatenAward($user, $games->get(0), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, $games->get(1), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, $games->get(2), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, $games->get(0), UnlockMode::Casual);
+        $this->addGameBeatenAward($user, $games->get(1), UnlockMode::Casual);
+        $this->addGameBeatenAward($user, $games->get(2), UnlockMode::Casual);
 
         // Act
         (new UpdatePlayerBeatenGamesStatsAction())->execute($user);

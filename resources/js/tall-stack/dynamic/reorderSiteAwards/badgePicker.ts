@@ -18,15 +18,36 @@ export async function openBadgePicker(gameId: number): Promise<void> {
       `/internal-api/user/games/${gameId}/selectable-badges`,
     );
 
-    renderBadgePickerDialog(gameId, badges);
+    renderBadgePickerDialog(badges, (badge, dialog) =>
+      commitBadgeChoice(gameId, badge.sha1, dialog),
+    );
   } catch {
     window.showStatusFailure?.('Could not load badges for this game.');
   }
 }
 
+export async function openMediaContributionTierPicker(): Promise<void> {
+  try {
+    const { badges } = await fetcher<{ badges: SelectableBadge[] }>(
+      '/internal-api/user/media-contribution/selectable-tiers',
+    );
+
+    renderBadgePickerDialog(badges, (badge, dialog) =>
+      commitMediaContributionTierChoice(Number(badge.sha1), dialog),
+    );
+  } catch {
+    window.showStatusFailure?.('Could not load tiers for this award.');
+  }
+}
+
+type BadgeTileClickHandler = (
+  badge: SelectableBadge,
+  dialog: HTMLDialogElement,
+) => void | Promise<void>;
+
 export function renderBadgePickerDialog(
-  gameId: number,
   badges: SelectableBadge[],
+  onTileClick: BadgeTileClickHandler,
 ): HTMLDialogElement {
   document.getElementById(DIALOG_ID)?.remove();
 
@@ -55,7 +76,7 @@ export function renderBadgePickerDialog(
   grid.className = 'grid grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto p-2';
 
   for (const badge of badges) {
-    grid.appendChild(buildBadgeTile(gameId, badge, dialog));
+    grid.appendChild(buildBadgeTile(badge, dialog, onTileClick));
   }
 
   content.appendChild(grid);
@@ -75,9 +96,9 @@ export function renderBadgePickerDialog(
 }
 
 function buildBadgeTile(
-  gameId: number,
   badge: SelectableBadge,
   dialog: HTMLDialogElement,
+  onTileClick: BadgeTileClickHandler,
 ): HTMLButtonElement {
   const tile = document.createElement('button');
   tile.type = 'button';
@@ -86,7 +107,7 @@ function buildBadgeTile(
   tile.setAttribute('aria-pressed', badge.isSelected ? 'true' : 'false');
   tile.setAttribute(
     'aria-label',
-    badge.isCurrent ? 'Current badge' : `Badge used since ${badge.label}`,
+    badge.isCurrent ? `Current badge: ${badge.label}` : `Badge: ${badge.label}`,
   );
 
   if (badge.isSelected) {
@@ -103,7 +124,7 @@ function buildBadgeTile(
   img.src = badge.url;
   img.width = 64;
   img.height = 64;
-  img.alt = ''; // the button's aria-label already names the tile
+  img.alt = ''; // the button's aria-label already names the tile.
   tile.appendChild(img);
 
   const label = document.createElement('span');
@@ -112,7 +133,7 @@ function buildBadgeTile(
   tile.appendChild(label);
 
   tile.addEventListener('click', () => {
-    void commitBadgeChoice(gameId, badge.sha1, dialog);
+    void onTileClick(badge, dialog);
   });
 
   return tile;
@@ -140,8 +161,37 @@ export async function commitBadgeChoice(
   }
 }
 
+export async function commitMediaContributionTierChoice(
+  tierIndex: number,
+  dialog?: HTMLDialogElement,
+): Promise<void> {
+  try {
+    const { url } = await fetcher<{ success: boolean; url: string }>(
+      '/internal-api/user/media-contribution/tier-preference',
+      {
+        method: 'PUT',
+        body: new URLSearchParams({ tierIndex: String(tierIndex) }),
+      },
+    );
+
+    swapMediaContributionBadgeImages(url);
+    window.showStatusSuccess?.('Displayed badge updated.');
+    closeBadgePicker(dialog);
+  } catch {
+    window.showStatusFailure?.('Could not update the displayed badge.');
+  }
+}
+
 export function swapGameBadgeImages(gameId: number, url: string): void {
   const images = document.querySelectorAll<HTMLImageElement>(`[data-gameid="${gameId}"] img`);
+
+  for (const img of images) {
+    img.src = url;
+  }
+}
+
+export function swapMediaContributionBadgeImages(url: string): void {
+  const images = document.querySelectorAll<HTMLImageElement>('[data-media-contribution-badge] img');
 
   for (const img of images) {
     img.src = url;

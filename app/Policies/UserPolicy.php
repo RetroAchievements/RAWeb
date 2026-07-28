@@ -59,6 +59,23 @@ class UserPolicy
         return true;
     }
 
+    public function viewFollowers(?User $user, User $model): bool
+    {
+        // users can only view their own follower lists
+        return $user?->is($model) ?? false;
+    }
+
+    public function viewFollowing(?User $user, User $model): bool
+    {
+        // users can only view their own following lists
+        return $user?->is($model) ?? false;
+    }
+
+    public function viewLeaderboardEntries(?User $user, User $model): bool
+    {
+        return true;
+    }
+
     public function viewPlayerAchievements(?User $user, User $model): bool
     {
         return true;
@@ -72,6 +89,17 @@ class UserPolicy
     public function viewPlayerGames(?User $user, User $model): bool
     {
         return true;
+    }
+
+    public function viewTickets(?User $user, User $model): bool
+    {
+        return $user !== null;
+    }
+
+    public function viewUserGameListEntries(?User $user, User $model): bool
+    {
+        // row-level per-kind visibility happens inside UserGameListEntrySchema::relatableQuery
+        return $user !== null;
     }
 
     public function viewWallComments(?User $user, User $model): bool

@@ -27,7 +27,7 @@ if ($sortBy == 2 || $sortBy == 12) {
 }
 
 $userPageHardcorePoints = $userDetails->points_hardcore;
-$userPageSoftcorePoints = $userDetails->points;
+$userPageCasualPoints = $userDetails->points;
 
 //	the past week
 $userScoreData = getAwardedList($userDetails);
@@ -46,7 +46,7 @@ $userScoreData = getAwardedList($userDetails);
     // Declare columns
     dataTotalScore.addColumn('date', 'Date Earned');
     dataTotalScore.addColumn('number', 'Hardcore Score');
-    dataTotalScore.addColumn('number', 'Softcore Score');
+    dataTotalScore.addColumn('number', 'Casual Score');
 
     dataTotalScore.addRows([
         <?php
@@ -63,9 +63,9 @@ $userScoreData = getAwardedList($userDetails);
             $dateStr = $nextDate->format('d M Y');
 
             $hardcoreValue = $dayInfo['CumulHardcoreScore'];
-            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
+            $casualValue = $dayInfo['CumulCasualScore'];
 
-            echo "[ {v:new Date($nextYear," . ($nextMonth - 1) . ",$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
+            echo "[ {v:new Date($nextYear," . ($nextMonth - 1) . ",$nextDay), f:'$dateStr'}, $hardcoreValue, $casualValue ]";
         }
         ?>
     ]);
@@ -205,13 +205,13 @@ $userScoreData = getAwardedList($userDetails);
     echo "<h3>History</h3>";
 
     echo "<div>";
-    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
+    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-xs'>";
     echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
     if ($userPageHardcorePoints > 0) {
         echo "(" . localized_number($userPageHardcorePoints) . ") ";
     }
-    if ($userPageSoftcorePoints > 0) {
-        echo "<span class ='softcore'>(" . localized_number($userPageSoftcorePoints) . " softcore)</span>";
+    if ($userPageCasualPoints > 0) {
+        echo "<span class ='casual'>(" . localized_number($userPageCasualPoints) . " casual)</span>";
     }
     echo "</b><br>";
 

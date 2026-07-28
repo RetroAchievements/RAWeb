@@ -30,7 +30,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         variant="game"
       />,
     );
@@ -46,7 +46,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={false}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         variant="game"
       />,
     );
@@ -54,7 +54,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
   it('given payload is empty, renders the base tooltip content', () => {
@@ -64,7 +64,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={[]}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         variant="game"
       />,
     );
@@ -72,7 +72,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
   it('given the current bucket has no reference lines, renders the base tooltip content only', () => {
@@ -82,17 +82,17 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         variant="game"
         userHardcoreIndex={0} // !! Different from current payload index (1)
-        userSoftcoreIndex={2} // !! Different from current payload index (1)
+        userCasualIndex={2} // !! Different from current payload index (1)
       />,
     );
 
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
   it('given the current bucket has a hardcore reference line, renders hardcore line info', () => {
@@ -102,7 +102,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
         variant="game"
       />,
@@ -111,18 +111,18 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.getByText(/your hardcore progress/i)).toBeVisible();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
-  it('given the current bucket has a softcore reference line, renders softcore line info', () => {
+  it('given the current bucket has a casual reference line, renders casual line info', () => {
     // ARRANGE
     render(
       <ReferenceLineTooltipContent
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
-        userSoftcoreIndex={1} // !! Same as current payload index (1)
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
+        userCasualIndex={1} // !! Same as current payload index (1)
         variant="game"
       />,
     );
@@ -130,7 +130,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/your softcore progress/i)).toBeVisible();
+    expect(screen.getByText(/your casual progress/i)).toBeVisible();
   });
 
   it('given the current bucket has both reference lines, renders both line info', () => {
@@ -140,9 +140,9 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
-        userSoftcoreIndex={1} // !! Same as current payload index (1)
+        userCasualIndex={1} // !! Same as current payload index (1)
         variant="game"
       />,
     );
@@ -150,7 +150,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.getByText(/your hardcore progress/i)).toBeVisible();
-    expect(screen.getByText(/your softcore progress/i)).toBeVisible();
+    expect(screen.getByText(/your casual progress/i)).toBeVisible();
   });
 
   it('given user achievement counts are null for hardcore, still renders hardcore line info when index matches', () => {
@@ -160,7 +160,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: null }}
+        userAchievementCounts={{ casual: 15, hardcore: null }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
         variant="game"
       />,
@@ -171,22 +171,22 @@ describe('Component: ReferenceLineTooltipContent', () => {
     expect(screen.getByText(/your hardcore progress/i)).toBeVisible();
   });
 
-  it('given user achievement counts are null for softcore, still renders softcore line info when index matches', () => {
+  it('given user achievement counts are null for casual, still renders casual line info when index matches', () => {
     // ARRANGE
     render(
       <ReferenceLineTooltipContent
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: null, hardcore: 12 }}
-        userSoftcoreIndex={1} // !! Same as current payload index (1)
+        userAchievementCounts={{ casual: null, hardcore: 12 }}
+        userCasualIndex={1} // !! Same as current payload index (1)
         variant="game"
       />,
     );
 
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
-    expect(screen.getByText(/your softcore progress/i)).toBeVisible();
+    expect(screen.getByText(/your casual progress/i)).toBeVisible();
   });
 
   it("given userAchievementCounts is null, doesn't render any reference line info", () => {
@@ -198,7 +198,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         buckets={sampleBuckets}
         userAchievementCounts={null}
         userHardcoreIndex={1}
-        userSoftcoreIndex={1}
+        userCasualIndex={1}
         variant="game"
       />,
     );
@@ -206,17 +206,17 @@ describe('Component: ReferenceLineTooltipContent', () => {
     // ASSERT
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
   });
 
-  it('given the variant is event, does not delineate between softcore and hardcore', () => {
+  it('given the variant is event, does not delineate between casual and hardcore', () => {
     // ARRANGE
     render(
       <ReferenceLineTooltipContent
         active={true}
         payload={samplePayload}
         buckets={sampleBuckets}
-        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userAchievementCounts={{ casual: 15, hardcore: 12 }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
         variant="event" // !!
       />,
@@ -226,9 +226,9 @@ describe('Component: ReferenceLineTooltipContent', () => {
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
 
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your casual progress/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/hardcore players/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/softcore players/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/casual players/i)).not.toBeInTheDocument();
 
     expect(screen.getByText(/your progress/i)).toBeVisible();
   });

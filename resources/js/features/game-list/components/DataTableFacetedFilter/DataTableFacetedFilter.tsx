@@ -117,7 +117,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               className={cn(
                 'border-dashed bg-neutral-950 light:bg-white',
                 buildTrackingClassNames(`Click ${columnId} Filter`),
-                disabled ? '!pointer-events-auto' : null,
+                disabled ? 'pointer-events-auto!' : null,
                 className,
               )}
               disabled={disabled}
@@ -135,7 +135,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     {selectedValues.size > 2 ? (
                       <BaseBadge
                         variant="secondary"
-                        className="rounded-sm px-1 font-normal leading-3"
+                        className="rounded-xs px-1 leading-3 font-normal"
                       >
                         {t('{{count, number}} selected', { count: selectedValues.size })}
                       </BaseBadge>
@@ -147,7 +147,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                             <BaseBadge
                               variant="secondary"
                               key={`label-${option.value}`}
-                              className="rounded-sm px-1 font-normal leading-3"
+                              className="rounded-xs px-1 leading-3 font-normal"
                               data-testid="filter-selected-label"
                             >
                               {option.selectedLabel ?? option.t_label}
@@ -162,7 +162,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           </BasePopoverTrigger>
         </BaseTooltipTrigger>
 
-        <BasePopoverContent className="min-w-[340px] p-0" align="start">
+        <BasePopoverContent className="min-w-85 p-0" align="start">
           <FacetedFilterContent
             baseCommandListClassName={baseCommandListClassName}
             facets={facets}
@@ -231,7 +231,7 @@ function FacetedFilterContent<TData, TValue>({
       data-testid="command-container"
       className={cn(
         variant === 'drawer' && !isSingleSelect
-          ? 'h-[168px] rounded-md border border-neutral-800 light:border-neutral-200'
+          ? 'h-42 rounded-md border border-neutral-800 light:border-neutral-200'
           : '',
 
         variant === 'drawer' && isSingleSelect
@@ -245,7 +245,7 @@ function FacetedFilterContent<TData, TValue>({
         data-testid="command-list"
         className={cn(
           baseCommandListClassName,
-          variant === 'drawer' && isSingleSelect ? 'max-h-[200px]' : undefined,
+          variant === 'drawer' && isSingleSelect ? 'max-h-50' : undefined,
         )}
       >
         <BaseCommandEmpty>
@@ -323,11 +323,11 @@ const FilterOption: FC<FilterOptionProps> = ({
     >
       <div
         className={cn(
-          'mr-2 flex size-4 min-w-4 items-center justify-center rounded-sm',
+          'mr-2 flex size-4 min-w-4 items-center justify-center rounded-xs',
           'border border-neutral-600 light:border-neutral-900',
 
           // If it's a single select, give the appearance of a radio button.
-          isSingleSelect ? 'mt-[3px] rounded-full' : 'rounded-sm',
+          isSingleSelect ? 'mt-0.75 rounded-full' : 'rounded-xs',
 
           isSelected
             ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
@@ -349,7 +349,7 @@ const FilterOption: FC<FilterOptionProps> = ({
         <option.icon
           className={cn(
             'mr-2 size-4 min-w-4 text-neutral-200 light:text-neutral-900',
-            isSingleSelect ? 'mt-[3px]' : null,
+            isSingleSelect ? 'mt-0.75' : null,
           )}
           data-testid="option-icon"
         />

@@ -48,7 +48,7 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
       control={control}
       name={fieldName as keyof PreferencesSectionFormValues}
       render={({ field }) => (
-        <BaseFormItem className="flex w-full items-center justify-between gap-1">
+        <BaseFormItem className="flex w-full items-center justify-between gap-1 @xl:max-w-3xl">
           <div className="flex items-center gap-1">
             <BaseFormLabel>{t_label}</BaseFormLabel>
 
@@ -63,7 +63,7 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
                   />
                 </BaseTooltipTrigger>
 
-                <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+                <BaseTooltipContent className="max-w-72 leading-normal font-normal">
                   <span className="text-xs font-normal">{t_infoText}</span>
                 </BaseTooltipContent>
               </BaseTooltip>

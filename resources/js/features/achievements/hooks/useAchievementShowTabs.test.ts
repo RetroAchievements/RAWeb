@@ -9,8 +9,8 @@ const mockSetCurrentTab = vi.fn();
 const mockSetActiveIndex = vi.fn();
 const mockSetHoveredIndex = vi.fn();
 
-vi.mock('@/common/hooks/useShowPageTabs', () => ({
-  useShowPageTabs: vi.fn(() => ({
+vi.mock('@/common/hooks/usePageNavigationTabs', () => ({
+  usePageNavigationTabs: vi.fn(() => ({
     currentTab: 'comments',
     setCurrentTab: mockSetCurrentTab,
   })),

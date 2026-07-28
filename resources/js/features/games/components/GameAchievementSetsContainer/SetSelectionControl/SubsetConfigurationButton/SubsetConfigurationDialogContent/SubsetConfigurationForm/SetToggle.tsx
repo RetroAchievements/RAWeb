@@ -30,7 +30,7 @@ export const SetToggle: FC<SetToggleProps> = ({ configurableSet, control }) => {
             <img
               src={configurableSet.achievementSet.imageAssetPathUrl}
               alt={configurableSet.title ?? BASE_SET_LABEL}
-              className="size-8 rounded-sm"
+              className="size-8 rounded-xs"
             />
 
             <BaseFormLabel>{configurableSet.title ?? BASE_SET_LABEL}</BaseFormLabel>

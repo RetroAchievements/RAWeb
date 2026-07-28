@@ -13,6 +13,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\StaticData;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
@@ -142,6 +143,10 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             return $this->unsupportedSystem('Cannot unlock achievements for unsupported console.');
         }
 
+        if ($this->game->system_id === System::Events && !$this->hardcore) {
+            return $this->invalidParameter('Event achievements can only be unlocked in hardcore.');
+        }
+
         // Fetch all achievements already awarded to the user.
         $foundPlayerAchievements = PlayerAchievement::where('user_id', $this->user->id)
             ->whereIn('achievement_id', array_column($this->achievements, 'id'))
@@ -166,7 +171,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 // Case 1: The achievement hasn't been previously unlocked
                 return true;
             } elseif (!$this->hardcore) {
-                // Case 2: The achievement was already unlocked in either mode, and a softcore unlock is being requested.
+                // Case 2: The achievement was already unlocked in either mode, and a casual unlock is being requested.
                 $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
 
                 return false;
@@ -185,7 +190,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 return false;
             }
 
-            // Case 4: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
+            // Case 4: The achievement was already unlocked in casual mode, and a hardcore unlock is being requested.
             return true;
         });
 
@@ -227,7 +232,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                     $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $achievement->id);
                     if ($foundPlayerAchievement) {
                         // if there's a found PlayerAchievement and we're doing a hardcore unlock,
-                        // it must be an upgrade from softcore.
+                        // it must be an upgrade from casual.
                         $this->user->points -= $achievement->points;
 
                         if ($playerGame && $playerGame->game_id === $achievement->game->id) {
@@ -265,8 +270,14 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
                 ))->onQueue('player-achievements');
             }
 
+            // event achievements don't award points
+            if ($this->game->system_id === System::Events) {
+                $this->user->points_hardcore -= $pointsEarned;
+                $pointsEarned = 0;
+            }
+
             // Update the metrics for the main page
-            // NOTE: this double-counts achievements the user is upgrading from softcore to hardcore
+            // NOTE: this double-counts achievements the user is upgrading from casual to hardcore
             //       and anything the user has previously reset.
             if ($lastAwardedId) {
                 StaticData::incrementEach([

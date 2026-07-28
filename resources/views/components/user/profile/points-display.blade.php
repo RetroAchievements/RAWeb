@@ -1,20 +1,20 @@
 @props([
     'hardcorePoints' => null, // ?int
-    'softcorePoints' => null, // ?int
+    'casualPoints' => null, // ?int
     'weightedPoints' => null, // ?int
 ])
 
 <?php
 $progressMode = 'hardcore';
-if ($softcorePoints > $hardcorePoints) {
-    $progressMode = 'softcore';
+if ($casualPoints > $hardcorePoints) {
+    $progressMode = 'casual';
 }
 ?>
 
 <p>
     <span class="font-bold">
-        @if ($progressMode === 'softcore')
-            Softcore
+        @if ($progressMode === 'casual')
+            Casual
         @endif
 
         Points:
@@ -31,8 +31,8 @@ if ($softcorePoints > $hardcorePoints) {
             @endif
         @endif
 
-        @if ($progressMode === 'softcore')
-            {{ localized_number($softcorePoints) }}
+        @if ($progressMode === 'casual')
+            {{ localized_number($casualPoints) }}
         @endif
-    </span>    
+    </span>
 </p>

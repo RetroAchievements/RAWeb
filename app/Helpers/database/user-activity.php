@@ -3,7 +3,6 @@
 use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -67,7 +66,7 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     $playerGames = PlayerGame::where('user_id', $user->id)
         ->whereHas('game', function ($query) {
-            $query->whereNotIn('system_id', System::getNonGameSystems());
+            $query->whereGameSystem();
         })
         ->with('game.system')
         ->orderByDesc('last_played_at')

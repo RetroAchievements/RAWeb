@@ -356,10 +356,12 @@ function RenderAward(
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
     } elseif ($awardTypeEnum === AwardType::MediaContribution) {
-        $description = getMediaContributionDescription($ownerUsername, (int) $awardData);
-        echo avatar("mediaContributionAward", $awardData,
+        $displayTier = (int) ($award['display_award_tier'] ?? $awardDataExtra);
+        $actualTier = (int) $awardDataExtra;
+        $description = getMediaContributionDescription($ownerUsername, $actualTier);
+        echo avatar("mediaContributionAward", $displayTier,
             tooltip: "<div class='p-2 w-fit max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Media Contribution</p>{$description}<p class='italic'>{$awardDate}</p></div>",
-            iconUrl: asset("/assets/images/badge/mediaContrib-$awardData.png"),
+            iconUrl: mediaContributionBadgeUrl($displayTier),
             iconSize: $imageSize,
             iconClass: 'goldimage',
             context: $ownerUsername,
@@ -398,21 +400,30 @@ function RenderAward(
  *
  * @param callable(): void $renderAward
  */
-function renderBadgeCellContents(callable $renderAward, bool $showBadgePicker, int $gameId, string $iconHtml): string
-{
+function renderBadgeCellContents(
+    callable $renderAward,
+    bool $showBadgePicker,
+    string $iconHtml,
+    ?string $pickerInvocation = null,
+    ?string $wrapperAttributes = null,
+): string {
     ob_start();
     $renderAward();
     $awardHtml = ob_get_clean();
 
-    if (!$showBadgePicker) {
-        return $awardHtml;
+    $wrappedAward = $wrapperAttributes
+        ? "<span {$wrapperAttributes}>{$awardHtml}</span>"
+        : $awardHtml;
+
+    if (!$showBadgePicker || $pickerInvocation === null) {
+        return $wrappedAward;
     }
 
     return
-        "<div class='flex items-center gap-2'>{$awardHtml}"
+        "<div class='flex items-center gap-2'>{$wrappedAward}"
         . "<button type='button' class='btn p-1 leading-none' "
         . "title='Change displayed badge' aria-label='Change displayed badge' "
-        . "onclick='reorderSiteAwards.openBadgePicker({$gameId})'>{$iconHtml}</button></div>";
+        . "onclick='{$pickerInvocation}'>{$iconHtml}</button></div>";
 }
 
 /**
@@ -518,19 +529,35 @@ function RenderAwardOrderTable(
             >
         HTML;
 
-        // offer to change the displayed badge only when the game has an alternative to pick
-        $showBadgePicker = $awardTypeEnum === AwardType::Mastery && ($badgeCounts[(int) $awardData] ?? 0) >= 2;
+        // offer to change the displayed badge only when the user has an alternative to pick
+        $isMasteryWithVariants = $awardTypeEnum === AwardType::Mastery
+            && ($badgeCounts[(int) $awardData] ?? 0) >= 2;
+        $isMediaContributionWithTiers = $awardTypeEnum === AwardType::MediaContribution
+            && (int) $awardDataExtra >= 1;
+
+        $showBadgePicker = $isMasteryWithVariants || $isMediaContributionWithTiers;
+
+        $pickerInvocation = match (true) {
+            $isMasteryWithVariants => "reorderSiteAwards.openBadgePicker(" . (int) $awardData . ")",
+            $isMediaContributionWithTiers => "reorderSiteAwards.openMediaContributionTierPicker()",
+            default => null,
+        };
+
+        $wrapperAttributes = $isMediaContributionWithTiers
+            ? "data-media-contribution-badge"
+            : null;
 
         echo "<td class='$subduedOpacityClassName transition'>";
         echo renderBadgeCellContents(
             fn () => RenderAward($award, 32, $awardOwnerUsername, $eventData, $eventAwardData, false),
             $showBadgePicker,
-            (int) $awardData,
             $changeBadgeIconHtml,
+            $pickerInvocation,
+            $wrapperAttributes,
         );
         echo "</td>";
         echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
-        echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
+        echo "<td class='text-center opacity-100!'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
 
         echo "<td>";
         echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
@@ -602,6 +629,11 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
         $firstDisplayOrders['eventAwards'],
         $firstDisplayOrders['siteAwards'],
     ];
+}
+
+function mediaContributionBadgeUrl(int $tier): string
+{
+    return asset("/assets/images/badge/mediaContrib-{$tier}.png");
 }
 
 function getMediaContributionDescription(string $username, int $currentTier): string

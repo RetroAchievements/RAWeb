@@ -12,7 +12,7 @@ export const RandomReason: FC = () => {
       data-testid="random-reason"
       className="flex gap-1.5 py-1 text-neutral-300 light:text-neutral-900"
     >
-      <LuDices className="size-[18px]" />
+      <LuDices className="size-4.5" />
       <span className="inline xl:hidden">{t('Random')}</span>
       <span className="hidden xl:inline">{t('Randomly selected')}</span>
     </BaseChip>

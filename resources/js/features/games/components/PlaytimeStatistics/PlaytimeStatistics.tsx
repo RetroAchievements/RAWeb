@@ -15,7 +15,7 @@ export const PlaytimeStatistics: FC = () => {
     backingGame,
     game,
     numBeaten,
-    numBeatenSoftcore,
+    numBeatenCasual,
     numCompletions,
     numMasters,
     targetAchievementSetPlayersHardcore,
@@ -66,18 +66,18 @@ export const PlaytimeStatistics: FC = () => {
         >
           <BaseToggleGroupItem
             size="sm"
-            value="softcore"
-            aria-label={t('Toggle softcore')}
-            className="h-[24px] px-1.5 text-2xs"
+            value="casual"
+            aria-label={t('Toggle casual')}
+            className="h-6 px-1.5 text-2xs"
           >
-            {t('Softcore')}
+            {t('Casual')}
           </BaseToggleGroupItem>
 
           <BaseToggleGroupItem
             size="sm"
             value="hardcore"
             aria-label={t('Toggle hardcore')}
-            className="h-[24px] px-1.5 text-2xs"
+            className="h-6 px-1.5 text-2xs"
           >
             {t('Hardcore')}
           </BaseToggleGroupItem>
@@ -104,7 +104,7 @@ export const PlaytimeStatistics: FC = () => {
             Icon={LuCircleDot}
             iconClassName="text-neutral-400 light:text-neutral-500"
             iconContainerClassName="bg-neutral-500/30 light:bg-neutral-500/20"
-            rowPlayers={currentMode === 'hardcore' ? numBeaten : numBeatenSoftcore}
+            rowPlayers={currentMode === 'hardcore' ? numBeaten : numBeatenCasual}
             rowSeconds={
               currentMode === 'hardcore' ? game.medianTimeToBeatHardcore : game.medianTimeToBeat
             }

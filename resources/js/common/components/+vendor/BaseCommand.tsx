@@ -30,7 +30,7 @@ const BaseCommandDialog = ({ children, ...props }: BaseCommandDialogProps) => {
   return (
     <BaseDialog {...props}>
       <BaseDialogContent className="overflow-hidden p-0">
-        <BaseCommand className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        <BaseCommand className="**:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3">
           {children}
         </BaseCommand>
       </BaseDialogContent>
@@ -49,7 +49,7 @@ const BaseCommandInput = React.forwardRef<
       ref={ref}
       className={cn(
         'placeholder:text-muted-foreground flex h-10 w-full rounded-md border-none bg-transparent py-3',
-        'text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        'text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
@@ -64,7 +64,7 @@ const BaseCommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
+    className={cn('max-h-75 overflow-y-auto overflow-x-hidden', className)}
     {...props}
   />
 ));
@@ -85,9 +85,9 @@ const BaseCommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
-      'text-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:text-neutral-400',
-      '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5',
-      '[&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
+      'text-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:text-neutral-400',
+      '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5',
+      '**:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium',
       className,
     )}
     {...props}
@@ -115,8 +115,8 @@ const BaseCommandItem = React.forwardRef<
     ref={ref}
     className={cn(
       'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground',
-      'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5',
-      'text-sm outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
+      'relative flex cursor-default select-none items-center rounded-xs px-2 py-1.5',
+      'text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
       'cursor-pointer hover:bg-neutral-800/60 light:hover:bg-neutral-200/60',
       className,
     )}

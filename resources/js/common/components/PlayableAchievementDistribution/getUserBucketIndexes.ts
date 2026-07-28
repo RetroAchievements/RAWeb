@@ -1,12 +1,12 @@
 export function getUserBucketIndexes(
   buckets: App.Platform.Data.PlayerAchievementChartBucket[],
   playerGame: App.Platform.Data.PlayerGame | null,
-): Partial<{ userHardcoreIndex: number; userSoftcoreIndex: number }> {
+): Partial<{ userHardcoreIndex: number; userCasualIndex: number }> {
   if (!playerGame) {
     return {};
   }
 
-  const result: Partial<{ userHardcoreIndex: number; userSoftcoreIndex: number }> = {};
+  const result: Partial<{ userHardcoreIndex: number; userCasualIndex: number }> = {};
 
   const { achievementsUnlockedHardcore, achievementsUnlocked } = playerGame;
 
@@ -26,7 +26,7 @@ export function getUserBucketIndexes(
     );
 
     if (index !== -1) {
-      result.userSoftcoreIndex = index;
+      result.userCasualIndex = index;
     }
   }
 

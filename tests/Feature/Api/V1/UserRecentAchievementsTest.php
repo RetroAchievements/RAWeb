@@ -42,7 +42,7 @@ class UserRecentAchievementsTest extends TestCase
         $unlock2Date = $now->clone()->subMinutes(22);
         $this->addHardcoreUnlock($this->user, $achievement2, $unlock2Date);
         $unlock3Date = $now->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $achievement1->refresh();
         $achievement2->refresh();
@@ -73,7 +73,7 @@ class UserRecentAchievementsTest extends TestCase
                     'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->description,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Title' => $achievement3->title,
@@ -96,7 +96,7 @@ class UserRecentAchievementsTest extends TestCase
                     'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->description,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
@@ -137,7 +137,7 @@ class UserRecentAchievementsTest extends TestCase
                     'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->description,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
@@ -178,7 +178,7 @@ class UserRecentAchievementsTest extends TestCase
                     'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->description,
-                    'HardcoreMode' => UnlockMode::Softcore,
+                    'HardcoreMode' => UnlockMode::Casual,
                     'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,

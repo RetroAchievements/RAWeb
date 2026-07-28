@@ -32,12 +32,7 @@ class UserGameListEntryPolicy
             UserGameListType::Play => $this->viewPlayList($user, $targetUser),
             UserGameListType::AchievementSetRequest => $this->viewSetRequestList($user, $targetUser),
 
-            /**
-             * Nothing currently exposes another user's full Want to Develop list, so a
-             * default deny here is the safe answer. The per-game "Developer Interest" page
-             * is a different authorization question and is gated by GamePolicy::viewDeveloperInterest.
-             */
-            UserGameListType::Develop => false,
+            UserGameListType::Develop => $user->is($targetUser),
         };
     }
 

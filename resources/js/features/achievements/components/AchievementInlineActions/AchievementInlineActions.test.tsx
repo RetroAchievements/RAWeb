@@ -70,7 +70,7 @@ describe('Component: AchievementInlineActions', () => {
     expect(screen.queryByRole('link', { name: /ticket/i })).not.toBeInTheDocument();
   });
 
-  it('given the user has unlocked the achievement in softcore, shows the overflow menu button', () => {
+  it('given the user has unlocked the achievement in casual, shows the overflow menu button', () => {
     // ARRANGE
     const achievement = createAchievement({ unlockedAt: '2024-01-15T12:00:00Z' });
     render(<AchievementInlineActions />, {

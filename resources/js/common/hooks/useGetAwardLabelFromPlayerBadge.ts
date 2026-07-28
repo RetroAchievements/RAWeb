@@ -11,7 +11,7 @@ export function useGetAwardLabelFromPlayerBadge() {
     if (awardType === 'mastery') {
       awardLabel = awardTier ? t('Mastered') : t('Completed');
     } else if (awardType === 'game_beaten') {
-      awardLabel = awardTier ? t('Beaten') : t('Beaten (softcore)');
+      awardLabel = awardTier ? t('Beaten') : t('Beaten (casual)');
     }
 
     return awardLabel;

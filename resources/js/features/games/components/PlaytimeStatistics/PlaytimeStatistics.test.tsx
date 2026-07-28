@@ -19,7 +19,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -42,7 +42,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -65,7 +65,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -88,7 +88,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -101,7 +101,7 @@ describe('Component: PlaytimeStatistics', () => {
     expect(screen.getByRole('radio', { name: /toggle hardcore/i })).toBeChecked();
   });
 
-  it('given the user clicks the softcore toggle, switches to softcore mode', async () => {
+  it('given the user clicks the casual toggle, switches to casual mode', async () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [createGameAchievementSet()],
@@ -114,17 +114,17 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /toggle softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /toggle casual/i }));
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /toggle softcore/i })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /toggle casual/i })).toBeChecked();
   });
 
   it('displays all three playtime rows when the backing game matches the current game', () => {
@@ -141,7 +141,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -168,7 +168,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -193,7 +193,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -216,7 +216,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -250,7 +250,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -262,7 +262,7 @@ describe('Component: PlaytimeStatistics', () => {
     expect(screen.getByText(/40 players/i)).toBeVisible();
   });
 
-  it('shows softcore statistics when in softcore mode', async () => {
+  it('shows casual statistics when in casual mode', async () => {
     // ARRANGE
     const achievementSet = createAchievementSet({
       medianTimeToCompleteHardcore: 3600,
@@ -286,21 +286,21 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /toggle softcore/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /toggle casual/i }));
 
     // ASSERT
     expect(screen.getByText(/completed/i)).toBeVisible();
     expect(screen.queryByText(/mastered/i)).not.toBeInTheDocument();
 
-    expect(screen.getByText(/100 players/i)).toBeVisible(); // !! totalPlayers in softcore = 200 - 100 = 100
-    expect(screen.getByText(/75 players/i)).toBeVisible(); // !! numBeatenSoftcore
+    expect(screen.getByText(/100 players/i)).toBeVisible(); // !! totalPlayers in casual = 200 - 100 = 100
+    expect(screen.getByText(/75 players/i)).toBeVisible(); // !! numBeatenCasual
     expect(screen.getByText(/80 players/i)).toBeVisible(); // !! numCompletions
   });
 
@@ -323,7 +323,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
       },
@@ -346,7 +346,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
         targetAchievementSetPlayersTotal: 206, // !!
@@ -372,7 +372,7 @@ describe('Component: PlaytimeStatistics', () => {
         backingGame: game,
         game,
         numBeaten: 50,
-        numBeatenSoftcore: 75,
+        numBeatenCasual: 75,
         numCompletions: 80,
         numMasters: 40,
         // !! no targetAchievementSetPlayers props provided

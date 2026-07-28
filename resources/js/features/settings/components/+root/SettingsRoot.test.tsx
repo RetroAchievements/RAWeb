@@ -1,146 +1,119 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
-import { resetIntersectionMocking } from 'react-intersection-observer/test-utils';
-import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createUser } from '@/test/factories';
 
+import { settingsTabAtom } from '../../state/settings.atoms';
 import { SettingsRoot } from './SettingsRoot';
 
 describe('Component: SettingsRoot', () => {
+  const originalLocation = window.location;
+
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+    vi.spyOn(router, 'visit').mockImplementation(() => {});
+
+    delete (window as any).location;
+    (window.location as any) = {
+      ...originalLocation,
+      href: 'https://retroachievements.org/settings',
+      pathname: '/settings',
+      search: '',
+    } as Location;
   });
 
   afterEach(() => {
-    resetIntersectionMocking();
+    (window as any).location = originalLocation;
+    vi.restoreAllMocks();
   });
 
-  it('renders without crashing', () => {
+  it('renders all four tabs with the profile panel active by default', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+    render(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
-        userSettings: createUser(),
+        auth: { user: createAuthenticatedUser() },
         can: { updateMotto: true },
-      },
-    });
-
-    // ASSERT
-    expect(container).toBeTruthy();
-  });
-
-  it('allows the user to update their website preferences', async () => {
-    // ARRANGE
-    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
-
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139471 }) },
         userSettings: createUser(),
-        can: { updateMotto: true },
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('switch', { name: /only people i follow/i }));
-    await userEvent.click(screen.getByTestId('Preferences-submit'));
+    const profileTab = screen.getAllByRole('tab', { name: 'Profile' })[0];
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
-      preferencesBitfield: 8399,
-    });
+    expect(screen.getAllByRole('tab')).toHaveLength(8);
+    expect(profileTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('given the user is muted and is email verified, does not show the change username section', async () => {
+  it('activates the tab selected by the hydrated atom', () => {
     // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+    (window.location as any).href = 'https://retroachievements.org/settings?tab=account';
+    window.location.search = '?tab=account';
+
+    render(<SettingsRoot />, {
       pageProps: {
-        auth: {
-          user: createAuthenticatedUser({
-            preferencesBitfield: 139687,
-            isMuted: true,
-            isEmailVerified: true,
-          }),
-        },
-        userSettings: createUser(),
+        auth: { user: createAuthenticatedUser() },
         can: { updateMotto: true },
+        userSettings: createUser(),
       },
+      jotaiAtoms: [
+        [settingsTabAtom, 'account'],
+        //
+      ],
     });
 
+    // ACT
+    const accountTab = screen.getAllByRole('tab', { name: 'Account' })[0];
+
     // ASSERT
-    expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
+    expect(accountTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('given the user is not muted and is email verified, shows the change username section', () => {
+  it('switches panels, pushes the tab into history, and focuses the active panel heading', async () => {
     // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+    render(<SettingsRoot />, {
       pageProps: {
-        auth: {
-          user: createAuthenticatedUser({
-            preferencesBitfield: 139687,
-            isMuted: false,
-            isEmailVerified: true,
-          }),
-        },
-        userSettings: createUser(),
+        auth: { user: createAuthenticatedUser() },
         can: { updateMotto: true },
+        userSettings: createUser(),
       },
     });
 
+    // ACT
+    await userEvent.click(screen.getAllByRole('tab', { name: 'Notifications' })[0]);
+
     // ASSERT
-    expect(screen.getByText(/change username/i)).toBeVisible();
+    expect(router.visit).toHaveBeenCalledWith(
+      expect.stringContaining('?tab=notifications'),
+      expect.objectContaining({ preserveScroll: true, preserveState: true }),
+    );
+    await waitFor(() => {
+      expect(document.activeElement).toHaveTextContent('Notifications');
+    });
   });
 
-  it('given the user is not muted and is not email verified, does not show the change username change', () => {
+  it('removes the tab query parameter when returning to the profile tab', async () => {
     // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+    (window.location as any).href = 'https://retroachievements.org/settings?tab=account';
+    window.location.search = '?tab=account';
+
+    render(<SettingsRoot />, {
       pageProps: {
-        auth: {
-          user: createAuthenticatedUser({
-            preferencesBitfield: 139687,
-            isMuted: false,
-            isEmailVerified: false,
-          }),
-        },
-        userSettings: createUser(),
+        auth: { user: createAuthenticatedUser() },
         can: { updateMotto: true },
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
-  });
-
-  it('given user has permission to reset their entire account, shows the reset entire account section', () => {
-    // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
         userSettings: createUser(),
-        can: { updateMotto: true, resetEntireAccount: true }, // !!
       },
+      jotaiAtoms: [[settingsTabAtom, 'account']],
     });
 
-    // ASSERT
-    expect(screen.getByRole('heading', { name: /reset entire account/i })).toBeVisible();
-  });
-
-  it('given user lacks permission to reset their entire account, does not show the reset entire account section', () => {
-    // ARRANGE
-    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
-        userSettings: createUser(),
-        can: { updateMotto: true, resetEntireAccount: false }, // !!
-      },
-    });
+    // ACT
+    await userEvent.click(screen.getAllByRole('tab', { name: 'Profile' })[0]);
 
     // ASSERT
-    expect(screen.queryByText(/reset entire account/i)).not.toBeInTheDocument();
+    expect(router.visit).toHaveBeenCalledWith(
+      expect.not.stringContaining('tab=profile'),
+      expect.objectContaining({ preserveScroll: true, preserveState: true }),
+    );
   });
 });

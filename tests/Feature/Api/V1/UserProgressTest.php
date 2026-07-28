@@ -33,7 +33,7 @@ class UserProgressTest extends TestCase
         $game = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
-        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
+        $this->addCasualUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements2 = Achievement::factory()->promoted()->count(5)->create(['game_id' => $game2->id]);
@@ -96,7 +96,7 @@ class UserProgressTest extends TestCase
         $game = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
-        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
+        $this->addCasualUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements2 = Achievement::factory()->promoted()->count(5)->create(['game_id' => $game2->id]);

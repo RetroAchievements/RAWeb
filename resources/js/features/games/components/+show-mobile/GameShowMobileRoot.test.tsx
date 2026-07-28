@@ -27,7 +27,7 @@ describe('Component: GameShowMobileRoot', () => {
     vi.spyOn(router, 'visit').mockImplementation(() => {});
     vi.spyOn(router, 'replace').mockImplementation(() => {});
 
-    // Mock window.location so the useGameShowTabs hook can read and modify URL params.
+    // Mock window.location so the usePageNavigationTabs hook can read and modify URL params.
     originalLocation = window.location;
     Object.defineProperty(window, 'location', {
       value: {

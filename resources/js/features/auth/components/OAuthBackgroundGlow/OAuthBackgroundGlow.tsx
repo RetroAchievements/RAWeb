@@ -24,7 +24,7 @@ export const OAuthBackgroundGlow: FC<OAuthBackgroundGlowProps> = ({
   return (
     <motion.div
       data-testid="glow"
-      className="pointer-events-none fixed left-1/2 top-[5vh] h-[600px] w-[600px] -translate-x-1/2"
+      className="pointer-events-none fixed top-[5vh] left-1/2 h-150 w-150 -translate-x-1/2"
       style={{
         background: `radial-gradient(circle, rgba(${rgb}, 0.08) 0%, rgba(${rgb}, 0.02) 40%, transparent 70%)`,
       }}

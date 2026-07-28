@@ -36,7 +36,7 @@ export const LocaleSectionCard: FC = () => {
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
     >
-      <div className="flex flex-col gap-7 @container @xl:gap-5">
+      <div className="@container flex flex-col gap-7 @xl:gap-5">
         <BaseFormField
           control={form.control}
           name="locale"
@@ -46,7 +46,7 @@ export const LocaleSectionCard: FC = () => {
                 {t('Current Locale')}
               </BaseFormLabel>
 
-              <div className="flex flex-grow flex-col gap-1">
+              <div className="flex grow flex-col gap-1">
                 <BaseFormControl>
                   <BaseSelect onValueChange={field.onChange} defaultValue={field.value}>
                     <BaseSelectTrigger id="locale-select">
@@ -85,7 +85,7 @@ export const LocaleSectionCard: FC = () => {
 
                 <BaseFormDescription>
                   <Trans
-                    i18nKey="Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>."
+                    i18nKey="Translations are community-contributed and a work in progress. Learn how to contribute <1>here</1>."
                     components={{
                       1: (
                         // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer

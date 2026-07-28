@@ -34,10 +34,10 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
   return (
     <BaseHoverCardContent
       side="top"
-      className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2"
+      className="w-100 max-w-100 border border-embed-highlight bg-box-bg p-2"
     >
       <div className="flex gap-2" data-testid="set-hover-card">
-        <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-sm" />
+        <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-xs" />
 
         <div className="flex flex-col">
           <p

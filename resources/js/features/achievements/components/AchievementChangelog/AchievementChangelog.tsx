@@ -47,7 +47,7 @@ export const AchievementChangelog: FC = () => {
 
       {/* No timeline dot here -- the collapse toggle sits between entries. */}
       <li className="relative pb-6">
-        <div className="absolute -bottom-1 left-[3px] top-0 w-px bg-neutral-700" />
+        <div className="absolute top-0 -bottom-1 left-0.75 w-px bg-neutral-700" />
 
         <button
           type="button"
@@ -73,7 +73,7 @@ export const AchievementChangelog: FC = () => {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <ul ref={contentRef} className="ml-5 flex flex-col rounded bg-embed p-3">
+              <ul ref={contentRef} className="ml-5 flex flex-col rounded-sm bg-embed p-3">
                 {prePromotion.map((entry, index) => (
                   <AchievementChangelogEntry key={`pre-promo-${index}`} entry={entry} />
                 ))}

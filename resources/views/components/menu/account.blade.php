@@ -28,7 +28,7 @@ $user = request()->user();
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
         @if($user->points && $user->points > $user->points_hardcore)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points) }}</div>
+            <div class='casual cursor-help' title="Points earned in casual mode">{{ localized_number($user->points) }}</div>
         @endif
 
         @if($user->points_hardcore)
@@ -42,12 +42,12 @@ $user = request()->user();
         @endif
 
         @if($user->points && $user->points <= $user->points_hardcore)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points) }}</div>
+            <div class='casual cursor-help' title="Points earned in casual mode">{{ localized_number($user->points) }}</div>
         @endif
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
         <x-slot name="trigger">
-            <x-user.avatar :user="$user" display="icon" :hasHref="false" iconSize="sm" :tooltip="false" class="rounded-sm userpic" />
+            <x-user.avatar :user="$user" display="icon" :hasHref="false" iconSize="sm" :tooltip="false" class="rounded-xs userpic" />
         </x-slot>
         <x-dropdown-header>{{ $user->display_name }}</x-dropdown-header>
         <x-dropdown-item :href="route('user.show', $user->display_name)">{{ __res('profile', 1) }}</x-dropdown-item>
@@ -88,7 +88,7 @@ $user = request()->user();
         <div class="dropdown-divider"></div>
         <x-dropdown-item :href="url('reorderSiteAwards.php')">Reorder Site Awards</x-dropdown-item>
         {{--<x-dropdown-item :href="route('settings')">{{ __res('setting') }}</x-dropdown-item>--}}
-        <x-dropdown-item :href="route('settings.show')">Settings</x-dropdown-item>
+        <x-dropdown-item :href="route('settings')">Settings</x-dropdown-item>
         <div class="dropdown-divider"></div>
         {{--<x-base.form :action="route('logout')">--}}
         <x-base.form :action="route('logout')">

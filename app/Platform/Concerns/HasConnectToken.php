@@ -12,7 +12,7 @@ trait HasConnectToken
     /**
      * We may want to increase the length of this token in the future to make it more resilient.
      * We'll probably have to grandfather in the 16-character tokens as users can perpetually
-     * extend the life of a token by playing at least once every two weeks.
+     * extend the life of a token by playing at least once a year.
      *
      * Also consider: RetroArch stores this key in a 32-byte buffer, so it may not exceed 31
      * characters, even though the DB field is 60 characters.
@@ -20,10 +20,10 @@ trait HasConnectToken
     private const CONNECT_TOKEN_LENGTH = 16;
 
     /**
-     * Any time a token is used, its expiry date is pushed back two weeks. This allows the
-     * token to persist indefinitely as long as the user remains active.
+     * Any time a token is used to log in, its expiry date is pushed back a year. This allows
+     * the token to persist indefinitely as long as the user remains active.
      */
-    private const CONNECT_TOKEN_EXPIRY_DAYS = 14;
+    private const CONNECT_TOKEN_EXPIRY_DAYS = 365;
 
     /**
      * Gets whether the Connect API Key is valid.

@@ -48,7 +48,7 @@ describe('Hook: useGetAwardLabelFromPlayerBadge', () => {
     expect(label).toEqual('Beaten');
   });
 
-  it('given awardType is game_beaten and awardTier is falsy, returns Beaten (softcore)', () => {
+  it('given awardType is game_beaten and awardTier is falsy, returns Beaten (casual)', () => {
     // ARRANGE
     const { result } = renderHook(() => useGetAwardLabelFromPlayerBadge());
     const playerBadge = createPlayerBadge({ awardType: 'game_beaten', awardTier: 0 });
@@ -57,7 +57,7 @@ describe('Hook: useGetAwardLabelFromPlayerBadge', () => {
     const label = result.current.getAwardLabelFromPlayerBadge(playerBadge);
 
     // ASSERT
-    expect(label).toEqual('Beaten (softcore)');
+    expect(label).toEqual('Beaten (casual)');
   });
 
   it('given awardType is neither mastery nor game_beaten, returns Finished', () => {

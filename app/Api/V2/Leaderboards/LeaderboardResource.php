@@ -7,6 +7,7 @@ namespace App\Api\V2\Leaderboards;
 use App\Api\V2\BaseJsonApiResource;
 use App\Models\Leaderboard;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Link;
 use LaravelJsonApi\Core\Document\Links;
 
 /**
@@ -58,6 +59,7 @@ class LeaderboardResource extends BaseJsonApiResource
     {
         return new Links(
             $this->selfLink(),
+            new Link('webUrl', route('leaderboard.show', ['leaderboard' => $this->resource->id])),
         );
     }
 }

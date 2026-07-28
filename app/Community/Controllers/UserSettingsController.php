@@ -12,6 +12,7 @@ use App\Community\Data\UpdateProfileData;
 use App\Community\Data\UpdateWebsitePrefsData;
 use App\Community\Data\UserSettingsPagePropsData;
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\UserSettingsPageTab;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
 use App\Community\Requests\StoreUsernameChangeRequest;
@@ -20,12 +21,16 @@ use App\Community\Requests\UpdateLocaleRequest;
 use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
+use App\Data\ConnectedOAuthApplicationData;
+use App\Data\OAuthClientData;
 use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
+use App\Models\OAuthClient;
+use App\Models\OAuthGrant;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserUsername;
@@ -38,9 +43,14 @@ use Inertia\Response as InertiaResponse;
 
 class UserSettingsController extends Controller
 {
-    public function show(): InertiaResponse
+    public function show(Request $request): InertiaResponse
     {
         $this->authorize('updateSettings');
+
+        $tabParam = $request->query('tab');
+        $initialTab =
+            (is_string($tabParam) ? UserSettingsPageTab::tryFrom($tabParam) : null)
+            ?? UserSettingsPageTab::Profile;
 
         /** @var User $user */
         $user = Auth::user();
@@ -59,11 +69,13 @@ class UserSettingsController extends Controller
         );
 
         $can = UserPermissionsData::fromUser($user)->include(
+            'createOAuthClients',
             'createUsernameChangeRequest',
             'manipulateApiKeys',
             'resetEntireAccount',
             'updateAvatar',
-            'updateMotto'
+            'updateMotto',
+            'viewAnyOAuthClients',
         );
 
         $requestedUsername = UserUsername::whereUserId($user->id)
@@ -79,11 +91,40 @@ class UserSettingsController extends Controller
             ->values()
             ->all();
 
+        $oauthApplications = $user->can('viewAny', OAuthClient::class)
+            ? OAuthClient::query()
+                ->active()
+                ->ownedBy($user)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (OAuthClient $client) => OAuthClientData::fromClient($client))
+                ->all()
+            : [];
+
+        /**
+         * Connections are listed regardless of the OAuth feature flag. Turning
+         * registration off must never strand a user with a connection they granted
+         * and can no longer revoke.
+         */
+        $connectedOAuthApplications = OAuthGrant::query()
+            ->whereBelongsTo($user)
+            ->whereNull('revoked_at')
+            ->whereHas('client', fn ($query) => $query->where('revoked', false))
+            ->with('client')
+            ->get()
+            ->map(fn (OAuthGrant $grant) => ConnectedOAuthApplicationData::fromGrant($grant))
+            ->values()
+            ->all();
+
         $props = new UserSettingsPagePropsData(
-            $userSettings,
-            $can,
-            $mappedRoles,
-            $requestedUsername
+            userSettings: $userSettings,
+            can: $can,
+            displayableRoles: $mappedRoles,
+            oauthApplicationLimit: (int) config('oauth.max_applications_per_user'),
+            requestedUsername: $requestedUsername,
+            initialTab: $initialTab,
+            oauthApplications: $oauthApplications,
+            connectedOAuthApplications: $connectedOAuthApplications,
         );
 
         return Inertia::render('settings', $props);

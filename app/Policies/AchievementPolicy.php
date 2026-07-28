@@ -79,6 +79,11 @@ class AchievementPolicy
         ]);
     }
 
+    public function viewTickets(?User $user, Achievement $achievement): bool
+    {
+        return $user !== null;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([

@@ -31,7 +31,7 @@ class GetGameIdFromHashAction extends BaseApiAction
 
         // if a client has been explicitly blocked, prevent hash resolution so the client
         // is never able to retrieve the runtime assets.
-        // unknown and outdated clients are still allowed to unlock stuff in softcore, so
+        // unknown and outdated clients are still allowed to unlock stuff in casual, so
         // don't block them.
         $userAgentService = new UserAgentService();
         $clientSupportLevel = $userAgentService->getSupportLevel($this->userAgent);

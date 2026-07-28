@@ -255,7 +255,7 @@ class GenerateAnnualRecapAction
         $recapData['gamesPlayed'] = count($gameData);
         $recapData['achievementsUnlocked'] = $unlockTallies['achievementsUnlocked'];
         $recapData['hardcorePointsEarned'] = $unlockTallies['hardcorePointsEarned'];
-        $recapData['softcorePointsEarned'] = $unlockTallies['softcorePointsEarned'];
+        $recapData['casualPointsEarned'] = $unlockTallies['casualPointsEarned'];
         $recapData['leaderboardsSubmitted'] = $numLeaderboards;
     }
 
@@ -273,7 +273,7 @@ class GenerateAnnualRecapAction
             )
             ->first();
 
-        $softcoreTally = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
+        $casualTally = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
             ->whereNull('unlocked_hardcore_at')
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
@@ -287,9 +287,9 @@ class GenerateAnnualRecapAction
             ->first();
 
         return [
-            'achievementsUnlocked' => $hardcoreTally->count + $softcoreTally->count,
+            'achievementsUnlocked' => $hardcoreTally->count + $casualTally->count,
             'hardcorePointsEarned' => $hardcoreTally->points,
-            'softcorePointsEarned' => $softcoreTally->points,
+            'casualPointsEarned' => $casualTally->points,
         ];
     }
 
@@ -348,7 +348,7 @@ class GenerateAnnualRecapAction
         $MASTERED = 1;
         $BEATEN = 2;
         $COMPLETED = 3;
-        $BEATENSOFTCORE = 4;
+        $BEATENCASUAL = 4;
 
         // determine best award for each game
         $bestAwards = [];
@@ -359,7 +359,7 @@ class GenerateAnnualRecapAction
                     break;
 
                 case AwardType::GameBeaten:
-                    $awardType = ($award->award_tier === 1) ? $BEATEN : $BEATENSOFTCORE;
+                    $awardType = ($award->award_tier === 1) ? $BEATEN : $BEATENCASUAL;
                     break;
 
                 case AwardType::Event:
@@ -389,7 +389,7 @@ class GenerateAnnualRecapAction
         $recapData['numMasteries'] = $counts[$MASTERED] ?? 0;
         $recapData['numBeatenHardcore'] = $counts[$BEATEN] ?? 0;
         $recapData['numCompletions'] = $counts[$COMPLETED] ?? 0;
-        $recapData['numBeaten'] = $counts[$BEATENSOFTCORE] ?? 0;
+        $recapData['numBeaten'] = $counts[$BEATENCASUAL] ?? 0;
 
         if (!empty($eventIds)) {
             foreach (Event::whereIn('id', $eventIds)->get() as $event) {
@@ -432,8 +432,8 @@ class GenerateAnnualRecapAction
         $rarestAchievement = $this->getRarestAchievement($gameIds, $user, $startDate, $endDate);
         $recapData['rarestHardcoreAchievement'] = $rarestAchievement['rarestHardcoreAchievement'];
         $recapData['rarestHardcoreAchievementEarnRate'] = $rarestAchievement['rarestHardcoreAchievementEarnRate'];
-        $recapData['rarestSoftcoreAchievement'] = $rarestAchievement['rarestSoftcoreAchievement'];
-        $recapData['rarestSoftcoreAchievementEarnRate'] = $rarestAchievement['rarestSoftcoreAchievementEarnRate'];
+        $recapData['rarestCasualAchievement'] = $rarestAchievement['rarestCasualAchievement'];
+        $recapData['rarestCasualAchievementEarnRate'] = $rarestAchievement['rarestCasualAchievementEarnRate'];
     }
 
     private function getRarestAchievement(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
@@ -452,9 +452,9 @@ class GenerateAnnualRecapAction
                 ->first();
         }
 
-        $rarestSoftcoreAchievement = null;
+        $rarestCasualAchievement = null;
         if ($user->points > 0) {
-            $rarestSoftcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
+            $rarestCasualAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
                 ->where('unlocked_at', '>=', $startDate)
                 ->where('unlocked_at', '<', $endDate)
                 ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
@@ -466,10 +466,10 @@ class GenerateAnnualRecapAction
                 ->first();
         }
 
-        // only keep the most rare achievement (regardless of softcore vs hardcore)
-        if ($rarestHardcoreAchievement && $rarestSoftcoreAchievement) {
-            if ($rarestHardcoreAchievement->EarnRate < $rarestSoftcoreAchievement->EarnRate) {
-                $rarestSoftcoreAchievement = null;
+        // only keep the most rare achievement (regardless of casual vs hardcore).
+        if ($rarestHardcoreAchievement && $rarestCasualAchievement) {
+            if ($rarestHardcoreAchievement->EarnRate < $rarestCasualAchievement->EarnRate) {
+                $rarestCasualAchievement = null;
             } else {
                 $rarestHardcoreAchievement = null;
             }
@@ -478,8 +478,8 @@ class GenerateAnnualRecapAction
         return [
             'rarestHardcoreAchievement' => $rarestHardcoreAchievement ? Achievement::find($rarestHardcoreAchievement->id) : null,
             'rarestHardcoreAchievementEarnRate' => $rarestHardcoreAchievement ? sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100) : 0.0,
-            'rarestSoftcoreAchievement' => $rarestSoftcoreAchievement ? Achievement::find($rarestSoftcoreAchievement->id) : null,
-            'rarestSoftcoreAchievementEarnRate' => $rarestSoftcoreAchievement ? sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100) : 0.0,
+            'rarestCasualAchievement' => $rarestCasualAchievement ? Achievement::find($rarestCasualAchievement->id) : null,
+            'rarestCasualAchievementEarnRate' => $rarestCasualAchievement ? sprintf("%01.2f", $rarestCasualAchievement->EarnRate * 100) : 0.0,
         ];
     }
 
@@ -488,11 +488,11 @@ class GenerateAnnualRecapAction
         if (empty($subsetGameIds)) {
             $recapData['subsetAchievementsUnlocked'] = 0;
             $recapData['subsetHardcorePointsEarned'] = 0;
-            $recapData['subsetSoftcorePointsEarned'] = 0;
+            $recapData['subsetCasualPointsEarned'] = 0;
             $recapData['rarestSubsetHardcoreAchievement'] = null;
             $recapData['rarestSubsetHardcoreAchievementEarnRate'] = 0.0;
-            $recapData['rarestSubsetSoftcoreAchievement'] = null;
-            $recapData['rarestSubsetSoftcoreAchievementEarnRate'] = 0.0;
+            $recapData['rarestSubsetCasualAchievement'] = null;
+            $recapData['rarestSubsetCasualAchievementEarnRate'] = 0.0;
 
             return;
         }
@@ -500,13 +500,13 @@ class GenerateAnnualRecapAction
         $subsetUnlockTallies = $this->getUnlockTallies($subsetGameIds, $user, $startDate, $endDate);
         $recapData['subsetAchievementsUnlocked'] = $subsetUnlockTallies['achievementsUnlocked'];
         $recapData['subsetHardcorePointsEarned'] = $subsetUnlockTallies['hardcorePointsEarned'];
-        $recapData['subsetSoftcorePointsEarned'] = $subsetUnlockTallies['softcorePointsEarned'];
+        $recapData['subsetCasualPointsEarned'] = $subsetUnlockTallies['casualPointsEarned'];
 
         $rarestAchievement = $this->getRarestAchievement($subsetGameIds, $user, $startDate, $endDate);
         $recapData['rarestSubsetHardcoreAchievement'] = $rarestAchievement['rarestHardcoreAchievement'];
         $recapData['rarestSubsetHardcoreAchievementEarnRate'] = $rarestAchievement['rarestHardcoreAchievementEarnRate'];
-        $recapData['rarestSubsetSoftcoreAchievement'] = $rarestAchievement['rarestSoftcoreAchievement'];
-        $recapData['rarestSubsetSoftcoreAchievementEarnRate'] = $rarestAchievement['rarestSoftcoreAchievementEarnRate'];
+        $recapData['rarestSubsetCasualAchievement'] = $rarestAchievement['rarestCasualAchievement'];
+        $recapData['rarestSubsetCasualAchievementEarnRate'] = $rarestAchievement['rarestCasualAchievementEarnRate'];
     }
 
     private function summarizePosts(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void

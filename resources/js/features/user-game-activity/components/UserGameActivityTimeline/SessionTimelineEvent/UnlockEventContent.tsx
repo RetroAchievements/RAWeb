@@ -117,9 +117,7 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
           </span>
         ) : null}
 
-        {!sessionEvent.hardcore ? (
-          <span className="text-neutral-500">{t('(Softcore)')}</span>
-        ) : null}
+        {!sessionEvent.hardcore ? <span className="text-neutral-500">{t('(Casual)')}</span> : null}
 
         {!achievement.isPromoted ? (
           <span className="font-semibold text-neutral-500">{t('Unofficial Achievement.')}</span>

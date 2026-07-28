@@ -27,8 +27,12 @@ export function useCreateMessageThreadForm(
 ) {
   const { t } = useTranslation();
 
-  const draftKey = 'create-message';
+  const draftKey = defaultValues.recipient
+    ? `create-message:${defaultValues.recipient}`
+    : 'create-message';
   const draft = loadDraft<FormValues>(draftKey);
+
+  delete draft.recipient;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

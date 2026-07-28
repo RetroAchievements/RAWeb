@@ -44,9 +44,7 @@ class EventResource extends BaseJsonApiResource
     {
         return [
             'awards' => $this->relation('awards')->withoutLinks(),
-
-            // TODO add relationships
-            // 'achievements' => $this->relation('achievements'),
+            'eventAchievements' => $this->relation('eventAchievements')->withoutLinks(),
         ];
     }
 

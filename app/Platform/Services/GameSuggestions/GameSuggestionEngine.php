@@ -7,7 +7,6 @@ namespace App\Platform\Services\GameSuggestions;
 use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\GameSuggestionData;
@@ -49,7 +48,7 @@ class GameSuggestionEngine
             ];
         } else {
             $masteredGames = Game::query()
-                ->whereNotIn('system_id', System::getNonGameSystems())
+                ->whereGameSystem()
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereColumn('achievements_unlocked', 'achievements_total')
@@ -59,7 +58,7 @@ class GameSuggestionEngine
                 ->get();
 
             $beatenGames = Game::query()
-                ->whereNotIn('system_id', System::getNonGameSystems())
+                ->whereGameSystem()
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereNotNull('beaten_at');
@@ -191,7 +190,7 @@ class GameSuggestionEngine
         $totalCount = $user->gameListEntries()
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->count();
 
@@ -201,7 +200,7 @@ class GameSuggestionEngine
         return $user->gameListEntries()
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
-                $query->whereNotIn('system_id', System::getNonGameSystems());
+                $query->whereGameSystem();
             })
             ->with('game')
             ->skip($offset)

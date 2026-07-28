@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -11,6 +13,10 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class EventAchievementPolicy
 {
     use HandlesAuthorization;
+
+    public function __construct(private EventPolicy $eventPolicy)
+    {
+    }
 
     public function manage(User $user): bool
     {
@@ -25,9 +31,15 @@ class EventAchievementPolicy
         return true;
     }
 
-    public function view(?User $user): bool
+    public function view(?User $user, EventAchievement $eventAchievement): bool
     {
-        return true;
+        $events = Event::query()
+            ->where('legacy_game_id', $eventAchievement->achievement->game_id)
+            ->get();
+
+        return
+            $events->isNotEmpty()
+            && $events->every(fn (Event $event): bool => $this->eventPolicy->view($user, $event));
     }
 
     public function create(User $user): bool

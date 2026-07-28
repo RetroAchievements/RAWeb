@@ -13,8 +13,8 @@ enum UserAwardKind: string
 {
     case AchievementPointsYield = 'achievement-points-yield';
     case AchievementUnlocksYield = 'achievement-unlocks-yield';
+    case BeatenCasual = 'beaten-casual';
     case BeatenHardcore = 'beaten-hardcore';
-    case BeatenSoftcore = 'beaten-softcore';
     case CertifiedLegend = 'certified-legend';
     case Completed = 'completed';
     case Event = 'event';
@@ -27,7 +27,7 @@ enum UserAwardKind: string
     {
         return match ($award->award_type) {
             AwardType::Mastery => $award->award_tier === UnlockMode::Hardcore ? self::Mastered : self::Completed,
-            AwardType::GameBeaten => $award->award_tier === UnlockMode::Hardcore ? self::BeatenHardcore : self::BeatenSoftcore,
+            AwardType::GameBeaten => $award->award_tier === UnlockMode::Hardcore ? self::BeatenHardcore : self::BeatenCasual,
             AwardType::Event => self::Event,
             AwardType::Playtest => self::Playtest,
             AwardType::AchievementUnlocksYield => self::AchievementUnlocksYield,
@@ -46,9 +46,9 @@ enum UserAwardKind: string
     {
         return match ($this) {
             self::Mastered => $this->applyTiered($query, AwardType::Mastery, UnlockMode::Hardcore),
-            self::Completed => $this->applyTiered($query, AwardType::Mastery, UnlockMode::Softcore),
+            self::Completed => $this->applyTiered($query, AwardType::Mastery, UnlockMode::Casual),
             self::BeatenHardcore => $this->applyTiered($query, AwardType::GameBeaten, UnlockMode::Hardcore),
-            self::BeatenSoftcore => $this->applyTiered($query, AwardType::GameBeaten, UnlockMode::Softcore),
+            self::BeatenCasual => $this->applyTiered($query, AwardType::GameBeaten, UnlockMode::Casual),
             self::Event => $query->where('award_type', AwardType::Event),
             self::Playtest => $query->where('award_type', AwardType::Playtest),
             self::AchievementUnlocksYield => $query->where('award_type', AwardType::AchievementUnlocksYield),

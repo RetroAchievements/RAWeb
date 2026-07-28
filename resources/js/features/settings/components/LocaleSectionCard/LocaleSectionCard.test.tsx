@@ -75,6 +75,9 @@ describe('Component: LocaleSectionCard', () => {
     // ASSERT
     const linkEl = screen.getByRole('link', { name: /here/i });
 
+    expect(
+      screen.getByText(/Translations are community-contributed and a work in progress\./),
+    ).toBeVisible();
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute(
       'href',

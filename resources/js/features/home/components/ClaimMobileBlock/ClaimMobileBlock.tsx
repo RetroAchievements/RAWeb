@@ -20,7 +20,7 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) 
   const { game, users } = claim;
 
   return (
-    <div className="w-full rounded bg-embed p-2">
+    <div className="w-full rounded-sm bg-embed p-2">
       <div className="flex items-center gap-x-2.5">
         <GameAvatar {...game} showLabel={false} size={48} />
 

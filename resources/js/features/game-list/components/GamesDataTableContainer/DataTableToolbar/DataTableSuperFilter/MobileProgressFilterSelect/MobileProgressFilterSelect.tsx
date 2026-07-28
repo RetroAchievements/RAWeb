@@ -94,19 +94,19 @@ export function MobileProgressFilterSelect<TData>({
                 </BaseSelectItem>
               </BaseSelectGroup>
             </>
-          ) : playerPreferredMode === 'softcore' ? (
+          ) : playerPreferredMode === 'casual' ? (
             <>
               <BaseSelectGroup>
                 <BaseSelectLabel>{t('Awards - At Least')}</BaseSelectLabel>
                 <BaseSelectItem Icon={LuCircleDot} value="gte_beaten_softcore">
-                  {t('Beaten (softcore) or Higher')}
+                  {t('Beaten (casual) or Higher')}
                 </BaseSelectItem>
               </BaseSelectGroup>
 
               <BaseSelectGroup>
                 <BaseSelectLabel>{t('Awards - Exact')}</BaseSelectLabel>
                 <BaseSelectItem Icon={LuCircleDot} value="eq_beaten_softcore">
-                  {t('Beaten (softcore) Only')}
+                  {t('Beaten (casual) Only')}
                 </BaseSelectItem>
                 <BaseSelectItem Icon={LuTrophy} value="eq_completed">
                   {t('Completed Only')}
@@ -129,10 +129,10 @@ export function MobileProgressFilterSelect<TData>({
               <BaseSelectGroup>
                 <BaseSelectLabel>{t('Awards - At Least')}</BaseSelectLabel>
                 <BaseSelectItem Icon={LuCircleDot} value="gte_beaten_softcore">
-                  {t('Beaten (Softcore) or Higher')}
+                  {t('Beaten (casual) or Higher')}
                 </BaseSelectItem>
                 <BaseSelectItem Icon={LuCircleDot} value="gte_beaten_hardcore">
-                  {t('Beaten (Hardcore) or Higher')}
+                  {t('Beaten (hardcore) or Higher')}
                 </BaseSelectItem>
                 <BaseSelectItem Icon={LuTrophy} value="gte_completed">
                   {t('Completed or Higher')}
@@ -142,10 +142,10 @@ export function MobileProgressFilterSelect<TData>({
               <BaseSelectGroup>
                 <BaseSelectLabel>{t('Awards - Exact')}</BaseSelectLabel>
                 <BaseSelectItem Icon={LuCircleDot} value="eq_beaten_softcore">
-                  {t('Beaten (Softcore) Only')}
+                  {t('Beaten (casual) Only')}
                 </BaseSelectItem>
                 <BaseSelectItem Icon={LuCircleDot} value="eq_beaten_hardcore">
-                  {t('Beaten (Hardcore) Only')}
+                  {t('Beaten (hardcore) Only')}
                 </BaseSelectItem>
                 <BaseSelectItem Icon={LuTrophy} value="eq_completed">
                   {t('Completed Only')}

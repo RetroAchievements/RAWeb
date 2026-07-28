@@ -59,7 +59,7 @@ export const TopicOptions: FC = () => {
             >
               <div
                 ref={contentRef}
-                className="flex flex-col gap-8 rounded-b-lg rounded-tr-lg bg-embed p-4"
+                className="flex flex-col gap-8 rounded-tr-lg rounded-b-lg bg-embed p-4"
               >
                 <TopicOptionsForm />
 

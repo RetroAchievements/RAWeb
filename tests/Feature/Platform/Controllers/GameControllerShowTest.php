@@ -1884,9 +1884,9 @@ describe('Completion Stats Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
         $game->refresh();
 
-        $softcoreUser = User::factory()->create();
+        $casualUser = User::factory()->create();
         PlayerGame::factory()->create([
-            'user_id' => $softcoreUser->id,
+            'user_id' => $casualUser->id,
             'game_id' => $game->id,
             'achievements_unlocked' => 6,
             'achievements_unlocked_hardcore' => 0,
@@ -1915,9 +1915,9 @@ describe('Completion Stats Props', function () {
             'beaten_hardcore_at' => now(),
         ]);
 
-        $beatenSoftcoreUser = User::factory()->create();
+        $beatenCasualUser = User::factory()->create();
         PlayerGame::factory()->create([
-            'user_id' => $beatenSoftcoreUser->id,
+            'user_id' => $beatenCasualUser->id,
             'game_id' => $game->id,
             'beaten_at' => now(),
             'beaten_hardcore_at' => null,
@@ -1929,7 +1929,7 @@ describe('Completion Stats Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->where('numBeaten', 1)
-            ->where('numBeatenSoftcore', 1)
+            ->where('numBeatenCasual', 1)
         );
     });
 });
@@ -3287,6 +3287,32 @@ describe('Screenshot Upload Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->where('can.createGameScreenshot', false)
             ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
+    it('given the game title starts with "~Z~", does not include screenshot upload props', function () {
+        // ARRANGE
+        config()->set('feature.game_screenshot_uploads', true);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, '~Z~ Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
+            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadConsistency')
             ->missing('screenshotUploadPendingCount')
             ->missing('screenshotUploadUserSubmissions')
         );

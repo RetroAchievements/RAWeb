@@ -43,7 +43,7 @@ export const UnlockStatusLabel: FC = () => {
   return (
     <p data-testid={testId}>
       <Trans
-        i18nKey="You <1>have</1> unlocked this achievement <2>in softcore</2>."
+        i18nKey="You <1>have</1> unlocked this achievement <2>in casual</2>."
         components={{ 1: <span className="font-bold" />, 2: <span className="font-bold" /> }}
       />
     </p>

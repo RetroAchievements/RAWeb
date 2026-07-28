@@ -1,1 +1,1 @@
-export type PlayMode = 'hardcore' | 'softcore';
+export type PlayMode = 'casual' | 'hardcore';

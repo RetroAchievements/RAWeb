@@ -13,11 +13,13 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
+use App\Models\PlayerGlobalRanking;
 use App\Models\PlayerSession;
 use App\Models\PlayerStat;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameBadgePreference;
+use App\Platform\Enums\GlobalRankingWindow;
 use App\Platform\Enums\PlayerPreferredMode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,9 +72,9 @@ trait ActsAsPlayer
     {
         // This attribute doesn't care if the user is untracked.
         $hasHardcoreRank = $this->points_hardcore >= Rank::MIN_POINTS;
-        $hasSoftcoreRank = $this->points >= Rank::MIN_POINTS;
+        $hasCasualRank = $this->points >= Rank::MIN_POINTS;
 
-        if ($hasHardcoreRank && $hasSoftcoreRank) {
+        if ($hasHardcoreRank && $hasCasualRank) {
             return PlayerPreferredMode::Mixed;
         }
 
@@ -80,8 +82,8 @@ trait ActsAsPlayer
             return PlayerPreferredMode::Hardcore;
         }
 
-        if ($hasSoftcoreRank) {
-            return PlayerPreferredMode::Softcore;
+        if ($hasCasualRank) {
+            return PlayerPreferredMode::Casual;
         }
 
         // New players are defaulted to preferring hardcore.
@@ -141,6 +143,22 @@ trait ActsAsPlayer
     public function playerBadges(): HasMany
     {
         return $this->hasMany(PlayerBadge::class, 'user_id', 'id');
+    }
+
+    /**
+     * @return HasMany<PlayerGlobalRanking, $this>
+     */
+    public function globalRankings(): HasMany
+    {
+        return $this->hasMany(PlayerGlobalRanking::class, 'user_id', 'id');
+    }
+
+    /**
+     * @return HasMany<PlayerGlobalRanking, $this>
+     */
+    public function allTimeGlobalRankings(): HasMany
+    {
+        return $this->globalRankings()->where('window', GlobalRankingWindow::AllTime);
     }
 
     /**

@@ -185,6 +185,26 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
+    public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
+    {
+        if ($user === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->can('manage', self::class)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('state', '!=', TicketState::Quarantined->value)
+                ->orWhere('reporter_id', $user->id);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
     public function scopeForGame(Builder $query, Game $game): Builder
     {
         return $query->whereHasMorph(

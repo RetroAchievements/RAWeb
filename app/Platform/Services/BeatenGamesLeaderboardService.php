@@ -75,7 +75,7 @@ class BeatenGamesLeaderboardService
             }
 
             // We could end up here for a number of reasons, such as
-            // the target user being untracked or being softcore-only.
+            // the target user being untracked or casual-only.
             return ['redirect' => route('ranking.beaten-games')];
         }
 

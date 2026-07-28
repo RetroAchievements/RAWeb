@@ -55,7 +55,7 @@ export const ProfileSectionCard: FC = () => {
       onSubmit={onSubmit}
       isSubmitting={formMutation.isPending}
     >
-      <div className="flex flex-col gap-7 @container @xl:gap-5">
+      <div className="@container flex flex-col gap-7 @xl:gap-5">
         <VisibleRoleField />
 
         <BaseFormField
@@ -66,9 +66,9 @@ export const ProfileSectionCard: FC = () => {
             <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
               <BaseFormLabel className="text-menu-link @xl:w-2/5">{t('User Motto')}</BaseFormLabel>
 
-              <div className="flex flex-grow flex-col gap-1">
+              <div className="flex grow flex-col gap-1">
                 <BaseFormControl>
-                  <BaseInput maxLength={50} placeholder={t('enter a motto here...')} {...field} />
+                  <BaseInput maxLength={50} placeholder={t('Enter a motto')} {...field} />
                 </BaseFormControl>
 
                 <BaseFormDescription className="flex w-full justify-between">
@@ -104,7 +104,7 @@ export const ProfileSectionCard: FC = () => {
         />
 
         <BaseButton
-          className="flex w-full gap-2 @lg:max-w-fit"
+          className="flex gap-2 self-start"
           type="button"
           size="sm"
           variant="destructive"

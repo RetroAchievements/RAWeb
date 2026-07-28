@@ -31,7 +31,7 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
 
   return (
     <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-5">
-      <p className="min-w-[88px] light:text-neutral-600">{isPreviousGrouped ? '' : eventTime}</p>
+      <p className="min-w-22 light:text-neutral-600">{isPreviousGrouped ? '' : eventTime}</p>
 
       {sessionEvent.type === 'unlock' && sessionEvent.achievement ? (
         <UnlockEventContent

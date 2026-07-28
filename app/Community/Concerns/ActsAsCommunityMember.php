@@ -85,6 +85,14 @@ trait ActsAsCommunityMember
     }
 
     /**
+     * @return HasMany<UserGameListEntry, $this>
+     */
+    public function userGameListEntries(): HasMany
+    {
+        return $this->gameListEntries();
+    }
+
+    /**
      * @return BelongsToMany<SpatieRole, $this>
      */
     public function displayableRoles(): BelongsToMany
@@ -125,6 +133,28 @@ trait ActsAsCommunityMember
     public function followerUsers(): BelongsToMany
     {
         return $this->inverseRelatedUsers()->where('status', '=', UserRelationStatus::Following);
+    }
+
+    /**
+     * Rows for users this user follows.
+     *
+     * @return HasMany<UserRelation, $this>
+     */
+    public function follows(): HasMany
+    {
+        return $this->hasMany(UserRelation::class, 'user_id', 'id')
+            ->where('status', '=', UserRelationStatus::Following);
+    }
+
+    /**
+     * Rows for users following this user.
+     *
+     * @return HasMany<UserRelation, $this>
+     */
+    public function followedBy(): HasMany
+    {
+        return $this->hasMany(UserRelation::class, 'related_user_id', 'id')
+            ->where('status', '=', UserRelationStatus::Following);
     }
 
     public function getRelationship(User $user): UserRelationStatus

@@ -74,7 +74,7 @@ sanitize_outputs(
     echo "</div>";
 
     if ($numUnofficialLinks > 0) {
-        echo "<div class='my-3 bg-embedded p-2 rounded-sm'>";
+        echo "<div class='my-3 bg-embedded p-2 rounded-xs'>";
         echo "<b>Administrator Notice:</b> <a href='/viewforum.php?f=0'>$numUnofficialLinks unverified posts need authorising: please verify them!</a>";
         echo "</div>";
     }

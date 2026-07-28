@@ -6,6 +6,7 @@ namespace App\Components;
 
 use App\Community\Enums\TicketState;
 use App\Models\User;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -18,10 +19,12 @@ class TicketNotificationsIcon extends Component
         /** @var User $user */
         $user = request()->user();
 
+        $userTicketCountService = app(UserTicketCountService::class);
+
         $notifications = collect();
 
         // Open ticket notifications
-        $openTicketsData = countOpenTicketsByDev($user);
+        $openTicketsData = $userTicketCountService->countOpenForDev($user);
         if ($openTicketsData[TicketState::Open->value]) {
             $notifications->push([
                 'link' => route('developer.tickets', ['user' => $user->display_name]),
@@ -37,7 +40,7 @@ class TicketNotificationsIcon extends Component
             ]);
         }
 
-        $ticketFeedback = countRequestTicketsByUser($user);
+        $ticketFeedback = $userTicketCountService->countRequestsForReporter($user);
         if ($ticketFeedback) {
             $notifications->push([
                 'link' => route('reporter.tickets', ['user' => $user->display_name]),

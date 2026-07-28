@@ -420,11 +420,11 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
             'client' => 'gopher64',
         ]);
 
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+        $this->assertEquals(ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+        $this->assertEquals(ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('gopher64/0.0.1'));
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+        $this->assertEquals(ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('gopher64/99.99.99'));
 
         // a lingering minimum_hardcore_version on a softcore-only row is
@@ -433,7 +433,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
             'minimum_hardcore_version' => '5.0',
         ]);
 
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+        $this->assertEquals(ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
 
         // minimum_allowed_version still takes precedence for blocking ancient versions
@@ -444,7 +444,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $this->assertEquals(ClientSupportLevel::Blocked,
             $userAgentService->getSupportLevel('gopher64/1.0.0'));
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly,
+        $this->assertEquals(ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('gopher64/1.1.16'));
     }
 
@@ -469,7 +469,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         ]);
 
         $this->assertEquals(
-            ClientSupportLevel::SoftcoreOnly,
+            ClientSupportLevel::CasualOnly,
             $userAgentService->getSupportLevel('RetroArch/1.22.2 (Linux) dolphin_libretro/df2b1a75')
         );
         $this->assertNull(
@@ -492,7 +492,7 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
 
         $userAgent = 'RetroArch/1.21.0 (Android 13.0) snes9x_libretro_android/1.63_5a40cd5 RAOfflineProxy/1.0.0-alpha1';
 
-        $this->assertEquals(ClientSupportLevel::SoftcoreOnly, $userAgentService->getSupportLevel($userAgent));
+        $this->assertEquals(ClientSupportLevel::CasualOnly, $userAgentService->getSupportLevel($userAgent));
         $this->assertEquals('RetroArch', $userAgentService->decode($userAgent)['client']);
 
         ConnectOfflineSubmissionClient::where('client', 'RAOfflineProxy')->delete();

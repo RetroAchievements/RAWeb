@@ -5,7 +5,7 @@ import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
 interface AwardIndicatorProps {
-  awardKind: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-softcore';
+  awardKind: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-casual';
 
   className?: string;
   title?: TranslatedString;
@@ -19,7 +19,7 @@ export const AwardIndicator: FC<AwardIndicatorProps> = ({ awardKind, className, 
     if (awardKind === 'mastery') safeTitle = t('Mastered');
     if (awardKind === 'completion') safeTitle = t('Completed');
     if (awardKind === 'beaten-hardcore') safeTitle = t('Beaten');
-    if (awardKind === 'beaten-softcore') safeTitle = t('Beaten (softcore)');
+    if (awardKind === 'beaten-casual') safeTitle = t('Beaten (casual)');
   }
 
   return (
@@ -33,7 +33,7 @@ export const AwardIndicator: FC<AwardIndicatorProps> = ({ awardKind, className, 
         awardKind === 'mastery' ? 'bg-[gold] light:bg-yellow-600' : null,
         awardKind === 'completion' ? 'border border-yellow-600' : null,
         awardKind === 'beaten-hardcore' ? 'bg-zinc-300' : null,
-        awardKind === 'beaten-softcore' ? 'border border-zinc-400' : null,
+        awardKind === 'beaten-casual' ? 'border border-zinc-400' : null,
 
         className,
       )}

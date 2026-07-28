@@ -97,7 +97,7 @@ describe('Component: GameListSection', () => {
     expect(screen.getByText(/2 games - 1 mastered, 1 beaten/i)).toBeInTheDocument();
   });
 
-  it('displays the count of mastered, beaten, completed, and beaten (softcore) games', () => {
+  it('displays the count of mastered, beaten, completed, and beaten (casual) games', () => {
     // ARRANGE
     render(
       <GameListSection
@@ -107,7 +107,7 @@ describe('Component: GameListSection', () => {
         masteredCount={4}
         beatenCount={3}
         completedCount={2}
-        beatenSoftcoreCount={1}
+        beatenCasualCount={1}
       >
         children
       </GameListSection>,
@@ -115,7 +115,7 @@ describe('Component: GameListSection', () => {
 
     // ASSERT
     expect(
-      screen.getByText(/15 games - 4 mastered, 3 beaten, 2 completed, 1 beaten \(softcore\)/i),
+      screen.getByText(/15 games - 4 mastered, 3 beaten, 2 completed, 1 beaten \(casual\)/i),
     ).toBeInTheDocument();
   });
 

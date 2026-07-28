@@ -89,12 +89,12 @@ class UnlocksTest extends TestCase
         $unlock2Date = $now->clone()->subMinutes(22);
         $this->addHardcoreUnlock($this->user, $achievement2, $unlock2Date);
         $unlock3Date = $now->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $bonusUnlock1Date = $now->clone()->subMinutes(45);
         $this->addHardcoreUnlock($this->user, $bonusAchievement1, $bonusUnlock1Date);
         $bonusUnlock2Date = $now->clone()->subMinutes(15);
-        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+        $this->addCasualUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $challengeUnlock1Date = $now->clone()->subMinutes(32);
         $this->addHardcoreUnlock($this->user, $challengeAchievement1, $challengeUnlock1Date);

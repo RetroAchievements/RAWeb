@@ -47,20 +47,21 @@ class SuspiciousConnectWarningAlert extends Alert
     {
         $playerUrl = route('user.show', ['user' => $user]);
 
-        $game = Game::findOrFail($gameId);
+        $game = Game::with('system')->findOrFail($gameId);
         $gameUrl = route('game.show', ['game' => $game]);
 
         $activityUrl = route('user.game.activity.show', ['user' => $user, 'game' => $game]);
 
         return sprintf(
             match ($this->warning->method) {
-                'submitlbentry' => '[%s](<%s>) submitted [%s](<%s>) leaderboard entries using %s - [Activity](<%s>)',
-                default => '[%s](<%s>) unlocked [%s](<%s>) achievements using %s - [Activity](<%s>)',
+                'submitlbentry' => '[%s](<%s>) submitted [%s](<%s>) (%s) leaderboard entries using %s - [Activity](<%s>)',
+                default => '[%s](<%s>) unlocked [%s](<%s>) (%s) achievements using %s - [Activity](<%s>)',
             },
             $user->display_name,
             $playerUrl,
             $game->title,
             $gameUrl,
+            $game->system->name,
             $this->warning->user_agent,
             $activityUrl,
         );

@@ -75,7 +75,7 @@ class ResumePlayerSessionAction
                             ->orWhereNull('user_agent');
                     }
                 })
-                ->orderByDesc('id')
+                ->orderByDesc('rich_presence_updated_at')
                 ->first();
         }
 

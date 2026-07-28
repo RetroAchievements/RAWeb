@@ -15,7 +15,7 @@ class StoreTicketRequest extends FormRequest
         return [
             'ticketableModel' => 'required|string|in:achievement', // TODO or in:leaderboard
             'ticketableId' => 'required|integer|exists:achievements,id', // TODO could also be a leaderboard id
-            'mode' => 'required|string|in:hardcore,softcore',
+            'mode' => 'required|string|in:hardcore,casual',
             // TODO expand or compute this list via TicketType::appliesTo()
             'issue' => ['required', (new Enum(TicketType::class))->only([
                 TicketType::TriggeredAtWrongTime,

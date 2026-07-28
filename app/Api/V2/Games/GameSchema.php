@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Games;
 
+use App\Api\V2\Tickets\TicketableTypeFilter;
+use App\Api\V2\Tickets\TicketStateFilter;
+use App\Api\V2\Tickets\TicketTypeFilter;
+use App\Api\V2\Tickets\UserUlidFilter;
 use App\Models\Game;
-use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
@@ -71,8 +74,8 @@ class GameSchema extends Schema
 
             Number::make('timesBeaten', 'times_beaten'),
             Number::make('timesBeatenHardcore', 'times_beaten_hardcore'),
-            Number::make('medianTimeToBeatMinutes', 'median_time_to_beat'),
-            Number::make('medianTimeToBeatHardcoreMinutes', 'median_time_to_beat_hardcore'),
+            Number::make('medianTimeToBeatSeconds', 'median_time_to_beat'),
+            Number::make('medianTimeToBeatHardcoreSeconds', 'median_time_to_beat_hardcore'),
 
             BelongsTo::make('system')->readOnly(),
 
@@ -80,6 +83,17 @@ class GameSchema extends Schema
             HasMany::make('achievementSetClaims')->type('achievement-set-claims')->cannotEagerLoad()->readOnly(),
             HasMany::make('comments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
             HasMany::make('hashes')->type('game-hashes')->readOnly(),
+            HasMany::make('tickets', 'allTickets') // `allTickets` is a custom polymorphic relation, not a true HasMany
+                ->type('tickets')
+                ->cannotEagerLoad()
+                ->withFilters(
+                    new TicketStateFilter(),
+                    new TicketTypeFilter(),
+                    new TicketableTypeFilter(),
+                    new UserUlidFilter('reporterUserId', 'reporter_id'),
+                    new UserUlidFilter('resolverUserId', 'resolver_id'),
+                )
+                ->readOnly(),
 
             // TODO implement relationship endpoints to enable links
             // - /games/{id}/achievementSets
@@ -118,8 +132,7 @@ class GameSchema extends Schema
      */
     public function indexQuery(?object $model, Builder $query): Builder
     {
-        return $query->where('system_id', '!=', System::Hubs)
-            ->where('system_id', '!=', System::Events)
+        return $query->whereGameSystem()
             ->where('title', 'NOT LIKE', '%[Subset -%');
     }
 }

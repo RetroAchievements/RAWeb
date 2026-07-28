@@ -47,7 +47,7 @@ describe('Util: filterAchievements', () => {
       unlockedAt: undefined,
       unlockedHardcoreAt: undefined,
     });
-    const unlockedSoftcore = createAchievement({
+    const unlockedCasual = createAchievement({
       unlockedAt: '2024-01-01',
       unlockedHardcoreAt: undefined,
     });
@@ -62,7 +62,7 @@ describe('Util: filterAchievements', () => {
 
     const achievements = [
       lockedAchievement1,
-      unlockedSoftcore,
+      unlockedCasual,
       lockedAchievement2,
       unlockedHardcore,
       unlockedBoth,

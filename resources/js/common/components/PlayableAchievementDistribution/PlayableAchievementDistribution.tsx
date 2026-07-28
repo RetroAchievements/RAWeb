@@ -26,7 +26,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
     formatXAxisTick,
     userAchievementCounts,
     userHardcoreIndex,
-    userSoftcoreIndex,
+    userCasualIndex,
   } = useAchievementDistributionChart({ buckets, playerGame, variant });
 
   if (buckets.length < 2) {
@@ -38,7 +38,7 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Achievement Distribution')}</h2>
 
       <div className="flex flex-col gap-3 rounded-lg bg-embed p-3 light:border light:border-neutral-200 light:bg-white">
-        <BaseChartContainer config={chartConfig} className="h-[260px] w-full">
+        <BaseChartContainer config={chartConfig} className="h-65 w-full">
           <BarChart accessibilityLayer data={buckets}>
             <CartesianGrid vertical={false} />
             <XAxis tickMargin={8} angle={0} tickFormatter={formatXAxisTick} />
@@ -46,12 +46,12 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
             <BaseChartTooltip
               content={
                 <ReferenceLineTooltipContent
-                  className="min-w-[196px]"
+                  className="min-w-49"
                   buckets={buckets}
                   labelFormatter={formatTooltipLabel}
                   userAchievementCounts={userAchievementCounts}
                   userHardcoreIndex={userHardcoreIndex}
-                  userSoftcoreIndex={userSoftcoreIndex}
+                  userCasualIndex={userCasualIndex}
                   variant={variant}
                 />
               }
@@ -65,11 +65,11 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
             />
 
             <Bar
-              // Events do not track softcore progress.
+              // Events do not track casual progress.
               hide={variant === 'event'}
-              data-testid="softcore-bar"
-              dataKey="softcore"
-              fill="var(--color-softcore)"
+              data-testid="casual-bar"
+              dataKey="casual"
+              fill="var(--color-casual)"
               stackId="a"
               isAnimationActive={false}
             />
@@ -83,9 +83,9 @@ export const PlayableAchievementDistribution: FC<PlayableAchievementDistribution
               />
             ) : null}
 
-            {userSoftcoreIndex !== undefined ? (
+            {userCasualIndex !== undefined ? (
               <ReferenceLine
-                x={userSoftcoreIndex}
+                x={userCasualIndex}
                 stroke="#737373"
                 strokeDasharray="3 3"
                 strokeWidth={2}

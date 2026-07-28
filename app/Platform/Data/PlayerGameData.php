@@ -19,7 +19,7 @@ class PlayerGameData extends Data
         // Model fields
         public ?int $achievementsUnlocked,
         public ?int $achievementsUnlockedHardcore,
-        public ?int $achievementsUnlockedSoftcore,
+        public ?int $achievementsUnlockedCasual,
         public ?Carbon $beatenAt,
         public ?Carbon $beatenHardcoreAt,
         public ?Carbon $completedAt,
@@ -43,7 +43,7 @@ class PlayerGameData extends Data
         return new self(
             achievementsUnlocked: $playerGame->achievements_unlocked,
             achievementsUnlockedHardcore: $playerGame->achievements_unlocked_hardcore,
-            achievementsUnlockedSoftcore: $playerGame->achievements_unlocked_softcore,
+            achievementsUnlockedCasual: $playerGame->achievements_unlocked_softcore,
             beatenAt: $playerGame->beaten_at,
             beatenHardcoreAt: $playerGame->beaten_hardcore_at,
             completedAt: $playerGame->completed_at,
@@ -66,9 +66,9 @@ class PlayerGameData extends Data
 
         $awardPriority = [
             ['type' => AwardType::Mastery, 'extra' => UnlockMode::Hardcore],    // Mastery
-            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Softcore],    // Completion
+            ['type' => AwardType::Mastery, 'extra' => UnlockMode::Casual],    // Completion
             ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Hardcore], // Beaten
-            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Softcore], // Beaten (softcore)
+            ['type' => AwardType::GameBeaten, 'extra' => UnlockMode::Casual], // Beaten (casual)
         ];
 
         // Loop through the priority list and return the first matching badge.

@@ -11,11 +11,11 @@ interface PlayerGameProgressLabelProps {
 export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achievements }) => {
   const {
     unlockedAchievementsCount,
+    unlockedCasualAchievements,
     unlockedHardcoreAchievements,
+    unlockedPointsCasual,
     unlockedPointsHardcore,
-    unlockedPointsSoftcore,
     unlockedPointsWeighted,
-    unlockedSoftcoreAchievements,
   } = getProgressStats(achievements);
 
   if (!unlockedAchievementsCount) {
@@ -24,7 +24,7 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
 
   // Don't show a redundant label. A visual for completion/mastery is handled elsewhere.
   if (
-    unlockedSoftcoreAchievements.length === achievements.length ||
+    unlockedCasualAchievements.length === achievements.length ||
     unlockedHardcoreAchievements.length === achievements.length
   ) {
     return null;
@@ -69,15 +69,15 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
         </>
       ) : null}
 
-      {unlockedSoftcoreAchievements.length ? (
+      {unlockedCasualAchievements.length ? (
         <>
           <p className="flex items-center gap-1 sm:hidden">
             <LuLockOpen className="size-3.5 text-neutral-500" />
             <Trans
-              i18nKey="playerGameProgressSoftcoreMobile"
+              i18nKey="playerGameProgressCasualMobile"
               values={{
-                achievementsCount: unlockedSoftcoreAchievements.length,
-                pointsCount: unlockedPointsSoftcore,
+                achievementsCount: unlockedCasualAchievements.length,
+                pointsCount: unlockedPointsCasual,
               }}
               components={{
                 1: <span className="font-semibold" />,
@@ -87,10 +87,10 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
 
           <p className="hidden sm:block">
             <Trans
-              i18nKey="playerGameProgressSoftcore"
+              i18nKey="playerGameProgressCasual"
               values={{
-                achievementsCount: unlockedSoftcoreAchievements.length,
-                pointsCount: unlockedPointsSoftcore,
+                achievementsCount: unlockedCasualAchievements.length,
+                pointsCount: unlockedPointsCasual,
               }}
               components={{
                 1: <span className="font-semibold" />,
@@ -105,26 +105,26 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
 
 function getProgressStats(achievements: App.Platform.Data.Achievement[]): {
   unlockedAchievementsCount: number;
+  unlockedCasualAchievements: App.Platform.Data.Achievement[];
   unlockedHardcoreAchievements: App.Platform.Data.Achievement[];
+  unlockedPointsCasual: number;
   unlockedPointsHardcore: number;
-  unlockedPointsSoftcore: number;
   unlockedPointsWeighted: number;
-  unlockedSoftcoreAchievements: App.Platform.Data.Achievement[];
 } {
   const unlockedAchievementsCount = achievements.filter(
     (ach) => ach.unlockedAt || ach.unlockedHardcoreAt,
   ).length;
 
-  const unlockedSoftcoreAchievements = achievements.filter(
+  const unlockedCasualAchievements = achievements.filter(
     (a) => a.unlockedAt && !a.unlockedHardcoreAt,
   );
   const unlockedHardcoreAchievements = achievements.filter((a) => a.unlockedHardcoreAt);
 
-  let unlockedPointsSoftcore = 0;
+  let unlockedPointsCasual = 0;
   let unlockedPointsHardcore = 0;
   let unlockedPointsWeighted = 0;
-  for (const achievement of unlockedSoftcoreAchievements) {
-    unlockedPointsSoftcore += achievement.points as number;
+  for (const achievement of unlockedCasualAchievements) {
+    unlockedPointsCasual += achievement.points as number;
   }
   for (const achievement of unlockedHardcoreAchievements) {
     unlockedPointsHardcore += achievement.points as number;
@@ -133,10 +133,10 @@ function getProgressStats(achievements: App.Platform.Data.Achievement[]): {
 
   return {
     unlockedAchievementsCount,
+    unlockedCasualAchievements,
     unlockedHardcoreAchievements,
+    unlockedPointsCasual,
     unlockedPointsHardcore,
-    unlockedPointsSoftcore,
     unlockedPointsWeighted,
-    unlockedSoftcoreAchievements,
   };
 }

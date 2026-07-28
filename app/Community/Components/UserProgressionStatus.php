@@ -15,7 +15,6 @@ class UserProgressionStatus extends Component
         public array $totalCounts = [],
         public ?int $topSystemId = null,
         public int $userHardcorePoints = 0,
-        public int $userSoftcorePoints = 0,
     ) {
     }
 
@@ -26,7 +25,6 @@ class UserProgressionStatus extends Component
             'topSystem' => $this->topSystemId,
             'totalCounts' => $this->totalCounts,
             'userHardcorePoints' => $this->userHardcorePoints,
-            'userSoftcorePoints' => $this->userSoftcorePoints,
             'systems' => System::whereIn('id', array_keys($this->systemProgress))->get()->keyBy('id'),
         ]);
     }

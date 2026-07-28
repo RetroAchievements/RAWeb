@@ -22,8 +22,7 @@ trait ActsAsDeveloper
 
     public function hasActiveClaimOnGameId(int $gameId): bool
     {
-        return $this->loadMissing('achievementSetClaims')
-            ->achievementSetClaims()
+        return $this->achievementSetClaims()
             ->where('game_id', $gameId)
             ->active()
             ->exists();
@@ -63,6 +62,14 @@ trait ActsAsDeveloper
     public function authoredLeaderboards(): HasMany
     {
         return $this->hasMany(Leaderboard::class, 'author_id', 'id');
+    }
+
+    /**
+     * @return HasMany<Ticket, $this>
+     */
+    public function authoredTickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'ticketable_author_id');
     }
 
     /**

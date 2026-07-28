@@ -110,7 +110,7 @@ function getUsersSiteAwards(?User $user, bool $applyBadgePreferences = false): a
                 AND saw.user_id = :userId4
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL, MAX( saw.display_award_tier )
             FROM user_awards AS saw
             WHERE
                 saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "','" . AwardType::Playtest->value . "')
@@ -268,8 +268,7 @@ function getUserEventAwardCount(User $user): int
 
 /**
  * Retrieves a target user's site award metadata for a given game ID.
- * An array is returned with keys "beaten-softcore", "beaten-hardcore",
- * "completed", and "mastered", which contain corresponding award details.
+ * An array is returned with legacy award-kind keys containing corresponding award details.
  * If no progression awards are found, or if the target username is not provided,
  * no awards are fetched or returned.
  *
@@ -294,9 +293,9 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
 
         $key = '';
         if ($awardType === AwardType::Mastery) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'completed' : 'mastered';
+            $key = $awardExtra == UnlockMode::Casual ? 'completed' : 'mastered';
         } elseif ($awardType === AwardType::GameBeaten) {
-            $key = $awardExtra == UnlockMode::Softcore ? 'beaten-softcore' : 'beaten-hardcore';
+            $key = $awardExtra == UnlockMode::Casual ? 'beaten-softcore' : 'beaten-hardcore';
         }
 
         if ($key && is_null($userGameProgressionAwards[$key])) {

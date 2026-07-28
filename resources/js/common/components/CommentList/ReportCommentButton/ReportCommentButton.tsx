@@ -28,7 +28,7 @@ export const ReportCommentButton: FC<ReportCommentButtonProps> = ({ comment, cla
       })}
       className={baseButtonVariants({
         size: 'sm',
-        className: cn('max-h-[22px] gap-1 !p-1 !text-2xs', className),
+        className: cn('max-h-5.5 gap-1 p-1! text-2xs!', className),
       })}
     >
       <LuFlag aria-label={t('Report')} className="size-3" />

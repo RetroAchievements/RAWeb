@@ -97,6 +97,7 @@ class BuildAggregateRecentForumPostsDataAction
                 lftc.author_id,
                 ua.username AS Author, 
                 ua.display_name AS AuthorDisplayName,
+                ua.avatar_updated_at,
                 lftc.body AS ShortMsg,
                 0 AS IsTruncated,
                 d1.CommentID AS CommentID_1d,

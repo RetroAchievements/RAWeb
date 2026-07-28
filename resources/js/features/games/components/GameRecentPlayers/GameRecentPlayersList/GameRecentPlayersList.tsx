@@ -50,7 +50,7 @@ export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
                   playerGame={{
                     achievementsUnlocked: recentPlayer.achievementsUnlocked,
                     achievementsUnlockedHardcore: recentPlayer.achievementsUnlockedHardcore,
-                    achievementsUnlockedSoftcore: recentPlayer.achievementsUnlockedSoftcore,
+                    achievementsUnlockedCasual: recentPlayer.achievementsUnlockedCasual,
                     beatenAt: null,
                     beatenHardcoreAt: null,
                     completedAt: null,
@@ -64,7 +64,7 @@ export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
                     game: backingGame.id,
                     user: recentPlayer.user.displayName,
                   })}
-                  className="!py-0"
+                  className="py-0!"
                   variant="minimal"
                 />
               </div>
@@ -74,7 +74,7 @@ export const GameRecentPlayersList: FC<GameRecentPlayersListProps> = ({
               type="button"
               className={cn(
                 'text-left text-2xs',
-                'rounded focus:outline-none focus:ring-1 focus:ring-text focus:ring-offset-0',
+                'rounded-sm focus:outline-hidden focus:ring-1 focus:ring-text focus:ring-offset-0',
 
                 canToggleExpanded ? 'cursor-pointer' : null,
                 !isExpanded ? 'truncate' : null,

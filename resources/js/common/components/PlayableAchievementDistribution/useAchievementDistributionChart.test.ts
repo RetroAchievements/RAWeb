@@ -13,14 +13,14 @@ describe('Hook: useAchievementDistributionChart', () => {
     vi.resetAllMocks();
     vi.mocked(getUserBucketIndexes).mockReturnValue({
       userHardcoreIndex: 1,
-      userSoftcoreIndex: 2,
+      userCasualIndex: 2,
     });
   });
 
   const mockBuckets: App.Platform.Data.PlayerAchievementChartBucket[] = [
-    { start: 0, end: 5, softcore: 10, hardcore: 5 },
-    { start: 6, end: 10, softcore: 20, hardcore: 15 },
-    { start: 11, end: 15, softcore: 30, hardcore: 25 },
+    { start: 0, end: 5, casual: 10, hardcore: 5 },
+    { start: 6, end: 10, casual: 20, hardcore: 15 },
+    { start: 11, end: 15, casual: 30, hardcore: 25 },
   ];
 
   it('renders without crashing', () => {
@@ -28,7 +28,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -49,7 +49,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -63,8 +63,8 @@ describe('Hook: useAchievementDistributionChart', () => {
 
     // ASSERT
     expect(result.current.chartConfig).toEqual({
-      softcore: {
-        label: 'Softcore Players',
+      casual: {
+        label: 'Casual Players',
         color: '#737373',
       },
       hardcore: {
@@ -79,7 +79,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -100,7 +100,7 @@ describe('Hook: useAchievementDistributionChart', () => {
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -114,7 +114,7 @@ describe('Hook: useAchievementDistributionChart', () => {
 
     // ASSERT
     expect(result.current.userAchievementCounts).toEqual({
-      softcore: 25,
+      casual: 25,
       hardcore: 15,
     });
   });
@@ -133,12 +133,12 @@ describe('Hook: useAchievementDistributionChart', () => {
     expect(result.current.userAchievementCounts).toBeNull();
   });
 
-  it('returns the correct user hardcore and softcore indexes', () => {
+  it('returns the correct user hardcore and casual indexes', () => {
     // ARRANGE
     const mockPlayerGame = createPlayerGame({
       achievementsUnlocked: 25,
       achievementsUnlockedHardcore: 15,
-      achievementsUnlockedSoftcore: 10,
+      achievementsUnlockedCasual: 10,
     });
 
     // ACT
@@ -152,7 +152,7 @@ describe('Hook: useAchievementDistributionChart', () => {
 
     // ASSERT
     expect(result.current.userHardcoreIndex).toEqual(1);
-    expect(result.current.userSoftcoreIndex).toEqual(2);
+    expect(result.current.userCasualIndex).toEqual(2);
   });
 
   describe('Function: formatTooltipLabel', () => {
@@ -161,7 +161,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -190,7 +190,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -213,7 +213,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>
@@ -237,7 +237,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       expect(label).toEqual('Earned 5 achievements');
     });
 
-    it('given the variant is "event", does not delineate between hardcore and softcore in the labels', () => {
+    it('given the variant is "event", does not delineate between hardcore and casual in the labels', () => {
       // ARRANGE
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
@@ -254,8 +254,8 @@ describe('Hook: useAchievementDistributionChart', () => {
 
       // ASSERT
       expect(result.current.chartConfig).toEqual({
-        softcore: {
-          label: 'Softcore Players', // this is still here, but invisible
+        casual: {
+          label: 'Casual Players', // this is still here, but invisible
           color: '#737373',
         },
         hardcore: {
@@ -272,7 +272,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       const mockPlayerGame = createPlayerGame({
         achievementsUnlocked: 25,
         achievementsUnlockedHardcore: 15,
-        achievementsUnlockedSoftcore: 10,
+        achievementsUnlockedCasual: 10,
       });
 
       const { result } = renderHook(() =>

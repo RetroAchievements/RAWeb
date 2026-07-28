@@ -303,7 +303,7 @@ describe('unlocks', function () {
 
         $achievement3 = $game->achievements->get(2);
         $unlock3Date = Carbon::now()->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
@@ -344,7 +344,7 @@ describe('unlocks', function () {
 
         $achievement3 = $game->achievements->get(2);
         $unlock3Date = Carbon::now()->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $bonusAchievement1 = $subsetGame->achievements->get(0);
         $bonusUnlock1Date = Carbon::now()->clone()->subMinutes(45);
@@ -352,7 +352,7 @@ describe('unlocks', function () {
 
         $bonusAchievement2 = $subsetGame->achievements->get(1);
         $bonusUnlock2Date = Carbon::now()->clone()->subMinutes(15);
-        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+        $this->addCasualUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
@@ -401,7 +401,7 @@ describe('unlocks', function () {
 
         $achievement3 = $game->achievements->get(2);
         $unlock3Date = Carbon::now()->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $bonusAchievement1 = $subsetGame->achievements->get(0);
         $bonusUnlock1Date = Carbon::now()->clone()->subMinutes(45);
@@ -409,7 +409,7 @@ describe('unlocks', function () {
 
         $bonusAchievement2 = $subsetGame->achievements->get(1);
         $bonusUnlock2Date = Carbon::now()->clone()->subMinutes(15);
-        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+        $this->addCasualUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('startsession', ['g' => $subsetGame->id, 'm' => $subsetGameHash->md5]))
@@ -458,7 +458,7 @@ describe('unlocks', function () {
 
         $achievement3 = $game->achievements->get(2);
         $unlock3Date = Carbon::now()->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $bonusAchievement1 = $subsetGame->achievements->get(0);
         $bonusUnlock1Date = Carbon::now()->clone()->subMinutes(45);
@@ -466,7 +466,7 @@ describe('unlocks', function () {
 
         $bonusAchievement2 = $subsetGame->achievements->get(1);
         $bonusUnlock2Date = Carbon::now()->clone()->subMinutes(15);
-        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+        $this->addCasualUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('startsession', ['g' => $subsetGame->id, 'm' => $subsetGameHash->md5]))
@@ -515,7 +515,7 @@ describe('unlocks', function () {
 
         $achievement3 = $game->achievements->get(2);
         $unlock3Date = Carbon::now()->clone()->subMinutes(1);
-        $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+        $this->addCasualUnlock($this->user, $achievement3, $unlock3Date);
 
         $bonusAchievement1 = $subsetGame->achievements->get(0);
         $bonusUnlock1Date = Carbon::now()->clone()->subMinutes(45);
@@ -523,7 +523,7 @@ describe('unlocks', function () {
 
         $bonusAchievement2 = $subsetGame->achievements->get(1);
         $bonusUnlock2Date = Carbon::now()->clone()->subMinutes(15);
-        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
+        $this->addCasualUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('startsession', ['g' => $subsetGame->id, 'm' => $subsetGameHash->md5]))

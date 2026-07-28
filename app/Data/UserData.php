@@ -6,6 +6,7 @@ namespace App\Data;
 
 use App\Models\User;
 use App\Platform\Enums\PlayerPreferredMode;
+use App\Support\Media\UserAvatarUrl;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -65,7 +66,7 @@ class UserData extends Data
     {
         return new self(
             displayName: $topic['AuthorDisplayName'] ?? $topic['Author'],
-            avatarUrl: media_asset('UserPic/' . $topic['Author'] . '.png'),
+            avatarUrl: UserAvatarUrl::fromRecord($topic['Author'], $topic),
             id: Lazy::create(fn () => (int) $topic['author_id']),
             username: Lazy::create(fn () => $topic['Author']),
         );

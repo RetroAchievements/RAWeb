@@ -22,9 +22,9 @@ class UpdateGameAchievementUnlockMediansAction
             return;
         }
 
-        $recentSoftcorePlayerIds = $this->getRecentPlayerIds($game, false);
+        $recentCasualPlayerIds = $this->getRecentPlayerIds($game, false);
         $recentHardcorePlayerIds = $this->getRecentPlayerIds($game, true);
-        $recentPlayerIds = array_unique(array_merge($recentSoftcorePlayerIds, $recentHardcorePlayerIds));
+        $recentPlayerIds = array_unique(array_merge($recentCasualPlayerIds, $recentHardcorePlayerIds));
 
         [$unlock_times, $unlock_hardcore_times] = $this->calculateUnlockTimes($game, $achievements, $recentPlayerIds);
 
@@ -70,8 +70,8 @@ class UpdateGameAchievementUnlockMediansAction
         do {
             $unlockThreshold = $unlockThresholds[$unlockThresholdIndex++];
 
-            // For hardcore, get players with the target number of hardcore unlocks
-            // For softcore, get players with the target number of unlocks where at least half were in softcore
+            // For hardcore, get players with the target number of hardcore unlocks.
+            // For casual, get players with the target number of unlocks where at least half were casual.
             $playerIds = PlayerGame::query()
                 ->where('game_id', $game->id)
                 ->when($hardcore, fn ($q) => $q->where('achievements_unlocked_hardcore', '>=', $unlockThreshold))

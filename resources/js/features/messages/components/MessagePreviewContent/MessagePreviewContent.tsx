@@ -12,7 +12,7 @@ export const MessagePreviewContent: FC<MessagePreviewContentProps> = ({ previewC
 
   return (
     <div data-testid="preview-content" className="mt-2">
-      <div className="rounded bg-embed px-2.5 py-1.5">
+      <div className="rounded-sm bg-embed px-2.5 py-1.5">
         <div>
           <p className="text-neutral-300 light:text-neutral-700">{t('Preview')}</p>
         </div>

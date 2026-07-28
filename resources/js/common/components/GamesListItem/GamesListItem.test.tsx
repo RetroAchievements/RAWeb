@@ -41,7 +41,7 @@ describe('Component: GamesListItem', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 3,
       achievementsUnlockedHardcore: 2,
-      achievementsUnlockedSoftcore: 1,
+      achievementsUnlockedCasual: 1,
     });
 
     render(<GamesListItem game={game} playerGame={playerGame} />);
@@ -50,13 +50,13 @@ describe('Component: GamesListItem', () => {
     expect(screen.getByText('3 of 8')).toBeVisible();
   });
 
-  it('given the player has completed the game in softcore, displays total softcore progress', () => {
+  it('given the player has completed the game in casual, displays total casual progress', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game', achievementsPublished: 8 });
     const playerGame = createPlayerGame({
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 0,
-      achievementsUnlockedSoftcore: 8,
+      achievementsUnlockedCasual: 8,
       completedAt: '2024-01-06 14:32:11',
       completedHardcoreAt: null,
       highestAward: null,
@@ -77,7 +77,7 @@ describe('Component: GamesListItem', () => {
     // ASSERT
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (softcore)
+    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (casual)
   });
 
   it('given player game mastery, displays mastery timestamp', () => {
@@ -97,7 +97,7 @@ describe('Component: GamesListItem', () => {
     // ASSERT
     expect(screen.getByText('Mastered Jan 6, 2024 2:32 PM')).toBeVisible();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (softcore)
+    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (casual)
   });
 
   it('given player game completion, displays completion timestamp', () => {
@@ -117,7 +117,7 @@ describe('Component: GamesListItem', () => {
     // ASSERT
     expect(screen.getByText('Completed Jan 6, 2024 2:32 PM')).toBeVisible();
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (softcore)
+    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (casual)
   });
 
   it('given player game beat, displays beaten timestamp', () => {
@@ -138,10 +138,10 @@ describe('Component: GamesListItem', () => {
     expect(screen.getByText('Beaten Jan 6, 2024 2:32 PM')).toBeVisible();
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten (softcore)/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Beaten (casual)/i)).not.toBeInTheDocument();
   });
 
-  it('given player game softcore beat, displays beaten timestamp', () => {
+  it('given player game casual beat, displays beaten timestamp', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game', achievementsPublished: 8 });
     const playerGame = createPlayerGame({
@@ -156,7 +156,7 @@ describe('Component: GamesListItem', () => {
     render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
-    expect(screen.getByText('Beaten (softcore) Jan 6, 2024 2:32 PM')).toBeVisible();
+    expect(screen.getByText('Beaten (casual) Jan 6, 2024 2:32 PM')).toBeVisible();
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
   });
@@ -178,7 +178,7 @@ describe('Component: GamesListItem', () => {
     // ASSERT
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (softcore)
+    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (casual)
   });
 
   it('given player game mastery and completion, only displays mastery timestamp', () => {
@@ -198,7 +198,7 @@ describe('Component: GamesListItem', () => {
     // ASSERT
     expect(screen.getByText('Mastered Jan 6, 2024 2:32 PM')).toBeVisible();
     expect(screen.queryByText(/Completed/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (softcore)
+    expect(screen.queryByText(/Beaten/i)).not.toBeInTheDocument(); // also covers Beaten (casual)
   });
 
   it('given player game mastery and beat, displays mastery and beat timestamps', () => {

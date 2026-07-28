@@ -17,8 +17,8 @@ describe('Component: Glow', () => {
 
     // ASSERT
     const element = screen.getByTestId('progress-blur');
-    expect(element).toHaveClass('inset-[5px]');
-    expect(element).toHaveClass('group-hover:inset-[3px]');
+    expect(element).toHaveClass('inset-1.25');
+    expect(element).toHaveClass('group-hover:inset-0.75');
     expect(element).toHaveClass('from-zinc-400');
     expect(element).toHaveClass('to-slate-500');
   });
@@ -29,8 +29,8 @@ describe('Component: Glow', () => {
 
     // ASSERT
     const element = screen.getByTestId('progress-blur');
-    expect(element).toHaveClass('inset-[7px]');
-    expect(element).toHaveClass('group-hover:inset-[5px]');
+    expect(element).toHaveClass('inset-1.75');
+    expect(element).toHaveClass('group-hover:inset-1.25');
     expect(element).toHaveClass('from-yellow-400');
     expect(element).toHaveClass('to-amber-400');
   });

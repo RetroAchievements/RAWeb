@@ -23,7 +23,7 @@ export const SessionModeToggleGroup: FC = () => {
       name="mode"
       render={({ field }) => (
         <BaseFormItem className="flex w-full flex-col gap-1 sm:flex-row sm:items-center">
-          <BaseFormLabel className="text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start">
+          <BaseFormLabel className="text-menu-link sm:mt-3.25 sm:min-w-36 sm:self-start">
             {t('Mode')}
           </BaseFormLabel>
 
@@ -38,8 +38,8 @@ export const SessionModeToggleGroup: FC = () => {
                 {t('Hardcore')}
               </BaseToggleGroupItem>
 
-              <BaseToggleGroupItem value="softcore" aria-label={t('Toggle softcore')}>
-                {t('Softcore')}
+              <BaseToggleGroupItem value="casual" aria-label={t('Toggle casual')}>
+                {t('Casual')}
               </BaseToggleGroupItem>
             </BaseToggleGroup>
           </BaseFormControl>

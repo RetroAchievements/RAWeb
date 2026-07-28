@@ -87,11 +87,10 @@ class GamePolicy
 
     public function viewDeveloperInterest(User $user, Game $game): bool
     {
-        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
-            ->achievementSetClaims()
+        $hasActivePrimaryClaim = $user->achievementSetClaims()
             ->whereGameId($game->id)
             ->primaryClaim()
-            ->active()
+            ->activeOrInReview()
             ->exists();
 
         // Devs and JrDevs can see the page, but they need to have an
@@ -128,11 +127,25 @@ class GamePolicy
         return true;
     }
 
+    public function viewTickets(?User $user, Game $game): bool
+    {
+        return $user !== null;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
             Role::DEVELOPER,
+        ]);
+    }
+
+    public function createFromFilament(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
         ]);
     }
 

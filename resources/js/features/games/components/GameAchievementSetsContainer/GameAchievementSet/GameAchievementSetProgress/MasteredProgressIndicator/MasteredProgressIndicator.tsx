@@ -156,7 +156,7 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
   const setIsResetAllProgressDialogOpen = useSetAtom(isResetAllProgressDialogOpenAtom);
 
   const unlockedHardcoreCount = achievements.filter((ach) => ach.unlockedHardcoreAt).length;
-  const unlockedSoftcoreCount = achievements.filter(
+  const unlockedCasualCount = achievements.filter(
     (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
   ).length;
 
@@ -185,29 +185,29 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
         <div className="flex w-full justify-between">
           <p>{t('Achievements')}</p>
           <p>
-            {unlockedHardcoreCount + unlockedSoftcoreCount}
+            {unlockedHardcoreCount + unlockedCasualCount}
             {'/'}
             {achievements.length}
           </p>
         </div>
 
         <BaseProgress
-          className="h-2 w-[184px] bg-zinc-800"
+          className="h-2 w-46 bg-zinc-800"
           max={achievements.length}
           segments={[
             {
               value: unlockedHardcoreCount,
-              className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+              className: 'bg-linear-to-r from-amber-500 to-[gold]',
             },
             {
-              value: unlockedSoftcoreCount,
+              value: unlockedCasualCount,
               className: 'bg-neutral-500',
             },
           ]}
         />
       </div>
 
-      {unlockedHardcoreCount > 0 && unlockedSoftcoreCount > 0 ? (
+      {unlockedHardcoreCount > 0 && unlockedCasualCount > 0 ? (
         <div className="mt-2 flex flex-col leading-tight">
           <p className="text-2xs">
             <span className="font-semibold text-amber-500">
@@ -220,11 +220,11 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
 
           <p className="text-2xs">
             <span className="font-semibold text-neutral-500">
-              {unlockedSoftcoreCount}
+              {unlockedCasualCount}
               {'/'}
               {achievements.length}
             </span>{' '}
-            {t('Softcore')}
+            {t('Casual')}
           </p>
         </div>
       ) : null}
@@ -251,10 +251,10 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
         </>
       ) : null}
 
-      {unlockedHardcoreCount || unlockedSoftcoreCount ? (
+      {unlockedHardcoreCount || unlockedCasualCount ? (
         <BaseButton
           size="sm"
-          className="mb-1 mt-3 h-fit py-0.5"
+          className="mt-3 mb-1 h-fit py-0.5"
           onClick={() => setIsResetAllProgressDialogOpen(true)}
         >
           {t('Manage progress')}

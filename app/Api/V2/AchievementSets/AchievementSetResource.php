@@ -31,6 +31,11 @@ class AchievementSetResource extends BaseJsonApiResource
             'achievementsPublished' => $this->resource->achievements_published,
             'achievementsUnpublished' => $this->resource->achievements_unpublished,
 
+            'timesCompleted' => $this->resource->times_completed,
+            'timesMastered' => $this->resource->times_completed_hardcore,
+            'medianTimeToCompleteSeconds' => $this->resource->median_time_to_complete,
+            'medianTimeToMasterSeconds' => $this->resource->median_time_to_complete_hardcore,
+
             'badgeUrl' => $this->resource->image_asset_path_url,
 
             'achievementsFirstPublishedAt' => $this->resource->achievements_first_published_at,
