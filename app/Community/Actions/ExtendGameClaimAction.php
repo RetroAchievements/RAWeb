@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Enums\CommentableType;
+use App\Enums\SetClaimChangeAction;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
+use App\Support\Alerts\SetClaimChangeAlert;
 use App\Support\Cache\CacheKey;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class ExtendGameClaimAction
 {
@@ -24,23 +23,7 @@ class ExtendGameClaimAction
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
         addArticleComment("Server", CommentableType::SetClaim, $claim->game->id, "Claim extended by " . $actingUser->display_name);
 
-        $webhookUrl = config('services.discord.webhook.claims');
-        if (!empty($webhookUrl)) {
-            try {
-                $payload = [
-                    'username' => 'Claim Bot',
-                    'avatar_url' => media_asset('UserPic/QATeam.png'),
-                    'content' => route('game.show', $claim->game) . "\n:timer: " .
-                                "Claim extended by " . $actingUser->display_name,
-                ];
-                (new Client())->post($webhookUrl, ['json' => $payload]);
-            } catch (Throwable $e) {
-                Log::warning('Failed to send Discord webhook for claim extension.', [
-                    'claim_id' => $claim->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
+        (new SetClaimChangeAlert(game: $claim->game, user: $actingUser, claim: $claim, action: SetClaimChangeAction::Extend))->send();
 
         $collaborationClaims = $claim->game->achievementSetClaims()
             ->activeOrInReview()
