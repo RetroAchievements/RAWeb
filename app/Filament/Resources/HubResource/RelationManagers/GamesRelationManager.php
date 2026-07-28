@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HubResource\RelationManagers;
 
+use App\Filament\Actions\BuildGenreCapWarningAction;
 use App\Filament\Actions\ParseIdsFromCsvAction;
+use App\Filament\Enums\GenreCapWarningSubject;
 use App\Filament\Resources\GameResource;
 use App\Filament\Resources\SystemResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\AttachGamesToHubsAction;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -105,7 +108,7 @@ class GamesRelationManager extends RelationManager
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('system')
-                    ->relationship('system', 'Name'),
+                    ->relationship('system', 'name'),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
                     ->label('Has core set')
@@ -173,27 +176,38 @@ class GamesRelationManager extends RelationManager
                             return;
                         }
 
-                        // Handle select field input.
-                        if (!empty($data['game_ids'])) {
-                            $gameSet->games()->attach($data['game_ids']);
+                        $selectIds = !empty($data['game_ids']) ? array_map('intval', $data['game_ids']) : [];
+                        $csvIds = !empty($data['game_ids_csv'])
+                            ? array_map('intval', (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']))
+                            : [];
+                        $gameIds = array_values(array_unique(array_merge($selectIds, $csvIds)));
 
+                        if (empty($gameIds)) {
                             return;
                         }
 
-                        // Handle CSV input.
-                        if (!empty($data['game_ids_csv'])) {
-                            $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
+                        $validGameIds = Game::whereIn('id', $gameIds)
+                            ->where('system_id', '!=', System::Hubs)
+                            ->pluck('id')
+                            ->toArray();
 
-                            // Validate that these games can be attached.
-                            $validGameIds = Game::whereIn('id', $gameIds)
-                                ->where('system_id', '!=', System::Hubs)
-                                ->whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
-                                ->pluck('id')
-                                ->toArray();
+                        if (empty($validGameIds)) {
+                            return;
+                        }
 
-                            if (!empty($validGameIds)) {
-                                $gameSet->games()->attach($validGameIds);
-                            }
+                        $result = (new AttachGamesToHubsAction())->execute([$gameSet], $validGameIds);
+
+                        $skippedGameIds = array_values(array_unique(
+                            array_column($result['skippedForGenreCap'], 'game_id')
+                        ));
+                        $genreCapWarning = (new BuildGenreCapWarningAction())
+                            ->execute($skippedGameIds, GenreCapWarningSubject::Games);
+                        if ($genreCapWarning !== null) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Genre hub cap reached')
+                                ->body($genreCapWarning)
+                                ->send();
                         }
                     }),
             ])
