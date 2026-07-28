@@ -115,4 +115,66 @@ describe('Component: UserResultDisplay', () => {
     // ASSERT
     expect(screen.queryByText(/last seen/i)).not.toBeInTheDocument();
   });
+
+  it('given the user is a team account with last activity, does not show the last seen label', () => {
+    // ARRANGE
+    const mockCurrentTime = dayjs.utc('2024-01-15T12:00:00Z').toDate();
+    vi.setSystemTime(mockCurrentTime);
+
+    const user = createUser({
+      lastActivityAt: '2024-01-15T10:00:00Z', // !! 2 hours ago
+      roles: ['team-account'],
+    });
+
+    render(<UserResultDisplay user={user} />);
+
+    // ASSERT
+    expect(screen.queryByText(/last seen/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user is a team account active within the last 5 minutes, does not show the active indicator', () => {
+    // ARRANGE
+    const mockCurrentTime = dayjs.utc('2024-01-15T12:00:00Z').toDate();
+    vi.setSystemTime(mockCurrentTime);
+
+    const user = createUser({
+      lastActivityAt: '2024-01-15T11:57:00Z', // !! 3 minutes ago
+      roles: ['team-account'],
+    });
+
+    render(<UserResultDisplay user={user} />);
+
+    // ASSERT
+    expect(screen.queryByTestId('active-indicator')).not.toBeInTheDocument();
+  });
+
+  it('given the user is a team account without last activity, does not crash or show last seen', () => {
+    // ARRANGE
+    const user = createUser({
+      lastActivityAt: undefined,
+      roles: ['team-account'],
+    });
+
+    render(<UserResultDisplay user={user} />);
+
+    // ASSERT
+    expect(screen.queryByText(/last seen/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('active-indicator')).not.toBeInTheDocument();
+  });
+
+  it('given the user has no roles defined and has last activity, still shows the last seen label', () => {
+    // ARRANGE
+    const mockCurrentTime = dayjs.utc('2024-01-15T12:00:00Z').toDate();
+    vi.setSystemTime(mockCurrentTime);
+
+    const user = createUser({
+      lastActivityAt: '2024-01-15T10:00:00Z',
+      roles: undefined,
+    });
+
+    render(<UserResultDisplay user={user} />);
+
+    // ASSERT
+    expect(screen.getByText(/last seen/i)).toBeVisible();
+  });
 });

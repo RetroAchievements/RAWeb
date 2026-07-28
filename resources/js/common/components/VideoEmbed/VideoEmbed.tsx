@@ -75,7 +75,7 @@ export const VideoEmbed: FC<VideoEmbedProps> = ({ src }) => {
   }
 
   return (
-    <div data-testid="video-embed" className="embed-responsive aspect-[16/9]">
+    <div data-testid="video-embed" className="embed-responsive aspect-16/9">
       {/* eslint-disable-next-line jsx-a11y/iframe-has-title -- the video URL doesn't carry a title */}
       <iframe
         data-testid="video-embed-iframe"

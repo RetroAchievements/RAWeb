@@ -28,5 +28,5 @@
   color: var(--menu-link-color);
   border-radius: 4px !important;
   border: 1px solid var(--embed-highlight-color);
-  line-height: theme('fontSize.base') !important;
+  line-height: var(--text-base) !important;
 }

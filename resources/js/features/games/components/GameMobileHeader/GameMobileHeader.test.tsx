@@ -246,7 +246,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const titleElement = screen.getByRole('heading', { level: 1 });
-    expect(titleElement).toHaveClass('!text-xl');
+    expect(titleElement).toHaveClass('text-xl!');
   });
 
   it('given the game title is longer than 40 characters, uses base font size', () => {
@@ -266,7 +266,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const titleElement = screen.getByRole('heading', { level: 1 });
-    expect(titleElement).toHaveClass('!text-base');
+    expect(titleElement).toHaveClass('text-base!');
   });
 
   it('given the game title is longer than 60 characters, uses SM font size', () => {
@@ -286,7 +286,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const titleElement = screen.getByRole('heading', { level: 1 });
-    expect(titleElement).toHaveClass('!text-sm');
+    expect(titleElement).toHaveClass('text-sm!');
   });
 
   it('given the game title is 22 characters or less, uses larger font size', () => {

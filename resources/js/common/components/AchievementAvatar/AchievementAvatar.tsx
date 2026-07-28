@@ -89,7 +89,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
       data-testid="ach-avatar-root"
       className={cn(
         variant === 'base' ? 'flex max-w-fit items-center' : null,
-        variant === 'inline' ? 'inline-block min-h-[26px]' : null,
+        variant === 'inline' ? 'inline-block min-h-6.5' : null,
 
         derivedDisplayLockedStatus === 'unlocked-hardcore' ? 'gap-2.5' : 'gap-2',
       )}
@@ -139,10 +139,10 @@ const AchievementBadge: FC<AchievementBadgeProps> = ({
       src={badgeUrl}
       alt={title ?? 'Achievement'}
       className={cn(
-        'rounded-sm',
+        'rounded-xs',
 
         displayLockedStatus === 'unlocked-hardcore'
-          ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
+          ? 'rounded-[1px] outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
           : null,
 
         variant === 'inline' ? 'mr-1.5' : null,

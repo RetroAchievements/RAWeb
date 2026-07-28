@@ -26,7 +26,7 @@ const BaseProgress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.
       <ProgressPrimitive.Root
         ref={ref}
         className={cn(
-          'relative h-1.5 w-full space-x-px overflow-hidden rounded bg-zinc-950 light:bg-zinc-300',
+          'relative h-1.5 w-full space-x-px overflow-hidden rounded-sm bg-zinc-950 light:bg-zinc-300',
           className,
         )}
         max={max}

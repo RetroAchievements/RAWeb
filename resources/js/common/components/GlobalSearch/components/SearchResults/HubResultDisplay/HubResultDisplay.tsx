@@ -12,7 +12,7 @@ export const HubResultDisplay: FC<HubResultDisplayProps> = ({ hub }) => {
 
   return (
     <div className="flex items-center gap-3">
-      <img src={hub.badgeUrl!} alt={hub.title!} className="size-10 rounded" />
+      <img src={hub.badgeUrl!} alt={hub.title!} className="size-10 rounded-sm" />
 
       <div className="flex flex-col gap-0.5">
         <div className="line-clamp-1 font-medium text-link">{cleanHubTitle(hub.title!)}</div>

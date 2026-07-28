@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuGamepad2, LuSatelliteDish, LuUser, LuX } from 'react-icons/lu';
+import { LuCheck, LuGamepad2, LuSatelliteDish, LuX } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
 
@@ -35,23 +35,31 @@ const routesByVariant: Record<OAuthVariant, { approve: RouteName; deny: RouteNam
 };
 
 export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
-  const { auth, authToken, client, csrfToken, request } =
+  const { auth, authToken, client, csrfToken, request, scopes } =
     usePageProps<App.Data.OAuthAuthorizePageProps>();
   const { t } = useTranslation();
 
   const routes = routesByVariant[variant];
 
+  /**
+   * The server sends scope identifiers so the consent copy can be translated here.
+   * An unrecognized scope falls back to its identifier rather than rendering nothing.
+   */
+  const scopeLabels: Record<string, string> = {
+    'data:read': t('View publicly visible RetroAchievements data'),
+  };
+
   return (
     <OAuthPageLayout>
-      <BaseCard className="rounded-2xl p-8 shadow-lg shadow-black/20 ring-1 ring-white/5">
-        <BaseCardHeader className="text-balance px-0 pt-0 text-center">
+      <BaseCard className="rounded-2xl p-8 shadow-lg ring-1 shadow-black/20 ring-white/5">
+        <BaseCardHeader className="px-0 pt-0 text-center text-balance">
           <div className="mb-6 flex justify-center">
             <div className="rounded-xl bg-amber-500/10 p-3">
               <LuGamepad2 className="size-8 text-amber-500 light:text-amber-600" />
             </div>
           </div>
 
-          <BaseCardTitle className="text-base font-semibold leading-normal text-neutral-300 light:text-neutral-900">
+          <BaseCardTitle className="text-base leading-normal font-semibold text-neutral-300 light:text-neutral-900">
             {t('{{clientName}} wants to access your account', { clientName: client.name })}
           </BaseCardTitle>
           <BaseCardDescription className="text-neutral-500 light:text-neutral-700">
@@ -65,15 +73,12 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
         <BaseCardContent className="flex flex-col gap-6 px-0 text-neutral-300 light:text-neutral-900">
           {/* Permissions description */}
           <div className="flex flex-col gap-3 rounded-lg bg-neutral-950 p-4 light:border light:border-neutral-200 light:bg-neutral-100">
-            <div className="flex items-center gap-3 text-xs">
-              <LuUser className="size-4 min-w-4" />
-              <p>{t('Access your profile information')}</p>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs">
-              <LuSatelliteDish className="size-4 min-w-4" />
-              <p>{t('Make API calls on your behalf')}</p>
-            </div>
+            {scopes.map((scope) => (
+              <div key={scope} className="flex items-center gap-3 text-xs">
+                <LuSatelliteDish className="size-4 min-w-4" />
+                <p>{scopeLabels[scope] ?? scope}</p>
+              </div>
+            ))}
           </div>
 
           {/* Current user details */}

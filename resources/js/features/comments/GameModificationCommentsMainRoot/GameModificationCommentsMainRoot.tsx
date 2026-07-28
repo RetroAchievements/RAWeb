@@ -30,7 +30,7 @@ export const GameModificationCommentsMainRoot: FC = () => {
         system={game!.system}
         t_currentPageLabel={t('Modification Comments')}
       />
-      <GameHeading game={game!} wrapperClassName="!mb-1">
+      <GameHeading game={game!} wrapperClassName="mb-1!">
         {t('Modification Comments')}
       </GameHeading>
 

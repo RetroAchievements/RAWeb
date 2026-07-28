@@ -32,7 +32,7 @@ export const AchievementCommentsMainRoot: FC = () => {
         system={achievement!.game?.system}
         t_currentPageLabel={t('Comments')}
       />
-      <AchievementHeading achievement={achievement!} wrapperClassName="!mb-1">
+      <AchievementHeading achievement={achievement!} wrapperClassName="mb-1!">
         {t('Comments')}
       </AchievementHeading>
 

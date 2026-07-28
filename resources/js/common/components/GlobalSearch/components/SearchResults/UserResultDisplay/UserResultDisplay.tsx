@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { UserRole } from '@/common/utils/generatedAppConstants';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 interface UserResultDisplayProps {
@@ -9,19 +10,22 @@ interface UserResultDisplayProps {
 }
 
 export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
-  const isActive = user.lastActivityAt
-    ? Math.abs(dayjs(user.lastActivityAt).diff(dayjs(), 'minute')) <= 5
-    : false;
+  const isTeamAccount = user.roles?.includes(UserRole.TEAM_ACCOUNT) ?? false;
+
+  const isActive =
+    !isTeamAccount && user.lastActivityAt
+      ? Math.abs(dayjs(user.lastActivityAt).diff(dayjs(), 'minute')) <= 5
+      : false;
 
   return (
     <div className="flex w-full items-center gap-3">
       <div className="relative">
-        <img src={user.avatarUrl} alt={user.displayName} className="size-10 rounded" />
+        <img src={user.avatarUrl} alt={user.displayName} className="size-10 rounded-sm" />
 
         {isActive ? (
           <div
             data-testid="active-indicator"
-            className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-embed bg-green-500"
+            className="absolute -top-1 -right-1 size-3 rounded-full border-2 border-embed bg-green-500"
           />
         ) : null}
       </div>
@@ -30,7 +34,9 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
         <div className="font-medium text-link">{user.displayName}</div>
 
         <div className="flex items-center gap-4 text-xs text-neutral-400 light:text-neutral-600">
-          {user.lastActivityAt ? <LastSeenLabel userLastActivityAt={user.lastActivityAt} /> : null}
+          {user.lastActivityAt && !isTeamAccount ? (
+            <LastSeenLabel userLastActivityAt={user.lastActivityAt} />
+          ) : null}
         </div>
       </div>
     </div>

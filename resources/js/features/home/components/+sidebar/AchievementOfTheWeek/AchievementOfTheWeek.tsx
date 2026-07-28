@@ -38,7 +38,7 @@ export const AchievementOfTheWeek: FC = () => {
       <HomeHeading>{t('Achievement of the Week')}</HomeHeading>
 
       <div className="flex flex-col gap-2">
-        <div className="overflow-hidden rounded bg-embed px-2 pt-2">
+        <div className="overflow-hidden rounded-sm bg-embed px-2 pt-2">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <AchievementAvatar
@@ -74,7 +74,7 @@ export const AchievementOfTheWeek: FC = () => {
                   <SystemChip {...system} className="bg-zinc-800" />
 
                   {currentEventAchievement.activeUntil ? (
-                    <span className="smalldate !min-w-fit self-end">
+                    <span className="smalldate min-w-fit! self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
                         values={{ when: currentEventAchievement.activeUntil }}

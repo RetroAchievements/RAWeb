@@ -25,7 +25,7 @@ export const MobileNews: FC = () => {
             key={`news-${news.id}`}
             news={news}
             className={cn(
-              'w-[200px] min-w-[200px] snap-start pl-2',
+              'w-50 min-w-50 snap-start pl-2',
               buildTrackingClassNames(`Click News Post ${index + 1}`),
             )}
           />

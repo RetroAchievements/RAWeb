@@ -225,7 +225,9 @@ class AchievementResource extends Resource
         /** @var User $user */
         $user = Auth::user();
 
-        $schema->model?->loadMissing('game.system');
+        if ($schema->model instanceof Achievement) {
+            $schema->model->loadMissing('game.system');
+        }
 
         return $schema
             ->components([
@@ -363,7 +365,7 @@ class AchievementResource extends Resource
                         ]),
                     ])
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
+                    ->visible(fn ($operation): bool => $operation !== 'create' && $user->can('assignMaintainer', [Achievement::class])),
             ]);
     }
 

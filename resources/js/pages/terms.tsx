@@ -27,7 +27,7 @@ const Terms: AppPage = () => {
           */}
           <div className="sr-only absolute top-4" id="conditions" />
 
-          <div className="rounded bg-embed p-4">
+          <div className="rounded-sm bg-embed p-4">
             <div className="flex flex-col gap-y-6">
               <div>
                 <h2 className="text-h4">{t('Terms and Conditions')}</h2>
@@ -67,7 +67,7 @@ const Terms: AppPage = () => {
             </div>
           </div>
 
-          <div className="rounded bg-embed p-4">
+          <div className="rounded-sm bg-embed p-4">
             <div className="flex flex-col gap-y-6">
               <div>
                 <h2 className="text-h4">{t('Disclaimers')}</h2>
@@ -98,7 +98,7 @@ const Terms: AppPage = () => {
             </div>
           </div>
 
-          <div className="rounded bg-embed p-4">
+          <div className="rounded-sm bg-embed p-4">
             <div className="flex flex-col gap-y-6">
               <div>
                 <h2 className="text-h4">{t('Copyright')}</h2>
@@ -125,7 +125,7 @@ const Terms: AppPage = () => {
             </div>
           </div>
 
-          <div className="rounded bg-embed p-4">
+          <div className="rounded-sm bg-embed p-4">
             <div className="flex flex-col gap-y-6">
               <div>
                 <h2 className="text-h4" id="privacy-policy">

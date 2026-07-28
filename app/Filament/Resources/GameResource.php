@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\ScreenshotResolutionService;
 use BackedEnum;
+use Closure;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
@@ -252,25 +253,60 @@ class GameResource extends Resource
                                 table: 'games',
                                 column: 'title',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn (Unique $rule, ?Game $record) => $rule->where('system_id', $record?->system_id),
+                                modifyRuleUsing: fn (Unique $rule, callable $get) => $rule->where('system_id', $get('system_id')),
                             )
                             ->validationMessages([
                                 'unique' => 'Another game on this system already has this title.',
                             ])
-                            ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'title'])),
 
                         Forms\Components\TextInput::make('sort_title')
                             ->label('Sort Title')
                             ->required()
                             ->minLength(2)
-                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->visible(fn ($operation): bool => $operation !== 'create' && $user->can('updateField', [$schema->model, 'sort_title']))
                             ->helperText('Normalized title for sorting. DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
+
+                        Forms\Components\Select::make('system_id')
+                            ->label('System')
+                            ->required()
+                            ->searchable()
+                            ->visible(fn ($operation): bool => $operation === 'create')
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return System::gameSystems()
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('name_full', 'like', "%{$search}%")
+                                          ->orWhere('name_short', 'like', "%{$search}%")
+                                          ->orWhere('id', 'like', "%{$search}%");
+                                    })
+                                    ->limit(10)
+                                    ->get()
+                                    ->mapWithKeys(function ($system) {
+                                        $label = "[{$system->id}] {$system->name_full}";
+
+                                        return [$system->id => $label];
+                                    })
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function (int $value): string {
+                                $system = System::find($value);
+
+                                return "[{$system->id}] {$system->name}";
+                            })
+                            ->rules([
+                                fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                                    if (!System::gameSystems()->whereKey($value)->exists()) {
+                                        $fail('Games cannot be created for this system.');
+                                    }
+                                },
+                            ]),
 
                         Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')
                             ->numeric()
                             ->rules([new ExistsInForumTopics()])
-                            ->disabled(!$user->can('updateField', [$schema->model, 'forum_topic_id'])),
+                            ->visible(fn ($operation): bool => $operation !== 'create')
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'forum_topic_id'])),
                     ]),
 
                 Schemas\Components\Section::make('Metadata')
@@ -280,22 +316,22 @@ class GameResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('developer')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'developer'])),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'developer'])),
 
                         Forms\Components\TextInput::make('publisher')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'publisher'])),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'publisher'])),
 
                         Forms\Components\TextInput::make('genre')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'genre'])),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'genre'])),
 
                         Forms\Components\TextInput::make('legacy_guide_url')
                             ->label('RAGuide URL')
                             ->url()
                             ->rules([new IsAllowedGuideUrl()])
                             ->suffixIcon('heroicon-m-globe-alt')
-                            ->disabled(!$user->can('updateField', [$schema->model, 'legacy_guide_url'])),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'legacy_guide_url'])),
                     ]),
 
                 Schemas\Components\Section::make('Rich Presence')
@@ -308,8 +344,9 @@ class GameResource extends Resource
                             ->helperText(new HtmlString('<a href="https://docs.retroachievements.org/developer-docs/rich-presence.html" target="_blank" class="underline">Learn more about Rich Presence</a>'))
                             ->placeholder("Format:Number\nFormatType=VALUE")
                             ->extraInputAttributes(['class' => 'font-mono'])
-                            ->disabled(!$user->can('updateField', [$schema->model, 'trigger_definition'])),
-                    ]),
+                            ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'trigger_definition'])),
+                    ])
+                    ->hidden(fn ($operation): bool => $operation === 'create'),
             ]);
     }
 
@@ -654,6 +691,7 @@ class GameResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
+            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'media' => Pages\Media::route('/{record}/media'),

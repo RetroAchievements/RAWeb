@@ -69,11 +69,11 @@ const ArtCreditIcon: FC<ArtCreditIconProps> = ({
 
   return (
     <BaseTooltip>
-      <BaseTooltipTrigger className="px-2 py-[5px]">
+      <BaseTooltipTrigger className="px-2 py-1.25">
         <LuPalette className="size-3.5" />
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent className="w-[14rem] whitespace-nowrap">
+      <BaseTooltipContent className="w-56 whitespace-nowrap">
         <div className="flex flex-col gap-3">
           {badgeArtworkCredits.length ? (
             <TooltipCreditsSection headingLabel={t('Game Badge Artwork')}>

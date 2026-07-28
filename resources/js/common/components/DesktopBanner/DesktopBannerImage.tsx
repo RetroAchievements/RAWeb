@@ -83,7 +83,7 @@ export const DesktopBannerImage: FC<DesktopBannerImageProps> = ({ banner }) => {
       {/* These gradients ensure the navbar and content text remain readable over any image */}
       <div
         data-testid="top-gradient-dark"
-        className="absolute inset-0 hidden light:hidden md:block"
+        className="absolute inset-0 hidden md:block light:hidden"
         style={{ background: buildEasedGradient('to bottom', 'black', 0.6) }}
       />
       <div
@@ -95,7 +95,7 @@ export const DesktopBannerImage: FC<DesktopBannerImageProps> = ({ banner }) => {
       {/* Bottom gradients protect the game title and action chips from low-contrast images */}
       <div
         data-testid="bottom-gradient-dark"
-        className="absolute inset-0 hidden light:hidden md:block"
+        className="absolute inset-0 hidden md:block light:hidden"
         style={{ background: buildEasedGradient('to top', 'black', 0.6) }}
       />
       <div

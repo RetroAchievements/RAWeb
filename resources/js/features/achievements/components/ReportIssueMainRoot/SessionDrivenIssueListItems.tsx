@@ -95,7 +95,7 @@ export const SessionDrivenIssueListItems: FC = () => {
         anchorClassName={buildTrackingClassNames('Click Create Ticket')}
         shouldUseClientSideRoute={true}
       >
-        {t('I met the requirements, but the achievement did not trigger.')}&nbsp;
+        {t('I met the requirements, but the achievement did not trigger.')}{' '}
         {t('It did trigger on a later attempt.')}
       </ReportIssueOptionItem>
     </>

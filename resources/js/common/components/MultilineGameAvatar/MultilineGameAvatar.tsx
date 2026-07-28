@@ -52,7 +52,7 @@ export const MultilineGameAvatar: FC<MultilineGameAvatarProps> = ({
           decoding="async"
         />
 
-        <p className="absolute left-7 top-0 mb-0.5 max-w-fit pl-4 text-xs font-medium">
+        <p className="absolute top-0 left-7 mb-0.5 max-w-fit pl-4 text-xs font-medium">
           <GameTitle title={title} />
         </p>
       </InertiaLink>

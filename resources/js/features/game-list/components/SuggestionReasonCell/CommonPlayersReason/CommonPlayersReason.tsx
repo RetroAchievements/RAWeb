@@ -21,9 +21,9 @@ export const CommonPlayersReason: FC<CommonPlayersReasonProps> = ({
   return (
     <BaseChip
       data-testid="common-players-reason"
-      className="flex gap-1.5 whitespace-nowrap py-1 text-neutral-300 light:text-neutral-900"
+      className="flex gap-1.5 py-1 whitespace-nowrap text-neutral-300 light:text-neutral-900"
     >
-      <IconComponent className="size-[18px] lg:hidden xl:block" />
+      <IconComponent className="size-4.5 lg:hidden xl:block" />
 
       {relatedGame ? (
         <>

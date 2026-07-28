@@ -35,7 +35,7 @@ export const EnterDeviceCodeForm: FC<EnterDeviceCodeFormProps> = ({ serverError 
   return (
     <BaseForm {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} name="enter-device-code">
-        <BaseCardContent className="px-0 pb-6 pt-0">
+        <BaseCardContent className="px-0 pt-0 pb-6">
           <BaseFormField
             control={form.control}
             name="userCode"
@@ -58,7 +58,7 @@ export const EnterDeviceCodeForm: FC<EnterDeviceCodeFormProps> = ({ serverError 
                     }}
                     placeholder={'XXXX-XXXX' as TranslatedString}
                     maxLength={9}
-                    className="h-12 px-4 text-center font-mono text-lg uppercase tracking-widest placeholder:text-neutral-600"
+                    className="h-12 px-4 text-center font-mono text-lg tracking-widest uppercase placeholder:text-neutral-600"
                   />
                 </BaseFormControl>
 

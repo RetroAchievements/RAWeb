@@ -20,7 +20,7 @@ export function linkifyDirective(
     });
 
     requestAnimationFrame(() => {
-      el.classList.add('[&>a]:!text-link');
+      el.classList.add('[&>a]:text-link!');
     });
   });
 }

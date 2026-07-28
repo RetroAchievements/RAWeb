@@ -15,7 +15,7 @@ const SetRequestorsPage: AppPage<App.Community.Data.GameSetRequestsPageProps> = 
         description={`A list of set requests for ${game.title}.`}
       />
 
-      <AppLayout.Main className="min-h-[400px]">
+      <AppLayout.Main className="min-h-100">
         <GameSetRequestsRoot />
       </AppLayout.Main>
     </>

@@ -205,7 +205,7 @@ $userScoreData = getAwardedList($userDetails);
     echo "<h3>History</h3>";
 
     echo "<div>";
-    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
+    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-xs'>";
     echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
     if ($userPageHardcorePoints > 0) {
         echo "(" . localized_number($userPageHardcorePoints) . ") ";

@@ -68,7 +68,7 @@ export const PreferredTierForm: FC<PreferredTierFormProps> = ({
               )}
               onClick={() => form.setValue('tierIndex', award.tierIndex, { shouldDirty: true })}
             >
-              <img src={award.badgeUrl} alt={award.label} className="size-10 rounded-sm" />
+              <img src={award.badgeUrl} alt={award.label} className="size-10 rounded-xs" />
 
               <span className="flex-1 text-left text-sm font-medium">{cleanedLabel}</span>
 

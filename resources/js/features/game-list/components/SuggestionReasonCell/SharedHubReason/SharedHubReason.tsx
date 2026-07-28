@@ -21,9 +21,9 @@ export const SharedHubReason: FC<SharedHubReasonProps> = ({ relatedGame, related
   return (
     <BaseChip
       data-testid="shared-hub-reason"
-      className="flex gap-1 whitespace-nowrap py-1 text-neutral-300 light:text-neutral-900"
+      className="flex gap-1 py-1 whitespace-nowrap text-neutral-300 light:text-neutral-900"
     >
-      <LuNetwork className="size-[18px] lg:hidden xl:block" />
+      <LuNetwork className="size-4.5 lg:hidden xl:block" />
 
       <Trans
         i18nKey={

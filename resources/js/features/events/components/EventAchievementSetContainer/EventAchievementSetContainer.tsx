@@ -25,7 +25,7 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
 
   if (!event.eventAchievements?.length) {
     return (
-      <div className="rounded bg-embed">
+      <div className="rounded-sm bg-embed">
         <EmptyState shouldShowImage={false}>
           {t("There aren't any achievements for this event.")}
         </EmptyState>
@@ -39,7 +39,7 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
     <div data-testid="event-achievement-sets" className="flex flex-col gap-2">
       <div
         className={cn(
-          'flex w-full items-center justify-between rounded bg-embed px-2 py-1.5',
+          'flex w-full items-center justify-between rounded-sm bg-embed px-2 py-1.5',
           'light:border light:border-neutral-200 light:bg-white',
         )}
       >

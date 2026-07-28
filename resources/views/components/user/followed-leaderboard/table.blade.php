@@ -28,7 +28,7 @@
                 {{-- this ignores ties --}}
                 <td class="xl:text-center">{{ $stat['rank'] ?? $loop->iteration }}</td>
 
-                <td>{!! userAvatar($stat['user'], iconSize: 24, iconClass: 'rounded-sm ml-1') !!}</td>
+                <td>{!! userAvatar($stat['user'], iconSize: 24, iconClass: 'rounded-xs ml-1') !!}</td>
 
                 <td>
                     <div class="flex flex-col items-end">

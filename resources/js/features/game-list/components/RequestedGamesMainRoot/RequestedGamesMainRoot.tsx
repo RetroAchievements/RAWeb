@@ -43,12 +43,12 @@ export const RequestedGamesMainRoot: FC = () => {
           {targetUser ? (
             <div className="flex w-full flex-col">
               <UserBreadcrumbs user={targetUser} t_currentPageLabel={t('Set Requests')} />
-              <UserHeading user={targetUser} wrapperClassName="!mb-1">
+              <UserHeading user={targetUser} wrapperClassName="mb-1!">
                 {t('Set Requests')}
               </UserHeading>
             </div>
           ) : (
-            <h1 className="text-h3 w-full sm:!text-[2.0em]">{t('Most Requested Sets')}</h1>
+            <h1 className="text-h3 w-full sm:text-[2.0em]!">{t('Most Requested Sets')}</h1>
           )}
         </div>
       </DataTablePaginationScrollTarget>

@@ -56,7 +56,7 @@ export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
               </tr>
             </thead>
 
-            <tbody className="[&>tr>td]:!px-0 [&>tr>td]:py-2 [&>tr>th]:!px-0 [&>tr]:!bg-embed">
+            <tbody className="[&>tr]:bg-embed! [&>tr>td]:px-0! [&>tr>td]:py-2 [&>tr>th]:px-0!">
               {visibleSettings.map((setting) => (
                 <NotificationsTableRow
                   key={setting.t_label}

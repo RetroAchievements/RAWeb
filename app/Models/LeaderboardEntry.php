@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class LeaderboardEntry extends BaseModel
 {
@@ -34,6 +35,49 @@ class LeaderboardEntry extends BaseModel
     protected static function newFactory(): LeaderboardEntryFactory
     {
         return LeaderboardEntryFactory::new();
+    }
+
+    // == helpers
+
+    /**
+     * Correlated subquery computing an entry's rank. Only valid inside a query
+     * whose outer table is `leaderboard_entries` without an alias.
+     *
+     * @return Builder<LeaderboardEntry>
+     */
+    public static function rankSubquery(): Builder
+    {
+        return self::betterScoringEntriesSubquery()
+            ->selectRaw('COUNT(*) + 1');
+    }
+
+    /**
+     * Correlated subquery matching entries with strictly better scores from
+     * ranked, non-deleted users. Only valid inside a query whose outer table
+     * is `leaderboard_entries` without an alias.
+     *
+     * @return Builder<LeaderboardEntry>
+     */
+    private static function betterScoringEntriesSubquery(): Builder
+    {
+        return self::from('leaderboard_entries as entries_rank_calc')
+            ->join('leaderboards as leaderboard_rank_calc', 'entries_rank_calc.leaderboard_id', '=', 'leaderboard_rank_calc.id')
+            ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
+            ->whereNotExists(function ($sub) {
+                $sub->select('user_id')
+                    ->from('unranked_users')
+                    ->whereColumn('unranked_users.user_id', 'entries_rank_calc.user_id');
+            })
+            ->whereNull('entries_rank_calc.deleted_at')
+            ->where(function (Builder $query) {
+                $query->where(function (Builder $query) {
+                    $query->where(DB::raw('leaderboard_rank_calc.rank_asc'), 1)
+                        ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
+                })->orWhere(function (Builder $query) {
+                    $query->where(DB::raw('leaderboard_rank_calc.rank_asc'), 0)
+                        ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
+                });
+            });
     }
 
     // == accessors
@@ -109,5 +153,24 @@ class LeaderboardEntry extends BaseModel
         }
 
         return $query->where('user_id', $user->id);
+    }
+
+    /**
+     * @param Builder<LeaderboardEntry> $query
+     * @return Builder<LeaderboardEntry>
+     */
+    public function scopeForMaxRank(Builder $query, mixed $maxRank): Builder
+    {
+        $maxRank = filter_var($maxRank, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($maxRank === false) {
+            return $query->whereRaw('1 = 0'); // invalid rank, return no results
+        }
+
+        return $query->whereNotExists(
+            self::betterScoringEntriesSubquery()
+                ->selectRaw('1')
+                ->limit(1)
+                ->offset($maxRank - 1)
+        );
     }
 }

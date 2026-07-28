@@ -27,7 +27,7 @@ $user = request()->user();
     --}}
     @if (!$user->hasVerifiedEmail())
         <x-container>
-            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-xs">
                 <x-fas-exclamation-triangle/>
                 Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
                 <form class="inline" action="/request/auth/send-verification-email.php" method="post">
@@ -41,7 +41,7 @@ $user = request()->user();
 
     @if (session('password_compromised'))
         <x-container>
-            <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
                 <x-fas-exclamation-triangle/>
                 Your password has appeared in a data breach. Please <a href="{{ route('settings', ['tab' => 'account']) }}" class="text-white underline">change your password</a> to secure your account.
             </div>
@@ -50,7 +50,7 @@ $user = request()->user();
 
     @if ($user->delete_requested_at)
         <x-container>
-            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-xs">
                 <x-fas-exclamation-triangle/>
                 Your account is marked to be deleted on {{ getDeleteDate($user->delete_requested_at) }}.
             </div>
@@ -59,7 +59,7 @@ $user = request()->user();
 @endauth
 {{-- TODO toasts --}}
 <div class="sticky top-14 z-10 container">
-    <div id="status" class="hidden absolute w-full text-gray-200 px-5 py-2 rounded-sm"></div>
+    <div id="status" class="hidden absolute w-full text-gray-200 px-5 py-2 rounded-xs"></div>
 </div>
 {{--<div aria-live="polite" aria-atomic="true"
      class="toast-container flex flex-col justify-end lg:justify-center items-end m-3">
@@ -94,7 +94,7 @@ $user = request()->user();
 </div>--}}
 @if(session('message'))
     <x-container>
-        <div class="bg-blue-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+        <div class="bg-blue-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
             <x-fas-info-circle/>
             {{ session('message') }}
         </div>
@@ -102,7 +102,7 @@ $user = request()->user();
 @endif
 @if(session('success'))
     <x-container>
-        <div class="bg-green-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+        <div class="bg-green-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
             <x-fas-check/>
             {{ session('success') }}
         </div>
@@ -110,7 +110,7 @@ $user = request()->user();
 @endif
 @if($error = session('error'))
     <x-container>
-        <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+        <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
             <x-fas-exclamation-triangle/>
             {{ session('error') }}
         </div>
@@ -120,7 +120,7 @@ $user = request()->user();
     {{-- TODO differentiate between validation errors and custom errors --}}
     <x-container>
         @foreach($errors->all() as $error)
-            <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-xs">
                 <x-fas-exclamation-triangle/>
                 {{ $error }}
             </div>

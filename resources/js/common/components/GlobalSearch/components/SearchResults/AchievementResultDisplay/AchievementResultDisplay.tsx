@@ -9,7 +9,11 @@ interface AchievementResultDisplayProps {
 export const AchievementResultDisplay: FC<AchievementResultDisplayProps> = ({ achievement }) => {
   return (
     <div className="flex w-full items-center gap-3">
-      <img src={achievement.badgeUnlockedUrl} alt={achievement.title} className="size-10 rounded" />
+      <img
+        src={achievement.badgeUnlockedUrl}
+        alt={achievement.title}
+        className="size-10 rounded-sm"
+      />
 
       <div className="flex flex-col gap-0.5">
         <div className="flex items-center gap-1.5 font-medium text-link">

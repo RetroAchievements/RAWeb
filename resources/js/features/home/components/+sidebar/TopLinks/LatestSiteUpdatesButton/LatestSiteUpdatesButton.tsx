@@ -58,7 +58,7 @@ export const LatestSiteUpdatesButton: FC = () => {
           {t('Latest Site Updates')}
 
           {isShowingUnreadIndicator ? (
-            <span className="absolute -right-1 -top-1 flex size-2" aria-label={t('(unread)')}>
+            <span className="absolute -top-1 -right-1 flex size-2" aria-label={t('(unread)')}>
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
             </span>

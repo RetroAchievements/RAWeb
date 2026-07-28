@@ -30,7 +30,7 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
         <InertiaLink
           href={route('forum-topic.show', { topic: game.forumTopicId })}
           className={baseButtonVariants({
-            className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
+            className: 'flex w-full items-center justify-start! gap-2 border-l-4 border-l-link',
           })}
           prefetch="desktop-hover-only"
         >
@@ -45,7 +45,7 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
         <InertiaLink
           href={route('forum-topic.show', { topic: backingGame.forumTopicId })}
           className={baseButtonVariants({
-            className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
+            className: 'flex w-full items-center justify-start! gap-2 border-l-4 border-l-link',
           })}
           prefetch="desktop-hover-only"
         >

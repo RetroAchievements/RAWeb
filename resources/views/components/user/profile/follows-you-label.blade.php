@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 @endphp
 
 @if ($areTheyFollowingMe)
-    <div class="h-[24px] max-w-fit flex justify-center items-center bg-embed px-1 py-0.5 border border-embed-highlight rounded">
+    <div class="h-[24px] max-w-fit flex justify-center items-center bg-embed px-1 py-0.5 border border-embed-highlight rounded-sm">
         <p class="-mt-px">Follows you</p>
     </div>
 @endif

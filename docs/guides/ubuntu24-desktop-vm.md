@@ -55,12 +55,12 @@ Go into the virtual machine settings
 
 - General > Features > Shared Clipboard = Bidirectional
 - Network > Adapter 1 > Port Forwarding > Add (four times)
-  | Name | Protocol | Host IP | Host Port | Guest IP | Guest Port |
-  | ---- | -------- | ------- | --------- | -------- | ---------- |
-  | Web Server | TCP | | 64000 | | 64000 |
-  | Mailpit | TCP | | 64050 | | 64050 |
-  | MinIO | TCP | | 64040 | | 64040 |
-  | VITE | TCP | | 64009 | | 64009 |
+  | Name       | Protocol | Host IP | Host Port | Guest IP | Guest Port |
+  | ---------- | -------- | ------- | --------- | -------- | ---------- |
+  | Web Server | TCP      |         | 64000     |          | 64000      |
+  | Mailpit    | TCP      |         | 64050     |          | 64050      |
+  | MinIO      | TCP      |         | 64040     |          | 64040      |
+  | VITE       | TCP      |         | 64009     |          | 64009      |
 
 ## Set up the development environment
 

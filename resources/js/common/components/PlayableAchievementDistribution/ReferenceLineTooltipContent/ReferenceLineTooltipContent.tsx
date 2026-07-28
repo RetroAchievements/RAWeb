@@ -45,7 +45,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
   return (
     <div
       className={cn(
-        'grid min-w-[196px] items-start gap-1.5 rounded-lg border border-neutral-600 bg-embed',
+        'grid min-w-49 items-start gap-1.5 rounded-lg border border-neutral-600 bg-embed',
         'px-2.5 py-1.5 text-xs text-neutral-300 shadow-xl light:text-neutral-800',
       )}
     >
@@ -54,7 +54,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
         active={active}
         payload={payload}
         {...rest}
-        className="!m-0 !border-0 !bg-transparent !p-0 !shadow-none"
+        className="m-0! border-0! bg-transparent! p-0! shadow-none!"
       />
 
       {/* Add reference line information. */}

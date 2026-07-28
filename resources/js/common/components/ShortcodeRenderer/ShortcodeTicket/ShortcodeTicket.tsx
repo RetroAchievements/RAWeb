@@ -34,7 +34,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
         data-testid="achievement-ticket-embed"
         href={route('ticket.show', { ticket: ticketId })}
         {...cardTooltipProps}
-        className={cn('inline-block rounded', getTicketStateClassName(foundTicket.state))}
+        className={cn('inline-block rounded-sm', getTicketStateClassName(foundTicket.state))}
       >
         <img
           loading="lazy"
@@ -43,7 +43,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
           height={28}
           src={foundTicket.ticketable.badgeUnlockedUrl}
           alt={'ticket'}
-          className="rounded-sm border-2 border-transparent"
+          className="rounded-xs border-2 border-transparent"
         />
 
         <span className="px-1">{t('Ticket #{{ticketId}}', { ticketId })}</span>

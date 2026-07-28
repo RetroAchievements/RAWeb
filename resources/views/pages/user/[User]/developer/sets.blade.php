@@ -34,7 +34,7 @@ render(function (View $view, User $user, DeveloperSetsService $pageService) {
     <x-user.breadcrumbs :user="$user" currentPage="Developed Sets" />
 
     <div class="mt-3 -mb-3 w-full flex gap-x-3">
-        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-xs') !!}
         <h1 class="mt-[10px] w-full">{{ $user->display_name }}'s Developed Sets</h1>
     </div>
 

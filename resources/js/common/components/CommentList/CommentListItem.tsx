@@ -35,7 +35,7 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
   return (
     <li
       id={`comment_${comment.id}`}
-      className="group flex w-full scroll-mt-20 items-start gap-4 p-2 target:outline target:outline-2 target:outline-text"
+      className="group flex w-full scroll-mt-20 items-start gap-4 p-2 target:outline-2 target:outline-text"
     >
       <div className="mt-1">
         {comment.isAutomated ? (

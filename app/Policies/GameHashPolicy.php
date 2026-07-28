@@ -39,6 +39,14 @@ class GameHashPolicy
         ]);
     }
 
+    public function createFromFilament(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_HASH_MANAGER,
+        ]);
+    }
+
     public function update(User $user): bool
     {
         return $user->hasAnyRole([

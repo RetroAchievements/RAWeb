@@ -44,7 +44,7 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
             decoding="async"
           />
 
-          <p className="absolute left-7 top-0 mb-0.5 line-clamp-1 pl-4 text-xs font-medium">
+          <p className="absolute top-0 left-7 mb-0.5 line-clamp-1 pl-4 text-xs font-medium">
             <GameTitle title={game.title} />
           </p>
         </InertiaLink>

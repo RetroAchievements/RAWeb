@@ -32,14 +32,14 @@ const TimelineItem: FC<TimelineItemProps> = ({ label, children }) => {
         </div>
       </div>
 
-      <div className="relative hidden before:absolute before:bottom-[-3.5rem] before:left-32 before:top-5 before:w-px before:bg-neutral-700 last:before:hidden md:block">
+      <div className="relative hidden before:absolute before:top-5 before:-bottom-14 before:left-32 before:w-px before:bg-neutral-700 last:before:hidden md:block">
         {/* Label on the left side. */}
-        <div className="absolute left-0 top-2 w-24 text-right text-sm tracking-tight text-gray-400 light:text-neutral-900">
+        <div className="absolute top-2 left-0 w-24 text-right text-sm tracking-tight text-gray-400 light:text-neutral-900">
           {label}
         </div>
 
         {/* Dot marker. */}
-        <div className="absolute left-32 top-5 ml-[-4.5px] size-2.5 rounded-full bg-neutral-700" />
+        <div className="absolute top-5 left-32 ml-[-4.5px] size-2.5 rounded-full bg-neutral-700" />
 
         {/* Content container. */}
         <div
