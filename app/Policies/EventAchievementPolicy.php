@@ -33,6 +33,10 @@ class EventAchievementPolicy
 
     public function view(?User $user, EventAchievement $eventAchievement): bool
     {
+        if (!$eventAchievement->achievement->is_promoted && !$user?->can('manage', $eventAchievement)) {
+            return false;
+        }
+
         $events = Event::query()
             ->where('legacy_game_id', $eventAchievement->achievement->game_id)
             ->get();

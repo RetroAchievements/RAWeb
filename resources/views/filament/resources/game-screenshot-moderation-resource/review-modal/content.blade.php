@@ -51,6 +51,13 @@
         needsFitZoom() {
             return this.naturalWidth > this.maxViewportWidth() || this.naturalHeight > this.maxViewportHeight();
         },
+        bestFittingScale() {
+            const fitting = this.zoomLevels().filter((level) =>
+                this.naturalWidth * level <= this.maxViewportWidth() && this.naturalHeight * level <= this.maxViewportHeight()
+            );
+
+            return fitting.length ? Math.min(Math.max(...fitting), this.defaultScale) : null;
+        },
         zoomOptions() {
             return [...(this.needsFitZoom() ? ['fit'] : []), ...this.zoomLevels()];
         },
@@ -59,11 +66,6 @@
         },
         canUse4xZoom() {
             return Math.max(this.naturalWidth, this.naturalHeight) < this.max4xDimension;
-        },
-        clampZoomScale() {
-            if (!this.zoomLevels().includes(this.zoomScale)) {
-                this.zoomScale = Math.max(...this.zoomLevels());
-            }
         },
         isZoomSelected(option) {
             return option === 'fit' ? this.zoomMode === 'fit' : this.zoomMode === 'scale' && this.zoomScale === option;
@@ -134,9 +136,12 @@
         onZoomImageLoad(event) {
             this.naturalWidth = event.target.naturalWidth;
             this.naturalHeight = event.target.naturalHeight;
-            this.clampZoomScale();
-            if (this.needsFitZoom()) {
+            const scale = this.bestFittingScale();
+            if (scale === null) {
                 this.zoomMode = 'fit';
+            } else {
+                this.zoomMode = 'scale';
+                this.zoomScale = scale;
             }
         },
     }"
@@ -204,7 +209,8 @@
             x-cloak
             x-transition.opacity
             @click.self="closeZoom()"
-            style="position: fixed; inset: 0; z-index: 9999999; background-color: rgba(0, 0, 0, 0.92); display: flex; flex-direction: column;"
+            class="flex flex-col"
+            style="position: fixed; inset: 0; z-index: 9999999; background-color: rgba(0, 0, 0, 0.92);"
         >
             <div
                 class="flex shrink-0 items-center justify-between gap-3 px-6 py-3 text-neutral-100"
@@ -262,7 +268,7 @@
             </div>
 
             <div class="flex-1 overflow-auto" @click.self="closeZoom()">
-                <div class="flex min-h-full min-w-full items-center justify-center p-8" @click.self="closeZoom()">
+                <div class="flex min-h-full w-max min-w-full items-center justify-center p-8" @click.self="closeZoom()">
                     <img
                         :src="zoomedUrl"
                         :alt="zoomedLabel"
@@ -294,17 +300,31 @@
                             @foreach ($card['data'] as $item)
                                 <div class="w-[76px] min-w-[76px] text-xs leading-tight">
                                     @if ($item['url'])
-                                        <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="block rounded bg-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
-                                            <img src="{{ $item['url'] }}" alt="{{ $item['typeLabel'] }} primary" class="block h-11 w-[76px] rounded object-contain" />
-                                        </a>
+                                        @php
+                                            $itemImageRenderingStyle = $item['imageRendering'] ? 'image-rendering: ' . $item['imageRendering'] . ';' : '';
+                                        @endphp
+
+                                        <button
+                                            type="button"
+                                            @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
+                                            class="block w-full cursor-zoom-in rounded bg-gray-950 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                                            title="{{ $item['label'] }}"
+                                        >
+                                            <img src="{{ $item['url'] }}" alt="{{ $item['typeLabel'] }} primary" class="block h-11 w-[76px] rounded object-contain" style="{{ $itemImageRenderingStyle }}" />
+                                        </button>
                                     @else
                                         <div class="h-11 w-[76px] rounded bg-gray-950"></div>
                                     @endif
 
                                     @if ($item['url'])
-                                        <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="mt-1 block text-gray-700 underline-offset-2 hover:underline dark:text-gray-300">
+                                        <button
+                                            type="button"
+                                            @click="openZoom(@js($item['url']), @js($item['label']), @js($item['imageRendering']))"
+                                            class="mt-1 block w-full cursor-zoom-in rounded text-left text-gray-700 transition hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-gray-300 dark:hover:bg-gray-800"
+                                            title="{{ $item['label'] }}"
+                                        >
                                             {{ $item['typeLabel'] }}<br>{{ $item['resolution'] }}
-                                        </a>
+                                        </button>
                                     @else
                                         <span class="mt-1 block text-gray-700 dark:text-gray-300">{{ $item['typeLabel'] }}<br>{{ $item['resolution'] }}</span>
                                     @endif
