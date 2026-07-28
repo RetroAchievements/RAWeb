@@ -92,6 +92,119 @@ describe('Component: AuthorizeRoot', () => {
     expect(screen.getByText('data:mystery')).toBeVisible();
   });
 
+  it('given the follows scope, renders its consent copy instead of the identifier', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['follows:read'],
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
+    expect(screen.queryByText('follows:read')).not.toBeInTheDocument();
+  });
+
+  it('given the game lists scope, renders its consent copy instead of the identifier', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['game-lists:read'],
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
+    ).toBeVisible();
+    expect(screen.queryByText('game-lists:read')).not.toBeInTheDocument();
+  });
+
+  it('given all scopes, renders a distinct line for each', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['data:read', 'follows:read', 'game-lists:read'],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('View publicly visible RetroAchievements data')).toBeVisible();
+    expect(
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
+    expect(
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
+    ).toBeVisible();
+  });
+
+  it('given the device variant, renders the same scope copy as the app variant', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="device" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['follows:read', 'game-lists:read'],
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText('View the people you follow and the people who follow you'),
+    ).toBeVisible();
+    expect(
+      screen.getByText('View your personal game lists, such as Want to Play and Want to Develop'),
+    ).toBeVisible();
+  });
+
   it('displays both deny and authorize buttons', () => {
     // ARRANGE
     render(<AuthorizeRoot variant="app" />, {

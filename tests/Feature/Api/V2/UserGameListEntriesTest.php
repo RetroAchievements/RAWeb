@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use Tests\TestCase;
 
@@ -47,28 +48,31 @@ class UserGameListEntriesTest extends TestCase
     public function testItForbidsDefaultPlayListAccessToUnrelatedAuthenticatedCaller(): void
     {
         // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         $target = User::factory()->create();
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries");
 
         // Assert
         $response->assertForbidden();
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItReturns404ForNonexistentUser(): void
     {
         // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get('/api/v2/users/does-not-exist/user-game-list-entries');
 
         // Assert
@@ -78,13 +82,14 @@ class UserGameListEntriesTest extends TestCase
     public function testItReturns404ForBannedUser(): void
     {
         // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         $banned = User::factory()->create(['banned_at' => now()]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$banned->ulid}/user-game-list-entries");
 
         // Assert
@@ -96,14 +101,15 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $playEntry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
         UserGameListEntry::factory()->setRequest()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries");
 
         // Assert
@@ -118,14 +124,15 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $playEntry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
         UserGameListEntry::factory()->setRequest()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=play");
 
         // Assert
@@ -140,14 +147,15 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
         $requestEntry = UserGameListEntry::factory()->setRequest()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=achievement_set_request");
 
         // Assert
@@ -163,14 +171,15 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $target = User::factory()->create();
-        $friend = User::factory()->create(['web_api_key' => 'test-key']);
+        $friend = User::factory()->create();
+
+        Passport::actingAs($friend, ['data:read', 'game-lists:read'], 'oauth');
         $this->makeFriends($target, $friend);
         $playEntry = UserGameListEntry::factory()->play()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=play");
 
         // Assert
@@ -186,17 +195,22 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $target = User::factory()->create();
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=%20play%20");
 
         // Assert
         $response->assertForbidden();
+        // Pin the refusal to the authorization layer: the scope gates also emit
+        // 403, so a bare status assertion would still pass if the request never
+        // reached the policy.
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItReturnsSetRequestsToNonFriend(): void
@@ -205,13 +219,14 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $target = User::factory()->create();
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         $requestEntry = UserGameListEntry::factory()->setRequest()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=achievement_set_request");
 
         // Assert
@@ -227,18 +242,20 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $target = User::factory()->create();
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($target)->create(['game_id' => $game->id]);
         UserGameListEntry::factory()->setRequest()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries");
 
         // Assert
         $response->assertForbidden();
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItReturnsDevelopKindEntriesToSelf(): void
@@ -246,13 +263,14 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $developEntry = UserGameListEntry::factory()->develop()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=develop");
 
         // Assert
@@ -268,17 +286,19 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $target = User::factory()->create();
-        User::factory()->create(['web_api_key' => 'test-key']);
+        $caller = User::factory()->create();
+
+        Passport::actingAs($caller, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->develop()->for($target)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$target->ulid}/user-game-list-entries?filter[kind]=develop");
 
         // Assert
         $response->assertForbidden();
+        $this->assertNull($response->json('errors.0.meta.required_scope'));
     }
 
     public function testItReturns400ForUnknownKindFilter(): void
@@ -286,13 +306,14 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=garbage");
 
         // Assert
@@ -302,12 +323,13 @@ class UserGameListEntriesTest extends TestCase
     public function testItReturns400ForCommaSeparatedKindFilter(): void
     {
         // Arrange
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[kind]=play,achievement_set_request");
 
         // Assert
@@ -320,14 +342,15 @@ class UserGameListEntriesTest extends TestCase
         $system = System::factory()->create();
         $game1 = Game::factory()->create(['system_id' => $system->id]);
         $game2 = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $entry1 = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game1->id]);
         UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game2->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[gameId]={$game1->id}");
 
         // Assert
@@ -342,14 +365,15 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $playEntry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
         UserGameListEntry::factory()->setRequest()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?filter[gameId]={$game->id}&filter[kind]=play");
 
         // Assert
@@ -364,7 +388,9 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $older = UserGameListEntry::factory()->play()->for($self)->create([
             'game_id' => $game->id,
             'created_at' => now()->subDays(3),
@@ -381,7 +407,6 @@ class UserGameListEntriesTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries");
 
         // Assert
@@ -398,7 +423,9 @@ class UserGameListEntriesTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $older = UserGameListEntry::factory()->play()->for($self)->create([
             'game_id' => Game::factory()->create(['system_id' => $system->id])->id,
             'created_at' => now()->subDays(2),
@@ -411,7 +438,6 @@ class UserGameListEntriesTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?sort=createdAt");
 
         // Assert
@@ -427,7 +453,9 @@ class UserGameListEntriesTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $games = Game::factory()->count(60)->create(['system_id' => $system->id]);
         foreach ($games as $index => $game) {
             UserGameListEntry::factory()->play()->for($self)->create([
@@ -439,7 +467,6 @@ class UserGameListEntriesTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries");
 
         // Assert
@@ -453,7 +480,9 @@ class UserGameListEntriesTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $games = Game::factory()->count(25)->create(['system_id' => $system->id]);
         foreach ($games as $index => $game) {
             UserGameListEntry::factory()->play()->for($self)->create([
@@ -465,7 +494,6 @@ class UserGameListEntriesTest extends TestCase
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?page[number]=2&page[size]=10");
 
         // Assert
@@ -478,12 +506,13 @@ class UserGameListEntriesTest extends TestCase
     public function testItRejectsPageSizeAboveMax(): void
     {
         // Arrange
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?page[size]=10000");
 
         // Assert
@@ -498,13 +527,14 @@ class UserGameListEntriesTest extends TestCase
             'system_id' => $system->id,
             'title' => 'Super Mario Bros.',
         ]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?include=game");
 
         // Assert
@@ -526,13 +556,14 @@ class UserGameListEntriesTest extends TestCase
             'points_total' => 123,
             'achievements_published' => 12,
         ]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         $entry = UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries");
 
         // Assert
@@ -565,13 +596,14 @@ class UserGameListEntriesTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $self = User::factory()->create(['web_api_key' => 'test-key']);
+        $self = User::factory()->create();
+
+        Passport::actingAs($self, ['data:read', 'game-lists:read'], 'oauth');
         UserGameListEntry::factory()->play()->for($self)->create(['game_id' => $game->id]);
 
         // Act
         $response = $this->jsonApi('v2')
             ->expects('user-game-list-entries')
-            ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$self->ulid}/user-game-list-entries?include=game");
 
         // Assert
