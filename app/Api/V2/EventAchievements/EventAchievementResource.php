@@ -22,10 +22,20 @@ class EventAchievementResource extends BaseJsonApiResource
      */
     public function attributes($request): iterable
     {
+        $achievement = $this->resource->achievement;
+
         return [
             'activeFrom' => $this->resource->active_from,
             'activeUntil' => $this->resource->active_until,
             'decorator' => $this->resource->decorator,
+
+            'achievementTitle' => $achievement->title,
+            'achievementDescription' => $achievement->description,
+            'achievementPoints' => $achievement->points,
+            'achievementBadgeUrl' => $achievement->badge_url,
+            'achievementBadgeLockedUrl' => $achievement->badge_locked_url,
+            'eventTitle' => $this->resource->event?->title,
+            'eventBadgeUrl' => $this->resource->event?->badge_url,
         ];
     }
 

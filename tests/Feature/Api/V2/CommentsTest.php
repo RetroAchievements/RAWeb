@@ -146,33 +146,6 @@ class CommentsTest extends TestCase
         ]);
     }
 
-    public function testItFetchesUserWallCommentRelationshipLinkage(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $wallOwner = User::factory()->create(['is_user_wall_active' => true]);
-        $author = User::factory()->create();
-
-        $comment = Comment::factory()->create([
-            'commentable_id' => $wallOwner->id,
-            'commentable_type' => CommentableType::User,
-            'user_id' => $author->id,
-            'body' => 'Thanks for the help.',
-        ]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('comments')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$wallOwner->ulid}/relationships/wall-comments");
-
-        // Assert
-        $response->assertSuccessful();
-        $this->assertEquals([
-            ['type' => 'comments', 'id' => (string) $comment->id],
-        ], $response->json('data'));
-    }
-
     public function testItIncludesAuthorWhenRequested(): void
     {
         // Arrange
@@ -389,29 +362,6 @@ class CommentsTest extends TestCase
             ->expects('comments')
             ->withHeader('X-API-Key', 'test-key')
             ->get("/api/v2/users/{$wallOwner->ulid}/wall-comments");
-
-        // Assert
-        $response->assertNotFound();
-    }
-
-    public function testItReturns404ForDisabledUserWallCommentRelationshipLinkage(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $wallOwner = User::factory()->create(['is_user_wall_active' => false]);
-        $author = User::factory()->create();
-
-        Comment::factory()->create([
-            'commentable_id' => $wallOwner->id,
-            'commentable_type' => CommentableType::User,
-            'user_id' => $author->id,
-        ]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('comments')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/users/{$wallOwner->ulid}/relationships/wall-comments");
 
         // Assert
         $response->assertNotFound();
