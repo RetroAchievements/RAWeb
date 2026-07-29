@@ -20,14 +20,22 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { requestedUsernameAtom } from '../../state/settings.atoms';
 import { SectionFormCard } from '../SectionFormCard';
+import { ChangeUsernameConfirmDialog } from './ChangeUsernameConfirmDialog';
 import { useChangeUsernameForm } from './useChangeUsernameForm';
 
 export const ChangeUsernameSectionCard: FC = () => {
   const { auth, can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
-
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useChangeUsernameForm();
+  const {
+    form,
+    isConfirmDialogOpen,
+    mutation,
+    onConfirmUsernameChange,
+    onSubmit,
+    pendingUsername,
+    setIsConfirmDialogOpen,
+  } = useChangeUsernameForm();
 
   const requestedUsername = useAtomValue(requestedUsernameAtom);
 
@@ -61,7 +69,10 @@ export const ChangeUsernameSectionCard: FC = () => {
               <label id={requestedDisplayNameFieldId} className="text-menu-link @xl:w-2/5">
                 {t('Requested Username')}
               </label>
-              <p aria-labelledby={requestedDisplayNameFieldId}>{requestedUsername}</p>
+
+              <p aria-labelledby={requestedDisplayNameFieldId} data-sentry-mask>
+                {requestedUsername}
+              </p>
             </div>
           ) : null}
 
@@ -82,6 +93,10 @@ export const ChangeUsernameSectionCard: FC = () => {
                           placeholder={t('Enter your new username')}
                           required
                           autoComplete="off"
+                          data-1p-ignore
+                          data-lpignore="true"
+                          data-bwignore
+                          data-form-type="other"
                           minLength={4}
                           maxLength={20}
                           {...field}
@@ -109,6 +124,10 @@ export const ChangeUsernameSectionCard: FC = () => {
                           placeholder={t('Confirm your new username')}
                           required
                           autoComplete="off"
+                          data-1p-ignore
+                          data-lpignore="true"
+                          data-bwignore
+                          data-form-type="other"
                           minLength={4}
                           maxLength={20}
                           {...field}
@@ -124,6 +143,14 @@ export const ChangeUsernameSectionCard: FC = () => {
           ) : null}
         </div>
       </div>
+
+      <ChangeUsernameConfirmDialog
+        isOpen={isConfirmDialogOpen}
+        isSubmitting={mutation.isPending}
+        requestedUsername={pendingUsername}
+        onConfirm={onConfirmUsernameChange}
+        onOpenChange={setIsConfirmDialogOpen}
+      />
     </SectionFormCard>
   );
 };
