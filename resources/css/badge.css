@@ -29,3 +29,63 @@
   aspect-ratio: 1 / 1;
   object-fit: cover;
 }
+
+.holoimage {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, gold, #ff9a5a, #ff6ad5, #8a7dff, #56c8ff, gold) 1;
+  padding: 0;
+  box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+a:has(> .holoimage),
+span:has(> .holoimage) {
+  position: relative;
+  font-size: 0;
+  line-height: 0;
+}
+
+a:has(> .holoimage)::after,
+span:has(> .holoimage)::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    rgb(255 106 213 / 0) 32%,
+    rgb(255 106 213 / 0.85) 44%,
+    rgb(122 249 255 / 0.9) 50%,
+    rgb(255 235 122 / 0.85) 56%,
+    rgb(255 235 122 / 0) 68%
+  );
+  background-size: 300% 100%;
+  background-position: 150% 0;
+  background-repeat: no-repeat;
+  mix-blend-mode: overlay;
+}
+
+a:has(> .holoimage):hover::after,
+span:has(> .holoimage):hover::after {
+  opacity: 1;
+  animation: holo-sweep 1.2s ease-in-out forwards;
+}
+
+@keyframes holo-sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a:has(> .holoimage):hover::after,
+  span:has(> .holoimage):hover::after {
+    animation: none;
+    opacity: 0;
+  }
+}

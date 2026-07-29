@@ -33,6 +33,7 @@ $adminAssignable = [
     Role::PLAYTEST_MANAGER,
     Role::QUALITY_ASSURANCE,
     Role::SET_DESIGNER,
+    Role::SUPPORTER,
     Role::TICKET_MANAGER,
     Role::WRITER,
 ];
@@ -51,6 +52,7 @@ $modAssignable = [
     Role::PLAY_TESTER,
     Role::QUALITY_ASSURANCE,
     Role::SET_DESIGNER,
+    Role::SUPPORTER,
     Role::WRITER,
 ];
 
@@ -240,17 +242,9 @@ return [
         'display' => 5,
         'legacy_role' => Permissions::Registered,
     ],
-
-    /*
-     * assigned by system
-     */
-    // [
-    //     'name' => Role::SUPPORTER,
-    //     'display' => 5,
-    // ],
-    //
-    // [
-    //     'name' => Role::CONTRIBUTOR,
-    //     'display' => 5,
-    // ],
+    [
+        'name' => Role::SUPPORTER,
+        'display' => 5,
+        'legacy_role' => Permissions::Registered,
+    ],
 ];

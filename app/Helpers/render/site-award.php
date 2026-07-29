@@ -338,23 +338,36 @@ function RenderAward(
         $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData) . " times!";
         $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
         $imgclass = 'goldimage';
-        $linkdest = '';
         // TBD: developer sets page?
     } elseif ($awardTypeEnum === AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
         $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData) . " points to the community!";
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
-        $linkdest = ''; // TBD: developer sets page?
+        // TBD: developer sets page?
     // } elseif ($awardTypeEnum === AwardType::Referrals) {
     //     $tooltip = "Referred $awardData members";
     //     $imagepath = "/Badge/00083.png";
     //     $linkdest = ''; // TBD: referrals page?
     } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
-        $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
-        $imagepath = asset('/assets/images/badge/patreon.png');
-        $imgclass = 'goldimage';
-        $linkdest = route('patreon-supporter.index');
+        $isSupporterTier = (int) $awardDataExtra === 2;
+
+        $description = $isSupporterTier
+            ? '$2 Patreon supporter. Thank you so much for your support!'
+            : 'Thank you so much for your support!';
+
+        echo avatar('patreonSupporterAward', $awardData,
+            link: route('patreon-supporter.index'),
+            tooltip: "<div class='p-2 max-w-[320px] text-pretty text-menu-link flex flex-col gap-1'><p class='font-bold'>Patreon Supporter</p><span>{$description}</span><p class='italic'>Supporting RA since {$awardDate}</p></div>",
+            iconUrl: asset('/assets/images/badge/patreon.png'),
+            iconSize: $imageSize,
+            iconClass: $isSupporterTier ? 'holoimage' : 'goldimage',
+            context: $ownerUsername,
+            altText: 'Patreon Supporter',
+            hasLink: $clickable,
+        );
+
+        return;
     } elseif ($awardTypeEnum === AwardType::MediaContribution) {
         $displayTier = (int) ($award['display_award_tier'] ?? $awardDataExtra);
         $actualTier = (int) $awardDataExtra;
@@ -374,7 +387,6 @@ function RenderAward(
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
         $imgclass = 'goldimage';
-        $linkdest = '';
     } else {
         // Unknown or inactive award type
         return;
@@ -384,13 +396,8 @@ function RenderAward(
     $tooltip = attributeEscape($tooltip);
 
     $displayable = "<img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" />";
-    $newOverlayDiv = '';
 
-    if ($clickable && !empty($linkdest)) {
-        $displayable = "<a href=\"$linkdest\">$displayable</a>";
-    }
-
-    echo "<div><div>$displayable</div>$newOverlayDiv</div>";
+    echo "<div><div>$displayable</div></div>";
 }
 
 /**
