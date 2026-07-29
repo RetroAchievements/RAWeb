@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { LaravelValidationError } from '@/common/models';
+import { useCheckNameChangeRequestMutation } from '@/features/settings/hooks/mutations/useCheckNameChangeRequestMutation';
 import { useCreateNameChangeRequestMutation } from '@/features/settings/hooks/mutations/useCreateNameChangeRequestMutation';
 
 import { requestedUsernameAtom } from '../../state/settings.atoms';
@@ -51,7 +52,8 @@ export function useChangeUsernameForm() {
     },
   });
 
-  const mutation = useCreateNameChangeRequestMutation();
+  const checkMutation = useCheckNameChangeRequestMutation();
+  const createMutation = useCreateNameChangeRequestMutation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [pendingUsername, setPendingUsername] = useState('');
@@ -59,10 +61,22 @@ export function useChangeUsernameForm() {
   const isOnlyCapitalizationChange = (newUsername: string) =>
     auth!.user.displayName.toLowerCase() === newUsername.toLowerCase();
 
+  const getErrorMessage = ({ response }: LaravelValidationError) => {
+    if (response.data.message.includes('already been taken')) {
+      return t('This username is already taken.');
+    }
+
+    if (response.data.message.includes('not available')) {
+      return t('This username is not available.');
+    }
+
+    return t('Something went wrong.');
+  };
+
   const submitUsernameChange = async (newUsername: string) => {
     const payload = { newDisplayName: newUsername };
 
-    await toastMessage.promise(mutation.mutateAsync({ payload }), {
+    await toastMessage.promise(createMutation.mutateAsync({ payload }), {
       loading: t('Submitting username change request...'),
       success: () => {
         setIsConfirmDialogOpen(false);
@@ -77,16 +91,10 @@ export function useChangeUsernameForm() {
 
         return t('Submitted username change request!');
       },
-      error: ({ response }: LaravelValidationError) => {
-        if (response.data.message.includes('already been taken')) {
-          return t('This username is already taken.');
-        }
+      error: (error: LaravelValidationError) => {
+        setIsConfirmDialogOpen(false);
 
-        if (response.data.message.includes('not available')) {
-          return t('This username is not available.');
-        }
-
-        return t('Something went wrong.');
+        return getErrorMessage(error);
       },
     });
   };
@@ -95,6 +103,15 @@ export function useChangeUsernameForm() {
     // Bypass the confirm dialog on capitalization-only changes.
     if (isOnlyCapitalizationChange(formValues.newUsername)) {
       await submitUsernameChange(formValues.newUsername);
+
+      return;
+    }
+
+    // Don't ask the user to confirm a name the server is guaranteed to reject.
+    try {
+      await checkMutation.mutateAsync({ payload: { newDisplayName: formValues.newUsername } });
+    } catch (error) {
+      toastMessage.error(getErrorMessage(error as LaravelValidationError));
 
       return;
     }
@@ -108,9 +125,10 @@ export function useChangeUsernameForm() {
   };
 
   return {
+    checkMutation,
     form,
     isConfirmDialogOpen,
-    mutation,
+    createMutation,
     onConfirmUsernameChange,
     onSubmit,
     pendingUsername,
