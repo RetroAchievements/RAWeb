@@ -15,6 +15,7 @@ class UserLastActivityService
     private const CACHE_PREFIX = 'user-activity:';
     private const PENDING_SET_KEY = 'user-activity-flush:pending-set';
     private const CACHE_TTL_HOURS = 24;
+    private const CHUNK_SIZE = 500;
 
     /**
      * Record user activity timestamps.
@@ -137,11 +138,15 @@ class UserLastActivityService
             return 0;
         }
 
+        ksort($activities);
+
         // Write in chunks to avoid overly-massive queries.
-        $chunks = array_chunk($activities, 500, preserve_keys: true);
+        $chunks = array_chunk($activities, self::CHUNK_SIZE, preserve_keys: true);
 
         foreach ($chunks as $chunk) {
-            $this->bulkUpdateChunk($chunk);
+            DB::transaction(function () use ($chunk): void {
+                $this->bulkUpdateChunk($chunk);
+            }, attempts: 3);
         }
 
         return count($activities);

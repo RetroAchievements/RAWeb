@@ -26,7 +26,8 @@ class UpdateDeveloperContributionYieldAction
 
         $user->yield_points = $newContribYield;
         $user->yield_unlocks = $newContribCount;
-        $user->saveQuietly();
+
+        DB::transaction(fn () => $user->saveQuietly(), attempts: 3);
     }
 
     private function calculateContributions(User $user): array
