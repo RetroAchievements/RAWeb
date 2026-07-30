@@ -406,6 +406,8 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::post('username-change-request', [UserSettingsController::class, 'storeUsernameChangeRequest'])
                         ->name('api.settings.name-change-request.store');
+                    Route::post('username-change-request/check', [UserSettingsController::class, 'checkUsernameChangeRequest'])
+                        ->name('api.settings.name-change-request.check');
 
                     Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('api.settings.keys.web.destroy');
                     Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('api.settings.keys.connect.destroy');

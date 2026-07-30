@@ -28,9 +28,10 @@ export const ChangeUsernameSectionCard: FC = () => {
   const { t } = useTranslation();
 
   const {
+    checkMutation,
     form,
     isConfirmDialogOpen,
-    mutation,
+    createMutation,
     onConfirmUsernameChange,
     onSubmit,
     pendingUsername,
@@ -49,7 +50,7 @@ export const ChangeUsernameSectionCard: FC = () => {
       t_headingLabel={t('Change Username')}
       formMethods={form}
       onSubmit={onSubmit}
-      isSubmitting={mutation.isPending}
+      isSubmitting={checkMutation.isPending || createMutation.isPending}
       shouldShowFooter={canShowForm}
     >
       <div className="@container">
@@ -146,7 +147,7 @@ export const ChangeUsernameSectionCard: FC = () => {
 
       <ChangeUsernameConfirmDialog
         isOpen={isConfirmDialogOpen}
-        isSubmitting={mutation.isPending}
+        isSubmitting={createMutation.isPending}
         requestedUsername={pendingUsername}
         onConfirm={onConfirmUsernameChange}
         onOpenChange={setIsConfirmDialogOpen}
