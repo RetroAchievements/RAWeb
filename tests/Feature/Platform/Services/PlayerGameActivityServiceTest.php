@@ -371,6 +371,124 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals($time3->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
     }
 
+    public function testOverlappingMultisetActivity(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var Game $game */
+        $game = $this->seedGame(achievements: 3, withHash: true);
+        $gameHash = $game->hashes->first();
+        $gameAchievementSet = $game->achievementSets()->first();
+        $gameAchievementSet->achievements_first_published_at = Carbon::now()->subDays(40);
+        $gameAchievementSet->save();
+
+        /** @var Game $subsetGame */
+        $subsetGame = $this->seedGame(achievements: 5, withHash: false);
+        (new AssociateAchievementSetToGameAction())->execute($game, $subsetGame, AchievementSetType::Bonus, "Bonus");
+        $subsetAchievementSet = $subsetGame->achievementSets()->first();
+        $subsetAchievementSet->achievements_first_published_at = Carbon::now()->subDays(1);
+        $subsetAchievementSet->save();
+
+        // ===== Start session at time0 (playing game) =====
+        $time00 = Carbon::now()->startOfSecond()->subMinutes(100)->startOfHour();
+        Carbon::setTestNow($time00);
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== play for 15 minutes without any unlocks (have to do in steps to prevent separation) =====
+        Carbon::setTestNow($time00->clone()->addMinutes(8));
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        $time15 = $time00->clone()->addMinutes(15);
+        Carbon::setTestNow($time15);
+
+        // ===== unlocking an achievement starts the beat time metric
+        $ach0 = $game->achievements()->first();
+        $this->addHardcoreUnlock($user, $ach0, $time15);
+
+        // ===== unlocking a subset achievement starts a subset session =====
+        $time20 = $time15->clone()->addMinutes(5);
+        $ach1 = $subsetGame->achievements()->first();
+        $this->addHardcoreUnlock($user, $ach1, $time20);
+
+        // ===== ping for base set extends base set session
+        $time22 = $time20->clone()->addMinutes(2);
+        Carbon::setTestNow($time22);
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== unlocking a subset achievement extends the subset session =====
+        $time27 = $time22->clone()->addMinutes(5);
+        $ach2 = $subsetGame->achievements()->skip(1)->first();
+        $this->addHardcoreUnlock($user, $ach2, $time27);
+
+        // ===== validate =====
+        // one session should exist for each the the set and subset
+        // the set session should run from $time00 to $time22 (22 minutes)
+        // with an unlock at $time1, leaving $time15 to $time22 (7 minutes) of achievement playtime
+        // the subset session should run from $time20 to $time27 (7 minutes), all of which is achievement playtime
+        // the time from $time20 to $time22 is overlapping and should only be tallied once
+        $this->assertEquals(1, PlayerSession::where('game_id', $game->id)->count());
+        $this->assertEquals(1, PlayerSession::where('game_id', $subsetGame->id)->count());
+
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game, withSubsets: true);
+
+        $summary = $activity->summarize();
+        $this->assertEquals(0, $summary['generatedSessionAdjustment']);
+        $this->assertEquals(2, $summary['achievementSessionCount']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $summary['totalPlaytime']);
+        $this->assertEquals($time27->diffInMinutes($time15, true) * 60, $summary['totalUnlockTime']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $summary['achievementPlaytime']);
+
+        $coreSetMetrics = $activity->getAchievementSetMetrics($gameAchievementSet);
+        $this->assertEquals($time15, $coreSetMetrics['firstUnlockTimeCasual']);
+        $this->assertEquals($time15, $coreSetMetrics['lastUnlockTimeCasual']);
+        $this->assertEquals($time15, $coreSetMetrics['firstUnlockTimeHardcore']);
+        $this->assertEquals($time15, $coreSetMetrics['lastUnlockTimeHardcore']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $coreSetMetrics['achievementPlaytimeCasual']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $coreSetMetrics['achievementPlaytimeHardcore']);
+
+        $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
+        $this->assertEquals($time20, $subsetMetrics['firstUnlockTimeCasual']);
+        $this->assertEquals($time27, $subsetMetrics['lastUnlockTimeCasual']);
+        $this->assertEquals($time20, $subsetMetrics['firstUnlockTimeHardcore']);
+        $this->assertEquals($time27, $subsetMetrics['lastUnlockTimeHardcore']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $subsetMetrics['achievementPlaytimeCasual']);
+        $this->assertEquals($time27->diffInMinutes($time00, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
+
+        // ===== ping for base set extends base set session (so it's fully encompassing the subset session)
+        $time30 = $time27->clone()->addMinutes(3);
+        Carbon::setTestNow($time30);
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== validate =====
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game, withSubsets: true);
+
+        $summary = $activity->summarize();
+        $this->assertEquals(0, $summary['generatedSessionAdjustment']);
+        $this->assertEquals(1, $summary['achievementSessionCount']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $summary['totalPlaytime']);
+        $this->assertEquals($time27->diffInMinutes($time15, true) * 60, $summary['totalUnlockTime']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $summary['achievementPlaytime']);
+
+        $coreSetMetrics = $activity->getAchievementSetMetrics($gameAchievementSet);
+        $this->assertEquals($time15, $coreSetMetrics['firstUnlockTimeCasual']);
+        $this->assertEquals($time15, $coreSetMetrics['lastUnlockTimeCasual']);
+        $this->assertEquals($time15, $coreSetMetrics['firstUnlockTimeHardcore']);
+        $this->assertEquals($time15, $coreSetMetrics['lastUnlockTimeHardcore']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $coreSetMetrics['achievementPlaytimeCasual']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $coreSetMetrics['achievementPlaytimeHardcore']);
+
+        $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
+        $this->assertEquals($time20, $subsetMetrics['firstUnlockTimeCasual']);
+        $this->assertEquals($time27, $subsetMetrics['lastUnlockTimeCasual']);
+        $this->assertEquals($time20, $subsetMetrics['firstUnlockTimeHardcore']);
+        $this->assertEquals($time27, $subsetMetrics['lastUnlockTimeHardcore']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $subsetMetrics['achievementPlaytimeCasual']);
+        $this->assertEquals($time30->diffInMinutes($time00, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
+    }
+
     private function assertRichPresenceEvent(array $event, string $message, Carbon $time): void
     {
         $this->assertEquals(PlayerGameActivityEventType::RichPresence, $event['type']);
@@ -498,6 +616,8 @@ class PlayerGameActivityServiceTest extends TestCase
 
     public function testItShowsSessionsBeforeSubsetGameResetWithoutAchievements(): void
     {
+        $now = Carbon::now()->startOfSecond();
+
         // Arrange
         /** @var User $user */
         $user = User::factory()->create();
@@ -509,8 +629,8 @@ class PlayerGameActivityServiceTest extends TestCase
         $subsetGame = $this->seedGame(withHash: false);
 
         // ... create achievement sets and link them ...
-        $mainSet = AchievementSet::factory()->create();
-        $subsetSet = AchievementSet::factory()->create();
+        $mainSet = AchievementSet::factory()->create(['achievements_first_published_at' => $now->clone()->subMonths(3)]);
+        $subsetSet = AchievementSet::factory()->create(['achievements_first_published_at' => $now->clone()->subMonths(2)]);
 
         GameAchievementSet::create([
             'game_id' => $mainGame->id,
@@ -527,8 +647,6 @@ class PlayerGameActivityServiceTest extends TestCase
             'achievement_set_id' => $subsetSet->id, // !! linking subset to root game
             'type' => AchievementSetType::Bonus,
         ]);
-
-        $now = Carbon::now()->startOfSecond();
 
         // ... create sessions on both games before reset ...
         $timeBeforeReset = $now->clone()->subMinutes(100);
@@ -584,8 +702,9 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertContains($mainSessionBeforeReset->id, $sessionIds);
         $this->assertContains($subsetSessionBeforeReset->id, $sessionIds);
 
-        // ... total time should be 20 + 10 + 15 + 5 = 50 minutes ...
-        $this->assertEquals(50 * 60, $summary['totalPlaytime']); // !! 50 minutes in seconds
+        // ... total time should be 20 + 15 = 35 minutes ...
+        // ... 10 + 5 minutes for subset overlap with base set sessions ...
+        $this->assertEquals(35 * 60, $summary['totalPlaytime']); // !! 35 minutes in seconds
     }
 
     public function testBeatMetricsUseSessionStartWhenPlayerGameCreatedMidSession(): void

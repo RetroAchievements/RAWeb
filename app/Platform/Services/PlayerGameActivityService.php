@@ -452,6 +452,7 @@ class PlayerGameActivityService
         $intermediateSessionCount = 0;
         $firstAchievementTime = null;
         $lastAchievementTime = null;
+        $lastSessionEndTime = null;
 
         foreach ($this->sessions as $session) {
             if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock
@@ -461,7 +462,20 @@ class PlayerGameActivityService
                 $generatedSessionCount++;
             }
 
-            $totalTime += $session['duration'];
+            $sessionDuration = $session['duration'];
+            if ($lastSessionEndTime && $lastSessionEndTime->gt($session['startTime'])) {
+                $overlap = $lastSessionEndTime->diffInSeconds($session['startTime'], true);
+                if ($sessionDuration > $overlap) {
+                    $sessionDuration -= $overlap;
+                } else {
+                    $sessionDuration = 0;
+                }
+            }
+            if (!$lastSessionEndTime || $session['endTime']->gt($lastSessionEndTime)) {
+                $lastSessionEndTime = $session['endTime'];
+            }
+
+            $totalTime += $sessionDuration;
 
             $hasAchievements = false;
             foreach ($session['events'] as $event) {
@@ -483,7 +497,8 @@ class PlayerGameActivityService
                     $achievementsTime += $intermediateTime;
                     $unlockSessionCount += $intermediateSessionCount;
                 }
-                $achievementsTime += $session['duration'];
+
+                $achievementsTime += $sessionDuration;
                 $intermediateTime = 0;
                 $intermediateSessionCount = 0;
 
@@ -492,7 +507,7 @@ class PlayerGameActivityService
                     $generatedUnlockSessionCount++;
                 }
             } elseif ($session['type'] === PlayerGameActivitySessionType::Player) {
-                $intermediateTime += $session['duration'];
+                $intermediateTime += $sessionDuration;
                 $intermediateSessionCount++;
             }
         }
@@ -764,6 +779,11 @@ class PlayerGameActivityService
 
             if ($lastSessionEndTime > $sessionStartTime) {
                 // don't double count overlapping sessions between set and subset
+                if ($lastSessionEndTime > $sessionEndTime) {
+                    // session entirely encapsulated by previous session - ignore
+                    continue;
+                }
+
                 $sessionStartTime = $lastSessionEndTime;
             }
 
