@@ -56,7 +56,7 @@ export const AchievementHero: FC = () => {
   });
 
   return (
-    <div className="rounded bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
+    <div className="rounded-sm bg-embed p-2 light:border light:border-neutral-200 light:bg-neutral-50">
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
           <div className="shrink-0">
@@ -65,14 +65,14 @@ export const AchievementHero: FC = () => {
                 achievement.unlockedAt ? achievement.badgeUnlockedUrl : achievement.badgeLockedUrl
               }
               alt={achievement.title}
-              className="size-16 rounded-sm"
+              className="size-16 rounded-xs"
               width={64}
               height={64}
             />
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex min-h-[30px] items-center justify-between gap-2">
+            <div className="flex min-h-7.5 items-center justify-between gap-2">
               {canEditTitle ? (
                 <Controller
                   control={form.control}
@@ -83,7 +83,7 @@ export const AchievementHero: FC = () => {
                       aria-label={t('Achievement title')}
                       maxLength={64}
                       className={cn(
-                        'm-0 w-full border-0 bg-transparent p-0 pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900',
+                        'm-0 w-full border-0 bg-transparent p-0 pb-0.75 text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900',
                         editableAchievementClassNames.field,
                       )}
                       placeholder={t('Achievement title')}
@@ -91,7 +91,7 @@ export const AchievementHero: FC = () => {
                   )}
                 />
               ) : (
-                <p className="pb-[3px] text-lg font-bold leading-[1.25em] text-neutral-100 light:text-neutral-900">
+                <p className="pb-0.75 text-lg leading-[1.25em] font-bold text-neutral-100 light:text-neutral-900">
                   {isRevealedEventAchievement ? (
                     <InertiaLink
                       href={route('achievement.show', {
@@ -113,10 +113,10 @@ export const AchievementHero: FC = () => {
                 <AchievementTypeIndicator
                   showLabel={true}
                   type={achievement.type}
-                  wrapperClassName="hidden !bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800 md:inline-flex"
+                  wrapperClassName="hidden bg-neutral-800! pr-2! md:inline-flex light:bg-neutral-100! light:text-neutral-800!"
                 />
               ) : (
-                <div className="hidden h-[30px] md:block" />
+                <div className="hidden h-7.5 md:block" />
               )}
             </div>
 
@@ -181,7 +181,7 @@ export const AchievementHero: FC = () => {
             <AchievementTypeIndicator
               showLabel={true}
               type={achievement.type}
-              wrapperClassName="!bg-neutral-800 !pr-2 light:!bg-neutral-100 light:!text-neutral-800"
+              wrapperClassName="bg-neutral-800! pr-2! light:bg-neutral-100! light:text-neutral-800!"
             />
           ) : null}
 
@@ -244,7 +244,7 @@ export const AchievementHero: FC = () => {
                 segments={[
                   {
                     value: unlocksHardcoreTotal,
-                    className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                    className: 'bg-linear-to-r from-amber-500 to-[gold]',
                   },
                   {
                     value: unlocksTotal - unlocksHardcoreTotal,

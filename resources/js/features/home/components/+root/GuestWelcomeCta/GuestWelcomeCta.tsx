@@ -17,7 +17,7 @@ export const GuestWelcomeCta: FC = () => {
   return (
     <BaseAlert variant="notice" className="bg-embed light:bg-neutral-50">
       <LuCircleAlert className="size-5" />
-      <BaseAlertTitle className="mb-3 text-xl font-semibold leading-4">
+      <BaseAlertTitle className="mb-3 text-xl leading-4 font-semibold">
         {t('Welcome!')}
       </BaseAlertTitle>
 

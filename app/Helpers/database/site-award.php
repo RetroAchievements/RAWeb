@@ -147,16 +147,34 @@ function HasPatreonBadge(User $user): bool
         ->exists();
 }
 
-function SetPatreonSupporter(User $user, bool $enable): void
+function GetPatreonSupporterTier(User $user): int
 {
-    if ($enable) {
-        $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, 0);
-        SiteBadgeAwarded::dispatch($badge);
-        // TODO PatreonSupporterAdded::dispatch($user);
-    } else {
+    $badge = $user->playerBadges()
+        ->where('award_type', AwardType::PatreonSupporter)
+        ->first();
+
+    return $badge ? (int) $badge->award_tier : 0;
+}
+
+function SetPatreonSupporter(User $user, int $tier): void
+{
+    if ($tier <= 0) {
         $user->playerBadges()->where('award_type', AwardType::PatreonSupporter)->delete();
-        // TODO PatreonSupporterRemoved::dispatch($user);
+
+        return;
     }
+
+    $existing = $user->playerBadges()
+        ->where('award_type', AwardType::PatreonSupporter)
+        ->first();
+    $awardedAt = $existing?->awarded_at;
+
+    if ($existing) {
+        $user->playerBadges()->where('award_type', AwardType::PatreonSupporter)->delete();
+    }
+
+    $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, $tier, $awardedAt);
+    SiteBadgeAwarded::dispatch($badge);
 }
 
 function HasCertifiedLegendBadge(User $user): bool

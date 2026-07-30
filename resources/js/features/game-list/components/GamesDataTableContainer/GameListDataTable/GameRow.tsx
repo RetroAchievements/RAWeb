@@ -14,7 +14,7 @@ export const GameRow: FC<GameRowProps> = ({ row, shouldShowGroups }) => {
     <BaseTableRow
       className={cn(
         shouldShowGroups &&
-          '!bg-transparent first:!mt-0 hover:!bg-gray-500/10 light:!bg-white black:!bg-black',
+          'bg-transparent! first:mt-0! hover:bg-gray-500/10! light:bg-white! black:bg-black!',
       )}
     >
       {row.getVisibleCells().map((cell: Cell<App.Platform.Data.GameListEntry, unknown>) => (

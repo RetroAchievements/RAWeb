@@ -149,7 +149,7 @@ if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDa
 
     @if (!$isEvent)
         {{-- c.progress-pmeta__root > div --}}
-        <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
+        <div @if ($variant === 'user-recently-played') class="flex flex-col-reverse!" @endif>
             @if ($mostRecentUnlockDateLabel)
                 <p>
                     @if ($variant === 'user-recently-played')

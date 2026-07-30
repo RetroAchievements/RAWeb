@@ -49,7 +49,7 @@ export const ShowForumTopicMainRoot: FC = () => {
         forumCategory={forumTopic.forum!.category}
         t_currentPageLabel={forumTopic.title as TranslatedString}
       />
-      <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">{forumTopic.title}</h1>
+      <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:text-[2.0em]!">{forumTopic.title}</h1>
 
       {can.updateForumTopic ? (
         <div className="mb-4 flex flex-col gap-2">
@@ -128,7 +128,7 @@ export const ShowForumTopicMainRoot: FC = () => {
         {!auth?.user && !forumTopic.lockedAt ? <SignInMessage /> : null}
 
         {previewContent ? (
-          <div data-testid="preview-content" className="mb-3 mt-7">
+          <div data-testid="preview-content" className="mt-7 mb-3">
             <ForumPostCard body={previewContent} />
           </div>
         ) : null}

@@ -16,8 +16,8 @@ export const DeviceAuthorizationSuccess: FC = () => {
 
   return (
     <OAuthPageLayout glowVariant="success">
-      <BaseCard className="rounded-2xl p-8 shadow-lg shadow-black/20 ring-1 ring-white/5">
-        <BaseCardHeader className="text-balance px-0 pb-0 pt-0 text-center">
+      <BaseCard className="rounded-2xl p-8 shadow-lg ring-1 shadow-black/20 ring-white/5">
+        <BaseCardHeader className="px-0 pt-0 pb-0 text-center text-balance">
           <div className="mb-6 flex justify-center">
             <div className="rounded-xl bg-green-500/10 p-3">
               <LuCheck className="size-8 text-green-500" />

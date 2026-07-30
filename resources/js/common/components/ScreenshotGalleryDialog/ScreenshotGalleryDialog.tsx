@@ -78,7 +78,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                * the dialog cannot flash through if the scroll container briefly misses
                * a composite frame during scroll.
                */}
-              <div className="fixed inset-0 bg-black outline-none" style={{ zIndex: 9999 }}>
+              <div className="fixed inset-0 bg-black outline-hidden" style={{ zIndex: 9999 }}>
                 <motion.div
                   className="flex h-full flex-col items-center overflow-y-auto"
                   initial={{ opacity: 0 }}
@@ -106,7 +106,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                         className={cn(
                           'flex size-8 items-center justify-center rounded-full',
                           'text-neutral-100 transition-colors',
-                          'hover:text-white focus:outline-none',
+                          'hover:text-white focus:outline-hidden',
                         )}
                       >
                         <RxCross2 className="size-6" />
@@ -116,7 +116,7 @@ export const ScreenshotGalleryDialog: FC<ScreenshotGalleryDialogProps> = ({
                   </div>
 
                   {/* Stacked images */}
-                  <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pb-8 pt-4 sm:gap-6">
+                  <div className="pointer-events-none flex w-full max-w-5xl flex-col gap-4 pt-4 pb-8 sm:gap-6">
                     {screenshots.map((screenshot) => (
                       <ScreenshotGalleryImage
                         key={`${screenshot.id}-${openSessionId}`}

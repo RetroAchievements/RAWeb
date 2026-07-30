@@ -22,6 +22,7 @@ class OAuthClientData extends Data
         public bool $revoked,
         public Carbon $createdAt,
         public Carbon $updatedAt,
+        public bool $confidential,
     ) {
     }
 
@@ -35,6 +36,7 @@ class OAuthClientData extends Data
             revoked: $client->revoked,
             createdAt: Carbon::parse($client->created_at),
             updatedAt: Carbon::parse($client->updated_at),
+            confidential: $client->confidential(),
         );
     }
 }

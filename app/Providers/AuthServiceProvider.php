@@ -11,11 +11,17 @@ use App\Data\EnterDeviceCodePagePropsData;
 use App\Data\OAuthAuthorizePagePropsData;
 use App\Data\OAuthClientData;
 use App\Data\OAuthRequestData;
+use App\Enums\OAuthScope;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RecordApprovedOAuthGrant;
+use App\Models\OAuthClient;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Passport\Passport;
@@ -31,14 +37,35 @@ class AuthServiceProvider extends ServiceProvider
         // Passport::routes();
         // Passport::cookie(config('session.cookie') . '_token');
 
-        if (app()->isProduction()) {
+        if (!config('feature.oauth')) {
             Passport::ignoreRoutes();
         }
+
+        /**
+         * Driven off the enum so a newly added scope can never be missing from
+         * the registry that backs consent and token issuance.
+         */
+        Passport::tokensCan(
+            collect(OAuthScope::cases())
+                ->mapWithKeys(fn (OAuthScope $scope): array => [$scope->value => $scope->description()])
+                ->all()
+        );
+
+        /**
+         * Only the umbrella read scope is granted without being asked for.
+         * Anything caller-private must be requested and consented to explicitly.
+         */
+        Passport::defaultScopes([OAuthScope::Read->value]);
+        Passport::tokensExpireIn(now()->addDays(15));
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::useClientModel(OAuthClient::class);
+
+        $this->configureRateLimiting();
 
         Passport::authorizationView(function ($parameters) {
             return Inertia::render('oauth/authorize', new OAuthAuthorizePagePropsData(
                 client: OAuthClientData::fromClient($parameters['client']),
-                scopes: $parameters['scopes'],
+                scopes: array_map(fn ($scope): string => $scope->id, $parameters['scopes']),
                 request: OAuthRequestData::fromPassportRequest($parameters['request']),
                 authToken: $parameters['authToken'],
             ))->toResponse(request());
@@ -53,7 +80,7 @@ class AuthServiceProvider extends ServiceProvider
         Passport::deviceAuthorizationView(function ($parameters) {
             return Inertia::render('oauth/device/authorize', new AuthorizeDevicePagePropsData(
                 client: OAuthClientData::fromClient($parameters['client']),
-                scopes: $parameters['scopes'],
+                scopes: array_map(fn ($scope): string => $scope->id, $parameters['scopes']),
                 request: DeviceAuthorizationRequestData::fromPassportRequest($parameters['request']),
                 authToken: $parameters['authToken'],
             ))->toResponse(request());
@@ -75,6 +102,16 @@ class AuthServiceProvider extends ServiceProvider
             }
 
             Route::getRoutes()->getByName('passport.device')?->middleware('auth');
+
+            foreach (['passport.authorizations.approve', 'passport.device.authorizations.approve'] as $routeName) {
+                Route::getRoutes()->getByName($routeName)?->middleware([
+                    RecordApprovedOAuthGrant::class,
+                    'throttle:oauth-consent',
+                ]);
+            }
+
+            Route::getRoutes()->getByName('passport.token')?->middleware('throttle:oauth-token');
+            Route::getRoutes()->getByName('passport.device')?->middleware('throttle:oauth-consent');
         });
 
         /*
@@ -124,8 +161,8 @@ class AuthServiceProvider extends ServiceProvider
 
             $able = false;
             $able = match ($section) {
-                'profile', 'site' => true,
-                'library', 'notifications', 'privacy', 'account', 'social', 'applications', 'root' => $user->can('root'),
+                'profile', 'site', 'applications' => true,
+                'library', 'notifications', 'privacy', 'account', 'social', 'root' => $user->can('root'),
                 default => $able,
             };
 
@@ -143,5 +180,11 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('viewPulse', fn (User $user) => $user->can('tool'));
 
+    }
+
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('oauth-consent', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
+        RateLimiter::for('oauth-token', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

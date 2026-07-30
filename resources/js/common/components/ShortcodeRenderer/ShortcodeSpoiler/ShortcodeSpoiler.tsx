@@ -48,7 +48,7 @@ export const ShortcodeSpoiler: FC<ShortcodeSpoilerProps> = ({ children }) => {
           )}
         >
           <div className="overflow-hidden">
-            <div className="rounded-b-lg rounded-tr-lg bg-embed px-3 py-2">
+            <div className="rounded-tr-lg rounded-b-lg bg-embed px-3 py-2">
               {stripLeadingWhitespaceFromChildren(children)}
             </div>
           </div>

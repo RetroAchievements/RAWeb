@@ -28,7 +28,7 @@ export const UserCommentsMainRoot: FC = () => {
   return (
     <div>
       <UserBreadcrumbs user={targetUser!} t_currentPageLabel={t('Comments')} />
-      <UserHeading user={targetUser!} wrapperClassName="!mb-1">
+      <UserHeading user={targetUser!} wrapperClassName="mb-1!">
         {t('Comments')}
       </UserHeading>
 

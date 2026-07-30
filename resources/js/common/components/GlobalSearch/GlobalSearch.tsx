@@ -123,27 +123,27 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
         <BaseCommand
           shouldFilter={false}
           className={cn([
-            '[&_[cmdk-input-wrapper]]:border-none',
-            '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium',
-            '[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2',
+            '**:[[cmdk-input-wrapper]]:border-none',
+            '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium',
+            '[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2',
             '[&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5',
-            '[&_[cmdk-input]]:h-12 [&_[cmdk-input]]:text-[16px] [&_[cmdk-input]]:sm:text-sm',
+            '**:[[cmdk-input]]:h-12 **:[[cmdk-input]]:text-base **:[[cmdk-input]]:sm:text-sm',
             "[&_[cmdk-item][data-selected='true']]:bg-neutral-800/50 [&_[cmdk-item][data-selected='true']]:light:bg-neutral-200/50",
-            '[&_[cmdk-item]]:cursor-pointer [&_[cmdk-item]]:px-2',
-            '[&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5',
+            '**:[[cmdk-item]]:cursor-pointer **:[[cmdk-item]]:px-2',
+            '**:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5',
           ])}
           onKeyDown={handleCommandKeyDown}
         >
-          <div className="mb-3 pl-2 pt-2 sm:hidden">
+          <div className="mb-3 pt-2 pl-2 sm:hidden">
             <div className="relative flex items-center">
               <CommandPrimitive.Input
                 value={rawQuery}
                 onValueChange={setRawQuery}
-                className="peer w-[calc(100%-48px)] border-text ps-10 focus:outline-none"
+                className="peer w-[calc(100%-48px)] border-text ps-10 focus:outline-hidden"
                 placeholder={t('Search')}
               />
 
-              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+              <div className="pointer-events-none absolute inset-y-0 inset-s-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
                 <LuSearch className="size-5" />
               </div>
             </div>
@@ -172,10 +172,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
 
           <BaseSeparator className="light:bg-neutral-200" />
 
-          <BaseCommandList
-            ref={scrollContainerRef}
-            className="max-h-none flex-grow overflow-y-auto"
-          >
+          <BaseCommandList ref={scrollContainerRef} className="max-h-none grow overflow-y-auto">
             <AnimatePresence mode="wait">
               {/* Loading spinner in the top right. */}
               {isLoading ? (
@@ -185,7 +182,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-10 top-4 z-10"
+                  className="absolute top-4 right-10 z-10"
                 >
                   <LuLoaderCircle className="size-4 animate-spin" />
                 </motion.div>
@@ -199,7 +196,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
                   animate={{ opacity: 1, transform: 'translateY(0px)' }}
                   exit={{ opacity: 0, transform: 'translateY(-10px)' }}
                   transition={{ delay: 0.15, duration: 0.2 }}
-                  className="px-3 py-[120px] text-center"
+                  className="px-3 py-30 text-center"
                 >
                   <BootState />
                 </motion.div>
@@ -226,7 +223,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
                   animate={{ opacity: 1, transform: 'translateY(0px)' }}
                   exit={{ opacity: 0, transform: 'translateY(-10px)' }}
                   transition={{ duration: 0.2 }}
-                  className="py-[150px]"
+                  className="py-37.5"
                 >
                   <div className="flex items-center justify-center text-sm text-neutral-500">
                     {t('No results found.')}

@@ -19,7 +19,7 @@ final class EventAchievementActiveFilter implements Filter
 
     public function isSingular(): bool
     {
-        return true;
+        return false;
     }
 
     /**

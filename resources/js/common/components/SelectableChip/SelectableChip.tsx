@@ -19,7 +19,7 @@ export const SelectableChip: FC<SelectableChipProps> = ({ children, isSelected, 
         className: cn(
           'border transition',
           isSelected
-            ? 'border-neutral-200 !bg-neutral-800 text-neutral-50'
+            ? 'border-neutral-200 bg-neutral-800! text-neutral-50'
             : 'border-neutral-700 text-neutral-300 hover:bg-neutral-800 light:bg-neutral-100 light:text-neutral-700',
         ),
       })}

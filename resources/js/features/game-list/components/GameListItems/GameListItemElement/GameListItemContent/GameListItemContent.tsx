@@ -56,7 +56,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
 
         {/* Game info section */}
         {/* TODO if this gets more complex, break it out into another component */}
-        <div className="flex-grow truncate">
+        <div className="grow truncate">
           <div className="flex flex-col gap-1">
             <InertiaLink
               href={route('game.show', { game: game.id })}
@@ -104,7 +104,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
             <MdClose
               className={cn(
                 'h-4 w-4 transition-transform',
-                'disabled:!text-neutral-100 light:disabled:text-neutral-950',
+                'disabled:text-neutral-100! light:disabled:text-neutral-950',
 
                 backlogState.isInBacklogMaybeOptimistic ? 'text-red-500' : 'rotate-45',
               )}
@@ -127,7 +127,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
       </div>
 
       {isLastItem ? null : (
-        <hr className="ml-14 mt-2 border-neutral-700 light:border-neutral-200" />
+        <hr className="mt-2 ml-14 border-neutral-700 light:border-neutral-200" />
       )}
     </li>
   );

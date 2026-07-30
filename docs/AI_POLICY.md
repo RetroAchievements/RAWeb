@@ -1,7 +1,7 @@
 > [!NOTE]
 > This policy is mostly a copy of the
-[AI policy](https://github.com/ghostty-org/ghostty/blob/01ea3744c59af4d973e96c5cce2fe8d4aa485e59/AI_POLICY.md) from the Ghostty project,
-with slight modifications to fit RAWeb.
+> [AI policy](https://github.com/ghostty-org/ghostty/blob/01ea3744c59af4d973e96c5cce2fe8d4aa485e59/AI_POLICY.md) from the Ghostty project,
+> with slight modifications to fit RAWeb.
 
 # AI/LLM Contribution Policy
 

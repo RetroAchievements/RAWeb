@@ -10,6 +10,7 @@ use App\Models\AchievementSetAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievement;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\UnrankedUser;
 use App\Models\User;
@@ -681,6 +682,10 @@ class PlayerAchievementsTest extends TestCase
         $achievement = Achievement::factory()->create(['game_id' => $game->id]);
 
         $player = User::factory()->create();
+        $developerRole = Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
+        $artistRole = Role::create(['name' => Role::ARTIST, 'display' => 2]);
+        $player->assignRole($developerRole);
+        $player->assignRole($artistRole);
         PlayerAchievement::factory()->create([
             'user_id' => $player->id,
             'achievement_id' => $achievement->id,
@@ -698,6 +703,46 @@ class PlayerAchievementsTest extends TestCase
         $this->assertNotEmpty($included);
         $this->assertEquals('users', $included[0]['type']);
         $this->assertEquals($player->display_name, $included[0]['attributes']['displayName']);
+        $this->assertEquals(Role::DEVELOPER, $included[0]['attributes']['visibleRole']);
+        $this->assertEquals([Role::DEVELOPER, Role::ARTIST], $included[0]['attributes']['displayableRoles']);
+    }
+
+    public function testItCanIncludeUserRelationshipFromAchievementWithSparseUserFields(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+        $player = User::factory()->create([
+            'display_name' => 'SparsePlayer',
+            'motto' => 'Do not include this',
+        ]);
+        $playerAchievement = PlayerAchievement::factory()->create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('player-achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/achievements/{$achievement->id}/player-achievements?include=user&fields[users]=displayName,avatarUrl");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('users', $response->json('data.0.relationships.user.data.type'));
+        $this->assertEquals($player->ulid, $response->json('data.0.relationships.user.data.id'));
+        $this->assertEquals((string) $playerAchievement->id, $response->json('data.0.id'));
+
+        $includedPlayer = collect($response->json('included'))->firstWhere('type', 'users');
+        $this->assertNotNull($includedPlayer);
+        $this->assertEquals($player->ulid, $includedPlayer['id']);
+        $this->assertEquals('SparsePlayer', $includedPlayer['attributes']['displayName']);
+        $this->assertEquals(['displayName', 'avatarUrl'], array_keys($includedPlayer['attributes']));
+        $this->assertArrayNotHasKey('motto', $includedPlayer['attributes']);
+        $this->assertArrayNotHasKey('points', $includedPlayer['attributes']);
+        $this->assertArrayNotHasKey('visibleRole', $includedPlayer['attributes']);
     }
 
     public function testItCanIncludeGameRelationshipFromAchievement(): void

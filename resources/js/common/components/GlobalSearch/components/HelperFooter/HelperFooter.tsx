@@ -8,7 +8,7 @@ export const HelperFooter: FC = () => {
   const { t } = useTranslation();
 
   const kbdClassNames = cn([
-    'flex h-5 items-center gap-1 rounded border border-neutral-700 bg-neutral-800 px-1.5',
+    'flex h-5 items-center gap-1 rounded-sm border border-neutral-700 bg-neutral-800 px-1.5',
     'font-mono font-medium text-neutral-400 light:border-neutral-300 light:bg-white light:text-neutral-600',
   ]);
 

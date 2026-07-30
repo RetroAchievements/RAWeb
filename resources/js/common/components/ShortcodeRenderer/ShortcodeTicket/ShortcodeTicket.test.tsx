@@ -46,6 +46,27 @@ describe('Component: ShortcodeTicket', () => {
     expect(screen.queryByTestId('achievement-ticket-embed')).not.toBeInTheDocument();
   });
 
+  it('given a rich presence ticket is found, renders nothing', () => {
+    // ARRANGE
+    const ticket = createTicket({
+      id: 123,
+      ticketableType: 'game.rich-presence',
+    });
+
+    render(<ShortcodeTicket ticketId={123} />, {
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
+    });
+
+    // ACT
+    const ticketEmbed = screen.queryByRole('link');
+
+    // ASSERT
+    expect(ticketEmbed).not.toBeInTheDocument();
+  });
+
   it('given an achievement ticket is found, renders it properly', () => {
     // ARRANGE
     const ticket = createTicket({

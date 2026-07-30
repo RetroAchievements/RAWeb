@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Filament\Actions\BuildGenreCapWarningAction;
 use App\Filament\Actions\ParseIdsFromCsvAction;
+use App\Filament\Enums\GenreCapWarningSubject;
 use App\Filament\Resources\GameResource;
 use App\Filament\Resources\HubResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\User;
+use App\Platform\Actions\AttachGamesToHubsAction;
 use App\Platform\Enums\GameSetType;
 use BackedEnum;
 use Filament\Actions;
@@ -155,53 +158,50 @@ class Hubs extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        // Handle select field input.
-                        if (!empty($data['hub_ids'])) {
-                            $gameSets = GameSet::whereType(GameSetType::Hub)
-                                ->whereIn('id', $data['hub_ids'])
-                                ->get();
+                        $selectIds = !empty($data['hub_ids']) ? array_map('intval', $data['hub_ids']) : [];
+                        $csvIds = !empty($data['hub_ids_csv'])
+                            ? array_map('intval', (new ParseIdsFromCsvAction())->execute($data['hub_ids_csv']))
+                            : [];
+                        $hubIds = array_values(array_unique(array_merge($selectIds, $csvIds)));
 
-                            // We still need to check these as a security measure
-                            // because Livewire doesn't actually stop the user from
-                            // directly manipulating the form value via browser devtools.
-                            $unauthorizedHubs = [];
-                            foreach ($gameSets as $gameSet) {
-                                if ($user->can('update', $gameSet)) {
-                                    $gameSet->games()->attach([$game->id]);
-                                } else {
-                                    $unauthorizedHubs[] = $gameSet->title;
-                                }
-                            }
-
+                        if (empty($hubIds)) {
                             return;
                         }
 
-                        // Handle CSV input.
-                        if (!empty($data['hub_ids_csv'])) {
-                            $hubIds = (new ParseIdsFromCsvAction())->execute($data['hub_ids_csv']);
+                        // Already-attached hubs are not filtered here. The attach action owns
+                        // that check, and it answers more accurately from inside its transaction.
+                        $gameSets = GameSet::whereType(GameSetType::Hub)
+                            ->whereIn('id', $hubIds)
+                            ->get();
 
-                            // Validate that these hubs can be attached.
-                            $gameSets = GameSet::whereType(GameSetType::Hub)
-                                ->whereIn('id', $hubIds)
-                                ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
-                                ->get();
+                        // We still need to check these as a security measure
+                        // because Livewire doesn't actually stop the user from
+                        // directly manipulating the form value via browser devtools.
+                        [$authorizedHubs, $unauthorizedHubs] = $gameSets->partition(
+                            fn (GameSet $gameSet): bool => $user->can('update', $gameSet)
+                        );
 
-                            $unauthorizedHubs = [];
-                            foreach ($gameSets as $gameSet) {
-                                if ($user->can('update', $gameSet)) {
-                                    $gameSet->games()->attach([$game->id]);
-                                } else {
-                                    $unauthorizedHubs[] = $gameSet->title;
-                                }
-                            }
+                        $result = (new AttachGamesToHubsAction())->execute($authorizedHubs, [$game->id]);
 
-                            if (!empty($unauthorizedHubs)) {
-                                Notification::make()
-                                    ->warning()
-                                    ->title('Some hubs were not added')
-                                    ->body('You do not have permission to update: ' . implode(', ', $unauthorizedHubs))
-                                    ->send();
-                            }
+                        if ($unauthorizedHubs->isNotEmpty()) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Some hubs were not added')
+                                ->body('You do not have permission to update: ' . $unauthorizedHubs->pluck('title')->implode(', '))
+                                ->send();
+                        }
+
+                        $skippedHubIds = array_values(array_unique(
+                            array_column($result['skippedForGenreCap'], 'hub_id')
+                        ));
+                        $genreCapWarning = (new BuildGenreCapWarningAction())
+                            ->execute($skippedHubIds, GenreCapWarningSubject::Hubs);
+                        if ($genreCapWarning !== null) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Genre hub cap reached')
+                                ->body($genreCapWarning)
+                                ->send();
                         }
                     }),
             ])

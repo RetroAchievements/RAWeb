@@ -47,7 +47,7 @@ export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
   return (
     <BaseTableRow
       key={`top-players-${player.userDisplayName}`}
-      className={cn('last:rounded-b-lg [&>td]:py-[6px]', isMe ? 'outline outline-text' : null)}
+      className={cn('last:rounded-b-lg [&>td]:py-1.5', isMe ? 'outline outline-text' : null)}
     >
       <BaseTableCell className="text-right">{formatNumber(getRowNumber())}</BaseTableCell>
 

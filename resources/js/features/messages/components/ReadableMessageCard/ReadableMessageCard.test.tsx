@@ -139,7 +139,7 @@ describe('Component: ReadableMessageCard', () => {
 
     // ASSERT
     const messageCard = screen.getByTestId(`message-${message.id}`);
-    expect(messageCard).toHaveClass('outline', 'outline-2');
+    expect(messageCard).toHaveClass('outline-2');
   });
 
   it('given isHighlighted is false, does not apply outline styling', () => {

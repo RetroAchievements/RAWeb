@@ -64,14 +64,14 @@ export const GlobalStatistics: FC = () => {
           <div className="group flex h-full flex-col rounded border border-neutral-700/80 bg-embed px-2 py-2.5 light:border-neutral-400">
             <span
               id="registered-players-label"
-              className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs"
+              className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950"
             >
               {t('Registered Players')}
             </span>
 
             <p
               aria-labelledby="registered-players-label"
-              className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950"
+              className="text-xl! leading-7 text-neutral-300 light:text-neutral-950"
             >
               {formatNumber(staticData?.numRegisteredUsers)}
             </p>
@@ -89,11 +89,11 @@ export const GlobalStatistics: FC = () => {
         {isBillionPointMilestone ? (
           <MilestonePointsBox totalPoints={staticData.totalPointsEarned} />
         ) : (
-          <div className="group flex h-full flex-col rounded bg-embed px-2 py-2.5">
-            <p className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs">
+          <div className="group flex h-full flex-col rounded-sm bg-embed px-2 py-2.5">
+            <p className="text-xs leading-4 text-neutral-400/90 lg:text-2xs light:text-neutral-950">
               {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
             </p>
-            <p className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
+            <p className="text-xl! leading-7 text-neutral-300 light:text-neutral-950">
               {formatNumber(staticData?.totalPointsEarned)}
             </p>
           </div>

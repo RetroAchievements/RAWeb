@@ -3,6 +3,14 @@ import { act, renderHook, waitFor } from '@/test';
 import { useCanShowScrollToTopButton } from './useCanShowScrollToTopButton';
 
 describe('Hook: useCanShowScrollToTopButton', () => {
+  const dispatchScroll = async (scrollY: number) => {
+    await act(async () => {
+      Object.defineProperty(window, 'scrollY', { value: scrollY, configurable: true });
+      window.dispatchEvent(new Event('scroll'));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  };
+
   beforeEach(() => {
     Object.defineProperty(document.documentElement, 'scrollHeight', {
       value: 3000,
@@ -39,15 +47,14 @@ describe('Hook: useCanShowScrollToTopButton', () => {
     expect(result.current).toEqual(false);
   });
 
-  it('given the user has not scrolled past 800px, returns false', () => {
+  it('given the user scrolls up before 800px, returns false', async () => {
     // ARRANGE
     const { result } = renderHook(() => useCanShowScrollToTopButton());
+    await dispatchScroll(900);
+    await dispatchScroll(850);
 
     // ACT
-    act(() => {
-      Object.defineProperty(window, 'scrollY', { value: 500, configurable: true });
-      window.dispatchEvent(new Event('scroll'));
-    });
+    await dispatchScroll(500);
 
     // ASSERT
     expect(result.current).toEqual(false);
@@ -141,16 +148,14 @@ describe('Hook: useCanShowScrollToTopButton', () => {
     });
   });
 
-  it('given the user is within 200px of the bottom of the page, returns false', () => {
+  it('given the user scrolls up within 200px of the bottom of the page, returns false', async () => {
     // ARRANGE
     const { result } = renderHook(() => useCanShowScrollToTopButton());
+    await dispatchScroll(900);
+    await dispatchScroll(850);
 
     // ACT
-    // ... scroll to near the bottom (remaining scroll = 2000 - 1850 = 150px) ...
-    act(() => {
-      Object.defineProperty(window, 'scrollY', { value: 1850, configurable: true });
-      window.dispatchEvent(new Event('scroll'));
-    });
+    await dispatchScroll(1850); // remaining scroll = 2000 - 1850 = 150px
 
     // ASSERT
     expect(result.current).toEqual(false);

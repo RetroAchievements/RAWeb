@@ -12,7 +12,6 @@ use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
@@ -91,6 +90,7 @@ class LeaderboardEntrySchema extends Schema
             WhereIdIn::make($this)->delimiter(','),
             Scope::make('gameId', 'forGameIds'),
             Scope::make('user', 'forUserIdentifier'),
+            Scope::make('maxRank', 'forMaxRank'),
         ];
     }
 
@@ -159,25 +159,7 @@ class LeaderboardEntrySchema extends Schema
         $query
             ->select('leaderboard_entries.*')
             ->addSelect([
-                'rank' => LeaderboardEntry::from('leaderboard_entries as entries_rank_calc')
-                    ->join('leaderboards as leaderboard_rank_calc', 'entries_rank_calc.leaderboard_id', '=', 'leaderboard_rank_calc.id')
-                    ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
-                    ->whereNotExists(function ($sub) {
-                        $sub->select('user_id')
-                            ->from('unranked_users')
-                            ->whereColumn('unranked_users.user_id', 'entries_rank_calc.user_id');
-                    })
-                    ->whereNull('entries_rank_calc.deleted_at')
-                    ->where(function (Builder $q) {
-                        $q->where(function (Builder $q) {
-                            $q->where(DB::raw('leaderboard_rank_calc.rank_asc'), 1)
-                                ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
-                        })->orWhere(function (Builder $q) {
-                            $q->where(DB::raw('leaderboard_rank_calc.rank_asc'), 0)
-                                ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
-                        });
-                    })
-                    ->selectRaw('COUNT(*) + 1'),
+                'rank' => LeaderboardEntry::rankSubquery(),
             ])
             ->whereHas('leaderboard', function (Builder $q) {
                 $q->where('order_column', '>=', 0)

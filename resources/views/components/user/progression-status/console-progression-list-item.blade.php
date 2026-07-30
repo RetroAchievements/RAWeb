@@ -50,7 +50,7 @@ $cellUrls = [
 <li class="progression-status-row">
     <a
         href="{{ $cellUrls['totals'] }}"
-        class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l hover:border-link-hover"
+        class="border-embed-highlight w-[102px] min-w-[92px]! pl-2 rounded-l-sm hover:border-link-hover"
         @if (!$label) title="{{ $consoleTooltipLabel }}" @endif
     >
         <img

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
 
-  @apply bg-embed rounded;
+  @apply bg-embed rounded-sm;
   @apply [&>*:last-child]:rounded-r;
   @apply [&>a]:h-full [&>a]:border [&>a]:flex [&>a]:items-center [&>a]:gap-x-2 [&>a]:whitespace-nowrap;
   @apply [&>a:not(:first-child)]:justify-center;

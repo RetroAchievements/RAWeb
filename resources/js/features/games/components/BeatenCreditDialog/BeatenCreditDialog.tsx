@@ -35,7 +35,7 @@ export const BeatenCreditDialog: FC = () => {
   );
 
   return (
-    <BaseDialogContent className="flex h-full max-w-[52rem] flex-col overflow-auto sm:max-h-[60vh]">
+    <BaseDialogContent className="flex h-full max-w-208 flex-col overflow-auto sm:max-h-[60vh]">
       <BaseDialogHeader>
         <BaseDialogTitle>{t('Beaten Game Credit')}</BaseDialogTitle>
         <BaseDialogDescription className="sr-only" />

@@ -44,7 +44,7 @@ export function DataTableRowActions<TData>({
   });
 
   const [initialRotationClassName] = useState(
-    isInBacklogMaybeOptimistic ? '!rotate-0' : '!rotate-45',
+    isInBacklogMaybeOptimistic ? 'rotate-0!' : 'rotate-45!',
   );
 
   return (
@@ -53,7 +53,7 @@ export function DataTableRowActions<TData>({
         <div className="flex justify-end">
           <BaseButton
             variant="ghost"
-            className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
+            className="group flex h-8 w-8 p-0 text-link disabled:pointer-events-auto! disabled:opacity-100!"
             onClick={() => toggleBacklog()}
             disabled={isPending}
             aria-label={
@@ -66,7 +66,7 @@ export function DataTableRowActions<TData>({
             <MdClose
               className={cn(
                 'h-4 w-4',
-                'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
+                'hover:text-neutral-50 disabled:text-neutral-50! light:hover:text-neutral-900 light:disabled:text-neutral-900',
 
                 shouldAnimateBacklogIconOnChange ? 'transition' : initialRotationClassName,
 

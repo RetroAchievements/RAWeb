@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
@@ -9,8 +10,7 @@ export default defineConfig({
       input: ['resources/filament/css/theme.css'],
       refresh: true,
     }),
+
+    tailwindcss(),
   ],
-  css: {
-    postcss: 'resources/filament/postcss.config.js',
-  },
 });

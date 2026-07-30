@@ -22,7 +22,7 @@ export const UserGameActivityMainRoot: FC = () => {
   return (
     <div>
       <UserBreadcrumbs game={game} user={player} t_currentPageLabel={t('Activity')} />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <GameHeading game={game} wrapperClassName="mb-1!">
         {t('Game Activity - {{user}}', { user: player.displayName })}
       </GameHeading>
 
@@ -35,7 +35,7 @@ export const UserGameActivityMainRoot: FC = () => {
               <div className="flex items-center">
                 <BaseLabel
                   htmlFor="toggle-productive-sessions"
-                  className="max-w-[220px] leading-4 text-neutral-300 light:text-neutral-900"
+                  className="max-w-55 leading-4 text-neutral-300 light:text-neutral-900"
                 >
                   {t('Hide all player sessions where achievements were not earned')}
                 </BaseLabel>

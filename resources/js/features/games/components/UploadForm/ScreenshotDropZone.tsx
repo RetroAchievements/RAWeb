@@ -89,7 +89,7 @@ export const ScreenshotDropZone: FC<ScreenshotDropZoneProps> = ({
             transition={{ duration: 0.3, delay: 0.1 }}
             className="flex w-full flex-col items-center gap-3"
           >
-            <img src={previewUrl!} alt="Preview" className="max-h-48 rounded object-contain" />
+            <img src={previewUrl!} alt="Preview" className="max-h-48 rounded-sm object-contain" />
 
             {previewDimensions ? (
               <ScreenshotPreviewMeta
@@ -130,11 +130,11 @@ const EmptyState: FC<EmptyStateProps> = ({ supportsUpscaledScreenshots }) => {
         </p>
 
         {supportsUpscaledScreenshots ? (
-          <p className="text-balance text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-balance text-neutral-500">
             {t('Upscaled screenshots look sharper. Render at 2x or 3x in your emulator.')}
           </p>
         ) : (
-          <p className="text-balance text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-balance text-neutral-500">
             {t("Use your emulator's screenshot tool. Don't manually resize.")}
           </p>
         )}

@@ -52,9 +52,9 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({
               src={eventAward.badgeUrl}
               alt={eventAward.label}
               className={cn(
-                'size-12 rounded-sm transition',
+                'size-12 rounded-xs transition',
                 isEarned
-                  ? 'opacity-100 outline outline-2 outline-offset-1 outline-[gold]'
+                  ? 'opacity-100 outline-2 outline-offset-1 outline-[gold]'
                   : 'opacity-50 group-hover:opacity-100',
               )}
             />
@@ -75,7 +75,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({
                       {cleanedAwardLabel}
                     </p>
 
-                    <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
+                    <span className="rounded-sm bg-white/5 px-1.5 text-2xs whitespace-nowrap text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
                       {t(
                         areAllAchievementsOnePoint
                           ? '{{val, number}} achievements'

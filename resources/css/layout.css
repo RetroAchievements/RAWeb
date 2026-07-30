@@ -13,13 +13,13 @@ body {
   position: relative;
 }
 
-@media screen(md) {
+@media (width >= 768px) {
   body.with-footer {
     padding-bottom: calc(var(--footer-height-md));
   }
 }
 
-@media screen(lg) {
+@media (width >= 1024px) {
   body.with-footer {
     padding-bottom: calc(var(--footer-height-lg));
   }
@@ -38,7 +38,13 @@ main {
 }
 
 main.with-sidebar {
-  @apply grid-cols-[1fr,340px] xl:grid-cols-[1fr,380px];
+  grid-template-columns: 1fr 340px;
+}
+
+@media (width >= 1280px) {
+  main.with-sidebar {
+    grid-template-columns: 1fr 380px;
+  }
 }
 
 @media only screen and (max-width: 1023px) {
@@ -84,7 +90,7 @@ footer {
   letter-spacing: 0.3px;
 }
 
-@media screen(md) {
+@media (width >= 768px) {
   footer {
     position: absolute;
     bottom: 0;
@@ -94,7 +100,7 @@ footer {
   }
 }
 
-@media screen(lg) {
+@media (width >= 1024px) {
   footer {
     height: var(--footer-height-lg);
   }

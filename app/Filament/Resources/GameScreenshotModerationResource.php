@@ -654,7 +654,7 @@ class GameScreenshotModerationResource extends Resource
      *     isPixelated: bool,
      *     currentPanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
      *     candidatePanel: array{label: string, url: string|null, placeholder: string, imageRendering: string|null, cues: array<int, array{label: string, tone: string, icon: string}>},
-     *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, url: string|null, invalid: bool}>,
+     *     currentPrimaries: array<int, array{typeLabel: string, resolution: string, label: string, url: string|null, invalid: bool, imageRendering: string|null}>,
      *     allPendingForGame: array{items: array<int, array{recordKey: string, typeLabel: string, resolution: string, submitterLabel: string, url: string|null, isCurrent: bool}>}|null,
      *     approvedIngame: array{count: int, cap: int, mediaPageUrl: string, items: array<int, array{url: string|null, resolution: string, label: string, typeLabel: string, submitterLabel: string, imageRendering: string|null}>}|null,
      * }

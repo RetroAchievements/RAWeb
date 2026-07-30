@@ -36,7 +36,7 @@ export const GameCreateForumTopicButton: FC<GameCreateForumTopicButtonProps> = (
   };
 
   return (
-    <BaseButton onClick={handleClick} className="items-center !justify-start gap-2">
+    <BaseButton onClick={handleClick} className="items-center justify-start! gap-2">
       <LuWrench className="size-4" />
       {t('Create New Forum Topic')}
     </BaseButton>

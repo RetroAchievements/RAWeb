@@ -100,7 +100,7 @@ export const PlaytimeRow: FC<PlaytimeRowProps> = ({
             </div>
           </BaseTooltipTrigger>
 
-          <BaseTooltipContent className="max-w-[300px]">
+          <BaseTooltipContent className="max-w-75">
             {t(
               'Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.',
             )}

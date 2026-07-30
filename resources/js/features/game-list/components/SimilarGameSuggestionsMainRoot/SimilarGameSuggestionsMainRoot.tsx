@@ -27,7 +27,7 @@ export const SimilarGameSuggestionsMainRoot: FC = () => {
       <GameHeading game={game}>{t('Game Suggestions')}</GameHeading>
 
       <div className="flex flex-col gap-2">
-        <div className="flex justify-end rounded bg-embed p-2">
+        <div className="flex justify-end rounded-sm bg-embed p-2">
           <div className="flex gap-2">
             <InertiaLink
               href={route('game.suggestions.personalized')}

@@ -25,7 +25,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
   }
 
   return (
-    <div className="rounded bg-embed px-2.5 py-1.5">
+    <div className="rounded-sm bg-embed px-2.5 py-1.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <UserAvatar {...post.latestComment.user} size={16} />
@@ -53,7 +53,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
         />
       </p>
 
-      <p className="line-clamp-1 lg:max-w-[580px] xl:max-w-[816px]">{post.latestComment.body}</p>
+      <p className="line-clamp-1 lg:max-w-145 xl:max-w-204">{post.latestComment.body}</p>
     </div>
   );
 };

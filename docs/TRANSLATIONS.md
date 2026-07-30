@@ -38,7 +38,6 @@ On the main RetroAchievements Crowdin project page, you will see a "Request New 
 Some translation strings contain special elements that must be handled carefully:
 
 1. **Variables**
-
    - Examples: `{{count, number}}`, `{{total}}`, `{{gameTitle}}`
    - Do not translate these placeholders
    - Keep them exactly as they appear in the original text

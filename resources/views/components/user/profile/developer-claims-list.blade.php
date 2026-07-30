@@ -21,7 +21,7 @@
                         'ID' => $claim['GameID'],
                         'Title' => $claim['GameTitle'],
                         'ImageIcon' => $claim['GameIcon'],
-                    ], iconSize: 22, iconClass: 'rounded-sm')
+                    ], iconSize: 22, iconClass: 'rounded-xs')
                 !!}
             </div>
         @endforeach

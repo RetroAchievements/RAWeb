@@ -31,7 +31,7 @@ export const RecentAwardsTable: FC<RecentAwardsTableProps> = ({ recentPlayerBadg
     <div className="flex flex-col">
       <h2 className="border-b-0 text-xl font-semibold">{t('Recent Awards')}</h2>
 
-      <div className="h-[500px] max-h-[500px] overflow-auto rounded border border-neutral-800 bg-embed light:border-neutral-300">
+      <div className="h-125 max-h-125 overflow-auto rounded-sm border border-neutral-800 bg-embed light:border-neutral-300">
         {recentPlayerBadges.length ? (
           <BaseTable>
             <BaseTableHeader className="sticky top-0 z-10 bg-embed">

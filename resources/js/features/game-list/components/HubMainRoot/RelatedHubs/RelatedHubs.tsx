@@ -53,7 +53,7 @@ export const RelatedHubs: FC = () => {
                       height={32}
                       src={relatedHub.badgeUrl!}
                       alt={relatedHub.title!}
-                      className="rounded-sm"
+                      className="rounded-xs"
                     />
 
                     <GameTitle title={cleanHubTitle(relatedHub.title!)} />

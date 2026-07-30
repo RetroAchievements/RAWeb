@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -52,37 +53,27 @@ export function useChangeUsernameForm() {
 
   const mutation = useCreateNameChangeRequestMutation();
 
-  const onSubmit = async (formValues: FormValues) => {
-    const payload = {
-      newDisplayName: formValues.newUsername,
-    };
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [pendingUsername, setPendingUsername] = useState('');
 
-    const confirmationMessage = t(
-      'You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?',
-    );
+  const isOnlyCapitalizationChange = (newUsername: string) =>
+    auth!.user.displayName.toLowerCase() === newUsername.toLowerCase();
 
-    // If the user just wants a case change, no need to confirm.
-    // We'll make the change instantly without needing approval.
-    const mustShowConfirm =
-      auth!.user.displayName.toLowerCase() !== formValues.newUsername.toLowerCase();
-
-    if (mustShowConfirm && !confirm(confirmationMessage)) {
-      return;
-    }
+  const submitUsernameChange = async (newUsername: string) => {
+    const payload = { newDisplayName: newUsername };
 
     await toastMessage.promise(mutation.mutateAsync({ payload }), {
       loading: t('Submitting username change request...'),
       success: () => {
-        const wasAutoApproved =
-          auth!.user.displayName.toLowerCase() === formValues.newUsername.toLowerCase();
+        setIsConfirmDialogOpen(false);
 
-        if (wasAutoApproved) {
+        if (isOnlyCapitalizationChange(newUsername)) {
           window.location.reload();
 
           return t('Updated.');
         }
 
-        setRequestedUsername(formValues.newUsername);
+        setRequestedUsername(newUsername);
 
         return t('Submitted username change request!');
       },
@@ -100,5 +91,29 @@ export function useChangeUsernameForm() {
     });
   };
 
-  return { form, mutation, onSubmit };
+  const onSubmit = async (formValues: FormValues) => {
+    // Bypass the confirm dialog on capitalization-only changes.
+    if (isOnlyCapitalizationChange(formValues.newUsername)) {
+      await submitUsernameChange(formValues.newUsername);
+
+      return;
+    }
+
+    setPendingUsername(formValues.newUsername);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const onConfirmUsernameChange = async () => {
+    await submitUsernameChange(pendingUsername);
+  };
+
+  return {
+    form,
+    isConfirmDialogOpen,
+    mutation,
+    onConfirmUsernameChange,
+    onSubmit,
+    pendingUsername,
+    setIsConfirmDialogOpen,
+  };
 }
