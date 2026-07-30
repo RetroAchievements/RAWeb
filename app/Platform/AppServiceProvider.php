@@ -41,6 +41,7 @@ use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\NormalizeTextWhitespace;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
@@ -98,6 +99,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillMissingPlayerGames::class,
                 CheckForAchievementSetChanges::class,
                 ConvertGameToEvent::class,
+                NormalizeTextWhitespace::class,
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
                 RegenerateGameScreenshotConversions::class,
