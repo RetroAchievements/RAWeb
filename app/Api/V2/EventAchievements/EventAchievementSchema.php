@@ -6,6 +6,8 @@ namespace App\Api\V2\EventAchievements;
 
 use App\Models\Event;
 use App\Models\EventAchievement;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -40,7 +42,7 @@ class EventAchievementSchema extends Schema
     /**
      * Relationships that should always be eager loaded.
      */
-    protected array $with = ['event', 'sourceAchievement', 'achievement'];
+    protected array $with = ['event.legacyGame', 'sourceAchievement', 'achievement'];
 
     /**
      * Get the resource type.
@@ -48,6 +50,15 @@ class EventAchievementSchema extends Schema
     public static function type(): string
     {
         return 'event-achievements';
+    }
+
+    public function repository(): EventAchievementRepository
+    {
+        return new EventAchievementRepository(
+            $this,
+            $this->driver(),
+            $this->parser(),
+        );
     }
 
     /**
@@ -76,6 +87,8 @@ class EventAchievementSchema extends Schema
         return [
             WhereIdIn::make($this)->delimiter(','),
             new EventAchievementActiveFilter(),
+            new EventAchievementEventIdFilter(),
+            new EventAchievementEvergreenFilter(),
         ];
     }
 
@@ -89,12 +102,27 @@ class EventAchievementSchema extends Schema
     }
 
     /**
+     * @param Builder<EventAchievement> $query
+     * @return Builder<EventAchievement>
+     */
+    public function indexQuery(?object $model, Builder $query): Builder
+    {
+        /** @var User|null $user */
+        $user = request()->user();
+
+        return $query->visibleTo($user);
+    }
+
+    /**
      * @param Relation<EventAchievement, Event, mixed> $query
      * @return Relation<EventAchievement, Event, mixed>
      */
     public function relatableQuery(?Request $request, Relation $query): Relation
     {
-        $query->promoted();
+        /** @var User|null $user */
+        $user = $request?->user();
+
+        $query->visibleTo($user);
 
         return $query;
     }

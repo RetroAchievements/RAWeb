@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -7,6 +8,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { LaravelValidationError } from '@/common/models';
+import { useCheckNameChangeRequestMutation } from '@/features/settings/hooks/mutations/useCheckNameChangeRequestMutation';
 import { useCreateNameChangeRequestMutation } from '@/features/settings/hooks/mutations/useCreateNameChangeRequestMutation';
 
 import { requestedUsernameAtom } from '../../state/settings.atoms';
@@ -50,55 +52,86 @@ export function useChangeUsernameForm() {
     },
   });
 
-  const mutation = useCreateNameChangeRequestMutation();
+  const checkMutation = useCheckNameChangeRequestMutation();
+  const createMutation = useCreateNameChangeRequestMutation();
 
-  const onSubmit = async (formValues: FormValues) => {
-    const payload = {
-      newDisplayName: formValues.newUsername,
-    };
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [pendingUsername, setPendingUsername] = useState('');
 
-    const confirmationMessage = t(
-      'You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?',
-    );
+  const isOnlyCapitalizationChange = (newUsername: string) =>
+    auth!.user.displayName.toLowerCase() === newUsername.toLowerCase();
 
-    // If the user just wants a case change, no need to confirm.
-    // We'll make the change instantly without needing approval.
-    const mustShowConfirm =
-      auth!.user.displayName.toLowerCase() !== formValues.newUsername.toLowerCase();
-
-    if (mustShowConfirm && !confirm(confirmationMessage)) {
-      return;
+  const getErrorMessage = ({ response }: LaravelValidationError) => {
+    if (response.data.message.includes('already been taken')) {
+      return t('This username is already taken.');
     }
 
-    await toastMessage.promise(mutation.mutateAsync({ payload }), {
+    if (response.data.message.includes('not available')) {
+      return t('This username is not available.');
+    }
+
+    return t('Something went wrong.');
+  };
+
+  const submitUsernameChange = async (newUsername: string) => {
+    const payload = { newDisplayName: newUsername };
+
+    await toastMessage.promise(createMutation.mutateAsync({ payload }), {
       loading: t('Submitting username change request...'),
       success: () => {
-        const wasAutoApproved =
-          auth!.user.displayName.toLowerCase() === formValues.newUsername.toLowerCase();
+        setIsConfirmDialogOpen(false);
 
-        if (wasAutoApproved) {
+        if (isOnlyCapitalizationChange(newUsername)) {
           window.location.reload();
 
           return t('Updated.');
         }
 
-        setRequestedUsername(formValues.newUsername);
+        setRequestedUsername(newUsername);
 
         return t('Submitted username change request!');
       },
-      error: ({ response }: LaravelValidationError) => {
-        if (response.data.message.includes('already been taken')) {
-          return t('This username is already taken.');
-        }
+      error: (error: LaravelValidationError) => {
+        setIsConfirmDialogOpen(false);
 
-        if (response.data.message.includes('not available')) {
-          return t('This username is not available.');
-        }
-
-        return t('Something went wrong.');
+        return getErrorMessage(error);
       },
     });
   };
 
-  return { form, mutation, onSubmit };
+  const onSubmit = async (formValues: FormValues) => {
+    // Bypass the confirm dialog on capitalization-only changes.
+    if (isOnlyCapitalizationChange(formValues.newUsername)) {
+      await submitUsernameChange(formValues.newUsername);
+
+      return;
+    }
+
+    // Don't ask the user to confirm a name the server is guaranteed to reject.
+    try {
+      await checkMutation.mutateAsync({ payload: { newDisplayName: formValues.newUsername } });
+    } catch (error) {
+      toastMessage.error(getErrorMessage(error as LaravelValidationError));
+
+      return;
+    }
+
+    setPendingUsername(formValues.newUsername);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const onConfirmUsernameChange = async () => {
+    await submitUsernameChange(pendingUsername);
+  };
+
+  return {
+    checkMutation,
+    form,
+    isConfirmDialogOpen,
+    createMutation,
+    onConfirmUsernameChange,
+    onSubmit,
+    pendingUsername,
+    setIsConfirmDialogOpen,
+  };
 }

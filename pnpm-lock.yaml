@@ -7,9 +7,9 @@ settings:
 overrides:
   '@babel/core@<7.29.6': '>=7.29.6 <8'
   '@opentelemetry/core@<2.8.0': '>=2.8.0'
-  axios@>=1.0.0 <1.15.2: '>=1.15.2'
+  axios@>=1.0.0 <1.18.1: '>=1.18.1'
   brace-expansion@>=2.0.0 <2.0.2: '>=2.0.2'
-  brace-expansion@>=5.0.0 <5.0.6: '>=5.0.6'
+  brace-expansion@>=5.0.0 <5.0.8: '>=5.0.8'
   esbuild@<0.28.1: '>=0.28.1'
   flatted@<3.4.2: '>=3.4.2'
   form-data@>=4.0.0 <4.0.6: '>=4.0.6'
@@ -47,10 +47,10 @@ importers:
         version: 5.0.1(react-hook-form@7.66.0(react@19.2.5))
       '@inertiajs/core':
         specifier: ^3.1.1
-        version: 3.1.1(axios@1.16.0)
+        version: 3.1.1(axios@1.18.1)
       '@inertiajs/react':
         specifier: ^3.1.1
-        version: 3.1.1(axios@1.16.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        version: 3.1.1(axios@1.18.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@radix-ui/react-dialog':
         specifier: ^1.1.14
         version: 1.1.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -67,8 +67,8 @@ importers:
         specifier: ^8.21.2
         version: 8.21.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       axios:
-        specifier: ^1.15.2
-        version: 1.16.0
+        specifier: ^1.18.1
+        version: 1.18.1
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -165,7 +165,7 @@ importers:
         version: 9.6.0
       '@inertiajs/vite':
         specifier: ^3.1.1
-        version: 3.1.1(axios@1.16.0)(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3))
+        version: 3.1.1(axios@1.18.1)(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3))
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.7)(@babel/runtime@7.28.6)(rolldown@1.1.5)(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3))
@@ -730,7 +730,7 @@ packages:
   '@inertiajs/core@3.1.1':
     resolution: {integrity: sha512-l8NfuI6xaeLcSTUH67fk/RPKGr5Pm+oyeWJy6mBfWxHIiNpMctPQtha5/NLQ+RqGekJdmJ7cHH8l3JDkvoPXYg==}
     peerDependencies:
-      axios: ^1.15.2
+      axios: '>=1.18.1'
     peerDependenciesMeta:
       axios:
         optional: true
@@ -2827,8 +2827,8 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  axios@1.16.0:
-    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
+  axios@1.18.1:
+    resolution: {integrity: sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==}
 
   babel-plugin-react-compiler@1.0.0:
     resolution: {integrity: sha512-Ixm8tFfoKKIPYdCCKYTsqv+Fd4IJ0DQqMyEimo+pxUOMUR9cVPlwTrFt9Avu+3cb6Zp3mAzl+t1MrG2fxxKsxw==}
@@ -2858,9 +2858,9 @@ packages:
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
-  brace-expansion@5.0.7:
-    resolution: {integrity: sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA==}
-    engines: {node: 18 || 20 || >=22}
+  brace-expansion@5.0.8:
+    resolution: {integrity: sha512-JZyDyq3D4AUifKTPOB7DELf6XsB3WdPuNxCtob1vFXPsSXhdAiHBWJ/tJ8HAc9aH84BK+5JFZLNkJKx3G9kzQg==}
+    engines: {node: 20 || >=22}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -3042,15 +3042,6 @@ packages:
 
   dayjs@1.11.13:
     resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
-
-  debug@4.4.1:
-    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -3658,7 +3649,7 @@ packages:
   laravel-precognition@2.0.0:
     resolution: {integrity: sha512-dmA4HGc9m+TsVNsJs9/XQBI8u6j7coilN+qKkBuhuXQzH3HypwS/c5dFQ4UqUGjBbcxIM7zdk91kM/SRZwIvWQ==}
     peerDependencies:
-      axios: '>=1.15.2'
+      axios: '>=1.18.1'
     peerDependenciesMeta:
       axios:
         optional: true
@@ -5218,9 +5209,10 @@ snapshots:
 
   '@crowdin/crowdin-api-client@1.47.0':
     dependencies:
-      axios: 1.16.0
+      axios: 1.18.1
     transitivePeerDependencies:
       - debug
+      - supports-color
 
   '@csstools/color-helpers@6.1.0':
     optional: true
@@ -5447,27 +5439,27 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@inertiajs/core@3.1.1(axios@1.16.0)':
+  '@inertiajs/core@3.1.1(axios@1.18.1)':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       es-toolkit: 1.46.1
-      laravel-precognition: 2.0.0(axios@1.16.0)
+      laravel-precognition: 2.0.0(axios@1.18.1)
     optionalDependencies:
-      axios: 1.16.0
+      axios: 1.18.1
 
-  '@inertiajs/react@3.1.1(axios@1.16.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@inertiajs/react@3.1.1(axios@1.18.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@inertiajs/core': 3.1.1(axios@1.16.0)
+      '@inertiajs/core': 3.1.1(axios@1.18.1)
       es-toolkit: 1.46.1
-      laravel-precognition: 2.0.0(axios@1.16.0)
+      laravel-precognition: 2.0.0(axios@1.18.1)
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
     transitivePeerDependencies:
       - axios
 
-  '@inertiajs/vite@3.1.1(axios@1.16.0)(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3))':
+  '@inertiajs/vite@3.1.1(axios@1.18.1)(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3))':
     dependencies:
-      '@inertiajs/core': 3.1.1(axios@1.16.0)
+      '@inertiajs/core': 3.1.1(axios@1.18.1)
       tinyglobby: 0.2.16
       vite: 8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3)
     transitivePeerDependencies:
@@ -7158,7 +7150,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.45.0(typescript@7.0.2)
       '@typescript-eslint/types': 8.45.0
-      debug: 4.4.1
+      debug: 4.4.3
       typescript: 7.0.2
     transitivePeerDependencies:
       - supports-color
@@ -7187,7 +7179,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.45.0(typescript@7.0.2)
       '@typescript-eslint/types': 8.45.0
       '@typescript-eslint/visitor-keys': 8.45.0
-      debug: 4.4.1
+      debug: 4.4.3
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 10.2.4
@@ -7435,13 +7427,15 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  axios@1.16.0:
+  axios@1.18.1:
     dependencies:
       follow-redirects: 1.16.0
       form-data: 4.0.6
+      https-proxy-agent: 5.0.1
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
+      - supports-color
 
   babel-plugin-react-compiler@1.0.0:
     dependencies:
@@ -7470,7 +7464,7 @@ snapshots:
       readable-stream: 3.6.2
     optional: true
 
-  brace-expansion@5.0.7:
+  brace-expansion@5.0.8:
     dependencies:
       balanced-match: 4.0.4
 
@@ -7663,10 +7657,6 @@ snapshots:
     optional: true
 
   dayjs@1.11.13: {}
-
-  debug@4.4.1:
-    dependencies:
-      ms: 2.1.3
 
   debug@4.4.3:
     dependencies:
@@ -8311,11 +8301,11 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  laravel-precognition@2.0.0(axios@1.16.0):
+  laravel-precognition@2.0.0(axios@1.18.1):
     dependencies:
       es-toolkit: 1.46.1
     optionalDependencies:
-      axios: 1.16.0
+      axios: 1.18.1
 
   laravel-vite-plugin@3.0.1(vite@8.1.5(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.20.5)(yaml@2.8.3)):
     dependencies:
@@ -8800,11 +8790,11 @@ snapshots:
 
   minimatch@10.2.4:
     dependencies:
-      brace-expansion: 5.0.7
+      brace-expansion: 5.0.8
 
   minimatch@10.2.5:
     dependencies:
-      brace-expansion: 5.0.7
+      brace-expansion: 5.0.8
 
   minimist@1.2.8:
     optional: true

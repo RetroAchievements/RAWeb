@@ -92,5 +92,6 @@ export const UserRole = {
     TEAM_ACCOUNT: 'team-account',
     COMMUNITY_MANAGER: 'community-manager',
     DEVELOPER_RETIRED: 'developer-retired',
+    SUPPORTER: 'supporter',
 } as const;
 

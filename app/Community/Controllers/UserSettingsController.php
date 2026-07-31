@@ -130,6 +130,13 @@ class UserSettingsController extends Controller
         return Inertia::render('settings', $props);
     }
 
+    public function checkUsernameChangeRequest(StoreUsernameChangeRequest $request): JsonResponse
+    {
+        $this->authorize('create', UserUsername::class);
+
+        return response()->json(['success' => true]);
+    }
+
     public function storeUsernameChangeRequest(StoreUsernameChangeRequest $request): JsonResponse
     {
         $this->authorize('create', UserUsername::class);

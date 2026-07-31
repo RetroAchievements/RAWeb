@@ -163,6 +163,50 @@ class UserSettingsControllerTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
+    public function testCheckUsernameChangeRequestWithValidUsername(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'username' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('api.settings.name-change-request.check'), [
+                'newDisplayName' => 'Scott123456712',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+    }
+
+    public function testCheckUsernameChangeRequestWithTakenUsername(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        User::factory()->create(['username' => 'TakenName', 'display_name' => 'TakenName']);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'username' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('api.settings.name-change-request.check'), [
+                'newDisplayName' => 'TakenName',
+            ]);
+
+        // Assert
+        $response->assertStatus(422);
+    }
+
     public function testUpdateUsername(): void
     {
         // Arrange

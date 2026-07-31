@@ -45,7 +45,7 @@ class UserSchema extends Schema
      * The visibleRole and displayableRoles attributes both derive from roles,
      * and lazily loading them costs two queries per user on the index.
      */
-    protected array $with = ['roles'];
+    protected array $with = ['roles', 'allTimeGlobalRankings'];
 
     /**
      * Default sort order when client doesn't provide any.
@@ -91,6 +91,8 @@ class UserSchema extends Schema
             Number::make('points', 'points')->sortable()->readOnly(),
             Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
             Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
+            Number::make('rankHardcore')->readOnly(),
+            Number::make('rankCasual')->readOnly(),
 
             Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
             Number::make('yieldPoints', 'yield_points')->sortable()->readOnly(),

@@ -31,7 +31,6 @@ return [
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
-            'claims' => env('DISCORD_WEBHOOK_CLAIMS'),
             'name-changes' => env('DISCORD_WEBHOOK_NAME_CHANGES'), // available to many privileged roles
             'news' => env('DISCORD_WEBHOOK_NEWS'),
             'users' => env('DISCORD_WEBHOOK_USERS'),
@@ -110,6 +109,7 @@ return [
             'developer_inactivity' => env('DISCORD_WEBHOOK_ALERT_DEVELOPER_INACTIVITY'),
             'inappropriate_game_screenshot' => env('DISCORD_WEBHOOK_ALERT_INAPPROPRIATE_GAME_SCREENSHOT'),
             'muted_user_message' => env('DISCORD_WEBHOOK_ALERT_MUTED_USER_MESSAGE'),
+            'set_claim_change' => env('DISCORD_WEBHOOK_ALERT_SET_CLAIM_CHANGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
             'suspicious_connect_warning' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_CONNECT_WARNING'),
         ],

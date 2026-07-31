@@ -8,10 +8,10 @@ use App\Api\Controllers\CatchAllController;
 use App\Api\Controllers\HealthController;
 use App\Api\Internal\Controllers\AchievementController as InternalAchievementController;
 use App\Api\Middleware\AddContentLengthHeader;
-use App\Api\Middleware\DenyOAuthTokens;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\RequireOAuthReadScope;
+use App\Api\Middleware\RequireOAuthTokenWithScope;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\AchievementController;
@@ -29,6 +29,7 @@ use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\TicketController;
 use App\Api\V2\Controllers\UserAwardController;
 use App\Api\V2\Controllers\UserController;
+use App\Enums\OAuthScope;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -131,16 +132,16 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('comments')->readOnly();
-                                    $relationships->hasMany('playerAchievements')->readOnly();
-                                    $relationships->hasMany('tickets')->readOnly();
+                                    $relationships->hasMany('comments')->only('related');
+                                    $relationships->hasMany('playerAchievements')->only('related');
+                                    $relationships->hasMany('tickets')->only('related');
                                 });
 
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('achievementSetVersions')->readOnly();
+                                    $relationships->hasMany('achievementSetVersions')->only('related');
                                 });
 
                             $server->resource('achievement-set-claims', AchievementSetClaimController::class)
@@ -150,39 +151,39 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index');
 
                             $server->resource('event-achievements', EventAchievementController::class)
-                                ->only('show')
+                                ->only('index', 'show')
                                 ->readOnly();
 
                             $server->resource('events', EventController::class)
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('eventAchievements')->readOnly();
+                                    $relationships->hasMany('eventAchievements')->only('related');
                                 });
 
                             $server->resource('games', GameController::class)
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('achievementSetClaims')->readOnly();
-                                    $relationships->hasMany('comments')->readOnly();
-                                    $relationships->hasMany('hashes')->readOnly();
-                                    $relationships->hasMany('tickets')->readOnly();
+                                    $relationships->hasMany('achievementSetClaims')->only('related');
+                                    $relationships->hasMany('comments')->only('related');
+                                    $relationships->hasMany('hashes')->only('related');
+                                    $relationships->hasMany('tickets')->only('related');
                                 });
 
                             $server->resource('hubs', HubController::class)
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('games')->readOnly();
-                                    $relationships->hasMany('links')->readOnly();
+                                    $relationships->hasMany('games')->only('related');
+                                    $relationships->hasMany('links')->only('related');
                                 });
 
                             $server->resource('leaderboards', LeaderboardController::class)
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('entries')->readOnly();
+                                    $relationships->hasMany('entries')->only('related');
                                 });
 
                             $server->resource('systems', SystemController::class)
@@ -200,17 +201,17 @@ class RouteServiceProvider extends ServiceProvider
                                 ->only('index', 'show')
                                 ->readOnly()
                                 ->relationships(function ($relationships) {
-                                    $relationships->hasMany('achievementSetClaims')->readOnly();
-                                    $relationships->hasMany('awards')->readOnly();
-                                    $relationships->hasMany('followers')->readOnly()->middleware(DenyOAuthTokens::class);
-                                    $relationships->hasMany('following')->readOnly()->middleware(DenyOAuthTokens::class);
-                                    $relationships->hasMany('leaderboardEntries')->readOnly();
-                                    $relationships->hasMany('playerAchievements')->readOnly();
-                                    $relationships->hasMany('playerAchievementSets')->readOnly();
-                                    $relationships->hasMany('playerGames')->readOnly();
-                                    $relationships->hasMany('tickets')->readOnly();
-                                    $relationships->hasMany('userGameListEntries')->readOnly()->middleware(DenyOAuthTokens::class);
-                                    $relationships->hasMany('wallComments')->readOnly();
+                                    $relationships->hasMany('achievementSetClaims')->only('related');
+                                    $relationships->hasMany('awards')->only('related');
+                                    $relationships->hasMany('followers')->only('related')->middleware(RequireOAuthTokenWithScope::class . ':' . OAuthScope::FollowsRead->value);
+                                    $relationships->hasMany('following')->only('related')->middleware(RequireOAuthTokenWithScope::class . ':' . OAuthScope::FollowsRead->value);
+                                    $relationships->hasMany('leaderboardEntries')->only('related');
+                                    $relationships->hasMany('playerAchievements')->only('related');
+                                    $relationships->hasMany('playerAchievementSets')->only('related');
+                                    $relationships->hasMany('playerGames')->only('related');
+                                    $relationships->hasMany('tickets')->only('related');
+                                    $relationships->hasMany('userGameListEntries')->only('related')->middleware(RequireOAuthTokenWithScope::class . ':' . OAuthScope::GameListsRead->value);
+                                    $relationships->hasMany('wallComments')->only('related');
                                 });
                         });
                 });
