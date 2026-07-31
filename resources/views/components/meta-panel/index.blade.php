@@ -30,7 +30,7 @@
 
         <div class="
             grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight
-            sm:*:px-4 xl:*:px-8 first:*:pl-0 last:*:pr-0
+            sm:*:px-4 xl:*:px-8 *:first:pl-0 *:last:pr-0
             "
         >
             @if ($hasSorts)
