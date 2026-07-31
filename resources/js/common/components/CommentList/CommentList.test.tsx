@@ -3,12 +3,16 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createComment, createUser } from '@/test/factories';
 
 import { CommentList } from './CommentList';
 
 describe('Component: CommentList', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
@@ -351,5 +355,115 @@ describe('Component: CommentList', () => {
       commentableId: 1,
       commentableType: 'game.comment',
     });
+  });
+
+  it('given the user types a comment and the form unmounts, restores the draft on the next mount', async () => {
+    // ARRANGE
+    const pageProps = { auth: { user: createAuthenticatedUser() } };
+
+    const { unmount } = render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /comment/i }),
+      'this comment is not finished',
+    );
+
+    // ACT
+    unmount();
+
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue(
+      'this comment is not finished',
+    );
+  });
+
+  it('given the user submits their comment, does not restore it as a draft afterwards', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+
+    const pageProps = { auth: { user: createAuthenticatedUser() } };
+
+    const { unmount } = render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    await userEvent.type(screen.getByRole('textbox', { name: /comment/i }), 'this is my comment');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue('');
+    });
+
+    // ACT
+    unmount();
+
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue('');
+  });
+
+  it('given a draft was written for another commentable, does not restore it', async () => {
+    // ARRANGE
+    const pageProps = { auth: { user: createAuthenticatedUser() } };
+
+    const { unmount } = render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    await userEvent.type(screen.getByRole('textbox', { name: /comment/i }), 'a draft for game 1');
+    unmount();
+
+    // ACT
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={2}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue('');
   });
 });
