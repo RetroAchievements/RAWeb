@@ -24,14 +24,14 @@ export function useCreateMessageReplyForm() {
   const { t } = useTranslation();
 
   const draftKey = `reply-message-${messageThread.id}`;
-  const draft = loadDraft<FormValues>(draftKey);
+  const draftDefaultValues = { body: '' };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { body: draft.body ?? '' },
+    defaultValues: { ...draftDefaultValues, ...loadDraft<FormValues>(draftKey) },
   });
 
-  const { clearDraft } = useFormDraft(draftKey, form);
+  const { clearDraft } = useFormDraft(draftKey, form, draftDefaultValues);
 
   const mutation = useCreateMessageReplyMutation();
 

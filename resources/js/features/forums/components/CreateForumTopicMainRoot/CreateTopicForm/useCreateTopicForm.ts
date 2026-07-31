@@ -24,18 +24,14 @@ export function useCreateTopicForm() {
   const { t } = useTranslation();
 
   const draftKey = `create-topic-${forum.id}`;
-  const draft = loadDraft<FormValues>(draftKey);
+  const draftDefaultValues = { title: '', body: '', postAsUserId: 'self' };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: draft.title ?? '',
-      body: draft.body ?? '',
-      postAsUserId: draft.postAsUserId ?? 'self',
-    },
+    defaultValues: { ...draftDefaultValues, ...loadDraft<FormValues>(draftKey) },
   });
 
-  const { clearDraft } = useFormDraft(draftKey, form);
+  const { clearDraft } = useFormDraft(draftKey, form, draftDefaultValues);
 
   const mutation = useCreateForumTopicMutation();
 

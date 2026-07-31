@@ -37,7 +37,7 @@ export function useUpsertPostForm(
     defaultValues: { ...initialValues, ...draft },
   });
 
-  const { clearDraft } = useFormDraft(draftKey, form);
+  const { clearDraft } = useFormDraft(draftKey, form, initialValues);
 
   const updateMutation = useUpdateForumTopicCommentMutation();
   const createMutation = useCreateForumTopicCommentMutation();

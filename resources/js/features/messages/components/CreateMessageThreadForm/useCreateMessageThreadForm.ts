@@ -34,18 +34,14 @@ export function useCreateMessageThreadForm(
 
   delete draft.recipient;
 
+  const draftDefaultValues = { recipient: '', title: '', body: '', ...defaultValues };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      recipient: '',
-      title: '',
-      body: '',
-      ...defaultValues,
-      ...draft,
-    },
+    defaultValues: { ...draftDefaultValues, ...draft },
   });
 
-  const { clearDraft } = useFormDraft(draftKey, form);
+  const { clearDraft } = useFormDraft(draftKey, form, draftDefaultValues);
 
   const mutation = useCreateMessageThreadMutation();
 
