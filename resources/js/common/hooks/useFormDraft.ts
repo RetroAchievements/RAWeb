@@ -42,8 +42,13 @@ export function useFormDraft<T extends FieldValues>(
     }
 
     const writeDraft = () => {
-      sessionStorage.setItem(key, JSON.stringify(values));
       pendingWriteRef.current = null;
+
+      try {
+        sessionStorage.setItem(key, JSON.stringify(values));
+      } catch {
+        // Persisting drafts is best-effort. Storage can be full or unavailable.
+      }
     };
 
     pendingWriteRef.current = writeDraft;
@@ -69,7 +74,11 @@ export function useFormDraft<T extends FieldValues>(
     pendingWriteRef.current = null;
 
     if (key) {
-      sessionStorage.removeItem(key);
+      try {
+        sessionStorage.removeItem(key);
+      } catch {
+        // Nothing to clean up if storage is unavailable.
+      }
     }
   };
 

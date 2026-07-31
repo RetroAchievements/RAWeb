@@ -29,7 +29,20 @@ describe('Hook: useFormDraft', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
+
+  function stubUnavailableStorage() {
+    vi.stubGlobal('sessionStorage', {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('QuotaExceededError');
+      },
+      removeItem: () => {
+        throw new Error('SecurityError');
+      },
+    });
+  }
 
   it('renders without crashing', () => {
     // ARRANGE
@@ -176,6 +189,52 @@ describe('Hook: useFormDraft', () => {
 
     // ASSERT
     expect(result.current.form.getValues('body')).toEqual('hello');
+  });
+
+  it('given the browser refuses to store the draft, keeps the failure contained', () => {
+    // ARRANGE
+    stubUnavailableStorage();
+
+    const { result } = renderFormDraftHook('draft-key');
+
+    act(() => {
+      result.current.form.setValue('body', 'hello');
+    });
+
+    // ACT & ASSERT
+    expect(() => {
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+    }).not.toThrow();
+  });
+
+  it('given the browser refuses to store the draft, still unmounts cleanly', () => {
+    // ARRANGE
+    stubUnavailableStorage();
+
+    const { result, unmount } = renderFormDraftHook('draft-key');
+
+    act(() => {
+      result.current.form.setValue('body', 'hello');
+    });
+
+    // ACT & ASSERT
+    expect(() => unmount()).not.toThrow();
+  });
+
+  it('given the browser refuses to remove the draft, keeps the failure contained', () => {
+    // ARRANGE
+    stubUnavailableStorage();
+
+    const { result } = renderFormDraftHook('draft-key');
+
+    // ACT & ASSERT
+    expect(() => {
+      act(() => {
+        result.current.clearDraft();
+      });
+    }).not.toThrow();
   });
 
   it('given the key becomes null, leaves the current values alone', () => {
