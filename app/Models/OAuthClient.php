@@ -9,15 +9,33 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Passport\Client;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class OAuthClient extends Client
 {
     /** @use HasFactory<OAuthClientFactory> */
     use HasFactory;
 
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected static function newFactory(): OAuthClientFactory
     {
         return OAuthClientFactory::new();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'revoked',
+                'redirect_uris',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == accessors
