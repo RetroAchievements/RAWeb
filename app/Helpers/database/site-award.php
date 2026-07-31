@@ -167,13 +167,19 @@ function SetPatreonSupporter(User $user, int $tier): void
     $existing = $user->playerBadges()
         ->where('award_type', AwardType::PatreonSupporter)
         ->first();
-    $awardedAt = $existing?->awarded_at;
 
     if ($existing) {
-        $user->playerBadges()->where('award_type', AwardType::PatreonSupporter)->delete();
+        if ((int) $existing->award_tier !== $tier) {
+            $existing->award_tier = $tier;
+            $existing->save();
+        }
+
+        SiteBadgeAwarded::dispatch($existing);
+
+        return;
     }
 
-    $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, $tier, $awardedAt);
+    $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, $tier);
     SiteBadgeAwarded::dispatch($badge);
 }
 
