@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
 import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { loadDraft } from '@/common/utils/loadDraft';
 
 import { useCommentListContext } from './CommentListContext';
@@ -23,6 +24,7 @@ export function useSubmitCommentForm({
   commentableType,
   onSubmitSuccess,
 }: UseSubmitCommentFormProps) {
+  const { auth } = usePageProps();
   const { t } = useTranslation();
 
   const { targetUserDisplayName } = useCommentListContext();
@@ -37,7 +39,7 @@ export function useSubmitCommentForm({
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
-  const draftKey = `comment-${commentableType}-${commentableId}`;
+  const draftKey = `comment-${commentableType}-${commentableId}-${auth?.user.id ?? 'guest'}`;
   const draftDefaultValues = { body: '' };
 
   const form = useForm<FormValues>({

@@ -435,6 +435,39 @@ describe('Component: CommentList', () => {
     expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue('');
   });
 
+  it('given another user signs in within the same tab, does not restore the previous draft', async () => {
+    // ARRANGE
+    const { unmount } = render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps: { auth: { user: createAuthenticatedUser({ id: 1 }) } } },
+    );
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /comment/i }),
+      'something private I never posted',
+    );
+    unmount();
+
+    // ACT
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
+      { pageProps: { auth: { user: createAuthenticatedUser({ id: 2 }) } } },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue('');
+  });
+
   it('given a draft was written for another commentable, does not restore it', async () => {
     // ARRANGE
     const pageProps = { auth: { user: createAuthenticatedUser() } };
