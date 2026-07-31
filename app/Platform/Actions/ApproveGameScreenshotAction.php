@@ -183,6 +183,7 @@ class ApproveGameScreenshotAction
             $existingPrimary->update([
                 'is_primary' => false,
                 'status' => $shouldRetireExisting ? GameScreenshotStatus::Replaced : GameScreenshotStatus::Approved,
+                'replaced_by_user_id' => $shouldRetireExisting ? $screenshot->captured_by_user_id : null,
             ]);
         }
 

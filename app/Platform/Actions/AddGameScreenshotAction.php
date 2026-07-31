@@ -99,10 +99,15 @@ class AddGameScreenshotAction
                     ScreenshotType::Ingame => GameScreenshotStatus::Pending,
                 };
 
+                $demotedAttributes = ['is_primary' => false, 'status' => $demotedStatus];
+                if ($demotedStatus === GameScreenshotStatus::Replaced) {
+                    $demotedAttributes['replaced_by_user_id'] = $causer?->id;
+                }
+
                 $game->gameScreenshots()
                     ->ofType($type)
                     ->approved()
-                    ->update(['is_primary' => false, 'status' => $demotedStatus]);
+                    ->update($demotedAttributes);
             }
 
             $created = GameScreenshot::create([
