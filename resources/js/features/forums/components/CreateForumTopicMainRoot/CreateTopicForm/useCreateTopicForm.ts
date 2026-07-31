@@ -20,10 +20,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function useCreateTopicForm() {
-  const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
+  const { auth, forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
   const { t } = useTranslation();
 
-  const draftKey = `create-topic-${forum.id}`;
+  const draftKey = `create-topic-${forum.id}-${auth?.user.id ?? 'guest'}`;
   const draftDefaultValues = { title: '', body: '', postAsUserId: 'self' };
 
   const form = useForm<FormValues>({

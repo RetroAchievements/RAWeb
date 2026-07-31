@@ -19,11 +19,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function useCreateMessageReplyForm() {
-  const { messageThread, paginatedMessages } =
+  const { auth, messageThread, paginatedMessages } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
   const { t } = useTranslation();
 
-  const draftKey = `reply-message-${messageThread.id}`;
+  const draftKey = `reply-message-${messageThread.id}-${auth?.user.id ?? 'guest'}`;
   const draftDefaultValues = { body: '' };
 
   const form = useForm<FormValues>({

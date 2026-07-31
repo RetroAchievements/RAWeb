@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageThreadMutation } from '@/features/messages/hooks/mutations/useCreateMessageThreadMutation';
@@ -25,11 +26,13 @@ export function useCreateMessageThreadForm(
   reportableType?: App.Community.Enums.ModerationReportableType | null,
   reportableId?: number | null,
 ) {
+  const { auth } = usePageProps();
   const { t } = useTranslation();
 
-  const draftKey = defaultValues.recipient
+  const recipientKey = defaultValues.recipient
     ? `create-message:${defaultValues.recipient}`
     : 'create-message';
+  const draftKey = `${recipientKey}-${auth?.user.id ?? 'guest'}`;
   const draft = loadDraft<FormValues>(draftKey);
 
   delete draft.recipient;

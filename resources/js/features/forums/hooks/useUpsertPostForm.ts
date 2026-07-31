@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicCommentMutation';
@@ -26,10 +27,12 @@ export function useUpsertPostForm(
   const { targetComment, targetTopic } = props;
   const isCreating = !targetComment;
 
+  const { auth } = usePageProps();
   const { t } = useTranslation();
 
   // Only persist drafts for new replies, not edits.
-  const draftKey = isCreating && targetTopic ? `reply-topic-${targetTopic.id}` : null;
+  const draftKey =
+    isCreating && targetTopic ? `reply-topic-${targetTopic.id}-${auth?.user.id ?? 'guest'}` : null;
   const draft = draftKey ? loadDraft<FormValues>(draftKey) : {};
 
   const form = useForm<FormValues>({
