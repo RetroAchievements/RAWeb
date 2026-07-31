@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerGlobalRankingsAction;
-use App\Platform\Enums\GlobalRankingWindow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,7 +25,6 @@ class UserRankAndScoreTest extends TestCase
     {
         $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
-        app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => 'nonExistant']))
             ->assertSuccessful()
@@ -49,7 +46,6 @@ class UserRankAndScoreTest extends TestCase
             'points' => 371,
             'points_hardcore' => 25842,
         ]);
-        app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->username]))
             ->assertSuccessful()
@@ -71,7 +67,6 @@ class UserRankAndScoreTest extends TestCase
             'points' => 371,
             'points_hardcore' => 25842,
         ]);
-        app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->ulid]))
             ->assertSuccessful()

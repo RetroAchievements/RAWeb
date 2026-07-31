@@ -154,7 +154,7 @@ class UpdateAchievementMetricsAction
             $retroRatioPlayerCount = $game->parentGame->players_hardcore ?? 0;
         }
 
-        $rankedPlayerCount = countRankedUsers(RankType::RetroPoints);
+        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
         $searchIndexingService = app()->make(SearchIndexingService::class);
 
         $dirtyColumns = [

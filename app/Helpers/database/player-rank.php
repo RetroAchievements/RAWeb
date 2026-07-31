@@ -1,11 +1,12 @@
 <?php
 
+use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Models\PlayerGlobalRanking;
-use App\Models\PlayerGlobalRankingTotal;
 use App\Models\User;
-use App\Platform\Enums\GlobalRankingWindow;
 use App\Platform\Events\PlayerRankedStatusChanged;
+use App\Support\Cache\CacheKey;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 function SetUserUntrackedStatus(User $user, bool $isUntracked): void
 {
@@ -15,9 +16,29 @@ function SetUserUntrackedStatus(User $user, bool $isUntracked): void
     PlayerRankedStatusChanged::dispatch($user);
 }
 
-function countRankedUsers(RankType $type = RankType::Hardcore): int
+function countRankedUsers(int $type = RankType::Hardcore): int
 {
-    return PlayerGlobalRankingTotal::forRankType($type);
+    return Cache::remember("rankedUserCount:$type",
+        Carbon::now()->addMinute(),
+        function () use ($type) {
+            $query = User::withTrashed()->whereNull('unranked_at');
+
+            switch ($type) {
+                case RankType::Hardcore:
+                    $query->where('points_hardcore', '>=', Rank::MIN_POINTS);
+                    break;
+
+                case RankType::Casual:
+                    $query->where('points', '>=', Rank::MIN_POINTS);
+                    break;
+
+                case RankType::TruePoints:
+                    $query->where('points_weighted', '>=', Rank::MIN_TRUE_POINTS);
+                    break;
+            }
+
+            return $query->count();
+        });
 }
 
 function getTopUsersByScore(int $count): array
@@ -46,18 +67,31 @@ function getTopUsersByScore(int $count): array
 /**
  * Gets the points or retro points rank of the user.
  */
-function getUserRank(string $username, RankType $type = RankType::Hardcore): ?int
+function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 {
-    $user = User::whereName($username)->first(['id', 'unranked_at']);
-    if ($user === null || $user->unranked_at !== null) {
-        return null;
-    }
+    $key = CacheKey::buildUserRankCacheKey($username, $type);
 
-    $rank = PlayerGlobalRanking::query()
-        ->where('user_id', $user->id)
-        ->where('window', GlobalRankingWindow::AllTime)
-        ->where('mode', $type->mode())
-        ->value($type->rankColumn());
+    return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
+        $user = User::whereName($username)->first();
+        if (!$user || $user->unranked_at !== null) {
+            return null;
+        }
 
-    return $rank !== null ? (int) $rank : null;
+        $field = match ($type) {
+            RankType::Casual => 'points',
+            RankType::TruePoints => 'points_weighted',
+            default => 'points_hardcore',
+        };
+
+        $points = $user->$field;
+        $minPoints = $type === RankType::TruePoints ? Rank::MIN_TRUE_POINTS : Rank::MIN_POINTS;
+
+        if ($points < $minPoints) {
+            return null;
+        }
+
+        return User::where($field, '>', $points)
+            ->whereNull('unranked_at')
+            ->count() + 1;
+    });
 }

@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Community\Components;
 
 use App\Community\Enums\Rank;
-use App\Community\Enums\RankType;
 use App\Enums\Permissions;
-use App\Models\PlayerGlobalRanking;
-use App\Models\PlayerGlobalRankingTotal;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Enums\GlobalRankingMode;
-use App\Platform\Enums\GlobalRankingWindow;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,7 +18,7 @@ class UserCardTest extends TestCase
 
     public function testItRendersRegisteredUserData(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'username' => 'mockUser',
             'motto' => 'mockMotto',
             'points_hardcore' => 5000,
@@ -34,7 +29,6 @@ class UserCardTest extends TestCase
             'created_at' => '2023-07-01 00:00:00',
             'last_activity_at' => '2023-07-10 00:00:00',
         ]);
-        $this->createRanking($user, RankType::Hardcore, GlobalRankingMode::Hardcore);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
@@ -63,7 +57,6 @@ class UserCardTest extends TestCase
             'last_activity_at' => '2023-07-10 00:00:00',
         ]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
-        $this->createRanking($user, RankType::Hardcore, GlobalRankingMode::Hardcore);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
@@ -72,7 +65,7 @@ class UserCardTest extends TestCase
 
     public function testItDoesntDisplayIfUserIsBanned(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'username' => 'mockUser',
             'motto' => 'mockMotto',
             'points_hardcore' => 5000,
@@ -83,7 +76,6 @@ class UserCardTest extends TestCase
             'created_at' => '2023-07-01 00:00:00',
             'last_activity_at' => '2023-07-10 00:00:00',
         ]);
-        $this->createRanking($user, RankType::Hardcore, GlobalRankingMode::Hardcore);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
@@ -92,7 +84,7 @@ class UserCardTest extends TestCase
 
     public function testItShowsCasualStandingsWhenAppropriate(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'username' => 'mockUser',
             'motto' => 'mockMotto',
             'points_hardcore' => 50,
@@ -103,7 +95,6 @@ class UserCardTest extends TestCase
             'created_at' => '2023-07-01 00:00:00',
             'last_activity_at' => '2023-07-10 00:00:00',
         ]);
-        $this->createRanking($user, RankType::Casual, GlobalRankingMode::Casual);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
@@ -149,21 +140,6 @@ class UserCardTest extends TestCase
         $view->assertSeeText("Needs at least " . Rank::MIN_POINTS . " points");
     }
 
-    public function testItSaysWhenUserRankIsUpdating(): void
-    {
-        User::factory()->create([
-            'username' => 'mockUser',
-            'points_hardcore' => Rank::MIN_POINTS,
-            'points' => 0,
-            'unranked_at' => null,
-        ]);
-
-        $view = $this->blade('<x-user-card user="mockUser" />');
-
-        $view->assertSeeText('Will appear shortly.');
-        $view->assertDontSeeText('Needs at least ' . Rank::MIN_POINTS . ' points');
-    }
-
     public function testItShowsLastActivityForANormalUser(): void
     {
         User::factory()->create([
@@ -206,19 +182,5 @@ class UserCardTest extends TestCase
         $view->assertDontSeeText('Last Activity');
         $view->assertSeeText('mockTeam');
         $view->assertSeeText('5,000');
-    }
-
-    private function createRanking(User $user, RankType $rankType, GlobalRankingMode $mode): void
-    {
-        PlayerGlobalRanking::factory()->create([
-            'user_id' => $user->id,
-            'window' => GlobalRankingWindow::AllTime,
-            'mode' => $mode,
-            'rank_number' => 1,
-        ]);
-        PlayerGlobalRankingTotal::query()->create([
-            'rank_type' => $rankType,
-            'total' => 1,
-        ]);
     }
 }

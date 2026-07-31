@@ -118,26 +118,20 @@ class UserCard extends Component
         $rankLabel = 'Site Rank';
         $rankPctLabel = '';
         $rankMinPoints = Rank::MIN_POINTS;
-        $isRankUpdating = false;
 
         if ($isUntracked) {
             $siteRank = 'Untracked';
-            $rankType = null;
-        } else {
-            $rankedPoints = $hardcorePoints;
-            if ($casualPoints > $hardcorePoints && $casualPoints > 0) {
-                $rankType = RankType::Casual;
-                $rankLabel = 'Casual Rank';
-                $rankedPoints = $casualPoints;
-            }
-
-            if ($rankedPoints >= Rank::MIN_POINTS) {
-                $siteRank = getUserRank($username, $rankType) ?? 0;
-                $isRankUpdating = $siteRank === 0;
-            }
+            $rankType = 'Untracked';
+        } elseif ($hardcorePoints >= $casualPoints) {
+            $rankType = RankType::Hardcore;
+            $siteRank = $hardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
+        } elseif ($casualPoints > 0) {
+            $rankType = RankType::Casual;
+            $siteRank = $casualPoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
+            $rankLabel = 'Casual Rank';
         }
 
-        if ($rankType !== null) {
+        if ($rankType !== 'Untracked') {
             $totalRankedUsersCount = countRankedUsers($rankType);
 
             // Don't divide by zero.
@@ -156,7 +150,6 @@ class UserCard extends Component
             'rankLabel',
             'rankPctLabel',
             'rankMinPoints',
-            'isRankUpdating',
         );
     }
 

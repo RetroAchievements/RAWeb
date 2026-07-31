@@ -69,7 +69,6 @@ use App\Platform\Commands\UpdateMinimumEmulatorVersions;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
-use App\Platform\Commands\UpdatePlayerGlobalRankings;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateSearchIndexForQueuedEntities;
@@ -137,7 +136,6 @@ class AppServiceProvider extends ServiceProvider
                 UnlockPlayerAchievement::class,
                 UpdatePlayerEstimatedTimes::class,
                 UpdatePlayerGameMetrics::class,
-                UpdatePlayerGlobalRankings::class,
                 UpdatePlayerMetrics::class,
 
                 // Player Stats
@@ -178,7 +176,6 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
-            $schedule->command(UpdatePlayerGlobalRankings::class)->everyFifteenMinutes();
 
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->hourly();
