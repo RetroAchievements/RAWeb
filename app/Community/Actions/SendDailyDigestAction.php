@@ -66,7 +66,12 @@ class SendDailyDigestAction
 
         $screenshotDecisionData = [];
         $screenshotGamesByScreenshotId = [];
+        $releaseGameTitles = [];
         foreach ($ids as $type => $typeIds) {
+            if ($type === SubscriptionSubjectType::AchievementSetRelease->value) {
+                $releaseGameTitles = Game::whereIn('id', $typeIds)->pluck('title', 'id')->all();
+            }
+
             if ($type === SubscriptionSubjectType::GameScreenshotDecision->value) {
                 $screenshots = GameScreenshot::whereIn('id', $typeIds)->with('game.system')->get();
 
@@ -91,6 +96,7 @@ class SendDailyDigestAction
                 $titles[$type] = match ($type) {
                     SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
                     SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
+                    SubscriptionSubjectType::AchievementSetRelease->value => $this->buildGameWallTitles($typeIds),
                     SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
                     SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                     SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
@@ -122,9 +128,19 @@ class SendDailyDigestAction
                     ];
                 }
 
+                if ($delayedSubscription->subject_type === SubscriptionSubjectType::AchievementSetRelease) {
+                    $notificationItem['gameTitle'] = $releaseGameTitles[$delayedSubscription->subject_id]
+                        ?? $notificationItem['title'];
+                }
+
                 $notificationItems[] = $notificationItem;
 
-                if ($count === 1 && $delayedSubscription->subject_type !== SubscriptionSubjectType::GameScreenshotDecision) {
+                $isOneShotEvent = in_array($delayedSubscription->subject_type, [
+                    SubscriptionSubjectType::GameScreenshotDecision,
+                    SubscriptionSubjectType::AchievementSetRelease,
+                ], true);
+
+                if ($count === 1 && !$isOneShotEvent) {
                     $singleItems[] = [$delayedSubscription, count($notificationItems) - 1];
                 }
             }
@@ -201,6 +217,7 @@ class SendDailyDigestAction
         }
 
         return match ($subjectType) {
+            SubscriptionSubjectType::AchievementSetRelease => new AchievementSetReleaseDelayedSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
             SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(CommentableType::Game),
             SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
@@ -453,6 +470,19 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
         }
 
         return '';
+    }
+}
+
+class AchievementSetReleaseDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
+{
+    public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int
+    {
+        return 1; // a release is a single event, not an accumulation
+    }
+
+    public function getLink(int $subjectId, int $firstUpdateId): string
+    {
+        return route('game.show', ['game' => $subjectId]);
     }
 }
 

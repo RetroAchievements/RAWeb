@@ -8,6 +8,7 @@ use App\Community\Actions\SendDailyDigestAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Jobs\SendDailyDigestJob;
+use App\Enums\UserPreference;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -629,5 +630,93 @@ class SendDailyDigestActionTest extends TestCase
         $this->assertStringContainsString('Rejected (Wrong Game)', $rendered);
         $this->assertStringContainsString('screenshot is from Sonic 2', $rendered);
         $this->assertStringContainsString('Rejected (Duplicate)', $rendered);
+    }
+
+    public function testItSendsAnAchievementSetReleaseNoticeNamingTheGame(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+
+        $system = System::factory()->create(['name' => 'Genesis/Mega Drive']);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::AchievementSetRelease,
+            'subject_id' => $game->id,
+            'first_update_id' => $game->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
+        Mail::assertQueued(DailyDigestMail::class, function ($mail) use ($subscriber, $game) {
+            $this->assertTrue($mail->hasTo($subscriber->email));
+            $this->assertCount(1, $mail->notificationItems);
+            $this->assertEquals(SubscriptionSubjectType::AchievementSetRelease->value, $mail->notificationItems[0]['type']);
+            $this->assertEquals('Sonic the Hedgehog (Genesis/Mega Drive)', $mail->notificationItems[0]['title']);
+            $this->assertEquals('Sonic the Hedgehog', $mail->notificationItems[0]['gameTitle']);
+            $this->assertStringContainsString((string) $game->id, $mail->notificationItems[0]['link']);
+            $this->assertEquals('Achievements released for Sonic the Hedgehog', $mail->envelope()->subject);
+
+            return true;
+        });
+    }
+
+    public function testItRendersTheAchievementSetReleaseLine(): void
+    {
+        // Arrange
+        $subscriber = User::factory()->create(['email' => 'test@example.com']);
+
+        $mail = new DailyDigestMail($subscriber, [[
+            'type' => SubscriptionSubjectType::AchievementSetRelease->value,
+            'title' => 'Sonic the Hedgehog (Genesis/Mega Drive)',
+            'gameTitle' => 'Sonic the Hedgehog',
+            'link' => 'https://retroachievements.org/game/1',
+            'count' => 1,
+        ]]);
+
+        // Act
+        $rendered = $mail->render();
+
+        // Assert
+        $this->assertStringContainsString('Achievements were released for', $rendered);
+        $this->assertStringContainsString('Sonic the Hedgehog (Genesis/Mega Drive)', $rendered);
+        $this->assertStringContainsString('Want to Play list', $rendered);
+    }
+
+    public function testItSendsNothingWhenTheSubscriberOptedOutOfTheDigest(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+            'preferences_bitfield' => 1 << UserPreference::EmailOff_DailyDigest,
+        ]);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::AchievementSetRelease,
+            'subject_id' => $game->id,
+            'first_update_id' => $game->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
+        Mail::assertNothingQueued();
+        $this->assertEquals(0, UserDelayedSubscription::where('user_id', $subscriber->id)->count());
     }
 }
