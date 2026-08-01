@@ -108,6 +108,63 @@ describe('Hook: useClaimDialogState', () => {
     expect(result.current.quickCompletionMinutesActive).toEqual(60);
   });
 
+  it.each([
+    {
+      scenario: 'a sole author revision claim',
+      isSoleAuthor: true,
+      setType: 'revision',
+      minutesActive: 60,
+      expectsWarning: false,
+    },
+    {
+      scenario: 'a non sole author revision claim',
+      isSoleAuthor: false,
+      setType: 'revision',
+      minutesActive: 60,
+      expectsWarning: true,
+    },
+    {
+      scenario: 'a sole author new set claim',
+      isSoleAuthor: true,
+      setType: 'new_set',
+      minutesActive: 60,
+      expectsWarning: true,
+    },
+    {
+      scenario: 'an older sole author revision claim',
+      isSoleAuthor: true,
+      setType: 'revision',
+      minutesActive: 5000,
+      expectsWarning: false,
+    },
+    {
+      scenario: 'a claim with an unknown set type',
+      isSoleAuthor: true,
+      setType: undefined,
+      minutesActive: 60,
+      expectsWarning: true,
+    },
+  ] as const)(
+    'given the action is complete on $scenario, then the quick completion warning is $expectsWarning',
+    ({ isSoleAuthor, setType, minutesActive, expectsWarning }) => {
+      // ARRANGE
+      const { result } = renderHook(() => useClaimDialogState('complete'), {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          claimData: createGamePageClaimData({
+            isSoleAuthor,
+            userClaim: createAchievementSetClaim({ minutesActive, setType }),
+          }),
+        },
+      });
+
+      // ASSERT
+      expect(result.current.hasQuickCompletionWarning).toEqual(expectsWarning);
+      expect(result.current.hasDialogNotice).toEqual(expectsWarning);
+    },
+  );
+
   it('given claim data is missing, falls back to safe defaults', () => {
     // ARRANGE
     const backingGame = createGame({ id: 10, forumTopicId: 123 });
