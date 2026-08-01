@@ -1,5 +1,5 @@
 import { render, screen, within } from '@/test';
-import { createAchievementChangelogEntry, createUser } from '@/test/factories';
+import { createAchievement, createAchievementChangelogEntry, createUser } from '@/test/factories';
 
 import { AchievementChangelogEntry } from './AchievementChangelogEntry';
 
@@ -359,5 +359,90 @@ describe('Component: AchievementChangelogEntry', () => {
 
     // ASSERT
     expect(screen.getByText('DevAuthor')).toBeVisible();
+  });
+
+  it('given the user can view logic and the entry has a trigger version, links to that version on the Logic page', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({ type: 'logic-updated', triggerVersion: 4 })}
+        />
+      </ul>,
+      {
+        pageProps: {
+          achievement: createAchievement({ id: 9 }),
+          can: { viewAchievementLogic: true },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: 'Logic updated' })).toHaveAttribute(
+      'href',
+      '/manage/achievements/9/logic?version=4',
+    );
+  });
+
+  it('given the user cannot view logic, renders the logic entry as plain text', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({ type: 'logic-updated', triggerVersion: 4 })}
+        />
+      </ul>,
+      {
+        pageProps: {
+          achievement: createAchievement({ id: 9 }),
+          can: { viewAchievementLogic: false },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Logic updated')).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Logic updated' })).not.toBeInTheDocument();
+  });
+
+  it('given the entry has no trigger version, renders it as plain text', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({ type: 'logic-updated', triggerVersion: null })}
+        />
+      </ul>,
+      {
+        pageProps: {
+          achievement: createAchievement({ id: 9 }),
+          can: { viewAchievementLogic: true },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Logic updated')).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Logic updated' })).not.toBeInTheDocument();
+  });
+
+  it('given the entry is not a logic entry, does not render a link', () => {
+    // ARRANGE
+    render(
+      <ul>
+        <AchievementChangelogEntry
+          entry={createAchievementChangelogEntry({ type: 'description-updated' })}
+        />
+      </ul>,
+      {
+        pageProps: {
+          achievement: createAchievement({ id: 9 }),
+          can: { viewAchievementLogic: true },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });

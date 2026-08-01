@@ -47,6 +47,8 @@
                 $versionData = $this->getVersionHistoryData();
                 $triggers = $versionData['triggers'];
                 $lazyLoad = $versionData['lazyLoad'];
+                $focusedVersion = $versionData['focusedVersion'];
+                $shouldShowAllVersions = $versionData['shouldShowAllVersions'];
                 $summaries = $versionData['summaries'] ?? [];
                 $diffs = $versionData['diffs'] ?? [];
             @endphp

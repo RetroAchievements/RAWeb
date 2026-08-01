@@ -529,6 +529,7 @@ createdAt: string;
 user: App.Data.User | null;
 fieldChanges: Array<App.Platform.Data.ChangelogFieldChange>;
 count: number;
+triggerVersion: number | null;
 };
 export type Achievement = {
 badgeLockedUrl: string;

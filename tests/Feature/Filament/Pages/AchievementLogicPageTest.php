@@ -7,6 +7,7 @@ namespace Tests\Feature\Filament\Pages;
 use App\Filament\Resources\AchievementResource\Pages\Logic as LogicPage;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Trigger;
 use App\Models\User;
@@ -30,6 +31,30 @@ class AchievementLogicPageTest extends TestCase
         }
 
         return implode('_', $conditions);
+    }
+
+    private function createAchievementWithVersions(int $versionCount): Achievement
+    {
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
+
+        $parentId = null;
+        for ($version = 1; $version <= $versionCount; $version++) {
+            $trigger = Trigger::factory()->create([
+                'triggerable_type' => TriggerableType::Achievement,
+                'triggerable_id' => $achievement->id,
+                'conditions' => '0xH001234=' . $version,
+                'version' => $version,
+                'parent_id' => $parentId,
+                'user_id' => $user->id,
+            ]);
+
+            $parentId = $trigger->id;
+        }
+
+        return $achievement;
     }
 
     public function testGetVersionHistoryDataReturnsLazyLoadFalseForEmptyTriggers(): void
@@ -210,5 +235,39 @@ class AchievementLogicPageTest extends TestCase
         $this->assertNotEmpty($result['diff']);
         $this->assertArrayHasKey('Label', $result['diff'][0]);
         $this->assertArrayHasKey('Conditions', $result['diff'][0]);
+    }
+
+    public function testGetVersionHistoryDataFocusesARequestedVersionThatExists(): void
+    {
+        // Arrange
+        $achievement = $this->createAchievementWithVersions(3);
+
+        $page = new LogicPage();
+        $page->record = $achievement;
+        $page->requestedVersion = 2;
+
+        // Act
+        $result = $page->getVersionHistoryData();
+
+        // Assert
+        $this->assertEquals(2, $result['focusedVersion']);
+        $this->assertFalse($result['shouldShowAllVersions']);
+    }
+
+    public function testGetVersionHistoryDataShowsAllVersionsToReachAHiddenOlderVersion(): void
+    {
+        // Arrange
+        $achievement = $this->createAchievementWithVersions(15);
+
+        $page = new LogicPage();
+        $page->record = $achievement;
+        $page->requestedVersion = 3;
+
+        // Act
+        $result = $page->getVersionHistoryData();
+
+        // Assert
+        $this->assertEquals(3, $result['focusedVersion']);
+        $this->assertTrue($result['shouldShowAllVersions']);
     }
 }

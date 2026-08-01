@@ -426,6 +426,82 @@ describe('Trigger Entries', function () {
         $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user->displayName)->toEqual($user->display_name);
+        expect($entries[0]->triggerVersion)->toEqual(2);
+    });
+
+    it('given a trigger has no version, it creates an entry with a null triggerVersion', function () {
+        // Arrange
+        $user = User::factory()->create();
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        $parentTrigger = Trigger::factory()->create([
+            'triggerable_type' => 'achievement',
+            'triggerable_id' => $achievement->id,
+            'user_id' => $user->id,
+            'parent_id' => null,
+            'version' => 1,
+            'created_at' => '2025-03-15 12:00:00',
+        ]);
+
+        Trigger::factory()->create([
+            'triggerable_type' => 'achievement',
+            'triggerable_id' => $achievement->id,
+            'user_id' => $user->id,
+            'parent_id' => $parentTrigger->id,
+            'version' => null,
+            'created_at' => '2025-03-15 12:00:00',
+        ]);
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Assert
+        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        expect($entries)->toHaveCount(1);
+        expect($entries[0]->triggerVersion)->toBeNull();
+    });
+
+    it('given consecutive trigger versions by the same user, each entry keeps its own version', function () {
+        // Arrange
+        $user = User::factory()->create();
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        $firstTrigger = Trigger::factory()->create([
+            'triggerable_type' => 'achievement',
+            'triggerable_id' => $achievement->id,
+            'user_id' => $user->id,
+            'parent_id' => null,
+            'version' => 1,
+            'created_at' => '2025-03-15 12:00:00',
+        ]);
+
+        $secondTrigger = Trigger::factory()->create([
+            'triggerable_type' => 'achievement',
+            'triggerable_id' => $achievement->id,
+            'user_id' => $user->id,
+            'parent_id' => $firstTrigger->id,
+            'version' => 2,
+            'created_at' => '2025-03-15 12:00:00',
+        ]);
+
+        Trigger::factory()->create([
+            'triggerable_type' => 'achievement',
+            'triggerable_id' => $achievement->id,
+            'user_id' => $user->id,
+            'parent_id' => $secondTrigger->id,
+            'version' => 3,
+            'created_at' => '2025-03-16 12:00:00',
+        ]);
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Assert
+        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        expect($entries)->toHaveCount(2);
+        expect(collect($entries)->pluck('triggerVersion')->sort()->values()->all())->toEqual([2, 3]);
     });
 
     it('ignores triggers with a null parent_id', function () {
@@ -447,6 +523,24 @@ describe('Trigger Entries', function () {
 
         // Assert
         expect(entriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(0);
+    });
+
+    it('given a legacy comment describes a logic edit, it creates an entry with a null triggerVersion', function () {
+        // Arrange
+        createSystemUser();
+        $user = User::factory()->create(['display_name' => 'Scott']);
+        $game = Game::factory()->create();
+        $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
+
+        createLegacyComment($achievement, "Scott edited this achievement's logic.", '2019-05-01 12:00:00');
+
+        // Act
+        $result = (new BuildAchievementChangelogAction())->execute($achievement);
+
+        // Assert
+        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        expect($entries)->toHaveCount(1);
+        expect($entries[0]->triggerVersion)->toBeNull();
     });
 });
 

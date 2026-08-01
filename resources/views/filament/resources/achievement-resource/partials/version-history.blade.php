@@ -4,6 +4,8 @@
     Expected variables from the parent view:
     - $triggers: Collection of Trigger models with version history.
     - $lazyLoad: bool - Whether to load data asynchronously (true for complex achievements).
+    - $focusedVersion: int|null - Version to expand on load, from a changelog deep link.
+    - $shouldShowAllVersions: bool - Whether the older versions hidden behind "See N more" must be shown for $focusedVersion to be reachable.
     - $summaries: array<int, string> - Pre-computed summaries (only when $lazyLoad is false).
     - $diffs: array<int, array> - Pre-computed diffs (only when $lazyLoad is false).
 
@@ -26,7 +28,8 @@
         x-data="{
             expanded: {},
             viewMode: {},
-            showAll: false,
+            showAll: {{ ($shouldShowAllVersions ?? false) ? 'true' : 'false' }},
+            focusedVersion: @js($focusedVersion ?? null),
             lazyLoad: {{ ($lazyLoad ?? false) ? 'true' : 'false' }},
             summaries: @js($summaries ?? []),
             diffs: @js($diffs ?? []),
@@ -36,6 +39,12 @@
                 if (this.lazyLoad) {
                     this.summaries = await $wire.loadAllSummaries();
                     this.loadingSummaries = false;
+                }
+
+                // Expand through toggleVersion rather than seeding `expanded` directly,
+                // so a lazy-loaded version still fetches its diff.
+                if (this.focusedVersion !== null) {
+                    await this.toggleVersion(this.focusedVersion);
                 }
             },
             async toggleVersion(version) {

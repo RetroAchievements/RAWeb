@@ -10,6 +10,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { FIELD_LEVEL_TRACKING_CUTOFF } from '../../utils/fieldLevelTrackingCutoff';
@@ -23,10 +24,12 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
   entry,
   isCreatedAsPromoted,
 }) => {
+  const { achievement, can } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
   const { formatDate } = useFormatDate();
 
   const header = buildHeader(entry, t);
+  const logicHref = buildLogicHref(entry, achievement?.id, can?.viewAchievementLogic);
 
   return (
     <li className="group relative flex gap-3 pb-6 last:pb-0" data-testid="changelog-entry">
@@ -43,7 +46,13 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
 
       <div className="flex min-w-0 flex-col gap-0.5">
         <p className="flex items-center gap-1 text-xs">
-          {header}
+          {logicHref ? (
+            <a href={logicHref} target="_blank" rel="noopener noreferrer">
+              {header}
+            </a>
+          ) : (
+            header
+          )}
 
           {entry.count > 1 && entry.type === 'edited' ? (
             <span className="text-neutral-400">
@@ -120,6 +129,23 @@ const FieldChangeDiff: FC<FieldChangeDiffProps> = ({ change, type }) => {
     </div>
   );
 };
+
+function buildLogicHref(
+  entry: App.Platform.Data.AchievementChangelogEntry,
+  achievementId: number | undefined,
+  canViewAchievementLogic: boolean | undefined,
+): string | null {
+  if (
+    entry.type !== 'logic-updated' ||
+    !entry.triggerVersion ||
+    !canViewAchievementLogic ||
+    !achievementId
+  ) {
+    return null;
+  }
+
+  return `/manage/achievements/${achievementId}/logic?version=${entry.triggerVersion}`;
+}
 
 function getDotColor(type: EntryType, isCreatedAsPromoted?: boolean): string {
   switch (type) {
