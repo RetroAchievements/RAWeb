@@ -356,6 +356,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
@@ -394,6 +395,7 @@ describe('Component: RequestedGamesMainRoot', () => {
           user: targetUser.displayName,
           'filter[system]': 'all',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'filter[user]': targetUser.displayName,
           'filter[title]': 'sonic',
@@ -453,6 +455,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': '1',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'page[number]': 1,
           'page[size]': 25,
@@ -549,6 +552,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'unclaimed',
           'page[number]': 1,
           'page[size]': 25,
@@ -583,6 +587,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'page[number]': 1,
           'page[size]': 25,
@@ -618,6 +623,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'page[number]': 1,
           'page[size]': 25,
@@ -653,6 +659,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'page[number]': 1,
           'page[size]': 25,
@@ -728,6 +735,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         {
           'filter[system]': 'supported',
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'page[number]': 2,
           'page[size]': 50,

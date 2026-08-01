@@ -202,6 +202,9 @@ trait BuildsGameListQueries
              * only show games based on whether they are "subset games"
              */
             if ($filterKey === 'subsets') {
+                if ($filterValues[0] === GameListSetTypeFilterValue::All->value) {
+                    continue;
+                }
                 if ($filterValues[0] === GameListSetTypeFilterValue::OnlyGames->value) {
                     $query->where(DB::raw('games.title'), 'not like', '%[Subset -%');
                 }
