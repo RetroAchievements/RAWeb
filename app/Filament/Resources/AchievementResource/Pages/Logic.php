@@ -119,6 +119,7 @@ class Logic extends Page
      *     lazyLoad: bool,
      *     focusedVersion: int|null,
      *     shouldShowAllVersions: bool,
+     *     visibleVersionCount: int,
      *     summaries?: array<int|null, string>,
      *     diffs?: array<int|null, array>
      * }
@@ -133,6 +134,7 @@ class Logic extends Page
                 'lazyLoad' => false,
                 'focusedVersion' => null,
                 'shouldShowAllVersions' => false,
+                'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
                 'summaries' => [],
                 'diffs' => [],
             ];
@@ -148,6 +150,7 @@ class Logic extends Page
                 'lazyLoad' => true,
                 'focusedVersion' => $focusedVersion,
                 'shouldShowAllVersions' => $shouldShowAllVersions,
+                'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
             ];
         }
 
@@ -160,6 +163,7 @@ class Logic extends Page
             'lazyLoad' => false,
             'focusedVersion' => $focusedVersion,
             'shouldShowAllVersions' => $shouldShowAllVersions,
+            'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
             'summaries' => $summaries,
             'diffs' => $diffs,
         ];

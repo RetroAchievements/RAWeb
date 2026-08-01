@@ -7,7 +7,6 @@ namespace Tests\Feature\Filament\Pages;
 use App\Filament\Resources\AchievementResource\Pages\Logic as LogicPage;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\Role;
 use App\Models\System;
 use App\Models\Trigger;
 use App\Models\User;

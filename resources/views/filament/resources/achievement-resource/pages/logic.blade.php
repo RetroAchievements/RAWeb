@@ -49,6 +49,7 @@
                 $lazyLoad = $versionData['lazyLoad'];
                 $focusedVersion = $versionData['focusedVersion'];
                 $shouldShowAllVersions = $versionData['shouldShowAllVersions'];
+                $visibleVersionCount = $versionData['visibleVersionCount'];
                 $summaries = $versionData['summaries'] ?? [];
                 $diffs = $versionData['diffs'] ?? [];
             @endphp
