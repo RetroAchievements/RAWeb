@@ -21,7 +21,6 @@
             $triggerDecoderService->addCodeNotes($groups, $record->game_id);
 
             $hasAddAddress = $triggerViewerService->hasAddAddressFlag($groups);
-            $addrFormat = $triggerViewerService->getAddressFormat($groups);
             $markdownOutput = $triggerViewerService->generateMarkdown($groups);
 
             $tooltipStyle = 'white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; max-height: 300px; overflow-y: auto; display: block';
@@ -331,7 +330,7 @@
                                 <div class="divide-y divide-gray-950/5 dark:divide-white/5">
                                     @foreach ($group['Notes'] as $addr => $note)
                                         <div class="flex gap-3 text-xs py-2 first:pt-0 last:pb-0">
-                                            <code class="shrink-0 font-medium text-blue-600 dark:text-blue-400">{{ sprintf($addrFormat, $addr) }}</code>
+                                            <code class="shrink-0 font-medium text-blue-600 dark:text-blue-400">{{ $triggerDecoderService->formatAddress($addr) }}</code>
                                             <span class="font-mono text-neutral-600 dark:text-neutral-400 wrap-break-word whitespace-pre-wrap">{{ $note }}</span>
                                         </div>
                                     @endforeach

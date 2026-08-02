@@ -11,11 +11,17 @@ use Illuminate\Support\Str;
 
 class TriggerDecoderService
 {
+    public function formatAddress(int $address): string
+    {
+        return $this->formatHex(dechex($address));
+    }
+
     private function formatHex(string $hex): string
     {
         $trimmed = ltrim(strtolower($hex), '0');
+        $width = strlen($trimmed) > 6 ? 8 : 6;
 
-        return '0x' . str_pad($trimmed, 6, '0', STR_PAD_LEFT);
+        return '0x' . str_pad($trimmed, $width, '0', STR_PAD_LEFT);
     }
 
     private function parseOperand(string $mem): array

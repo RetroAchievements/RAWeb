@@ -118,9 +118,11 @@ class TriggerDecoderServiceTest extends TestCase
         // addresses shorter than the canonical width are padded out
         $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x001234');
 
-        // addresses wider than the canonical width drop their surplus leading zeros
-        $this->assertParseOperand('0xH01bac044', 'Mem', '8-bit', '0x1bac044');
-        $this->assertParseOperand('0xH1bac044', 'Mem', '8-bit', '0x1bac044');
+        // addresses too wide for the narrow form settle on the wide form
+        $this->assertParseOperand('0xH01bac044', 'Mem', '8-bit', '0x01bac044');
+        $this->assertParseOperand('0xH1bac044', 'Mem', '8-bit', '0x01bac044');
+
+        // surplus leading zeros drop away when the narrow form still fits
         $this->assertParseOperand('0xG00966c5c', 'Mem', '32-bit BE', '0x966c5c');
         $this->assertParseOperand('0xG966c5c', 'Mem', '32-bit BE', '0x966c5c');
 
@@ -134,6 +136,27 @@ class TriggerDecoderServiceTest extends TestCase
 
         // an address of zero still renders at the canonical width
         $this->assertParseOperand('0xH0000000', 'Mem', '8-bit', '0x000000');
+    }
+
+    public function testFormatAddressMatchesTheAddressesOnDecodedConditions(): void
+    {
+        $service = new TriggerDecoderService();
+
+        $groups = $service->decode('0xG00966c5c=1_0xH01bac044=2');
+        $conditions = $groups[0]['Conditions'];
+
+        $this->assertEquals(
+            $conditions[0]['SourceAddress'],
+            $service->formatAddress(hexdec($conditions[0]['SourceAddress']))
+        );
+        $this->assertEquals(
+            $conditions[1]['SourceAddress'],
+            $service->formatAddress(hexdec($conditions[1]['SourceAddress']))
+        );
+
+        $this->assertEquals('0x966c5c', $service->formatAddress(0x966C5C));
+        $this->assertEquals('0x01bac044', $service->formatAddress(0x1BAC044));
+        $this->assertEquals('0x000000', $service->formatAddress(0));
     }
 
     public function testParseCondition(): void
