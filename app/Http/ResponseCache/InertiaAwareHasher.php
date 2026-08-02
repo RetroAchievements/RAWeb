@@ -21,10 +21,24 @@ class InertiaAwareHasher implements RequestHasher
     {
         $cacheNameSuffix = $this->getCacheNameSuffix($request);
 
-        // Inertia client-side navigations send X-Inertia and expect JSON,
-        // while initial page loads expect full HTML. Without this segment
-        // the two response formats would share a single cache entry.
-        $format = $request->headers->has('X-Inertia') ? 'inertia' : 'html';
+        // Inertia client-side navigations send X-Inertia and expect JSON.
+        // Initial page loads expect full HTML. This segment keeps the two
+        // formats in separate cache entries.
+        //
+        // Partial reloads (deferred props, `only`/`except` visits) also send
+        // X-Inertia, but they expect only a subset of the props. The cache
+        // never stores them. They must also never read a full page entry,
+        // because that entry still lists its deferred props. The client reads
+        // the list, requests the props again, and the loop does not stop.
+        // This segment gives partial reloads a key that no entry uses.
+        //
+        // The key omits the requested prop names on purpose. Nothing writes
+        // an entry under this segment, so a finer key adds no value.
+        $format = match (true) {
+            $request->headers->has('X-Inertia-Partial-Component') => 'inertia-partial',
+            $request->headers->has('X-Inertia') => 'inertia',
+            default => 'html',
+        };
 
         // Many pages render different layouts for mobile vs desktop via
         // `ziggy.device`. Without this segment both device types would
