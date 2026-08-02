@@ -130,6 +130,24 @@ it('given a post edited by someone other than its author, the alert names the ed
     expect($alerts[0]->user->id)->toEqual($moderator->id);
 });
 
+it('given a post a moderator edited earlier, the alert names the author who added the term', function () {
+    // Arrange
+    ModerationWatchlistTerm::create(['term' => 'watchedtool']);
+    $moderator = User::factory()->create();
+    $post = makeForumPost('anyone got tips for this game', $this->author, $this->topic);
+
+    // ... have a moderator edit the post ...
+    $post->update(['body' => 'anyone got tips for this game?', 'edited_by_id' => $moderator->id]);
+
+    // Act
+    $post->update(['body' => 'anyone got tips, watchedtool works']);
+
+    // Assert
+    $alerts = pushedForumAlerts();
+    expect($alerts)->toHaveCount(1);
+    expect($alerts[0]->user->id)->toEqual($this->author->id);
+});
+
 it('given a post submitted on behalf of a team account, the alert names the submitter', function () {
     // Arrange
     ModerationWatchlistTerm::create(['term' => 'watchedtool']);

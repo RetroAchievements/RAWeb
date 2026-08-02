@@ -28,6 +28,7 @@ class ForumTopicCommentObserver
         $this->alertOnTerms(
             $forumTopicComment,
             $this->watchedTermMatcher->findMatches($forumTopicComment->body ?? ''),
+            $forumTopicComment->sentBy ?? $forumTopicComment->user,
         );
     }
 
@@ -53,7 +54,17 @@ class ForumTopicCommentObserver
             $this->watchedTermMatcher->findMatches($previousBody),
         ));
 
-        $this->alertOnTerms($forumTopicComment, $newlyMatchedTerms);
+        // edited_by_id is written only when a non-author edits, and it is never
+        // cleared, so a stale value would blame the last moderator to touch the post.
+        $editor = $forumTopicComment->wasChanged('edited_by_id')
+            ? $forumTopicComment->editedBy
+            : null;
+
+        $this->alertOnTerms(
+            $forumTopicComment,
+            $newlyMatchedTerms,
+            $editor ?? $forumTopicComment->user,
+        );
     }
 
     private function isAutomated(ForumTopicComment $forumTopicComment): bool
@@ -64,14 +75,12 @@ class ForumTopicCommentObserver
     /**
      * @param list<string> $matchedTerms
      */
-    private function alertOnTerms(ForumTopicComment $forumTopicComment, array $matchedTerms): void
-    {
-        if ($matchedTerms === []) {
-            return;
-        }
-
-        $responsibleUser = $this->responsibleUser($forumTopicComment);
-        if (!$responsibleUser) {
+    private function alertOnTerms(
+        ForumTopicComment $forumTopicComment,
+        array $matchedTerms,
+        ?User $responsibleUser,
+    ): void {
+        if ($matchedTerms === [] || !$responsibleUser) {
             return;
         }
 
@@ -81,11 +90,6 @@ class ForumTopicCommentObserver
             location: 'a forum post',
             destinationUrl: route('forum-topic-comment.show', ['comment' => $forumTopicComment]),
         ), $forumTopicComment->id);
-    }
-
-    private function responsibleUser(ForumTopicComment $forumTopicComment): ?User
-    {
-        return $forumTopicComment->editedBy ?? $forumTopicComment->sentBy ?? $forumTopicComment->user;
     }
 
     private function raiseAlert(WatchedTermAlert $alert, int $recordId): void
