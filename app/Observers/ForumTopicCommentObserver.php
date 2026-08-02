@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Support\Alerts\WatchedTermAlert;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -28,7 +29,7 @@ class ForumTopicCommentObserver
         $this->alertOnTerms(
             $forumTopicComment,
             $this->watchedTermMatcher->findMatches($forumTopicComment->body ?? ''),
-            $forumTopicComment->sentBy ?? $forumTopicComment->user,
+            $this->actor($forumTopicComment),
         );
     }
 
@@ -54,17 +55,12 @@ class ForumTopicCommentObserver
             $this->watchedTermMatcher->findMatches($previousBody),
         ));
 
-        // edited_by_id is written only when a non-author edits, and it is never
-        // cleared, so a stale value would blame the last moderator to touch the post.
-        $editor = $forumTopicComment->wasChanged('edited_by_id')
-            ? $forumTopicComment->editedBy
-            : null;
+        $this->alertOnTerms($forumTopicComment, $newlyMatchedTerms, $this->actor($forumTopicComment));
+    }
 
-        $this->alertOnTerms(
-            $forumTopicComment,
-            $newlyMatchedTerms,
-            $editor ?? $forumTopicComment->user,
-        );
+    private function actor(ForumTopicComment $forumTopicComment): ?User
+    {
+        return Auth::user() ?? $forumTopicComment->sentBy ?? $forumTopicComment->user;
     }
 
     private function isAutomated(ForumTopicComment $forumTopicComment): bool
