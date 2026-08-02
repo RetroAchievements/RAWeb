@@ -93,14 +93,7 @@ class Comment extends BaseModel
             return false;
         }
 
-        // Don't index certain management comment types.
-        $excludedTypes = [
-            CommentableType::UserModeration,
-            CommentableType::GameHash,
-            CommentableType::SetClaim,
-            CommentableType::GameModification,
-        ];
-        if (in_array($this->commentable_type, $excludedTypes, true)) {
+        if ($this->commentable_type->isManagementComment()) {
             return false;
         }
 

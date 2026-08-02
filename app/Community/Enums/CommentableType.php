@@ -80,6 +80,16 @@ enum CommentableType: string
         };
     }
 
+    public function isManagementComment(): bool
+    {
+        return in_array($this, [
+            self::GameHash,
+            self::GameModification,
+            self::SetClaim,
+            self::UserModeration,
+        ], true);
+    }
+
     /**
      * Check if this commentable type supports the intelligent comment redirect route.
      * These types can use route('comment.show') for proper pagination handling.
