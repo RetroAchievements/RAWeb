@@ -113,6 +113,29 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertParseOperand('{recall}', 'Recall', '', '');
     }
 
+    public function testParseOperandNormalizesHexSpelling(): void
+    {
+        // addresses shorter than the canonical width are padded out
+        $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x001234');
+
+        // addresses wider than the canonical width drop their surplus leading zeros
+        $this->assertParseOperand('0xH01bac044', 'Mem', '8-bit', '0x1bac044');
+        $this->assertParseOperand('0xH1bac044', 'Mem', '8-bit', '0x1bac044');
+        $this->assertParseOperand('0xG00966c5c', 'Mem', '32-bit BE', '0x966c5c');
+        $this->assertParseOperand('0xG966c5c', 'Mem', '32-bit BE', '0x966c5c');
+
+        // uppercase and lowercase hex digits describe the same address
+        $this->assertParseOperand('0xHabcd', 'Mem', '8-bit', '0x00abcd');
+        $this->assertParseOperand('0xHABCD', 'Mem', '8-bit', '0x00abcd');
+
+        // hex values follow the same rules as addresses
+        $this->assertParseOperand('h0000000a', 'Value', '', '0x00000a');
+        $this->assertParseOperand('hA', 'Value', '', '0x00000a');
+
+        // an address of zero still renders at the canonical width
+        $this->assertParseOperand('0xH0000000', 'Mem', '8-bit', '0x000000');
+    }
+
     public function testParseCondition(): void
     {
         $condition = $this->parseSingleCondition("0xH1234=6");
@@ -401,7 +424,7 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
         $this->assertConditionSourceTooltip($condition, '');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x00001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
         $this->assertConditionTargetTooltip($condition, '');
         $this->assertConditionHitTarget($condition, '0');
 
@@ -428,7 +451,7 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
         $this->assertConditionSourceTooltip($condition, 'Lives');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x00001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
         $this->assertConditionTargetTooltip($condition, 'Lives');
         $this->assertConditionHitTarget($condition, '0');
 

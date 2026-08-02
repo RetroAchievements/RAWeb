@@ -11,6 +11,13 @@ use Illuminate\Support\Str;
 
 class TriggerDecoderService
 {
+    private function formatHex(string $hex): string
+    {
+        $trimmed = ltrim(strtolower($hex), '0');
+
+        return '0x' . str_pad($trimmed, 6, '0', STR_PAD_LEFT);
+    }
+
     private function parseOperand(string $mem): array
     {
         $end = strlen($mem);
@@ -112,7 +119,7 @@ class TriggerDecoderService
                 $count++;
             }
 
-            $value = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
+            $value = $this->formatHex(substr($mem, 0, $count));
             $mem = substr($mem, $count);
 
             return [$type, $size, $value, $mem];
@@ -179,7 +186,7 @@ class TriggerDecoderService
             $count++;
         }
 
-        $address = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
+        $address = $this->formatHex(substr($mem, 0, $count));
         $mem = substr($mem, $count);
 
         return [$type, $size, $address, $mem];
