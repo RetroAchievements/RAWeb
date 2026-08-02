@@ -1,15 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
 import { type AxiosError } from 'axios';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { loadDraft } from '@/common/utils/loadDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageThreadMutation } from '@/features/messages/hooks/mutations/useCreateMessageThreadMutation';
 
@@ -26,25 +23,17 @@ export function useCreateMessageThreadForm(
   reportableType?: App.Community.Enums.ModerationReportableType | null,
   reportableId?: number | null,
 ) {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
 
-  const recipientKey = defaultValues.recipient
-    ? `create-message:${defaultValues.recipient}`
-    : 'create-message';
-  const draftKey = `${recipientKey}-${auth?.user.id ?? 'guest'}`;
-  const draft = loadDraft<FormValues>(draftKey);
-
-  delete draft.recipient;
-
-  const draftDefaultValues = { recipient: '', title: '', body: '', ...defaultValues };
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { ...draftDefaultValues, ...draft },
-  });
-
-  const { clearDraft } = useFormDraft(draftKey, form, draftDefaultValues);
+  const { form, clearDraft } = useDraftForm<FormValues>(
+    defaultValues.recipient ? `create-message:${defaultValues.recipient}` : 'create-message',
+    {
+      resolver: zodResolver(formSchema),
+      defaultValues: { recipient: '', title: '', body: '', ...defaultValues },
+      // The recipient is picked per message, never restored from a draft.
+      excludeFromDraft: ['recipient'],
+    },
+  );
 
   const mutation = useCreateMessageThreadMutation();
 

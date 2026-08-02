@@ -1,15 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
 import type { AxiosResponse } from 'axios';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { loadDraft } from '@/common/utils/loadDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicCommentMutation';
 import { useUpdateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useUpdateForumTopicCommentMutation';
@@ -27,20 +24,13 @@ export function useUpsertPostForm(
   const { targetComment, targetTopic } = props;
   const isCreating = !targetComment;
 
-  const { auth } = usePageProps();
   const { t } = useTranslation();
 
   // Only persist drafts for new replies, not edits.
-  const draftKey =
-    isCreating && targetTopic ? `reply-topic-${targetTopic.id}-${auth?.user.id ?? 'guest'}` : null;
-  const draft = draftKey ? loadDraft<FormValues>(draftKey) : {};
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { ...initialValues, ...draft },
-  });
-
-  const { clearDraft } = useFormDraft(draftKey, form, initialValues);
+  const { form, clearDraft } = useDraftForm<FormValues>(
+    isCreating && targetTopic ? `reply-topic-${targetTopic.id}` : null,
+    { resolver: zodResolver(formSchema), defaultValues: initialValues },
+  );
 
   const updateMutation = useUpdateForumTopicCommentMutation();
   const createMutation = useCreateForumTopicCommentMutation();

@@ -1,14 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { loadDraft } from '@/common/utils/loadDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 
 import { useCommentListContext } from './CommentListContext';
 
@@ -24,7 +21,6 @@ export function useSubmitCommentForm({
   commentableType,
   onSubmitSuccess,
 }: UseSubmitCommentFormProps) {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
 
   const { targetUserDisplayName } = useCommentListContext();
@@ -39,15 +35,10 @@ export function useSubmitCommentForm({
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
-  const draftKey = `comment-${commentableType}-${commentableId}-${auth?.user.id ?? 'guest'}`;
-  const draftDefaultValues = { body: '' };
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(addCommentFormSchema),
-    defaultValues: { ...draftDefaultValues, ...loadDraft<FormValues>(draftKey) },
-  });
-
-  const { clearDraft } = useFormDraft(draftKey, form, draftDefaultValues);
+  const { form, clearDraft } = useDraftForm<FormValues>(
+    `comment-${commentableType}-${commentableId}`,
+    { resolver: zodResolver(addCommentFormSchema), defaultValues: { body: '' } },
+  );
 
   const mutation = useSubmitCommentMutation();
 
@@ -66,8 +57,6 @@ export function useSubmitCommentForm({
         success: () => {
           clearDraft();
           onSubmitSuccess?.();
-
-          form.reset(draftDefaultValues);
 
           return t('Submitted!');
         },
