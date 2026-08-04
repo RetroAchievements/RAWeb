@@ -1,4 +1,5 @@
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAchievementSetPointsStats } from '../utils/getAchievementSetPointsStats';
 
@@ -24,7 +25,7 @@ export function useGameMetaDescription(): { description: string; noindex: boolea
     const { pointsTotal } = getAchievementSetPointsStats(allAchievements);
 
     return {
-      description: `There are ${allAchievements.length} unpublished achievements worth ${pointsTotal.toLocaleString()} points. ${backingGame.title} for ${game.system!.name} - explore and compete on this classic game at RetroAchievements.`,
+      description: `There are ${allAchievements.length} unpublished achievements worth ${formatNumber(pointsTotal)} points. ${backingGame.title} for ${game.system!.name} - explore and compete on this classic game at RetroAchievements.`,
       noindex: true,
     };
   }
@@ -38,7 +39,7 @@ export function useGameMetaDescription(): { description: string; noindex: boolea
   }
 
   return {
-    description: `There are ${backingGame.achievementsPublished} achievements worth ${backingGame.pointsTotal!.toLocaleString()} points. ${backingGame.title} for ${game.system!.name} - explore and compete on this classic game at RetroAchievements.`,
+    description: `There are ${backingGame.achievementsPublished} achievements worth ${formatNumber(backingGame.pointsTotal!)} points. ${backingGame.title} for ${game.system!.name} - explore and compete on this classic game at RetroAchievements.`,
     noindex: false,
   };
 }
