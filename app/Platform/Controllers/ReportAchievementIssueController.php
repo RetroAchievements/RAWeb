@@ -24,7 +24,7 @@ class ReportAchievementIssueController extends Controller
     public function index(Request $request, Achievement $achievement): InertiaResponse
     {
         $this->authorize('view', $achievement);
-        $this->authorize('create', Ticket::class);
+        $this->authorize('viewAny', Ticket::class);
 
         /** @var User $user */
         $user = Auth::user();
