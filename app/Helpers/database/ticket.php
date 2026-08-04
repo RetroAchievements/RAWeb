@@ -1,118 +1,14 @@
 <?php
 
 use App\Community\Enums\CommentableType;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
-use App\Community\Services\SubscriptionService;
-use App\Enums\ClientSupportLevel;
 use App\Enums\UserPreference;
-use App\Models\Achievement;
 use App\Models\Comment;
-use App\Models\Game;
-use App\Models\PlayerSession;
-use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
-use App\Platform\Services\UserAgentService;
 use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\DB;
-
-function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
-{
-    $maintainer = $achievement->getMaintainerAt(now());
-
-    if (
-        $maintainer
-        && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
-        && BitSet($maintainer->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
-    ) {
-        $maintainer->notify(new TicketCreatedNotification($ticket, $game, $achievement, isMaintainer: true));
-    }
-}
-
-function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achievement $achievement): void
-{
-    $maintainer = $achievement->getMaintainerAt(now());
-
-    $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameTickets, $game->id)
-        ->filter(fn ($s) => isset($s->email) && BitSet($s->preferences_bitfield, UserPreference::EmailOn_TicketActivity));
-
-    foreach ($subscribers as $subscriber) {
-        if ($subscriber->is($maintainer)) {
-            // maintainer explicitly notified regardless of subscription state via
-            // sendInitialTicketEmailToAssignee. don't notify them again.
-        } elseif ($subscriber->is($ticket->reporter)) {
-            // reporter doesn't need to be notified of the new ticket. they just created it!
-        } else {
-            $subscriber->notify(new TicketCreatedNotification($ticket, $game, $achievement, isMaintainer: false));
-        }
-    }
-}
-
-function _createTicket(User $user, int $achievementId, int $reportType, ?int $hardcore, string $note): int
-{
-    $achievement = Achievement::find($achievementId);
-    if (!$achievement) {
-        return 0;
-    }
-
-    $hardcoreValue = $hardcore === null ? null : (bool) $hardcore;
-    $maintainer = $achievement->getMaintainerAt(now());
-
-    $newTicket = Ticket::create([
-        'ticketable_type' => 'achievement',
-        'ticketable_id' => $achievement->id,
-        'reporter_id' => $user->id,
-        'ticketable_author_id' => $maintainer?->id,
-        'type' => TicketType::fromLegacyInteger($reportType),
-        'hardcore' => $hardcoreValue,
-        'body' => $note,
-    ]);
-
-    if ($maintainer) {
-        app(UserTicketCountService::class)->clearForUserId($maintainer->id);
-    }
-
-    $newTicket->state = TicketState::Open; // normalize to a proper enum value
-
-    // Quarantine a ticket when it's filed from a restricted core or a casual-only emulator.
-    $latestSession = PlayerSession::where('user_id', $user->id)
-        ->where('game_id', $achievement->game_id)
-        ->latest()
-        ->first();
-    if ($latestSession?->user_agent) {
-        $userAgentService = new UserAgentService();
-
-        [$clientSupportLevel, $coreRestriction] = $userAgentService
-            ->getSupportLevelAndCoreRestriction($latestSession->user_agent);
-
-        if ($coreRestriction || $clientSupportLevel === ClientSupportLevel::CasualOnly) {
-            $newTicket->state = TicketState::Quarantined;
-        }
-
-        // Quarantine a ticket when it's filed from an emulator that lacks developer toolkit support.
-        if ($newTicket->state !== TicketState::Quarantined) {
-            $emulator = $userAgentService->getEmulatorUserAgent($latestSession->user_agent)?->emulator;
-            if ($emulator && !$emulator->can_debug_triggers) {
-                $newTicket->state = TicketState::Quarantined;
-            }
-        }
-    }
-
-    $newTicket->save();
-
-    // Don't notify developers about quarantined tickets.
-    if ($newTicket->state !== TicketState::Quarantined) {
-        sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
-        sendInitialTicketEmailsToSubscribers($newTicket, $achievement->game, $achievement);
-    }
-
-    return $newTicket->id;
-}
 
 function getTicket(int $ticketID): ?array
 {
