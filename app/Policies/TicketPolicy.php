@@ -65,12 +65,29 @@ class TicketPolicy
 
     public function create(User $user): bool
     {
-        return
-            $user->hasVerifiedEmail()
-            && $user->created_at->diffInHours(Carbon::now(), true) >= 24
-            && !$user->is_muted
-            && !$user->banned_at
-        ;
+        if (!$user->hasVerifiedEmail()) {
+            return false;
+        }
+
+        if ($user->created_at->diffInHours(Carbon::now(), true) < 24) {
+            return false;
+        }
+
+        if ($user->is_muted || $user->banned_at) {
+            return false;
+        }
+
+        // Untracked users are already generally known to have an unlock history
+        // that is untrustworthy. Team members are exempt, as they already have an
+        // elevated level of trust.
+        if (
+            $user->unranked_at !== null
+            && $user->roles->whereNotIn('name', Role::nonTeamRoles())->isEmpty()
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     // TODO `Model $triggerable` and check for `HasVersionedTrigger`

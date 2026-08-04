@@ -31,6 +31,18 @@ class UpdatePlayerGlobalRankingsAction
 
         try {
             Cache::lock('player-global-rankings-update', 300)->block(240, function () use ($window, $boundaries): void {
+                /**
+                 * The default REPEATABLE READ isolation makes INSERT ... SELECT hold
+                 * shared locks on each source row it reads. These locks block unlock
+                 * inserts and achievement metric updates until the rebuild ends.
+                 * READ COMMITTED makes the same reads lock-free.
+                 *
+                 * This only affects the next transaction on the current DB connection.
+                 */
+                if (DB::transactionLevel() === 0) {
+                    DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+                }
+
                 DB::transaction(function () use ($window, $boundaries): void {
                     PlayerGlobalRanking::query()->where('window', $window)->delete();
 
