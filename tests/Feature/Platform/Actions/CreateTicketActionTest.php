@@ -42,15 +42,18 @@ beforeEach(function () {
 
 function ticketData(array $overrides = []): StoreTicketData
 {
+    /** @var object{achievement: Achievement, gameHash: GameHash} $context */
+    $context = test();
+
     return new StoreTicketData(
-        ticketable: $overrides['ticketable'] ?? test()->achievement,
+        ticketable: $overrides['ticketable'] ?? $context->achievement,
         mode: $overrides['mode'] ?? 'hardcore',
         issue: $overrides['issue'] ?? TicketType::DidNotTrigger,
         description: $overrides['description'] ?? 'The achievement never unlocked.',
         emulator: $overrides['emulator'] ?? 'PCSX2',
         emulatorVersion: $overrides['emulatorVersion'] ?? '2.0.0',
         core: $overrides['core'] ?? null,
-        gameHash: $overrides['gameHash'] ?? test()->gameHash,
+        gameHash: $overrides['gameHash'] ?? $context->gameHash,
         extra: $overrides['extra'] ?? null,
     );
 }
@@ -87,9 +90,13 @@ it('given the reporter only has a session on the parent game and provides an emu
     expect(PlayerSession::where('game_id', $subset->id)->exists())->toEqual(false);
 });
 
-it('given the reporter provides an emulator developers cannot work with and has no session at all, it quarantines the ticket', function (array $emulatorAttributes) {
+it('given the reporter provides an emulator developers cannot work with and has no session at all, it quarantines the ticket', function (bool $canDebugTriggers, bool $softcoreOnly) {
     // Arrange
-    Emulator::factory()->create(['name' => 'ReportedEmulator', ...$emulatorAttributes]);
+    Emulator::factory()->create([
+        'name' => 'ReportedEmulator',
+        'can_debug_triggers' => $canDebugTriggers,
+        'softcore_only' => $softcoreOnly,
+    ]);
 
     // Act
     $ticket = (new CreateTicketAction())->execute(
@@ -100,18 +107,18 @@ it('given the reporter provides an emulator developers cannot work with and has 
     // Assert
     expect($ticket->state)->toEqual(TicketState::Quarantined);
 })->with([
-    'cannot debug triggers' => [['can_debug_triggers' => false, 'softcore_only' => false]],
-    'casual only' => [['can_debug_triggers' => true, 'softcore_only' => true]],
+    'cannot debug triggers' => [false, false],
+    'casual only' => [true, true],
 ]);
 
-it('given the reporter provides a restricted core on a fully supported emulator, it quarantines the ticket', function (array $restrictionAttributes) {
+it('given the reporter provides a restricted core on a fully supported emulator, it quarantines the ticket', function (?string $minimumVersion) {
     // Arrange
     Emulator::factory()->create(['name' => 'RetroArch', 'can_debug_triggers' => true]);
     EmulatorCoreRestriction::create([
         'core_name' => 'doublecherrygb_libretro',
         'support_level' => ClientSupportLevel::Warned,
+        'minimum_version' => $minimumVersion,
         'notes' => 'known issues',
-        ...$restrictionAttributes,
     ]);
 
     // Act
@@ -123,8 +130,8 @@ it('given the reporter provides a restricted core on a fully supported emulator,
     // Assert
     expect($ticket->state)->toEqual(TicketState::Quarantined);
 })->with([
-    'no minimum version' => [[]],
-    'a minimum version the form cannot satisfy' => [['minimum_version' => '9.9.9']],
+    'no minimum version' => [null],
+    'a minimum version the form cannot satisfy' => ['9.9.9'],
 ]);
 
 it('given a fully supported emulator and no session, it leaves the ticket open', function (?string $core) {
