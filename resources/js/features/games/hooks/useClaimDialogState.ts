@@ -22,8 +22,17 @@ export function useClaimDialogState(action: ClaimActionType): ClaimDialogState {
 
   const unresolvedTicketCount = claimData?.numUnresolvedTickets ?? 0;
   const quickCompletionMinutesActive = claimData?.userClaim?.minutesActive;
+
+  /**
+   * @see https://docs.retroachievements.org/guidelines/developers/claims-system.html
+   */
+  const isExemptFromCompletionApproval =
+    claimData?.userClaim?.setType === 'revision' && !!claimData?.isSoleAuthor;
+
   const hasQuickCompletionWarning =
-    !!quickCompletionMinutesActive && quickCompletionMinutesActive <= 1440;
+    !!quickCompletionMinutesActive &&
+    quickCompletionMinutesActive <= 1440 &&
+    !isExemptFromCompletionApproval;
 
   if (action !== 'create') {
     return {
