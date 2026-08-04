@@ -30,7 +30,6 @@ export function useCreateMessageThreadForm(
     {
       resolver: zodResolver(formSchema),
       defaultValues: { recipient: '', title: '', body: '', ...defaultValues },
-      // The recipient is picked per message, never restored from a draft.
       excludeFromDraft: ['recipient'],
     },
   );

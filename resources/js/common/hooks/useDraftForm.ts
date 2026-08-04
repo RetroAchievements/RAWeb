@@ -41,8 +41,6 @@ export function useDraftForm<T extends FieldValues>(
 
   const writeDraft = (target: string) => {
     try {
-      // A form back at its defaults has nothing worth keeping, and leaving the
-      // entry behind would accumulate one per thing the user ever drafted.
       if (isPristine(latestValuesRef.current, defaultValues)) {
         sessionStorage.removeItem(target);
       } else {
@@ -69,9 +67,7 @@ export function useDraftForm<T extends FieldValues>(
       return;
     }
 
-    // useForm() only reads defaultValues on mount, so a form that outlives its
-    // key has to be pointed at the new draft by hand. React runs this cleanup
-    // before the next setup, so the outgoing draft is flushed before the reset.
+    // useForm() only reads defaultValues on mount, so rehydrate by hand.
     if (previousKeyRef.current !== draftKey) {
       form.reset({ ...defaultValues, ...readDraft<T>(draftKey, excludeFromDraft) });
     }
@@ -112,7 +108,6 @@ function readDraft<T extends FieldValues>(
   return draft;
 }
 
-/** Compares field by field so key ordering can't make equal values look different. */
 function isPristine<T extends FieldValues>(values: unknown, defaultValues: DefaultValues<T>) {
   const current = values as Record<string, unknown>;
   const defaults = defaultValues as Record<string, unknown>;
