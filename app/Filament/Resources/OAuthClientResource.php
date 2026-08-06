@@ -27,6 +27,7 @@ class OAuthClientResource extends Resource
     protected static ?string $model = OAuthClient::class;
     protected static ?string $label = 'OAuth Application';
     protected static ?string $navigationLabel = 'OAuth Apps';
+    protected static ?string $slug = 'oauth-applications';
     protected static string|BackedEnum|null $navigationIcon = 'fas-plug';
     protected static ?int $navigationSort = 3;
     protected static ?string $recordTitleAttribute = 'name';
@@ -229,6 +230,7 @@ class OAuthClientResource extends Resource
         $query = parent::getEloquentQuery()
             ->select([
                 'id',
+                'numeric_id',
                 'owner_type',
                 'owner_id',
                 'name',

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { LuCheck, LuGamepad2, LuSatelliteDish, LuX } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
@@ -54,17 +54,40 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
   return (
     <OAuthPageLayout>
       <BaseCard className="rounded-2xl p-8 shadow-lg ring-1 shadow-black/20 ring-white/5">
-        <BaseCardHeader className="px-0 pt-0 text-center text-balance">
-          <div className="mb-6 flex justify-center">
+        <BaseCardHeader className="gap-4 space-y-0 px-0 pt-0 text-center text-balance">
+          <div className="mb-2 flex justify-center">
             <div className="rounded-xl bg-amber-500/10 p-3">
               <LuGamepad2 className="size-8 text-amber-500 light:text-amber-600" />
             </div>
           </div>
 
-          <BaseCardTitle className="text-base leading-normal font-semibold text-neutral-300 light:text-neutral-900">
-            {t('{{clientName}} wants to access your account', { clientName: client.name })}
-          </BaseCardTitle>
-          <BaseCardDescription className="text-neutral-500 light:text-neutral-700">
+          <div className="flex flex-col gap-1">
+            <BaseCardTitle className="text-base leading-normal font-semibold text-neutral-300 light:text-neutral-900">
+              {t('{{clientName}} wants to access your account', { clientName: client.name })}
+            </BaseCardTitle>
+
+            {client.owner ? (
+              <p className="text-xs text-neutral-400 light:text-neutral-800">
+                <Trans
+                  i18nKey="Registered by <1>{{ownerDisplayName}}</1>"
+                  values={{ ownerDisplayName: client.owner.displayName }}
+                  components={{
+                    1: (
+                      // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
+                      <a
+                        href={route('user.show', { user: client.owner.displayName })}
+                        target="_blank"
+                        rel="noopener"
+                        className="inline-block px-1 py-1.5 text-neutral-400 underline decoration-neutral-600 underline-offset-2 hover:text-neutral-300 hover:decoration-neutral-400 light:text-neutral-800 light:decoration-neutral-400 light:hover:text-neutral-900 light:hover:decoration-neutral-700"
+                      />
+                    ),
+                  }}
+                />
+              </p>
+            ) : null}
+          </div>
+
+          <BaseCardDescription className="text-neutral-400 light:text-neutral-700">
             {t('This will allow {{clientName}} to:', {
               clientName: client.name,
               nsSeparator: null,

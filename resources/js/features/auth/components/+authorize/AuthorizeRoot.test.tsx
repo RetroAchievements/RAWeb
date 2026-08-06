@@ -2,6 +2,7 @@
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
 import { AuthorizeRoot } from './AuthorizeRoot';
 
@@ -65,6 +66,64 @@ describe('Component: AuthorizeRoot', () => {
 
     expect(screen.getByText(/currently signed in as/i)).toBeVisible();
     expect(screen.getByText('Scott')).toBeVisible();
+  });
+
+  it('given the client has an owner, names them as the registrant', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+          owner: createUser({ displayName: 'Jamiras' }),
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['data:read'],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/registered by/i)).toBeVisible();
+
+    const ownerLink = screen.getByRole('link', { name: 'Jamiras' });
+
+    expect(ownerLink).toBeVisible();
+    expect(ownerLink).toHaveAttribute('href', expect.stringContaining('user.show'));
+
+    expect(ownerLink).toHaveAttribute('target', '_blank');
+    expect(ownerLink).toHaveAttribute('rel', 'noopener');
+  });
+
+  it('given the client has no owner, does not crash', () => {
+    // ARRANGE
+    render(<AuthorizeRoot variant="app" />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser(),
+        },
+        authToken: 'test-auth-token',
+        client: {
+          id: 'client-123',
+          name: 'Test App',
+          owner: null, // !!
+        },
+        csrfToken: 'csrf-token-123',
+        request: {
+          state: 'request-state-123',
+        },
+        scopes: ['data:read'],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/registered by/i)).not.toBeInTheDocument();
   });
 
   it('translates known scopes and falls back to the identifier for unknown ones', () => {
