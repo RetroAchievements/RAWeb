@@ -22,6 +22,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Platform\Enums\ScreenshotType;
 use App\Platform\Enums\TicketableType;
+use App\Support\Casts\NormalizedText;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Database\Eloquent\Relations\TicketsForGameRelation;
 use Database\Factories\GameFactory;
@@ -110,11 +111,16 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
 
     protected $casts = [
         'comments_locked_at' => 'datetime',
+        'developer' => NormalizedText::class,
+        'genre' => NormalizedText::class,
         'is_media_restricted' => 'boolean',
         'last_achievement_update' => 'datetime',
+        'legacy_guide_url' => NormalizedText::class,
         'parent_game_id' => 'integer',
+        'publisher' => NormalizedText::class,
         'released_at_granularity' => ReleasedAtGranularity::class,
         'released_at' => 'datetime',
+        'title' => NormalizedText::class,
     ];
 
     protected $visible = [
