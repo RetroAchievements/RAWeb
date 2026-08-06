@@ -504,6 +504,51 @@ it('writes a primaryScreenshotChanged row capturing distinct old/new asset paths
     expect($row->properties->get('old')['title_screenshot'])->not->toEqual(Game::PLACEHOLDER_IMAGE_PATH);
 });
 
+it('does not write replaced_by_user_id on ingame screenshots demoted to pending', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $existing = GameScreenshot::factory()->for($game)->ingame()->primary()->create();
+
+    // ACT
+    (new AddGameScreenshotAction())->execute(
+        $game,
+        UploadedFile::fake()->image('replacement.png', 256, 224),
+        ScreenshotType::Ingame,
+        isPrimary: true,
+    );
+
+    // ASSERT
+    expect($existing->fresh()->status)->toEqual(GameScreenshotStatus::Pending);
+    expect($existing->fresh()->replaced_by_user_id)->toBeNull();
+});
+
+it('writes replaced_by_user_id on every approved title screenshot retired by a primary upload', function () {
+    // ARRANGE
+    $causer = User::factory()->create();
+    Auth::login($causer);
+
+    $game = Game::factory()->create(['system_id' => System::factory()]);
+    $first = GameScreenshot::factory()->for($game)->title()->create();
+    $second = GameScreenshot::factory()->for($game)->title()->create();
+
+    // ACT
+    (new AddGameScreenshotAction())->execute(
+        $game,
+        UploadedFile::fake()->image('replacement.png', 256, 224),
+        ScreenshotType::Title,
+        isPrimary: true,
+    );
+
+    // ASSERT
+    expect($first->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
+    expect($first->fresh()->replaced_by_user_id)->toEqual($causer->id);
+    expect($second->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
+    expect($second->fresh()->replaced_by_user_id)->toEqual($causer->id);
+});
+
 it('writes no primary-change row when uploading an additional non-primary gallery screenshot', function () {
     // ARRANGE
     $causer = User::factory()->create();

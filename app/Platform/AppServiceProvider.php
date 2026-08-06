@@ -33,6 +33,7 @@ use App\Platform\Commands\BackfillGameBadgesFromAuditLogCommand;
 use App\Platform\Commands\BackfillGameBadgesFromCommentsCommand;
 use App\Platform\Commands\BackfillGameBadgesFromForumCommentsCommand;
 use App\Platform\Commands\BackfillMissingPlayerGames;
+use App\Platform\Commands\BackfillReplacedGameScreenshotAttributionCommand;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
 use App\Platform\Commands\ConvertGameToEvent;
@@ -41,6 +42,7 @@ use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\NormalizeTextWhitespace;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
@@ -98,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillMissingPlayerGames::class,
                 CheckForAchievementSetChanges::class,
                 ConvertGameToEvent::class,
+                NormalizeTextWhitespace::class,
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
                 RegenerateGameScreenshotConversions::class,
@@ -122,6 +125,9 @@ class AppServiceProvider extends ServiceProvider
 
                 // Game Hashes
                 NoIntroImport::class,
+
+                // Game Screenshots
+                BackfillReplacedGameScreenshotAttributionCommand::class,
 
                 // Leaderboards
                 UpdateLeaderboardMetrics::class,

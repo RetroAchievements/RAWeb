@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
+import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 export function useHubPageMetaDescription() {
   const page = usePage();
@@ -21,7 +22,7 @@ export function useHubPageMetaDescription() {
   }
 
   if (paginatedGameListEntries.total) {
-    return `Explore a collection of ${paginatedGameListEntries.total.toLocaleString()} ${paginatedGameListEntries.total === 1 ? 'classic game' : 'classic games'} in the ${cleanedTitle} hub.`;
+    return `Explore a collection of ${formatNumber(paginatedGameListEntries.total)} ${paginatedGameListEntries.total === 1 ? 'classic game' : 'classic games'} in the ${cleanedTitle} hub.`;
   }
 
   // This only happens with orphaned hubs, which probably generate no SEO juice anyway.

@@ -66,6 +66,7 @@ class BuildGamePageClaimDataAction
                     'isCompletable',
                     'minutesActive',
                     'minutesLeft',
+                    'setType',
                 )
                 : null,
 

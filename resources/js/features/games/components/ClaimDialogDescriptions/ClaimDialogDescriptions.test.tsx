@@ -301,6 +301,50 @@ describe('Component: ClaimDialogDescriptions', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('given the action is complete on a quick sole author revision claim, does not show the quick completion warning', () => {
+    // ARRANGE
+    render(<ClaimDialogDescriptions action="complete" />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ gameAchievementSets: [] }),
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          isSoleAuthor: true,
+          userClaim: createAchievementSetClaim({ minutesActive: 120, setType: 'revision' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText(/this will mark your claim complete and notify set requestors/i),
+    ).toBeVisible();
+    expect(
+      screen.queryByText(/please ensure you have approval to complete this claim/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/before you continue/i)).not.toBeInTheDocument();
+  });
+
+  it('given the action is complete on a quick new set claim, shows the quick completion warning', () => {
+    // ARRANGE
+    render(<ClaimDialogDescriptions action="complete" />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ gameAchievementSets: [] }),
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          isSoleAuthor: true,
+          userClaim: createAchievementSetClaim({ minutesActive: 120, setType: 'new_set' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText(/please ensure you have approval to complete this claim/i),
+    ).toBeVisible();
+  });
+
   it('given an unknown action type, does not crash', () => {
     // ARRANGE
     const { container } = render(<ClaimDialogDescriptions action={'unknown' as any} />, {
