@@ -150,13 +150,14 @@ class UpsertTriggerVersionActionTest extends TestCase
         // Arrange
         $achievement = Achievement::factory()->create();
         $user = User::factory()->create();
+        $author = User::factory()->create();
 
         $existingTrigger = Trigger::factory()->create([
             'triggerable_id' => $achievement->id,
             'triggerable_type' => TriggerableType::Achievement,
             'conditions' => '0xHaaaa=0',
             'version' => null, // !!
-            'user_id' => User::factory()->create()->id,
+            'user_id' => $author->id,
         ]);
 
         // Act
@@ -172,7 +173,7 @@ class UpsertTriggerVersionActionTest extends TestCase
         $this->assertEquals($existingTrigger->id, $trigger->id); // !! the id didn't change
         $this->assertEquals('0xHaaaa=0', $trigger->conditions);
         $this->assertEquals(1, $trigger->version); // !! versioned now
-        $this->assertEquals($user->id, $trigger->user_id);
+        $this->assertEquals($author->id, $trigger->user_id); // !! the author keeps the credit
     }
 
     public function testItUpdatesTheDenormalizedTriggerIdOnModels(): void

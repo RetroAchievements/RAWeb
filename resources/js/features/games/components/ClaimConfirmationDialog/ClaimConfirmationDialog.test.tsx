@@ -339,7 +339,8 @@ describe('Component: ClaimConfirmationDialog', () => {
         auth: { user: createAuthenticatedUser() },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          userClaim: createAchievementSetClaim({ minutesActive: 60 }),
+          isSoleAuthor: true,
+          userClaim: createAchievementSetClaim({ minutesActive: 60, setType: 'new_set' }),
         }),
         game: createGame({ gameAchievementSets: [] }),
       },
@@ -350,6 +351,28 @@ describe('Component: ClaimConfirmationDialog', () => {
 
     // ASSERT
     expect(screen.getByRole('heading', { name: 'Complete claim?' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Complete claim' })).toBeVisible();
+  });
+
+  it('given the action is complete on a quick sole author revision claim, shows the generic title', async () => {
+    // ARRANGE
+    render(<ClaimConfirmationDialog action="complete" trigger={<button>Trigger</button>} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          isSoleAuthor: true,
+          userClaim: createAchievementSetClaim({ minutesActive: 60, setType: 'revision' }),
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: 'Are you sure?' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Complete claim' })).toBeVisible();
   });
 

@@ -260,6 +260,7 @@ it('replaces the existing approved title screenshot when a new one is approved',
     expect($fresh->is_primary)->toBeTrue();
     expect($existing->fresh()->status)->toEqual(GameScreenshotStatus::Replaced);
     expect($existing->fresh()->is_primary)->toBeFalse();
+    expect($existing->fresh()->replaced_by_user_id)->toEqual($submitter->id);
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);
 });
 
@@ -536,6 +537,7 @@ it('promotes a new ingame primary while keeping the current primary in the galle
     // the old primary is demoted but stays visible as a non-primary gallery image, not retired
     expect($existingPrimary->fresh()->status)->toEqual(GameScreenshotStatus::Approved);
     expect($existingPrimary->fresh()->is_primary)->toBeFalse();
+    expect($existingPrimary->fresh()->replaced_by_user_id)->toBeNull();
 
     expect($game->gameScreenshots()->ofType(ScreenshotType::Ingame)->approved()->count())->toEqual(2);
     expect($fileManipulator->createdDerivedFilesFor)->toHaveCount(1);

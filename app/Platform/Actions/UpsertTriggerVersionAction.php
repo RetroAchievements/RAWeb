@@ -78,7 +78,7 @@ class UpsertTriggerVersionAction
             if ($currentTrigger->version === null) {
                 $currentTrigger->update([
                     'version' => 1,
-                    'user_id' => $user?->id,
+                    'user_id' => $currentTrigger->user_id ?? $user?->id,
                 ]);
                 $this->assignTriggerIdQuietly($triggerable, $currentTrigger->id);
             }
