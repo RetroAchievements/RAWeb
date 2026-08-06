@@ -87,6 +87,17 @@ describe('Hook: useDraftForm', () => {
     expect(result.current.form.getValues('body')).toEqual('from storage');
   });
 
+  it('given the stored draft is corrupted JSON, falls back to the default values', () => {
+    // ARRANGE
+    sessionStorage.setItem('draft-key-7', '{not valid json');
+
+    // ACT
+    const { result } = renderDraftFormHook('draft-key');
+
+    // ASSERT
+    expect(result.current.form.getValues('body')).toEqual('');
+  });
+
   it('given the form unmounts before the debounce elapses, still writes the draft', () => {
     // ARRANGE
     const { result, unmount } = renderDraftFormHook('draft-key');

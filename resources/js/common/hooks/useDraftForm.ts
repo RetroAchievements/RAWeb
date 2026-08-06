@@ -1,10 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { DefaultValues, FieldValues, UseFormProps } from 'react-hook-form';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-import { loadDraft } from '@/common/utils/loadDraft';
-
-import { useUserScopedDraftKey } from './useUserScopedDraftKey';
+import { usePageProps } from './usePageProps';
 
 interface UseDraftFormOptions<T extends FieldValues> extends UseFormProps<T> {
   defaultValues: DefaultValues<T>;
@@ -25,42 +23,22 @@ export function useDraftForm<T extends FieldValues>(
   key: string | null,
   { defaultValues, excludeFromDraft, ...formProps }: UseDraftFormOptions<T>,
 ) {
-  const draftKey = useUserScopedDraftKey(key);
+  const { auth } = usePageProps();
+
+  // sessionStorage outlives a logout and login in the same tab, so an unscoped
+  // key would hand one user's unsubmitted content to whoever signs in next.
+  // A null key disables persistence entirely, including for signed-out visitors.
+  const draftKey = key && auth ? `${key}-${auth.user.id}` : null;
+
+  // useForm() only reads defaultValues on mount, so read the draft lazily once.
+  const [initialDraft] = useState(() => readDraft<T>(draftKey, excludeFromDraft));
 
   const form = useForm<T>({
     ...formProps,
-    defaultValues: { ...defaultValues, ...readDraft<T>(draftKey, excludeFromDraft) },
+    defaultValues: { ...defaultValues, ...initialDraft },
   });
 
-  const values = useWatch({ control: form.control });
-
-  const latestValuesRef = useRef(values);
-  latestValuesRef.current = values;
-
   const previousKeyRef = useRef(draftKey);
-
-  const writeDraft = (target: string) => {
-    try {
-      if (isPristine(latestValuesRef.current, defaultValues)) {
-        sessionStorage.removeItem(target);
-      } else {
-        sessionStorage.setItem(target, JSON.stringify(latestValuesRef.current));
-      }
-    } catch {
-      // Persisting drafts is best-effort. Storage can be full or unavailable.
-    }
-  };
-
-  useEffect(() => {
-    if (!draftKey) {
-      return;
-    }
-
-    const timer = setTimeout(() => writeDraft(draftKey), 500);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- writeDraft reads the latest values through a ref
-  }, [draftKey, values]);
 
   useEffect(() => {
     if (!draftKey) {
@@ -73,17 +51,35 @@ export function useDraftForm<T extends FieldValues>(
     }
     previousKeyRef.current = draftKey;
 
-    return () => writeDraft(draftKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- rehydration is keyed on the draft key alone
+    const writeDraft = () => {
+      if (isPristine(form.getValues(), defaultValues)) {
+        removeDraft(draftKey);
+      } else {
+        storeDraft(draftKey, form.getValues());
+      }
+    };
+
+    // Subscribing keeps keystrokes from re-rendering the whole form component.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = form.subscribe({
+      formState: { values: true },
+      callback: () => {
+        clearTimeout(timer);
+        timer = setTimeout(writeDraft, 500);
+      },
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+      writeDraft();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- persistence is keyed on the draft key alone and reads everything else at write time
   }, [draftKey]);
 
   const clearDraft = () => {
     if (draftKey) {
-      try {
-        sessionStorage.removeItem(draftKey);
-      } catch {
-        // Nothing to clean up if storage is unavailable.
-      }
+      removeDraft(draftKey);
     }
 
     form.reset(defaultValues);
@@ -100,12 +96,36 @@ function readDraft<T extends FieldValues>(
     return {};
   }
 
-  const draft = loadDraft<T>(key);
+  let draft: Partial<T>;
+  try {
+    const saved = sessionStorage.getItem(key);
+    draft = saved ? JSON.parse(saved) : {};
+  } catch {
+    // A corrupt or unreadable draft is not worth breaking the form over.
+    return {};
+  }
+
   for (const name of excludeFromDraft) {
     delete draft[name];
   }
 
   return draft;
+}
+
+function storeDraft(key: string, values: unknown): void {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(values));
+  } catch {
+    // Persisting drafts is best-effort. Storage can be full or unavailable.
+  }
+}
+
+function removeDraft(key: string): void {
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    // Nothing to clean up if storage is unavailable.
+  }
 }
 
 function isPristine<T extends FieldValues>(values: unknown, defaultValues: DefaultValues<T>) {

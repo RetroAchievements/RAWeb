@@ -376,6 +376,8 @@ describe('Component: CommentList', () => {
       'this comment is not finished',
     );
 
+    await waitFor(() => expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled());
+
     // ACT
     unmount();
 
