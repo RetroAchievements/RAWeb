@@ -8,6 +8,7 @@ import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { AchievementTypeIndicator } from '../AchievementTypeIndicator';
+import { ActiveEventsIndicator } from '../ActiveEventsIndicator';
 import { InertiaLink } from '../InertiaLink';
 import { UserAvatar } from '../UserAvatar';
 import { AchievementDateMeta } from './AchievementDateMeta';
@@ -43,6 +44,12 @@ interface AchievementsListItemProps {
    * so the values are misleading and should be hidden.
    */
   shouldShowWeightedPoints?: boolean;
+
+  /**
+   * Array of event achievement data that may or may not contain an entry for
+   * this achievement.
+   */
+  activeEventAchievements?: array;
 }
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({
@@ -54,6 +61,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   playersTotal,
   shouldShowAuthor = false,
   shouldShowWeightedPoints = true,
+  activeEventAchievements = null,
 }) => {
   const { t } = useTranslation();
 
@@ -63,6 +71,8 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
+
+  const activeEventAchievement = activeEventAchievements?.find(a => a.achievementId === achievement.id);
 
   return (
     <motion.li
@@ -122,6 +132,12 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             </div>
 
             {/* Meta chips (Mobile) */}
+            {activeEventAchievement ? (
+              <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
+                <ActiveEventsIndicator activeEvents={activeEventAchievement} />
+              </div>
+            ) : null}
+
             {type ? (
               <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
                 <div className="-mt-1.5">
@@ -168,6 +184,12 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         {playersTotal !== null ? (
           <div className="mt-1 md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
             {/* Meta chips (Desktop) */}
+            {activeEventAchievement ? (
+              <div className="hidden items-center justify-end gap-x-1 md:flex">
+                <ActiveEventsIndicator activeEvents={activeEventAchievement} />
+              </div>
+            ) : null}
+
             {type ? (
               <div className="hidden items-center justify-end gap-x-1 md:flex">
                 <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} />

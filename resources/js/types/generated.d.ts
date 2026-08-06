@@ -623,6 +623,12 @@ eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
 areAllAchievementsOnePoint: boolean;
 };
+export type ActiveEventAchievement = {
+achievementId: number;
+link: string;
+summary: string;
+userUnlocked: boolean;
+};
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;
 achievementsMaintainers: Array<App.Platform.Data.UserCredits>;
@@ -936,6 +942,7 @@ banner: App.Platform.Data.PageBanner | null;
 targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
+activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
@@ -1199,9 +1206,8 @@ export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
-export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
-export type UnlockMode = 0 | 1;
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
+export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
 export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
@@ -1225,6 +1231,7 @@ export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gal
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
+export type UnlockMode = 0 | 1;
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {
 export type SourceGameKind = 'beaten' | 'mastered' | 'want-to-play';
