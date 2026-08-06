@@ -52,44 +52,51 @@ class IncrementDeveloperContributionYieldAction
         $oldContribYield = $developer->yield_points;
 
         if ($isUnlock) {
-            DB::table('users')
-                ->where('id', $developer->id)
-                ->update([
-                    'yield_unlocks' => DB::raw('yield_unlocks + 1'),
-                    'yield_points' => DB::raw('yield_points + ' . $achievement->points),
-                ]);
+            DB::transaction(function () use ($developer, $achievement) {
+                DB::table('users')
+                    ->where('id', $developer->id)
+                    ->update([
+                        'yield_unlocks' => DB::raw('yield_unlocks + 1'),
+                        'yield_points' => DB::raw('yield_points + ' . $achievement->points),
+                    ]);
+            }, attempts: 3);
         } else {
-            DB::table('users')
-                ->where('id', $developer->id)
-                ->update([
-                    'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
-                    'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
-                ]);
+            DB::transaction(function () use ($developer, $achievement) {
+                DB::table('users')
+                    ->where('id', $developer->id)
+                    ->update([
+                        'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
+                        'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
+                    ]);
+            }, attempts: 3);
         }
 
         // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
         // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
         // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
         //
-        // This and the users update above are deliberately non-transactional.
-        // A single PK update can block but cannot deadlock. A crash between the two
-        // can leave author_yield_unlocks momentarily drifted from users.yield_*,
-        // which self-heals on the next full recalc. This is an accepted tradeoff for
-        // eliminating the deadlock cycle.
+        // This and the users update above are deliberately not atomic with each other.
+        // Each one retries on its own instead, because a single-row write is the cheapest
+        // transaction in a deadlock cycle and so is the one the engine elects as victim.
+        // A crash between the two can leave author_yield_unlocks momentarily drifted from
+        // users.yield_*, which self-heals on the next full recalc. This is an accepted
+        // tradeoff for keeping each write's lock footprint to one row.
         if ($developer->id === $achievement->user_id) {
             $player = User::find($playerAchievement->user_id);
             if ($player && !$player->is_unranked) {
                 // Raw update of only author_yield_unlocks - not increment()/decrement(),
                 // which also bump updated_at and deadlock with the metrics recalc.
-                DB::table('achievements')
-                    ->where('id', $achievement->id)
-                    ->update([
-                        'author_yield_unlocks' => DB::raw(
-                            $isUnlock
-                                ? 'author_yield_unlocks + 1'
-                                : 'CASE WHEN author_yield_unlocks > 0 THEN author_yield_unlocks - 1 ELSE 0 END'
-                        ),
-                    ]);
+                DB::transaction(function () use ($achievement, $isUnlock) {
+                    DB::table('achievements')
+                        ->where('id', $achievement->id)
+                        ->update([
+                            'author_yield_unlocks' => DB::raw(
+                                $isUnlock
+                                    ? 'author_yield_unlocks + 1'
+                                    : 'CASE WHEN author_yield_unlocks > 0 THEN author_yield_unlocks - 1 ELSE 0 END'
+                            ),
+                        ]);
+                }, attempts: 3);
             }
         }
 

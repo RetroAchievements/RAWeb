@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\User;
 use App\Platform\Events\PlayerMetricsUpdated;
+use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerMetricsAction
 {
@@ -23,7 +24,7 @@ class UpdatePlayerMetricsAction
         $user->points = $playerGames->sum('player_games.points') - $user->points_hardcore;
         $user->points_weighted = $playerGames->sum('player_games.points_weighted');
 
-        $user->saveQuietly();
+        DB::transaction(fn () => $user->saveQuietly(), attempts: 3);
 
         PlayerMetricsUpdated::dispatch($user);
     }

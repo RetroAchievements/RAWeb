@@ -54,7 +54,7 @@ export function renderBadgePickerDialog(
   const dialog = document.createElement('dialog');
   dialog.id = DIALOG_ID;
   dialog.className =
-    'bg-embed text-text border border-embed-highlight rounded p-0 backdrop:bg-black/70';
+    'bg-embed text-text border border-embed-highlight rounded p-0 backdrop:bg-black/70 fixed inset-0 m-auto';
   dialog.setAttribute('aria-labelledby', 'badge-picker-title');
 
   dialog.addEventListener('click', (event) => {
