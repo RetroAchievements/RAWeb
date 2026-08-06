@@ -28,6 +28,8 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
     }
 
     public int $uniqueFor = 3600;
+    public int $tries = 3;
+    public int $backoff = 10;
 
     public function uniqueId(): string
     {
