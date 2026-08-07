@@ -21,17 +21,17 @@ class QueueAchievementSetReleaseNotificationsAction
      */
     public function execute(Game $game): void
     {
-        $requesterIds = UserGameListEntry::query()
+        $entries = UserGameListEntry::query()
             ->where('game_id', $game->id)
-            ->where('type', UserGameListType::AchievementSetRequest)
-            ->pluck('user_id');
-
-        $candidateIds = UserGameListEntry::query()
-            ->where('game_id', $game->id)
-            ->where('type', UserGameListType::Play)
-            ->whereNotIn('user_id', $requesterIds)
+            ->whereIn('type', [UserGameListType::Play, UserGameListType::AchievementSetRequest])
             ->whereHas('user', fn (Builder $query) => $query->whereNull('banned_at'))
-            ->pluck('user_id');
+            ->get(['user_id', 'type']);
+
+        $idsByType = $entries->groupBy(fn (UserGameListEntry $entry) => $entry->type->value)
+            ->map(fn ($group) => $group->pluck('user_id'));
+
+        $candidateIds = ($idsByType[UserGameListType::Play->value] ?? collect())
+            ->diff($idsByType[UserGameListType::AchievementSetRequest->value] ?? collect());
 
         if ($candidateIds->isEmpty()) {
             return;

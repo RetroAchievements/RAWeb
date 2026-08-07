@@ -20,6 +20,22 @@ enum SubscriptionSubjectType: string
     case GameScreenshotDecision = "GameScreenshotDecision";
     case AchievementSetRelease = "AchievementSetRelease";
 
+    /**
+     * The order the daily digest gives to subject types. The first type present in a
+     * digest names the subject line, and the email body lists that type's items first.
+     *
+     * @return SubscriptionSubjectType[]
+     */
+    public static function digestHeadlinePriority(): array
+    {
+        return [
+            self::AchievementSetRelease,
+            self::GameScreenshotDecision,
+            self::ForumTopic,
+            self::AchievementTicket,
+        ];
+    }
+
     public static function fromCommentableType(CommentableType $commentableType): ?SubscriptionSubjectType
     {
         return match ($commentableType) {

@@ -79,7 +79,7 @@ it('given exactly one remaining item, then the subject uses the singular form', 
     expect($subject)->toEqual('Achievements released for Sonic the Hedgehog, and 1 more update');
 });
 
-it('given screenshot decisions and a comment, then the subject leads with the screenshots', function () {
+it('given screenshot decisions and a comment, then the subject leads with the screenshots and tallies only the comment', function () {
     // Arrange
     $items = [
         digestItemForSubjectTest(SubscriptionSubjectType::GameWall->value),
@@ -91,7 +91,52 @@ it('given screenshot decisions and a comment, then the subject leads with the sc
     $subject = (new BuildDailyDigestSubjectAction())->execute($items);
 
     // Assert
-    expect($subject)->toEqual('Your screenshots were reviewed, and 2 more updates');
+    expect($subject)->toEqual('Your screenshots were reviewed, and 1 more update');
+});
+
+it('given only screenshot decisions, the subject has no tally', function () {
+    // Arrange
+    $items = [
+        digestItemForSubjectTest(SubscriptionSubjectType::GameScreenshotDecision->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::GameScreenshotDecision->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::GameScreenshotDecision->value),
+    ];
+
+    // Act
+    $subject = (new BuildDailyDigestSubjectAction())->execute($items);
+
+    // Assert
+    expect($subject)->toEqual('Your screenshots were reviewed');
+});
+
+it('given several forum topic replies and a comment, the subject tallies only the comment', function () {
+    // Arrange
+    $items = [
+        digestItemForSubjectTest(SubscriptionSubjectType::ForumTopic->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::ForumTopic->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::GameWall->value),
+    ];
+
+    // Act
+    $subject = (new BuildDailyDigestSubjectAction())->execute($items);
+
+    // Assert
+    expect($subject)->toEqual('New replies to your posts, and 1 more update');
+});
+
+it('given only comments, the subject has no tally', function () {
+    // Arrange
+    $items = [
+        digestItemForSubjectTest(SubscriptionSubjectType::GameWall->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::UserWall->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::Leaderboard->value),
+    ];
+
+    // Act
+    $subject = (new BuildDailyDigestSubjectAction())->execute($items);
+
+    // Assert
+    expect($subject)->toEqual('New comments on things you follow');
 });
 
 it('given a set release and a screenshot decision, then the subject leads with the release', function () {

@@ -669,6 +669,55 @@ class SendDailyDigestActionTest extends TestCase
         });
     }
 
+    public function testItListsTheHeadlineItemBeforeLowerPriorityItems(): void
+    {
+        // Arrange
+        Mail::fake();
+
+        $subscriber = User::factory()->create([
+            'email' => 'test@example.com',
+            'last_activity_at' => now()->subDays(1),
+        ]);
+        $commenter = User::factory()->create();
+
+        $system = System::factory()->create(['name' => 'Genesis/Mega Drive']);
+        $commentedGame = Game::factory()->create(['title' => 'Ristar', 'system_id' => $system->id]);
+        $releasedGame = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+
+        $comment = Comment::factory()->create([
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => $commentedGame->id,
+            'user_id' => $commenter->id,
+        ]);
+
+        // ... the comment is queued first, so id order alone would put it at the top ...
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::GameWall,
+            'subject_id' => $commentedGame->id,
+            'first_update_id' => $comment->id,
+        ]);
+        UserDelayedSubscription::create([
+            'user_id' => $subscriber->id,
+            'subject_type' => SubscriptionSubjectType::AchievementSetRelease,
+            'subject_id' => $releasedGame->id,
+            'first_update_id' => $releasedGame->id,
+        ]);
+
+        // Act
+        (new SendDailyDigestAction())->execute($subscriber);
+
+        // Assert
+        Mail::assertQueued(DailyDigestMail::class, function ($mail) {
+            $this->assertCount(2, $mail->notificationItems);
+            $this->assertEquals(SubscriptionSubjectType::AchievementSetRelease->value, $mail->notificationItems[0]['type']);
+            $this->assertEquals(SubscriptionSubjectType::GameWall->value, $mail->notificationItems[1]['type']);
+            $this->assertEquals('Achievements released for Sonic the Hedgehog, and 1 more update', $mail->envelope()->subject);
+
+            return true;
+        });
+    }
+
     public function testItRendersTheAchievementSetReleaseLine(): void
     {
         // Arrange

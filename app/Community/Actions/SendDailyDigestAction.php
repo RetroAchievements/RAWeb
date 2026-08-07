@@ -69,7 +69,13 @@ class SendDailyDigestAction
         $releaseGameTitles = [];
         foreach ($ids as $type => $typeIds) {
             if ($type === SubscriptionSubjectType::AchievementSetRelease->value) {
-                $releaseGameTitles = Game::whereIn('id', $typeIds)->pluck('title', 'id')->all();
+                $games = Game::whereIn('id', $typeIds)->with('system')->get();
+                foreach ($games as $game) {
+                    $titles[$type][$game->id] = "{$game->title} ({$game->system->name})";
+                    $releaseGameTitles[$game->id] = $game->title;
+                }
+
+                continue;
             }
 
             if ($type === SubscriptionSubjectType::GameScreenshotDecision->value) {
@@ -96,7 +102,6 @@ class SendDailyDigestAction
                 $titles[$type] = match ($type) {
                     SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
                     SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
-                    SubscriptionSubjectType::AchievementSetRelease->value => $this->buildGameWallTitles($typeIds),
                     SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
                     SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                     SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
@@ -135,12 +140,7 @@ class SendDailyDigestAction
 
                 $notificationItems[] = $notificationItem;
 
-                $isOneShotEvent = in_array($delayedSubscription->subject_type, [
-                    SubscriptionSubjectType::GameScreenshotDecision,
-                    SubscriptionSubjectType::AchievementSetRelease,
-                ], true);
-
-                if ($count === 1 && !$isOneShotEvent) {
+                if ($count === 1 && !$handler->isOneShotEvent()) {
                     $singleItems[] = [$delayedSubscription, count($notificationItems) - 1];
                 }
             }
@@ -197,11 +197,33 @@ class SendDailyDigestAction
         }
 
         $notificationItems = $this->aggregateScreenshotDecisionItems($notificationItems);
+        $notificationItems = $this->sortByHeadlinePriority($notificationItems);
 
         // send the mail
         Mail::to($user->email)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
+    }
+
+    /**
+     * The subject line names the highest priority item the digest carries, so the body
+     * must lead with that same item. Items of equal priority keep their original order.
+     *
+     * @param array<int, array<string, mixed>> $notificationItems
+     * @return array<int, array<string, mixed>>
+     */
+    private function sortByHeadlinePriority(array $notificationItems): array
+    {
+        $ranks = array_flip(array_column(SubscriptionSubjectType::digestHeadlinePriority(), 'value'));
+        $unrankedRank = count($ranks);
+
+        usort(
+            $notificationItems,
+            fn (array $first, array $second) => ($ranks[$first['type']] ?? $unrankedRank)
+                <=> ($ranks[$second['type']] ?? $unrankedRank)
+        );
+
+        return $notificationItems;
     }
 
     /**
@@ -401,6 +423,15 @@ abstract class BaseDelayedSubscriptionHandler
      * Gets a link to the first updated subrecord of the subject.
      */
     abstract public function getLink(int $subjectId, int $firstUpdateId): string;
+
+    /**
+     * A one-shot subject reports a finished event rather than an accumulating
+     * conversation, so the digest never attaches a post summary to it.
+     */
+    public function isOneShotEvent(): bool
+    {
+        return false;
+    }
 }
 
 class ForumTopicDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
@@ -484,6 +515,11 @@ class AchievementSetReleaseDelayedSubscriptionHandler extends BaseDelayedSubscri
     {
         return route('game.show', ['game' => $subjectId]);
     }
+
+    public function isOneShotEvent(): bool
+    {
+        return true;
+    }
 }
 
 class GameScreenshotDecisionDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
@@ -512,5 +548,10 @@ class GameScreenshotDecisionDelayedSubscriptionHandler extends BaseDelayedSubscr
         }
 
         return route('game.show', ['game' => $game]);
+    }
+
+    public function isOneShotEvent(): bool
+    {
+        return true;
     }
 }

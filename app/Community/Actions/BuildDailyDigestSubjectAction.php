@@ -24,19 +24,6 @@ use Illuminate\Support\Str;
 class BuildDailyDigestSubjectAction
 {
     /**
-     * Our precedence order for choosing a winner. Anything missing from this list
-     * will fall through to the generic conversation headline.
-     *
-     * @var string[]
-     */
-    private const HEADLINE_PRIORITY = [
-        SubscriptionSubjectType::AchievementSetRelease->value,
-        SubscriptionSubjectType::GameScreenshotDecision->value,
-        SubscriptionSubjectType::ForumTopic->value,
-        SubscriptionSubjectType::AchievementTicket->value,
-    ];
-
-    /**
      * @param array<int, array<string, mixed>> $notificationItems
      */
     public function execute(array $notificationItems): string
@@ -45,9 +32,9 @@ class BuildDailyDigestSubjectAction
             return 'Your RetroAchievements updates';
         }
 
-        $headline = $this->buildHeadline($notificationItems);
+        [$headline, $coveredCount] = $this->buildHeadline($notificationItems);
 
-        $remainingCount = count($notificationItems) - 1;
+        $remainingCount = count($notificationItems) - $coveredCount;
         if ($remainingCount < 1) {
             return $headline;
         }
@@ -56,39 +43,47 @@ class BuildDailyDigestSubjectAction
     }
 
     /**
+     * Returns the headline and the number of items it already speaks for. A headline
+     * that names one thing covers a single item. A headline that describes a whole
+     * group covers every item in that group, so the tally does not repeat them.
+     *
      * @param array<int, array<string, mixed>> $notificationItems
+     * @return array{0: string, 1: int}
      */
-    private function buildHeadline(array $notificationItems): string
+    private function buildHeadline(array $notificationItems): array
     {
-        foreach (self::HEADLINE_PRIORITY as $type) {
+        foreach (SubscriptionSubjectType::digestHeadlinePriority() as $type) {
             $matches = array_values(array_filter(
                 $notificationItems,
-                fn (array $item) => ($item['type'] ?? null) === $type
+                fn (array $item) => ($item['type'] ?? null) === $type->value
             ));
 
             if (!empty($matches)) {
-                return $this->headlineForType($type, $matches);
+                // the release headline intentionally names only one game, so any other release still needs a tally
+                $coveredCount = $type === SubscriptionSubjectType::AchievementSetRelease ? 1 : count($matches);
+
+                return [$this->headlineForType($type, $matches), $coveredCount];
             }
         }
 
-        return 'New comments on things you follow';
+        return ['New comments on things you follow', count($notificationItems)];
     }
 
     /**
      * @param array<int, array<string, mixed>> $matches
      */
-    private function headlineForType(string $type, array $matches): string
+    private function headlineForType(SubscriptionSubjectType $type, array $matches): string
     {
         return match ($type) {
-            SubscriptionSubjectType::AchievementSetRelease->value => "Achievements released for {$matches[0]['gameTitle']}",
+            SubscriptionSubjectType::AchievementSetRelease => "Achievements released for {$matches[0]['gameTitle']}",
 
-            SubscriptionSubjectType::GameScreenshotDecision->value => $this->screenshotCount($matches) === 1
+            SubscriptionSubjectType::GameScreenshotDecision => $this->screenshotCount($matches) === 1
                     ? 'Your screenshot was reviewed'
                     : 'Your screenshots were reviewed',
 
-            SubscriptionSubjectType::ForumTopic->value => 'New replies to your posts',
+            SubscriptionSubjectType::ForumTopic => 'New replies to your posts',
 
-            SubscriptionSubjectType::AchievementTicket->value => 'New activity on your tickets',
+            SubscriptionSubjectType::AchievementTicket => 'New activity on your tickets',
 
             default => 'New comments on things you follow',
         };
@@ -102,11 +97,6 @@ class BuildDailyDigestSubjectAction
      */
     private function screenshotCount(array $matches): int
     {
-        $total = 0;
-        foreach ($matches as $match) {
-            $total += (int) ($match['count'] ?? 1);
-        }
-
-        return $total;
+        return array_sum(array_map(fn (array $match) => (int) ($match['count'] ?? 1), $matches));
     }
 }
