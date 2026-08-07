@@ -90,6 +90,8 @@ class Hashes extends ManageRelatedRecords
                             Forms\Components\TextInput::make('labels'),
 
                             Forms\Components\Select::make('compatibility')
+                                ->required()
+                                ->default(GameHashCompatibility::Untested->value)
                                 ->options([
                                     GameHashCompatibility::Compatible->value => GameHashCompatibility::Compatible->label(),
                                     GameHashCompatibility::Incompatible->value => GameHashCompatibility::Incompatible->label(),
@@ -190,6 +192,11 @@ class Hashes extends ManageRelatedRecords
                     ->modalHeading('Add hash to game')
                     ->modalAutofocus(false)
                     ->schema(Hashes::getFormSchema())
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['user_id'] = Auth::user()?->id;
+
+                        return $data;
+                    })
                     ->visible(function (): bool {
                         /** @var User $user */
                         $user = Auth::user();

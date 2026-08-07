@@ -17,5 +17,6 @@ export const createAchievementChangelogEntry =
       user: null,
       fieldChanges: [],
       count: 1,
+      triggerVersion: null,
     };
   });

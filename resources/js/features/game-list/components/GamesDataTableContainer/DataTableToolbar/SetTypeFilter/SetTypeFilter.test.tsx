@@ -112,7 +112,7 @@ describe('Component: SetTypeFilter', () => {
     ]);
   });
 
-  it('given the "All Sets" option is selected, removes the filter from filter state', async () => {
+  it('given the "All Sets" option is selected, stores it as an explicit filter value', async () => {
     // ARRANGE
     const setFiltersSpy = vi.fn();
     const mockTableWithSpy = createMockTable({
@@ -130,6 +130,20 @@ describe('Component: SetTypeFilter', () => {
     // ASSERT
     const updateFn = setFiltersSpy.mock.calls[1][0]; // !! the 2nd call
     const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
-    expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
+    expect(result).toEqual([
+      { id: 'otherFilter', value: 'someValue' },
+      { id: 'subsets', value: ['all'] },
+    ]);
+  });
+
+  it('given the filter is empty, still shows "All Sets" as selected', async () => {
+    // ARRANGE
+    render(<SetTypeFilter table={createMockTable() as Table<any>} />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /set type/i }));
+
+    // ASSERT
+    expect(screen.getByTestId('checked-All Sets')).toBeVisible();
   });
 });

@@ -22,6 +22,7 @@ class AchievementChangelogEntryData extends Data
         public ?UserData $user = null,
         public array $fieldChanges = [],
         public int $count = 1,
+        public ?int $triggerVersion = null,
     ) {
     }
 }

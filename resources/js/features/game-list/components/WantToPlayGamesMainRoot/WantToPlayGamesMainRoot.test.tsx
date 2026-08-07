@@ -313,6 +313,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
@@ -369,6 +370,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'filter[system]': '1',
           'page[number]': 1,
           'page[size]': 25,
@@ -468,6 +470,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'title',
@@ -500,6 +503,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-system',
@@ -533,6 +537,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'achievementsPublished',
@@ -566,6 +571,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'releasedAt',
@@ -603,6 +609,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-hasActiveOrInReviewClaims',
@@ -676,6 +683,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         'api.user-game-list.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'all',
           'page[number]': 2,
           'page[size]': 50,
           sort: 'title',

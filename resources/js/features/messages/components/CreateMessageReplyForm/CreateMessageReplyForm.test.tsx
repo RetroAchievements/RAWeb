@@ -15,6 +15,39 @@ console.error = vi.fn();
 window.scrollTo = vi.fn();
 
 describe('Component: CreateMessageReplyForm', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('given another user signs in within the same tab, does not restore the previous draft', async () => {
+    // ARRANGE
+    const messageThread = createMessageThread({ id: 4 });
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+
+    const { unmount } = render(<CreateMessageReplyForm onPreview={vi.fn()} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user: createAuthenticatedUser({ id: 9 }) },
+      },
+    });
+
+    await userEvent.type(screen.getByPlaceholderText(/enter your message here/i), 'their reply');
+    unmount();
+
+    // ACT
+    render(<CreateMessageReplyForm onPreview={vi.fn()} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user: createAuthenticatedUser({ id: 10 }) },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByDisplayValue('their reply')).not.toBeInTheDocument();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const messageThread = createMessageThread();
