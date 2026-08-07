@@ -474,12 +474,27 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([1, 2]);
   });
 
-  it('given wonBy sort and unlocksHardcore is the same, sorts by orderColumn', () => {
+  it('given wonBy sort and unlocksHardcore is the same, sorts by unlocksTotal', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcore: 10, orderColumn: 2 },
-      { ...baseAchievement, id: 2, unlocksHardcore: 10, orderColumn: 1 },
+      { ...baseAchievement, id: 1, unlocksHardcore: 21, unlocksTotal: 29, orderColumn: 1 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 21, unlocksTotal: 34, orderColumn: 2 },
+    ];
+
+    // ACT
+    const result = sortAchievements(achievements, 'wonBy');
+
+    // ASSERT
+    expect(result.map((a) => a.id)).toEqual([2, 1]);
+  });
+
+  it('given wonBy sort and both unlock counts are the same, sorts by orderColumn', () => {
+    // ARRANGE
+    const baseAchievement = createAchievement();
+    const achievements = [
+      { ...baseAchievement, id: 1, unlocksHardcore: 10, unlocksTotal: 10, orderColumn: 2 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 10, unlocksTotal: 10, orderColumn: 1 },
     ];
 
     // ACT

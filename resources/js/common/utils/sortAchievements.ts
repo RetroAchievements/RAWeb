@@ -117,12 +117,19 @@ export function sortAchievements(
       const multiplier = sortOrder === 'wonBy' ? -1 : 1;
 
       return sortedAchievements.sort((a, b) => {
-        const unlocksDiff = (a.unlocksHardcore as number) - (b.unlocksHardcore as number);
+        const unlocksDiff = (a.unlocksHardcore ?? 0) - (b.unlocksHardcore ?? 0);
         if (unlocksDiff !== 0) {
           return unlocksDiff * multiplier;
         }
 
-        // If unlocksTotal is the same, sort by orderColumn.
+        // Hardcore unlocks are always a subset of total unlocks, so a tie there
+        // can still be broken by the softcore unlocks the list displays.
+        const totalDiff = (a.unlocksTotal ?? 0) - (b.unlocksTotal ?? 0);
+        if (totalDiff !== 0) {
+          return totalDiff * multiplier;
+        }
+
+        // If both unlock counts are the same, sort by orderColumn.
         return ((a.orderColumn as number) - (b.orderColumn as number)) * multiplier;
       });
     }
