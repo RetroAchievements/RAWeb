@@ -61,7 +61,8 @@ describe('Component: AuthorizeRoot', () => {
     // ASSERT
     expect(screen.getByText(/test app wants to access your account/i)).toBeVisible();
 
-    expect(screen.getByText(/this will allow test app to:/i)).toBeVisible();
+    expect(screen.getByText(/this will let it:/i)).toBeVisible();
+    expect(screen.queryByText(/this will allow test app to:/i)).not.toBeInTheDocument();
     expect(screen.getByText(/view publicly visible retroachievements data/i)).toBeVisible();
 
     expect(screen.getByText(/currently signed in as/i)).toBeVisible();

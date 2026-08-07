@@ -88,10 +88,7 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
           </div>
 
           <BaseCardDescription className="text-neutral-400 light:text-neutral-700">
-            {t('This will allow {{clientName}} to:', {
-              clientName: client.name,
-              nsSeparator: null,
-            })}
+            {t('This will let it:', { nsSeparator: null })}
           </BaseCardDescription>
         </BaseCardHeader>
 

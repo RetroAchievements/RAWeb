@@ -1261,7 +1261,7 @@
     "Enter the code shown in the app you want to connect to RetroAchievements.": "Enter the code shown in the app you want to connect to RetroAchievements.",
     "Incorrect code.": "Incorrect code.",
     "{{clientName}} wants to access your account": "{{clientName}} wants to access your account",
-    "This will allow {{clientName}} to:": "This will allow {{clientName}} to:",
+    "This will let it:": "This will let it:",
     "Access your profile information": "Access your profile information",
     "Make API calls on your behalf": "Make API calls on your behalf",
     "Currently signed in as": "Currently signed in as",
