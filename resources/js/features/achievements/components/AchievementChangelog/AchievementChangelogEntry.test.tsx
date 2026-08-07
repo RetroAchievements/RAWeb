@@ -361,7 +361,7 @@ describe('Component: AchievementChangelogEntry', () => {
     expect(screen.getByText('DevAuthor')).toBeVisible();
   });
 
-  it('given the user can view logic and the entry has a trigger version, links to that version on the Logic page', () => {
+  it('given the user can view logic and the entry has a trigger version, renders an icon link to that version on the Logic page', () => {
     // ARRANGE
     render(
       <ul>
@@ -378,7 +378,8 @@ describe('Component: AchievementChangelogEntry', () => {
     );
 
     // ASSERT
-    expect(screen.getByRole('link', { name: 'Logic updated' })).toHaveAttribute(
+    expect(screen.getByText('Logic updated')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View logic' })).toHaveAttribute(
       'href',
       '/manage/achievements/9/logic?version=4',
     );
@@ -402,7 +403,7 @@ describe('Component: AchievementChangelogEntry', () => {
 
     // ASSERT
     expect(screen.getByText('Logic updated')).toBeVisible();
-    expect(screen.queryByRole('link', { name: 'Logic updated' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('given the entry has no trigger version, renders it as plain text', () => {
@@ -423,7 +424,7 @@ describe('Component: AchievementChangelogEntry', () => {
 
     // ASSERT
     expect(screen.getByText('Logic updated')).toBeVisible();
-    expect(screen.queryByRole('link', { name: 'Logic updated' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('given the entry is not a logic entry, does not render a link', () => {

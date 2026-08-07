@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowRight, LuInfo } from 'react-icons/lu';
+import { LuArrowRight, LuCode, LuInfo } from 'react-icons/lu';
 
 import {
   BaseTooltip,
@@ -46,13 +46,26 @@ export const AchievementChangelogEntry: FC<AchievementChangelogEntryProps> = ({
 
       <div className="flex min-w-0 flex-col gap-0.5">
         <p className="flex items-center gap-1 text-xs">
+          {header}
+
           {logicHref ? (
-            <a href={logicHref} target="_blank" rel="noopener noreferrer">
-              {header}
-            </a>
-          ) : (
-            header
-          )}
+            <BaseTooltip>
+              <BaseTooltipTrigger asChild>
+                <a
+                  href={logicHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t('View logic')}
+                >
+                  <LuCode className="size-3.5 text-link transition hover:text-link-hover" />
+                </a>
+              </BaseTooltipTrigger>
+
+              <BaseTooltipContent>
+                <span className="text-xs">{t('View logic')}</span>
+              </BaseTooltipContent>
+            </BaseTooltip>
+          ) : null}
 
           {entry.count > 1 && entry.type === 'edited' ? (
             <span className="text-neutral-400">
