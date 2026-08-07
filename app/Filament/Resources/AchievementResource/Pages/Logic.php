@@ -24,6 +24,8 @@ class Logic extends Page
     use HasAchievementSetNavigation;
     use InteractsWithRecord;
 
+    public ?int $requestedVersion = null;
+
     protected static string $resource = AchievementResource::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-code-bracket';
     protected string $view = 'filament.resources.achievement-resource.pages.logic';
@@ -34,9 +36,18 @@ class Logic extends Page
      */
     private const LAZY_LOAD_THRESHOLD = 50000;
 
+    /**
+     * The number of versions the history shows before collapsing the rest
+     * behind a "See N more" button.
+     */
+    private const VISIBLE_VERSION_COUNT = 8;
+
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $requestedVersion = request()->query('version');
+        $this->requestedVersion = is_numeric($requestedVersion) ? (int) $requestedVersion : null;
     }
 
     public function getTitle(): string|Htmlable
@@ -106,6 +117,9 @@ class Logic extends Page
      * @return array{
      *     triggers: Collection<int, Trigger>,
      *     lazyLoad: bool,
+     *     focusedVersion: int|null,
+     *     shouldShowAllVersions: bool,
+     *     visibleVersionCount: int,
      *     summaries?: array<int|null, string>,
      *     diffs?: array<int|null, array>
      * }
@@ -115,13 +129,29 @@ class Logic extends Page
         $triggers = $this->getOrderedTriggerVersions(withUser: true);
 
         if ($triggers->isEmpty()) {
-            return ['triggers' => $triggers, 'lazyLoad' => false, 'summaries' => [], 'diffs' => []];
+            return [
+                'triggers' => $triggers,
+                'lazyLoad' => false,
+                'focusedVersion' => null,
+                'shouldShowAllVersions' => false,
+                'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
+                'summaries' => [],
+                'diffs' => [],
+            ];
         }
+
+        [$focusedVersion, $shouldShowAllVersions] = $this->resolveFocusedVersion($triggers);
 
         $totalConditionLength = $triggers->sum(fn ($t) => strlen($t->conditions ?? ''));
         $shouldLazyLoad = $totalConditionLength > self::LAZY_LOAD_THRESHOLD;
         if ($shouldLazyLoad) {
-            return ['triggers' => $triggers, 'lazyLoad' => true];
+            return [
+                'triggers' => $triggers,
+                'lazyLoad' => true,
+                'focusedVersion' => $focusedVersion,
+                'shouldShowAllVersions' => $shouldShowAllVersions,
+                'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
+            ];
         }
 
         // For simple achievements, compute everything inline for instant display.
@@ -131,9 +161,34 @@ class Logic extends Page
         return [
             'triggers' => $triggers,
             'lazyLoad' => false,
+            'focusedVersion' => $focusedVersion,
+            'shouldShowAllVersions' => $shouldShowAllVersions,
+            'visibleVersionCount' => self::VISIBLE_VERSION_COUNT,
             'summaries' => $summaries,
             'diffs' => $diffs,
         ];
+    }
+
+    /**
+     * Resolve the requested deep-link version against real trigger rows.
+     *
+     * @param Collection<int, Trigger> $triggers ordered descending by version
+     * @return array{0: int|null, 1: bool} the version to expand, and whether the older
+     *                                     versions hidden behind "See N more" must be
+     *                                     shown for that version to be reachable
+     */
+    private function resolveFocusedVersion(Collection $triggers): array
+    {
+        if ($this->requestedVersion === null) {
+            return [null, false];
+        }
+
+        $index = $triggers->search(fn (Trigger $trigger) => $trigger->version === $this->requestedVersion);
+        if ($index === false) {
+            return [null, false];
+        }
+
+        return [$this->requestedVersion, $index >= self::VISIBLE_VERSION_COUNT];
     }
 
     /**
