@@ -54,10 +54,30 @@ function resolveInitialColumnFilters(
   }
 
   if (persistedViewPreferences?.columnFilters) {
-    return persistedViewPreferences.columnFilters;
+    return backfillDefaultColumnFilters(
+      persistedViewPreferences.columnFilters,
+      defaultColumnFilters,
+    );
   }
 
   return defaultColumnFilters;
+}
+
+function backfillDefaultColumnFilters(
+  persistedFilters: ColumnFiltersState,
+  defaultColumnFilters: ColumnFiltersState,
+): ColumnFiltersState {
+  const persistedFiltersById = new Map(persistedFilters.map((filter) => [filter.id, filter]));
+  const defaultFilterIds = new Set(defaultColumnFilters.map((filter) => filter.id));
+
+  const defaultsPreferringPersistedValues = defaultColumnFilters.map(
+    (defaultFilter) => persistedFiltersById.get(defaultFilter.id) ?? defaultFilter,
+  );
+  const persistedFiltersWithoutDefaults = persistedFilters.filter(
+    (filter) => !defaultFilterIds.has(filter.id),
+  );
+
+  return [...defaultsPreferringPersistedValues, ...persistedFiltersWithoutDefaults];
 }
 
 function resolveInitialPagination<TData = unknown>(
