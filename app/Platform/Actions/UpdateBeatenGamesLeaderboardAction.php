@@ -99,6 +99,18 @@ class UpdateBeatenGamesLeaderboardAction
             ->whereIn('player_stats.type', $includedTypes)
             ->groupBy('sub.user_id', 'sub.total', 'sub.last_affected_at');
 
+        /**
+         * The default REPEATABLE READ isolation makes INSERT ... SELECT hold
+         * shared locks on each source row it reads. These locks block unlock
+         * inserts and achievement metric updates until the rebuild ends.
+         * READ COMMITTED makes the same reads lock-free.
+         *
+         * This only affects the next transaction on the current DB connection.
+         */
+        if (DB::transactionLevel() === 0) {
+            DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+        }
+
         // Delete existing rows and insert new ones in a transaction.
         // We'll delete stuff first because MySQL/MariaDB treats NULL != NULL in unique constraints,
         // so ON DUPLICATE KEY UPDATE doesn't work reliably for overall leaderboards.

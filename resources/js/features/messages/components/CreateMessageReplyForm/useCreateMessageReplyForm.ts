@@ -1,15 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
 import { type AxiosError } from 'axios';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageReplyMutation } from '@/features/messages/hooks/mutations/useCreateMessageReplyMutation';
 
@@ -23,15 +21,10 @@ export function useCreateMessageReplyForm() {
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
   const { t } = useTranslation();
 
-  const draftKey = `reply-message-${messageThread.id}`;
-  const draft = loadDraft<FormValues>(draftKey);
-
-  const form = useForm<FormValues>({
+  const { form, clearDraft } = useDraftForm<FormValues>(`reply-message-${messageThread.id}`, {
     resolver: zodResolver(formSchema),
-    defaultValues: { body: draft.body ?? '' },
+    defaultValues: { body: '' },
   });
-
-  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useCreateMessageReplyMutation();
 

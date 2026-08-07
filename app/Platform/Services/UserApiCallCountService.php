@@ -11,6 +11,7 @@ use Throwable;
 
 class UserApiCallCountService
 {
+    private const CHUNK_SIZE = 500;
     private const PENDING_HASH_KEY = 'api-call-counts';
 
     /**
@@ -52,19 +53,26 @@ class UserApiCallCountService
             return 0;
         }
 
-        try {
-            $chunks = array_chunk($callCounts, 500, preserve_keys: true);
+        ksort($callCounts);
 
-            DB::transaction(function () use ($chunks): void {
-                foreach ($chunks as $chunk) {
+        $chunks = array_chunk($callCounts, self::CHUNK_SIZE, preserve_keys: true);
+
+        foreach ($chunks as $chunkIndex => $chunk) {
+            try {
+                DB::transaction(function () use ($chunk): void {
                     $this->bulkUpdateChunk($chunk);
+                }, attempts: 5);
+            } catch (Throwable $exception) {
+                // Restore captured deltas so any transient DB write error doesn't silently lose counts.
+                $unflushedCounts = [];
+                foreach (array_slice($chunks, $chunkIndex) as $unflushedChunk) {
+                    $unflushedCounts += $unflushedChunk;
                 }
-            });
-        } catch (Throwable $exception) {
-            // Restore captured deltas so any transient DB write error doesn't silently lose counts.
-            $this->restorePendingCounts($callCounts);
 
-            throw $exception;
+                $this->restorePendingCounts($unflushedCounts);
+
+                throw $exception;
+            }
         }
 
         return count($callCounts);

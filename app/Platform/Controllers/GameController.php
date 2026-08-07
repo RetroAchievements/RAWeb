@@ -210,7 +210,7 @@ class GameController extends Controller
 
         $randomGame = (new GetRandomGameAction())->execute(
             GameListType::AllGames,
-            filters: $request->getFilters(),
+            filters: $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames),
         );
 
         if (!$randomGame) {

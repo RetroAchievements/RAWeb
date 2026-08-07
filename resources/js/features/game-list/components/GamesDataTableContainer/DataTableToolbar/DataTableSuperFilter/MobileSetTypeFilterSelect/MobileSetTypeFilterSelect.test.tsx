@@ -100,7 +100,7 @@ describe('Component: MobileSetTypeFilterSelect', () => {
     ]);
   });
 
-  it('given the user selects "All Sets", clears the filter value', async () => {
+  it('given the user selects "All Sets", stores it as an explicit filter value', async () => {
     // ARRANGE
     const setColumnFiltersSpy = vi.fn();
     const mockTable = createMockTable({
@@ -137,7 +137,7 @@ describe('Component: MobileSetTypeFilterSelect', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the user clears the filter, removes only the subsets entry from column filters', async () => {
+  it('given the user selects "All Sets", replaces only the subsets entry in column filters', async () => {
     // ARRANGE
     const setColumnFiltersSpy = vi.fn();
     const mockTable = createMockTable({
@@ -155,11 +155,26 @@ describe('Component: MobileSetTypeFilterSelect', () => {
 
     // ASSERT
     expect(setColumnFiltersSpy).toHaveBeenCalled();
-    const clearFn = setColumnFiltersSpy.mock.calls[0][0];
-    const result = clearFn([
+    const updateFn = setColumnFiltersSpy.mock.calls[0][0];
+    const result = updateFn([
       { id: 'subsets', value: ['only-games'] },
       { id: 'other', value: 'x' },
     ]);
-    expect(result).toEqual([{ id: 'other', value: 'x' }]);
+    expect(result).toEqual([
+      { id: 'other', value: 'x' },
+      { id: 'subsets', value: ['all'] },
+    ]);
+  });
+
+  it('given the persisted filter value is empty, falls back to showing "All Sets"', () => {
+    // ARRANGE
+    const mockTable = createMockTable({
+      getState: vi.fn().mockReturnValue({ columnFilters: [] }),
+    });
+
+    render(<MobileSetTypeFilterSelect table={mockTable as Table<any>} />);
+
+    // ASSERT
+    expect(screen.getByRole('combobox')).toHaveTextContent(/all sets/i);
   });
 });

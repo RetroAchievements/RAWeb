@@ -87,7 +87,7 @@ describe('Util: sortAchievements', () => {
     });
   });
 
-  it('given points sort, sorts by points ascending while keeping unlocked first', () => {
+  it('given points sort, sorts by points descending and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
@@ -101,10 +101,10 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements, 'points');
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([3, 4, 1, 2]);
+    expect(result.map((a) => a.id)).toEqual([3, 1, 2, 4]);
   });
 
-  it('given -points sort, sorts by points descending while keeping unlocked first', () => {
+  it('given -points sort, sorts by points ascending and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
@@ -118,7 +118,22 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements, '-points');
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([4, 3, 2, 1]);
+    expect(result.map((a) => a.id)).toEqual([4, 2, 1, 3]);
+  });
+
+  it('given points sort and a locked achievement worth more, places it before an unlocked one', () => {
+    // ARRANGE
+    const baseAchievement = createAchievement();
+    const achievements = [
+      { ...baseAchievement, id: 1, points: 5, unlockedAt: '2023-01-01' },
+      { ...baseAchievement, id: 2, points: 50 }, // !! locked, but worth more
+    ];
+
+    // ACT
+    const result = sortAchievements(achievements, 'points');
+
+    // ASSERT
+    expect(result.map((a) => a.id)).toEqual([2, 1]);
   });
 
   it('given points sort and same points value, sorts by orderColumn as secondary criteria', () => {
@@ -136,7 +151,7 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([1, 2]);
   });
 
-  it('given title sort, sorts case-insensitively while keeping unlocked first', () => {
+  it('given title sort, sorts case-insensitively and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
@@ -149,16 +164,16 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements, 'title');
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([3, 2, 1]);
+    expect(result.map((a) => a.id)).toEqual([2, 1, 3]);
   });
 
-  it('given -title sort, sorts case-insensitively in reverse while keeping unlocked first', () => {
+  it('given -title sort, sorts case-insensitively in reverse and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
       { ...baseAchievement, id: 1, title: 'Beta' },
-      { ...baseAchievement, id: 2, title: 'alpha' },
-      { ...baseAchievement, id: 3, title: 'Gamma', unlockedAt: '2023-01-01' },
+      { ...baseAchievement, id: 2, title: 'alpha', unlockedAt: '2023-01-01' }, // !! unlocked, but sorts last
+      { ...baseAchievement, id: 3, title: 'Gamma' },
     ];
 
     // ACT
@@ -168,7 +183,7 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([3, 1, 2]);
   });
 
-  it('given type sort, sorts according to type priority while keeping unlocked first', () => {
+  it('given type sort, sorts according to type priority and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
@@ -184,10 +199,10 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements as App.Platform.Data.Achievement[], 'type');
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([6, 2, 3, 1, 4, 5]);
+    expect(result.map((a) => a.id)).toEqual([2, 6, 3, 1, 4, 5]);
   });
 
-  it('given -type sort, reverses type priority while keeping unlocked first', () => {
+  it('given -type sort, reverses type priority and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
@@ -203,7 +218,7 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements as App.Platform.Data.Achievement[], '-type');
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([6, 5, 4, 1, 3, 2]);
+    expect(result.map((a) => a.id)).toEqual([5, 4, 1, 3, 2, 6]);
   });
 
   it('given type sort and same type, sorts by orderColumn and then id', () => {
@@ -444,12 +459,27 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([2, 1]);
   });
 
-  it('given wonBy sort and different unlock status, prioritizes unlocked achievements regardless of unlocksHardcore', () => {
+  it('given wonBy sort and different unlock status, sorts by unlocksHardcore and ignores unlock status', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcore: 100 }, // Not unlocked, higher count
-      { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', unlocksHardcore: 10 }, // Unlocked, lower count
+      { ...baseAchievement, id: 1, unlocksHardcore: 100 }, // !! locked, higher count
+      { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', unlocksHardcore: 10 }, // !! unlocked, lower count
+    ];
+
+    // ACT
+    const result = sortAchievements(achievements, 'wonBy');
+
+    // ASSERT
+    expect(result.map((a) => a.id)).toEqual([1, 2]);
+  });
+
+  it('given wonBy sort and unlocksHardcore is the same, sorts by unlocksTotal', () => {
+    // ARRANGE
+    const baseAchievement = createAchievement();
+    const achievements = [
+      { ...baseAchievement, id: 1, unlocksHardcore: 21, unlocksTotal: 29, orderColumn: 1 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 21, unlocksTotal: 34, orderColumn: 2 },
     ];
 
     // ACT
@@ -459,12 +489,12 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([2, 1]);
   });
 
-  it('given wonBy sort and unlocksHardcore is the same, sorts by orderColumn', () => {
+  it('given wonBy sort and both unlock counts are the same, sorts by orderColumn', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcore: 10, orderColumn: 2 },
-      { ...baseAchievement, id: 2, unlocksHardcore: 10, orderColumn: 1 },
+      { ...baseAchievement, id: 1, unlocksHardcore: 10, unlocksTotal: 10, orderColumn: 2 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 10, unlocksTotal: 10, orderColumn: 1 },
     ];
 
     // ACT

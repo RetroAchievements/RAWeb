@@ -13,6 +13,7 @@ export function useRequestedGamesDefaultColumnState({
     { id: 'system', value: targetUser ? ['all'] : ['supported'] },
     { id: 'achievementsPublished', value: ['none'] },
     { id: 'hasActiveOrInReviewClaims', value: ['any'] },
+    { id: 'subsets', value: ['all'] },
   ];
 
   if (targetUser) {

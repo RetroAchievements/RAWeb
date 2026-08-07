@@ -13,6 +13,7 @@ use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\GameOpenTicketCountService;
+use App\Support\Casts\NormalizedText;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\CarbonInterface;
 use Database\Factories\LeaderboardFactory;
@@ -65,9 +66,11 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     ];
 
     protected $casts = [
+        'description' => NormalizedText::class,
         'game_id' => 'integer',
         'rank_asc' => 'boolean',
         'state' => LeaderboardState::class,
+        'title' => NormalizedText::class,
     ];
 
     protected static function newFactory(): LeaderboardFactory
