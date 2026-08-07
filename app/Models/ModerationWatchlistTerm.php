@@ -11,11 +11,16 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ModerationWatchlistTerm extends BaseModel
 {
     /** @use HasFactory<ModerationWatchlistTermFactory> */
     use HasFactory;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     public const MINIMUM_TERM_LENGTH = 4;
 
@@ -44,6 +49,19 @@ class ModerationWatchlistTerm extends BaseModel
 
         static::saved(fn () => Cache::forget(CacheKey::ModerationWatchlistTerms));
         static::deleted(fn () => Cache::forget(CacheKey::ModerationWatchlistTerms));
+    }
+
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'term',
+                'note',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == accessors

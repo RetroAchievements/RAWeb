@@ -23,7 +23,7 @@ class CommentObserver
      */
     public function created(Comment $comment): void
     {
-        if ($comment->is_automated || $comment->commentable_type->isManagementComment()) {
+        if ($comment->is_automated || !$comment->commentable_type->isPublicComment()) {
             return;
         }
 

@@ -25,6 +25,8 @@ it('given a body containing a watched term, it returns that term', function (str
     'split by bold tags' => 'grab watched[b][/b]tool here',
     'split by italic tags' => 'grab watched[i][/i]tool here',
     'split by a url tag' => 'grab watched[url=https://example.com][/url]tool here',
+    'inside a url tag target' => 'grab it [url=https://watchedtool.com]here[/url]',
+    'inside a bare url tag' => 'grab it [url]https://watchedtool.com[/url]',
 ]);
 
 it('given a body with no watched term, it returns nothing', function () {

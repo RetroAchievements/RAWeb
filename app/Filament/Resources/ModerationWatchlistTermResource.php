@@ -8,11 +8,13 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\ModerationWatchlistTermResource\Pages;
 use App\Models\ModerationWatchlistTerm;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -81,11 +83,23 @@ class ModerationWatchlistTermResource extends Resource
                 ActionGroup::make([
                     EditAction::make(),
                     DeleteAction::make(),
+
+                    Action::make('audit-log')
+                        ->url(fn ($record) => self::getUrl('audit-log', ['record' => $record]))
+                        ->icon('fas-clock-rotate-left'),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([]),
             ]);
+    }
+
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\Edit::class,
+            Pages\AuditLog::class,
+        ]);
     }
 
     public static function getPages(): array
@@ -94,6 +108,7 @@ class ModerationWatchlistTermResource extends Resource
             'index' => Pages\Index::route('/'),
             'create' => Pages\Create::route('/create'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
 }

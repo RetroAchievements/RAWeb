@@ -80,14 +80,26 @@ enum CommentableType: string
         };
     }
 
-    public function isManagementComment(): bool
+    /**
+     * Public comments are open community conversation. Everything else is visible
+     * only to a restricted audience, so it stays out of search and out of alerting.
+     */
+    public function isPublicComment(): bool
     {
-        return in_array($this, [
+        return match ($this) {
+            self::Achievement,
+            self::AchievementTicket,
+            self::Forum,
+            self::Game,
+            self::Leaderboard,
+            self::User,
+            self::UserActivity => true,
+
             self::GameHash,
             self::GameModification,
             self::SetClaim,
-            self::UserModeration,
-        ], true);
+            self::UserModeration => false,
+        };
     }
 
     /**

@@ -93,7 +93,8 @@ class Comment extends BaseModel
             return false;
         }
 
-        if ($this->commentable_type->isManagementComment()) {
+        // Don't index non-public comment types.
+        if (!$this->commentable_type->isPublicComment()) {
             return false;
         }
 
