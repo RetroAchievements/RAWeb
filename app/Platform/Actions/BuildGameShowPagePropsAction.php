@@ -709,7 +709,7 @@ class BuildGameShowPagePropsAction
                 return "{$eventAchievement->event->legacyGame->title} (Evergreen)";
             }
 
-            $remainingTime = $eventAchievement->active_until->diffForHumans(Carbon::now(), true);
+            $remainingTime = $eventAchievement->active_until->diffForHumans(Carbon::now(), Carbon::DIFF_ABSOLUTE);
 
             return "{$eventAchievement->event->legacyGame->title} ($remainingTime remaining)";
         };

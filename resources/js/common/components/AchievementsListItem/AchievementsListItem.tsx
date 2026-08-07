@@ -49,7 +49,7 @@ interface AchievementsListItemProps {
    * Array of event achievement data that may or may not contain an entry for
    * this achievement.
    */
-  activeEventAchievements?: array;
+  activeEventAchievements?: App.Platform.Data.ActiveEventAchievement[];
 }
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({

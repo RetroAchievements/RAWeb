@@ -9,7 +9,7 @@ import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/
 import { RaEvent } from '../RaEvent';
 
 interface ActiveEventsIndicatorProps {
-  activeEvents: NonNullable<App.Platform.Data.ActiveEventAchievement['type']>;
+  activeEvents: NonNullable<App.Platform.Data.ActiveEventAchievement>;
 }
 
 export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({
@@ -32,7 +32,7 @@ export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({
             )}
             >
             <div aria-label='active_event'>
-              <RaEvent className="size-4.5" stroke={stroke} border="none" />
+              <RaEvent className="size-4.5" stroke={stroke} />
             </div>
           </div>
         </a>
