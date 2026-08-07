@@ -4,6 +4,9 @@
     Expected variables from the parent view:
     - $triggers: Collection of Trigger models with version history.
     - $lazyLoad: bool - Whether to load data asynchronously (true for complex achievements).
+    - $focusedVersion: int|null - Version to expand on load, from a changelog deep link.
+    - $shouldShowAllVersions: bool - Whether the older versions hidden behind "See N more" must be shown for $focusedVersion to be reachable.
+    - $visibleVersionCount: int - How many versions render before the rest collapse behind "See N more". Owned by the page so this partial and the page cannot drift apart.
     - $summaries: array<int, string> - Pre-computed summaries (only when $lazyLoad is false).
     - $diffs: array<int, array> - Pre-computed diffs (only when $lazyLoad is false).
 
@@ -26,7 +29,8 @@
         x-data="{
             expanded: {},
             viewMode: {},
-            showAll: false,
+            showAll: {{ ($shouldShowAllVersions ?? false) ? 'true' : 'false' }},
+            focusedVersion: @js($focusedVersion ?? null),
             lazyLoad: {{ ($lazyLoad ?? false) ? 'true' : 'false' }},
             summaries: @js($summaries ?? []),
             diffs: @js($diffs ?? []),
@@ -36,6 +40,12 @@
                 if (this.lazyLoad) {
                     this.summaries = await $wire.loadAllSummaries();
                     this.loadingSummaries = false;
+                }
+
+                // Expand through toggleVersion rather than seeding `expanded` directly,
+                // so a lazy-loaded version still fetches its diff.
+                if (this.focusedVersion !== null) {
+                    await this.toggleVersion(this.focusedVersion);
                 }
             },
             async toggleVersion(version) {
@@ -69,7 +79,7 @@
         @foreach ($triggers as $trigger)
             <div
                 class="border-b border-neutral-200 dark:border-neutral-700 py-3 last:border-0"
-                x-show="showAll || {{ $loop->index }} < 8"
+                x-show="showAll || {{ $loop->index }} < {{ $visibleVersionCount }}"
             >
                 {{-- Version header --}}
                 <button
@@ -305,13 +315,17 @@
             </div>
         @endforeach
 
-        @if ($triggers->count() > 8)
+        @if ($triggers->count() > $visibleVersionCount)
+            @php
+                $hiddenVersionCount = $triggers->count() - $visibleVersionCount;
+            @endphp
+
             <button
                 x-show="!showAll"
                 @click="showAll = true"
                 class="w-full py-3 text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
             >
-                See {{ $triggers->count() - 8 }} more {{ Str::plural('version', $triggers->count() - 8) }}...
+                See {{ $hiddenVersionCount }} more {{ Str::plural('version', $hiddenVersionCount) }}...
             </button>
         @endif
     </div>

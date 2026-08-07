@@ -27,12 +27,6 @@ export function MobileSetTypeFilterSelect<TData>({
       table.getState().columnFilters.find((f) => f.id === 'subsets')?.value ?? [],
 
     setFilterValue: (value) => {
-      if (value === undefined) {
-        table.setColumnFilters((prev) => prev.filter((f) => f.id !== 'subsets'));
-
-        return;
-      }
-
       table.setColumnFilters((prev) => [
         ...prev.filter((f) => f.id !== 'subsets'),
         { id: 'subsets', value },
@@ -42,13 +36,7 @@ export function MobileSetTypeFilterSelect<TData>({
 
   const selectedValues = virtualColumn.getFilterValue() as string[];
 
-  const handleValueChange = (value: App.Platform.Enums.GameListSetTypeFilterValue | 'null') => {
-    if (value === 'null') {
-      virtualColumn.setFilterValue(undefined);
-
-      return;
-    }
-
+  const handleValueChange = (value: App.Platform.Enums.GameListSetTypeFilterValue) => {
     virtualColumn.setFilterValue([value]);
   };
 
@@ -58,13 +46,13 @@ export function MobileSetTypeFilterSelect<TData>({
         {t('Set type')}
       </BaseLabel>
 
-      <BaseSelect value={selectedValues[0] ?? 'null'} onValueChange={handleValueChange}>
+      <BaseSelect value={selectedValues[0] ?? 'all'} onValueChange={handleValueChange}>
         <BaseSelectTrigger id="drawer-set-type" className="w-full">
           <BaseSelectValue placeholder={t('All Sets')} />
         </BaseSelectTrigger>
 
         <BaseSelectContent>
-          <BaseSelectItem value="null" data-testid="all-sets-option">
+          <BaseSelectItem value="all" data-testid="all-sets-option">
             {t('All Sets')}
           </BaseSelectItem>
 

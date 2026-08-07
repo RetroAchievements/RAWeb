@@ -11,11 +11,21 @@ use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerBeatenGamesStatsAction
 {
+    private const BEATEN_GAMES_STAT_TYPES = [
+        PlayerStatType::GamesBeatenHardcoreDemos,
+        PlayerStatType::GamesBeatenHardcoreHacks,
+        PlayerStatType::GamesBeatenHardcoreHomebrew,
+        PlayerStatType::GamesBeatenHardcorePrototypes,
+        PlayerStatType::GamesBeatenHardcoreRetail,
+        PlayerStatType::GamesBeatenHardcoreUnlicensed,
+    ];
+
     public function execute(User $user): void
     {
         // If the user is untracked, wipe any stats they
@@ -60,7 +70,7 @@ class UpdatePlayerBeatenGamesStatsAction
         });
 
         $aggregatedPlayerStatValues = $this->calculateAggregatedGameBeatenHardcoreStatValues($playerBeatenHardcoreGames, $existingStats);
-        $this->upsertAllPlayerStats($user, $aggregatedPlayerStatValues, $existingStats);
+        $this->writeAllPlayerStats($user, $aggregatedPlayerStatValues, $existingStats);
     }
 
     /**
@@ -70,19 +80,12 @@ class UpdatePlayerBeatenGamesStatsAction
         mixed $playerBeatenHardcoreGames,
         Collection $existingStats,
     ): array {
+        // type => [value, most recent hardcore beaten game id, beaten at timestamp]
         $getInitializedStats = function () {
-            return [
-                PlayerStatType::GamesBeatenHardcoreDemos => [0, null, null],
-                PlayerStatType::GamesBeatenHardcoreHacks => [0, null, null],
-                PlayerStatType::GamesBeatenHardcoreHomebrew => [0, null, null],
-                PlayerStatType::GamesBeatenHardcorePrototypes => [0, null, null],
-                PlayerStatType::GamesBeatenHardcoreRetail => [0, null, null],
-                PlayerStatType::GamesBeatenHardcoreUnlicensed => [0, null, null],
-            ];
+            return array_fill_keys(self::BEATEN_GAMES_STAT_TYPES, [0, null, null]);
         };
 
         // We'll hold overall and per-console stat values.
-        // type => [value, most recent hardcore beaten game id, beaten at timestamp]
         $statValues = [
             'overall' => $getInitializedStats(),
         ];
@@ -159,66 +162,175 @@ class UpdatePlayerBeatenGamesStatsAction
     }
 
     /**
+     * Diff the desired stat rows against the rows the player already has, then
+     * write only the differences in a bounded number of bulk statements.
+     *
      * @param Collection<int, PlayerStat> $existingStats
      */
-    private function upsertAllPlayerStats(
+    private function writeAllPlayerStats(
         User $user,
         array $aggregatedPlayerStatValues,
         Collection $existingStats,
-    ): int {
-        $updatedCount = 0;
+    ): void {
+        [$existingStatsMap, $duplicateIdsToDelete] = $this->buildExistingStatsMap($existingStats);
+        [$rowsToInsert, $rowsToUpdate] = $this->buildWriteBuckets($user, $aggregatedPlayerStatValues, $existingStatsMap);
 
-        // Create a map for quick lookups using system_id and type as the key.
-        $existingStatsMap = [];
-        foreach ($existingStats as $stat) {
-            $key = ($stat->system_id ?? 'overall') . '|' . $stat->type;
-            $existingStatsMap[$key] = true;
+        if (!$duplicateIdsToDelete && !$rowsToInsert && !$rowsToUpdate) {
+            return;
         }
+
+        // Sort every payload ascending so concurrent writers acquire locks in the
+        // same order, which is what keeps them from deadlocking each other.
+        sort($duplicateIdsToDelete);
+        usort($rowsToInsert, fn ($a, $b) => [$a['system_id'] ?? 0, $a['type']] <=> [$b['system_id'] ?? 0, $b['type']]);
+        usort($rowsToUpdate, fn ($a, $b) => $a['id'] <=> $b['id']);
+
+        // Retry on a deadlock, as several queue workers can write this table at once.
+        DB::transaction(function () use ($duplicateIdsToDelete, $rowsToInsert, $rowsToUpdate) {
+            // Discard duplicates first.
+            if ($duplicateIdsToDelete) {
+                PlayerStat::whereIn('id', $duplicateIdsToDelete)->delete();
+            }
+
+            if ($rowsToInsert) {
+                PlayerStat::insert($rowsToInsert);
+            }
+
+            if ($rowsToUpdate) {
+                PlayerStat::upsert(
+                    $rowsToUpdate,
+                    ['id'],
+                    ['last_game_id', 'value', 'stat_updated_at', 'updated_at']
+                );
+            }
+        }, attempts: 3);
+
+        PlayerBeatenGamesStatsUpdated::dispatch($user);
+    }
+
+    /**
+     * Route every desired stat row to the insert bucket, the update bucket, or
+     * neither. A row whose stored values already match is not written at all.
+     *
+     * @param array<string, PlayerStat> $existingStatsMap
+     * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+     */
+    private function buildWriteBuckets(
+        User $user,
+        array $aggregatedPlayerStatValues,
+        array $existingStatsMap,
+    ): array {
+        $now = now();
+        $rowsToInsert = [];
+        $rowsToUpdate = [];
 
         // Loop through each console ID in the aggregated values (including 'overall').
         foreach ($aggregatedPlayerStatValues as $aggregateSystemId => $systemStats) {
             // Check if it's the 'overall' key or a specific console ID.
-            $systemId = $aggregateSystemId === 'overall' ? null : $aggregateSystemId;
+            $systemId = $aggregateSystemId === 'overall' ? null : (int) $aggregateSystemId;
 
             // Now, loop through each stat type for this system.
             foreach ($systemStats as $statType => $values) {
                 // Extract the value and most recent game ID.
                 [$value, $lastGameId, $statUpdatedAt] = $values;
 
-                // Check if this stat combination exists in our map.
-                $key = ($systemId ?? 'overall') . '|' . $statType;
+                $existingStat = $existingStatsMap[$this->buildStatKey($systemId, $statType)] ?? null;
 
-                if ($value > 0 || isset($existingStatsMap[$key])) {
-                    $this->upsertPlayerStat($user, $statType, $value, $systemId, $lastGameId, $statUpdatedAt);
-                    $updatedCount++;
+                if ($value === 0 && $existingStat === null) {
+                    continue;
+                }
+
+                if ($existingStat !== null && $this->isStatUnchanged($existingStat, $value, $lastGameId, $statUpdatedAt)) {
+                    continue;
+                }
+
+                $row = [
+                    'user_id' => $user->id,
+                    'system_id' => $systemId,
+                    'type' => $statType,
+                    'last_game_id' => $lastGameId,
+                    'value' => $value,
+                    'stat_updated_at' => $statUpdatedAt,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+
+                if ($existingStat === null) {
+                    $rowsToInsert[] = $row;
+                } else {
+                    $rowsToUpdate[] = ['id' => $existingStat->id] + $row;
                 }
             }
         }
 
-        return $updatedCount;
+        return [$rowsToInsert, $rowsToUpdate];
     }
 
-    private function upsertPlayerStat(
-        User $user,
-        string $statType,
+    /**
+     * Key the player's existing rows by system and type for lookup during the diff.
+     *
+     * @param Collection<int, PlayerStat> $existingStats
+     * @return array{0: array<string, PlayerStat>, 1: array<int, int>}
+     */
+    private function buildExistingStatsMap(Collection $existingStats): array
+    {
+        $existingStatsMap = [];
+        $duplicateIdsToDelete = [];
+
+        foreach ($existingStats as $stat) {
+            $key = $this->buildStatKey($stat->system_id, $stat->type);
+            $incumbent = $existingStatsMap[$key] ?? null;
+
+            if ($incumbent === null) {
+                $existingStatsMap[$key] = $stat;
+
+                continue;
+            }
+
+            if (!in_array($stat->type, self::BEATEN_GAMES_STAT_TYPES, true)) {
+                continue;
+            }
+
+            if ($stat->id < $incumbent->id) {
+                $existingStatsMap[$key] = $stat;
+                $duplicateIdsToDelete[] = $incumbent->id;
+            } else {
+                $duplicateIdsToDelete[] = $stat->id;
+            }
+        }
+
+        return [$existingStatsMap, $duplicateIdsToDelete];
+    }
+
+    private function buildStatKey(?int $systemId, string $statType): string
+    {
+        return ($systemId ?? 'overall') . '|' . $statType;
+    }
+
+    private function isStatUnchanged(
+        PlayerStat $existingStat,
         int $value,
-        ?int $systemId,
         ?int $lastGameId,
         ?string $statUpdatedAt,
-    ): void {
-        PlayerStat::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'system_id' => $systemId,
-                'type' => $statType,
-            ],
-            [
-                'last_game_id' => $lastGameId,
-                'value' => $value,
-                'stat_updated_at' => $statUpdatedAt,
-            ]
-        );
+    ): bool {
+        $existingLastGameId = $existingStat->last_game_id === null ? null : (int) $existingStat->last_game_id;
 
-        PlayerBeatenGamesStatsUpdated::dispatch($user);
+        return
+            (int) $existingStat->value === $value
+            && $existingLastGameId === ($lastGameId === null ? null : (int) $lastGameId)
+            && $this->normalizeTimestamp($existingStat->stat_updated_at) === $this->normalizeTimestamp($statUpdatedAt);
+    }
+
+    /**
+     * The model casts stat_updated_at to Carbon while the aggregation carries the
+     * raw string it read. Both sides need the same shape or every row looks changed.
+     */
+    private function normalizeTimestamp(mixed $timestamp): ?string
+    {
+        if ($timestamp === null || $timestamp === '') {
+            return null;
+        }
+
+        return Carbon::parse($timestamp)->toDateTimeString();
     }
 }

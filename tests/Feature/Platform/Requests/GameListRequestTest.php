@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Requests;
 
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Requests\GameListRequest;
 use Tests\TestCase;
 
@@ -75,6 +76,32 @@ class GameListRequestTest extends TestCase
         $this->assertSame([
             'achievementsPublished' => ['has'],
         ], $request->getFilters());
+    }
+
+    public function testItAppliesTheDefaultSubsetFilterWhenNoSubsetFilterIsGiven(): void
+    {
+        // ACT
+        $request = GameListRequest::create('/games', 'GET');
+
+        // ASSERT
+        $this->assertSame([
+            'achievementsPublished' => ['has'],
+            'subsets' => ['only-games'],
+        ], $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames));
+    }
+
+    public function testItKeepsAnExplicitAllSubsetFilterFromTheUrlOverTheDefault(): void
+    {
+        // ACT
+        $request = GameListRequest::create('/games', 'GET', [
+            'filter' => ['subsets' => 'all'],
+        ]);
+
+        // ASSERT
+        $this->assertSame([
+            'subsets' => ['all'],
+            'achievementsPublished' => ['has'],
+        ], $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames));
     }
 
     private function buildCookiePreferences(): string

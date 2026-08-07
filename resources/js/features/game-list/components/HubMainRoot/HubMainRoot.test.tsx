@@ -429,6 +429,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
@@ -497,6 +498,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'filter[system]': '1',
           'page[number]': 1,
           'page[size]': 25,
@@ -607,6 +609,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'title',
@@ -645,6 +648,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-system',
@@ -683,6 +687,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'achievementsPublished',
@@ -721,6 +726,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'releasedAt',
@@ -763,6 +769,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-hasActiveOrInReviewClaims',
@@ -846,6 +853,7 @@ describe('Component: HubMainRoot', () => {
         'api.hub.game.index',
         {
           'filter[achievementsPublished]': 'either',
+          'filter[subsets]': 'all',
           'page[number]': 2,
           'page[size]': 50,
           sort: 'title',
