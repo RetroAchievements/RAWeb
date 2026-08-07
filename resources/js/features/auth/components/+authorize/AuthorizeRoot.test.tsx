@@ -91,7 +91,7 @@ describe('Component: AuthorizeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/registered by/i)).toBeVisible();
+    expect(screen.getByText('App registered by')).toBeVisible();
 
     const ownerLink = screen.getByRole('link', { name: 'Jamiras' });
 
@@ -124,7 +124,8 @@ describe('Component: AuthorizeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText(/registered by/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('App registered by')).not.toBeInTheDocument();
+    expect(screen.getByText(/currently signed in as/i)).toBeVisible();
   });
 
   it('translates known scopes and falls back to the identifier for unknown ones', () => {

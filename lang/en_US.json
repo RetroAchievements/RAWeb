@@ -1477,7 +1477,7 @@
     "Public client (PKCE)": "Public client (PKCE)",
     "Redirect URI": "Redirect URI",
     "Register application": "Register application",
-    "Registered by <1>{{ownerDisplayName}}</1>": "Registered by <1>{{ownerDisplayName}}</1>",
+    "App registered by": "App registered by",
     "Revoke": "Revoke",
     "Revoke {{applicationName}}?": "Revoke {{applicationName}}?",
     "Revoke application": "Revoke application",

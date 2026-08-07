@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { LuCheck, LuGamepad2, LuSatelliteDish, LuX } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
@@ -61,31 +61,9 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <BaseCardTitle className="text-base leading-normal font-semibold text-neutral-300 light:text-neutral-900">
-              {t('{{clientName}} wants to access your account', { clientName: client.name })}
-            </BaseCardTitle>
-
-            {client.owner ? (
-              <p className="text-xs text-neutral-400 light:text-neutral-800">
-                <Trans
-                  i18nKey="Registered by <1>{{ownerDisplayName}}</1>"
-                  values={{ ownerDisplayName: client.owner.displayName }}
-                  components={{
-                    1: (
-                      // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
-                      <a
-                        href={route('user.show', { user: client.owner.displayName })}
-                        target="_blank"
-                        rel="noopener"
-                        className="inline-block px-1 py-1.5 text-neutral-400 underline decoration-neutral-600 underline-offset-2 hover:text-neutral-300 hover:decoration-neutral-400 light:text-neutral-800 light:decoration-neutral-400 light:hover:text-neutral-900 light:hover:decoration-neutral-700"
-                      />
-                    ),
-                  }}
-                />
-              </p>
-            ) : null}
-          </div>
+          <BaseCardTitle className="text-base leading-normal font-semibold wrap-break-word text-neutral-300 light:text-neutral-900">
+            {t('{{clientName}} wants to access your account', { clientName: client.name })}
+          </BaseCardTitle>
 
           <BaseCardDescription className="text-neutral-400 light:text-neutral-700">
             {t('This will let it:', { nsSeparator: null })}
@@ -103,19 +81,43 @@ export const AuthorizeRoot: FC<AuthorizeRootProps> = ({ variant }) => {
             ))}
           </div>
 
-          {/* Current user details */}
-          <div className="flex items-center gap-3">
-            <img
-              src={auth?.user.avatarUrl}
-              className="size-8 rounded-lg bg-neutral-950 light:bg-neutral-100"
-              alt="user avatar"
-            />
+          <div className="flex flex-col gap-4">
+            {client.owner ? (
+              <div className="flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-neutral-950 light:bg-neutral-100">
+                  <LuGamepad2 className="size-4 text-neutral-400 light:text-neutral-800" />
+                </div>
 
-            <div className="flex flex-col">
-              <p className="text-xs text-neutral-400 light:text-neutral-800">
-                {t('Currently signed in as')}
-              </p>
-              <p className="text-neutral-300 light:text-neutral-900">{auth?.user.displayName}</p>
+                <div className="flex flex-col">
+                  <p className="text-xs text-neutral-400 light:text-neutral-800">
+                    {t('App registered by')}
+                  </p>
+                  <a
+                    href={route('user.show', { user: client.owner.displayName })}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 hover:decoration-neutral-400 light:text-neutral-900 light:decoration-neutral-400 light:hover:decoration-neutral-700"
+                  >
+                    {client.owner.displayName}
+                  </a>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Current user details */}
+            <div className="flex items-center gap-3">
+              <img
+                src={auth?.user.avatarUrl}
+                className="size-8 rounded-lg bg-neutral-950 light:bg-neutral-100"
+                alt="user avatar"
+              />
+
+              <div className="flex flex-col">
+                <p className="text-xs text-neutral-400 light:text-neutral-800">
+                  {t('Currently signed in as')}
+                </p>
+                <p className="text-neutral-300 light:text-neutral-900">{auth?.user.displayName}</p>
+              </div>
             </div>
           </div>
         </BaseCardContent>
