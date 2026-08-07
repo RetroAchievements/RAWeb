@@ -18,6 +18,8 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
     use Queueable;
     use SerializesModels;
 
+    public int $tries = 3;
+
     public function __construct(
         private readonly int $userId,
     ) {

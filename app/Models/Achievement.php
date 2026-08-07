@@ -26,6 +26,7 @@ use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Services\GameOpenTicketCountService;
 use App\Platform\Services\UserTicketCountService;
 use App\Support\Database\Eloquent\BaseModel;
+use App\Support\WhitespaceNormalizer;
 use Carbon\CarbonInterface;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -500,7 +501,9 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     protected function title(): Attribute
     {
         return Attribute::make(
-            set: fn (string $value) => $this->normalizeSmartQuotes($value),
+            set: fn (string $value) => WhitespaceNormalizer::normalize(
+                $this->normalizeSmartQuotes($value)
+            ),
         );
     }
 
@@ -510,7 +513,9 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     protected function description(): Attribute
     {
         return Attribute::make(
-            set: fn (string $value) => $this->normalizeSmartQuotes($value),
+            set: fn (string $value) => WhitespaceNormalizer::normalize(
+                $this->normalizeSmartQuotes($value)
+            ),
         );
     }
 

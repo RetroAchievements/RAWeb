@@ -57,7 +57,8 @@ class UpdatePlayerBeatenGamesStats extends Command
                 })->all();
 
                 // Dispatch jobs for the current chunk.
-                Bus::batch($jobs)->onQueue('player-beaten-games-stats')->dispatch();
+                // We use allowFailures() so one player's failure doesn't cancel the whole batch.
+                Bus::batch($jobs)->allowFailures()->onQueue('player-beaten-games-stats')->dispatch();
 
                 $progressBar->advance(count($users));
             });
