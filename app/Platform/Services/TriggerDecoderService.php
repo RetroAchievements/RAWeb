@@ -11,15 +11,75 @@ use Illuminate\Support\Str;
 
 class TriggerDecoderService
 {
-    public function formatAddress(int $address): string
+    public function formatAddress(int $address, int $width = 6): string
     {
-        return $this->formatHex(dechex($address));
+        return $this->padHex(dechex($address), $width);
+    }
+
+    /**
+     * Determines the display width shared by every address in the trigger.
+     * The width is the digit count of the largest memory address, rounded up
+     * to an even number of digits, with a floor of 4.
+     *
+     * @param array<int, array<string, mixed>> $groups
+     */
+    public function getAddressWidth(array $groups): int
+    {
+        $maxDigits = 1;
+        foreach ($groups as $group) {
+            foreach ($group['Conditions'] ?? [] as $condition) {
+                foreach (['Source', 'Target'] as $side) {
+                    if (!$this->isMemoryReference($condition[$side . 'Type'] ?? '')) {
+                        continue;
+                    }
+
+                    $operand = $condition[$side . 'Address'] ?? '';
+                    if (str_starts_with($operand, '0x')) {
+                        $digits = strlen(ltrim(substr($operand, 2), '0'));
+                        $maxDigits = max($maxDigits, $digits);
+                    }
+                }
+            }
+        }
+
+        return max(4, $maxDigits + ($maxDigits % 2));
+    }
+
+    /**
+     * Reformats every hex operand in the trigger to a shared display width so
+     * rows in the same achievement never mix 4, 6, and 8 digit addresses.
+     * Comparison code must ignore padding, so widths only affect display.
+     *
+     * @param array<int, array<string, mixed>> $groups
+     */
+    public function applyUniformAddressWidth(array &$groups, int $width): void
+    {
+        foreach ($groups as &$group) {
+            foreach ($group['Conditions'] as &$condition) {
+                foreach (['SourceAddress', 'TargetAddress'] as $key) {
+                    $operand = $condition[$key] ?? '';
+                    if (str_starts_with($operand, '0x')) {
+                        $condition[$key] = $this->padHex(substr($operand, 2), $width);
+                    }
+                }
+            }
+        }
     }
 
     private function formatHex(string $hex): string
     {
+        return $this->padHex($hex, 6);
+    }
+
+    /**
+     * A value too large for the requested width keeps its own even-digit
+     * width instead of being truncated.
+     */
+    private function padHex(string $hex, int $width): string
+    {
         $trimmed = ltrim(strtolower($hex), '0');
-        $width = strlen($trimmed) > 6 ? 8 : 6;
+        $digits = max(strlen($trimmed), 1);
+        $width = max($width, $digits + ($digits % 2));
 
         return '0x' . str_pad($trimmed, $width, '0', STR_PAD_LEFT);
     }
@@ -349,6 +409,8 @@ class TriggerDecoderService
             $groups[] = $group;
         }
 
+        $this->applyUniformAddressWidth($groups, $this->getAddressWidth($groups));
+
         return $groups;
     }
 
@@ -419,13 +481,15 @@ class TriggerDecoderService
     {
         ksort($codeNotes);
 
+        $addressWidth = $this->getAddressWidth($groups);
+
         foreach ($groups as &$group) {
             $groupNotes = [];
             $indirectNote = '';
             $indirectChain = '';
             foreach ($group['Conditions'] as &$condition) {
-                $this->setTooltipFromNotes($condition, 'Source', $codeNotes, $indirectChain, $indirectNote, $groupNotes);
-                $this->setTooltipFromNotes($condition, 'Target', $codeNotes, $indirectChain, $indirectNote, $groupNotes);
+                $this->setTooltipFromNotes($condition, 'Source', $codeNotes, $indirectChain, $indirectNote, $groupNotes, $addressWidth);
+                $this->setTooltipFromNotes($condition, 'Target', $codeNotes, $indirectChain, $indirectNote, $groupNotes, $addressWidth);
 
                 if ($condition['Flag'] === 'Add Address' && ($condition['Operator'] === '' || $condition['Operator'] === '&')) {
                     $indirectNote = $condition['SourceTooltip'] ?? '';
@@ -450,7 +514,7 @@ class TriggerDecoderService
     }
 
     private function setTooltipFromNotes(array &$condition, string $type, array $codeNotes,
-        string $indirectChain, string $indirectNote, array &$groupNotes): void
+        string $indirectChain, string $indirectNote, array &$groupNotes, int $addressWidth): void
     {
         if ($this->isMemoryReference($condition[$type . 'Type'])) {
             $formattedAddress = $condition[$type . 'Address'];
@@ -478,7 +542,7 @@ class TriggerDecoderService
                     $note = $codeNotes[$noteAddress] ?? '';
                     $note = $this->resolveNoteRedirects($note, $codeNotes);
                     if (!empty($note)) {
-                        $formattedNoteAddress = '0x' . str_pad(dechex($noteAddress), 6, '0', STR_PAD_LEFT);
+                        $formattedNoteAddress = $this->padHex(dechex($noteAddress), $addressWidth);
                         $offset = $address - $noteAddress;
                         $condition[$type . 'Tooltip'] = "[$formattedNoteAddress + $offset]\n" . $note;
                     }

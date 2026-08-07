@@ -65,45 +65,45 @@ class TriggerDecoderServiceTest extends TestCase
 
     public function testParseOperand(): void
     {
-        $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x001234');
-        $this->assertParseOperand('0xh1234', 'Mem', '8-bit', '0x001234');
-        $this->assertParseOperand('0x 1234', 'Mem', '16-bit', '0x001234');
-        $this->assertParseOperand('0x1234', 'Mem', '16-bit', '0x001234');
-        $this->assertParseOperand('0xW1234', 'Mem', '24-bit', '0x001234');
-        $this->assertParseOperand('0xX1234', 'Mem', '32-bit', '0x001234');
+        $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x1234');
+        $this->assertParseOperand('0xh1234', 'Mem', '8-bit', '0x1234');
+        $this->assertParseOperand('0x 1234', 'Mem', '16-bit', '0x1234');
+        $this->assertParseOperand('0x1234', 'Mem', '16-bit', '0x1234');
+        $this->assertParseOperand('0xW1234', 'Mem', '24-bit', '0x1234');
+        $this->assertParseOperand('0xX1234', 'Mem', '32-bit', '0x1234');
 
-        $this->assertParseOperand('0xL1234', 'Mem', 'Lower4', '0x001234');
-        $this->assertParseOperand('0xU1234', 'Mem', 'Upper4', '0x001234');
-        $this->assertParseOperand('0xM1234', 'Mem', 'Bit0', '0x001234');
-        $this->assertParseOperand('0xN1234', 'Mem', 'Bit1', '0x001234');
-        $this->assertParseOperand('0xO1234', 'Mem', 'Bit2', '0x001234');
-        $this->assertParseOperand('0xP1234', 'Mem', 'Bit3', '0x001234');
-        $this->assertParseOperand('0xQ1234', 'Mem', 'Bit4', '0x001234');
-        $this->assertParseOperand('0xR1234', 'Mem', 'Bit5', '0x001234');
-        $this->assertParseOperand('0xS1234', 'Mem', 'Bit6', '0x001234');
-        $this->assertParseOperand('0xT1234', 'Mem', 'Bit7', '0x001234');
+        $this->assertParseOperand('0xL1234', 'Mem', 'Lower4', '0x1234');
+        $this->assertParseOperand('0xU1234', 'Mem', 'Upper4', '0x1234');
+        $this->assertParseOperand('0xM1234', 'Mem', 'Bit0', '0x1234');
+        $this->assertParseOperand('0xN1234', 'Mem', 'Bit1', '0x1234');
+        $this->assertParseOperand('0xO1234', 'Mem', 'Bit2', '0x1234');
+        $this->assertParseOperand('0xP1234', 'Mem', 'Bit3', '0x1234');
+        $this->assertParseOperand('0xQ1234', 'Mem', 'Bit4', '0x1234');
+        $this->assertParseOperand('0xR1234', 'Mem', 'Bit5', '0x1234');
+        $this->assertParseOperand('0xS1234', 'Mem', 'Bit6', '0x1234');
+        $this->assertParseOperand('0xT1234', 'Mem', 'Bit7', '0x1234');
 
-        $this->assertParseOperand('0xK1234', 'Mem', 'BitCount', '0x001234');
+        $this->assertParseOperand('0xK1234', 'Mem', 'BitCount', '0x1234');
 
-        $this->assertParseOperand('0xI1234', 'Mem', '16-bit BE', '0x001234');
-        $this->assertParseOperand('0xJ1234', 'Mem', '24-bit BE', '0x001234');
-        $this->assertParseOperand('0xG1234', 'Mem', '32-bit BE', '0x001234');
+        $this->assertParseOperand('0xI1234', 'Mem', '16-bit BE', '0x1234');
+        $this->assertParseOperand('0xJ1234', 'Mem', '24-bit BE', '0x1234');
+        $this->assertParseOperand('0xG1234', 'Mem', '32-bit BE', '0x1234');
 
-        $this->assertParseOperand('d0xH1234', 'Delta', '8-bit', '0x001234');
-        $this->assertParseOperand('p0xH1234', 'Prior', '8-bit', '0x001234');
-        $this->assertParseOperand('b0xH1234', 'BCD', '8-bit', '0x001234');
-        $this->assertParseOperand('~0xH1234', 'Inverted', '8-bit', '0x001234');
+        $this->assertParseOperand('d0xH1234', 'Delta', '8-bit', '0x1234');
+        $this->assertParseOperand('p0xH1234', 'Prior', '8-bit', '0x1234');
+        $this->assertParseOperand('b0xH1234', 'BCD', '8-bit', '0x1234');
+        $this->assertParseOperand('~0xH1234', 'Inverted', '8-bit', '0x1234');
 
-        $this->assertParseOperand('fF1234', 'Mem', 'Float', '0x001234');
-        $this->assertParseOperand('fB1234', 'Mem', 'Float BE', '0x001234');
-        $this->assertParseOperand('fH1234', 'Mem', 'Double32', '0x001234');
-        $this->assertParseOperand('fI1234', 'Mem', 'Double32 BE', '0x001234');
-        $this->assertParseOperand('fM1234', 'Mem', 'MBF32', '0x001234');
-        $this->assertParseOperand('fL1234', 'Mem', 'MBF32 LE', '0x001234');
+        $this->assertParseOperand('fF1234', 'Mem', 'Float', '0x1234');
+        $this->assertParseOperand('fB1234', 'Mem', 'Float BE', '0x1234');
+        $this->assertParseOperand('fH1234', 'Mem', 'Double32', '0x1234');
+        $this->assertParseOperand('fI1234', 'Mem', 'Double32 BE', '0x1234');
+        $this->assertParseOperand('fM1234', 'Mem', 'MBF32', '0x1234');
+        $this->assertParseOperand('fL1234', 'Mem', 'MBF32 LE', '0x1234');
 
-        $this->assertParseOperand('1234', 'Value', '', '0x0004d2'); // raw value
-        $this->assertParseOperand('h1234', 'Value', '', '0x001234'); // hex value
-        $this->assertParseOperand('v1234', 'Value', '', '0x0004d2'); // legacy raw value
+        $this->assertParseOperand('1234', 'Value', '', '0x04d2'); // raw value
+        $this->assertParseOperand('h1234', 'Value', '', '0x1234'); // hex value
+        $this->assertParseOperand('v1234', 'Value', '', '0x04d2'); // legacy raw value
         $this->assertParseOperand('v-1234', 'Value', '', '0xfffffb2e'); // signed legacy raw value
 
         $this->assertParseOperand('f123.4', 'Float', '', '123.4');
@@ -115,27 +115,56 @@ class TriggerDecoderServiceTest extends TestCase
 
     public function testParseOperandNormalizesHexSpelling(): void
     {
-        // addresses shorter than the canonical width are padded out
-        $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x001234');
+        // the trigger's largest address picks the display width, with a floor of 4 digits
+        $this->assertParseOperand('0xH1234', 'Mem', '8-bit', '0x1234');
 
-        // addresses too wide for the narrow form settle on the wide form
+        // addresses too wide for 6 digits settle on 8 digits
         $this->assertParseOperand('0xH01bac044', 'Mem', '8-bit', '0x01bac044');
         $this->assertParseOperand('0xH1bac044', 'Mem', '8-bit', '0x01bac044');
 
-        // surplus leading zeros drop away when the narrow form still fits
+        // surplus leading zeros drop away when a narrower even width still fits
         $this->assertParseOperand('0xG00966c5c', 'Mem', '32-bit BE', '0x966c5c');
         $this->assertParseOperand('0xG966c5c', 'Mem', '32-bit BE', '0x966c5c');
 
         // uppercase and lowercase hex digits describe the same address
-        $this->assertParseOperand('0xHabcd', 'Mem', '8-bit', '0x00abcd');
-        $this->assertParseOperand('0xHABCD', 'Mem', '8-bit', '0x00abcd');
+        $this->assertParseOperand('0xHabcd', 'Mem', '8-bit', '0xabcd');
+        $this->assertParseOperand('0xHABCD', 'Mem', '8-bit', '0xabcd');
 
-        // hex values follow the same rules as addresses
-        $this->assertParseOperand('h0000000a', 'Value', '', '0x00000a');
-        $this->assertParseOperand('hA', 'Value', '', '0x00000a');
+        // hex values pad to the trigger width too
+        $this->assertParseOperand('h0000000a', 'Value', '', '0x000a');
+        $this->assertParseOperand('hA', 'Value', '', '0x000a');
 
-        // an address of zero still renders at the canonical width
-        $this->assertParseOperand('0xH0000000', 'Mem', '8-bit', '0x000000');
+        // an address of zero still renders at the minimum width
+        $this->assertParseOperand('0xH0000000', 'Mem', '8-bit', '0x0000');
+    }
+
+    public function testDecodeUsesOneAddressWidthPerTrigger(): void
+    {
+        $service = new TriggerDecoderService();
+
+        // ... the 7-digit address forces every address in the trigger to 8 digits ...
+        $groups = $service->decode('0xG00966c5c=1_0xH01bac044=2');
+        $conditions = $groups[0]['Conditions'];
+
+        $this->assertEquals(8, $service->getAddressWidth($groups));
+        $this->assertEquals('0x00966c5c', $conditions[0]['SourceAddress']);
+        $this->assertEquals('0x01bac044', $conditions[1]['SourceAddress']);
+
+        // ... a trigger of small addresses settles on the 4-digit floor ...
+        $groups = $service->decode('0xH12=1_0xH1234=2');
+        $conditions = $groups[0]['Conditions'];
+
+        $this->assertEquals(4, $service->getAddressWidth($groups));
+        $this->assertEquals('0x0012', $conditions[0]['SourceAddress']);
+        $this->assertEquals('0x1234', $conditions[1]['SourceAddress']);
+
+        // ... a large hex value widens itself but never the addresses ...
+        $groups = $service->decode('0xH1234=h554c4a4d');
+        $conditions = $groups[0]['Conditions'];
+
+        $this->assertEquals(4, $service->getAddressWidth($groups));
+        $this->assertEquals('0x1234', $conditions[0]['SourceAddress']);
+        $this->assertEquals('0x554c4a4d', $conditions[0]['TargetAddress']);
     }
 
     public function testFormatAddressMatchesTheAddressesOnDecodedConditions(): void
@@ -144,18 +173,20 @@ class TriggerDecoderServiceTest extends TestCase
 
         $groups = $service->decode('0xG00966c5c=1_0xH01bac044=2');
         $conditions = $groups[0]['Conditions'];
+        $width = $service->getAddressWidth($groups);
 
         $this->assertEquals(
             $conditions[0]['SourceAddress'],
-            $service->formatAddress(hexdec($conditions[0]['SourceAddress']))
+            $service->formatAddress(hexdec($conditions[0]['SourceAddress']), $width)
         );
         $this->assertEquals(
             $conditions[1]['SourceAddress'],
-            $service->formatAddress(hexdec($conditions[1]['SourceAddress']))
+            $service->formatAddress(hexdec($conditions[1]['SourceAddress']), $width)
         );
 
         $this->assertEquals('0x966c5c', $service->formatAddress(0x966C5C));
         $this->assertEquals('0x01bac044', $service->formatAddress(0x1BAC044));
+        $this->assertEquals('0x0034', $service->formatAddress(0x34, 4));
         $this->assertEquals('0x000000', $service->formatAddress(0));
     }
 
@@ -163,30 +194,30 @@ class TriggerDecoderServiceTest extends TestCase
     {
         $condition = $this->parseSingleCondition("0xH1234=6");
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionOperator($condition, '=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000006');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0006');
         $this->assertConditionHitTarget($condition, '0');
 
         $condition = $this->parseSingleCondition("R:0xH1234>d0xH1234.5.");
         $this->assertConditionFlag($condition, 'Reset If');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x1234');
         $this->assertConditionHitTarget($condition, '5');
 
         $condition = $this->parseSingleCondition("A:0xH1234*2");
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0002');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $this->parseSingleCondition("K:{recall}+2");
         $this->assertConditionFlag($condition, 'Remember');
         $this->assertConditionSourceOperand($condition, 'Recall', '', '');
         $this->assertConditionOperator($condition, '+');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0002');
         $this->assertConditionHitTarget($condition, '');
     }
 
@@ -238,30 +269,30 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Address');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x1234');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000000');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0000');
         $this->assertConditionOperator($condition, '&');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00003f');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x003f');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][2];
         $this->assertConditionFlag($condition, 'Add Address');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x1234');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][3];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '<');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000007');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0007');
         $this->assertConditionHitTarget($condition, '0');
     }
 
@@ -278,25 +309,25 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertEquals('Core Group', $groups[0]['Label']);
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionOperator($condition, '=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000001');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0001');
         $this->assertConditionHitTarget($condition, '0');
 
         $this->assertEquals('Alt Group 1', $groups[1]['Label']);
         $condition = $groups[1]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x002345');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x2345');
         $this->assertConditionOperator($condition, '<');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000006');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0006');
         $this->assertConditionHitTarget($condition, '0');
 
         $this->assertEquals('Alt Group 2', $groups[2]['Label']);
         $condition = $groups[2]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x003456');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x3456');
         $this->assertConditionOperator($condition, '>=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000009');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0009');
         $this->assertConditionHitTarget($condition, '0');
     }
 
@@ -311,16 +342,16 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertEquals('Value', $groups[0]['Label']);
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0064');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0002');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000a');
         $this->assertConditionHitTarget($condition, '');
     }
 
@@ -334,16 +365,16 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0064');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0002');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000a');
         $this->assertConditionHitTarget($condition, '');
     }
 
@@ -357,21 +388,21 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '*');
         $this->assertConditionTargetOperand($condition, 'Float', '', '0.5');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Sub Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0002');
         $this->assertConditionOperator($condition, '*');
         $this->assertConditionTargetOperand($condition, 'Float', '', '2.4');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][2];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Value', '', '0x000000');
+        $this->assertConditionSourceOperand($condition, 'Value', '', '0x0000');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
@@ -388,24 +419,24 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertEquals('Value 1', $groups[0]['Label']);
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0064');
         $this->assertConditionHitTarget($condition, '');
 
         $this->assertEquals('Value 2', $groups[1]['Label']);
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0002');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000a');
         $this->assertConditionHitTarget($condition, '');
 
         $this->assertEquals(1, count($groups[1]['Conditions']));
 
         $condition = $groups[1]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x1234');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
@@ -421,14 +452,14 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Source');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0001');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Measured');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x0002');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionHitTarget($condition, '');
@@ -444,46 +475,46 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionSourceTooltip($condition, '');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x1234');
         $this->assertConditionTargetTooltip($condition, '');
         $this->assertConditionHitTarget($condition, '0');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001235');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1235');
         $this->assertConditionSourceTooltip($condition, '');
         $this->assertConditionOperator($condition, '=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000024');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0024');
         $this->assertConditionTargetTooltip($condition, '36');
         $this->assertConditionHitTarget($condition, '0');
 
         $service->mergeCodeNotes($groups, [
-            0x001234 => 'Lives',
+            0x1234 => 'Lives',
             0x001236 => 'Unused',
         ]);
 
         $this->assertEquals($groups[0]['Notes'], [
-            0x001234 => 'Lives',
+            0x1234 => 'Lives',
         ]);
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1234');
         $this->assertConditionSourceTooltip($condition, 'Lives');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x1234');
         $this->assertConditionTargetTooltip($condition, 'Lives');
         $this->assertConditionHitTarget($condition, '0');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001235');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1235');
         $this->assertConditionSourceTooltip($condition, '');
         $this->assertConditionOperator($condition, '=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000024');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0024');
         $this->assertConditionTargetTooltip($condition, '36');
         $this->assertConditionHitTarget($condition, '0');
     }
@@ -493,7 +524,7 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("I:0xX1234_I:0xX0004_0x 0002!=0x 0000");
         $service->mergeCodeNotes($groups, [
-            0x001234 => "[32-bit] pointer\n" .
+            0x1234 => "[32-bit] pointer\n" .
                         "+0 | [32-bit] index\n" .
                         "+4 | [32-bit] nested pointer\n" .
                         "++0 | [16-bit] value1\n" .
@@ -507,7 +538,7 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Address');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x1234');
         $this->assertConditionSourceTooltip($condition, '[32-bit] pointer');
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
@@ -516,8 +547,8 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, 'Add Address');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000004');
-        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000004]\n[32-bit] nested pointer");
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x0004');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x1234 + 0x0004]\n[32-bit] nested pointer");
         $this->assertConditionOperator($condition, '');
         $this->assertConditionTargetOperand($condition, '', '', '');
         $this->assertConditionTargetTooltip($condition, '');
@@ -525,11 +556,11 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][2];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '16-bit', '0x000002');
-        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000004 + 0x000002]\n[16-bit] value2");
+        $this->assertConditionSourceOperand($condition, 'Mem', '16-bit', '0x0002');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x1234 + 0x0004 + 0x0002]\n[16-bit] value2");
         $this->assertConditionOperator($condition, '!=');
-        $this->assertConditionTargetOperand($condition, 'Mem', '16-bit', '0x000000');
-        $this->assertConditionTargetTooltip($condition, "[Indirect 0x001234 + 0x000004 + 0x000000]\n[16-bit] value1");
+        $this->assertConditionTargetOperand($condition, 'Mem', '16-bit', '0x0000');
+        $this->assertConditionTargetTooltip($condition, "[Indirect 0x1234 + 0x0004 + 0x0000]\n[16-bit] value1");
         $this->assertConditionHitTarget($condition, '0');
     }
 
@@ -574,8 +605,8 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("I:0xH1200*2_0xX1234!=16");
         $service->mergeCodeNotes($groups, [
-            0x001200 => "[8-bit] selected item index",
-            0x001234 => "[100x16-bit] array of items",
+            0x1200 => "[8-bit] selected item index",
+            0x1234 => "[100x16-bit] array of items",
         ]);
 
         $this->assertEquals(1, count($groups));
@@ -583,19 +614,19 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, 'Add Address');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001200');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1200');
         $this->assertConditionSourceTooltip($condition, '[8-bit] selected item index');
         $this->assertConditionOperator($condition, '*');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0002');
         $this->assertConditionTargetTooltip($condition, '2');
         $this->assertConditionHitTarget($condition, '');
 
         $condition = $groups[0]['Conditions'][1];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x1234');
         $this->assertConditionSourceTooltip($condition, "[With indirection]\n[100x16-bit] array of items");
         $this->assertConditionOperator($condition, '!=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000010');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0010');
         $this->assertConditionTargetTooltip($condition, '16');
         $this->assertConditionHitTarget($condition, '0');
     }
@@ -605,7 +636,7 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("0xH1240=6");
         $service->mergeCodeNotes($groups, [
-            0x001234 => "[128 bytes] Inventory",
+            0x1234 => "[128 bytes] Inventory",
         ]);
 
         $this->assertEquals(1, count($groups));
@@ -613,10 +644,10 @@ class TriggerDecoderServiceTest extends TestCase
 
         $condition = $groups[0]['Conditions'][0];
         $this->assertConditionFlag($condition, '');
-        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001240');
-        $this->assertConditionSourceTooltip($condition, "[0x001234 + 12]\n[128 bytes] Inventory");
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x1240');
+        $this->assertConditionSourceTooltip($condition, "[0x1234 + 12]\n[128 bytes] Inventory");
         $this->assertConditionOperator($condition, '=');
-        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000006');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x0006');
         $this->assertConditionTargetTooltip($condition, '6');
         $this->assertConditionHitTarget($condition, '0');
     }
@@ -642,8 +673,8 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("0xH1234=6_0xH5678=7");
         $service->mergeCodeNotes($groups, [
-            0x001234 => 'Player Health',
-            0x005678 => 'refer to $0x001234',
+            0x1234 => 'Player Health',
+            0x005678 => 'refer to $0x1234',
         ]);
 
         $this->assertEquals(1, count($groups));
@@ -663,9 +694,9 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("0xH1234=6_0xH5678=7_0xH9ABC=8");
         $service->mergeCodeNotes($groups, [
-            0x001234 => 'Player Health', // A
+            0x1234 => 'Player Health', // A
             0x005678 => 'refer to $0x009ABC', // B, resolves to C, resolves to A
-            0x009ABC => 'refer to $0x001234', // C, resolves to A
+            0x009ABC => 'refer to $0x1234', // C, resolves to A
         ]);
 
         // ... all notes should resolve to "Player Health" through the chain ...

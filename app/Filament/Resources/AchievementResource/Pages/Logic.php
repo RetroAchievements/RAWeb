@@ -184,6 +184,8 @@ class Logic extends Page
             ? []
             : $decoderService->decode($triggers[$currentIndex + 1]->conditions ?? '');
 
+        $this->alignAddressWidths($decoderService, $previousGroups, $currentGroups);
+
         return ['diff' => $diffService->computeDiff($previousGroups, $currentGroups)];
     }
 
@@ -254,6 +256,7 @@ class Logic extends Page
     private function computeDiffsForTriggers(Collection $triggers, array $decodedTriggers): array
     {
         $diffService = new TriggerDiffService();
+        $decoderService = new TriggerDecoderService();
 
         $diffs = [];
 
@@ -268,9 +271,29 @@ class Logic extends Page
                 ? []
                 : $decodedTriggers[$previousKey];
 
+            $this->alignAddressWidths($decoderService, $previousGroups, $currentGroups);
+
             $diffs[$versionKey] = $diffService->computeDiff($previousGroups, $currentGroups);
         }
 
         return $diffs;
+    }
+
+    /**
+     * Pads both versions of a trigger to a shared address width so a diff
+     * never renders the same address with two different paddings.
+     *
+     * @param array<int, array<string, mixed>> $previousGroups
+     * @param array<int, array<string, mixed>> $currentGroups
+     */
+    private function alignAddressWidths(TriggerDecoderService $decoderService, array &$previousGroups, array &$currentGroups): void
+    {
+        $width = max(
+            $decoderService->getAddressWidth($previousGroups),
+            $decoderService->getAddressWidth($currentGroups),
+        );
+
+        $decoderService->applyUniformAddressWidth($previousGroups, $width);
+        $decoderService->applyUniformAddressWidth($currentGroups, $width);
     }
 }

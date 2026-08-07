@@ -500,6 +500,26 @@ class TriggerDiffServiceTest extends TestCase
         $this->assertEquals('No changes', $this->service->formatSummary($summary));
     }
 
+    public function testComputeSummaryIgnoresAddressWidthChangesBetweenVersions(): void
+    {
+        // Arrange
+        $decoder = new TriggerDecoderService();
+
+        $oldGroups = $decoder->decode('0xH1234=1');
+        $newGroups = $decoder->decode('0xH1234=1_0xH1bac044=2');
+
+        $this->assertEquals('0x1234', $oldGroups[0]['Conditions'][0]['SourceAddress']);
+        $this->assertEquals('0x00001234', $newGroups[0]['Conditions'][0]['SourceAddress']);
+
+        // Act
+        $summary = $this->service->computeSummary($oldGroups, $newGroups);
+
+        // Assert
+        $this->assertEquals(1, $summary['added']);
+        $this->assertEquals(0, $summary['removed']);
+        $this->assertEquals(0, $summary['modified']);
+    }
+
     public function testComputeSummaryStillDetectsRealChangesToPaddedAddresses(): void
     {
         // Arrange

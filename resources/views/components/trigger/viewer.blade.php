@@ -7,6 +7,7 @@
 @php
     $j = 1;
     $triggerDecoderService = new App\Platform\Services\TriggerDecoderService();
+    $addressWidth = $triggerDecoderService->getAddressWidth($groups);
 @endphp
 @foreach ($groups as $group)
     <table class="table-highlight border-t border-embed-highlight">
@@ -71,7 +72,7 @@
                         <table id="notes{{ $prefix }}{{ $j }}" class="hidden">
                             @foreach ($group['Notes'] as $addr => $note)
                                 <tr>
-                                    <td class="whitespace-nowrap align-top font-mono"><b>{{ $triggerDecoderService->formatAddress($addr) }}</b></td>
+                                    <td class="whitespace-nowrap align-top font-mono"><b>{{ $triggerDecoderService->formatAddress($addr, $addressWidth) }}</b></td>
                                     <td class="text-xs"><code>{{ $note }}<code></td>
                                 </tr>
                             @endforeach
