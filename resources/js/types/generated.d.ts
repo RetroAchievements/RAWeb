@@ -341,6 +341,7 @@ revoked: boolean;
 createdAt: string;
 updatedAt: string;
 confidential: boolean;
+owner?: App.Data.User | null;
 };
 export type OAuthRequest = {
 clientId: string;
