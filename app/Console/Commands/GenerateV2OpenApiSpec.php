@@ -11,8 +11,7 @@ use LaravelJsonApi\OpenApiSpec\OpenApiGenerator;
 class GenerateV2OpenApiSpec extends Command
 {
     protected $signature = 'ra:api:generate-openapi-spec
-        {--check : Report whether the committed spec is out of date, and change nothing}
-        {--output= : Write to this path instead of the committed location}';
+        {--check : Report whether the committed spec is out of date, and change nothing}';
 
     protected $description = 'Generate the OpenAPI spec for the V2 API';
 
@@ -26,7 +25,7 @@ class GenerateV2OpenApiSpec extends Command
             return self::FAILURE;
         }
 
-        $destination = $this->destination();
+        $destination = public_path(self::PATH);
 
         if ($this->option('check')) {
             return $this->reportDrift($destination, $spec);
@@ -35,18 +34,9 @@ class GenerateV2OpenApiSpec extends Command
         File::ensureDirectoryExists(dirname($destination));
         File::put($destination, $spec);
 
-        $this->info('Wrote ' . $destination);
+        $this->info('Wrote ' . $this->relativeLabel($destination));
 
         return self::SUCCESS;
-    }
-
-    private function destination(): string
-    {
-        $output = $this->option('output');
-
-        return is_string($output) && $output !== ''
-            ? $output
-            : public_path(self::PATH);
     }
 
     /**
@@ -98,7 +88,9 @@ class GenerateV2OpenApiSpec extends Command
             return self::FAILURE;
         }
 
-        if (File::get($destination) === $spec) {
+        $committed = File::get($destination);
+
+        if ($committed === $spec) {
             $this->info($label . ' is up to date.');
 
             return self::SUCCESS;
@@ -107,7 +99,7 @@ class GenerateV2OpenApiSpec extends Command
         $this->error($label . ' is out of date. Run: php artisan ra:api:generate-openapi-spec');
         $this->newLine();
 
-        foreach ($this->describeDrift($destination, $spec) as $line) {
+        foreach ($this->describeDrift($committed, $spec) as $line) {
             $this->line('  ' . $line);
         }
 
@@ -117,11 +109,11 @@ class GenerateV2OpenApiSpec extends Command
     /**
      * @return string[]
      */
-    private function describeDrift(string $destination, string $spec): array
+    private function describeDrift(string $committed, string $spec): array
     {
-        $committed = $this->pathsOf(File::get($destination));
+        $committedPaths = $this->pathsOf($committed);
 
-        if ($committed === null) {
+        if ($committedPaths === null) {
             return ['The committed file is not valid JSON, so it cannot be compared path by path.'];
         }
 
@@ -129,11 +121,11 @@ class GenerateV2OpenApiSpec extends Command
 
         $lines = [];
 
-        foreach (array_diff($current, $committed) as $path) {
+        foreach (array_diff($current, $committedPaths) as $path) {
             $lines[] = "added:   {$path}";
         }
 
-        foreach (array_diff($committed, $current) as $path) {
+        foreach (array_diff($committedPaths, $current) as $path) {
             $lines[] = "removed: {$path}";
         }
 
