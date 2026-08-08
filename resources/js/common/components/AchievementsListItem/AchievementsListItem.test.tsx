@@ -1,5 +1,10 @@
 import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
-import { createAchievement, createGame, createUser, createActiveEventAchievement } from '@/test/factories';
+import {
+  createAchievement,
+  createActiveEventAchievement,
+  createGame,
+  createUser,
+} from '@/test/factories';
 
 import { AchievementsListItem } from './AchievementsListItem';
 
@@ -158,7 +163,6 @@ describe('Component: AchievementsListItem', () => {
   it('given an achievement is in an active event, displays an event indicator', async () => {
     // ARRANGE
     const achievement = createAchievement();
-    const activeEventAchievements = [createActiveEventAchievement({achievementId: achievement.id})];
 
     render(
       <AchievementsListItem
@@ -166,14 +170,33 @@ describe('Component: AchievementsListItem', () => {
         index={0}
         isLargeList={false}
         playersTotal={100}
-        activeEventAchievements={activeEventAchievements}
+        activeEventAchievements={[createActiveEventAchievement({ achievementId: achievement.id })]}
       />,
     );
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getAllByTestId('type-active_event').some((el) => el.toBeVisible));
+      expect(screen.getAllByTestId('type-active_event').length).toBeGreaterThan(0);
     });
+  });
+
+  it('given no active event matches the achievement, does not display an event indicator', async () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 7 });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+        activeEventAchievements={[createActiveEventAchievement({ achievementId: 8 })]}
+      />,
+    );
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(100); // let any animations finish up
+    expect(screen.queryByTestId('type-active_event')).not.toBeInTheDocument();
   });
 
   it('given an achievement has a type, displays a type indicator', async () => {

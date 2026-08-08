@@ -45,7 +45,6 @@ use App\Platform\Enums\GameScreenshotStatus;
 use App\Platform\Services\GameLeaderboardService;
 use App\Platform\Services\GameOpenTicketCountService;
 use App\Platform\Services\ScreenshotResolutionService;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
@@ -683,6 +682,7 @@ class BuildGameShowPagePropsAction
     private function buildActiveEventAchievements(Game $game, ?User $user): array
     {
         $activeEventAchievements = EventAchievement::active()
+            ->whereNotNull('active_until')
             ->with('event.legacyGame')
             ->whereIn('source_achievement_id', $game->achievements->pluck('id'))
             ->orderBy('source_achievement_id')
@@ -699,47 +699,16 @@ class BuildGameShowPagePropsAction
                 ->whereIn('achievement_id', $activeEventAchievements->pluck('achievement_id'))
                 ->whereNotNull('unlocked_hardcore_at')
                 ->pluck('achievement_id')
-                ->toArray();
+                ->flip();
         } else {
-            $unlocks = [];
+            $unlocks = collect();
         }
 
-        $buildSummary = function (EventAchievement $eventAchievement): string {
-            if (!$eventAchievement->active_until) {
-                return "{$eventAchievement->event->legacyGame->title} (Evergreen)";
-            }
-
-            $remainingTime = $eventAchievement->active_until->diffForHumans(Carbon::now(), Carbon::DIFF_ABSOLUTE);
-
-            return "{$eventAchievement->event->legacyGame->title} ($remainingTime remaining)";
-        };
-
-        $result = [];
-        $activeEventAchievement = null;
-        foreach ($activeEventAchievements as $eventAchievement) {
-            if ($activeEventAchievement?->achievementId === $eventAchievement->source_achievement_id) {
-                // TODO: change event link to achievements/id/events
-                $activeEventAchievement->summary .= "\n" . $buildSummary($eventAchievement);
-
-                if (!in_array($eventAchievement->achievement_id, $unlocks)) {
-                    $activeEventAchievement->userUnlocked = false;
-                }
-                continue;
-            }
-
-            $activeEventAchievement = new ActiveEventAchievementData(
-                $eventAchievement->source_achievement_id,
-                route('event.show', $eventAchievement->event),
-                $buildSummary($eventAchievement),
-            );
-
-            if (in_array($eventAchievement->achievement_id, $unlocks)) {
-                $activeEventAchievement->userUnlocked = true;
-            }
-
-            $result[] = $activeEventAchievement;
-        }
-
-        return $result;
+        return $activeEventAchievements->map(
+            fn (EventAchievement $eventAchievement) => ActiveEventAchievementData::fromEventAchievement(
+                $eventAchievement,
+                $unlocks->has($eventAchievement->achievement_id),
+            )
+        )->all();
     }
 }

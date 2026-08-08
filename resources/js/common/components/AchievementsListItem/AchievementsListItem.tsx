@@ -61,7 +61,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   playersTotal,
   shouldShowAuthor = false,
   shouldShowWeightedPoints = true,
-  activeEventAchievements = null,
+  activeEventAchievements = [],
 }) => {
   const { t } = useTranslation();
 
@@ -72,7 +72,18 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
 
-  const activeEventAchievement = activeEventAchievements?.find(a => a.achievementId === achievement.id);
+  const achievementActiveEvents = activeEventAchievements.filter(
+    (activeEventAchievement) => activeEventAchievement.achievementId === achievement.id,
+  );
+
+  const metaChips =
+    type || achievementActiveEvents.length ? (
+      <>
+        <ActiveEventsIndicator activeEvents={achievementActiveEvents} />
+
+        {type ? <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} /> : null}
+      </>
+    ) : null;
 
   return (
     <motion.li
@@ -132,17 +143,9 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             </div>
 
             {/* Meta chips (Mobile) */}
-            {activeEventAchievement ? (
-              <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
-                <ActiveEventsIndicator activeEvents={activeEventAchievement} />
-              </div>
-            ) : null}
-
-            {type ? (
-              <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
-                <div className="-mt-1.5">
-                  <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} />
-                </div>
+            {metaChips ? (
+              <div className="-mt-1.5 md:hidden">
+                <div className="-mt-1.5 flex items-center gap-x-1">{metaChips}</div>
               </div>
             ) : null}
           </div>
@@ -184,16 +187,8 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         {playersTotal !== null ? (
           <div className="mt-1 md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
             {/* Meta chips (Desktop) */}
-            {activeEventAchievement ? (
-              <div className="hidden items-center justify-end gap-x-1 md:flex">
-                <ActiveEventsIndicator activeEvents={activeEventAchievement} />
-              </div>
-            ) : null}
-
-            {type ? (
-              <div className="hidden items-center justify-end gap-x-1 md:flex">
-                <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} />
-              </div>
+            {metaChips ? (
+              <div className="hidden items-center justify-end gap-x-1 md:flex">{metaChips}</div>
             ) : null}
 
             <p className="-mt-1.5 hidden text-center text-2xs md:block">

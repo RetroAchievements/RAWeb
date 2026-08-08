@@ -1,44 +1,89 @@
-import type { FC, ReactNode } from 'react';
+import dayjs from 'dayjs';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCalendar, LuCalendarCheck } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
+import { useServerRenderTime } from '@/common/hooks/useServerRenderTime';
 import { cn } from '@/common/utils/cn';
-import type { TranslatedString } from '@/types/i18next';
 
-import { BaseDialog, BaseDialogTrigger } from '../+vendor/BaseDialog';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
-import { RaEvent } from '../RaEvent';
+import { InertiaLink } from '../InertiaLink';
 
 interface ActiveEventsIndicatorProps {
-  activeEvents: NonNullable<App.Platform.Data.ActiveEventAchievement>;
+  activeEvents: App.Platform.Data.ActiveEventAchievement[];
 }
 
-export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({
-  activeEvents,
-}) => {
-  const link = activeEvents.link;
-  const label = activeEvents.summary.replace('\n', '<br/>');
-  const stroke = activeEvents.userUnlocked ? 'yellow' : 'currentColor';
+export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({ activeEvents }) => {
+  const { t } = useTranslation();
+  const { renderedAt } = useServerRenderTime();
+
+  if (!activeEvents.length) {
+    return null;
+  }
+
+  const hasUnlockedAll = activeEvents.every((activeEvent) => activeEvent.userUnlocked);
+  const Icon = hasUnlockedAll ? LuCalendarCheck : LuCalendar;
+
+  const href =
+    activeEvents.length === 1
+      ? route('event.show', activeEvents[0].eventId)
+      : route('achievement.show', activeEvents[0].achievementId);
+
+  const buildTimeLeftLabel = (activeUntil: string): string => {
+    const endsAt = dayjs(activeUntil);
+    const now = dayjs(renderedAt);
+
+    const hoursLeft = endsAt.diff(now, 'hour');
+    if (hoursLeft < 1) {
+      return t('Last day');
+    }
+    if (hoursLeft < 24) {
+      return t('eventHoursLeft', { val: hoursLeft, count: hoursLeft });
+    }
+
+    const daysLeft = endsAt.diff(now, 'day');
+    if (daysLeft < 60) {
+      return t('eventDaysLeft', { val: daysLeft, count: daysLeft });
+    }
+
+    const monthsLeft = endsAt.diff(now, 'month');
+
+    return t('eventMonthsLeft', { val: monthsLeft, count: monthsLeft });
+  };
 
   return (
     <BaseTooltip>
       <BaseTooltipTrigger asChild>
-        <a href={link}>
+        <InertiaLink href={href}>
           <div
-            data-testid='type-active_event'
+            data-testid="type-active_event"
             className={cn(
               'type-ind group',
               'cursor-pointer',
-              'flex items-center gap-1',
+              'justify-center',
+              'size-7',
+
+              hasUnlockedAll ? 'border-amber-400 text-amber-400' : 'border-transparent',
             )}
-            >
-            <div aria-label='active_event'>
-              <RaEvent className="size-4.5" stroke={stroke} />
-            </div>
+          >
+            <Icon className="size-4.5" />
           </div>
-        </a>
+        </InertiaLink>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent>{label}</BaseTooltipContent>
+      <BaseTooltipContent>
+        <ul className="flex flex-col gap-2">
+          {activeEvents.map((activeEvent) => (
+            <li className="flex flex-col" key={`active-event-${activeEvent.eventId}`}>
+              <span>{activeEvent.eventTitle}</span>
+              <span className="text-neutral-400" suppressHydrationWarning={true}>
+                {buildTimeLeftLabel(activeEvent.activeUntil)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </BaseTooltipContent>
     </BaseTooltip>
   );
 };
