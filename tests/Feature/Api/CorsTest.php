@@ -2,25 +2,22 @@
 
 declare(strict_types=1);
 
-use Illuminate\Testing\TestResponse;
-
 /**
  * Preflight requests carry no credentials and are matched on path alone, before
  * routing. If a path the API answers is missing from the CORS path list, the
  * preflight falls through to the router and the browser blocks the real request.
  */
-function preflight(string $uri, string $method = 'GET'): TestResponse
-{
-    return test()->call('OPTIONS', $uri, [], [], [], [
+$preflightHeaders = function (string $method): array {
+    return [
         'HTTP_ORIGIN' => 'https://example.com',
         'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => $method,
         'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'authorization',
-    ]);
-}
+    ];
+};
 
-it('given a preflight for an API path, it answers with permissive CORS headers', function (string $uri, string $method) {
+it('given a preflight for an API path, it answers with permissive CORS headers', function (string $uri, string $method) use ($preflightHeaders) {
     // Act
-    $response = preflight($uri, $method);
+    $response = $this->call('OPTIONS', $uri, [], [], [], $preflightHeaders($method));
 
     // Assert
     $response->assertNoContent();
@@ -33,9 +30,9 @@ it('given a preflight for an API path, it answers with permissive CORS headers',
     'OAuth token' => ['/oauth/token', 'POST'],
 ]);
 
-it('given a preflight for a non-API path, it does not answer with CORS headers', function () {
+it('given a preflight for a non-API path, it does not answer with CORS headers', function () use ($preflightHeaders) {
     // Act
-    $response = preflight('/user/Scott');
+    $response = $this->call('OPTIONS', '/user/Scott', [], [], [], $preflightHeaders('GET'));
 
     // Assert
     $response->assertHeaderMissing('Access-Control-Allow-Origin');
