@@ -782,7 +782,7 @@
     "Expired": "Expired",
     "Upcoming": "Upcoming",
     "Evergreen": "Evergreen",
-    "Last day": "Last day",
+    "Less than an hour left": "Less than an hour left",
     "eventHoursLeft_one": "{{val, number}} hour left",
     "eventHoursLeft_other": "{{val, number}} hours left",
     "eventDaysLeft_one": "{{val, number}} day left",

@@ -36,7 +36,7 @@ export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({ activeEv
 
     const hoursLeft = endsAt.diff(now, 'hour');
     if (hoursLeft < 1) {
-      return t('Last day');
+      return t('Less than an hour left');
     }
     if (hoursLeft < 24) {
       return t('eventHoursLeft', { val: hoursLeft, count: hoursLeft });

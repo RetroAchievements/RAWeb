@@ -93,7 +93,7 @@ describe('Component: ActiveEventsIndicator', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('5 hours left');
   });
 
-  it('given the event ends within the hour, says it is the last day', async () => {
+  it('given the event ends within the hour, says it is the last hour', async () => {
     // ARRANGE
     vi.setSystemTime(dayjs.utc('2023-10-25T00:00:00Z').toDate());
 
@@ -111,7 +111,7 @@ describe('Component: ActiveEventsIndicator', () => {
     await userEvent.hover(screen.getByTestId('type-active_event'));
 
     // ASSERT
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('Last day');
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Less than an hour left');
   });
 
   it('given the event ends more than two months out, counts down in months', async () => {
