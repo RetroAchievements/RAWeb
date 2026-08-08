@@ -13,6 +13,7 @@ use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\FlushUserApiCallCounts;
 use App\Console\Commands\GenerateTypeScript;
+use App\Console\Commands\GenerateV2OpenApiSpec;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\ProcessFallbackBanner;
 use App\Console\Commands\SquashMigrations;
@@ -85,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
                 FlushUserApiCallCounts::class,
                 FlushUserActivityToDatabase::class,
                 GenerateTypeScript::class,
+                GenerateV2OpenApiSpec::class,
                 LogUsersOnlineCount::class,
                 ProcessFallbackBanner::class,
                 SquashMigrations::class,
