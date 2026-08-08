@@ -16,7 +16,7 @@ class ActiveEventAchievementData extends Data
         public int $achievementId,
         public int $eventId,
         public string $eventTitle,
-        public Carbon $activeUntil,
+        public ?Carbon $activeUntil,
         public bool $userUnlocked,
     ) {
     }

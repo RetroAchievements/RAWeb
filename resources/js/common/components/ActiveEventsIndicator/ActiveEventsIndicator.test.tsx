@@ -114,6 +114,28 @@ describe('Component: ActiveEventsIndicator', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Less than an hour left');
   });
 
+  it('given the event has no end date, labels it as evergreen', async () => {
+    // ARRANGE
+    render(
+      <ActiveEventsIndicator
+        activeEvents={[
+          createActiveEventAchievement({
+            eventTitle: 'Challenge League',
+            activeUntil: null,
+          }),
+        ]}
+      />,
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByTestId('type-active_event'));
+
+    // ASSERT
+    const tooltipEl = await screen.findByRole('tooltip');
+    expect(tooltipEl).toHaveTextContent('Challenge League');
+    expect(tooltipEl).toHaveTextContent('Evergreen');
+  });
+
   it('given the event ends more than two months out, counts down in months', async () => {
     // ARRANGE
     vi.setSystemTime(dayjs.utc('2023-10-25').toDate());

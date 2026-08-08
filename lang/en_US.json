@@ -156,6 +156,8 @@
     "Hash compatibility questions.": "Hash compatibility questions.",
     "Hide": "Hide",
     "Hide missable achievement indicators": "Hide missable achievement indicators",
+    "Show evergreen event achievement indicators": "Show evergreen event achievement indicators",
+    "Achievements in time-limited events are always marked on game pages. Turn this on to also mark achievements in evergreen events, which never expire.": "Achievements in time-limited events are always marked on game pages. Turn this on to also mark achievements in evergreen events, which never expire.",
     "I have an issue with this achievement that is not described above.": "I have an issue with this achievement that is not described above.",
     "I met the requirements, but the achievement did not trigger.": "I met the requirements, but the achievement did not trigger.",
     "It did trigger on a later attempt.": "It did trigger on a later attempt.",

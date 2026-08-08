@@ -30,7 +30,11 @@ export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({ activeEv
       ? route('event.show', activeEvents[0].eventId)
       : route('achievement.show', activeEvents[0].achievementId);
 
-  const buildTimeLeftLabel = (activeUntil: string): string => {
+  const buildTimeLeftLabel = (activeUntil: string | null): string => {
+    if (!activeUntil) {
+      return t('Evergreen');
+    }
+
     const endsAt = dayjs(activeUntil);
     const now = dayjs(renderedAt);
 

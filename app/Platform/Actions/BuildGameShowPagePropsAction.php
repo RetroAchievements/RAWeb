@@ -681,10 +681,12 @@ class BuildGameShowPagePropsAction
 
     private function buildActiveEventAchievements(Game $game, ?User $user): array
     {
+        $shouldShowEvergreen = $user?->prefers_evergreen_event_indicators ?? false;
+
         $activeEventAchievements = EventAchievement::active()
-            ->whereNotNull('active_until')
             ->with('event.legacyGame')
             ->whereIn('source_achievement_id', $game->achievements->pluck('id'))
+            ->when(!$shouldShowEvergreen, fn ($query) => $query->whereNotNull('active_until'))
             ->orderBy('source_achievement_id')
             ->orderBy('active_until')
             ->get();

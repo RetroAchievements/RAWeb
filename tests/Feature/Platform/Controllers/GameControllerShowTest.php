@@ -18,6 +18,7 @@ use App\Models\AchievementSetAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -25,6 +26,7 @@ use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
@@ -42,6 +44,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Services\EventHubIdCacheService;
+use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -3642,6 +3645,121 @@ describe('Screenshot Upload Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->has('screenshotUploadUserSubmissions', 2)
+        );
+    });
+});
+
+function createActiveEventForSourceAchievement(
+    Achievement $sourceAchievement,
+    ?Carbon $activeUntil,
+): EventAchievement {
+    $eventsSystem = System::find(System::Events) ?? System::factory()->create(['id' => System::Events]);
+
+    $eventGame = Game::factory()->create(['system_id' => $eventsSystem->id]);
+    Event::factory()->create(['legacy_game_id' => $eventGame->id]);
+
+    $mirrorAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $eventGame->id,
+        'user_id' => User::factory()->create()->id,
+    ]);
+
+    return EventAchievement::create([
+        'achievement_id' => $mirrorAchievement->id,
+        'source_achievement_id' => $sourceAchievement->id,
+        'active_from' => now()->subDay(),
+        'active_until' => $activeUntil,
+    ]);
+}
+
+describe('Active Event Achievements', function () {
+    it('given an achievement is in an active time-limited event, exposes the event to everyone', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek());
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+            ->where('activeEventAchievements.0.userUnlocked', false)
+        );
+    });
+
+    it('given an evergreen event, hides it from guests and users without the preference', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, null);
+
+        $userWithoutPreference = User::factory()->create();
+
+        // ACT
+        $guestResponse = get(route('game.show', ['game' => $game]));
+        $withoutPreferenceResponse = actingAs($userWithoutPreference)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $guestResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
+        );
+        $withoutPreferenceResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
+        );
+    });
+
+    it('given an evergreen event, exposes it to users who opt in via their preferences', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, null);
+
+        $userWithPreference = User::factory()->create([
+            'preferences_bitfield' => 1 << UserPreference::Game_ShowEvergreenEventIndicators,
+        ]);
+
+        // ACT
+        $response = actingAs($userWithPreference)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+            ->missing('activeEventAchievements.0.activeUntil')
+        );
+    });
+
+    it('given the user has a hardcore unlock on the event achievement, flags it as unlocked', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        $eventAchievement = createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek());
+
+        $user = User::factory()->create();
+        PlayerAchievement::create([
+            'user_id' => $user->id,
+            'achievement_id' => $eventAchievement->achievement_id,
+            'unlocked_at' => now()->subHour(),
+            'unlocked_hardcore_at' => now()->subHour(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.userUnlocked', true)
         );
     });
 });
