@@ -1,5 +1,5 @@
 import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
-import { createAchievement, createGame, createUser } from '@/test/factories';
+import { createAchievement, createGame, createUser, createActiveEventAchievement } from '@/test/factories';
 
 import { AchievementsListItem } from './AchievementsListItem';
 
@@ -153,6 +153,27 @@ describe('Component: AchievementsListItem', () => {
     // ASSERT
     await __UNSAFE_VERY_DANGEROUS_SLEEP(100); // let any animations finish up
     expect(screen.queryByText(/100/i)).not.toBeInTheDocument();
+  });
+
+  it('given an achievement is in an active event, displays an event indicator', async () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    const activeEventAchievements = [createActiveEventAchievement({achievementId: achievement.id})];
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+        activeEventAchievements={activeEventAchievements}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByTestId('type-active_event').some((el) => el.toBeVisible));
+    });
   });
 
   it('given an achievement has a type, displays a type indicator', async () => {

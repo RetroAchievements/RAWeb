@@ -96,6 +96,9 @@ class GameShowPagePropsData extends Data
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.UserGameAchievementSetPreference>')]
         public Collection $userGameAchievementSetPreferences,
 
+        /** @var ActiveEventAchievementData[] */
+        public Lazy|array $activeEventAchievements = [],
+
         /** @var array<string, ScreenshotUploadTypeStatusData> */
         public Lazy|array $screenshotUploadStatuses = [],
 
