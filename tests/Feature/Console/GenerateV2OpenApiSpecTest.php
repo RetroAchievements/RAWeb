@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 beforeEach(function () {
     $this->publicPath = sys_get_temp_dir() . '/' . uniqid('openapi-public-', true);
-    $this->app->usePublicPath($this->publicPath);
+    app()->usePublicPath($this->publicPath);
     $this->specPath = $this->publicPath . '/' . GenerateV2OpenApiSpec::PATH;
 
     File::ensureDirectoryExists(dirname($this->specPath));
