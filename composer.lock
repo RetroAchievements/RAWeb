@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e49a70566df89fa3c37133ac7989f4fb",
+    "content-hash": "e827215c0ff635ed41c7828d63a7bda1",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -16907,6 +16907,66 @@
             "time": "2025-08-08T12:00:00+00:00"
         },
         {
+            "name": "goldspecdigital/oooas",
+            "version": "v2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goldspecdigital/oooas.git",
+                "reference": "072f8d9f6e75f68df28b148103b38fdf843467b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goldspecdigital/oooas/zipball/072f8d9f6e75f68df28b148103b38fdf843467b2",
+                "reference": "072f8d9f6e75f68df28b148103b38fdf843467b2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3",
+                "justinrainbow/json-schema": "^5.2",
+                "phpunit/phpunit": ">=7.3"
+            },
+            "suggest": {
+                "justinrainbow/json-schema": "Required to perform validation (^5.2)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GoldSpecDigital\\ObjectOrientedOAS\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matthew Inamdar",
+                    "email": "matt@goldspecdigital.com"
+                },
+                {
+                    "name": "Vladimir Yuldashev",
+                    "email": "vladimir.yuldashev@gmail.com"
+                }
+            ],
+            "description": "An object oriented approach to generating OpenAPI specs, implemented in PHP.",
+            "homepage": "https://github.com/goldspecdigital/oooas",
+            "keywords": [
+                "oas",
+                "openapi",
+                "php",
+                "swagger"
+            ],
+            "support": {
+                "issues": "https://github.com/goldspecdigital/oooas/issues",
+                "source": "https://github.com/goldspecdigital/oooas/tree/v2.10.0"
+            },
+            "time": "2022-07-20T09:57:04+00:00"
+        },
+        {
             "name": "hamcrest/hamcrest-php",
             "version": "v2.1.1",
             "source": {
@@ -16997,6 +17057,71 @@
                 "source": "https://github.com/iamcal/SQLParser/tree/v0.7"
             },
             "time": "2026-01-28T22:20:33+00:00"
+        },
+        {
+            "name": "justinrainbow/json-schema",
+            "version": "5.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jsonrainbow/json-schema.git",
+                "reference": "7df70ffaf31d98726801b4bc099e1fbdbe2e5e54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/7df70ffaf31d98726801b4bc099e1fbdbe2e5e54",
+                "reference": "7df70ffaf31d98726801b4bc099e1fbdbe2e5e54",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~2.2.20||~2.15.1",
+                "json-schema/json-schema-test-suite": "1.2.0",
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "bin": [
+                "bin/validate-json"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JsonSchema\\": "src/JsonSchema/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bruno Prieto Reis",
+                    "email": "bruno.p.reis@gmail.com"
+                },
+                {
+                    "name": "Justin Rainbow",
+                    "email": "justin.rainbow@gmail.com"
+                },
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                },
+                {
+                    "name": "Robert Schönthal",
+                    "email": "seroscho@googlemail.com"
+                }
+            ],
+            "description": "A library to validate a json schema.",
+            "homepage": "https://github.com/justinrainbow/json-schema",
+            "keywords": [
+                "json",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/jsonrainbow/json-schema/issues",
+                "source": "https://github.com/jsonrainbow/json-schema/tree/5.3.4"
+            },
+            "time": "2026-05-04T18:54:58+00:00"
         },
         {
             "name": "larastan/larastan",
@@ -19115,6 +19240,113 @@
                 }
             ],
             "time": "2025-11-12T18:00:11+00:00"
+        },
+        {
+            "name": "retroachievements/openapi-spec-generator",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RetroAchievements/openapi-spec-generator.git",
+                "reference": "3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd",
+                "reference": "3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd",
+                "shasum": ""
+            },
+            "require": {
+                "goldspecdigital/oooas": "^2.8",
+                "justinrainbow/json-schema": "^5.2",
+                "php": "^8.1",
+                "symfony/yaml": "^8.0"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "laravel-json-api/hashids": "^3.2",
+                "laravel-json-api/laravel": "^2.0|^3.0|^4.0|^5.0",
+                "laravel-json-api/non-eloquent": "^2.0|^3.0|^v4.0",
+                "laravel/pint": "^1.20",
+                "nesbot/carbon": "^2.63|^3.0",
+                "orchestra/testbench": "^11.1",
+                "phpunit/phpunit": "^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelJsonApi\\OpenApiSpec\\OpenApiServiceProvider"
+                    ],
+                    "aliases": {
+                        "OpenApiGenerator": "LaravelJsonApi\\OpenApiSpec\\Facades\\GeneratorFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelJsonApi\\OpenApiSpec\\": "src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "LaravelJsonApi\\OpenApiSpec\\Tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "test-coverage": [
+                    "phpunit --coverage-html coverage"
+                ],
+                "check-style": [
+                    "pint --test"
+                ],
+                "fix-style": [
+                    "pint"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Glenn Jacobs",
+                    "homepage": "https://github.com/glennjacobs",
+                    "role": "Original author"
+                },
+                {
+                    "name": "Johannes Kees",
+                    "homepage": "https://github.com/byte-it",
+                    "email": "johannes@lets-byte.it"
+                },
+                {
+                    "name": "Björn Brala",
+                    "email": "bjorn@swis.nl",
+                    "homepage": "https://github.com/bbrala"
+                },
+                {
+                    "name": "Rien van Velzen",
+                    "email": "rvanvelzen@swis.nl",
+                    "homepage": "https://github.com/Rockheep",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Creates Open API spec for a Laravel JSON:API",
+            "homepage": "https://github.com/RetroAchievements/openapi-spec-generator",
+            "keywords": [
+                "generator",
+                "json-api",
+                "laravel",
+                "openapi",
+                "openapi-spec",
+                "openapi-spec-generator",
+                "swisnl"
+            ],
+            "support": {
+                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.2.0"
+            },
+            "time": "2026-08-08T12:19:19+00:00"
         },
         {
             "name": "sebastian/cli-parser",
