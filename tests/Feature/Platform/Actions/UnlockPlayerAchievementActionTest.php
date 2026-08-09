@@ -238,19 +238,69 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $this->assertEquals($subsetAchievement->points, $subsetPlayerGame->points_hardcore);
     }
 
-    public function testUnlockRecordsTheAchievementsCurrentTriggerId(): void
+    public function testUnlockRecordsTheTriggerThatWasLiveWhenTheSessionStarted(): void
     {
         $user = User::factory()->create();
         $game = $this->seedGame(achievements: 1);
         $achievement = $game->achievements->first();
+
+        $liveWhenTheyStarted = $this->createTriggerFor($achievement, version: 1);
+        $liveWhenTheyStarted->forceFill(['created_at' => '2026-01-01 09:00:00'])->saveQuietly();
+
+        Carbon::setTestNow('2026-01-01 10:00:00');
+
+        // The developer revises the logic after this player already loaded the game. The client
+        // is still running version 1, so recording the current pointer would hide the change.
+        $publishedMidSession = $this->createTriggerFor($achievement, version: 2, parentId: $liveWhenTheyStarted->id);
+        $publishedMidSession->forceFill(['created_at' => '2026-01-01 11:00:00'])->saveQuietly();
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement->refresh(), true);
+
+        $unlock = PlayerAchievement::where('user_id', $user->id)
+            ->where('achievement_id', $achievement->id)
+            ->first();
+        $this->assertNotNull($unlock);
+        $this->assertEquals($liveWhenTheyStarted->id, $unlock->trigger_id);
+        $this->assertNotEquals($achievement->fresh()->trigger_id, $unlock->trigger_id);
+    }
+
+    public function testUnlockRecordsTheCurrentTriggerWhenNoRevisionHappened(): void
+    {
+        $user = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        $achievement = $game->achievements->first();
+
         $trigger = $this->createTriggerFor($achievement, version: 3);
+        $trigger->forceFill(['created_at' => '2026-01-01 09:00:00'])->saveQuietly();
+
+        Carbon::setTestNow('2026-01-01 10:00:00');
 
         (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
 
         $unlock = PlayerAchievement::where('user_id', $user->id)
             ->where('achievement_id', $achievement->id)
             ->first();
-        $this->assertNotNull($unlock);
         $this->assertEquals($trigger->id, $unlock->trigger_id);
+    }
+
+    public function testManualUnlockRecordsNoTriggerBecauseNoClientEvaluatedOne(): void
+    {
+        $user = User::factory()->create();
+        $unlocker = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        $achievement = $game->achievements->first();
+
+        $trigger = $this->createTriggerFor($achievement, version: 1);
+        $trigger->forceFill(['created_at' => '2026-01-01 09:00:00'])->saveQuietly();
+
+        Carbon::setTestNow('2026-01-01 10:00:00');
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true, unlockedBy: $unlocker);
+
+        $unlock = PlayerAchievement::where('user_id', $user->id)
+            ->where('achievement_id', $achievement->id)
+            ->first();
+        $this->assertNull($unlock->trigger_id);
+        $this->assertEquals(0, $user->playerSessions()->count());
     }
 }
