@@ -164,10 +164,6 @@ class BuildTicketCreationDataAction
      * An emulator fetches achievement logic once, when the game loads. A player can then play for
      * hours, or file a ticket days later, describing behavior the developer has already patched.
      *
-     * Prefer the trigger the unlock was earned against, which is exact. Fall back to comparing the
-     * current trigger's creation time against the last time we can show the player had the game
-     * open.
-     *
      * @param int[] $sessionGameIds
      */
     private function getDidLogicChangeSinceLastPlayed(
@@ -183,8 +179,8 @@ class BuildTicketCreationDataAction
             return false;
         }
 
-        if ($playerAchievement?->trigger_id) {
-            return $playerAchievement->trigger_id !== $currentTrigger->id;
+        if ($playerAchievement?->trigger_id && $playerAchievement->trigger_id !== $currentTrigger->id) {
+            return true;
         }
 
         // The cutoff guards the timestamp comparison only. Two different trigger IDs prove a real
