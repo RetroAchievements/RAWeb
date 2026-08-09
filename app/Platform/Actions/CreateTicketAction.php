@@ -53,6 +53,7 @@ class CreateTicketAction
 
         $ticket->game_hash_id = $data->gameHash->id;
         $ticket->emulator_core = $data->core ?: null;
+        $ticket->trigger_id = $achievement->trigger_id;
 
         if ($emulator) {
             $ticket->emulator_id = $emulator->id;

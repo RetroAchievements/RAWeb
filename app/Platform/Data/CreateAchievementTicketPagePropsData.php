@@ -24,6 +24,7 @@ class CreateAchievementTicketPagePropsData extends Data
         public ?string $emulatorVersion = null,
         public ?string $emulatorCore = null,
         public ?int $selectedMode = null,
+        public bool $didLogicChangeSinceLastPlayed = false,
     ) {
     }
 

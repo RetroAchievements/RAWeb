@@ -759,6 +759,50 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByText(/please write your ticket description in english/i)).toBeVisible();
   });
 
+  it('given the logic changed since the user last played, shows a notice and still allows submission', () => {
+    // ARRANGE
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser() },
+          didLogicChangeSinceLastPlayed: true, // !!
+          gameHashes: [createGameHash()],
+          emulators: [createEmulator()],
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText(/this achievement changed since you last played/i)).toBeVisible();
+    expect(screen.getByText(/reload the game and try again/i)).toBeVisible();
+  });
+
+  it('given the logic did not change since the user last played, does not show the notice', () => {
+    // ARRANGE
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser() },
+          didLogicChangeSinceLastPlayed: false, // !!
+          gameHashes: [createGameHash()],
+          emulators: [createEmulator()],
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.queryByText(/this achievement changed since you last played/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/reload the game and try again/i)).not.toBeInTheDocument();
+  });
+
   it('given the user enters some unhelpful text, displays a warning and does not allow the user to submit the form', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });

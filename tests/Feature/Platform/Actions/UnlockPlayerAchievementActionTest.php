@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
+use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerGameAttached;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +25,21 @@ use Tests\TestCase;
 class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function createTriggerFor(Achievement $achievement, int $version, ?int $parentId = null): Trigger
+    {
+        $trigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => $version,
+            'parent_id' => $parentId,
+        ]);
+
+        $achievement->trigger_id = $trigger->id;
+        $achievement->save();
+
+        return $trigger;
+    }
 
     public function testUnlockingFirstAchievementDispatchesPlayerGameAttachedWhenItCreatesPlayerGame(): void
     {
@@ -217,5 +236,21 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
         $this->assertNotNull($subsetPlayerGame);
         $this->assertEquals($subsetAchievement->points, $subsetPlayerGame->points_hardcore);
+    }
+
+    public function testUnlockRecordsTheAchievementsCurrentTriggerId(): void
+    {
+        $user = User::factory()->create();
+        $game = $this->seedGame(achievements: 1);
+        $achievement = $game->achievements->first();
+        $trigger = $this->createTriggerFor($achievement, version: 3);
+
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, true);
+
+        $unlock = PlayerAchievement::where('user_id', $user->id)
+            ->where('achievement_id', $achievement->id)
+            ->first();
+        $this->assertNotNull($unlock);
+        $this->assertEquals($trigger->id, $unlock->trigger_id);
     }
 }

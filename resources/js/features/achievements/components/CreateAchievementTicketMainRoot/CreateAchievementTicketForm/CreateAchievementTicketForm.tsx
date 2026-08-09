@@ -23,6 +23,7 @@ import { useCreateAchievementTicketForm } from './useCreateAchievementTicketForm
 export const CreateAchievementTicketForm: FC = () => {
   const {
     auth,
+    didLogicChangeSinceLastPlayed,
     emulatorCore,
     emulators,
     emulatorVersion,
@@ -55,6 +56,20 @@ export const CreateAchievementTicketForm: FC = () => {
 
   return (
     <BaseForm {...form}>
+      {didLogicChangeSinceLastPlayed ? (
+        <div className="mb-5">
+          <BaseAlert>
+            <BaseAlertTitle className="font-bold">
+              {t('This achievement changed since you last played.')}
+            </BaseAlertTitle>
+
+            <BaseAlertDescription>
+              {t('Reload the game and try again. If it still happens, tell us below.')}
+            </BaseAlertDescription>
+          </BaseAlert>
+        </div>
+      ) : null}
+
       {auth?.user.locale && !auth.user.locale.startsWith('en_') ? (
         <div className="mb-5">
           <BaseAlert variant="destructive">

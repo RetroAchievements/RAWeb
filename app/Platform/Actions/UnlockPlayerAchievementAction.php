@@ -73,10 +73,10 @@ class UnlockPlayerAchievementAction
             }
         }
 
-        $unlock = $user->playerAchievements()->firstOrCreate([
-            'achievement_id' => $achievement->id,
-            // TODO 'trigger_id' => assume trigger_id from most recent version of the achievement trigger
-        ]);
+        $unlock = $user->playerAchievements()->firstOrCreate(
+            ['achievement_id' => $achievement->id],
+            ['trigger_id' => $achievement->trigger_id],
+        );
 
         // determine if the unlock needs to occur
         $alreadyUnlockedInThisMode = false;

@@ -7,16 +7,26 @@ namespace App\Platform\Actions;
 use App\Models\Achievement;
 use App\Models\EmulatorUserAgent;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerSession;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Data\CreateAchievementTicketPagePropsData;
 use App\Platform\Data\EmulatorData;
 use App\Platform\Data\GameHashData;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\UserAgentService;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class BuildTicketCreationDataAction
 {
+    /**
+     * Sessions shorter than this are treated as a load-and-quit rather than real play, so they do
+     * not stand in for what the reporter saw. `player_sessions.duration` is stored in minutes.
+     */
+    private const MINIMUM_QUALIFYING_SESSION_MINUTES = 5;
+
     public function __construct(
         private readonly UserAgentService $userAgentService,
     ) {
@@ -29,8 +39,12 @@ class BuildTicketCreationDataAction
         $this->addSessionRelatedMultisetHashes($props, $achievement, $user);
 
         $sessionGameIds = $achievement->getRelatedGameIds();
-        $sessionData = $this->findRelevantSessionData($achievement, $user, $sessionGameIds);
-        if ($sessionData === null) {
+        $playerAchievement = $user->playerAchievements()
+            ->where('achievement_id', $achievement->id)
+            ->first();
+
+        $playerSession = $this->findRelevantSession($playerAchievement, $user, $sessionGameIds);
+        if ($playerSession === null) {
             // If there's no session data, check if the user has any hardcore sessions.
             $hasHardcoreSession = $user->playerSessions()
                 ->whereIn('game_id', $sessionGameIds)
@@ -41,14 +55,35 @@ class BuildTicketCreationDataAction
                 $props->selectedMode = UnlockMode::Hardcore;
             }
 
+            // An unlock can still name an older trigger even when no session row resolves, and
+            // that comparison is exact, so it must not be skipped along with the session data.
+            $props->didLogicChangeSinceLastPlayed = $this->getDidLogicChangeSinceLastPlayed(
+                $achievement,
+                $user,
+                $sessionGameIds,
+                $playerAchievement,
+                null,
+            );
+
             return $props;
         }
 
-        [$userAgent, $hashId, $playerAchievement] = $sessionData;
-        $props->selectedGameHashId = $hashId;
+        // The unlock's own session, when we found it, is what the reporter earned the achievement
+        // in. Any other session is a later visit and says nothing about how they unlocked it.
+        $isUnlockSession = $playerSession->id === $playerAchievement?->player_session_id;
 
-        if ($userAgent) {
-            $decoded = $this->userAgentService->decode($userAgent);
+        $props->selectedGameHashId = $playerSession->gameHash?->id;
+
+        $props->didLogicChangeSinceLastPlayed = $this->getDidLogicChangeSinceLastPlayed(
+            $achievement,
+            $user,
+            $sessionGameIds,
+            $playerAchievement,
+            $playerSession,
+        );
+
+        if ($playerSession->user_agent) {
+            $decoded = $this->userAgentService->decode($playerSession->user_agent);
             $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
             $props->selectedEmulator = $emulatorUserAgent?->emulator->name ?? $decoded['client'];
             $props->emulatorVersion = $decoded['clientVersion'];
@@ -58,7 +93,7 @@ class BuildTicketCreationDataAction
         $this->addInactiveEmulators($props->emulators, $user, $sessionGameIds);
 
         // Set the unlock mode based on hardcore unlock or session preference.
-        if ($playerAchievement?->unlocked_hardcore_at) {
+        if ($isUnlockSession && $playerAchievement?->unlocked_hardcore_at) {
             $props->selectedMode = UnlockMode::Hardcore;
         } elseif ($user->playerSessions()->whereIn('game_id', $sessionGameIds)->whereHardcore(true)->exists()) {
             $props->selectedMode = UnlockMode::Hardcore;
@@ -75,7 +110,7 @@ class BuildTicketCreationDataAction
     {
         $userAgents = $user->playerSessions()
             ->whereIn('game_id', $sessionGameIds)
-            ->where('duration', '>=', 5)
+            ->where('duration', '>=', self::MINIMUM_QUALIFYING_SESSION_MINUTES)
             ->select('user_agent')
             ->distinct()
             ->pluck('user_agent');
@@ -101,44 +136,101 @@ class BuildTicketCreationDataAction
 
     /**
      * @param int[] $sessionGameIds
-     * @return array{string|null, int|null, PlayerAchievement|null}|null
      */
-    private function findRelevantSessionData(Achievement $achievement, User $user, array $sessionGameIds): ?array
-    {
+    private function findRelevantSession(
+        ?PlayerAchievement $playerAchievement,
+        User $user,
+        array $sessionGameIds,
+    ): ?PlayerSession {
         // First, try to find a session where the user has unlocked this achievement.
-        $playerAchievement = $user->playerAchievements()
-            ->where('achievement_id', $achievement->id)
-            ->first();
-
         if ($playerAchievement) {
             $playerSession = $user->playerSessions()
                 ->firstWhere('player_sessions.id', $playerAchievement->player_session_id);
 
             if ($playerSession) {
-                return [
-                    $playerSession->user_agent,
-                    $playerSession->gameHash?->id,
-                    $playerAchievement,
-                ];
+                return $playerSession;
             }
         }
 
         // If no unlock was found, find the player's most recent session.
-        $playerSession = $user->playerSessions()
+        return $user->playerSessions()
             ->whereIn('game_id', $sessionGameIds)
-            ->where('duration', '>=', 5)
+            ->where('duration', '>=', self::MINIMUM_QUALIFYING_SESSION_MINUTES)
             ->orderByDesc('updated_at')
             ->first();
+    }
 
-        if (!$playerSession) {
-            return null;
+    /**
+     * An emulator fetches achievement logic once, when the game loads. A player can then play for
+     * hours, or file a ticket days later, describing behavior the developer has already patched.
+     *
+     * Prefer the trigger the unlock was earned against, which is exact. Fall back to comparing the
+     * current trigger's creation time against the last time we can show the player had the game
+     * open.
+     *
+     * @param int[] $sessionGameIds
+     */
+    private function getDidLogicChangeSinceLastPlayed(
+        Achievement $achievement,
+        User $user,
+        array $sessionGameIds,
+        ?PlayerAchievement $playerAchievement,
+        ?PlayerSession $anchorSession,
+    ): bool {
+        $achievement->loadMissing('currentTrigger');
+        $currentTrigger = $achievement->currentTrigger;
+        if (!$currentTrigger) {
+            return false;
         }
 
-        return [
-            $playerSession->user_agent,
-            $playerSession->gameHash?->id,
-            null,
-        ];
+        if ($playerAchievement?->trigger_id) {
+            return $playerAchievement->trigger_id !== $currentTrigger->id;
+        }
+
+        // The cutoff guards the timestamp comparison only. Two different trigger IDs prove a real
+        // revision whenever they were written, so the branch above is deliberately not gated.
+        if (!$currentTrigger->created_at || $currentTrigger->created_at->lt(Trigger::VERSIONING_CUTOFF)) {
+            return false;
+        }
+
+        $lastPlayedAt = $this->resolveLastPlayedAt($user, $sessionGameIds, $anchorSession);
+        if (!$lastPlayedAt) {
+            return false;
+        }
+
+        return $currentTrigger->created_at->gt($lastPlayedAt);
+    }
+
+    /**
+     * The most recent moment we can show the player had the game open.
+     *
+     * A reporter who has loaded the game since a revision already has the new logic, so the
+     * newest qualifying session wins over the session that anchors the rest of the form. Without
+     * this, every unlock that predates trigger recording would warn its owner on replay.
+     *
+     * @param int[] $sessionGameIds
+     */
+    private function resolveLastPlayedAt(
+        User $user,
+        array $sessionGameIds,
+        ?PlayerSession $anchorSession,
+    ): ?CarbonInterface {
+        $lastPlayedAt = $anchorSession?->created_at;
+
+        $mostRecentStart = $user->playerSessions()
+            ->whereIn('game_id', $sessionGameIds)
+            ->where('duration', '>=', self::MINIMUM_QUALIFYING_SESSION_MINUTES)
+            ->max('created_at');
+
+        if ($mostRecentStart) {
+            $mostRecentStart = Carbon::parse($mostRecentStart);
+
+            if (!$lastPlayedAt || $mostRecentStart->gt($lastPlayedAt)) {
+                $lastPlayedAt = $mostRecentStart;
+            }
+        }
+
+        return $lastPlayedAt;
     }
 
     /**
@@ -163,7 +255,7 @@ class BuildTicketCreationDataAction
         // Filter to hashes the user has actually used in their own play sessions.
         $userSessionHashIds = $user->playerSessions()
             ->whereIn('game_hash_id', $allPossibleHashes->pluck('id'))
-            ->where('duration', '>=', 5)
+            ->where('duration', '>=', self::MINIMUM_QUALIFYING_SESSION_MINUTES)
             ->distinct()
             ->pluck('game_hash_id');
 
