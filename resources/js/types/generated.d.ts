@@ -286,6 +286,7 @@ id: number;
 body: string;
 createdAt: string;
 updatedAt: string | null;
+editedAt: string | null;
 user: App.Data.User | null;
 isAuthorized: boolean;
 forumTopicId: number | null;

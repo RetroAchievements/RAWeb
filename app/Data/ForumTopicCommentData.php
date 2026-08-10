@@ -18,6 +18,7 @@ class ForumTopicCommentData extends Data
         public string $body,
         public Carbon $createdAt,
         public ?Carbon $updatedAt,
+        public ?Carbon $editedAt,
         public ?UserData $user,
         public bool $isAuthorized, // TODO migrate to $authorizedAt
         public ?int $forumTopicId = null, // TODO remove and use $forumTopic instead
@@ -34,6 +35,7 @@ class ForumTopicCommentData extends Data
             body: $comment->body,
             createdAt: $comment->created_at,
             updatedAt: $comment->updated_at,
+            editedAt: $comment->edited_at,
             user: UserData::from($comment->user),
             isAuthorized: $comment->is_authorized,
             forumTopicId: $comment->forum_topic_id,
