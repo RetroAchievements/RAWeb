@@ -72,7 +72,7 @@ describe('Component: ShortcodeRenderer', () => {
     const textEl = screen.getByText(/this is some stuff/i);
 
     expect(textEl).toBeVisible();
-    expect(textEl.nodeName).toEqual('SPAN');
+    expect(textEl.nodeName).toEqual('DIV');
     expect(textEl).toHaveClass('quotedtext');
   });
 

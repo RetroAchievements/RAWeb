@@ -13,15 +13,16 @@ describe('Component: ShortcodeQuote', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given a simple string child, renders it inside a span with the quotedtext class', () => {
+  it('given a simple string child, renders it inside a div with the quotedtext class', () => {
     // ARRANGE
     render(<ShortcodeQuote>test content</ShortcodeQuote>);
 
     // ASSERT
-    const spanEl = screen.getByText(/test content/i);
+    const quoteEl = screen.getByText(/test content/i);
 
-    expect(spanEl).toBeVisible();
-    expect(spanEl).toHaveClass('quotedtext');
+    expect(quoteEl).toBeVisible();
+    expect(quoteEl).toHaveClass('quotedtext');
+    expect(quoteEl.nodeName).toEqual('DIV');
   });
 
   it('removes leading line breaks in the output', () => {
@@ -34,9 +35,9 @@ describe('Component: ShortcodeQuote', () => {
     );
 
     // ASSERT
-    const spanEl = screen.getByText(/test/i);
-    expect(spanEl).toBeVisible();
-    expect(spanEl.innerHTML).toEqual('test content');
+    const quoteEl = screen.getByText(/test/i);
+    expect(quoteEl).toBeVisible();
+    expect(quoteEl.innerHTML).toEqual('test content');
   });
 
   it('retains inner line breaks in the output', () => {
@@ -50,9 +51,9 @@ describe('Component: ShortcodeQuote', () => {
     );
 
     // ASSERT
-    const spanEl = screen.getByText(/test/i);
-    expect(spanEl).toBeVisible();
-    expect(spanEl.innerHTML).toEqual('test<br>content');
+    const quoteEl = screen.getByText(/test/i);
+    expect(quoteEl).toBeVisible();
+    expect(quoteEl.innerHTML).toEqual('test<br>content');
   });
 
   it('given a top-level quote, does not show a collapse toggle', () => {

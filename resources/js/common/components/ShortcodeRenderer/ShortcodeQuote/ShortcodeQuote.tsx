@@ -38,7 +38,8 @@ export const ShortcodeQuote: FC<ShortcodeQuoteProps> = ({ children }) => {
   );
 
   if (!isNested) {
-    return <span className="quotedtext mb-3">{content}</span>;
+    // div, not span: a nested quote can render block-level content.
+    return <div className="quotedtext mb-3">{content}</div>;
   }
 
   return (
@@ -67,7 +68,7 @@ export const ShortcodeQuote: FC<ShortcodeQuoteProps> = ({ children }) => {
           )}
         >
           <div className="overflow-hidden">
-            <span className="quotedtext mb-3">{content}</span>
+            <div className="quotedtext mb-3">{content}</div>
           </div>
         </div>
       </BaseCollapsibleContent>
