@@ -20,6 +20,9 @@ import { ShowForumTopicMainRoot } from './ShowForumTopicMainRoot';
 // Prevent the autosize textarea from flooding the console with errors.
 window.scrollTo = vi.fn();
 
+// happy-dom doesn't implement scrollIntoView.
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
 describe('Component: ShowForumTopicMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -649,5 +652,97 @@ describe('Component: ShowForumTopicMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+
+  it('given the user clicks quote on a post, fills the reply composer with the quoted content and author name', async () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'CurrentUser' });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      body: 'This is the quoted post.',
+      user: createUser({ displayName: 'OriginalPoster' }),
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: { createForumTopicComments: true }, // !!
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /quote post/i }));
+
+    // ASSERT
+    const textArea = screen.getByRole('textbox') as HTMLTextAreaElement;
+    expect(textArea.value).toContain('This is the quoted post.');
+    expect(textArea.value).toContain('OriginalPoster wrote:');
+  });
+
+  it('given the user already has text in the reply composer, appends the quote rather than replacing it', async () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'CurrentUser' });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      body: 'This is the quoted post.',
+      user: createUser({ displayName: 'OriginalPoster' }),
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: { createForumTopicComments: true }, // !!
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    const textArea = screen.getByRole('textbox') as HTMLTextAreaElement;
+    await userEvent.type(textArea, 'My in-progress reply');
+    await userEvent.click(screen.getByRole('button', { name: /quote post/i }));
+
+    // ASSERT
+    expect(textArea.value).toContain('My in-progress reply');
+    expect(textArea.value).toContain('This is the quoted post.');
+  });
+
+  it('given the user cannot create forum topic comments, does not show the quote button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'CurrentUser' });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'OriginalPoster' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: { createForumTopicComments: false }, // !!
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /quote post/i })).not.toBeInTheDocument();
   });
 });

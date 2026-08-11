@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import type { FC } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuLock } from 'react-icons/lu';
 import { route } from 'ziggy-js';
@@ -32,6 +33,11 @@ export const ShowForumTopicMainRoot: FC = () => {
   const { t } = useTranslation();
 
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
+
+  const [pendingQuote, setPendingQuote] = useState<{ text: string; insertedAt: number } | null>(
+    null,
+  );
+  const handleQuote = (text: string) => setPendingQuote({ text, insertedAt: Date.now() });
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
@@ -78,12 +84,14 @@ export const ShowForumTopicMainRoot: FC = () => {
             key={`comment-${comment.id}`}
             body={comment.body}
             canManage={can.manageForumTopicComments}
+            canQuote={can.createForumTopicComments}
             canUpdate={
               can.manageForumTopicComments ||
               getCanUpdatePost(forumTopic, comment, auth?.user, accessibleTeamAccounts)
             }
             comment={comment}
             isHighlighted={ziggy.query.comment === String(comment.id)}
+            onQuote={handleQuote}
             topic={forumTopic}
           />
         ))}
@@ -121,7 +129,7 @@ export const ShowForumTopicMainRoot: FC = () => {
 
         {can.createForumTopicComments ? (
           <div className="mt-4">
-            <QuickReplyForm onPreview={initiatePreview} />
+            <QuickReplyForm onPreview={initiatePreview} quotedPost={pendingQuote} />
           </div>
         ) : null}
 

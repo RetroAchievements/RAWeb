@@ -13,14 +13,17 @@ import { ForumPostAuthorBox } from './ForumPostAuthorBox';
 import { ForumPostCardMeta } from './ForumPostCardMeta';
 import { ForumPostCopyLinkButton } from './ForumPostCopyLinkButton';
 import { ForumPostManage } from './ForumPostManage';
+import { ForumPostQuoteButton } from './ForumPostQuoteButton';
 
 interface ForumPostCardProps {
   body: string;
 
   canManage?: boolean;
+  canQuote?: boolean;
   canUpdate?: boolean;
   comment?: App.Data.ForumTopicComment;
   isHighlighted?: boolean;
+  onQuote?: (quoteText: string) => void;
   topic?: App.Data.ForumTopic;
 }
 
@@ -29,8 +32,10 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
   comment,
   topic,
   canManage = false,
+  canQuote = false,
   canUpdate = false,
   isHighlighted = false,
+  onQuote,
 }) => {
   const { auth, can } = usePageProps<App.Community.Data.MessageThreadShowPageProps>();
   const { t } = useTranslation();
@@ -95,6 +100,10 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                       <LuFlag className="size-3" />
                       {t('Report')}
                     </InertiaLink>
+                  ) : null}
+
+                  {canQuote && onQuote ? (
+                    <ForumPostQuoteButton comment={comment} topic={topic} onQuote={onQuote} />
                   ) : null}
 
                   <ForumPostCopyLinkButton comment={comment} topic={topic} />

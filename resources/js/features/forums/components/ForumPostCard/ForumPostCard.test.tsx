@@ -168,4 +168,58 @@ describe('Component: ForumPostCard', () => {
     // ASSERT
     expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
   });
+
+  it('given canQuote is true and onQuote is provided, shows the quote button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment();
+    const topic = createForumTopic();
+
+    render(
+      <ForumPostCard
+        body="Test content"
+        comment={comment}
+        topic={topic}
+        canQuote={true}
+        onQuote={vi.fn()}
+      />,
+      { pageProps: { can: { authorizeForumTopicComments: false } } },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /quote post/i })).toBeVisible();
+  });
+
+  it('given canQuote is false, does not show the quote button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment();
+    const topic = createForumTopic();
+
+    render(
+      <ForumPostCard
+        body="Test content"
+        comment={comment}
+        topic={topic}
+        canQuote={false}
+        onQuote={vi.fn()}
+      />,
+      { pageProps: { can: { authorizeForumTopicComments: false } } },
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /quote post/i })).not.toBeInTheDocument();
+  });
+
+  it('given canQuote is true but no onQuote handler is provided, does not show the quote button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment();
+    const topic = createForumTopic();
+
+    render(
+      <ForumPostCard body="Test content" comment={comment} topic={topic} canQuote={true} />,
+      { pageProps: { can: { authorizeForumTopicComments: false } } },
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /quote post/i })).not.toBeInTheDocument();
+  });
 });

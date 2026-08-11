@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -24,9 +24,10 @@ import { useUpsertPostForm } from '../../hooks/useUpsertPostForm';
 
 interface QuickReplyFormProps {
   onPreview: (content: string) => void;
+  quotedPost?: { text: string; insertedAt: number } | null;
 }
 
-export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
+export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview, quotedPost }) => {
   const { auth, forumTopic, replyableTeamAccounts } =
     usePageProps<App.Data.ShowForumTopicPageProps>();
 
@@ -38,6 +39,32 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
   );
   const watchedBody = useWatch({ name: 'body', control: form.control });
   const watchedPostAsUserId = useWatch({ name: 'postAsUserId', control: form.control });
+
+  useEffect(() => {
+    if (!quotedPost) {
+      return;
+    }
+
+    const currentBody = form.getValues('body');
+    const newBody = currentBody.trim().length
+      ? `${currentBody}\n\n${quotedPost.text}`
+      : quotedPost.text;
+
+    form.setValue('body', newBody, { shouldDirty: true });
+
+    setTimeout(() => {
+      const textareaEl = document.querySelector('textarea[name="body"]') as HTMLTextAreaElement;
+      if (!textareaEl) {
+        return;
+      }
+
+      textareaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      textareaEl.focus();
+      textareaEl.setSelectionRange(newBody.length, newBody.length);
+    }, 0);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-inject when a new quote arrives, not on every body change
+  }, [quotedPost?.insertedAt]);
 
   const watchedPostAsUser =
     watchedPostAsUserId !== 'self'

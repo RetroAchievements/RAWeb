@@ -76,6 +76,20 @@ describe('Component: ShortcodeRenderer', () => {
     expect(textEl).toHaveClass('quotedtext');
   });
 
+  it('given a body with a nested quote tag, collapses the nested quote behind a toggle', () => {
+    // ARRANGE
+    const body = '[quote]Outer reply[quote]Original post[/quote][/quote]';
+
+    render(<ShortcodeRenderer body={body} />);
+
+    // ASSERT
+    expect(screen.getByText(/outer reply/i)).toBeVisible();
+    expect(screen.getByRole('button', { name: /quote/i })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
   it('given a body with a spoiler tag, renders the spoiler shortcode component', () => {
     // ARRANGE
     const body = '[spoiler]this is a spoiler![/spoiler]';

@@ -14,6 +14,9 @@ console.error = vi.fn();
 // Prevent the autosize textarea from flooding the console with errors.
 window.scrollTo = vi.fn();
 
+// happy-dom doesn't implement scrollIntoView.
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
 describe('Component: QuickReplyForm', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -368,5 +371,83 @@ describe('Component: QuickReplyForm', () => {
     expect(options[1]).toHaveTextContent('AlphaTeam');
     expect(options[2]).toHaveTextContent('BetaTeam');
     expect(options[3]).toHaveTextContent('ZetaTeam');
+  });
+
+  it('given a quotedPost is provided, injects the quoted text into the body field', () => {
+    // ARRANGE
+    render(
+      <QuickReplyForm
+        onPreview={() => {}}
+        quotedPost={{ text: '[quote]\nSome quoted text\n[/quote]\n\n', insertedAt: 1 }}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          forumTopic: createForumTopic(),
+        },
+      },
+    );
+
+    // ASSERT
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    expect(textArea).toHaveValue('[quote]\nSome quoted text\n[/quote]\n\n');
+  });
+
+  it('given the body already has content, appends the quoted text rather than replacing it', async () => {
+    // ARRANGE
+    const { rerender } = render(<QuickReplyForm onPreview={() => {}} quotedPost={null} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forumTopic: createForumTopic(),
+      },
+    });
+
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    await userEvent.type(textArea, 'My in-progress draft');
+
+    // ACT
+    rerender(
+      <QuickReplyForm
+        onPreview={() => {}}
+        quotedPost={{ text: '[quote]\nQuoted text\n[/quote]\n\n', insertedAt: 1 }}
+      />,
+    );
+
+    // ASSERT
+    expect(textArea).toHaveValue(
+      'My in-progress draft\n\n[quote]\nQuoted text\n[/quote]\n\n',
+    );
+  });
+
+  it('given quotedPost changes to a new insertedAt, re-injects the quoted text', () => {
+    // ARRANGE
+    const { rerender } = render(
+      <QuickReplyForm
+        onPreview={() => {}}
+        quotedPost={{ text: '[quote]\nFirst quote\n[/quote]\n\n', insertedAt: 1 }}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          forumTopic: createForumTopic(),
+        },
+      },
+    );
+
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    expect(textArea).toHaveValue('[quote]\nFirst quote\n[/quote]\n\n');
+
+    // ACT
+    rerender(
+      <QuickReplyForm
+        onPreview={() => {}}
+        quotedPost={{ text: '[quote]\nFirst quote\n[/quote]\n\n', insertedAt: 2 }} // !! same text, new insertedAt
+      />,
+    );
+
+    // ASSERT
+    expect(textArea).toHaveValue(
+      '[quote]\nFirst quote\n[/quote]\n\n\n\n[quote]\nFirst quote\n[/quote]\n\n',
+    );
   });
 });
