@@ -60,4 +60,20 @@ describe('Component: ForumPostQuoteButton', () => {
     // ASSERT
     expect(onQuote).toHaveBeenCalledWith(expect.stringContaining('MaxMilyin wrote:'));
   });
+
+  it('given a comment with no user, falls back to a generic display name', async () => {
+    // ARRANGE
+    const onQuote = vi.fn();
+
+    const topic = createForumTopic();
+    const comment = createForumTopicComment({ user: null });
+
+    render(<ForumPostQuoteButton comment={comment} topic={topic} onQuote={onQuote} />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /quote post/i }));
+
+    // ASSERT
+    expect(onQuote).toHaveBeenCalledWith(expect.stringContaining('Deleted User wrote:'));
+  });
 });
