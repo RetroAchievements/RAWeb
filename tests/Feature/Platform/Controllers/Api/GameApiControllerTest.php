@@ -49,7 +49,7 @@ class GameApiControllerTest extends TestCase
                 'perPage',
                 'items',
             ])
-            ->assertJsonCount(3, 'items')
+            ->assertJsonCount(2, 'items')
             ->assertJson([
                 'items' => [
                     [
@@ -68,16 +68,41 @@ class GameApiControllerTest extends TestCase
                             ],
                         ],
                     ],
-                    [
-                        'game' => [
-                            'title' => $gameThree->title,
-                            'system' => [
-                                'id' => $gameThree->system->id,
-                            ],
-                        ],
-                    ],
                 ],
             ]);
+
+        $response->assertJsonMissing(['title' => $gameThree->title]);
+    }
+
+    public function testIndexIncludesSubsetsWhenTheSetTypeFilterIsAll(): void
+    {
+        // Arrange
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+
+        Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
+        /** @var Game $subsetGame */
+        $subsetGame = Game::factory()->create(['title' => 'BBBBBBB [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
+
+        // Act
+        $response = $this->get(route('api.game.index', ['filter' => ['subsets' => 'all']]));
+
+        // Assert
+        $response
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'items')
+            ->assertJsonPath('items.1.game.title', $subsetGame->title);
+    }
+
+    public function testIndexRejectsAnUnknownSetTypeFilterValue(): void
+    {
+        // Arrange
+        System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+
+        // Act
+        $response = $this->getJson(route('api.game.index', ['filter' => ['subsets' => 'bogus']]));
+
+        // Assert
+        $response->assertStatus(422);
     }
 
     public function testGenerateOfficialForumTopicCreatesTopicAndLinksToGame(): void

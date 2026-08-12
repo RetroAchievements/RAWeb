@@ -10,6 +10,7 @@ export function useHubGamesDefaultColumnState(): DefaultColumnState {
 
   const defaultColumnFilters: ColumnFiltersState = [
     { id: 'achievementsPublished', value: ['either'] },
+    { id: 'subsets', value: ['all'] },
   ];
 
   const defaultColumnSort: ColumnSort = { id: 'title', desc: false };

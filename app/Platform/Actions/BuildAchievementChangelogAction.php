@@ -349,6 +349,7 @@ class BuildAchievementChangelogAction
                 type: AchievementChangelogEntryType::LogicUpdated,
                 createdAt: Carbon::parse($trigger->created_at),
                 user: $user,
+                triggerVersion: $trigger->version,
             );
         }
 

@@ -10,6 +10,7 @@ export function useWantToPlayGamesDefaultColumnState(): DefaultColumnState {
 
   const defaultColumnFilters: ColumnFiltersState = [
     { id: 'achievementsPublished', value: ['has'] },
+    { id: 'subsets', value: ['all'] },
   ];
 
   const defaultColumnSort: ColumnSort = { id: 'title', desc: false };
