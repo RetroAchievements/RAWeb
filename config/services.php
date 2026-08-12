@@ -21,6 +21,8 @@ return [
     'cloudflare' => [
         'api_token' => env('CLOUDFLARE_API_TOKEN'),
         'zone_id' => env('CLOUDFLARE_ZONE_ID'),
+        'turnstile_site_key' => env('CLOUDFLARE_TURNSTILE_SITE_KEY'),
+        'turnstile_secret_key' => env('CLOUDFLARE_TURNSTILE_SECRET_KEY'),
     ],
 
     'discord' => [
@@ -121,11 +123,6 @@ return [
 
     'github' => [
         'organisation' => env('GITHUB_ORG'),
-    ],
-
-    'google' => [
-        'recaptcha_key' => env('GOOGLE_RECAPTCHA_KEY'),
-        'recaptcha_secret' => env('GOOGLE_RECAPTCHA_SECRET'),
     ],
 
     'patreon' => [
