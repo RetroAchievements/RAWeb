@@ -38,6 +38,32 @@ class EnsureTriggerVersionedOnPromotionTest extends TestCase
         $this->assertEquals(1, $trigger->version);
     }
 
+    public function testItKeepsTheOriginalAuthorWhenPromotingSomeoneElsesLogic(): void
+    {
+        // Arrange
+        $author = User::factory()->create();
+        $promoter = User::factory()->create();
+        $this->actingAs($promoter);
+
+        $achievement = Achievement::factory()->create(['is_promoted' => false]);
+        $trigger = Trigger::factory()->create([
+            'triggerable_id' => $achievement->id,
+            'triggerable_type' => TriggerableType::Achievement,
+            'conditions' => '0xHaaaa=0',
+            'version' => null,
+            'user_id' => $author->id, // !!
+        ]);
+        $achievement->update(['trigger_id' => $trigger->id]);
+
+        // Act
+        $achievement->update(['is_promoted' => true]);
+
+        // Assert
+        $trigger->refresh();
+        $this->assertEquals(1, $trigger->version);
+        $this->assertEquals($author->id, $trigger->user_id);
+    }
+
     public function testItDoesNotChangeAlreadyVersionedTrigger(): void
     {
         // Arrange

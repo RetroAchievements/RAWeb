@@ -1,14 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
 import { type AxiosError } from 'axios';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
-import { loadDraft } from '@/common/utils/loadDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateMessageThreadMutation } from '@/features/messages/hooks/mutations/useCreateMessageThreadMutation';
 
@@ -27,25 +25,14 @@ export function useCreateMessageThreadForm(
 ) {
   const { t } = useTranslation();
 
-  const draftKey = defaultValues.recipient
-    ? `create-message:${defaultValues.recipient}`
-    : 'create-message';
-  const draft = loadDraft<FormValues>(draftKey);
-
-  delete draft.recipient;
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      recipient: '',
-      title: '',
-      body: '',
-      ...defaultValues,
-      ...draft,
+  const { form, clearDraft } = useDraftForm<FormValues>(
+    defaultValues.recipient ? `create-message:${defaultValues.recipient}` : 'create-message',
+    {
+      resolver: zodResolver(formSchema),
+      defaultValues: { recipient: '', title: '', body: '', ...defaultValues },
+      excludeFromDraft: ['recipient'],
     },
-  });
-
-  const { clearDraft } = useFormDraft(draftKey, form);
+  );
 
   const mutation = useCreateMessageThreadMutation();
 

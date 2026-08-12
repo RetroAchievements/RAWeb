@@ -1,14 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useFormDraft } from '@/common/hooks/useFormDraft';
+import { useDraftForm } from '@/common/hooks/useDraftForm';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { loadDraft } from '@/common/utils/loadDraft';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 import { useCreateForumTopicMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicMutation';
 
@@ -23,19 +21,10 @@ export function useCreateTopicForm() {
   const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
   const { t } = useTranslation();
 
-  const draftKey = `create-topic-${forum.id}`;
-  const draft = loadDraft<FormValues>(draftKey);
-
-  const form = useForm<FormValues>({
+  const { form, clearDraft } = useDraftForm<FormValues>(`create-topic-${forum.id}`, {
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: draft.title ?? '',
-      body: draft.body ?? '',
-      postAsUserId: draft.postAsUserId ?? 'self',
-    },
+    defaultValues: { title: '', body: '', postAsUserId: 'self' },
   });
-
-  const { clearDraft } = useFormDraft(draftKey, form);
 
   const mutation = useCreateForumTopicMutation();
 

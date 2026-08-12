@@ -1,12 +1,5 @@
-import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import utc from 'dayjs/plugin/utc';
-
 import type { PlayableListSortOrder } from '../models';
 import { getEventAchievementTimeStatus } from './getEventAchievementTimeStatus';
-
-dayjs.extend(utc);
-dayjs.extend(isSameOrBefore);
 
 export function sortAchievements(
   achievements: App.Platform.Data.Achievement[],
@@ -16,33 +9,15 @@ export function sortAchievements(
   // Create a copy to avoid mutating the original array.
   const sortedAchievements = [...achievements];
 
-  const getIsAchievementUnlocked = (achievement: App.Platform.Data.Achievement): boolean => {
-    return !!achievement.unlockedAt || !!achievement.unlockedHardcoreAt;
-  };
-
-  const compareUnlockStatus = (
-    a: App.Platform.Data.Achievement,
-    b: App.Platform.Data.Achievement,
-  ): number => {
-    const aUnlocked = getIsAchievementUnlocked(a);
-    const bUnlocked = getIsAchievementUnlocked(b);
-
-    // Always put unlocked achievements first, regardless of sort direction.
-    if (aUnlocked !== bUnlocked) {
-      return aUnlocked ? -1 : 1;
-    }
-
-    // If both are unlocked or both are not unlocked, return 0 to continue with the next comparison.
-    return 0;
-  };
-
   switch (sortOrder) {
     case 'normal': {
       return sortedAchievements.sort((a, b) => {
-        // For 'normal' sort, the unlocked status is affected by direction.
-        const unlockedResult = compareUnlockStatus(a, b);
-        if (unlockedResult !== 0) {
-          return unlockedResult;
+        // Only this sort order puts unlocked achievements first. The UI shows it
+        // as "Unlocked first". Do not copy these lines into another sort order.
+        const aUnlocked = !!a.unlockedAt || !!a.unlockedHardcoreAt;
+        const bUnlocked = !!b.unlockedAt || !!b.unlockedHardcoreAt;
+        if (aUnlocked !== bUnlocked) {
+          return aUnlocked ? -1 : 1;
         }
 
         // Then sort by orderColumn within each group (unlocked and not unlocked).
@@ -83,13 +58,6 @@ export function sortAchievements(
       const multiplier = sortOrder === 'points' ? 1 : -1;
 
       return sortedAchievements.sort((a, b) => {
-        // First, prioritize unlocked achievements.
-        const unlockedResult = compareUnlockStatus(a, b);
-        if (unlockedResult !== 0) {
-          return unlockedResult;
-        }
-
-        // Then, sort by points value within each group (unlocked and not unlocked).
         const pointsDiff = (b.points as number) - (a.points as number);
         if (pointsDiff !== 0) {
           return pointsDiff * multiplier;
@@ -114,13 +82,6 @@ export function sortAchievements(
       const multiplier = sortOrder === 'title' ? 1 : -1;
 
       return sortedAchievements.sort((a, b) => {
-        // First, prioritize unlocked achievements.
-        const unlockedResult = compareUnlockStatus(a, b);
-        if (unlockedResult !== 0) {
-          return unlockedResult;
-        }
-
-        // Then sort case-insensitively by title within each group (unlocked and not unlocked).
         const aTitle = (a.title as string).toLowerCase();
         const bTitle = (b.title as string).toLowerCase();
 
@@ -134,27 +95,6 @@ export function sortAchievements(
       const multiplier = sortOrder === 'type' ? 1 : -1;
 
       return sortedAchievements.sort((a, b) => {
-        // First, prioritize unlocked achievements.
-        const unlockedResult = compareUnlockStatus(a, b);
-        if (unlockedResult !== 0) {
-          return unlockedResult;
-        }
-
-        const getTypeValue = (type?: string | null): number => {
-          switch (type) {
-            case 'progression':
-              return 0;
-            case 'win_condition':
-              return 1;
-            case 'missable':
-              return 2;
-            case null:
-              return 3;
-            default:
-              return 4;
-          }
-        };
-
         const aValue = getTypeValue(a.type);
         const bValue = getTypeValue(b.type);
 
@@ -177,19 +117,19 @@ export function sortAchievements(
       const multiplier = sortOrder === 'wonBy' ? -1 : 1;
 
       return sortedAchievements.sort((a, b) => {
-        // First, prioritize unlocked achievements.
-        const unlockedResult = compareUnlockStatus(a, b);
-        if (unlockedResult !== 0) {
-          return unlockedResult;
-        }
-
-        // Then, sort by unlocksHardcore within each group (unlocked and not unlocked).
-        const unlocksDiff = (a.unlocksHardcore as number) - (b.unlocksHardcore as number);
+        const unlocksDiff = (a.unlocksHardcore ?? 0) - (b.unlocksHardcore ?? 0);
         if (unlocksDiff !== 0) {
           return unlocksDiff * multiplier;
         }
 
-        // If unlocksTotal is the same, sort by orderColumn.
+        // Hardcore unlocks are always a subset of total unlocks, so a tie there
+        // can still be broken by the softcore unlocks the list displays.
+        const totalDiff = (a.unlocksTotal ?? 0) - (b.unlocksTotal ?? 0);
+        if (totalDiff !== 0) {
+          return totalDiff * multiplier;
+        }
+
+        // If both unlock counts are the same, sort by orderColumn.
         return ((a.orderColumn as number) - (b.orderColumn as number)) * multiplier;
       });
     }
@@ -217,5 +157,24 @@ export function sortAchievements(
 
     default:
       return sortedAchievements;
+  }
+}
+
+function getTypeValue(type?: string | null): number {
+  switch (type) {
+    case 'progression':
+      return 0;
+
+    case 'win_condition':
+      return 1;
+
+    case 'missable':
+      return 2;
+
+    case null:
+      return 3;
+
+    default:
+      return 4;
   }
 }

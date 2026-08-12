@@ -1,3 +1,5 @@
+import { formatNumber } from '@/common/utils/l10n/formatNumber';
+
 export function buildSystemGamesMetaDescription(totalGames: number, systemName: string): string {
   let firstPhrase;
 
@@ -11,7 +13,7 @@ export function buildSystemGamesMetaDescription(totalGames: number, systemName: 
   } else {
     // For a games count of 100+, round down to nearest hundred and add a plus sign.
     const roundedGames = Math.floor(totalGames / 100) * 100;
-    firstPhrase = `Explore ${roundedGames.toLocaleString()}+ ${systemName} games on RetroAchievements.`;
+    firstPhrase = `Explore ${formatNumber(roundedGames)}+ ${systemName} games on RetroAchievements.`;
   }
 
   const secondPhrase = 'Track your progress as you beat and master each title.';

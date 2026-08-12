@@ -57,6 +57,11 @@ class GameListRequest extends FormRequest
                 'string',
                 new Enum(GameListProgressFilterValue::class),
             ],
+            'filter.subsets' => [
+                'nullable',
+                'string',
+                new Enum(GameListSetTypeFilterValue::class),
+            ],
         ];
     }
 

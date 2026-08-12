@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { act, render, screen, waitFor } from '@/test';
 import {
   createAchievement,
@@ -18,6 +19,8 @@ import { AchievementShowRoot } from './AchievementShowRoot';
 describe('Component: AchievementShowRoot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    sessionStorage.clear();
 
     vi.spyOn(router, 'reload').mockImplementation((options?: Record<string, unknown>) => {
       if (options && typeof options.onFinish === 'function') {
@@ -937,5 +940,42 @@ describe('Component: AchievementShowRoot', () => {
     });
 
     expect(router.reload).not.toHaveBeenCalled();
+  });
+
+  it('given the user is writing a comment and switches tabs, preserves the unsubmitted comment', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      game: createGame({ playersTotal: 1000, system: createSystem() }),
+      unlocksTotal: 250,
+      unlocksHardcore: 150,
+    });
+
+    render(<AchievementShowRoot />, {
+      pageProps: {
+        achievement,
+        auth: { user: createAuthenticatedUser() },
+        backingGame: null,
+        gameAchievementSet: null,
+        can: { createAchievementComments: true },
+        isSubscribedToComments: false,
+        initialTab: 'comments',
+        numComments: 0,
+        recentVisibleComments: [],
+      },
+    });
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /comment/i }),
+      'this comment is not finished',
+    );
+
+    // ACT
+    await userEvent.click(screen.getAllByRole('tab', { name: /unlocks/i })[0]);
+    await userEvent.click(screen.getAllByRole('tab', { name: /comments/i })[0]);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue(
+      'this comment is not finished',
+    );
   });
 });

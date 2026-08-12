@@ -398,10 +398,45 @@ describe('Component: CreateMessageThreadForm', () => {
     expect(screen.queryByDisplayValue('drafted message body')).not.toBeInTheDocument();
   });
 
+  it('given another user signs in within the same tab, does not restore the previous draft', async () => {
+    // ARRANGE
+    const { unmount } = render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser({ id: 9 }) },
+      },
+    });
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your message's subject/i),
+      'their subject',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'their body');
+    unmount();
+
+    // ACT
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser({ id: 10 }) },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByDisplayValue('their subject')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('their body')).not.toBeInTheDocument();
+  });
+
   it("given a draft was saved for the preselected user, restores it into that user's form", async () => {
     // ARRANGE
+    const authenticatedUser = createAuthenticatedUser({ id: 9 });
+
     sessionStorage.setItem(
-      'create-message:QATeam',
+      `create-message:QATeam-${authenticatedUser.id}`,
       JSON.stringify({
         title: 'drafted subject',
         body: 'drafted message body',
@@ -420,7 +455,7 @@ describe('Component: CreateMessageThreadForm', () => {
         subject: null,
         templateKind: null,
         toUser: mockUser, // !!
-        auth: { user: createAuthenticatedUser() },
+        auth: { user: authenticatedUser },
       },
     });
 
@@ -431,8 +466,10 @@ describe('Component: CreateMessageThreadForm', () => {
 
   it('given a saved draft holds a recipient and no user is preselected, restores the title and body but not the recipient', async () => {
     // ARRANGE
+    const authenticatedUser = createAuthenticatedUser({ id: 9 });
+
     sessionStorage.setItem(
-      'create-message',
+      `create-message-${authenticatedUser.id}`,
       JSON.stringify({
         recipient: 'suspect15',
         title: 'drafted subject',
@@ -445,7 +482,7 @@ describe('Component: CreateMessageThreadForm', () => {
         message: null,
         subject: null,
         templateKind: null,
-        auth: { user: createAuthenticatedUser() },
+        auth: { user: authenticatedUser },
       },
     });
 

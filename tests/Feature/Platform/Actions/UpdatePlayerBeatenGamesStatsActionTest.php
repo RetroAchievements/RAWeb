@@ -11,8 +11,10 @@ use App\Models\User;
 use App\Platform\Actions\UpdatePlayerBeatenGamesStatsAction;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
@@ -242,6 +244,151 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $systemStats->type);
         $this->assertNull($systemStats->last_game_id);
         $this->assertNull($systemStats->stat_updated_at);
+    }
+
+    public function testItOnlyWritesAffectedRowsWhenANewAwardArrives(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $systems = System::factory()->count(2)->create();
+        $gameOne = Game::factory()->create(['system_id' => $systems->get(0)->id, 'title' => 'Super Mario Bros.']);
+        $gameTwo = Game::factory()->create(['system_id' => $systems->get(1)->id, 'title' => 'Sonic the Hedgehog']);
+
+        $this->addGameBeatenAward($user, $gameOne, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
+
+        Carbon::setTestNow(Carbon::create(2023, 6, 1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        $systemOneStat = PlayerStat::where('user_id', $user->id)->where('system_id', $systems->get(0)->id)->sole();
+        $overallStat = PlayerStat::where('user_id', $user->id)->whereNull('system_id')->sole();
+
+        // Act
+        Event::fake();
+
+        Carbon::setTestNow(Carbon::create(2023, 6, 2));
+        $this->addGameBeatenAward($user, $gameTwo, UnlockMode::Hardcore, Carbon::create(2023, 2, 1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // Assert
+        Event::assertDispatchedTimes(PlayerBeatenGamesStatsUpdated::class, 1);
+
+        // ... the untouched system's row was not rewritten ...
+        $this->assertEquals(
+            $systemOneStat->updated_at->toDateTimeString(),
+            $systemOneStat->fresh()->updated_at->toDateTimeString()
+        );
+
+        // ... but the overall row was, in place ...
+        $freshOverallStat = $overallStat->fresh();
+        $this->assertEquals(2, $freshOverallStat->value);
+        $this->assertEquals('2023-06-02 00:00:00', $freshOverallStat->updated_at->toDateTimeString());
+
+        // ... and the new system got its own row ...
+        $systemTwoStat = PlayerStat::where('user_id', $user->id)->where('system_id', $systems->get(1)->id)->sole();
+        $this->assertEquals(1, $systemTwoStat->value);
+        $this->assertEquals($gameTwo->id, $systemTwoStat->last_game_id);
+    }
+
+    public function testItDoesntDispatchAnEventWhenWipingUntrackedUserStats(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
+
+        $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        $user->unranked_at = now();
+        $user->save();
+
+        // Act
+        Event::fake();
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // Assert
+        Event::assertNotDispatched(PlayerBeatenGamesStatsUpdated::class);
+        $this->assertCount(0, PlayerStat::where('user_id', $user->id)->get());
+    }
+
+    public function testItHealsDuplicateOverallRowsForBeatenGamesStatTypes(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
+
+        $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        $originalOverallStat = PlayerStat::where('user_id', $user->id)->whereNull('system_id')->sole();
+
+        PlayerStat::insert([
+            'user_id' => $user->id,
+            'system_id' => null,
+            'type' => PlayerStatType::GamesBeatenHardcoreRetail,
+            'last_game_id' => $game->id,
+            'value' => 999,
+            'stat_updated_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Act
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // Assert
+        $overallStats = PlayerStat::where('user_id', $user->id)->whereNull('system_id')->get();
+        $this->assertCount(1, $overallStats);
+        $this->assertEquals($originalOverallStat->id, $overallStats->first()->id);
+        $this->assertEquals(1, $overallStats->first()->value);
+    }
+
+    public function testItLeavesDuplicateRowsOfOtherStatTypesAlone(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
+
+        $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        PlayerStat::insert([
+            [
+                'user_id' => $user->id,
+                'system_id' => null,
+                'type' => PlayerStatType::PointsHardcoreDay,
+                'last_game_id' => null,
+                'value' => 10,
+                'stat_updated_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $user->id,
+                'system_id' => null,
+                'type' => PlayerStatType::PointsHardcoreDay,
+                'last_game_id' => null,
+                'value' => 20,
+                'stat_updated_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Act
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // Assert
+        $pointsStats = PlayerStat::where('user_id', $user->id)
+            ->where('type', PlayerStatType::PointsHardcoreDay)
+            ->orderBy('id')
+            ->get();
+
+        $this->assertCount(2, $pointsStats);
+        $this->assertEquals(10, $pointsStats->first()->value);
+        $this->assertEquals(20, $pointsStats->last()->value);
     }
 
     protected function assertPlayerStatDetails(
