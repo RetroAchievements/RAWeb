@@ -476,7 +476,7 @@ export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' |
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type SetClaimChangeAction = 'create' | 'extend' | 'drop' | 'update';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
-export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21;
 }
 declare namespace App.Http.Data {
 export type AchievementOfTheWeekProps = {
@@ -624,6 +624,13 @@ initialTab: App.Platform.Enums.AchievementPageTab;
 eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
 areAllAchievementsOnePoint: boolean;
+};
+export type ActiveEventAchievement = {
+achievementId: number;
+eventId: number;
+eventTitle: string;
+activeUntil: string | null;
+userUnlocked: boolean;
 };
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -939,6 +946,7 @@ targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
