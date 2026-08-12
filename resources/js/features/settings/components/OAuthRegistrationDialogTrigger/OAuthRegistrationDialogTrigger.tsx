@@ -50,13 +50,16 @@ export const OAuthRegistrationDialogTrigger: FC<OAuthRegistrationDialogTriggerPr
     }
   };
 
-  const handleDoneClick = () => {
-    setIsOpen(false);
-    setCredentials(null);
+  const handleOpenChange = (isNextOpen: boolean) => {
+    setIsOpen(isNextOpen);
+
+    if (isNextOpen) {
+      setCredentials(null);
+    }
   };
 
   return (
-    <BaseDialog open={isOpen} onOpenChange={setIsOpen}>
+    <BaseDialog open={isOpen} onOpenChange={handleOpenChange}>
       <BaseDialogTrigger asChild>
         <BaseButton disabled={disabled}>{t('Register application')}</BaseButton>
       </BaseDialogTrigger>
@@ -92,7 +95,7 @@ export const OAuthRegistrationDialogTrigger: FC<OAuthRegistrationDialogTriggerPr
             )}
 
             <BaseDialogFooter>
-              <BaseButton onClick={handleDoneClick}>
+              <BaseButton onClick={() => setIsOpen(false)}>
                 {credentials.secret ? t("I've saved these") : t('Done')}
               </BaseButton>
             </BaseDialogFooter>

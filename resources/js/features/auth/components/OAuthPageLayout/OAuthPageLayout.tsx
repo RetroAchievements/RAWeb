@@ -23,7 +23,7 @@ export const OAuthPageLayout: FC<OAuthPageLayoutProps> = ({
   initial,
 }) => {
   return (
-    <div className="relative flex h-screen flex-col items-center overflow-hidden px-4 pt-[10vh] sm:pt-[25vh]">
+    <div className="relative flex h-screen flex-col items-center overflow-hidden px-4 pt-[5vh] sm:pt-[25vh]">
       <OAuthBackgroundGlow variant={glowVariant} initial={initial} />
       <OAuthBranding initial={initial} />
 

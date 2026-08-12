@@ -64,7 +64,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::authorizationView(function ($parameters) {
             return Inertia::render('oauth/authorize', new OAuthAuthorizePagePropsData(
-                client: OAuthClientData::fromClient($parameters['client']),
+                client: OAuthClientData::fromClient($parameters['client'])->include('owner'),
                 scopes: array_map(fn ($scope): string => $scope->id, $parameters['scopes']),
                 request: OAuthRequestData::fromPassportRequest($parameters['request']),
                 authToken: $parameters['authToken'],
@@ -79,7 +79,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::deviceAuthorizationView(function ($parameters) {
             return Inertia::render('oauth/device/authorize', new AuthorizeDevicePagePropsData(
-                client: OAuthClientData::fromClient($parameters['client']),
+                client: OAuthClientData::fromClient($parameters['client'])->include('owner'),
                 scopes: array_map(fn ($scope): string => $scope->id, $parameters['scopes']),
                 request: DeviceAuthorizationRequestData::fromPassportRequest($parameters['request']),
                 authToken: $parameters['authToken'],

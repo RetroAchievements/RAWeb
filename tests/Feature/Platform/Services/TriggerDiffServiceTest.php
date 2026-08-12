@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Services;
 
+use App\Platform\Services\TriggerDecoderService;
 use App\Platform\Services\TriggerDiffService;
 use Tests\TestCase;
 
@@ -478,5 +479,59 @@ class TriggerDiffServiceTest extends TestCase
         $this->assertEquals(2, $summary['added']);
         $this->assertEquals(2, $summary['removed']);
         $this->assertEquals(0, $summary['modified']);
+    }
+
+    public function testComputeSummaryIgnoresHexSpellingDifferences(): void
+    {
+        // Arrange
+        $decoder = new TriggerDecoderService();
+
+        // ... both strings describe the same logic, but the newer one pads its addresses ...
+        $oldGroups = $decoder->decode('0xG966c5c=h554c4a4d_O:0xH1bac044=4_0xHABCD=ha');
+        $newGroups = $decoder->decode('0xG00966c5c=h554c4a4d_O:0xH01bac044=4_0xHabcd=h0000000a');
+
+        // Act
+        $summary = $this->service->computeSummary($oldGroups, $newGroups);
+
+        // Assert
+        $this->assertEquals(0, $summary['added']);
+        $this->assertEquals(0, $summary['removed']);
+        $this->assertEquals(0, $summary['modified']);
+        $this->assertEquals('No changes', $this->service->formatSummary($summary));
+    }
+
+    public function testComputeSummaryIgnoresAddressWidthChangesBetweenVersions(): void
+    {
+        // Arrange
+        $decoder = new TriggerDecoderService();
+
+        $oldGroups = $decoder->decode('0xH1234=1');
+        $newGroups = $decoder->decode('0xH1234=1_0xH1bac044=2');
+
+        $this->assertEquals('0x1234', $oldGroups[0]['Conditions'][0]['SourceAddress']);
+        $this->assertEquals('0x00001234', $newGroups[0]['Conditions'][0]['SourceAddress']);
+
+        // Act
+        $summary = $this->service->computeSummary($oldGroups, $newGroups);
+
+        // Assert
+        $this->assertEquals(1, $summary['added']);
+        $this->assertEquals(0, $summary['removed']);
+        $this->assertEquals(0, $summary['modified']);
+    }
+
+    public function testComputeSummaryStillDetectsRealChangesToPaddedAddresses(): void
+    {
+        // Arrange
+        $decoder = new TriggerDecoderService();
+
+        $oldGroups = $decoder->decode('0xH1bac044=4');
+        $newGroups = $decoder->decode('0xH01bac045=4');
+
+        // Act
+        $summary = $this->service->computeSummary($oldGroups, $newGroups);
+
+        // Assert
+        $this->assertEquals(1, $summary['modified']);
     }
 }

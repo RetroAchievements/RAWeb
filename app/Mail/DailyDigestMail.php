@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Community\Actions\BuildDailyDigestSubjectAction;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
 use App\Models\User;
@@ -41,7 +42,7 @@ class DailyDigestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "RetroAchievements Conversations Summary",
+            subject: (new BuildDailyDigestSubjectAction())->execute($this->notificationItems),
         );
     }
 

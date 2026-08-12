@@ -66,7 +66,18 @@ class SendDailyDigestAction
 
         $screenshotDecisionData = [];
         $screenshotGamesByScreenshotId = [];
+        $releaseGameTitles = [];
         foreach ($ids as $type => $typeIds) {
+            if ($type === SubscriptionSubjectType::AchievementSetRelease->value) {
+                $games = Game::whereIn('id', $typeIds)->with('system')->get();
+                foreach ($games as $game) {
+                    $titles[$type][$game->id] = "{$game->title} ({$game->system->name})";
+                    $releaseGameTitles[$game->id] = $game->title;
+                }
+
+                continue;
+            }
+
             if ($type === SubscriptionSubjectType::GameScreenshotDecision->value) {
                 $screenshots = GameScreenshot::whereIn('id', $typeIds)->with('game.system')->get();
 
@@ -122,9 +133,14 @@ class SendDailyDigestAction
                     ];
                 }
 
+                if ($delayedSubscription->subject_type === SubscriptionSubjectType::AchievementSetRelease) {
+                    $notificationItem['gameTitle'] = $releaseGameTitles[$delayedSubscription->subject_id]
+                        ?? $notificationItem['title'];
+                }
+
                 $notificationItems[] = $notificationItem;
 
-                if ($count === 1 && $delayedSubscription->subject_type !== SubscriptionSubjectType::GameScreenshotDecision) {
+                if ($count === 1 && !$handler->isOneShotEvent()) {
                     $singleItems[] = [$delayedSubscription, count($notificationItems) - 1];
                 }
             }
@@ -181,11 +197,33 @@ class SendDailyDigestAction
         }
 
         $notificationItems = $this->aggregateScreenshotDecisionItems($notificationItems);
+        $notificationItems = $this->sortByHeadlinePriority($notificationItems);
 
         // send the mail
         Mail::to($user->email)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
+    }
+
+    /**
+     * The subject line names the highest priority item the digest carries, so the body
+     * must lead with that same item. Items of equal priority keep their original order.
+     *
+     * @param array<int, array<string, mixed>> $notificationItems
+     * @return array<int, array<string, mixed>>
+     */
+    private function sortByHeadlinePriority(array $notificationItems): array
+    {
+        $ranks = array_flip(array_column(SubscriptionSubjectType::digestHeadlinePriority(), 'value'));
+        $unrankedRank = count($ranks);
+
+        usort(
+            $notificationItems,
+            fn (array $first, array $second) => ($ranks[$first['type']] ?? $unrankedRank)
+                <=> ($ranks[$second['type']] ?? $unrankedRank)
+        );
+
+        return $notificationItems;
     }
 
     /**
@@ -201,6 +239,7 @@ class SendDailyDigestAction
         }
 
         return match ($subjectType) {
+            SubscriptionSubjectType::AchievementSetRelease => new AchievementSetReleaseDelayedSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
             SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(CommentableType::Game),
             SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
@@ -384,6 +423,15 @@ abstract class BaseDelayedSubscriptionHandler
      * Gets a link to the first updated subrecord of the subject.
      */
     abstract public function getLink(int $subjectId, int $firstUpdateId): string;
+
+    /**
+     * A one-shot subject reports a finished event rather than an accumulating
+     * conversation, so the digest never attaches a post summary to it.
+     */
+    public function isOneShotEvent(): bool
+    {
+        return false;
+    }
 }
 
 class ForumTopicDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
@@ -456,6 +504,24 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
     }
 }
 
+class AchievementSetReleaseDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
+{
+    public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int
+    {
+        return 1; // a release is a single event, not an accumulation
+    }
+
+    public function getLink(int $subjectId, int $firstUpdateId): string
+    {
+        return route('game.show', ['game' => $subjectId]);
+    }
+
+    public function isOneShotEvent(): bool
+    {
+        return true;
+    }
+}
+
 class GameScreenshotDecisionDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
 {
     /** @var array<int, Game> */
@@ -482,5 +548,10 @@ class GameScreenshotDecisionDelayedSubscriptionHandler extends BaseDelayedSubscr
         }
 
         return route('game.show', ['game' => $game]);
+    }
+
+    public function isOneShotEvent(): bool
+    {
+        return true;
     }
 }

@@ -58,9 +58,75 @@ describe('Util: resolveInitialGameListViewState', () => {
     });
 
     // ASSERT
-    expect(result.columnFilters).toEqual([{ id: 'status', value: ['active'] }]);
+    expect(result.columnFilters).toEqual([
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'status', value: ['active'] },
+    ]);
     expect(result.pagination).toEqual({ pageIndex: 2, pageSize: 100 });
     expect(result.sorting).toEqual([{ id: 'lastUpdated', desc: true }]);
+  });
+
+  it('given persisted preferences omit a default filter, applies the default', () => {
+    // ARRANGE
+    const persistedViewPreferences: Partial<TableState> = {
+      columnFilters: [{ id: 'achievementsPublished', value: ['has'] }],
+    };
+
+    // ACT
+    const result = resolveInitialGameListViewState({
+      paginatedData: createPaginatedData([], { currentPage: 1, perPage: 25 }),
+      query: createZiggyProps().query,
+      persistedViewPreferences,
+      defaultColumnFilters: [
+        { id: 'achievementsPublished', value: ['has'] },
+        { id: 'subsets', value: ['only-games'] },
+      ],
+    });
+
+    // ASSERT
+    expect(result.columnFilters).toEqual([
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'subsets', value: ['only-games'] },
+    ]);
+  });
+
+  it('given persisted preferences hold a non-default filter, keeps it after the defaults', () => {
+    // ARRANGE
+    const persistedViewPreferences: Partial<TableState> = {
+      columnFilters: [{ id: 'system', value: ['1'] }],
+    };
+
+    // ACT
+    const result = resolveInitialGameListViewState({
+      paginatedData: createPaginatedData([], { currentPage: 1, perPage: 25 }),
+      query: createZiggyProps().query,
+      persistedViewPreferences,
+      defaultColumnFilters: [{ id: 'subsets', value: ['only-games'] }],
+    });
+
+    // ASSERT
+    expect(result.columnFilters).toEqual([
+      { id: 'subsets', value: ['only-games'] },
+      { id: 'system', value: ['1'] },
+    ]);
+  });
+
+  it('given persisted preferences set a filter that also has a default, keeps the persisted value', () => {
+    // ARRANGE
+    const persistedViewPreferences: Partial<TableState> = {
+      columnFilters: [{ id: 'subsets', value: ['all'] }],
+    };
+
+    // ACT
+    const result = resolveInitialGameListViewState({
+      paginatedData: createPaginatedData([], { currentPage: 1, perPage: 25 }),
+      query: createZiggyProps().query,
+      persistedViewPreferences,
+      defaultColumnFilters: [{ id: 'subsets', value: ['only-games'] }],
+    });
+
+    // ASSERT
+    expect(result.columnFilters).toEqual([{ id: 'subsets', value: ['all'] }]);
   });
 
   it('given query params and persisted preferences are absent, falls back to defaults', () => {

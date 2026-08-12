@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\GetRandomGameAction;
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
@@ -25,7 +26,7 @@ class GameApiController extends Controller
             GameListType::AllGames,
             user: $request->user(),
             page: $request->getPage(),
-            filters: $request->getFilters(),
+            filters: $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames),
             sort: $request->getSort(),
             perPage: $isMobile ? 100 : $request->getPageSize(),
         );
@@ -56,7 +57,7 @@ class GameApiController extends Controller
         $randomGame = (new GetRandomGameAction())->execute(
             GameListType::AllGames,
             user: $request->user(),
-            filters: $request->getFilters(),
+            filters: $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames),
         );
 
         return response()->json(['gameId' => $randomGame->id]);

@@ -60,6 +60,21 @@ class Role extends SpatieRole
     public const DEVELOPER_RETIRED = 'developer-retired';
     public const SUPPORTER = 'supporter';
 
+    /**
+     * This is a method rather than a constant because every constant on
+     * this class is reflected into the generated TypeScript UserRole map,
+     * which can only hold scalars.
+     *
+     * @return string[]
+     */
+    public static function nonTeamRoles(): array
+    {
+        return [
+            self::DEVELOPER_RETIRED,
+            self::SUPPORTER,
+        ];
+    }
+
     public static function toFilamentColor(string $role): string
     {
         return match ($role) {

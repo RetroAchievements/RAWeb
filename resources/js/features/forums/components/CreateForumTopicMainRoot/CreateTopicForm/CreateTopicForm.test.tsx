@@ -16,6 +16,35 @@ window.scrollTo = vi.fn();
 console.error = vi.fn();
 
 describe('Component: CreateTopicForm', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('given another user signs in within the same tab, does not restore the previous draft', async () => {
+    // ARRANGE
+    const forum = createForum({ id: 3 });
+
+    const { unmount } = render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum, auth: { user: createAuthenticatedUser({ id: 9 }) } },
+    });
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'their subject',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'their body');
+    unmount();
+
+    // ACT
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum, auth: { user: createAuthenticatedUser({ id: 10 }) } },
+    });
+
+    // ASSERT
+    expect(screen.queryByDisplayValue('their subject')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('their body')).not.toBeInTheDocument();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<CreateTopicForm onPreview={vi.fn()} />, {
