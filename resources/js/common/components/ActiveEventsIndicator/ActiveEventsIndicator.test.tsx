@@ -114,7 +114,7 @@ describe('Component: ActiveEventsIndicator', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Less than an hour left');
   });
 
-  it('given the event has no end date, labels it as evergreen', async () => {
+  it('given the event has no end date, labels it as having no time limit', async () => {
     // ARRANGE
     render(
       <ActiveEventsIndicator
@@ -133,7 +133,7 @@ describe('Component: ActiveEventsIndicator', () => {
     // ASSERT
     const tooltipEl = await screen.findByRole('tooltip');
     expect(tooltipEl).toHaveTextContent('Challenge League');
-    expect(tooltipEl).toHaveTextContent('Evergreen');
+    expect(tooltipEl).toHaveTextContent('No Time Limit');
   });
 
   it('given the event ends more than two months out, counts down in months', async () => {

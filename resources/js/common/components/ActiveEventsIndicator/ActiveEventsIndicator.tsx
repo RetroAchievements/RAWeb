@@ -32,7 +32,7 @@ export const ActiveEventsIndicator: FC<ActiveEventsIndicatorProps> = ({ activeEv
 
   const buildTimeLeftLabel = (activeUntil: string | null): string => {
     if (!activeUntil) {
-      return t('Evergreen');
+      return t('No Time Limit');
     }
 
     const endsAt = dayjs(activeUntil);
