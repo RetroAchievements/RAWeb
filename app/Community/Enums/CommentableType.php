@@ -81,6 +81,28 @@ enum CommentableType: string
     }
 
     /**
+     * Public comments are open community conversation. Everything else is visible
+     * only to a restricted audience, so it stays out of search and out of alerting.
+     */
+    public function isPublicComment(): bool
+    {
+        return match ($this) {
+            self::Achievement,
+            self::AchievementTicket,
+            self::Forum,
+            self::Game,
+            self::Leaderboard,
+            self::User,
+            self::UserActivity => true,
+
+            self::GameHash,
+            self::GameModification,
+            self::SetClaim,
+            self::UserModeration => false,
+        };
+    }
+
+    /**
      * Check if this commentable type supports the intelligent comment redirect route.
      * These types can use route('comment.show') for proper pagination handling.
      */
