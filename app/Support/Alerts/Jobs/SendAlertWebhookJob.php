@@ -42,7 +42,7 @@ class SendAlertWebhookJob implements ShouldQueue
         $client = $this->client ?? new Client();
 
         $payload = array_filter([
-            'content' => $this->alert->toDiscordMessage(),
+            'content' => $this->alert->toWebhookContent(),
             'username' => $this->webhookUsername,
             'avatar_url' => $this->webhookAvatarUrl,
         ]);

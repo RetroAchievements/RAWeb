@@ -214,7 +214,7 @@ export type ModerationActionType = 'mute' | 'unmute' | 'ban' | 'unban' | 'unrank
 export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopicComment' | 'UserProfile';
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type RankType = 'hardcore' | 'casual' | 'retro_points';
-export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision';
+export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
 export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' | 'did_not_trigger' | 'submitted_wrong_value' | 'triggered_at_wrong_time';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
@@ -341,6 +341,7 @@ revoked: boolean;
 createdAt: string;
 updatedAt: string;
 confidential: boolean;
+owner?: App.Data.User | null;
 };
 export type OAuthRequest = {
 clientId: string;
@@ -475,7 +476,7 @@ export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' |
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type SetClaimChangeAction = 'create' | 'extend' | 'drop' | 'update';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
-export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21;
 }
 declare namespace App.Http.Data {
 export type AchievementOfTheWeekProps = {
@@ -623,6 +624,13 @@ initialTab: App.Platform.Enums.AchievementPageTab;
 eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
 areAllAchievementsOnePoint: boolean;
+};
+export type ActiveEventAchievement = {
+achievementId: number;
+eventId: number;
+eventTitle: string;
+activeUntil: string | null;
+userUnlocked: boolean;
 };
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;
@@ -938,6 +946,7 @@ targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
 userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;

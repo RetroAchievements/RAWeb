@@ -7,7 +7,9 @@ Hello {{ $user->display_name }},
 You have new updates on RetroAchievements:
 
 @foreach ($notificationItems as $notificationItem)
-@if ($notificationItem['type'] === 'GameScreenshotDecision')
+@if ($notificationItem['type'] === 'AchievementSetRelease')
+@include('mail.community.partials.daily-digest-achievement-set-release', ['notificationItem' => $notificationItem])
+@elseif ($notificationItem['type'] === 'GameScreenshotDecision')
 @include('mail.community.partials.daily-digest-screenshot-decision', ['notificationItem' => $notificationItem])
 @else
 @php

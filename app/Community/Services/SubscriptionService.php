@@ -268,8 +268,9 @@ class SubscriptionService
             SubscriptionSubjectType::Leaderboard => new LeaderboardWallSubscriptionHandler(),
             SubscriptionSubjectType::UserWall => new UserWallSubscriptionHandler(),
 
-            // screenshot decisions don't use real-time subscriptions
+            // screenshot decisions and set release notifications don't use real-time subscriptions
             SubscriptionSubjectType::GameScreenshotDecision => throw new InvalidArgumentException("No subscription handler for GameScreenshotDecision"),
+            SubscriptionSubjectType::AchievementSetRelease => throw new InvalidArgumentException("No subscription handler for AchievementSetRelease"),
         };
     }
 }

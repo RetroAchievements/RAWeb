@@ -187,10 +187,24 @@ class TriggerDiffService
     {
         $parts = [];
         foreach (self::COMPARABLE_KEYS as $key) {
-            $parts[] = $condition[$key] ?? '';
+            $parts[] = $this->comparableValue($condition[$key] ?? '');
         }
 
         return implode('|', $parts);
+    }
+
+    /**
+     * Normalizes a condition field for comparison. Hex operands drop their
+     * zero padding because display width is chosen per trigger version, so
+     * padding differences never represent a real logic change.
+     */
+    private function comparableValue(mixed $value): mixed
+    {
+        if (is_string($value) && str_starts_with($value, '0x')) {
+            return '0x' . (ltrim(substr($value, 2), '0') ?: '0');
+        }
+
+        return $value;
     }
 
     /**
