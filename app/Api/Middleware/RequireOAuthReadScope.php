@@ -27,7 +27,7 @@ class RequireOAuthReadScope
          * matching the data it wants, instead of also carrying the public read
          * scope as a prerequisite for private data.
          */
-        if ($this->routeDeclaresItsOwnScope($request)) {
+        if (self::routeDeclaresItsOwnScope($request->route()?->gatherMiddleware() ?? [])) {
             return $next($request);
         }
 
@@ -51,10 +51,26 @@ class RequireOAuthReadScope
         return $next($request);
     }
 
-    private function routeDeclaresItsOwnScope(Request $request): bool
+    /**
+     * Reports the scope this gate enforces, so the generated OpenAPI document
+     * names it. The spec document would otherwise show these routes as needing no
+     * scope at all.
+     *
+     * @param  array<int, mixed>  $routeMiddleware
+     * @return string[]
+     */
+    public static function openApiScopes(array $routeMiddleware): array
     {
-        $routeMiddleware = $request->route()?->gatherMiddleware() ?? [];
+        return self::routeDeclaresItsOwnScope($routeMiddleware)
+            ? []
+            : [OAuthScope::Read->value];
+    }
 
+    /**
+     * @param  array<int, mixed>  $routeMiddleware
+     */
+    private static function routeDeclaresItsOwnScope(array $routeMiddleware): bool
+    {
         foreach ($routeMiddleware as $middleware) {
             if (is_string($middleware) && str_starts_with($middleware, RequireOAuthTokenWithScope::class)) {
                 return true;
