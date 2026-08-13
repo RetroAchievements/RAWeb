@@ -93,7 +93,7 @@ it('given the spec is written, it holds no example values', function () {
 it('given the spec is written, it holds no environment specific values', function () {
     // Assert
     expect(File::get(sharedSpecPath()))->not->toContain('localhost');
-    expect(sharedSpec()['servers'][0]['variables']['serverUrl']['default'])
+    expect(sharedSpec()['servers'][0]['url'])
         ->toEqual('https://api.retroachievements.org/api/v2');
 });
 

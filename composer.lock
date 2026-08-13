@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e827215c0ff635ed41c7828d63a7bda1",
+    "content-hash": "a269b2069a8421541f3351045c90055c",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -19243,16 +19243,16 @@
         },
         {
             "name": "retroachievements/openapi-spec-generator",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RetroAchievements/openapi-spec-generator.git",
-                "reference": "3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd"
+                "reference": "67985f912a5e51f9e5a50e8ee093fda35d9c9539"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd",
-                "reference": "3c1a72ebb94c650cdb9f9f5c7e66cc6373459cbd",
+                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/67985f912a5e51f9e5a50e8ee093fda35d9c9539",
+                "reference": "67985f912a5e51f9e5a50e8ee093fda35d9c9539",
                 "shasum": ""
             },
             "require": {
@@ -19344,9 +19344,9 @@
                 "swisnl"
             ],
             "support": {
-                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.2.0"
+                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.3.0"
             },
-            "time": "2026-08-08T12:19:19+00:00"
+            "time": "2026-08-13T12:13:48+00:00"
         },
         {
             "name": "sebastian/cli-parser",
