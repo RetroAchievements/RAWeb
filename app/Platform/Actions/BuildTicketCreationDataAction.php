@@ -55,16 +55,6 @@ class BuildTicketCreationDataAction
                 $props->selectedMode = UnlockMode::Hardcore;
             }
 
-            // An unlock can still name an older trigger even when no session row resolves, and
-            // that comparison is exact, so it must not be skipped along with the session data.
-            $props->didLogicChangeSinceLastPlayed = $this->getDidLogicChangeSinceLastPlayed(
-                $achievement,
-                $user,
-                $sessionGameIds,
-                $playerAchievement,
-                null,
-            );
-
             return $props;
         }
 
@@ -78,7 +68,6 @@ class BuildTicketCreationDataAction
             $achievement,
             $user,
             $sessionGameIds,
-            $playerAchievement,
             $playerSession,
         );
 
@@ -170,7 +159,6 @@ class BuildTicketCreationDataAction
         Achievement $achievement,
         User $user,
         array $sessionGameIds,
-        ?PlayerAchievement $playerAchievement,
         ?PlayerSession $anchorSession,
     ): bool {
         $achievement->loadMissing('currentTrigger');
@@ -179,12 +167,6 @@ class BuildTicketCreationDataAction
             return false;
         }
 
-        if ($playerAchievement?->trigger_id && $playerAchievement->trigger_id !== $currentTrigger->id) {
-            return true;
-        }
-
-        // The cutoff guards the timestamp comparison only. Two different trigger IDs prove a real
-        // revision whenever they were written, so the branch above is deliberately not gated.
         if (!$currentTrigger->created_at || $currentTrigger->created_at->lt(Trigger::VERSIONING_CUTOFF)) {
             return false;
         }
@@ -201,8 +183,7 @@ class BuildTicketCreationDataAction
      * The most recent moment we can show the player had the game open.
      *
      * A reporter who has loaded the game since a revision already has the new logic, so the
-     * newest qualifying session wins over the session that anchors the rest of the form. Without
-     * this, every unlock that predates trigger recording would warn its owner on replay.
+     * newest qualifying session wins over the session that anchors the rest of the form.
      *
      * @param int[] $sessionGameIds
      */

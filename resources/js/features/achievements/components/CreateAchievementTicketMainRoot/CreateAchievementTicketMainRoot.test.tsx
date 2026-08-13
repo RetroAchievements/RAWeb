@@ -759,7 +759,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByText(/please write your ticket description in english/i)).toBeVisible();
   });
 
-  it('given the logic changed since the user last played, shows a notice and still allows submission', () => {
+  it('given the logic changed and the user is reporting a missing trigger, shows a notice', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -770,17 +770,19 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           didLogicChangeSinceLastPlayed: true, // !!
           gameHashes: [createGameHash()],
           emulators: [createEmulator()],
-          ziggy: createZiggyProps(),
+          ziggy: createZiggyProps({ query: { type: 'did_not_trigger' } }),
         },
       },
     );
 
     // ASSERT
-    expect(screen.getByText(/this achievement changed since you last played/i)).toBeVisible();
+    expect(
+      screen.getByText(/the logic for this achievement has changed since you last played/i),
+    ).toBeVisible();
     expect(screen.getByText(/reload the game and try again/i)).toBeVisible();
   });
 
-  it('given the logic did not change since the user last played, does not show the notice', () => {
+  it('given the logic did not change, does not show the notice', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -791,14 +793,37 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           didLogicChangeSinceLastPlayed: false, // !!
           gameHashes: [createGameHash()],
           emulators: [createEmulator()],
-          ziggy: createZiggyProps(),
+          ziggy: createZiggyProps({ query: { type: 'did_not_trigger' } }),
         },
       },
     );
 
     // ASSERT
     expect(
-      screen.queryByText(/this achievement changed since you last played/i),
+      screen.queryByText(/the logic for this achievement has changed since you last played/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/reload the game and try again/i)).not.toBeInTheDocument();
+  });
+
+  it('given the logic changed but the user is reporting a wrong-time trigger, does not show the notice', () => {
+    // ARRANGE
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser() },
+          didLogicChangeSinceLastPlayed: true,
+          gameHashes: [createGameHash()],
+          emulators: [createEmulator()],
+          ziggy: createZiggyProps({ query: { type: 'triggered_at_wrong_time' } }), // !!
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.queryByText(/the logic for this achievement has changed since you last played/i),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(/reload the game and try again/i)).not.toBeInTheDocument();
   });
