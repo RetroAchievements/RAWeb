@@ -34,6 +34,7 @@ export const UserPreference = {
     Game_OptOutOfAllSubsets: 18,
     User_EnableBetaFeatures: 19,
     EmailOff_DailyDigest: 20,
+    Game_ShowEvergreenEventIndicators: 21,
 } as const;
 
 
@@ -59,6 +60,7 @@ export const StringifiedUserPreference = {
     Game_OptOutOfAllSubsets: '18',
     User_EnableBetaFeatures: '19',
     EmailOff_DailyDigest: '20',
+    Game_ShowEvergreenEventIndicators: '21',
 } as const;
 
 

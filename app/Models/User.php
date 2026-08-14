@@ -395,6 +395,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return BitSet($this->preferences_bitfield, UserPreference::Forum_ShowAbsoluteDates);
     }
 
+    public function getPrefersEvergreenEventIndicatorsAttribute(): bool
+    {
+        return BitSet($this->preferences_bitfield, UserPreference::Game_ShowEvergreenEventIndicators);
+    }
+
     public function getIsGloballyOptedOutOfSubsetsAttribute(): bool
     {
         return BitSet($this->preferences_bitfield, UserPreference::Game_OptOutOfAllSubsets);

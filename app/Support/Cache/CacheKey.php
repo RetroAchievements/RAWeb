@@ -7,6 +7,7 @@ namespace App\Support\Cache;
 class CacheKey
 {
     public const SystemMenuList = 'ui:menu:systems:v3';
+    public const ModerationWatchlistTerms = 'moderation:watchlist-terms:v1';
 
     public static function buildGameCardDataCacheKey(int $gameId): string
     {

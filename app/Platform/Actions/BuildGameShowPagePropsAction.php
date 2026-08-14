@@ -12,16 +12,19 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameScreenshot;
 use App\Models\GameSet;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
+use App\Platform\Data\ActiveEventAchievementData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameScreenshotData;
@@ -356,6 +359,8 @@ class BuildGameShowPagePropsAction
             numMasters: $numMasters,
             numOpenTickets: $this->gameOpenTicketCountService->count($backingGame, $isPromoted),
 
+            activeEventAchievements: $this->buildActiveEventAchievements($game, $user),
+
             numScreenshots: $game->gameScreenshots()->approved()->count(),
             screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()
                 ->approved()
@@ -672,5 +677,40 @@ class BuildGameShowPagePropsAction
         }
 
         return $statuses;
+    }
+
+    private function buildActiveEventAchievements(Game $game, ?User $user): array
+    {
+        $shouldShowEvergreen = $user?->prefers_evergreen_event_indicators ?? false;
+
+        $activeEventAchievements = EventAchievement::active()
+            ->with('event.legacyGame')
+            ->whereIn('source_achievement_id', $game->achievements->pluck('id'))
+            ->when(!$shouldShowEvergreen, fn ($query) => $query->whereNotNull('active_until'))
+            ->orderBy('source_achievement_id')
+            ->orderBy('active_until')
+            ->get();
+
+        if ($activeEventAchievements->isEmpty()) {
+            return [];
+        }
+
+        if ($user) {
+            $unlocks = PlayerAchievement::query()
+                ->where('user_id', $user->id)
+                ->whereIn('achievement_id', $activeEventAchievements->pluck('achievement_id'))
+                ->whereNotNull('unlocked_hardcore_at')
+                ->pluck('achievement_id')
+                ->flip();
+        } else {
+            $unlocks = collect();
+        }
+
+        return $activeEventAchievements->map(
+            fn (EventAchievement $eventAchievement) => ActiveEventAchievementData::fromEventAchievement(
+                $eventAchievement,
+                $unlocks->has($eventAchievement->achievement_id),
+            )
+        )->all();
     }
 }

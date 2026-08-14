@@ -6,6 +6,7 @@ export * from './createAchievementSet';
 export * from './createAchievementSetClaim';
 export * from './createAchievementSetClaimGroup';
 export * from './createAchievementSetGroup';
+export * from './createActiveEventAchievement';
 export * from './createActivePlayer';
 export * from './createAggregateAchievementSetCredits';
 export * from './createAwardEarner';

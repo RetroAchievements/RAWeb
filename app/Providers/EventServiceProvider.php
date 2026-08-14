@@ -6,16 +6,24 @@ namespace App\Providers;
 
 use App\Events\UserDeleted;
 use App\Listeners\SendUserRegistrationNotification;
+use App\Models\AchievementComment;
+use App\Models\Comment;
 use App\Models\EventAchievement;
+use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameComment;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Models\LeaderboardEntry;
 use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\User;
+use App\Models\UserComment;
 use App\Models\UserRelation;
+use App\Observers\CommentObserver;
 use App\Observers\EventAchievementObserver;
+use App\Observers\ForumTopicCommentObserver;
 use App\Observers\GameAchievementSetObserver;
 use App\Observers\GameObserver;
 use App\Observers\GameSetLinkObserver;
@@ -84,6 +92,11 @@ class EventServiceProvider extends ServiceProvider
     {
         User::observe(UserObserver::class);
         UserRelation::observe(UserRelationObserver::class);
+
+        foreach ([Comment::class, AchievementComment::class, GameComment::class, TicketComment::class, UserComment::class] as $commentClass) {
+            $commentClass::observe(CommentObserver::class);
+        }
+        ForumTopicComment::observe(ForumTopicCommentObserver::class);
 
         EventAchievement::observe(EventAchievementObserver::class);
 
