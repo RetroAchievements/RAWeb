@@ -2,9 +2,11 @@
 
 // TODO migrate to ForumController::show()
 
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Enums\Permissions;
 use App\Models\Forum;
 use App\Models\User;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -51,7 +53,18 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
     $thisCategoryID = $forum->category->id;
     $thisCategoryName = $forum->category->title;
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
+    $forumIndexMaskedAuthorIds = $userModel && (new ForumTopicCommentPolicy())->manage($userModel)
+        ? []
+        : (new GetMaskedForumAuthorIdsAction())->execute($userModel);
+
+    $topicList = getForumTopics(
+        $requestedForumID,
+        $offset,
+        $count,
+        $permissions,
+        $numTotalTopics,
+        maskedAuthorIds: $forumIndexMaskedAuthorIds,
+    );
 
     $requestedForum = $thisForumTitle;
 }
