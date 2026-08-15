@@ -11,7 +11,7 @@ return new class extends Migration {
     /**
      * player_global_rankings and player_stat_rankings are materialized views
      * that are fully rebuilt on write.
-     * 
+     *
      * InnoDB locks each referenced parent row during FK checks. It holds these
      * locks until the rebuild actually commits. This blocks writes to the parent
      * table. Transaction isolation does not change these locks, so we're removing
