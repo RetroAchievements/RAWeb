@@ -46,7 +46,7 @@ export const YourApplicationsSection: FC = () => {
         )}
 
         {hasReachedApplicationLimit ? (
-          <p className="text-sm text-neutral-400">
+          <p className="text-center text-sm text-text">
             {t('You can register up to {{count}} application', {
               count: oauthApplicationLimit,
             })}

@@ -76,8 +76,8 @@
         "brianium/paratest": "^7.2",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
-        "laravel/boost": "^2.0",
         "laravel-json-api/testing": "^3.1",
+        "laravel/boost": "^2.0",
         "laravel/pail": "^1.2",
         "laravel/pint": "^1.25",
         "laravel/sail": "^1.26",
@@ -86,6 +86,7 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.1",
         "predis/predis": "^2.0",
+        "retroachievements/openapi-spec-generator": "^1.3.0",
         "spatie/laravel-ignition": "^2.9"
     },
     "autoload": {
@@ -191,5 +192,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [{
+        "name": "openapi-spec-generator",
+        "type": "vcs",
+        "url": "https://github.com/RetroAchievements/openapi-spec-generator"
+    }]
 }

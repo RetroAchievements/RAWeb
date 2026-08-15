@@ -39,7 +39,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards, activeEventAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -178,6 +178,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                               shouldShowAuthor={!isViewingPublishedAchievements}
                               shouldShowWeightedPoints={isViewingPublishedAchievements}
                               playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                              activeEventAchievements={activeEventAchievements}
                             />
                           ))}
                         </AchievementGroupSection>
@@ -201,6 +202,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                             isLargeList={isLargeAchievementsList}
                             shouldShowAuthor={!isViewingPublishedAchievements}
                             playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                            activeEventAchievements={activeEventAchievements}
                           />
                         ))}
                       </AchievementGroupSection>
@@ -227,6 +229,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                         shouldShowAuthor={!isViewingPublishedAchievements}
                         shouldShowWeightedPoints={isViewingPublishedAchievements}
                         playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                        activeEventAchievements={activeEventAchievements}
                       />
                     ))}
 
