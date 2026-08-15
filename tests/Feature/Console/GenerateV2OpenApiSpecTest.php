@@ -202,3 +202,9 @@ it('given a schema that declares nullability, it flags only the attributes that 
     expect($attributes['releasedAt']['nullable'])->toEqual(true);
     expect($attributes['title'])->not->toHaveKey('nullable');
 });
+
+it('given a whole number field, it documents an integer rather than a number', function () {
+    // Assert
+    expect(resourceAttributes('games')['playersTotal']['type'])->toEqual('integer');
+    expect(resourceAttributes('achievements')['unlockPercentage']['type'])->toEqual('number');
+});

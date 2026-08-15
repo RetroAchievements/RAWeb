@@ -12,13 +12,13 @@ use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class EventSchema extends Schema
 {
@@ -59,8 +59,8 @@ class EventSchema extends Schema
             Str::make('badgeUrl')->readOnly(),
             Str::make('state')->readOnly(),
 
-            Number::make('playersTotal', 'players_total')->readOnly(),
-            Number::make('achievementsPublished', 'achievements_published')->readOnly(),
+            Integer::make('playersTotal', 'players_total')->readOnly(),
+            Integer::make('achievementsPublished', 'achievements_published')->readOnly(),
 
             DateTime::make('activeFrom', 'active_from')->sortable()->readOnly(),
             DateTime::make('activeThrough')->readOnly(),

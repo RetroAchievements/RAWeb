@@ -13,13 +13,13 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\ArrayHash;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class UserAwardSchema extends Schema
 {
@@ -86,7 +86,7 @@ class UserAwardSchema extends Schema
             Str::make('kind', 'award_type')->readOnly(),
             Str::make('title', 'award_key')->readOnly(),
             Str::make('badgeUrl', 'award_key')->readOnly(),
-            Number::make('displayOrder', 'order_column')->sortable()->readOnly(),
+            Integer::make('displayOrder', 'order_column')->sortable()->readOnly(),
             ArrayHash::make('context', 'award_key')->readOnly(),
             Str::make('userDisplayName')->readOnly(),
             Str::make('userId')->readOnly(),

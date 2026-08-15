@@ -22,6 +22,7 @@ use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class AchievementSchema extends Schema
 {
@@ -60,8 +61,8 @@ class AchievementSchema extends Schema
             Str::make('title')->sortable()->readOnly(),
             Str::make('description')->readOnly(),
 
-            Number::make('points')->sortable()->readOnly(),
-            Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
+            Integer::make('points')->sortable()->readOnly(),
+            Integer::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
             Str::make('badgeUrl')->readOnly(),
             Str::make('badgeLockedUrl')->readOnly(),
@@ -70,17 +71,17 @@ class AchievementSchema extends Schema
 
             Str::make('state')->readOnly(),
 
-            Number::make('orderColumn')->sortable()->readOnly(),
+            Integer::make('orderColumn')->sortable()->readOnly(),
 
-            Number::make('unlocksTotal', 'unlocks_total')->sortable()->readOnly(),
-            Number::make('unlocksHardcore', 'unlocks_hardcore')->sortable()->readOnly(),
+            Integer::make('unlocksTotal', 'unlocks_total')->sortable()->readOnly(),
+            Integer::make('unlocksHardcore', 'unlocks_hardcore')->sortable()->readOnly(),
             Number::make('unlockPercentage', 'unlock_percentage')->sortable()->readOnly(),
             Number::make('unlockHardcorePercentage', 'unlock_hardcore_percentage')->sortable()->readOnly(),
 
-            Number::make('medianTimeToUnlockSeconds', 'median_time_to_unlock')->readOnly(),
-            Number::make('medianTimeToUnlockHardcoreSeconds', 'median_time_to_unlock_hardcore')->readOnly(),
-            Number::make('medianTimeToUnlockSamples', 'median_time_to_unlock_samples')->readOnly(),
-            Number::make('medianTimeToUnlockHardcoreSamples', 'median_time_to_unlock_hardcore_samples')->readOnly(),
+            Integer::make('medianTimeToUnlockSeconds', 'median_time_to_unlock')->readOnly(),
+            Integer::make('medianTimeToUnlockHardcoreSeconds', 'median_time_to_unlock_hardcore')->readOnly(),
+            Integer::make('medianTimeToUnlockSamples', 'median_time_to_unlock_samples')->readOnly(),
+            Integer::make('medianTimeToUnlockHardcoreSamples', 'median_time_to_unlock_hardcore_samples')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->readOnly(),
             DateTime::make('modifiedAt', 'modified_at')->readOnly(),

@@ -14,11 +14,11 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class UserFollowSchema extends Schema
 {
@@ -69,8 +69,8 @@ class UserFollowSchema extends Schema
             Str::make('userId')->readOnly(),
             Str::make('displayName', 'displayed_users.display_name')->sortable()->readOnly(),
             Str::make('avatarUrl')->readOnly(),
-            Number::make('points', 'displayed_users.points')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'displayed_users.points_hardcore')->sortable()->readOnly(),
+            Integer::make('points', 'displayed_users.points')->sortable()->readOnly(),
+            Integer::make('pointsHardcore', 'displayed_users.points_hardcore')->sortable()->readOnly(),
             Boolean::make('isMutual')->readOnly(),
 
             BelongsTo::make('user', 'relatedUser')->type('users')->readOnly(),

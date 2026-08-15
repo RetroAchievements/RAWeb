@@ -21,13 +21,13 @@ use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class AchievementSetClaimSchema extends Schema
 {
@@ -81,15 +81,15 @@ class AchievementSetClaimSchema extends Schema
             Str::make('setType', 'set_type')->sortable()->readOnly(),
             Str::make('specialType', 'special_type')->sortable()->readOnly(),
 
-            Number::make('extensionsCount', 'extensions_count')->sortable()->readOnly(),
-            Number::make('minutesLeft')->readOnly(),
+            Integer::make('extensionsCount', 'extensions_count')->sortable()->readOnly(),
+            Integer::make('minutesLeft')->readOnly(),
 
             Str::make('userId')->readOnly(),
             Str::make('userDisplayName')->readOnly(),
-            Number::make('gameId', 'game_id')->readOnly(),
+            Integer::make('gameId', 'game_id')->readOnly(),
             Str::make('gameTitle')->readOnly(),
             Str::make('gameIconUrl')->readOnly(),
-            Number::make('systemId')->readOnly(),
+            Integer::make('systemId')->readOnly(),
             Str::make('systemName')->readOnly(),
 
             BelongsTo::make('user')->type('users')->readOnly(),

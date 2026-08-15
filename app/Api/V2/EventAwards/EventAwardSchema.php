@@ -7,12 +7,12 @@ namespace App\Api\V2\EventAwards;
 use App\Models\EventAward;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class EventAwardSchema extends Schema
 {
@@ -43,9 +43,9 @@ class EventAwardSchema extends Schema
         return [
             ID::make(),
 
-            Number::make('tierIndex', 'tier_index')->readOnly(),
+            Integer::make('tierIndex', 'tier_index')->readOnly(),
             Str::make('label')->readOnly(),
-            Number::make('pointsRequired', 'points_required')->readOnly(),
+            Integer::make('pointsRequired', 'points_required')->readOnly(),
             Str::make('badgeUrl')->readOnly(),
 
             BelongsTo::make('event')->type('events')->readOnly(),

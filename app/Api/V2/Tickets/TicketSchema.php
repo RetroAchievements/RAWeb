@@ -15,12 +15,12 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class TicketSchema extends Schema
 {
@@ -89,7 +89,7 @@ class TicketSchema extends Schema
             DateTime::make('resolvedAt', 'resolved_at')->sortable()->readOnly(),
 
             Str::make('ticketableType', 'ticketable_type')->readOnly(),
-            Number::make('ticketableId', 'ticketable_id')->readOnly(),
+            Integer::make('ticketableId', 'ticketable_id')->readOnly(),
             Str::make('gameIconUrl')->readOnly(),
             Str::make('systemName')->readOnly(),
 

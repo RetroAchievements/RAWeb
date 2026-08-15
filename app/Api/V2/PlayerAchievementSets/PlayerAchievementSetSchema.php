@@ -17,6 +17,7 @@ use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class PlayerAchievementSetSchema extends Schema
 {
@@ -58,12 +59,12 @@ class PlayerAchievementSetSchema extends Schema
         return [
             ID::make(),
 
-            Number::make('achievementsUnlocked', 'achievements_unlocked')->readOnly(),
-            Number::make('achievementsUnlockedHardcore', 'achievements_unlocked_hardcore')->readOnly(),
+            Integer::make('achievementsUnlocked', 'achievements_unlocked')->readOnly(),
+            Integer::make('achievementsUnlockedHardcore', 'achievements_unlocked_hardcore')->readOnly(),
 
-            Number::make('points', 'points')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
-            Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
+            Integer::make('points', 'points')->sortable()->readOnly(),
+            Integer::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
+            Integer::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
             Number::make('completionPercentage', 'completion_percentage')->sortable()->readOnly(),
             Number::make('completionPercentageHardcore', 'completion_percentage_hardcore')->sortable()->readOnly(),
@@ -73,8 +74,8 @@ class PlayerAchievementSetSchema extends Schema
             DateTime::make('completedAt', 'completed_at')->sortable()->readOnly(),
             DateTime::make('completedHardcoreAt', 'completed_hardcore_at')->sortable()->readOnly(),
 
-            Number::make('timeTakenSeconds', 'time_taken')->sortable()->readOnly(),
-            Number::make('timeTakenHardcoreSeconds', 'time_taken_hardcore')->sortable()->readOnly(),
+            Integer::make('timeTakenSeconds', 'time_taken')->sortable()->readOnly(),
+            Integer::make('timeTakenHardcoreSeconds', 'time_taken_hardcore')->sortable()->readOnly(),
 
             ArrayList::make('setContext')->readOnly(),
 

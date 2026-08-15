@@ -11,7 +11,6 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
@@ -19,6 +18,7 @@ use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 use LaravelJsonApi\Eloquent\Sorting\SortWithCount;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class HubSchema extends Schema
 {
@@ -55,8 +55,8 @@ class HubSchema extends Schema
 
             Boolean::make('hasMatureContent', 'has_mature_content')->readOnly(),
 
-            Number::make('gamesCount')->readOnly(),
-            Number::make('linkedHubsCount')->readOnly(),
+            Integer::make('gamesCount')->readOnly(),
+            Integer::make('linkedHubsCount')->readOnly(),
             Boolean::make('isEventHub')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),

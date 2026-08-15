@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
@@ -22,6 +21,7 @@ use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class GameSchema extends Schema
 {
@@ -63,19 +63,19 @@ class GameSchema extends Schema
             DateTime::make('releasedAt', 'released_at')->sortable(),
             Str::make('releasedAtGranularity', 'released_at_granularity'),
 
-            Number::make('playersTotal', 'players_total')->sortable(),
-            Number::make('playersHardcore', 'players_hardcore')->sortable(),
+            Integer::make('playersTotal', 'players_total')->sortable(),
+            Integer::make('playersHardcore', 'players_hardcore')->sortable(),
 
-            Number::make('achievementsPublished', 'achievements_published')->sortable(),
-            Number::make('achievementsUnpublished', 'achievements_unpublished'),
+            Integer::make('achievementsPublished', 'achievements_published')->sortable(),
+            Integer::make('achievementsUnpublished', 'achievements_unpublished'),
 
-            Number::make('pointsTotal', 'points_total')->sortable(),
-            Number::make('pointsWeighted', 'points_weighted')->sortable(),
+            Integer::make('pointsTotal', 'points_total')->sortable(),
+            Integer::make('pointsWeighted', 'points_weighted')->sortable(),
 
-            Number::make('timesBeaten', 'times_beaten'),
-            Number::make('timesBeatenHardcore', 'times_beaten_hardcore'),
-            Number::make('medianTimeToBeatSeconds', 'median_time_to_beat'),
-            Number::make('medianTimeToBeatHardcoreSeconds', 'median_time_to_beat_hardcore'),
+            Integer::make('timesBeaten', 'times_beaten'),
+            Integer::make('timesBeatenHardcore', 'times_beaten_hardcore'),
+            Integer::make('medianTimeToBeatSeconds', 'median_time_to_beat'),
+            Integer::make('medianTimeToBeatHardcoreSeconds', 'median_time_to_beat_hardcore'),
 
             BelongsTo::make('system')->readOnly(),
 

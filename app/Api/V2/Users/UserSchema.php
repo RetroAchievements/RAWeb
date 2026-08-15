@@ -17,7 +17,6 @@ use LaravelJsonApi\Eloquent\Fields\ArrayList;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
@@ -25,6 +24,7 @@ use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\WhereNull;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class UserSchema extends Schema
 {
@@ -88,14 +88,14 @@ class UserSchema extends Schema
             Str::make('avatarUrl')->readOnly(),
             Str::make('motto')->readOnly(),
 
-            Number::make('points', 'points')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
-            Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
-            Number::make('rankHardcore')->readOnly(),
-            Number::make('rankCasual')->readOnly(),
+            Integer::make('points', 'points')->sortable()->readOnly(),
+            Integer::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
+            Integer::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
+            Integer::make('rankHardcore')->readOnly(),
+            Integer::make('rankCasual')->readOnly(),
 
-            Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
-            Number::make('yieldPoints', 'yield_points')->sortable()->readOnly(),
+            Integer::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
+            Integer::make('yieldPoints', 'yield_points')->sortable()->readOnly(),
 
             DateTime::make('joinedAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('lastActivityAt', 'last_activity_at')->sortable()->readOnly(),
