@@ -158,6 +158,36 @@ class UserSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'displayName' => false,
+            'avatarUrl' => false,
+            'motto' => false,
+            'points' => false,
+            'pointsHardcore' => false,
+            'pointsWeighted' => false,
+            'rankHardcore' => true,
+            'rankCasual' => true,
+            'yieldUnlocks' => false,
+            'yieldPoints' => false,
+            'joinedAt' => false,
+            'lastActivityAt' => true,
+            'deletedAt' => false,
+            'isUnranked' => false,
+            'isUserWallActive' => false,
+            'richPresence' => true,
+            'richPresenceUpdatedAt' => true,
+            'visibleRole' => true,
+            'displayableRoles' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

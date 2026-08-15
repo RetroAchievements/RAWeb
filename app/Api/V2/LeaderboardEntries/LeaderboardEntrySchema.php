@@ -68,6 +68,21 @@ class LeaderboardEntrySchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'score' => false,
+            'rank' => true,
+            'createdAt' => true,
+            'updatedAt' => false,
+        ];
+    }
+
+    /**
      * Get the allowed include paths.
      */
     public function includePaths(): iterable

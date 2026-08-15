@@ -101,6 +101,27 @@ class TicketSchema extends Schema
         ];
     }
 
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'state' => false,
+            'type' => false,
+            'body' => false,
+            'hardcore' => true,
+            'reportedAt' => false,
+            'resolvedAt' => true,
+            'ticketableType' => false,
+            'ticketableId' => false,
+            'gameIconUrl' => true,
+            'systemName' => true,
+        ];
+    }
+
     public function filters(): array
     {
         return [

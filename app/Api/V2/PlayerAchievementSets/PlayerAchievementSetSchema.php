@@ -84,6 +84,31 @@ class PlayerAchievementSetSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'achievementsUnlocked' => false,
+            'achievementsUnlockedHardcore' => false,
+            'points' => false,
+            'pointsHardcore' => false,
+            'pointsWeighted' => false,
+            'completionPercentage' => false,
+            'completionPercentageHardcore' => false,
+            'lastUnlockAt' => true,
+            'lastUnlockHardcoreAt' => true,
+            'completedAt' => true,
+            'completedHardcoreAt' => true,
+            'timeTakenSeconds' => false,
+            'timeTakenHardcoreSeconds' => false,
+            'setContext' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

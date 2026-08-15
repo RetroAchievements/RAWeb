@@ -73,6 +73,25 @@ class LeaderboardSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'description' => false,
+            'format' => false,
+            'rankAsc' => false,
+            'state' => false,
+            'orderColumn' => false,
+            'createdAt' => true,
+            'updatedAt' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

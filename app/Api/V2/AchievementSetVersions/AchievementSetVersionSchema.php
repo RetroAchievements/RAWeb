@@ -76,6 +76,26 @@ class AchievementSetVersionSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'version' => false,
+            'createdAt' => false,
+            'updatedAt' => false,
+            'playersTotal' => false,
+            'playersHardcore' => false,
+            'achievementsPublished' => false,
+            'achievementsUnpublished' => false,
+            'pointsTotal' => false,
+            'achievementSetId' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

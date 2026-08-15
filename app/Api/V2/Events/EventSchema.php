@@ -78,6 +78,25 @@ class EventSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'sortTitle' => false,
+            'badgeUrl' => false,
+            'state' => false,
+            'playersTotal' => false,
+            'achievementsPublished' => false,
+            'activeFrom' => true,
+            'activeThrough' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

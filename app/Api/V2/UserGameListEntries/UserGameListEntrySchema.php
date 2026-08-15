@@ -78,6 +78,25 @@ class UserGameListEntrySchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'createdAt' => false,
+            'gameId' => false,
+            'gameTitle' => false,
+            'gameIconUrl' => false,
+            'systemId' => false,
+            'systemName' => false,
+            'pointsTotal' => false,
+            'achievementsPublished' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

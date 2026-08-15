@@ -98,6 +98,25 @@ class UserAwardSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'awardedAt' => false,
+            'kind' => false,
+            'title' => false,
+            'badgeUrl' => false,
+            'displayOrder' => false,
+            'context' => false,
+            'userDisplayName' => true,
+            'userId' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

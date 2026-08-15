@@ -103,6 +103,35 @@ class GameSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'sortTitle' => false,
+            'badgeUrl' => false,
+            'imageBoxArtUrl' => false,
+            'imageTitleUrl' => false,
+            'imageIngameUrl' => false,
+            'releasedAt' => true,
+            'releasedAtGranularity' => true,
+            'playersTotal' => false,
+            'playersHardcore' => false,
+            'achievementsPublished' => false,
+            'achievementsUnpublished' => false,
+            'pointsTotal' => false,
+            'pointsWeighted' => false,
+            'timesBeaten' => false,
+            'timesBeatenHardcore' => false,
+            'medianTimeToBeatSeconds' => true,
+            'medianTimeToBeatHardcoreSeconds' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

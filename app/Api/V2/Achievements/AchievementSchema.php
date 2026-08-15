@@ -113,6 +113,36 @@ class AchievementSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'description' => false,
+            'points' => false,
+            'pointsWeighted' => false,
+            'badgeUrl' => false,
+            'badgeLockedUrl' => false,
+            'type' => true,
+            'state' => false,
+            'orderColumn' => true,
+            'unlocksTotal' => true,
+            'unlocksHardcore' => true,
+            'unlockPercentage' => true,
+            'unlockHardcorePercentage' => true,
+            'medianTimeToUnlockSeconds' => true,
+            'medianTimeToUnlockHardcoreSeconds' => true,
+            'medianTimeToUnlockSamples' => true,
+            'medianTimeToUnlockHardcoreSamples' => true,
+            'createdAt' => false,
+            'modifiedAt' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

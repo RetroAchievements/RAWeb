@@ -78,6 +78,24 @@ class UserFollowSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'followedAt' => true,
+            'userId' => true,
+            'displayName' => true,
+            'avatarUrl' => true,
+            'points' => false,
+            'pointsHardcore' => false,
+            'isMutual' => false,
+        ];
+    }
+
+    /**
      * Get the resource paginator.
      */
     public function pagination(): ?Paginator

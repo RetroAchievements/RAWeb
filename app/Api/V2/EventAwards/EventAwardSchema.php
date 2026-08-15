@@ -53,6 +53,21 @@ class EventAwardSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'tierIndex' => false,
+            'label' => false,
+            'pointsRequired' => false,
+            'badgeUrl' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

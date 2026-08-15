@@ -58,6 +58,14 @@ function sharedSpec(): array
     return $document ??= specAt(sharedSpecPath());
 }
 
+/**
+ * @return array<string, array<string, mixed>>
+ */
+function resourceAttributes(string $type): array
+{
+    return sharedSpec()['components']['schemas']["resources.{$type}.resource.fetch"]['properties']['attributes']['properties'];
+}
+
 it('given the command runs, it writes the spec', function () {
     // Act
     generate()->assertSuccessful();
@@ -185,4 +193,12 @@ it('given a spec that will not parse, check fails', function () {
     generate(check: true)
         ->expectsOutputToContain('not valid JSON')
         ->assertFailed();
+});
+
+it('given a schema that declares nullability, it flags only the attributes that can be null', function () {
+    // Assert
+    $attributes = resourceAttributes('games');
+
+    expect($attributes['releasedAt']['nullable'])->toEqual(true);
+    expect($attributes['title'])->not->toHaveKey('nullable');
 });

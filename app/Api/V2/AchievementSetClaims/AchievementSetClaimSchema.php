@@ -98,6 +98,33 @@ class AchievementSetClaimSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'claimedAt' => false,
+            'finishedAt' => false,
+            'updatedAt' => false,
+            'status' => false,
+            'claimType' => false,
+            'setType' => false,
+            'specialType' => false,
+            'extensionsCount' => false,
+            'minutesLeft' => false,
+            'userId' => false,
+            'userDisplayName' => false,
+            'gameId' => false,
+            'gameTitle' => false,
+            'gameIconUrl' => false,
+            'systemId' => false,
+            'systemName' => false,
+        ];
+    }
+
+    /**
      * Get the sortable fields for this resource.
      */
     public function sortables(): iterable

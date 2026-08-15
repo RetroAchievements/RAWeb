@@ -85,6 +85,26 @@ class PlayerGameSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'lastPlayedAt' => true,
+            'firstUnlockAt' => true,
+            'lastUnlockAt' => true,
+            'lastUnlockHardcoreAt' => true,
+            'beatenAt' => true,
+            'beatenHardcoreAt' => true,
+            'playtimeTotalSeconds' => true,
+            'timeToBeatSeconds' => true,
+            'timeToBeatHardcoreSeconds' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array
