@@ -187,18 +187,12 @@ class Ticket extends BaseModel
      */
     public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
     {
+        // Guests can't see tickets.
         if ($user === null) {
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->can('manage', self::class)) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($user) {
-            $q->where('state', '!=', TicketState::Quarantined->value)
-                ->orWhere('reporter_id', $user->id);
-        });
+        return $query;
     }
 
     /**
