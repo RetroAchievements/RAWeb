@@ -60,7 +60,7 @@ export function sortSections(a: SearchSection, b: SearchSection) {
     achievements: 5,
   };
 
-  return (defaultOrder[a.key] as number) - (defaultOrder[b.key] as number);
+  return (defaultOrder[a.key] ?? 10) - (defaultOrder[b.key] ?? 10);
 }
 
 export const SearchResults: FC<SearchResultsProps> = ({
