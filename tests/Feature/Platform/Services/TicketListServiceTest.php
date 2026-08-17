@@ -8,8 +8,10 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\TicketListStatusFilter;
 use App\Platform\Services\TicketListService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\Request;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -75,6 +77,42 @@ function sortedTicketIds(array $tickets): array
     return $ids;
 }
 
+describe('getFilterOptions', function () {
+    it('given no filter params, every default is filled', function () {
+        // ARRANGE
+        $service = new TicketListService();
+
+        // ACT
+        $options = $service->getFilterOptions(Request::create('/tickets', 'GET'));
+
+        // ASSERT
+        expect($options)->toEqual(defaultTicketListFilterOptions());
+    });
+
+    it('given a default status and no status in the URL, the default status is used', function () {
+        // ARRANGE
+        $service = new TicketListService();
+
+        // ACT
+        $options = $service->getFilterOptions(Request::create('/tickets', 'GET'), TicketListStatusFilter::Request);
+
+        // ASSERT
+        expect($options['status'])->toEqual('request');
+    });
+
+    it('given a default status and a status in the URL, the URL status is used', function () {
+        // ARRANGE
+        $service = new TicketListService();
+        $request = Request::create('/tickets', 'GET', ['filter' => ['status' => 'all']]);
+
+        // ACT
+        $options = $service->getFilterOptions($request, TicketListStatusFilter::Request);
+
+        // ASSERT
+        expect($options['status'])->toEqual('all');
+    });
+});
+
 describe('applyFilters', function () {
     it('given a status filter, only tickets with matching status values are returned', function (string $status, array $expectedStateKeys) {
         // ARRANGE
@@ -89,6 +127,7 @@ describe('applyFilters', function () {
         expect($ids)->toEqual(sortedTicketIds($expectedTickets));
     })->with([
         'unresolved' => ['unresolved', ['open', 'request']],
+        'request' => ['request', ['request']],
         'resolved' => ['resolved', ['resolved', 'closed']],
         'quarantined' => ['quarantined', ['quarantined']],
         'all' => ['all', ['open', 'request', 'resolved', 'closed', 'quarantined']],
