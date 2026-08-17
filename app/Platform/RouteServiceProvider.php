@@ -168,6 +168,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/media-contribution/tier-preference', [UserDisplayedBadgePreferenceApiController::class, 'updateMediaContributionTier'])
                         ->name('api.user.media-contribution-tier-preference.update');
 
+                    Route::get('tickets', [TicketApiController::class, 'index'])->name('api.ticket.index');
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
 
                     Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
