@@ -8,8 +8,8 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Emulator;
-use App\Models\Leaderboard;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Enums\TicketableType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -189,17 +189,44 @@ class TicketListService
      *
      * @return Builder<Ticket>
      */
-    public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
+    public function buildQuery(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): Builder
     {
         if ($tickets === null) {
             $tickets = Ticket::query();
         }
 
-        // Don't include tickets where the ticketable is hard deleted.
-        $tickets->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
+        $tickets->withLiveTicketable();
 
         $this->totalTickets = $tickets->count();
 
+        // buildQuery keeps the legacy userId array contract for the Blade pages until they are gone.
+        if ($comparisonUser === null && array_key_exists('userId', $filterOptions)) {
+            $comparisonUser = User::withTrashed()->find($filterOptions['userId']);
+        }
+
+        $tickets = $this->applyFilters($tickets, $filterOptions, $comparisonUser);
+
+        $this->numFilteredTickets = $tickets->count();
+
+        if ($this->perPage > 0) {
+            $this->totalPages = (int) ceil($this->numFilteredTickets / $this->perPage);
+
+            if ($this->pageNumber < 1 || $this->pageNumber > $this->totalPages) {
+                $this->pageNumber = 1;
+            }
+
+            $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
+        }
+
+        return $tickets->with(['ticketable', 'author', 'reporter', 'resolver']);
+    }
+
+    /**
+     * @param Builder<Ticket> $tickets
+     * @return Builder<Ticket>
+     */
+    public function applyFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser = null): Builder
+    {
         switch ($filterOptions['status']) {
             case 'unresolved':
                 $tickets->open();
@@ -274,17 +301,17 @@ class TicketListService
                 break;
         }
 
-        if (array_key_exists('userId', $filterOptions)) {
+        if ($comparisonUser !== null) {
             switch ($filterOptions['developer']) {
                 case 'all':
                     break;
 
                 case 'self':
-                    $tickets->where('ticketable_author_id', '=', $filterOptions['userId']);
+                    $tickets->where('ticketable_author_id', '=', $comparisonUser->id);
                     break;
 
                 case 'others':
-                    $tickets->where('ticketable_author_id', '!=', $filterOptions['userId']);
+                    $tickets->where('ticketable_author_id', '!=', $comparisonUser->id);
                     break;
             }
 
@@ -293,11 +320,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->where('reporter_id', '=', $filterOptions['userId']);
+                    $tickets->where('reporter_id', '=', $comparisonUser->id);
                     break;
 
                 case 'others':
-                    $tickets->where('reporter_id', '!=', $filterOptions['userId']);
+                    $tickets->where('reporter_id', '!=', $comparisonUser->id);
                     break;
             }
         }
@@ -313,18 +340,6 @@ class TicketListService
             }
         }
 
-        $this->numFilteredTickets = $tickets->count();
-
-        if ($this->perPage > 0) {
-            $this->totalPages = (int) ceil($this->numFilteredTickets / $this->perPage);
-
-            if ($this->pageNumber < 1 || $this->pageNumber > $this->totalPages) {
-                $this->pageNumber = 1;
-            }
-
-            $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
-        }
-
-        return $tickets->with(['ticketable', 'author', 'reporter', 'resolver']);
+        return $tickets;
     }
 }
