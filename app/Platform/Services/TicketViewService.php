@@ -6,6 +6,7 @@ namespace App\Platform\Services;
 
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
+use App\Models\Achievement;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
@@ -21,6 +22,8 @@ class TicketViewService
     public ?PlayerAchievement $existingUnlock = null;
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
     public string $ticketNotes = '';
+    public ?int $reportedTriggerVersion = null;
+    public ?int $currentTriggerVersion = null;
 
     public function __construct(
         protected PlayerGameActivityService $activity = new PlayerGameActivityService(),
@@ -72,6 +75,8 @@ class TicketViewService
                 })->count();
         }
 
+        $this->loadReportedTrigger($ticket, $isAchievement ? $ticketable : null);
+
         $this->ticketNotes = nl2br($ticket->body);
         $game = $ticketable->getTicketableGame();
         foreach ($game->hashes as $hash) {
@@ -82,6 +87,30 @@ class TicketViewService
 
                 $this->ticketNotes = str_ireplace($hash->md5, $replacement, $this->ticketNotes);
             }
+        }
+    }
+
+    /**
+     * Resolve the logic version that was current when the ticket was filed, plus the version that
+     * is current now. This does not claim to be the version the reporter played. For the most
+     * common ticket type there is no unlock, so that version is unknowable.
+     */
+    private function loadReportedTrigger(Ticket $ticket, ?Achievement $achievement): void
+    {
+        $this->reportedTriggerVersion = null;
+        $this->currentTriggerVersion = null;
+
+        if (!$achievement || !$ticket->trigger_id) {
+            return;
+        }
+
+        $this->reportedTriggerVersion = $ticket->trigger?->version;
+        if ($this->reportedTriggerVersion === null) {
+            return;
+        }
+
+        if ($achievement->trigger_id !== $ticket->trigger_id) {
+            $this->currentTriggerVersion = $achievement->currentTrigger?->version;
         }
     }
 

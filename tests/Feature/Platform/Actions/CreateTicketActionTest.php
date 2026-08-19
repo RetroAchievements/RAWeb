@@ -16,10 +16,12 @@ use App\Models\Leaderboard;
 use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Platform\Actions\CreateTicketAction;
 use App\Platform\Data\StoreTicketData;
+use App\Platform\Enums\TriggerableType;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -319,4 +321,40 @@ it('given an open ticket is created, the achievement maintainer is notified', fu
 
     // Assert
     Notification::assertSentTo($this->developer, TicketCreatedNotification::class);
+});
+
+it('given the achievement has a current trigger, the ticket records that trigger id', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true]);
+    $trigger = Trigger::factory()->create([
+        'triggerable_type' => TriggerableType::Achievement,
+        'triggerable_id' => $this->achievement->id,
+        'version' => 2,
+    ]);
+    $this->achievement->update(['trigger_id' => $trigger->id]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter->refresh());
+
+    // Assert
+    expect($ticket->trigger_id)->toEqual($trigger->id);
+    expect($ticket->state)->toEqual(TicketState::Open);
+});
+
+it('given a quarantined ticket, still records the trigger id', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'AetherSX2', 'can_debug_triggers' => false]);
+    $trigger = Trigger::factory()->create([
+        'triggerable_type' => TriggerableType::Achievement,
+        'triggerable_id' => $this->achievement->id,
+        'version' => 1,
+    ]);
+    $this->achievement->update(['trigger_id' => $trigger->id]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(['emulator' => 'AetherSX2']), $this->reporter);
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+    expect($ticket->trigger_id)->toEqual($trigger->id);
 });

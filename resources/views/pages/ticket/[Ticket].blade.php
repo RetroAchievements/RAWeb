@@ -30,6 +30,8 @@ render(function (View $view, Ticket $ticket) {
         'existingUnlock' => $ticketService->existingUnlock,
         'reporterLeaderboardEntry' => $ticketService->reporterLeaderboardEntry,
         'ticketNotes' => $ticketService->ticketNotes,
+        'reportedTriggerVersion' => $ticketService->reportedTriggerVersion,
+        'currentTriggerVersion' => $ticketService->currentTriggerVersion,
     ]);
 });
 
@@ -47,6 +49,8 @@ render(function (View $view, Ticket $ticket) {
     'existingUnlock' => null, // ?PlayerAchievement
     'reporterLeaderboardEntry' => null, // ?LeaderboardEntry
     'ticketNotes' => '',
+    'reportedTriggerVersion' => null, // ?int
+    'currentTriggerVersion' => null, // ?int
 ])
 
 @php
@@ -127,6 +131,16 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     <x-ticket.stat-element label="Hash"><a href='{!! route("game.hashes.index", ["game" => $ticketableGame]) !!}' title='{{ $ticket->gameHash->name }}'>{{ $ticket->gameHash->md5 }}</a></x-ticket.stat-element>
                 @else
                     <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
+                @endif
+                @if ($reportedTriggerVersion !== null)
+                    <x-ticket.stat-element label="Logic at filing">
+                        @can('viewLogic', $ticketable)
+                            <a href='{!! route("filament.admin.resources.achievements.logic", ["record" => $ticketable->id, "version" => $reportedTriggerVersion]) !!}'>v{{ $reportedTriggerVersion }}</a>
+                        @else
+                            v{{ $reportedTriggerVersion }}
+                        @endcan
+                        @if ($currentTriggerVersion !== null)<span>(now v{{ $currentTriggerVersion }})</span>@endif
+                    </x-ticket.stat-element>
                 @endif
                 <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Casual" }}</x-ticket.stat-element>
                 @if ($ticket->state->isResolved())
