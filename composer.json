@@ -42,6 +42,7 @@
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^3.0",
         "propaganistas/laravel-disposable-email": "^2.4",
+        "retroachievements/openapi-spec-generator": "^1.4.0",
         "sentry/sentry-laravel": "^4.13",
         "snipe/banbuilder": "dev-master",
         "socialiteproviders/discord": "^4.1",
@@ -86,7 +87,6 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.1",
         "predis/predis": "^2.0",
-        "retroachievements/openapi-spec-generator": "^1.4.0",
         "spatie/laravel-ignition": "^2.9"
     },
     "autoload": {
