@@ -1209,6 +1209,15 @@ export type TicketListFilter = {
 kind: App.Platform.Enums.TicketListFilterKind;
 values: string[];
 };
+export type TicketListPageProps = {
+scope: App.Platform.Enums.TicketListScope;
+paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
+stateCounts: App.Platform.Data.TicketListStateCounts;
+availableFilters: Array<App.Platform.Data.TicketListFilter>;
+game: App.Platform.Data.Game | null;
+achievement: App.Platform.Data.Achievement | null;
+user: App.Data.User | null;
+};
 export type TicketListStateCounts = {
 unresolved: number;
 request: number;
