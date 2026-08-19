@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -11,10 +12,13 @@ use App\Models\Emulator;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListStatusFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TicketListService
 {
@@ -29,7 +33,10 @@ class TicketListService
         return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved'], true);
     }
 
-    public function getFilterOptions(Request $request): array
+    /**
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string}
+     */
+    public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
         if ($this->perPage !== 0) {
             $validatedData = $request->validate([
@@ -38,19 +45,15 @@ class TicketListService
             $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
         }
 
-        $validatedData = $request->validate([
-            'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
-            'filter.type' => 'sometimes|integer|min:0|max:2',
-            'filter.publishedStatus' => 'sometimes|string|in:all,published,unpublished',
-            'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
-            'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
-            'filter.developer' => 'sometimes|string|in:all,self,others',
-            'filter.reporter' => 'sometimes|string|in:all,self,others',
-            'filter.emulator' => 'sometimes|string',
-        ]);
+        $rules = ['filter.status' => ['sometimes', Rule::enum(TicketListStatusFilter::class)]];
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $rules["filter.{$kind->value}"] = $kind->validationRules();
+        }
+
+        $validatedData = $request->validate($rules);
 
         return [
-            'status' => $validatedData['filter']['status'] ?? 'unresolved',
+            'status' => $validatedData['filter']['status'] ?? $defaultStatus->value,
             'type' => (int) ($validatedData['filter']['type'] ?? 0),
             'publishedStatus' => $validatedData['filter']['publishedStatus'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
@@ -227,17 +230,24 @@ class TicketListService
      */
     public function applyFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser = null): Builder
     {
-        switch ($filterOptions['status']) {
-            case 'unresolved':
+        switch (TicketListStatusFilter::from($filterOptions['status'])) {
+            case TicketListStatusFilter::Unresolved:
                 $tickets->open();
                 break;
 
-            case 'resolved':
+            case TicketListStatusFilter::Request:
+                $tickets->where('state', TicketState::Request);
+                break;
+
+            case TicketListStatusFilter::Resolved:
                 $tickets->resolved();
                 break;
 
-            case 'quarantined':
+            case TicketListStatusFilter::Quarantined:
                 $tickets->quarantined();
+                break;
+
+            case TicketListStatusFilter::All:
                 break;
         }
 
@@ -341,5 +351,45 @@ class TicketListService
         }
 
         return $tickets;
+    }
+
+    /**
+     * Returns a count of tickets per status bucket under every filter except
+     * status itself. The counts describe what each status choice would show
+     * for a given set of filter options in the UI.
+     *
+     * @param Builder<Ticket> $tickets
+     * @param User|null $comparisonUser the user the developer and reporter filters compare against
+     * @return array{unresolved: int, request: int, resolved: int, quarantined: int, all: int}
+     */
+    public function getStateCounts(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): array
+    {
+        $countQuery = $tickets === null ? Ticket::query() : clone $tickets;
+
+        $countQuery->withLiveTicketable();
+
+        $countQuery = $this->applyFilters($countQuery, array_merge($filterOptions, ['status' => TicketListStatusFilter::All->value]), $comparisonUser);
+
+        $countsByState = $countQuery
+            ->reorder()
+            ->select('state', DB::raw('count(*) as aggregate'))
+            ->groupBy('state')
+            ->pluck('aggregate', 'state')
+            ->map(fn (mixed $count) => (int) $count);
+
+        $countFor = fn (TicketState $state): int => $countsByState->get($state->value, 0);
+
+        $request = $countFor(TicketState::Request);
+        $unresolved = $countFor(TicketState::Open) + $request;
+        $resolved = $countFor(TicketState::Resolved) + $countFor(TicketState::Closed);
+        $quarantined = $countFor(TicketState::Quarantined);
+
+        return [
+            'unresolved' => $unresolved,
+            'request' => $request,
+            'resolved' => $resolved,
+            'quarantined' => $quarantined,
+            'all' => $unresolved + $resolved + $quarantined,
+        ];
     }
 }
