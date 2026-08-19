@@ -70,6 +70,19 @@ class PlayerAchievementSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'unlockedAt' => false,
+            'unlockedHardcoreAt' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array

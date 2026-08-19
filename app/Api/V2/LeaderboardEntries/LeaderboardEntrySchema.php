@@ -15,12 +15,12 @@ use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class LeaderboardEntrySchema extends Schema
 {
@@ -56,14 +56,29 @@ class LeaderboardEntrySchema extends Schema
         return [
             ID::make(),
 
-            Number::make('score')->sortable()->readOnly(),
-            Number::make('rank')->readOnly(),
+            Integer::make('score')->sortable()->readOnly(),
+            Integer::make('rank')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->sortable()->readOnly(),
 
             BelongsTo::make('user')->readOnly(),
             BelongsTo::make('leaderboard')->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'score' => false,
+            'rank' => true,
+            'createdAt' => true,
+            'updatedAt' => false,
         ];
     }
 

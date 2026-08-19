@@ -8,13 +8,13 @@ use App\Models\AchievementSetVersion;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class AchievementSetVersionSchema extends Schema
 {
@@ -59,19 +59,39 @@ class AchievementSetVersionSchema extends Schema
         return [
             ID::make(),
 
-            Number::make('version')->readOnly(),
+            Integer::make('version')->readOnly(),
 
             DateTime::make('createdAt')->sortable()->readOnly(),
             DateTime::make('updatedAt')->sortable()->readOnly(),
-            Number::make('playersTotal', 'players_total')->readOnly(),
-            Number::make('playersHardcore', 'players_hardcore')->readOnly(),
-            Number::make('achievementsPublished', 'achievements_published')->readOnly(),
-            Number::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
-            Number::make('pointsTotal', 'points_total')->readOnly(),
+            Integer::make('playersTotal', 'players_total')->readOnly(),
+            Integer::make('playersHardcore', 'players_hardcore')->readOnly(),
+            Integer::make('achievementsPublished', 'achievements_published')->readOnly(),
+            Integer::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
+            Integer::make('pointsTotal', 'points_total')->readOnly(),
 
             Str::make('achievementSetId', 'achievement_set_id')->readOnly(),
 
             BelongsTo::make('achievementSet')->type('achievement-sets')->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'version' => false,
+            'createdAt' => false,
+            'updatedAt' => false,
+            'playersTotal' => false,
+            'playersHardcore' => false,
+            'achievementsPublished' => false,
+            'achievementsUnpublished' => false,
+            'pointsTotal' => false,
+            'achievementSetId' => false,
         ];
     }
 
