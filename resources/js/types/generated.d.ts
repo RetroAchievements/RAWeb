@@ -289,6 +289,7 @@ updatedAt: string | null;
 editedAt: string | null;
 user: App.Data.User | null;
 isAuthorized: boolean;
+isFromBlockedUser: boolean;
 forumTopicId: number | null;
 forumTopic?: App.Data.ForumTopic | null;
 sentBy?: App.Data.User | null;
