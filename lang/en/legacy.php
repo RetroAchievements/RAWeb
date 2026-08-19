@@ -10,6 +10,7 @@ return [
 
         'account' => __("There appears to be a problem with your account. Please contact <a href='" . route('user.show', 'RAdmin') . "'>RAdmin</a> for more details."),
         'cannot_message_user' => __("This user isn't accepting messages right now."),
+        'captcha' => __("We could not verify that you are human. Please try again."),
         'credentials' => __("Incorrect credentials."),
         'game_merge' => __("Problems encountered while performing merge."),
         'game_modify' => __("Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title."),
@@ -17,7 +18,6 @@ return [
         'invalid_news_content' => __("Problems encountered with news content. Ensure any given HTML is valid."),
         'muted_user' => __("Muted users can only message RAdmin."),
         'permissions' => __('Insufficient permissions.'),
-        'recaptcha' => __("Invalid ReCaptcha."),
         'subscription_update' => __("Failed to update topic subscription."),
         'ticket_create' => __("There was an issue submitting your ticket."),
         'ticket_exists' => __("You already have a ticket for that achievement."),

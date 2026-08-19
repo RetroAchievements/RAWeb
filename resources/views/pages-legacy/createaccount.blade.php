@@ -7,9 +7,15 @@ authenticateFromCookie($user, $permissions, $userDetails);
 if (request()->user()) {
     abort_with(redirect(route('home')));
 }
+
+$turnstileTheme = match (request()->cookie('scheme', '')) {
+    'light' => 'light',
+    'system' => 'auto',
+    default => 'dark',
+};
 ?>
 <x-app-layout pageTitle="Create Account">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <h3>Create Account</h3>
     <div class="infobox">
         <form method=post action="/request/auth/register.php" x-data="{ isSending: false }" x-on:submit="isSending = true">
@@ -40,11 +46,11 @@ if (request()->user()) {
                         <div><input type="password" id="password" name="password" required></div>
                     </td>
                 </tr>
-                <?php if (config('services.google.recaptcha_key')): ?>
+                <?php if (config('services.cloudflare.turnstile_site_key')): ?>
                     <tr>
                         <td class="text-right"><label for="captcha">Are you a robot?</label></td>
                         <td>
-                            <div class="g-recaptcha" data-sitekey="<?= config('services.google.recaptcha_key') ?>"></div>
+                            <div class="cf-turnstile" data-sitekey="<?= config('services.cloudflare.turnstile_site_key') ?>" data-theme="<?= $turnstileTheme ?>"></div>
                         </td>
                     </tr>
                 <?php endif ?>
