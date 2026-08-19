@@ -39,11 +39,9 @@ export function buildGameColumnDef({
             )}
           />
 
-          {game.system?.nameShort ? (
-            <span className={cn(ticketListCellClassNames.dimText, 'shrink-0')}>
-              {'·'} {game.system.nameShort}
-            </span>
-          ) : null}
+          <span className={cn(ticketListCellClassNames.dimText, 'shrink-0')}>
+            {'·'} {game.system!.nameShort}
+          </span>
         </div>
       );
     },

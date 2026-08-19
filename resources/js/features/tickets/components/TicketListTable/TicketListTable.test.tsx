@@ -1,9 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { route } from 'ziggy-js';
 
-import { render, screen, within } from '@/test';
+import { render, screen } from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -257,5 +256,24 @@ describe('Component: TicketListTable', () => {
       'https://example.com/game.png',
     );
     expect(screen.getByText('· MD')).toBeVisible();
+  });
+
+  it('given the id column is hidden, the state glyph leads the row and the header keeps its slot', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({ state: 'open' });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, ticketable: true, age: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByRole('columnheader').map((el) => el.textContent)).toEqual([
+      'Issue with',
+      'Age',
+    ]);
+    expect(screen.getByRole('img', { name: 'Open' })).toBeVisible();
   });
 });
