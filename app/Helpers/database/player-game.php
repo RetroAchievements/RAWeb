@@ -115,7 +115,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'Publisher' => $game->publisher,
                 'Developer' => $game->developer,
                 'Genre' => $game->genre,
-                'Released' => Carbon::parse($game->released_at)?->format('Y-m-d'),
+                'Released' => $game->released_at ? Carbon::parse($game->released_at)->format('Y-m-d') : null,
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
         }
