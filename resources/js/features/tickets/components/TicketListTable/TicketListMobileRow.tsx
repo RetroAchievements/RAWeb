@@ -16,7 +16,7 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({ entry }) => 
   const { diffForHumans } = useDiffForHumans();
 
   return (
-    <div className="flex w-full min-w-0 items-center gap-2 sm:hidden">
+    <div role="cell" className="flex w-full min-w-0 items-center gap-2 sm:hidden">
       <TicketStateGlyph state={entry.state} className="flex-none" />
 
       {entry.ticketableType === 'achievement' && entry.ticketableBadgeUrl ? (
