@@ -1,5 +1,4 @@
-import type { Table } from '@tanstack/react-table';
-import type { ChangeEvent, ReactNode } from 'react';
+import type { ChangeEvent, FC } from 'react';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useDebounce } from 'react-use';
@@ -7,35 +6,31 @@ import { useDebounce } from 'react-use';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { cn } from '@/common/utils/cn';
 
-interface ManualPaginatorFieldProps<TData> {
-  table: Table<TData>;
-  onPageChange: (newPageIndex: number) => void;
+interface ManualPaginatorFieldProps {
+  currentPage: number;
+  onPageChange: (pageNumber: number) => void;
+  totalPages: number;
 }
 
-export function ManualPaginatorField<TData>({
-  table,
+export const ManualPaginatorField: FC<ManualPaginatorFieldProps> = ({
+  currentPage,
   onPageChange,
-}: ManualPaginatorFieldProps<TData>): ReactNode {
+  totalPages,
+}) => {
   const { t } = useTranslation();
-
-  const { pagination } = table.getState();
-
-  const currentPage = pagination.pageIndex + 1;
-  const totalPages = table.getPageCount();
 
   const [inputValue, setInputValue] = useState(String(currentPage));
 
-  // Sync the input field with table state for when
-  // pagination changes externally (ie: the pagination buttons).
   useEffect(() => {
     setInputValue(String(currentPage));
   }, [currentPage]);
 
+  // Prevent partial input from overzealously fetching.
   useDebounce(
     () => {
-      const newPage = Number(inputValue);
-      if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-        onPageChange(newPage - 1);
+      const typedPage = Number(inputValue);
+      if (typedPage >= 1 && typedPage <= totalPages && typedPage !== currentPage) {
+        onPageChange(typedPage);
       }
     },
     800,
@@ -54,7 +49,7 @@ export function ManualPaginatorField<TData>({
       ) : (
         <Trans
           i18nKey="Page <1></1> of {{totalPages, number}}"
-          values={{ totalPages: table.getPageCount() }}
+          values={{ totalPages }}
           components={{
             1: (
               <BaseInput
@@ -64,11 +59,13 @@ export function ManualPaginatorField<TData>({
                 className={cn(
                   'h-8 max-w-20 pt-1.25 text-[13px] text-neutral-200 light:text-neutral-900',
 
-                  // Hide the number spinner on desktop browsers -- it can obstruct the input field.
+                  // Hide the number spinner on desktop browsers. It can obstruct the input field.
                   'appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
                 )}
                 value={inputValue}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setInputValue(event.target.value)
+                }
                 aria-label={t('current page number')}
               />
             ),
@@ -77,4 +74,4 @@ export function ManualPaginatorField<TData>({
       )}
     </div>
   );
-}
+};
