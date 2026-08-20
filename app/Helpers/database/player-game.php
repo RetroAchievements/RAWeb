@@ -4,8 +4,10 @@ use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Services\GameTopAchieversService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 function getGameRankAndScore(int $gameID, User $user): array
@@ -59,11 +61,19 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     $unlockedAchievements = [];
     $lockedAchievements = [];
 
-    $games = Game::with('system')->whereIn('id', $gameIDs)->get()->keyBy('id');
+    $games = Game::whereIn('id', $gameIDs)->toBase()->get()->keyBy('id');
     $playerGames = PlayerGame::where('user_id', '=', $user->id)
         ->whereIn('game_id', $gameIDs)
+        ->toBase()
         ->get()
         ->keyBy('game_id');
+
+    $systemNames = [];
+    if ($withGameInfo) {
+        $systemNames = System::query()
+            ->whereIn('id', $games->pluck('system_id')->all())
+            ->pluck('name', 'id');
+    }
 
     foreach ($gameIDs as $gameID) {
         $game = $games->get($gameID);
@@ -95,7 +105,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'ID' => $game->id,
                 'Title' => $game->title,
                 'ConsoleID' => $game->system_id,
-                'ConsoleName' => $game->system->name,
+                'ConsoleName' => $systemNames[$game->system_id] ?? str($game->system_id),
                 'ForumTopicID' => (int) $game->forum_topic_id,
                 'Flags' => 0,
                 'ImageIcon' => $game->image_icon_asset_path,
@@ -105,9 +115,17 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'Publisher' => $game->publisher,
                 'Developer' => $game->developer,
                 'Genre' => $game->genre,
-                'Released' => $game->released_at?->format('Y-m-d'),
+                'Released' => $game->released_at ? Carbon::parse($game->released_at)->format('Y-m-d') : null,
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
+
+            // Using toBase to not generate models also avoids the functional overrides
+            // that post-process the restricted images. Do so manually ourself.
+            if ($game->is_media_restricted) {
+                $gameInfo[$gameID]['ImageTitle'] = Game::PLACEHOLDER_IMAGE_PATH;
+                $gameInfo[$gameID]['ImageIngame'] = Game::PLACEHOLDER_IMAGE_PATH;
+                $gameInfo[$gameID]['ImageBoxArt'] = Game::PLACEHOLDER_IMAGE_PATH;
+            }
         }
     }
 
@@ -121,7 +139,14 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 $join->where('player_achievements.user_id', $user->id);
             })
             ->select(
-                'achievements.*',
+                'achievements.id',
+                'achievements.title',
+                'achievements.description',
+                'achievements.points',
+                'achievements.type',
+                'achievements.image_name',
+                'achievements.game_id',
+                'achievements.order_column',
                 'player_achievements.unlocked_at',
                 'player_achievements.unlocked_hardcore_at'
             )
@@ -133,7 +158,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 ->orderBy('player_achievements.unlocked_at', 'desc');
         }
 
-        $allAchievements = $achievementsQuery->get();
+        $allAchievements = $achievementsQuery->toBase()->get();
 
         // Group the results by game ID.
         $gameAchievementsMap = [];
@@ -149,25 +174,39 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         foreach ($gameAchievementsMap as $gameID => $achievements) {
             foreach ($achievements as $achievement) {
-                $gameData = $games->get($achievement->game_id)->toArray();
+                $game = $games->get($achievement->game_id);
+                $gameData = [
+                    'id' => $game->id,
+                    'title' => $game->title,
+                ];
+
+                $achievementData = [
+                    'id' => $achievement->id,
+                    'title' => $achievement->title,
+                    'description' => $achievement->description,
+                    'points' => $achievement->points,
+                    'type' => $achievement->type,
+                    'image_name' => $achievement->image_name,
+                    'order_column' => $achievement->order_column,
+                ];
 
                 if ($achievement->unlocked_hardcore_at) {
                     $unlockedAchievements[] = [
-                        'Achievement' => $achievement->toArray(),
+                        'Achievement' => $achievementData,
                         'When' => $achievement->unlocked_hardcore_at,
                         'Hardcore' => 1,
                         'Game' => $gameData,
                     ];
                 } elseif ($achievement->unlocked_at) {
                     $unlockedAchievements[] = [
-                        'Achievement' => $achievement->toArray(),
+                        'Achievement' => $achievementData,
                         'When' => $achievement->unlocked_at,
                         'Hardcore' => 0,
                         'Game' => $gameData,
                     ];
                 } else {
                     $lockedAchievements[] = [
-                        'Achievement' => $achievement->toArray(),
+                        'Achievement' => $achievementData,
                         'Game' => $gameData,
                     ];
                 }
