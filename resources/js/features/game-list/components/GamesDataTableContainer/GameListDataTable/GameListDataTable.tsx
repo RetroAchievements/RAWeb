@@ -108,6 +108,7 @@ export function GameListDataTable({ table, isLoading = false }: GameListDataTabl
       </div>
 
       <BaseTable
+        aria-busy={isLoading ? true : undefined}
         containerClassName={cn(
           'overflow-auto rounded-md border border-neutral-700/80 bg-embed',
           'light:border-neutral-300 lg:overflow-visible lg:rounded-xs',

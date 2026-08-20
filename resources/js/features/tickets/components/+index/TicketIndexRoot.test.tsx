@@ -1,9 +1,13 @@
-import { render, screen } from '@/test';
+import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+
+import { render, screen, waitFor } from '@/test';
 import {
   createPaginatedData,
   createTicketListEntry,
   createTicketListStateCounts,
   createUser,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { TicketIndexRoot } from './TicketIndexRoot';
@@ -22,6 +26,7 @@ describe('Component: TicketIndexRoot', () => {
         }),
         stateCounts: createTicketListStateCounts(),
         availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: {} }),
       },
     });
 
@@ -56,6 +61,7 @@ describe('Component: TicketIndexRoot', () => {
         }),
         stateCounts: createTicketListStateCounts(),
         availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: {} }),
       },
     });
 
@@ -89,7 +95,7 @@ describe('Component: TicketIndexRoot', () => {
     );
     expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
 
-    expect(screen.getByRole('img', { name: 'Quarantined' })).toBeVisible();
+    expect(screen.getAllByRole('img', { name: 'Quarantined' })[0]).toBeVisible();
   });
 
   it('given the page has no tickets, shows the empty state instead of a table', () => {
@@ -105,11 +111,169 @@ describe('Component: TicketIndexRoot', () => {
         }),
         stateCounts: createTicketListStateCounts(),
         availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: {} }),
       },
     });
 
     // ASSERT
     expect(screen.getByText('No tickets match these filters.')).toBeVisible();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('given the user advances to the next page, fetches the next page from the API and syncs the URL', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: {
+        paginatedTickets: createPaginatedData([createTicketListEntry({ id: 2001 })], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      },
+    });
+
+    render<App.Platform.Data.TicketListPageProps>(<TicketIndexRoot />, {
+      pageProps: {
+        scope: 'all',
+        paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+          currentPage: 1,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+        stateCounts: createTicketListStateCounts(),
+        availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: {} }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        { scope: 'all', 'page[number]': 2 },
+      ]);
+    });
+
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        { scope: 'all', 'page[number]': 3 },
+      ]);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #2001' })).toBeVisible();
+    });
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      expect.stringContaining('page%5Bnumber%5D=2'),
+    );
+  });
+
+  it('given the user types a page number instead of clicking, the query fetches the page', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: {
+        paginatedTickets: createPaginatedData([createTicketListEntry({ id: 3001 })], {
+          currentPage: 3,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      },
+    });
+
+    render<App.Platform.Data.TicketListPageProps>(<TicketIndexRoot />, {
+      pageProps: {
+        scope: 'all',
+        paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+          currentPage: 1,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+        stateCounts: createTicketListStateCounts(),
+        availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: {} }),
+      },
+    });
+
+    // ACT
+    const inputEl = screen.getByRole('spinbutton', { name: 'current page number' });
+    await userEvent.clear(inputEl);
+    await userEvent.type(inputEl, '3');
+
+    // ASSERT
+    await waitFor(
+      () => {
+        expect(getSpy).toHaveBeenCalledWith([
+          'api.ticket.index',
+          { scope: 'all', 'page[number]': 3 },
+        ]);
+      },
+      { timeout: 2000 },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #3001' })).toBeVisible();
+    });
+  });
+
+  it('given the URL has a filter and a sort, also sends those things to the API when the user paginates', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: {
+        paginatedTickets: createPaginatedData([createTicketListEntry()], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      },
+    });
+
+    render<App.Platform.Data.TicketListPageProps>(<TicketIndexRoot />, {
+      pageProps: {
+        scope: 'all',
+        paginatedTickets: createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+        stateCounts: createTicketListStateCounts(),
+        availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+        ziggy: createZiggyProps({ query: { filter: { status: 'resolved' }, sort: 'state' } }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: 'state',
+          'filter[status]': 'resolved',
+          'page[number]': 2,
+        },
+      ]);
+    });
   });
 });
