@@ -24,10 +24,10 @@ interface TicketStateGlyphProps {
  */
 const stateGlyphs: Record<App.Community.Enums.TicketState, { Icon: IconType; className: string }> =
   {
-    open: { Icon: LuCircle, className: 'text-amber-400' },
+    open: { Icon: LuCircle, className: 'text-neutral-400 light:text-neutral-600' },
     request: { Icon: LuCircleDot, className: 'text-sky-300' },
     resolved: { Icon: LuCircleCheck, className: 'text-green-500' },
-    closed: { Icon: LuCircleX, className: 'text-neutral-400' },
+    closed: { Icon: LuCircleX, className: 'text-neutral-500' },
     quarantined: { Icon: LuCircleSlash, className: 'text-rose-500' },
   };
 
