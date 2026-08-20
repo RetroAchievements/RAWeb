@@ -118,6 +118,14 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'Released' => $game->released_at ? Carbon::parse($game->released_at)->format('Y-m-d') : null,
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
+
+            // Using toBase to not generate models also avoids the functional overrides
+            // that post-process the restricted images. Do so manually ourself.
+            if ($game->is_media_restricted) {
+                $gameInfo[$gameID]['ImageTitle'] = Game::PLACEHOLDER_IMAGE_PATH;
+                $gameInfo[$gameID]['ImageIngame'] = Game::PLACEHOLDER_IMAGE_PATH;
+                $gameInfo[$gameID]['ImageBoxArt'] = Game::PLACEHOLDER_IMAGE_PATH;
+            }
         }
     }
 
