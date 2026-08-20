@@ -21,20 +21,26 @@ const noneVisible = Object.fromEntries(TICKET_LIST_COLUMN_IDS.map((id) => [id, f
 interface TestHarnessProps {
   columnVisibility?: Record<string, boolean>;
   emptyStateNode?: React.ReactNode;
+  isFetching?: boolean;
+  lastPage?: number;
+  paginatorNode?: React.ReactNode;
   tickets?: App.Platform.Data.TicketListEntry[];
 }
 
 const TestHarness: FC<TestHarnessProps> = ({
-  columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
   emptyStateNode,
+  isFetching,
+  paginatorNode,
+  columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
+  lastPage = 1,
   tickets = [createTicketListEntry()],
 }) => {
   const columnDefinitions: ColumnDef<App.Platform.Data.TicketListEntry>[] =
     useTicketListColumnDefinitions();
 
   const paginatedTickets = createPaginatedData(tickets, {
+    lastPage,
     currentPage: 1,
-    lastPage: 1,
     perPage: 50,
     total: tickets.length,
   });
@@ -45,6 +51,8 @@ const TestHarness: FC<TestHarnessProps> = ({
       columnVisibility={columnVisibility}
       paginatedTickets={paginatedTickets}
       emptyStateNode={emptyStateNode}
+      isFetching={isFetching}
+      paginatorNode={paginatorNode}
     />
   );
 };
@@ -143,10 +151,10 @@ describe('Component: TicketListTable', () => {
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('achievement.show'));
     expect(route).toHaveBeenCalledWith('achievement.show', { achievement: 777 });
 
-    expect(screen.getByRole('presentation')).toHaveAttribute(
-      'src',
-      'https://example.com/badge.png',
-    );
+    const badgeEls = screen
+      .getAllByRole('presentation')
+      .filter((el) => el.getAttribute('src') === 'https://example.com/badge.png');
+    expect(badgeEls).toHaveLength(2);
   });
 
   it('given a leaderboard ticket, prefixes the title as plain text', () => {
@@ -161,7 +169,7 @@ describe('Component: TicketListTable', () => {
     render(<TestHarness tickets={[ticket]} />);
 
     // ASSERT
-    expect(screen.getByText('(LB) Fastest lap')).toBeVisible();
+    expect(screen.getAllByText('(LB) Fastest lap')[0]).toBeVisible();
     expect(screen.queryByRole('link', { name: /Fastest lap/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('img', { name: 'Fastest lap' })).not.toBeInTheDocument();
   });
@@ -274,6 +282,43 @@ describe('Component: TicketListTable', () => {
       'Issue with',
       'Age',
     ]);
-    expect(screen.getByRole('img', { name: 'Open' })).toBeVisible();
+    expect(screen.getAllByRole('img', { name: 'Open' })).toHaveLength(2);
+  });
+
+  it('given a new page is being fetched, marks the table busy and dims it', () => {
+    // ARRANGE
+    render(<TestHarness isFetching={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('table')).toHaveClass('opacity-50');
+  });
+
+  it('given more than one page exists, renders the given paginator element', () => {
+    // ARRANGE
+    const { rerender } = render(
+      <TestHarness lastPage={5} paginatorNode={<div data-testid="paginator" />} />,
+    );
+
+    // ASSERT
+    expect(screen.getByTestId('paginator')).toBeVisible();
+
+    // it should be hidden for a single page
+    rerender(<TestHarness lastPage={1} paginatorNode={<div data-testid="paginator" />} />);
+    expect(screen.queryByTestId('paginator')).not.toBeInTheDocument();
+  });
+
+  it('given a ticket whose reporter was deleted, the mobile row omits the avatar', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      ticketableType: 'achievement',
+      ticketableBadgeUrl: null,
+      reporter: null,
+    });
+
+    render(<TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, id: true }} />);
+
+    // ASSERT
+    expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
   });
 });
