@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { cn } from '@/common/utils/cn';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 import { ticketListCellClassNames } from '../../utils/column-definitions/ticketListCellClassNames';
@@ -32,13 +31,11 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({ entry }) => 
         />
       ) : null}
 
-      {entry.ticketableType === 'leaderboard' ? (
-        <span className={cn(ticketListCellClassNames.dimText, ticketListCellClassNames.truncate)}>
-          {t('(LB) {{title}}', { title: entry.ticketableTitle })}
-        </span>
-      ) : (
-        <span className="min-w-0 truncate">{entry.ticketableTitle}</span>
-      )}
+      <span className="min-w-0 truncate text-link">
+        {entry.ticketableType === 'leaderboard'
+          ? t('(LB) {{title}}', { title: entry.ticketableTitle })
+          : entry.ticketableTitle}
+      </span>
 
       <div className="ml-auto flex flex-none items-center gap-2">
         {entry.reporter ? (
