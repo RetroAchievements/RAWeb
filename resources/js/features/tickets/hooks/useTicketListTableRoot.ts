@@ -33,10 +33,8 @@ export function useTicketListTableRoot({
     typeof query.sort === 'string' && query.sort.length > 0 ? query.sort : null,
   );
 
-  const { columnFilters, pageNumber, setColumnFilters, setPageNumber } = useTicketListState(
-    paginatedTickets,
-    serverDefaultColumnFilters,
-  );
+  const { columnFilters, pageNumber, restoreState, setColumnFilters, setPageNumber } =
+    useTicketListState(paginatedTickets, serverDefaultColumnFilters);
 
   const { queryClientWithInitialData } = usePreloadedTicketListQueryClient({
     columnFilters,
@@ -48,7 +46,12 @@ export function useTicketListTableRoot({
     stateCounts,
   });
 
-  useTicketListTableSync({ columnFilters, serverDefaultColumnFilters, pageNumber });
+  useTicketListTableSync({
+    columnFilters,
+    serverDefaultColumnFilters,
+    pageNumber,
+    restoreState,
+  });
 
   const ticketListQuery = useTicketListPaginatedQuery({
     columnFilters,

@@ -31,10 +31,16 @@ export function useTicketListState(
     setColumnFilters(updaterOrValue);
   };
 
+  const restoreState = (nextColumnFilters: ColumnFiltersState, nextPageNumber: number) => {
+    setColumnFilters(nextColumnFilters);
+    setPageNumber(nextPageNumber);
+  };
+
   return {
     columnFilters,
     pageNumber,
-    setColumnFilters: setColumnFiltersAndResetPage,
+    restoreState,
     setPageNumber,
+    setColumnFilters: setColumnFiltersAndResetPage,
   };
 }

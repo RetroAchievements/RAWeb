@@ -1,6 +1,9 @@
 import type { ColumnFiltersState } from '@tanstack/react-table';
+import { useEffect } from 'react';
 import { useUpdateEffect } from 'react-use';
 
+import { readTicketListSearchParams } from '../utils/readTicketListSearchParams';
+import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
 import { serializeTicketListSearchParams } from '../utils/serializeTicketListSearchParams';
 
 // TODO user's persistence cookie support
@@ -9,6 +12,7 @@ interface UseTicketListTableSyncProps {
   columnFilters: ColumnFiltersState;
   serverDefaultColumnFilters: ColumnFiltersState;
   pageNumber: number;
+  restoreState: (columnFilters: ColumnFiltersState, pageNumber: number) => void;
 }
 
 /**
@@ -19,7 +23,23 @@ export function useTicketListTableSync({
   columnFilters,
   serverDefaultColumnFilters,
   pageNumber,
+  restoreState,
 }: UseTicketListTableSyncProps) {
+  useEffect(() => {
+    const handlePopState = () => {
+      const restored = readTicketListSearchParams(window.location.search);
+
+      restoreState(
+        resolveInitialTicketListColumnFilters(restored.query, serverDefaultColumnFilters),
+        restored.pageNumber,
+      );
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  });
+
   useUpdateEffect(() => {
     const searchParams = serializeTicketListSearchParams({
       columnFilters,
