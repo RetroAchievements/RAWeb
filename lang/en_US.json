@@ -1545,5 +1545,21 @@
     "ID": "ID",
     "Issue with": "Issue with",
     "Reporter": "Reporter",
-    "Age": "Age"
+    "Age": "Age",
+    "Filter": "Filter",
+    "Remove {{label}} filter": "Remove {{label}} filter",
+    "Self": "Self",
+    "Others": "Others",
+    "Junior": "Junior",
+    "Inactive": "Inactive",
+    "Unspecified": "Unspecified",
+    "All": "All",
+    "Developer type": "Developer type",
+    "Search options...": "Search options...",
+    "{{val, number}} tickets": "{{val, number}} tickets",
+    "{{visible, number}} of {{total, number}} tickets": "{{visible, number}} of {{total, number}} tickets",
+    "Issue type": "Issue type",
+    "Change {{label}} filter": "Change {{label}} filter",
+    "{{label}} is <1>{{value}}</1>": "{{label}} is <1>{{value}}</1>",
+    "Publish status": "Publish status"
 }

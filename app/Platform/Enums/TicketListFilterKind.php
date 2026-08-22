@@ -42,6 +42,11 @@ enum TicketListFilterKind: string
         };
     }
 
+    public function noFilterValue(): int|string
+    {
+        return $this === self::Type ? 0 : 'all';
+    }
+
     /**
      * @return array<int, string|\Illuminate\Validation\Rules\In>
      */
