@@ -1214,6 +1214,7 @@ scope: App.Platform.Enums.TicketListScope;
 paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
 stateCounts: App.Platform.Data.TicketListStateCounts;
 availableFilters: Array<App.Platform.Data.TicketListFilter>;
+facetCounts: Record<string, Record<string, number>>;
 game: App.Platform.Data.Game | null;
 achievement: App.Platform.Data.Achievement | null;
 user: App.Data.User | null;
@@ -1222,6 +1223,7 @@ export type TicketListStateCounts = {
 unresolved: number;
 request: number;
 resolved: number;
+closed: number;
 quarantined: number;
 all: number;
 };
@@ -1277,7 +1279,7 @@ export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
-export type TicketListStatusFilter = 'all' | 'unresolved' | 'request' | 'resolved' | 'quarantined';
+export type TicketListStatusFilter = 'all' | 'unresolved' | 'request' | 'resolved' | 'closed' | 'quarantined';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }

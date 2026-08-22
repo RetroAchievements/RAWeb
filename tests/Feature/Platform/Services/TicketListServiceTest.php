@@ -128,7 +128,8 @@ describe('applyFilters', function () {
     })->with([
         'unresolved' => ['unresolved', ['open', 'request']],
         'request' => ['request', ['request']],
-        'resolved' => ['resolved', ['resolved', 'closed']],
+        'resolved' => ['resolved', ['resolved']],
+        'closed' => ['closed', ['closed']],
         'quarantined' => ['quarantined', ['quarantined']],
         'all' => ['all', ['open', 'request', 'resolved', 'closed', 'quarantined']],
     ]);

@@ -1,13 +1,13 @@
 import type { QueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { route } from 'ziggy-js';
 
-const ONE_MINUTE = 1 * 60 * 1000;
+import type { TicketListQueryOptionsInput } from './ticketListQueryOptions';
+import { buildTicketListQueryOptions } from './ticketListQueryOptions';
 
-interface UseTicketListPrefetchPaginationProps {
-  passthroughParams: Record<string, string>;
+interface UseTicketListPrefetchPaginationProps extends Omit<
+  TicketListQueryOptionsInput,
+  'pageNumber'
+> {
   queryClient: QueryClient;
-  scope: App.Platform.Enums.TicketListScope;
 }
 
 /**
@@ -15,30 +15,11 @@ interface UseTicketListPrefetchPaginationProps {
  * wind up clicking the button. Queries are cheap, so prefetch the destination page.
  */
 export function useTicketListPrefetchPagination({
-  passthroughParams,
   queryClient,
-  scope,
+  ...queryOptionsInput
 }: UseTicketListPrefetchPaginationProps) {
   const prefetchPage = (pageNumber: number) => {
-    queryClient.prefetchQuery({
-      queryKey: ['ticket-list', scope, passthroughParams, pageNumber],
-
-      queryFn: async () => {
-        const response = await axios.get<{
-          paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
-        }>(
-          route('api.ticket.index', {
-            scope,
-            ...passthroughParams,
-            'page[number]': pageNumber,
-          }),
-        );
-
-        return response.data;
-      },
-
-      staleTime: ONE_MINUTE,
-    });
+    queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
   };
 
   return { prefetchPage };

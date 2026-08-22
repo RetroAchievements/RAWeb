@@ -28,9 +28,17 @@ class TicketListService
     public int $pageNumber = 0;
     public int $totalPages = 0;
 
+    private const MAX_FACET_COUNT_ROWS = 10_000;
+
+    /** @var array<int, string>|null */
+    private ?array $emulatorNamesById = null;
+
+    /** @var array<string, int> */
+    private array $countsForCurrentBaseQuery = [];
+
     public static function shouldShowResolverColumn(array $filterOptions): bool
     {
-        return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved'], true);
+        return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved', 'closed'], true);
     }
 
     /**
@@ -62,6 +70,19 @@ class TicketListService
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
         ];
+    }
+
+    public function hasNonStatusFilters(array $filterOptions): bool
+    {
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $noFilterValue = $kind->noFilterValue();
+
+            if (($filterOptions[$kind->value] ?? $noFilterValue) !== $noFilterValue) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getSelectFilters(
@@ -240,7 +261,11 @@ class TicketListService
                 break;
 
             case TicketListStatusFilter::Resolved:
-                $tickets->resolved();
+                $tickets->where('state', TicketState::Resolved);
+                break;
+
+            case TicketListStatusFilter::Closed:
+                $tickets->where('state', TicketState::Closed);
                 break;
 
             case TicketListStatusFilter::Quarantined:
@@ -354,19 +379,205 @@ class TicketListService
     }
 
     /**
+     * How many tickets each filter option matches.
+     *
+     * @param Builder<Ticket> $tickets
+     * @param list<TicketListFilterKind> $kinds
+     * @return array<string, array<string, int>>
+     */
+    public function getFacetCounts(
+        array $filterOptions,
+        Builder $tickets,
+        array $kinds,
+        ?User $comparisonUser = null,
+        ?int $filteredTotal = null,
+    ): array {
+        $this->countsForCurrentBaseQuery = [];
+
+        $widestFacetRowCount = $this->hasNonStatusFilters($filterOptions)
+            ? $this->countForFilters($tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)
+            : $filteredTotal;
+
+        if ($widestFacetRowCount !== null && $widestFacetRowCount > self::MAX_FACET_COUNT_ROWS) {
+            return [];
+        }
+
+        $counts = [];
+        foreach ($kinds as $kind) {
+            $facetCounts = match ($kind) {
+                TicketListFilterKind::Type => $this->countGroupedFacet(
+                    $tickets,
+                    $filterOptions,
+                    $comparisonUser,
+                    $kind,
+                    'tickets.type',
+                    fn (?string $value) => match ($value) {
+                        TicketType::TriggeredAtWrongTime->value => (string) TicketType::TriggeredAtWrongTime->toLegacyInteger(),
+                        TicketType::DidNotTrigger->value => (string) TicketType::DidNotTrigger->toLegacyInteger(),
+                        default => null,
+                    },
+                ),
+                TicketListFilterKind::Mode => $this->countGroupedFacet(
+                    $tickets,
+                    $filterOptions,
+                    $comparisonUser,
+                    $kind,
+                    'tickets.hardcore',
+                    fn (?string $value) => match ($value) {
+                        null => 'unspecified',
+                        '1' => 'hardcore',
+                        default => 'softcore',
+                    },
+                ),
+                TicketListFilterKind::Emulator => $this->countGroupedFacet(
+                    $tickets,
+                    $filterOptions,
+                    $comparisonUser,
+                    $kind,
+                    'tickets.emulator_id',
+                    fn (?string $value) => $value === null
+                        ? 'unknown'
+                        : ($this->emulatorNamesById()[(int) $value] ?? null),
+                ),
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::DeveloperType => $this->countFacetOptions(
+                    $tickets,
+                    $filterOptions,
+                    $comparisonUser,
+                    $kind,
+                    $filteredTotal,
+                ),
+                TicketListFilterKind::Developer,
+                TicketListFilterKind::Reporter => null,
+            };
+
+            if ($facetCounts !== null) {
+                $counts[$kind->value] = $facetCounts;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $tickets
+     * @param callable(?string): ?string $toFilterValue
+     * @return array<string, int>
+     */
+    private function countGroupedFacet(
+        Builder $tickets,
+        array $filterOptions,
+        ?User $comparisonUser,
+        TicketListFilterKind $kind,
+        string $column,
+        callable $toFilterValue,
+    ): array {
+        $rows = $this->applyFilters(clone $tickets, $this->withoutFilter($filterOptions, $kind), $comparisonUser)
+            ->reorder()
+            ->select($column . ' as facet_value', DB::raw('count(*) as aggregate'))
+            ->groupBy('facet_value')
+            ->get();
+
+        $noFilterValue = (string) $kind->noFilterValue();
+        $counts = [$noFilterValue => 0];
+
+        foreach ($rows as $row) {
+            $aggregate = (int) $row->aggregate;
+            $counts[$noFilterValue] += $aggregate;
+
+            $value = $toFilterValue($row->facet_value === null ? null : (string) $row->facet_value);
+            if ($value !== null) {
+                $counts[$value] = ($counts[$value] ?? 0) + $aggregate;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $tickets
+     * @return array<string, int>
+     */
+    private function countFacetOptions(
+        Builder $tickets,
+        array $filterOptions,
+        ?User $comparisonUser,
+        TicketListFilterKind $kind,
+        ?int $filteredTotal,
+    ): array {
+        $noFilterValue = $kind->noFilterValue();
+        $lifted = $this->withoutFilter($filterOptions, $kind);
+
+        $isAlreadyUnfiltered = ($filterOptions[$kind->value] ?? $noFilterValue) === $noFilterValue;
+
+        $counts = [];
+        foreach ($kind->values() as $value) {
+            $counts[$value] = $value === (string) $noFilterValue && $isAlreadyUnfiltered && $filteredTotal !== null
+                ? $filteredTotal
+                : $this->countForFilters(
+                    $tickets,
+                    array_merge($lifted, [$kind->value => $value]),
+                    $comparisonUser,
+                );
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $tickets
+     */
+    private function countForFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser): int
+    {
+        $key = serialize([$filterOptions, $comparisonUser?->id]);
+
+        return $this->countsForCurrentBaseQuery[$key] ??= $this->applyFilters(
+            clone $tickets,
+            $filterOptions,
+            $comparisonUser,
+        )->count();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function emulatorNamesById(): array
+    {
+        return $this->emulatorNamesById ??= Emulator::pluck('name', 'id')->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function withoutFilter(array $filterOptions, TicketListFilterKind $kind): array
+    {
+        return array_merge($filterOptions, [$kind->value => $kind->noFilterValue()]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function withoutFacetFilters(array $filterOptions): array
+    {
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $filterOptions = $this->withoutFilter($filterOptions, $kind);
+        }
+
+        return $filterOptions;
+    }
+
+    /**
      * Returns a count of tickets per status bucket under every filter except
      * status itself. The counts describe what each status choice would show
      * for a given set of filter options in the UI.
      *
      * @param Builder<Ticket> $tickets
      * @param User|null $comparisonUser the user the developer and reporter filters compare against
-     * @return array{unresolved: int, request: int, resolved: int, quarantined: int, all: int}
+     * @return array{unresolved: int, request: int, resolved: int, closed: int, quarantined: int, all: int}
      */
     public function getStateCounts(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): array
     {
         $countQuery = $tickets === null ? Ticket::query() : clone $tickets;
-
-        $countQuery->withLiveTicketable();
 
         $countQuery = $this->applyFilters($countQuery, array_merge($filterOptions, ['status' => TicketListStatusFilter::All->value]), $comparisonUser);
 
@@ -381,15 +592,17 @@ class TicketListService
 
         $request = $countFor(TicketState::Request);
         $unresolved = $countFor(TicketState::Open) + $request;
-        $resolved = $countFor(TicketState::Resolved) + $countFor(TicketState::Closed);
+        $resolved = $countFor(TicketState::Resolved);
+        $closed = $countFor(TicketState::Closed);
         $quarantined = $countFor(TicketState::Quarantined);
 
         return [
             'unresolved' => $unresolved,
             'request' => $request,
             'resolved' => $resolved,
+            'closed' => $closed,
             'quarantined' => $quarantined,
-            'all' => $unresolved + $resolved + $quarantined,
+            'all' => $unresolved + $resolved + $closed + $quarantined,
         ];
     }
 }
