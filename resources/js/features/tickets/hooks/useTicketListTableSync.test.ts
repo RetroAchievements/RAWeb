@@ -12,6 +12,7 @@ const defaultProps: TicketListTableSyncProps = {
   columnFilters: serverDefaultColumnFilters,
   serverDefaultColumnFilters,
   pageNumber: 1,
+  restoreState: vi.fn(),
 };
 
 function renderTicketListTableSync() {
@@ -140,5 +141,21 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user navigates history, syncs state correctly', () => {
+    // ARRANGE
+    const restoreState = vi.fn();
+
+    renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
+      initialProps: { ...defaultProps, restoreState },
+    });
+
+    // ACT
+    setWindowLocation('?filter[status]=resolved&page[number]=3');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    // ASSERT
+    expect(restoreState).toHaveBeenCalledWith([{ id: 'status', value: ['resolved'] }], 3);
   });
 });

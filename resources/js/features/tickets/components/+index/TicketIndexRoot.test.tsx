@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { render, screen, waitFor } from '@/test';
+import { act, render, screen, waitFor } from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -433,6 +433,14 @@ describe('Component: TicketIndexRoot', () => {
       '',
       expect.stringContaining('page%5Bnumber%5D=2'),
     );
+
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #1001' })).toBeVisible();
+    });
   });
 
   it('given the user types a page number instead of clicking, the query fetches the page', async () => {
