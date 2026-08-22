@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
+use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
@@ -53,7 +54,8 @@ enum TicketListScope: string
             self::AwaitingReporter => Ticket::query()
                 ->where('reporter_id', $target->id),
             self::ResolvedBy => Ticket::query()
-                ->where('resolver_id', $target->id),
+                ->where('resolver_id', $target->id)
+                ->whereIn('state', [TicketState::Resolved, TicketState::Closed]),
         };
     }
 
@@ -98,7 +100,8 @@ enum TicketListScope: string
     public function defaultStatusFilter(): TicketListStatusFilter
     {
         return match ($this) {
-            self::ResolvedBy => TicketListStatusFilter::Resolved,
+            self::ResolvedBy => TicketListStatusFilter::All,
+
             self::AwaitingReporter => TicketListStatusFilter::Request,
             default => TicketListStatusFilter::Unresolved,
         };

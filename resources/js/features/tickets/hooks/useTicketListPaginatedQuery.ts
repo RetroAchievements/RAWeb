@@ -1,43 +1,21 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { route } from 'ziggy-js';
 
-const ONE_MINUTE = 1 * 60 * 1000;
+import type { TicketListQueryOptionsInput } from './ticketListQueryOptions';
+import { buildTicketListQueryOptions } from './ticketListQueryOptions';
 
-interface UseTicketListPaginatedQueryProps {
-  pageNumber: number;
-  passthroughParams: Record<string, string>;
-  scope: App.Platform.Enums.TicketListScope;
-
+interface UseTicketListPaginatedQueryProps extends TicketListQueryOptionsInput {
   queryClient?: QueryClient;
 }
 
 export function useTicketListPaginatedQuery({
-  pageNumber,
-  passthroughParams,
-  scope,
   queryClient,
+  ...queryOptionsInput
 }: UseTicketListPaginatedQueryProps) {
   return useQuery(
     {
-      queryKey: ['ticket-list', scope, passthroughParams, pageNumber],
+      ...buildTicketListQueryOptions(queryOptionsInput),
 
-      queryFn: async () => {
-        const response = await axios.get<{
-          paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
-        }>(
-          route('api.ticket.index', {
-            scope,
-            ...passthroughParams,
-            'page[number]': pageNumber,
-          }),
-        );
-
-        return response.data;
-      },
-
-      staleTime: ONE_MINUTE,
       placeholderData: keepPreviousData,
 
       refetchOnWindowFocus: false,

@@ -84,6 +84,7 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
             ->has('unresolved')
             ->has('request')
             ->has('resolved')
+            ->has('closed')
             ->has('quarantined')
             ->has('all')
         )

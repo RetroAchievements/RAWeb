@@ -14,13 +14,14 @@ class TicketListStateCountsData extends Data
         public int $unresolved,
         public int $request,
         public int $resolved,
+        public int $closed,
         public int $quarantined,
         public int $all,
     ) {
     }
 
     /**
-     * @param array{unresolved: int, request: int, resolved: int, quarantined: int, all: int} $counts
+     * @param array{unresolved: int, request: int, resolved: int, closed: int, quarantined: int, all: int} $counts
      */
     public static function fromCounts(array $counts): self
     {
@@ -28,6 +29,7 @@ class TicketListStateCountsData extends Data
             unresolved: $counts['unresolved'],
             request: $counts['request'],
             resolved: $counts['resolved'],
+            closed: $counts['closed'],
             quarantined: $counts['quarantined'],
             all: $counts['all'],
         );

@@ -1,18 +1,26 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
-interface UsePreloadedTicketListQueryClientProps {
-  pageNumber: number;
-  paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
-  passthroughParams: Record<string, string>;
-  scope: App.Platform.Enums.TicketListScope;
-}
+import type { TicketListQueryData, TicketListQueryOptionsInput } from './ticketListQueryOptions';
+import { buildTicketListQueryOptions } from './ticketListQueryOptions';
+
+/**
+ * We need to populate tanstack-query with an initial value during the
+ * server render, otherwise it will immediately fetch data we already
+ * have as soon as client-side hydration hits.
+ *
+ * This hook, combined with <HydrationBoundary />, lets us avoid this
+ * erroneous extra fetch for data we already have.
+ */
+
+interface UsePreloadedTicketListQueryClientProps
+  extends TicketListQueryOptionsInput, TicketListQueryData {}
 
 export function usePreloadedTicketListQueryClient({
-  pageNumber,
+  facetCounts,
   paginatedTickets,
-  passthroughParams,
-  scope,
+  stateCounts,
+  ...queryOptionsInput
 }: UsePreloadedTicketListQueryClientProps) {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -22,10 +30,10 @@ export function usePreloadedTicketListQueryClient({
    * From the user's perspective, it'll appear that they can never page, filter, sort, etc.
    */
   useMemo(() => {
-    // This seed must use the exact key and payload shape the paginated
-    // query reads, otherwise the client refetches data it already has.
-    queryClient.setQueryData(['ticket-list', scope, passthroughParams, pageNumber], {
+    queryClient.setQueryData(buildTicketListQueryOptions(queryOptionsInput).queryKey, {
       paginatedTickets,
+      stateCounts,
+      facetCounts,
     });
 
     /* eslint-disable react-compiler/react-compiler -- exhaustive-deps is intentionally constrained */

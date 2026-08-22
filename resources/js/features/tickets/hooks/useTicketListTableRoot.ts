@@ -1,58 +1,79 @@
 import { dehydrate } from '@tanstack/react-query';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import { useState } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { buildTicketListPassthroughParams } from '../utils/buildTicketListPassthroughParams';
 import { usePreloadedTicketListQueryClient } from './usePreloadedTicketListQueryClient';
 import { useTicketListPaginatedQuery } from './useTicketListPaginatedQuery';
 import { useTicketListPrefetchPagination } from './useTicketListPrefetchPagination';
+import { useTicketListState } from './useTicketListState';
 import { useTicketListTableSync } from './useTicketListTableSync';
 
 interface UseTicketListTableRootOptions {
+  serverDefaultColumnFilters: ColumnFiltersState;
+  facetCounts: Record<string, Record<string, number>>;
   paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
   scope: App.Platform.Enums.TicketListScope;
+  stateCounts: App.Platform.Data.TicketListStateCounts;
 }
 
-export function useTicketListTableRoot({ paginatedTickets, scope }: UseTicketListTableRootOptions) {
+export function useTicketListTableRoot({
+  serverDefaultColumnFilters,
+  facetCounts,
+  paginatedTickets,
+  scope,
+  stateCounts,
+}: UseTicketListTableRootOptions) {
   const {
     ziggy: { query },
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
 
-  // temporary safeguard
-  const [passthroughParams] = useState(() => buildTicketListPassthroughParams(query));
+  const [sortParam] = useState<string | null>(() =>
+    typeof query.sort === 'string' && query.sort.length > 0 ? query.sort : null,
+  );
 
-  const [pageNumber, setPageNumber] = useState(paginatedTickets.currentPage);
+  const { columnFilters, pageNumber, setColumnFilters, setPageNumber } = useTicketListState(
+    paginatedTickets,
+    serverDefaultColumnFilters,
+  );
 
   const { queryClientWithInitialData } = usePreloadedTicketListQueryClient({
+    columnFilters,
+    facetCounts,
     pageNumber,
     paginatedTickets,
-    passthroughParams,
     scope,
+    sortParam,
+    stateCounts,
   });
 
-  useTicketListTableSync(pageNumber);
+  useTicketListTableSync({ columnFilters, serverDefaultColumnFilters, pageNumber });
 
   const ticketListQuery = useTicketListPaginatedQuery({
+    columnFilters,
     pageNumber,
-    passthroughParams,
     scope,
+    sortParam,
     queryClient: queryClientWithInitialData,
   });
 
   const { prefetchPage } = useTicketListPrefetchPagination({
-    passthroughParams,
+    columnFilters,
     scope,
+    sortParam,
     queryClient: queryClientWithInitialData,
   });
 
   return {
     hydrationState: dehydrate(queryClientWithInitialData),
     ticketListTableProps: {
-      isFetching: ticketListQuery.isFetching,
-      paginatedTickets: ticketListQuery.data?.paginatedTickets ?? paginatedTickets,
+      columnFilters,
       prefetchPage,
+      setColumnFilters,
       setPageNumber,
+      isFetching: ticketListQuery.isFetching,
+      ...(ticketListQuery.data ?? { paginatedTickets, stateCounts, facetCounts }),
     },
   };
 }

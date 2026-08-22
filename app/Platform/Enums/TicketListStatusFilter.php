@@ -13,10 +13,11 @@ enum TicketListStatusFilter: string
     case Unresolved = 'unresolved';
     case Request = 'request';
     case Resolved = 'resolved';
+    case Closed = 'closed';
     case Quarantined = 'quarantined';
 
     /**
-     * @return 'all'|'unresolved'|'request'|'resolved'|'quarantined'
+     * @return 'all'|'unresolved'|'request'|'resolved'|'closed'|'quarantined'
      */
     public function stateCountsBucket(): string
     {
@@ -24,7 +25,7 @@ enum TicketListStatusFilter: string
     }
 
     /**
-     * @param array{unresolved: int, request: int, resolved: int, quarantined: int, all: int} $stateCounts
+     * @param array{unresolved: int, request: int, resolved: int, closed: int, quarantined: int, all: int} $stateCounts
      */
     public function filteredTotal(array $stateCounts): int
     {

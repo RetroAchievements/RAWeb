@@ -1,20 +1,32 @@
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import { useUpdateEffect } from 'react-use';
+
+import { serializeTicketListSearchParams } from '../utils/serializeTicketListSearchParams';
 
 // TODO user's persistence cookie support
 
-/**
- * This hook is designed to keep the URL query params and
- * user's persistence cookie in sync with the table state.
- */
-export function useTicketListTableSync(pageNumber: number) {
-  useUpdateEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
+interface UseTicketListTableSyncProps {
+  columnFilters: ColumnFiltersState;
+  serverDefaultColumnFilters: ColumnFiltersState;
+  pageNumber: number;
+}
 
-    if (pageNumber > 1) {
-      searchParams.set('page[number]', String(pageNumber));
-    } else {
-      searchParams.delete('page[number]');
-    }
+/**
+ * Keeps the URL in step with the table, so a refresh or a shared link
+ * lands on the same view.
+ */
+export function useTicketListTableSync({
+  columnFilters,
+  serverDefaultColumnFilters,
+  pageNumber,
+}: UseTicketListTableSyncProps) {
+  useUpdateEffect(() => {
+    const searchParams = serializeTicketListSearchParams({
+      columnFilters,
+      serverDefaultColumnFilters,
+      pageNumber,
+      currentSearch: window.location.search,
+    });
 
     const newUrl = Array.from(searchParams).length
       ? `${window.location.pathname}?${searchParams.toString()}`
@@ -27,5 +39,5 @@ export function useTicketListTableSync(pageNumber: number) {
     }
 
     window.history.pushState({ inertia: true }, '', newUrl);
-  }, [pageNumber]);
+  }, [columnFilters, pageNumber]);
 }
