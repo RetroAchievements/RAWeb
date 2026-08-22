@@ -158,4 +158,44 @@ describe('Hook: useTicketListTableSync', () => {
     // ASSERT
     expect(restoreState).toHaveBeenCalledWith([{ id: 'status', value: ['resolved'] }], 3);
   });
+
+  it('given history restores a URL with different state, does not push a new history entry', () => {
+    // ARRANGE
+    const restoreState = vi.fn();
+
+    const { rerender } = renderHook(
+      (props: TicketListTableSyncProps) => useTicketListTableSync(props),
+      {
+        initialProps: { ...defaultProps, restoreState },
+      },
+    );
+
+    // ACT
+    setWindowLocation('?filter[status]=unresolved');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    const [restoredColumnFilters, restoredPageNumber] = restoreState.mock.calls[0];
+    rerender({
+      ...defaultProps,
+      restoreState,
+      columnFilters: restoredColumnFilters,
+      pageNumber: restoredPageNumber,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    rerender({
+      ...defaultProps,
+      restoreState,
+      columnFilters: restoredColumnFilters,
+      pageNumber: 2,
+    });
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      `/tickets2?${encodeURIComponent('page[number]')}=2`,
+    );
+  });
 });

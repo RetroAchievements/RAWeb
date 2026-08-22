@@ -1,5 +1,5 @@
 import type { ColumnFiltersState } from '@tanstack/react-table';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useUpdateEffect } from 'react-use';
 
 import { readTicketListSearchParams } from '../utils/readTicketListSearchParams';
@@ -25,14 +25,24 @@ export function useTicketListTableSync({
   pageNumber,
   restoreState,
 }: UseTicketListTableSyncProps) {
+  const restoredStateRef = useRef<{
+    columnFilters: ColumnFiltersState;
+    pageNumber: number;
+  } | null>(null);
+
   useEffect(() => {
     const handlePopState = () => {
       const restored = readTicketListSearchParams(window.location.search);
-
-      restoreState(
-        resolveInitialTicketListColumnFilters(restored.query, serverDefaultColumnFilters),
-        restored.pageNumber,
+      const restoredColumnFilters = resolveInitialTicketListColumnFilters(
+        restored.query,
+        serverDefaultColumnFilters,
       );
+
+      restoredStateRef.current = {
+        columnFilters: restoredColumnFilters,
+        pageNumber: restored.pageNumber,
+      };
+      restoreState(restoredColumnFilters, restored.pageNumber);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -41,6 +51,17 @@ export function useTicketListTableSync({
   });
 
   useUpdateEffect(() => {
+    const restoredState = restoredStateRef.current;
+    restoredStateRef.current = null;
+
+    if (
+      restoredState &&
+      restoredState.columnFilters === columnFilters &&
+      restoredState.pageNumber === pageNumber
+    ) {
+      return;
+    }
+
     const searchParams = serializeTicketListSearchParams({
       columnFilters,
       serverDefaultColumnFilters,
