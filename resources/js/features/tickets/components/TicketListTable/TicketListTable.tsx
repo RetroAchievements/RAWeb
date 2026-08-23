@@ -1,11 +1,16 @@
-import type { ColumnDef, VisibilityState } from '@tanstack/react-table';
-import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type VisibilityState,
+} from '@tanstack/react-table';
 import { type FC, Fragment, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { cn } from '@/common/utils/cn';
 
+import type { TicketListColumnDefinition } from '../../models';
 import { TicketListEmptyState } from '../TicketListEmptyState';
 import { TicketStateGlyph } from '../TicketStateGlyph';
 import { TicketListMobileRow } from './TicketListMobileRow';
@@ -16,7 +21,7 @@ type TicketListTablePage = Pick<
 >;
 
 interface TicketListTableProps {
-  columnDefinitions: ColumnDef<App.Platform.Data.TicketListEntry>[];
+  columnDefinitions: TicketListColumnDefinition[];
   columnVisibility: VisibilityState;
   paginatedTickets: TicketListTablePage;
 

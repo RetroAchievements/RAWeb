@@ -49,14 +49,7 @@ class ForumRecentActivity extends Component
 
         $isShowAbsoluteDatesPreferenceSet = $userPreferences && BitSet($userPreferences, UserPreference::Forum_ShowAbsoluteDates);
 
-        $shortcodeIds = [];
-        foreach ($rawRecentPosts as $rawRecentPost) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($rawRecentPost['Payload']);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
-        }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        $shortcodeRecords = Shortcode::fetchRecordsFor($rawRecentPosts->pluck('Payload'));
 
         foreach ($rawRecentPosts as $rawRecentPost) {
             $recentForumPosts[] = [

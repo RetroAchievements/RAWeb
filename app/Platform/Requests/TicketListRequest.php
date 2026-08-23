@@ -28,23 +28,52 @@ class TicketListRequest extends FormRequest
     }
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public function getCookiePreferences(): ?array
+    {
+        return once(function (): ?array {
+            $cookie = $this->cookie('datatable_view_preference_tickets_all');
+            if (!is_string($cookie)) {
+                return null;
+            }
+
+            $preferences = json_decode($cookie, true);
+
+            return is_array($preferences) ? $preferences : null;
+        });
+    }
+
+    /**
      * @return array{field: TicketListSortField, direction: 'asc'|'desc'}
      */
     public function getSort(): array
     {
-        $sortParam = $this->input('sort');
+        $sortParam = $this->normalizeSortParam($this->input('sort'))
+            ?? $this->normalizeSortParam($this->getCookiePreferences()['sortParam'] ?? null)
+            ?? '-' . TicketListSortField::CreatedAt->value;
 
-        // Newest first is the default sort order.
+        $isDescending = str_starts_with($sortParam, '-');
+
+        return [
+            'field' => TicketListSortField::from(ltrim($sortParam, '-')),
+            'direction' => $isDescending ? 'desc' : 'asc',
+        ];
+    }
+
+    private function normalizeSortParam(mixed $sortParam): ?string
+    {
         if (!is_string($sortParam) || $sortParam === '') {
-            return ['field' => TicketListSortField::CreatedAt, 'direction' => 'desc'];
+            return null;
         }
 
-        $direction = 'asc';
-        if (str_starts_with($sortParam, '-')) {
-            $direction = 'desc';
-            $sortParam = ltrim($sortParam, '-');
+        $isDescending = str_starts_with($sortParam, '-');
+        $fieldValue = $isDescending ? mb_substr($sortParam, 1) : $sortParam;
+
+        if (TicketListSortField::tryFrom($fieldValue) === null) {
+            return null;
         }
 
-        return ['field' => TicketListSortField::from($sortParam), 'direction' => $direction];
+        return $isDescending ? "-{$fieldValue}" : $fieldValue;
     }
 }

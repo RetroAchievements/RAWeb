@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { FC } from 'react';
 
 import {
@@ -11,15 +10,14 @@ import { cn } from '@/common/utils/cn';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 import type { TranslatedString } from '@/types/i18next';
 
+import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
 interface BuildAgeColumnDefProps {
   t_label: TranslatedString;
 }
 
-export function buildAgeColumnDef({
-  t_label,
-}: BuildAgeColumnDefProps): ColumnDef<App.Platform.Data.TicketListEntry> {
+export function buildAgeColumnDef({ t_label }: BuildAgeColumnDefProps): TicketListColumnDefinition {
   return {
     id: 'age',
     meta: {

@@ -32,15 +32,19 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', Ticket::class);
 
+        $scope = TicketListScope::All;
+
         $action = new BuildTicketListAction();
-        $result = $action->execute(TicketListScope::All, null, $request);
+        $result = $action->execute($scope, null, $request);
 
         $props = new TicketListPagePropsData(
-            scope: TicketListScope::All,
+            scope: $scope,
             paginatedTickets: $result['paginatedTickets'],
             stateCounts: $result['stateCounts'],
-            availableFilters: $action->getAvailableFilters(TicketListScope::All),
+            availableFilters: $action->getAvailableFilters($scope),
             facetCounts: $result['facetCounts'],
+            persistenceCookieName: 'datatable_view_preference_tickets_all',
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('tickets', $props);

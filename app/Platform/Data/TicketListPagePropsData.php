@@ -27,6 +27,9 @@ class TicketListPagePropsData extends Data
         public array $availableFilters,
         #[LiteralTypeScriptType('Record<string, Record<string, number>>')]
         public array $facetCounts,
+        public string $persistenceCookieName,
+        #[LiteralTypeScriptType('Record<string, any> | null')]
+        public ?array $persistedViewPreferences = null,
         public ?GameData $game = null,
         public ?AchievementData $achievement = null,
         public ?UserData $user = null,

@@ -1561,5 +1561,22 @@
     "Issue type": "Issue type",
     "Change {{label}} filter": "Change {{label}} filter",
     "{{label}} is <1>{{value}}</1>": "{{label}} is <1>{{value}}</1>",
-    "Publish status": "Publish status"
+    "Publish status": "Publish status",
+    "Resolved by": "Resolved by",
+    "Version": "Version",
+    "Core": "Core",
+    "Hash": "Hash",
+    "Did not cancel": "Did not cancel",
+    "Did not start": "Did not start",
+    "Did not submit": "Did not submit",
+    "Submitted wrong value": "Submitted wrong value",
+    "Display": "Display",
+    "Sort": "Sort",
+    "Reset to defaults": "Reset to defaults",
+    "Sort by": "Sort by",
+    "Resolution date": "Resolution date",
+    "Ascending": "Ascending",
+    "Descending": "Descending",
+    "Oldest first": "Oldest first",
+    "Newest first": "Newest first"
 }

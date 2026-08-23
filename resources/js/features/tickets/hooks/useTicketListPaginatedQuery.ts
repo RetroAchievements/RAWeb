@@ -1,21 +1,30 @@
-import type { QueryClient } from '@tanstack/react-query';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { hashKey, keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
 
-import type { TicketListQueryOptionsInput } from './ticketListQueryOptions';
+import type { TicketListQueryData, TicketListQueryOptionsInput } from '../models';
 import { buildTicketListQueryOptions } from './ticketListQueryOptions';
 
 interface UseTicketListPaginatedQueryProps extends TicketListQueryOptionsInput {
-  queryClient?: QueryClient;
+  initialData: TicketListQueryData;
 }
 
 export function useTicketListPaginatedQuery({
-  queryClient,
+  initialData,
   ...queryOptionsInput
 }: UseTicketListPaginatedQueryProps) {
-  return useQuery(
-    {
-      ...buildTicketListQueryOptions(queryOptionsInput),
+  const [queryClient] = useState(() => new QueryClient());
 
+  const queryOptions = buildTicketListQueryOptions(queryOptionsInput);
+
+  const initialQueryHash = useRef(hashKey(queryOptions.queryKey)).current;
+
+  const isInitialQuery = hashKey(queryOptions.queryKey) === initialQueryHash;
+
+  const { data, isFetching } = useQuery(
+    {
+      ...queryOptions,
+
+      initialData: isInitialQuery ? initialData : undefined,
       placeholderData: keepPreviousData,
 
       refetchOnWindowFocus: false,
@@ -23,4 +32,10 @@ export function useTicketListPaginatedQuery({
     },
     queryClient,
   );
+
+  const prefetchPage = (pageNumber: number) => {
+    queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
+  };
+
+  return { data: data!, isFetching, prefetchPage };
 }

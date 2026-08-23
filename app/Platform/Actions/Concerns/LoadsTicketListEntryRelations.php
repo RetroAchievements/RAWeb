@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Platform\Data\TicketListEntryData;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -44,8 +45,14 @@ trait LoadsTicketListEntryRelations
      */
     protected function fetchTicketListEntries(Builder $query): array
     {
-        return $query->get()
-            ->map(fn (Ticket $ticket) => TicketListEntryData::fromTicket($ticket))
+        $tickets = $query->get();
+        $shortcodeRecords = Shortcode::fetchRecordsFor($tickets->pluck('body'));
+
+        return $tickets
+            ->map(fn (Ticket $ticket) => TicketListEntryData::fromTicket(
+                $ticket,
+                $shortcodeRecords,
+            ))
             ->all();
     }
 }

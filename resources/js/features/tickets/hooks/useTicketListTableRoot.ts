@@ -1,12 +1,11 @@
-import { dehydrate } from '@tanstack/react-query';
 import type { ColumnFiltersState } from '@tanstack/react-table';
-import { useState } from 'react';
 
-import { usePageProps } from '@/common/hooks/usePageProps';
-
-import { usePreloadedTicketListQueryClient } from './usePreloadedTicketListQueryClient';
+import type { TicketListColumnId } from '../models';
+import { getTicketListDefaultColumnVisibility } from '../utils/getTicketListDefaultColumnVisibility';
+import { getTicketListFilterValue } from '../utils/getTicketListFilterValue';
+import { ticketListSort } from '../utils/ticketListSort';
+import { toggleTicketListColumnOverride } from '../utils/toggleTicketListColumnOverride';
 import { useTicketListPaginatedQuery } from './useTicketListPaginatedQuery';
-import { useTicketListPrefetchPagination } from './useTicketListPrefetchPagination';
 import { useTicketListState } from './useTicketListState';
 import { useTicketListTableSync } from './useTicketListTableSync';
 
@@ -26,57 +25,66 @@ export function useTicketListTableRoot({
   stateCounts,
 }: UseTicketListTableRootOptions) {
   const {
-    ziggy: { query },
-  } = usePageProps<App.Platform.Data.TicketListPageProps>();
-
-  const [sortParam] = useState<string | null>(() =>
-    typeof query.sort === 'string' && query.sort.length > 0 ? query.sort : null,
-  );
-
-  const { columnFilters, pageNumber, restoreState, setColumnFilters, setPageNumber } =
-    useTicketListState(paginatedTickets, serverDefaultColumnFilters);
-
-  const { queryClientWithInitialData } = usePreloadedTicketListQueryClient({
     columnFilters,
-    facetCounts,
+    columnVisibilityOverrides,
     pageNumber,
-    paginatedTickets,
-    scope,
+    restoreState,
+    setColumnFilters,
+    setColumnVisibilityOverrides,
+    setPageNumber,
+    setSortParam,
     sortParam,
-    stateCounts,
-  });
+  } = useTicketListState(paginatedTickets, serverDefaultColumnFilters);
+
+  const statusValue = getTicketListFilterValue(
+    columnFilters,
+    'status',
+  ) as App.Platform.Enums.TicketListStatusFilter;
+
+  const defaultColumnVisibility = getTicketListDefaultColumnVisibility(scope, statusValue);
+
+  const toggleColumnVisibility = (columnId: TicketListColumnId) => {
+    setColumnVisibilityOverrides((previousOverrides) =>
+      toggleTicketListColumnOverride(previousOverrides, defaultColumnVisibility, columnId),
+    );
+  };
+
+  const resetDisplay = () => {
+    setColumnVisibilityOverrides({});
+    setSortParam(ticketListSort.defaultParam);
+  };
 
   useTicketListTableSync({
     columnFilters,
+    columnVisibilityOverrides,
     serverDefaultColumnFilters,
     pageNumber,
     restoreState,
+    sortParam,
   });
 
   const ticketListQuery = useTicketListPaginatedQuery({
     columnFilters,
+    initialData: { facetCounts, paginatedTickets, stateCounts },
     pageNumber,
     scope,
     sortParam,
-    queryClient: queryClientWithInitialData,
-  });
-
-  const { prefetchPage } = useTicketListPrefetchPagination({
-    columnFilters,
-    scope,
-    sortParam,
-    queryClient: queryClientWithInitialData,
   });
 
   return {
-    hydrationState: dehydrate(queryClientWithInitialData),
     ticketListTableProps: {
       columnFilters,
-      prefetchPage,
+      resetDisplay,
       setColumnFilters,
       setPageNumber,
+      setSortParam,
+      sortParam,
+      toggleColumnVisibility,
+      prefetchPage: ticketListQuery.prefetchPage,
+      columnVisibility: { ...defaultColumnVisibility, ...columnVisibilityOverrides },
+      hasColumnVisibilityOverrides: Object.keys(columnVisibilityOverrides).length > 0,
       isFetching: ticketListQuery.isFetching,
-      ...(ticketListQuery.data ?? { paginatedTickets, stateCounts, facetCounts }),
+      ...ticketListQuery.data,
     },
   };
 }
