@@ -15,6 +15,7 @@ interface UseTicketListTableRootOptions {
   paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
   scope: App.Platform.Enums.TicketListScope;
   stateCounts: App.Platform.Data.TicketListStateCounts;
+  targetParams: Record<string, number>;
 }
 
 export function useTicketListTableRoot({
@@ -23,6 +24,7 @@ export function useTicketListTableRoot({
   paginatedTickets,
   scope,
   stateCounts,
+  targetParams,
 }: UseTicketListTableRootOptions) {
   const {
     columnFilters,
@@ -69,6 +71,7 @@ export function useTicketListTableRoot({
     pageNumber,
     scope,
     sortParam,
+    targetParams,
   });
 
   return {

@@ -185,6 +185,8 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
 
                     Route::get('tickets2', [TicketController::class, 'index'])->name('tickets2.index');
+                    Route::get('game/{game}/tickets2', [TicketController::class, 'forGame'])->name('game.tickets2');
+                    Route::get('achievement/{achievement}/tickets2', [TicketController::class, 'forAchievement'])->name('achievement.tickets2');
                 });
             });
         });

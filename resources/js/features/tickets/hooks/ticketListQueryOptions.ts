@@ -11,14 +11,16 @@ export function buildTicketListQueryOptions({
   pageNumber,
   scope,
   sortParam,
+  targetParams,
 }: TicketListQueryOptionsInput) {
   return {
-    queryKey: ['ticket-list', scope, sortParam, columnFilters, pageNumber],
+    queryKey: ['ticket-list', scope, targetParams, sortParam, columnFilters, pageNumber],
 
     queryFn: async (): Promise<TicketListQueryData> => {
       const response = await axios.get<TicketListQueryData>(
         route('api.ticket.index', {
           scope,
+          ...targetParams,
           sort: sortParam,
           ...buildTicketListFilterParams(columnFilters),
           'page[number]': pageNumber,

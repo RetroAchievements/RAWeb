@@ -1577,5 +1577,6 @@
     "Ascending": "Ascending",
     "Descending": "Descending",
     "Oldest first": "Oldest first",
-    "Newest first": "Newest first"
+    "Newest first": "Newest first",
+    "Tickets - {{title}}": "Tickets - {{title}}"
 }
