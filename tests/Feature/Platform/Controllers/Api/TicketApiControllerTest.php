@@ -500,6 +500,30 @@ describe('index', function () {
         $response->assertUnauthorized();
     });
 
+    it('given the scope is game, tickets associated with other games are excluded', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+
+        $otherDeveloper = User::factory()->create();
+        $otherGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $otherGame->id,
+            'user_id' => $otherDeveloper->id,
+        ]);
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create([
+            'ticketable_author_id' => $otherDeveloper->id,
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertJsonPath('paginatedTickets.total', 3);
+    });
+
     it('given scope game and a game id, the JSON has paginated tickets, every state count, and the facet counts', function () {
         // ARRANGE
         $fixture = createTicketIndexFixture(3);

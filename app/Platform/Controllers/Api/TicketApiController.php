@@ -8,7 +8,6 @@ use App\Models\Ticket;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Actions\CreateTicketAction;
 use App\Platform\Data\StoreTicketData;
-use App\Platform\Enums\TicketListScope;
 use App\Platform\Requests\StoreTicketRequest;
 use App\Platform\Requests\TicketListApiRequest;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +18,7 @@ class TicketApiController extends Controller
     {
         $this->authorize('viewAny', Ticket::class);
 
-        $scope = TicketListScope::from($request->input('scope', TicketListScope::All->value));
+        $scope = $request->getScope();
         $target = $scope->resolveTarget($request);
 
         $result = (new BuildTicketListAction())->execute($scope, $target, $request);

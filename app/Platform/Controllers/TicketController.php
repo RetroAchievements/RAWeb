@@ -15,7 +15,6 @@ use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\TicketListPagePropsData;
-use App\Platform\Enums\TicketListScope;
 use App\Platform\Requests\TicketListRequest;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Http\Request;
@@ -34,17 +33,17 @@ class TicketController extends Controller
 
     public function index(TicketListRequest $request): InertiaResponse
     {
-        return $this->renderTicketList($request, 'tickets', TicketListScope::All, null);
+        return $this->renderTicketList($request, 'tickets', null);
     }
 
     public function forGame(TicketListRequest $request, Game $game): InertiaResponse
     {
-        return $this->renderTicketList($request, 'game/[game]/tickets', TicketListScope::Game, $game);
+        return $this->renderTicketList($request, 'game/[game]/tickets', $game);
     }
 
     public function forAchievement(TicketListRequest $request, Achievement $achievement): InertiaResponse
     {
-        return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', TicketListScope::Achievement, $achievement);
+        return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', $achievement);
     }
 
     /*
@@ -104,10 +103,11 @@ class TicketController extends Controller
     private function renderTicketList(
         TicketListRequest $request,
         string $component,
-        TicketListScope $scope,
         Game|Achievement|User|null $target,
     ): InertiaResponse {
         $this->authorize('viewAny', Ticket::class);
+
+        $scope = $request->getScope();
 
         $action = new BuildTicketListAction();
         $result = $action->execute($scope, $target, $request);
