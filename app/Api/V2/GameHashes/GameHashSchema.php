@@ -57,6 +57,23 @@ class GameHashSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'raMd5' => false,
+            'name' => true,
+            'compatibility' => false,
+            'patchUrl' => true,
+            'createdAt' => true,
+            'updatedAt' => true,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array
