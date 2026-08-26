@@ -17,14 +17,17 @@ use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-function getForumList(int $categoryID = 0): array
+/**
+ * @param array<int, int> $maskedAuthorIds
+ */
+function getForumList(int $categoryID = 0, array $maskedAuthorIds = []): array
 {
     $query = DB::table('forums as f')
         ->selectRaw('
             f.id AS ID, f.forum_category_id AS CategoryID, f.title AS Title, f.description AS Description, f.order_column AS DisplayOrder,
             fc.title AS CategoryName, fc.Description AS CategoryDescription,
             COUNT(DISTINCT ft.id) AS NumTopics, COUNT( ft.id ) AS NumPosts,
-            ftc2.id AS LastPostID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
+            ftc2.id AS LastPostID, ftc2.author_id AS LastPostAuthorID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
             ft2.title AS LastPostTopicName, ft2.id AS LastPostTopicID
         ')
         ->leftJoin('forum_categories as fc', 'fc.id', '=', 'f.forum_category_id')
@@ -43,9 +46,36 @@ function getForumList(int $categoryID = 0): array
         ->orderBy('f.order_column')
         ->orderBy('f.id');
 
-    return $query->get()
+    $forums = $query->get()
         ->map(fn ($row): array => (array) $row)
         ->toArray();
+
+    // Masked (blocked) most recent users are swapped for the
+    // most recent post the current user can see.
+    foreach ($forums as $index => $forum) {
+        $lastPostAuthorId = $forum['LastPostAuthorID'];
+        if ($lastPostAuthorId === null || !in_array((int) $lastPostAuthorId, $maskedAuthorIds, true)) {
+            continue;
+        }
+
+        $replacement = ForumTopicComment::query()
+            ->with(['user', 'forumTopic'])
+            ->whereNotIn('author_id', $maskedAuthorIds)
+            ->whereHas('forumTopic', function ($query) use ($forum, $maskedAuthorIds) {
+                $query->where('forum_id', $forum['ID'])
+                    ->whereNotIn('author_id', $maskedAuthorIds);
+            })
+            ->orderByDesc('created_at')
+            ->first();
+
+        $forums[$index]['LastPostID'] = $replacement?->id;
+        $forums[$index]['LastPostAuthor'] = $replacement?->user?->username;
+        $forums[$index]['LastPostCreated'] = $replacement?->created_at?->toDateTimeString();
+        $forums[$index]['LastPostTopicName'] = $replacement?->forumTopic?->title;
+        $forums[$index]['LastPostTopicID'] = $replacement?->forumTopic?->id;
+    }
+
+    return $forums;
 }
 
 /**

@@ -135,15 +135,16 @@ class BuildAggregateRecentForumPostsDataAction
         $pagedCommentIds = array_slice(array_values($latestVisibleCommentIdByTopic), $offset, $count);
 
         return [
-            'topics' => empty($pagedCommentIds) ? [] : $this->hydrateTopicsFromComments($pagedCommentIds),
+            'topics' => empty($pagedCommentIds) ? [] : $this->hydrateTopicsFromComments($pagedCommentIds, $maskedAuthorIds),
             'total' => count($latestVisibleCommentIdByTopic),
         ];
     }
 
     /**
      * @param array<int, int> $commentIds
+     * @param array<int, int> $maskedAuthorIds
      */
-    private function hydrateTopicsFromComments(array $commentIds): array
+    private function hydrateTopicsFromComments(array $commentIds, array $maskedAuthorIds): array
     {
         $oneDayAgo = now()->subDay()->toDateTimeString();
         $sevenDaysAgo = now()->subDays(7)->toDateTimeString();
@@ -151,12 +152,14 @@ class BuildAggregateRecentForumPostsDataAction
         $countsOneDay = ForumTopicComment::query()
             ->selectRaw('forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count')
             ->where('is_authorized', 1)
+            ->whereNotIn('author_id', $maskedAuthorIds)
             ->where('created_at', '>=', $oneDayAgo)
             ->groupBy('forum_topic_id');
 
         $countsSevenDays = ForumTopicComment::query()
             ->selectRaw('forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count')
             ->where('is_authorized', 1)
+            ->whereNotIn('author_id', $maskedAuthorIds)
             ->where('created_at', '>=', $sevenDaysAgo)
             ->groupBy('forum_topic_id');
 

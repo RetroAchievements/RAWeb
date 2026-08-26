@@ -185,3 +185,28 @@ it('given a topic started by a masked author, the pagination total does not coun
     // ASSERT
     expect($result->total)->toEqual(1);
 });
+
+it('given masked posts inside the recent window, the recent post counts and links ignore them', function () {
+    // ARRANGE
+    $masked = User::factory()->create();
+    $visible = User::factory()->create();
+
+    $topic = aggregateTopic(['title' => 'a topic']);
+
+    $firstVisible = aggregatePost($topic, $visible, 'visible one', now()->subDays(2)->toDateTimeString());
+    aggregatePost($topic, $masked, 'masked reply', now()->subDays(1)->toDateTimeString());
+    aggregatePost($topic, $visible, 'visible two', now()->subHours(2)->toDateTimeString());
+
+    // ACT
+    $result = (new BuildAggregateRecentForumPostsDataAction())->execute(
+        permissions: Permissions::Registered,
+        page: 1,
+        maskedAuthorIds: [$masked->id],
+    );
+
+    // ASSERT
+    expect($result->items)->toHaveCount(1);
+    $topicData = $result->items[0]->toArray();
+    expect($topicData['commentCount7d'])->toEqual(2);
+    expect($topicData['oldestComment7dId'])->toEqual($firstVisible->id);
+});
