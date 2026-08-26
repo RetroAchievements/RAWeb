@@ -8,6 +8,7 @@ use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketCreationDataAction;
@@ -38,6 +39,8 @@ class TicketController extends Controller
 
     public function forGame(TicketListRequest $request, Game $game): InertiaResponse
     {
+        abort_if(in_array($game->system_id, [System::Hubs, System::Events], true), 404);
+
         return $this->renderTicketList($request, 'game/[game]/tickets', $game);
     }
 

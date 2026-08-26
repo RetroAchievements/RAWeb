@@ -94,6 +94,21 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
     );
 });
 
+it('given a hub or event game, the game route returns a 404', function (int $systemId) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => $systemId]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('game.tickets2', ['game' => $game->id]));
+
+    // ASSERT
+    $response->assertNotFound();
+})->with([
+    'hub' => System::Hubs,
+    'event' => System::Events,
+]);
+
 it('uses persisted display preferences for the initial ticket list', function () {
     // ARRANGE
     $tickets = createTicketListPageTickets(2);
