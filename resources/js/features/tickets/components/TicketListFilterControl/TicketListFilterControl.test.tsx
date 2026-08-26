@@ -97,6 +97,41 @@ describe('Component: TicketListFilterControl', () => {
     expect(screen.getByTestId('filter-property-type')).toHaveTextContent('Type');
   });
 
+  it('given a property has an active filter, shows a dot', async () => {
+    // ARRANGE
+    render(
+      <TicketListFilterControl
+        columnFilters={[{ id: 'status', value: ['closed'] }]}
+        properties={[statusProperty, typeProperty]}
+        setColumnFilters={vi.fn()}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.getByTestId('filter-property-status-active')).toHaveAccessibleName('Active');
+    expect(screen.queryByTestId('filter-property-type-active')).not.toBeInTheDocument();
+  });
+
+  it('given a property does not have an active filter, does not show a dot', async () => {
+    // ARRANGE
+    render(
+      <TicketListFilterControl
+        columnFilters={[{ id: 'status', value: ['all'] }]}
+        properties={[statusProperty]}
+        setColumnFilters={vi.fn()}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.queryByTestId('filter-property-status-active')).not.toBeInTheDocument();
+  });
+
   it('given the user opens a property submenu, shows its values alongside associated counts', async () => {
     // ARRANGE
     render(

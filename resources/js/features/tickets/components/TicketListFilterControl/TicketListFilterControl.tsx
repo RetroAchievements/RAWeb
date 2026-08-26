@@ -64,23 +64,39 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
       </BaseDropdownMenuTrigger>
 
       <BaseDropdownMenuContent align="start" className="min-w-48">
-        {properties.map((property) => (
-          <BaseDropdownMenuSub key={property.id}>
-            <BaseDropdownMenuSubTrigger data-testid={`filter-property-${property.id}`}>
-              {property.label}
-            </BaseDropdownMenuSubTrigger>
+        {properties.map((property) => {
+          const selectedValue =
+            getTicketListFilterValue(columnFilters, property.id) ?? property.noFilterValue;
+          const isActive = selectedValue !== property.noFilterValue;
 
-            <BaseDropdownMenuSubContent className="min-w-64 p-0">
-              <TicketListFilterValueList
-                property={property}
-                selectedValue={
-                  getTicketListFilterValue(columnFilters, property.id) ?? property.noFilterValue
-                }
-                onSelect={(value) => handleValueSelect(property, value)}
-              />
-            </BaseDropdownMenuSubContent>
-          </BaseDropdownMenuSub>
-        ))}
+          return (
+            <BaseDropdownMenuSub key={property.id}>
+              <BaseDropdownMenuSubTrigger
+                data-testid={`filter-property-${property.id}`}
+                className="gap-2"
+              >
+                {property.label}
+
+                {isActive ? (
+                  <span
+                    role="img"
+                    aria-label={t('Active')}
+                    data-testid={`filter-property-${property.id}-active`}
+                    className="size-1.5 rounded-full bg-neutral-400 light:bg-neutral-500"
+                  />
+                ) : null}
+              </BaseDropdownMenuSubTrigger>
+
+              <BaseDropdownMenuSubContent className="min-w-64 p-0">
+                <TicketListFilterValueList
+                  property={property}
+                  selectedValue={selectedValue}
+                  onSelect={(value) => handleValueSelect(property, value)}
+                />
+              </BaseDropdownMenuSubContent>
+            </BaseDropdownMenuSub>
+          );
+        })}
       </BaseDropdownMenuContent>
     </BaseDropdownMenu>
   );
