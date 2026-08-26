@@ -66,7 +66,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   const sortFieldLabels = {
     createdAt: t('Created'),
     state: t('Status'),
-    resolvedAt: t('Resolution date'),
+    resolvedAt: t('Resolved'),
   };
 
   const hasDisplayChanges =

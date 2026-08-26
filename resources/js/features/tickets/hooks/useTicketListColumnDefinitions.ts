@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { TicketListColumnDefinition } from '../models';
 import { buildAgeColumnDef } from '../utils/column-definitions/buildAgeColumnDef';
 import { buildGameColumnDef } from '../utils/column-definitions/buildGameColumnDef';
+import { buildHashColumnDef } from '../utils/column-definitions/buildHashColumnDef';
 import { buildIdColumnDef } from '../utils/column-definitions/buildIdColumnDef';
 import { buildReportColumnDef } from '../utils/column-definitions/buildReportColumnDef';
 import { buildTicketableColumnDef } from '../utils/column-definitions/buildTicketableColumnDef';
@@ -83,12 +84,7 @@ export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
       t_label: t('Core'),
       getText: (entry) => entry.emulatorCore,
     }),
-    buildTicketMetadataColumnDef({
-      id: 'hash',
-      t_label: t('Hash'),
-      getText: (entry) => entry.gameHash?.name ?? entry.gameHash?.md5 ?? null,
-      widthClassName: 'min-w-[8em] flex-[2_1_0]',
-    }),
+    buildHashColumnDef({ t_label: t('Hash') }),
 
     buildAgeColumnDef({ t_label: t('Age') }),
   ];

@@ -1,4 +1,5 @@
 import type { VisibilityState } from '@tanstack/react-table';
+import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { route } from 'ziggy-js';
 
@@ -433,13 +434,16 @@ describe('Component: TicketListTable', () => {
     expect(screen.getByText('mGBA')).toBeVisible();
   });
 
-  it('given the hash column is visible, prefers the hash name and falls back to the md5', () => {
+  it('given the hash column is visible, shows the hash name tags and falls back to a short md5', async () => {
     // ARRANGE
     const namedTicket = createTicketListEntry({
-      gameHash: createGameHash({ name: 'USA rev 1', md5: 'aaa' }),
+      gameHash: createGameHash({
+        name: 'Sonic The Hedgehog (USA, Europe).md',
+        md5: 'aaaaaaaabbbbbbbbccccccccdddddddd',
+      }),
     });
     const unnamedTicket = createTicketListEntry({
-      gameHash: createGameHash({ name: null, md5: 'bbb' }),
+      gameHash: createGameHash({ name: null, md5: 'bbbbbbbbccccccccddddddddeeeeeeee' }),
     });
 
     render(
@@ -450,8 +454,14 @@ describe('Component: TicketListTable', () => {
     );
 
     // ASSERT
-    expect(screen.getByText('USA rev 1')).toBeVisible();
-    expect(screen.getByText('bbb')).toBeVisible();
+    expect(screen.getByText('(USA, Europe)')).toBeVisible();
+    expect(screen.getByText('bbbbbbbb')).toBeVisible();
+
+    // ... the full name and md5 are available in a tooltip ...
+    await userEvent.hover(screen.getByText('(USA, Europe)'));
+    expect(
+      (await screen.findAllByText('Sonic The Hedgehog (USA, Europe).md'))[0],
+    ).toBeVisible();
   });
 
   it('given the ticket has no emulator or hash, those cells stay empty', () => {
