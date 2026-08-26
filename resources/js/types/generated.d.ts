@@ -1215,6 +1215,8 @@ paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
 stateCounts: App.Platform.Data.TicketListStateCounts;
 availableFilters: Array<App.Platform.Data.TicketListFilter>;
 facetCounts: Record<string, Record<string, number>>;
+defaultStatusFilter: App.Platform.Enums.TicketListStatusFilter;
+hasStatusFilter: boolean;
 persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;
 game: App.Platform.Data.Game | null;

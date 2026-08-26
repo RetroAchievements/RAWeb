@@ -1,4 +1,4 @@
-import { createAchievement, createGame } from '@/test/factories';
+import { createAchievement, createGame, createUser } from '@/test/factories';
 
 import { buildTicketListTargetParams } from './buildTicketListTargetParams';
 
@@ -10,7 +10,7 @@ describe('Util: buildTicketListTargetParams', () => {
 
   it('given no target, returns no params', () => {
     // ACT
-    const result = buildTicketListTargetParams({ achievement: null, game: null });
+    const result = buildTicketListTargetParams({ achievement: null, game: null, user: null });
 
     // ASSERT
     expect(result).toEqual({});
@@ -21,6 +21,7 @@ describe('Util: buildTicketListTargetParams', () => {
     const result = buildTicketListTargetParams({
       achievement: null,
       game: createGame({ id: 1701 }),
+      user: null,
     });
 
     // ASSERT
@@ -32,9 +33,34 @@ describe('Util: buildTicketListTargetParams', () => {
     const result = buildTicketListTargetParams({
       achievement: createAchievement({ id: 903 }),
       game: null,
+      user: null,
     });
 
     // ASSERT
     expect(result).toEqual({ achievement: 903 });
+  });
+
+  it('given a user target, contains the user', () => {
+    // ACT
+    const result = buildTicketListTargetParams({
+      achievement: null,
+      game: null,
+      user: createUser({ id: 5309 }),
+    });
+
+    // ASSERT
+    expect(result).toEqual({ user: 5309 });
+  });
+
+  it('given a user target without an id, does not crash', () => {
+    // ACT
+    const result = buildTicketListTargetParams({
+      achievement: null,
+      game: null,
+      user: createUser({ id: undefined }),
+    });
+
+    // ASSERT
+    expect(result).toEqual({});
   });
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
+use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -47,6 +48,26 @@ class TicketController extends Controller
     public function forAchievement(TicketListRequest $request, Achievement $achievement): InertiaResponse
     {
         return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', $achievement);
+    }
+
+    public function forAssignee(TicketListRequest $request, User $user): InertiaResponse
+    {
+        return $this->renderTicketList($request, 'user/[user]/tickets/index', $user);
+    }
+
+    public function forReporter(TicketListRequest $request, User $user): InertiaResponse
+    {
+        return $this->renderTicketList($request, 'user/[user]/tickets/created', $user);
+    }
+
+    public function forAwaitingReporter(TicketListRequest $request, User $user): InertiaResponse
+    {
+        return $this->renderTicketList($request, 'user/[user]/tickets/feedback', $user);
+    }
+
+    public function forResolver(TicketListRequest $request, User $user): InertiaResponse
+    {
+        return $this->renderTicketList($request, 'user/[user]/tickets/resolved', $user);
     }
 
     /*
@@ -121,6 +142,8 @@ class TicketController extends Controller
             stateCounts: $result['stateCounts'],
             availableFilters: $action->getAvailableFilters($scope, $scope->systemId($target)),
             facetCounts: $result['facetCounts'],
+            defaultStatusFilter: $scope->defaultStatusFilter(),
+            hasStatusFilter: $scope->hasStatusFilter(),
             persistenceCookieName: $scope->persistenceCookieName(),
             persistedViewPreferences: $request->getCookiePreferences(),
             game: $target instanceof Game
@@ -128,6 +151,9 @@ class TicketController extends Controller
                 : null,
             achievement: $target instanceof Achievement
                 ? AchievementData::fromAchievement($target)->include('game', 'game.system')
+                : null,
+            user: $target instanceof User
+                ? UserData::fromUser($target)->include('id')
                 : null,
         );
 

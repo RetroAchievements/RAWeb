@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievement, createGame, createSystem } from '@/test/factories';
+import { createAchievement, createGame, createSystem, createUser } from '@/test/factories';
 
 import { TicketListHeading } from './TicketListHeading';
 
@@ -53,5 +53,34 @@ describe('Component: TicketListHeading', () => {
     // ASSERT
     expect(screen.getByRole('heading', { level: 1, name: 'Tickets' })).toBeVisible();
     expect(screen.getAllByText('Take Out the Trash').length).toBeGreaterThan(0);
+  });
+
+  it('given a user scope, shows the user breadcrumbs and heading', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketListPageProps>(<TicketListHeading />, {
+      pageProps: {
+        scope: 'assignedTo',
+        user: createUser({ displayName: 'Scott' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { level: 1, name: 'Tickets' })).toBeVisible();
+    expect(screen.getAllByText('Scott').length).toBeGreaterThan(0);
+  });
+
+  it('given a user scope with custom copy, shows that copy in the heading', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketListPageProps>(<TicketListHeading />, {
+      pageProps: {
+        scope: 'awaitingReporter',
+        user: createUser({ displayName: 'Scott' }),
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Tickets Awaiting Feedback' }),
+    ).toBeVisible();
   });
 });

@@ -23,6 +23,7 @@ export function useTicketListFilterProperties(
   availableFilters: App.Platform.Data.TicketListFilter[],
   stateCounts: App.Platform.Data.TicketListStateCounts,
   facetCounts: Record<string, Record<string, number>>,
+  hasStatusFilter: boolean,
 ): TicketListFilterProperty[] {
   const { t } = useTranslation();
 
@@ -43,7 +44,7 @@ export function useTicketListFilterProperties(
   };
 
   return [
-    statusProperty,
+    ...(hasStatusFilter ? [statusProperty] : []),
     ...availableFilters.map((filter) => {
       const countsByValue = facetCounts[filter.kind];
 

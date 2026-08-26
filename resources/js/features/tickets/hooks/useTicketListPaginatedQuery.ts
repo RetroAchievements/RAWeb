@@ -37,5 +37,5 @@ export function useTicketListPaginatedQuery({
     queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
   };
 
-  return { data: data!, isFetching, prefetchPage };
+  return { data: data ?? initialData, isFetching, prefetchPage };
 }

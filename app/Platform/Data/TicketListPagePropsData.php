@@ -7,6 +7,7 @@ namespace App\Platform\Data;
 use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Platform\Enums\TicketListScope;
+use App\Platform\Enums\TicketListStatusFilter;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -27,6 +28,8 @@ class TicketListPagePropsData extends Data
         public array $availableFilters,
         #[LiteralTypeScriptType('Record<string, Record<string, number>>')]
         public array $facetCounts,
+        public TicketListStatusFilter $defaultStatusFilter,
+        public bool $hasStatusFilter,
         public string $persistenceCookieName,
         #[LiteralTypeScriptType('Record<string, any> | null')]
         public ?array $persistedViewPreferences = null,
