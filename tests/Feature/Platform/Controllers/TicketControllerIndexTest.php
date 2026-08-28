@@ -155,3 +155,45 @@ it("given a scoped list, reads that scope's preference cookie", function () {
         ->where('persistedViewPreferences', $scopedPreferences)
     );
 });
+
+it('given a guest, inbox redirects to login', function () {
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertRedirect(route('login'));
+});
+
+it('given an authenticated user, inbox renders every section for that user', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    actingAs($viewer);
+
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('tickets/mine')
+        ->has('sections', 5)
+        ->where('sectionLimit', 8)
+        ->where('attentionCount', 0)
+        ->where('user.displayName', $viewer->display_name)
+    );
+});
+
+it('given a user param, the inbox reports on that user rather than the currently authenticated user', function () {
+    // ARRANGE
+    $target = User::factory()->create();
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('user.displayName', $target->display_name)
+    );
+});

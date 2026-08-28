@@ -1185,6 +1185,17 @@ ticketableType: App.Platform.Enums.TicketableType;
 state?: App.Community.Enums.TicketState;
 ticketable?: App.Platform.Data.Achievement | App.Platform.Data.Leaderboard | App.Platform.Data.Game;
 };
+export type TicketInboxPageProps = {
+user: App.Data.User;
+sections: Array<App.Platform.Data.TicketInboxSection>;
+sectionLimit: number;
+attentionCount: number;
+};
+export type TicketInboxSection = {
+kind: App.Platform.Enums.TicketInboxSectionKind;
+count: number;
+tickets: Array<App.Platform.Data.TicketListEntry>;
+};
 export type TicketListEntry = {
 id: number;
 state: App.Community.Enums.TicketState;
@@ -1280,6 +1291,7 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
+export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedOpen' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';

@@ -125,8 +125,8 @@ describe('Component: PatreonSupportersRoot', () => {
     });
 
     // ASSERT
-    const tier2Heading = screen.getByText(/\$2 supporters \(1\)/i);
-    const tier1Heading = screen.getByText(/\$1 supporters \(1\)/i);
+    const tier2Heading = screen.getByRole('heading', { name: /\$2 supporters 1/i });
+    const tier1Heading = screen.getByRole('heading', { name: /\$1 supporters 1/i });
 
     expect(tier2Heading).toBeVisible();
     expect(tier1Heading).toBeVisible();
@@ -152,7 +152,7 @@ describe('Component: PatreonSupportersRoot', () => {
 
     // ASSERT
     expect(screen.queryByText(/\$2 supporters/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/\$1 supporters \(0\)/i)).toBeVisible();
+    expect(screen.getByRole('heading', { name: /\$1 supporters 0/i })).toBeVisible();
   });
 
   it('given deferred supporters have loaded for both tiers, renders the initial and deferred supporters', () => {
@@ -236,7 +236,7 @@ describe('Component: PatreonSupportersRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/\$1 supporters \(1,419\)/i)).toBeVisible();
-    expect(screen.getByText(/\$2 supporters \(120\)/i)).toBeVisible();
+    expect(screen.getByRole('heading', { name: /\$1 supporters 1,419/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /\$2 supporters 120/i })).toBeVisible();
   });
 });

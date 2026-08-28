@@ -700,4 +700,19 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.queryByTestId('chip-status-value')).not.toBeInTheDocument();
     expect(screen.queryByTestId('add-filter')).not.toBeInTheDocument();
   });
+
+  it('given a single ticket, the total copy uses the singular form', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: 1,
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('1 ticket')).toBeVisible();
+  });
 });
