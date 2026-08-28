@@ -30,4 +30,11 @@ class LeaderboardFactory extends Factory
             'order_column' => rand(0, 500),
         ];
     }
+
+    public function promoted(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'state' => 'active',
+        ]);
+    }
 }
