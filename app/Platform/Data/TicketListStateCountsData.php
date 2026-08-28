@@ -12,6 +12,7 @@ class TicketListStateCountsData extends Data
 {
     public function __construct(
         public int $unresolved,
+        public int $open,
         public int $request,
         public int $resolved,
         public int $closed,
@@ -21,12 +22,13 @@ class TicketListStateCountsData extends Data
     }
 
     /**
-     * @param array{unresolved: int, request: int, resolved: int, closed: int, quarantined: int, all: int} $counts
+     * @param array{unresolved: int, open: int, request: int, resolved: int, closed: int, quarantined: int, all: int} $counts
      */
     public static function fromCounts(array $counts): self
     {
         return new self(
             unresolved: $counts['unresolved'],
+            open: $counts['open'],
             request: $counts['request'],
             resolved: $counts['resolved'],
             closed: $counts['closed'],

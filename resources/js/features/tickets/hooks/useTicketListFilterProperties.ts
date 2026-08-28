@@ -7,7 +7,8 @@ const STATUS_GLYPH_STATES: Record<
   App.Platform.Enums.TicketListStatusFilter,
   App.Community.Enums.TicketState | undefined
 > = {
-  unresolved: 'open',
+  unresolved: undefined,
+  open: 'open',
   request: 'request',
   resolved: 'resolved',
   closed: 'closed',

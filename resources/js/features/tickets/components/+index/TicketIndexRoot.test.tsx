@@ -206,7 +206,7 @@ describe('Component: TicketIndexRoot', () => {
     renderTicketIndexRoot();
 
     // ASSERT
-    expect(screen.getByTestId('chip-status')).toHaveTextContent('Open');
+    expect(screen.getByTestId('chip-status')).toHaveTextContent('Unresolved');
     expect(screen.queryByTestId('chip-type')).not.toBeInTheDocument();
   });
 
@@ -230,7 +230,7 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await openPropertySubmenu(0);
-    await userEvent.click(screen.getByRole('menuitem', { name: /resolved/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
 
     // ASSERT
     expect(screen.getByTestId('reset-all-filters')).toBeVisible();
@@ -359,7 +359,7 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await openPropertySubmenu(0);
-    await userEvent.click(screen.getByRole('menuitem', { name: /resolved/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -397,12 +397,12 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await openPropertySubmenu(0);
-    await userEvent.click(screen.getByRole('menuitem', { name: /resolved/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
     await userEvent.click(screen.getByTestId('chip-status-value'));
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByRole('menuitem', { name: /open/i })).toHaveTextContent('99');
+      expect(screen.getByRole('menuitem', { name: /unresolved/i })).toHaveTextContent('99');
     });
   });
 

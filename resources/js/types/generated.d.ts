@@ -1236,6 +1236,7 @@ user: App.Data.User | null;
 };
 export type TicketListStateCounts = {
 unresolved: number;
+open: number;
 request: number;
 resolved: number;
 closed: number;
@@ -1295,7 +1296,7 @@ export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awa
 export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
-export type TicketListStatusFilter = 'all' | 'unresolved' | 'request' | 'resolved' | 'closed' | 'quarantined';
+export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }

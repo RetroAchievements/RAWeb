@@ -82,6 +82,7 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
         ->where('paginatedTickets.total', 52)
         ->has('stateCounts', fn (Assert $counts) => $counts
             ->has('unresolved')
+            ->has('open')
             ->has('request')
             ->has('resolved')
             ->has('closed')
@@ -196,4 +197,22 @@ it('given a user param, the inbox reports on that user rather than the currently
     $response->assertInertia(fn (Assert $page) => $page
         ->where('user.displayName', $target->display_name)
     );
+});
+
+it('given the open status filter, returns only open tickets while unresolved also returns requests', function () {
+    // ARRANGE
+    createTicketListPageTickets(10);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $openResponse = get(route('tickets2.index', ['filter' => ['status' => 'open']]));
+    $unresolvedResponse = get(route('tickets2.index', ['filter' => ['status' => 'unresolved']]));
+
+    // ASSERT
+    $openTotal = $openResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $unresolvedTotal = $unresolvedResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $requestCount = $openResponse->viewData('page')['props']['stateCounts']['request'];
+
+    expect($requestCount)->toBeGreaterThan(0);
+    expect($unresolvedTotal)->toEqual($openTotal + $requestCount);
 });
