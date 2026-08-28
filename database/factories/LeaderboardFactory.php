@@ -28,13 +28,7 @@ class LeaderboardFactory extends Factory
             'format' => 'VALUE',
             'rank_asc' => false,
             'order_column' => rand(0, 500),
-        ];
-    }
-
-    public function promoted(): static
-    {
-        return $this->state(fn (array $attributes) => [
             'state' => 'active',
-        ]);
+        ];
     }
 }

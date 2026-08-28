@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
-use App\Enums\Permissions;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
@@ -19,12 +17,9 @@ use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\VirtualGameIdService;
-use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Tests\Feature\Platform\Concerns\TestsAuditComments;
-use Tests\TestCase;
 
 uses(LazilyRefreshDatabase::class);
 uses(TestsAuditComments::class);
@@ -55,7 +50,7 @@ class UploadLeaderboardTestHelpers
 
     public static function createPromotedLeaderboard(Game $game, User $author): Leaderboard
     {
-        $leaderboard = Leaderboard::factory()->for($game)->promoted()->create([
+        $leaderboard = Leaderboard::factory()->for($game)->create([
             'author_id' => $author->id,
             'trigger_definition' => 'STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0',
         ]);
@@ -63,6 +58,24 @@ class UploadLeaderboardTestHelpers
         $trigger = $leaderboard->trigger()->save(new Trigger([
             'conditions' => $leaderboard->trigger_definition,
             'version' => 1,
+            'user_id' => $author->id,
+        ]));
+        $leaderboard->update(['trigger_id' => $trigger->id]);
+
+        return $leaderboard;
+    }
+
+    public static function createUnpromotedLeaderboard(Game $game, User $author): Leaderboard
+    {
+        $leaderboard = Leaderboard::factory()->for($game)->create([
+            'author_id' => $author->id,
+            'trigger_definition' => 'STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0',
+            'state' => 'unpromoted',
+        ]);
+
+        $trigger = $leaderboard->trigger()->save(new Trigger([
+            'conditions' => $leaderboard->trigger_definition,
+            'version' => null,
             'user_id' => $author->id,
         ]));
         $leaderboard->update(['trigger_id' => $trigger->id]);
@@ -123,6 +136,7 @@ describe('developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            'm' => 'unpromoted',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -137,12 +151,12 @@ describe('developer', function () {
         $this->assertEquals(true, $leaderboard1->rank_asc);
         $this->assertEquals('VALUE', $leaderboard1->format);
         $this->assertEquals(1, $leaderboard1->order_column);
-        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
 
-        // leaderboard should have a trigger
+        // leaderboard should have a trigger without a version
         $this->assertNotNull($leaderboard1->trigger);
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
-        $this->assertEquals(1, $leaderboard1->trigger->version);
+        $this->assertNull($leaderboard1->trigger->version);
 
         // creation audit log entry should be made
         $activity = $leaderboard1->auditLog->where('event', 'created')->first();
@@ -150,91 +164,31 @@ describe('developer', function () {
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
-    test('can update existing leaderboard', function () {
+    test('cannot create new leaderboard without claim', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
-        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
-        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
-        $oldOrder = $leaderboard1->order_column;
 
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
-            'i' => $leaderboard1->id,
             'g' => $game->id,
-            'n' => 'New Title',
-            'd' => 'New Description',
+            'n' => 'Title',
+            'd' => 'Description',
             's' => '1=0',
-            'b' => '2=1',
+            'b' => '2=0',
             'c' => '3=0',
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
         ])))
-            ->assertStatus(200)
+            ->assertStatus(403)
             ->assertExactJson([
-                'Success' => true,
-                'LeaderboardID' => 1,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must have an active claim on this game to perform this action.',
             ]);
 
-        $leaderboard1->refresh();
-        $this->assertEquals('New Title', $leaderboard1->title);
-        $this->assertEquals('New Description', $leaderboard1->description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
-        $this->assertEquals(true, $leaderboard1->rank_asc);
-        $this->assertEquals('VALUE', $leaderboard1->format);
-        $this->assertEquals($oldOrder, $leaderboard1->order_column);
-        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
-
-        // leaderboard trigger should be updated
-        $this->assertNotNull($leaderboard1->trigger);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
-        $this->assertEquals(2, $leaderboard1->trigger->version);
-
-        // update audit log entry should be made
-        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
-        $this->assertNotNull($activity);
-        $this->assertEquals($this->user->id, $activity->causer_id);
+        $this->assertEquals(0, Leaderboard::count());
     });
-
-    // test('cannot create new leaderboard without claim', function () {
-    //     $this->user->assignRole(Role::DEVELOPER);
-    //     $game = UploadLeaderboardTestHelpers::createGame();
-
-    //     $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
-    //         'g' => $game->id,
-    //         'n' => 'Title',
-    //         'd' => 'Description',
-    //         's' => '1=0',
-    //         'b' => '2=0',
-    //         'c' => '3=0',
-    //         'l' => '4=0',
-    //         'w' => 1,
-    //         'f' => 'VALUE',
-    //     ])))
-    //         ->assertStatus(200)
-    //         ->assertExactJson([
-    //             'Success' => true,
-    //             'LeaderboardID' => 1,
-    //         ]);
-
-    //     $leaderboard1 = Leaderboard::find(1);
-    //     $this->assertEquals('Title', $leaderboard1->title);
-    //     $this->assertEquals('Description', $leaderboard1->description);
-    //     $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
-    //     $this->assertEquals(true, $leaderboard1->rank_asc);
-    //     $this->assertEquals('VALUE', $leaderboard1->format);
-    //     $this->assertEquals(1, $leaderboard1->order_column);
-    //     $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
-
-    //     // leaderboard should have a trigger
-    //     $this->assertNotNull($leaderboard1->trigger);
-    //     $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
-    //     $this->assertEquals(1, $leaderboard1->trigger->version);
-
-    //     // creation audit log entry should be made
-    //     $activity = $leaderboard1->auditLog->where('event', 'created')->first();
-    //     $this->assertNotNull($activity);
-    //     $this->assertEquals($this->user->id, $activity->causer_id);
-    // });
 
     test('can create new leaderboard for collaboration claim', function () {
         $this->user->assignRole(Role::DEVELOPER);
@@ -280,23 +234,377 @@ describe('developer', function () {
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
-    // can update unpromoted own
+    test('can update unpromoted own', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to update unpromoted leaderboards
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
 
-    // can promote own
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
 
-    // can update promoted own
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
 
-    // can demote own
+        // leaderboard trigger should be updated, but version remains null until promoted
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertNull($leaderboard1->trigger->version);
 
-    // can repromote own
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
 
-    // can update unpromoted someone elses
+    test('can promote own', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to promote
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
 
-    // can update promoted someone elses
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
 
-    // can demote someone elses
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
 
-    // can repromote somone elses
+        // leaderboard trigger should be updated and initial version assigned
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(1, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can update promoted own', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to updated promoted leaderboards
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+
+        // leaderboard trigger should be updated, and version incremented
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(2, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can demote own', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to demote
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+
+        // leaderboard trigger should be updated and version incremented
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(2, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can update unpromoted someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to update unpromoted leaderboards
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+
+        // leaderboard trigger should be updated, but version remains null until promoted
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertNull($leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can promote someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to promote
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+
+        // leaderboard trigger should be updated and initial version assigned
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(1, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can update promoted someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to updated promoted leaderboards
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+
+        // leaderboard trigger should be updated, and version incremented
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(2, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('can demote someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        // NOTE: developer does not need active claim to demote
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+
+        // leaderboard trigger should be updated and version incremented
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(2, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
 
     test('can create new leaderboard via set id', function () {
         $this->user->assignRole(Role::DEVELOPER);
@@ -389,11 +697,9 @@ describe('developer', function () {
         $this->assertNotNull($activity);
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
-});
 
-describe('junior developer', function () {
-    test('can create new leaderboard', function () {
-        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+    test('legacy call creates active leaderboard', function () {
+        $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
         UploadLeaderboardTestHelpers::addClaim($game, $this->user);
 
@@ -407,6 +713,7 @@ describe('junior developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            // legacy API doesn't specify state; should default to active
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -434,11 +741,87 @@ describe('junior developer', function () {
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
-    test('can update own leaderboard', function () {
-        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+    test('legacy call does not promote unpromoted leaderboard', function () {
+        $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
         UploadLeaderboardTestHelpers::addClaim($game, $this->user);
-        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            // legacy API doesn't specify state; should default to active
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+    });
+
+    test('can create new leaderboard for inactive system', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        $game->system->active = false;
+        $game->system->save();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'g' => $game->id,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1 = Leaderboard::find(1);
+        $this->assertEquals('Title', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals(1, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+
+        // leaderboard should have a trigger without a version
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertNull($leaderboard1->trigger->version);
+
+        // creation audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'created')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('cannot promote for inactive system', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        $game->system->active = false;
+        $game->system->save();
+        // NOTE: developer does not need active claim to promote
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
         $oldOrder = $leaderboard1->order_column;
 
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
@@ -452,6 +835,38 @@ describe('junior developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You cannot promote leaderboards for a game from an unsupported console (console ID: 1).',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+    });
+});
+
+describe('junior developer', function () {
+    test('can create new leaderboard', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'g' => $game->id,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -459,22 +874,22 @@ describe('junior developer', function () {
                 'LeaderboardID' => 1,
             ]);
 
-        $leaderboard1->refresh();
-        $this->assertEquals('New Title', $leaderboard1->title);
-        $this->assertEquals('New Description', $leaderboard1->description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $leaderboard1 = Leaderboard::find(1);
+        $this->assertEquals('Title', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
         $this->assertEquals(true, $leaderboard1->rank_asc);
         $this->assertEquals('VALUE', $leaderboard1->format);
-        $this->assertEquals($oldOrder, $leaderboard1->order_column);
-        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+        $this->assertEquals(1, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
 
-        // leaderboard trigger should be updated
+        // leaderboard should have an unversioned trigger
         $this->assertNotNull($leaderboard1->trigger);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
-        $this->assertEquals(2, $leaderboard1->trigger->version);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertNull($leaderboard1->trigger->version);
 
-        // update audit log entry should be made
-        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        // creation audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'created')->first();
         $this->assertNotNull($activity);
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
@@ -493,6 +908,7 @@ describe('junior developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            'm' => 'unpromoted',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -522,6 +938,7 @@ describe('junior developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            'm' => 'unpromoted',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -536,12 +953,12 @@ describe('junior developer', function () {
         $this->assertEquals(true, $leaderboard1->rank_asc);
         $this->assertEquals('VALUE', $leaderboard1->format);
         $this->assertEquals(1, $leaderboard1->order_column);
-        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
 
-        // leaderboard should have a trigger
+        // leaderboard should have an unversioned trigger
         $this->assertNotNull($leaderboard1->trigger);
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
-        $this->assertEquals(1, $leaderboard1->trigger->version);
+        $this->assertNull($leaderboard1->trigger->version);
 
         // creation audit log entry should be made
         $activity = $leaderboard1->auditLog->where('event', 'created')->first();
@@ -549,17 +966,177 @@ describe('junior developer', function () {
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
 
-    // can update unpromoted own
+    test('can update unpromoted own', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
 
-    // cannot promote own
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
 
-    // cannot update promoted own
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
 
-    // cannot demote own
+        // leaderboard trigger should be updated, but version not incremented
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertNull($leaderboard1->trigger->version);
 
-    // cannot repromote own
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
 
-    // cannot update unpromoted someone elses
+    test('cannot promote own', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+    });
+
+    test('cannot update promoted own', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+    });
+
+    test('cannot demote own', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+    });
+
+    test('cannot update unpromoted someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertNotEquals('New Title', $leaderboard1->title);
+    });
 
     test('cannot update promoted someone elses', function () {
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
@@ -580,22 +1157,82 @@ describe('junior developer', function () {
             'l' => '4=0',
             'w' => 1,
             'f' => 'VALUE',
+            'm' => 'active',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
                 'Status' => 403,
                 'Code' => 'access_denied',
                 'Success' => false,
-                'Error' => 'Access denied.',
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+    });
+
+    test('cannot demote someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         $leaderboard1->refresh();
-        $this->assertNotEquals('New Title', $leaderboard1->title);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
     });
 
-    // cannot demote someone elses
+    test('cannot promote someone elses', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createUnpromotedLeaderboard($game, $user2);
+        $oldOrder = $leaderboard1->order_column;
 
-    // cannot repromote somone elses
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'active',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Unpromoted, $leaderboard1->state);
+    });
 
     test('can create new leaderboard via set id', function () {
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
@@ -688,13 +1325,102 @@ describe('junior developer', function () {
         $this->assertNotNull($activity);
         $this->assertEquals($this->user->id, $activity->causer_id);
     });
+
+    test('legacy call creates active leaderboard', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'g' => $game->id,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            // legacy API doesn't specify state; should default to active
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1 = Leaderboard::find(1);
+        $this->assertEquals('Title', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals(1, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+
+        // leaderboard should have a trigger
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(1, $leaderboard1->trigger->version);
+
+        // creation audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'created')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
+
+    test('legacy call updates own active leaderboard', function () {
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $this->user);
+        $oldOrder = $leaderboard1->order_column;
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            // legacy API doesn't specify state; should default to active
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 1,
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals('New Title', $leaderboard1->title);
+        $this->assertEquals('New Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals($oldOrder, $leaderboard1->order_column);
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+
+        // leaderboard trigger should be updated
+        $this->assertNotNull($leaderboard1->trigger);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals(2, $leaderboard1->trigger->version);
+
+        // update audit log entry should be made
+        $activity = $leaderboard1->auditLog->where('event', 'updated')->first();
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->user->id, $activity->causer_id);
+    });
 });
 
 describe('non-developer', function () {
-    test('writer can update title and description without claim', function() {
+    test('writer can update title and description without claim', function () {
         $this->user->assignRole(Role::WRITER);
         $game = UploadLeaderboardTestHelpers::createGame();
-        $user2 = User::factory()->create(); 
+        $user2 = User::factory()->create();
         $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
         $oldOrder = $leaderboard1->order_column;
 
@@ -726,10 +1452,10 @@ describe('non-developer', function () {
         $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
     });
 
-    test('writer cannot update logic', function() {
+    test('writer cannot update logic', function () {
         $this->user->assignRole(Role::WRITER);
         $game = UploadLeaderboardTestHelpers::createGame();
-        $user2 = User::factory()->create(); 
+        $user2 = User::factory()->create();
         $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
 
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
@@ -756,10 +1482,10 @@ describe('non-developer', function () {
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
     });
 
-    test('writer cannot update format', function() {
+    test('writer cannot update format', function () {
         $this->user->assignRole(Role::WRITER);
         $game = UploadLeaderboardTestHelpers::createGame();
-        $user2 = User::factory()->create(); 
+        $user2 = User::factory()->create();
         $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
 
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
@@ -786,10 +1512,10 @@ describe('non-developer', function () {
         $this->assertEquals('VALUE', $leaderboard1->format);
     });
 
-    test('non-developer cannot update title or description', function() {
+    test('non-developer cannot update title or description', function () {
         $this->user->assignRole(Role::WRITER);
         $game = UploadLeaderboardTestHelpers::createGame();
-        $user2 = User::factory()->create(); 
+        $user2 = User::factory()->create();
         $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
 
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
@@ -814,8 +1540,33 @@ describe('non-developer', function () {
     });
 });
 
-describe('validation', function() {
-    test('create with invalid format', function() {
+describe('validation', function () {
+    test('g or p is required', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        UploadLeaderboardTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+            'm' => 'unpromoted',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Success' => false,
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+    });
+
+    test('create with invalid format', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
         UploadLeaderboardTestHelpers::addClaim($game, $this->user);
@@ -842,7 +1593,7 @@ describe('validation', function() {
         $this->assertEquals(0, Leaderboard::count());
     });
 
-    test('update with invalid format', function() {
+    test('update with invalid format', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
         UploadLeaderboardTestHelpers::addClaim($game, $this->user);
@@ -872,7 +1623,7 @@ describe('validation', function() {
         $this->assertEquals('VALUE', $leaderboard1->format);
     });
 
-    test('unknown leaderboard', function() {
+    test('unknown leaderboard', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadLeaderboardTestHelpers::createGame();
         UploadLeaderboardTestHelpers::addClaim($game, $this->user);
@@ -895,6 +1646,31 @@ describe('validation', function() {
                 'Code' => 'not_found',
                 'Success' => false,
                 'Error' => 'Unknown leaderboard.',
+            ]);
+
+        $this->assertEquals(0, Leaderboard::count());
+    });
+
+    test('unknown game', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'g' => 999999,
+            'n' => 'New Title',
+            'd' => 'New Description',
+            's' => '1=0',
+            'b' => '2=1',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+        ])))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Success' => false,
+                'Error' => 'Unknown game.',
             ]);
 
         $this->assertEquals(0, Leaderboard::count());
