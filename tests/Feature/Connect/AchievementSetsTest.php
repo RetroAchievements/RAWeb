@@ -84,6 +84,7 @@ class AchievementSetsTestHelpers
     {
         $data = AchievementSetsTestHelpers::getLeaderboardPatchData($leaderboard);
         $data['State'] = $leaderboard->state;
+
         return $data;
     }
 

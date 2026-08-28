@@ -167,7 +167,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             if ($s === null) {
                 return $this->invalidParameter('Unknown state: ' . $this->state);
             }
-            $state = $s ?? LeaderboardState::Active;
+            $state = $s;
 
             if ($state !== $leaderboard->state) {
                 // junior developers are not allowed to promote/demote leaderboards
@@ -179,7 +179,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
                     return $this->accessDenied("You cannot promote leaderboards for a game from an unsupported console (console ID: {$leaderboard->game->system_id}).");
                 }
 
-                $leaderboard->state = $this->state;
+                $leaderboard->state = $s;
                 $stateChanged = true;
             } elseif ($state !== LeaderboardState::Unpromoted && $this->user->hasRole(Role::DEVELOPER_JUNIOR)) {
                 // junior developers are not allowed to modify promoted leaderboards
@@ -225,7 +225,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             }
 
             if ($stateChanged) {
-                $action = match($leaderboard->state) {
+                $action = match ($leaderboard->state) {
                     LeaderboardState::Active => 'promoted',
                     LeaderboardState::Unpromoted => 'demoted',
                     LeaderboardState::Disabled => 'disabled',
@@ -283,7 +283,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             if ($s === null) {
                 return $this->invalidParameter('Unknown state: ' . $this->state);
             }
-            $state = $s ?? LeaderboardState::Active;
+            $state = $s;
         }
 
         $maxOrderColumn = Leaderboard::where('game_id', $game->id)->max('order_column') ?? 0;
