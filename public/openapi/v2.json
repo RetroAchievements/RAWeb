@@ -11,7 +11,7 @@
     },
     "servers": [
         {
-            "url": "https://api.retroachievements.org/api/v2"
+            "url": "https://api.retroachievements.org/v2"
         }
     ],
     "paths": {
