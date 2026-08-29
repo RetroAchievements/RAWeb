@@ -6,6 +6,7 @@
     'dropdownClass' => '',
     'trigger' => '',
     'desktopHref' => null, // string | null
+    'forceHref' => false,
 ])
 
 <?php
@@ -13,7 +14,7 @@ use App\Actions\GetUserDeviceKindAction;
 
 $id = uniqid();
 
-$canUseDesktopHref = (new GetUserDeviceKindAction())->execute() === 'desktop';
+$canUseDesktopHref = $forceHref || (new GetUserDeviceKindAction())->execute() === 'desktop';
 ?>
 
 <div class="dropdown {{ $class ?? '' }} {{ ($active ?? false) ? 'active' : '' }}">
