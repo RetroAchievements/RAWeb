@@ -9231,16 +9231,16 @@
         },
         {
             "name": "retroachievements/openapi-spec-generator",
-            "version": "v1.4.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RetroAchievements/openapi-spec-generator.git",
-                "reference": "7794ce4f2ca865ff54df717d7eae286925874b12"
+                "reference": "5347349e02baeb7c3341b0af172e64075eab8246"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/7794ce4f2ca865ff54df717d7eae286925874b12",
-                "reference": "7794ce4f2ca865ff54df717d7eae286925874b12",
+                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/5347349e02baeb7c3341b0af172e64075eab8246",
+                "reference": "5347349e02baeb7c3341b0af172e64075eab8246",
                 "shasum": ""
             },
             "require": {
@@ -9332,9 +9332,9 @@
                 "swisnl"
             ],
             "support": {
-                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.4.0"
+                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.5.0"
             },
-            "time": "2026-08-15T12:34:53+00:00"
+            "time": "2026-08-29T20:56:38+00:00"
         },
         {
             "name": "ryangjchandler/blade-capture-directive",

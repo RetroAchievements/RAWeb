@@ -227,7 +227,7 @@
         "/event-achievements/achievement-of-the-week": {
             "get": {
                 "tags": [
-                    "Event-achievements"
+                    "Event achievements"
                 ],
                 "summary": "Resolve the current Achievement of the Week",
                 "description": "",
@@ -340,7 +340,7 @@
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Get all achievements",
+                "summary": "List achievements",
                 "description": "",
                 "operationId": "achievements.index",
                 "parameters": [
@@ -1865,7 +1865,7 @@
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Show one achievement",
+                "summary": "Get an achievement",
                 "description": "",
                 "operationId": "achievements.show",
                 "parameters": [
@@ -3268,7 +3268,7 @@
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Show the comments of a achievement",
+                "summary": "List comments for an achievement",
                 "description": "",
                 "operationId": "achievements.comments",
                 "parameters": [
@@ -3497,7 +3497,7 @@
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Show the playerAchievements of a achievement",
+                "summary": "List player achievements for an achievement",
                 "description": "",
                 "operationId": "achievements.playerAchievements",
                 "parameters": [
@@ -3851,7 +3851,7 @@
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Show the tickets of a achievement",
+                "summary": "List tickets for an achievement",
                 "description": "",
                 "operationId": "achievements.tickets",
                 "parameters": [
@@ -4255,9 +4255,9 @@
         "/achievement-sets/{achievement_set}": {
             "get": {
                 "tags": [
-                    "Achievement-sets"
+                    "Achievement sets"
                 ],
-                "summary": "Show one achievement-set",
+                "summary": "Get an achievement set",
                 "description": "",
                 "operationId": "achievement-sets.show",
                 "parameters": [
@@ -4759,9 +4759,9 @@
         "/achievement-sets/{achievement_set}/achievement-set-versions": {
             "get": {
                 "tags": [
-                    "Achievement-sets"
+                    "Achievement sets"
                 ],
-                "summary": "Show the achievementSetVersions of a achievement-set",
+                "summary": "List achievement set versions for an achievement set",
                 "description": "",
                 "operationId": "achievement-sets.achievementSetVersions",
                 "parameters": [
@@ -4992,9 +4992,9 @@
         "/achievement-set-claims": {
             "get": {
                 "tags": [
-                    "Achievement-set-claims"
+                    "Achievement set claims"
                 ],
-                "summary": "Get all achievement-set-claims",
+                "summary": "List achievement set claims",
                 "description": "",
                 "operationId": "achievement-set-claims.index",
                 "parameters": [
@@ -5994,9 +5994,9 @@
         "/achievement-set-versions": {
             "get": {
                 "tags": [
-                    "Achievement-set-versions"
+                    "Achievement set versions"
                 ],
-                "summary": "Get all achievement-set-versions",
+                "summary": "List achievement set versions",
                 "description": "",
                 "operationId": "achievement-set-versions.index",
                 "parameters": [
@@ -6370,9 +6370,9 @@
         "/event-achievements": {
             "get": {
                 "tags": [
-                    "Event-achievements"
+                    "Event achievements"
                 ],
-                "summary": "Get all event-achievements",
+                "summary": "List event achievements",
                 "description": "",
                 "operationId": "event-achievements.index",
                 "parameters": [
@@ -7285,9 +7285,9 @@
         "/event-achievements/{event_achievement}": {
             "get": {
                 "tags": [
-                    "Event-achievements"
+                    "Event achievements"
                 ],
-                "summary": "Show one event-achievement",
+                "summary": "Get an event achievement",
                 "description": "",
                 "operationId": "event-achievements.show",
                 "parameters": [
@@ -8114,7 +8114,7 @@
                 "tags": [
                     "Events"
                 ],
-                "summary": "Get all events",
+                "summary": "List events",
                 "description": "",
                 "operationId": "events.index",
                 "parameters": [
@@ -8528,7 +8528,7 @@
                 "tags": [
                     "Events"
                 ],
-                "summary": "Show one event",
+                "summary": "Get an event",
                 "description": "",
                 "operationId": "events.show",
                 "parameters": [
@@ -8880,7 +8880,7 @@
                 "tags": [
                     "Events"
                 ],
-                "summary": "Show the eventAchievements of a event",
+                "summary": "List event achievements for an event",
                 "description": "",
                 "operationId": "events.eventAchievements",
                 "parameters": [
@@ -9164,7 +9164,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Get all games",
+                "summary": "List games",
                 "description": "",
                 "operationId": "games.index",
                 "parameters": [
@@ -10182,7 +10182,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Show one game",
+                "summary": "Get a game",
                 "description": "",
                 "operationId": "games.show",
                 "parameters": [
@@ -11107,7 +11107,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Show the achievementSetClaims of a game",
+                "summary": "List achievement set claims for a game",
                 "description": "",
                 "operationId": "games.achievementSetClaims",
                 "parameters": [
@@ -11495,7 +11495,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Show the comments of a game",
+                "summary": "List comments for a game",
                 "description": "",
                 "operationId": "games.comments",
                 "parameters": [
@@ -11724,7 +11724,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Show the hashes of a game",
+                "summary": "List hashes for a game",
                 "description": "",
                 "operationId": "games.hashes",
                 "parameters": [
@@ -11958,7 +11958,7 @@
                 "tags": [
                     "Games"
                 ],
-                "summary": "Show the tickets of a game",
+                "summary": "List tickets for a game",
                 "description": "",
                 "operationId": "games.tickets",
                 "parameters": [
@@ -12364,7 +12364,7 @@
                 "tags": [
                     "Hubs"
                 ],
-                "summary": "Get all hubs",
+                "summary": "List hubs",
                 "description": "",
                 "operationId": "hubs.index",
                 "parameters": [
@@ -12818,7 +12818,7 @@
                 "tags": [
                     "Hubs"
                 ],
-                "summary": "Show one hub",
+                "summary": "Get a hub",
                 "description": "",
                 "operationId": "hubs.show",
                 "parameters": [
@@ -13178,7 +13178,7 @@
                 "tags": [
                     "Hubs"
                 ],
-                "summary": "Show the games of a hub",
+                "summary": "List games for a hub",
                 "description": "",
                 "operationId": "hubs.games",
                 "parameters": [
@@ -13495,7 +13495,7 @@
                 "tags": [
                     "Hubs"
                 ],
-                "summary": "Show the links of a hub",
+                "summary": "List links for a hub",
                 "description": "",
                 "operationId": "hubs.links",
                 "parameters": [
@@ -13718,7 +13718,7 @@
                 "tags": [
                     "Leaderboards"
                 ],
-                "summary": "Get all leaderboards",
+                "summary": "List leaderboards",
                 "description": "",
                 "operationId": "leaderboards.index",
                 "parameters": [
@@ -14756,7 +14756,7 @@
                 "tags": [
                     "Leaderboards"
                 ],
-                "summary": "Show one leaderboard",
+                "summary": "Get a leaderboard",
                 "description": "",
                 "operationId": "leaderboards.show",
                 "parameters": [
@@ -15707,7 +15707,7 @@
                 "tags": [
                     "Leaderboards"
                 ],
-                "summary": "Show the entries of a leaderboard",
+                "summary": "List entries for a leaderboard",
                 "description": "",
                 "operationId": "leaderboards.entries",
                 "parameters": [
@@ -16002,7 +16002,7 @@
                 "tags": [
                     "Systems"
                 ],
-                "summary": "Get all systems",
+                "summary": "List systems",
                 "description": "",
                 "operationId": "systems.index",
                 "parameters": [
@@ -16187,7 +16187,7 @@
                 "tags": [
                     "Systems"
                 ],
-                "summary": "Show one system",
+                "summary": "Get a system",
                 "description": "",
                 "operationId": "systems.show",
                 "parameters": [
@@ -16299,7 +16299,7 @@
                 "tags": [
                     "Tickets"
                 ],
-                "summary": "Get all tickets",
+                "summary": "List tickets",
                 "description": "",
                 "operationId": "tickets.index",
                 "parameters": [
@@ -18244,7 +18244,7 @@
                 "tags": [
                     "Tickets"
                 ],
-                "summary": "Show one ticket",
+                "summary": "Get a ticket",
                 "description": "",
                 "operationId": "tickets.show",
                 "parameters": [
@@ -20045,9 +20045,9 @@
         "/user-awards": {
             "get": {
                 "tags": [
-                    "User-awards"
+                    "User awards"
                 ],
-                "summary": "Get all user-awards",
+                "summary": "List user awards",
                 "description": "",
                 "operationId": "user-awards.index",
                 "parameters": [
@@ -21146,7 +21146,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Get all users",
+                "summary": "List users",
                 "description": "",
                 "operationId": "users.index",
                 "parameters": [
@@ -22970,7 +22970,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show one user",
+                "summary": "Get a user",
                 "description": "",
                 "operationId": "users.show",
                 "parameters": [
@@ -24712,7 +24712,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the achievementSetClaims of a user",
+                "summary": "List achievement set claims for a user",
                 "description": "",
                 "operationId": "users.achievementSetClaims",
                 "parameters": [
@@ -25100,7 +25100,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the awards of a user",
+                "summary": "List awards for a user",
                 "description": "",
                 "operationId": "users.awards",
                 "parameters": [
@@ -25471,7 +25471,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the followers of a user",
+                "summary": "List followers for a user",
                 "description": "",
                 "operationId": "users.followers",
                 "parameters": [
@@ -25698,7 +25698,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the following of a user",
+                "summary": "List following for a user",
                 "description": "",
                 "operationId": "users.following",
                 "parameters": [
@@ -25925,7 +25925,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the leaderboardEntries of a user",
+                "summary": "List leaderboard entries for a user",
                 "description": "",
                 "operationId": "users.leaderboardEntries",
                 "parameters": [
@@ -26220,7 +26220,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the playerAchievements of a user",
+                "summary": "List player achievements for a user",
                 "description": "",
                 "operationId": "users.playerAchievements",
                 "parameters": [
@@ -26574,7 +26574,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the playerAchievementSets of a user",
+                "summary": "List player achievement sets for a user",
                 "description": "",
                 "operationId": "users.playerAchievementSets",
                 "parameters": [
@@ -26909,7 +26909,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the playerGames of a user",
+                "summary": "List player games for a user",
                 "description": "",
                 "operationId": "users.playerGames",
                 "parameters": [
@@ -27228,7 +27228,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the tickets of a user",
+                "summary": "List tickets for a user",
                 "description": "",
                 "operationId": "users.tickets",
                 "parameters": [
@@ -27634,7 +27634,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the userGameListEntries of a user",
+                "summary": "List user game list entries for a user",
                 "description": "",
                 "operationId": "users.userGameListEntries",
                 "parameters": [
@@ -27863,7 +27863,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Show the wallComments of a user",
+                "summary": "List wall comments for a user",
                 "description": "",
                 "operationId": "users.wallComments",
                 "parameters": [
