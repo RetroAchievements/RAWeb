@@ -102,7 +102,7 @@ it('given the spec is written, it holds no environment specific values', functio
     // Assert
     expect(File::get(sharedSpecPath()))->not->toContain('localhost');
     expect(sharedSpec()['servers'][0]['url'])
-        ->toEqual('https://api.retroachievements.org/api/v2');
+        ->toEqual('https://api.retroachievements.org/v2');
 });
 
 it('given every documented operation, each one names the OAuth scope it needs', function () {

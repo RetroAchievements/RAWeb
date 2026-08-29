@@ -12,7 +12,7 @@ foreach (OAuthScope::cases() as $scope) {
 return [
     'servers' => [
         'v2' => [
-            'url' => 'https://api.retroachievements.org/api/v2',
+            'url' => 'https://api.retroachievements.org/v2',
 
             'info' => [
                 'title' => 'RetroAchievements API',
