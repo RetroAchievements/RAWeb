@@ -92,6 +92,12 @@ class TicketSchema extends Schema
             Integer::make('ticketableId', 'ticketable_id')->readOnly(),
             Str::make('gameIconUrl')->readOnly(),
             Str::make('systemName')->readOnly(),
+            Integer::make('gameId')->readOnly(),
+            Str::make('gameTitle')->readOnly(),
+            Str::make('ticketableTitle')->readOnly(),
+            Str::make('reporterDisplayName')->readOnly(),
+            Str::make('resolverDisplayName')->readOnly(),
+            Str::make('authorDisplayName')->readOnly(),
 
             BelongsTo::make('achievement')->type('achievements')->readOnly(),
             BelongsTo::make('leaderboard')->type('leaderboards')->readOnly(),
@@ -119,6 +125,12 @@ class TicketSchema extends Schema
             'ticketableId' => false,
             'gameIconUrl' => true,
             'systemName' => true,
+            'gameId' => true,
+            'gameTitle' => true,
+            'ticketableTitle' => true,
+            'reporterDisplayName' => true,
+            'resolverDisplayName' => true,
+            'authorDisplayName' => true,
         ];
     }
 
