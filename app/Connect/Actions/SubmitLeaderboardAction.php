@@ -206,9 +206,11 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         }
 
         if ($leaderboard->isDirty()) {
+            $logicChanged = $leaderboard->isDirty('trigger_definition');
+
             $leaderboard->save();
 
-            if (isset($changes['trigger_definition'])) {
+            if ($logicChanged) {
                 (new UpsertTriggerVersionAction())->execute(
                     $leaderboard,
                     $newMem,

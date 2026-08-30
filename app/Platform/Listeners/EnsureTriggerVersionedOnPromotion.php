@@ -7,21 +7,33 @@ namespace App\Platform\Listeners;
 use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\LeaderboardPromoted;
+use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use Spatie\Activitylog\CauserResolver;
 
 class EnsureTriggerVersionedOnPromotion
 {
-    public function handle(AchievementPromoted $event): void
+    public function handle(AchievementPromoted|LeaderboardPromoted $event): void
     {
-        $achievement = $event->achievement;
+        /* Model $model */
+        $model = null;
+        $conditions = null;
 
-        $achievement->loadMissing('trigger');
-        if (!$achievement->trigger) {
+        if ($event instanceof AchievementPromoted) {
+            $model = $event->achievement;
+            $conditions = $model->trigger_definition;
+        } else {
+            $model = $event->leaderboard;
+            $conditions = $model->trigger_definition;
+        }
+
+        $model->loadMissing('trigger');
+        if (!$model->trigger) {
             return;
         }
 
-        if ($achievement->trigger->version !== null) {
+        if ($model->trigger->version !== null) {
             return;
         }
 
@@ -31,8 +43,8 @@ class EnsureTriggerVersionedOnPromotion
         }
 
         (new UpsertTriggerVersionAction())->execute(
-            $achievement,
-            $achievement->trigger->conditions,
+            $model,
+            $conditions,
             versioned: true,
             user: $user
         );

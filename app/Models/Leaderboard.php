@@ -12,6 +12,8 @@ use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Events\LeaderboardPromoted;
+use App\Platform\Events\LeaderboardUnpromoted;
 use App\Platform\Services\GameOpenTicketCountService;
 use App\Support\Casts\NormalizedText;
 use App\Support\Database\Eloquent\BaseModel;
@@ -101,6 +103,14 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
                 $originalGameId = $leaderboard->getOriginal('game_id');
                 if ($leaderboard->wasChanged('game_id') && $originalGameId !== null) {
                     $service->clearForGameId((int) $originalGameId);
+                }
+            }
+
+            if ($leaderboard->wasChanged('state')) {
+                if ($leaderboard->state === LeaderboardState::Unpromoted) {
+                    LeaderboardUnpromoted::dispatch($leaderboard);
+                } elseif ($leaderboard->getOriginal('state') === LeaderboardState::Unpromoted) {
+                    LeaderboardPromoted::dispatch($leaderboard);
                 }
             }
         });

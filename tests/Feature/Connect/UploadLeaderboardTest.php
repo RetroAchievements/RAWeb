@@ -290,10 +290,10 @@ describe('developer', function () {
         $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
             'i' => $leaderboard1->id,
             'g' => $game->id,
-            'n' => 'New Title',
-            'd' => 'New Description',
+            'n' => $leaderboard1->title,
+            'd' => $leaderboard1->description,
             's' => '1=0',
-            'b' => '2=1',
+            'b' => '2=0',
             'c' => '3=0',
             'l' => '4=0',
             'w' => 1,
@@ -307,9 +307,7 @@ describe('developer', function () {
             ]);
 
         $leaderboard1->refresh();
-        $this->assertEquals('New Title', $leaderboard1->title);
-        $this->assertEquals('New Description', $leaderboard1->description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
         $this->assertEquals(true, $leaderboard1->rank_asc);
         $this->assertEquals('VALUE', $leaderboard1->format);
         $this->assertEquals($oldOrder, $leaderboard1->order_column);
@@ -317,7 +315,7 @@ describe('developer', function () {
 
         // leaderboard trigger should be updated and initial version assigned
         $this->assertNotNull($leaderboard1->trigger);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger->conditions);
         $this->assertEquals(1, $leaderboard1->trigger->version);
 
         // update audit log entry should be made
@@ -502,6 +500,7 @@ describe('developer', function () {
         $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
 
         // leaderboard trigger should be updated and initial version assigned
+        // NOTE: the definition actually changed during the promote process. it should still be marked as version 1.
         $this->assertNotNull($leaderboard1->trigger);
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=1::VAL:4=0', $leaderboard1->trigger->conditions);
         $this->assertEquals(1, $leaderboard1->trigger->version);
