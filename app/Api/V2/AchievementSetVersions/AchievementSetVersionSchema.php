@@ -6,10 +6,10 @@ namespace App\Api\V2\AchievementSetVersions;
 
 use App\Models\AchievementSetVersion;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
+use LaravelJsonApi\Eloquent\Fields\ArrayList;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
-use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -68,8 +68,9 @@ class AchievementSetVersionSchema extends Schema
             Integer::make('achievementsPublished', 'achievements_published')->readOnly(),
             Integer::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
             Integer::make('pointsTotal', 'points_total')->readOnly(),
+            ArrayList::make('achievementSnapshot')->readOnly(),
 
-            Str::make('achievementSetId', 'achievement_set_id')->readOnly(),
+            Integer::make('achievementSetId', 'achievement_set_id')->readOnly(),
 
             BelongsTo::make('achievementSet')->type('achievement-sets')->readOnly(),
         ];
@@ -92,6 +93,7 @@ class AchievementSetVersionSchema extends Schema
             'achievementsUnpublished' => false,
             'pointsTotal' => false,
             'achievementSetId' => false,
+            'achievementSnapshot' => true,
         ];
     }
 

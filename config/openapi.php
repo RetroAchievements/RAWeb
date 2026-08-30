@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Api\Middleware\RequireOAuthTokenWithScope;
 use App\Enums\OAuthScope;
 
 $scopes = [];
@@ -27,6 +28,7 @@ return [
             'securitySchemes' => [
                 'ApiKey' => [
                     'middleware' => ['auth:api-token-header,oauth'],
+                    'excludeMiddleware' => [RequireOAuthTokenWithScope::class],
                     'type' => 'apiKey',
                     'in' => 'header',
                     'name' => 'X-API-Key',
