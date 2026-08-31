@@ -64,7 +64,7 @@ describe('Component: TicketListFilterControl', () => {
 
   it('keeps an accessible name when its text is hidden', () => {
     // ARRANGE
-    render(
+    const { rerender } = render(
       <TicketListFilterControl
         columnFilters={[]}
         isLabelHidden={true}
@@ -74,9 +74,19 @@ describe('Component: TicketListFilterControl', () => {
     );
 
     // ASSERT
-    const triggerEl = screen.getByTestId('add-filter');
-    expect(triggerEl).toHaveTextContent('');
-    expect(triggerEl).toHaveAccessibleName('Filter');
+    expect(screen.getByTestId('add-filter')).toHaveAccessibleName('Filter');
+    expect(screen.getByText('Filter', { selector: 'span' })).toHaveClass('sm:hidden');
+
+    rerender(
+      <TicketListFilterControl
+        columnFilters={[]}
+        isLabelHidden={false}
+        properties={[statusProperty]}
+        setColumnFilters={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Filter', { selector: 'span' })).not.toHaveClass('sm:hidden');
   });
 
   it('given the user opens the menu, lists each possible property', async () => {
@@ -281,6 +291,87 @@ describe('Component: TicketListFilterControl', () => {
 
     // ASSERT
     expect(screen.getByText('No results found.')).toBeVisible();
+  });
+
+  describe('mobile', () => {
+    beforeEach(() => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation((query: string) => ({
+          matches: query === '(max-width: 639px)',
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        })),
+      });
+    });
+
+    it('maintains one panel rather than branching submenus', async () => {
+      // ARRANGE
+      render(
+        <TicketListFilterControl
+          columnFilters={[]}
+          properties={[statusProperty, typeProperty]}
+          setColumnFilters={vi.fn()}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByTestId('add-filter'));
+      await userEvent.click(screen.getByTestId('filter-property-status'));
+
+      // ASSERT
+      expect(screen.getByRole('menuitem', { name: /open/i })).toBeVisible();
+      expect(screen.queryByTestId('filter-property-type')).not.toBeInTheDocument();
+    });
+
+    it('given the user drills into a filter, the back button returns to the user to the list of filters', async () => {
+      // ARRANGE
+      render(
+        <TicketListFilterControl
+          columnFilters={[]}
+          properties={[statusProperty, typeProperty]}
+          setColumnFilters={vi.fn()}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByTestId('add-filter'));
+      await userEvent.click(screen.getByTestId('filter-property-type'));
+      await userEvent.click(screen.getByTestId('filter-back'));
+
+      // ASSERT
+      expect(screen.getByTestId('filter-property-status')).toBeVisible();
+      expect(screen.getByTestId('filter-property-type')).toBeVisible();
+    });
+
+    it('given the user picks a filter value, sets the filter and closes the panel', async () => {
+      // ARRANGE
+      const setColumnFilters = vi.fn();
+
+      render(
+        <TicketListFilterControl
+          columnFilters={[]}
+          properties={[statusProperty, typeProperty]}
+          setColumnFilters={setColumnFilters}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByTestId('add-filter'));
+      await userEvent.click(screen.getByTestId('filter-property-type'));
+      await userEvent.click(screen.getByRole('menuitem', { name: 'Did not trigger' }));
+
+      // ASSERT
+      const [updater] = setColumnFilters.mock.calls[0];
+      expect(updater([])).toEqual([{ id: 'type', value: ['2'] }]);
+
+      expect(screen.queryByTestId('filter-property-type')).not.toBeInTheDocument();
+    });
   });
 
   it('supports keyboard selection without a search field', async () => {

@@ -432,9 +432,7 @@ describe('Component: TicketListTable', () => {
 
     // ... the full name and md5 are available in a tooltip ...
     await userEvent.hover(screen.getByText('(USA, Europe)'));
-    expect(
-      (await screen.findAllByText('Sonic The Hedgehog (USA, Europe).md'))[0],
-    ).toBeVisible();
+    expect((await screen.findAllByText('Sonic The Hedgehog (USA, Europe).md'))[0]).toBeVisible();
   });
 
   it('given the ticket has no emulator or hash, those cells stay empty', () => {

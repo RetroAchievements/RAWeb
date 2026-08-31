@@ -82,7 +82,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
         <BaseButton
           size="sm"
           aria-label={t('Display')}
-          className={cn('relative', buildTrackingClassNames('Click Ticket Display'))}
+          className={cn('relative max-sm:h-9', buildTrackingClassNames('Click Ticket Display'))}
           data-testid="open-display-panel"
         >
           <RxMixerHorizontal className="size-4" />
@@ -147,30 +147,32 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
           </div>
         </div>
 
-        <BaseSeparator className="my-3" />
+        <div className="max-sm:hidden">
+          <BaseSeparator className="my-3" />
 
-        <p className="mb-2 text-neutral-400 light:text-neutral-600">{t('Columns')}</p>
+          <p className="mb-2 text-neutral-400 light:text-neutral-600">{t('Columns')}</p>
 
-        <div className="flex flex-wrap gap-1.5">
-          {columnDefinitions
-            .filter((columnDefinition) => columnDefinition.enableHiding !== false)
-            .map((columnDefinition) => (
-              <BaseToggle
-                key={columnDefinition.id}
-                pressed={columnVisibility[columnDefinition.id]}
-                data-testid={`column-toggle-${columnDefinition.id}`}
-                onPressedChange={() => onToggleColumn(columnDefinition.id)}
-                className={cn(
-                  'h-auto rounded-full border border-neutral-800 px-2.5 py-1',
-                  'text-xs font-normal text-neutral-500',
-                  'data-[state=on]:border-neutral-600 data-[state=on]:bg-neutral-700',
-                  'data-[state=on]:text-neutral-100 light:border-neutral-200 light:text-neutral-400',
-                  'data-[state=on]:light:border-neutral-300 data-[state=on]:light:bg-neutral-200 data-[state=on]:light:text-neutral-900',
-                )}
-              >
-                {columnDefinition.meta.t_label}
-              </BaseToggle>
-            ))}
+          <div className="flex flex-wrap gap-1.5">
+            {columnDefinitions
+              .filter((columnDefinition) => columnDefinition.enableHiding !== false)
+              .map((columnDefinition) => (
+                <BaseToggle
+                  key={columnDefinition.id}
+                  pressed={columnVisibility[columnDefinition.id]}
+                  data-testid={`column-toggle-${columnDefinition.id}`}
+                  onPressedChange={() => onToggleColumn(columnDefinition.id)}
+                  className={cn(
+                    'h-auto rounded-full border border-neutral-800 px-2.5 py-1',
+                    'text-xs font-normal text-neutral-500',
+                    'data-[state=on]:border-neutral-600 data-[state=on]:bg-neutral-700',
+                    'data-[state=on]:text-neutral-100 light:border-neutral-200 light:text-neutral-400',
+                    'data-[state=on]:light:border-neutral-300 data-[state=on]:light:bg-neutral-200 data-[state=on]:light:text-neutral-900',
+                  )}
+                >
+                  {columnDefinition.meta.t_label}
+                </BaseToggle>
+              ))}
+          </div>
         </div>
 
         {hasDisplayChanges ? (

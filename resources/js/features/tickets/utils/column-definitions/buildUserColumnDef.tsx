@@ -66,7 +66,6 @@ const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
     <UserAvatar
       {...user}
       size={16}
-      hasTooltip={false}
       wrapperClassName={cn('max-w-full min-w-0', ticketListCellClassNames.entityLinkWrapper)}
       labelClassName={cn(
         ticketListCellClassNames.entityLinkLabel,

@@ -21,7 +21,7 @@ export const TicketListResetFiltersButton: FC<TicketListResetFiltersButtonProps>
       variant="ghost"
       size="sm"
       onClick={() => setColumnFilters(serverDefaultColumnFilters)}
-      className="px-2 text-link lg:px-3"
+      className="px-2 text-link max-sm:h-9 lg:px-3"
       data-testid="reset-all-filters"
     >
       {t('Reset')} <RxCross2 className="ml-2 size-4" />

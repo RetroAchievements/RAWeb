@@ -45,7 +45,7 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({ entry }) => 
             width={16}
             height={16}
             src={entry.reporter.avatarUrl}
-            alt={entry.reporter.avatarUrl}
+            alt="" // empty string is actually a sentinel value for assistive devices
             className="rounded-xs"
           />
         ) : null}

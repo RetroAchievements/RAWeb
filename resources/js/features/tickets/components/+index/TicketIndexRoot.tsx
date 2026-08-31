@@ -76,48 +76,58 @@ export const TicketIndexRoot: FC = () => {
     >
       <TicketListHeading />
 
-      <div className="flex w-full flex-wrap items-center gap-2">
-        <TicketListFilterChips
-          columnFilters={ticketListTableProps.columnFilters}
-          properties={filterProperties}
-          setColumnFilters={ticketListTableProps.setColumnFilters}
-        />
-
-        {filterProperties.length ? (
-          <TicketListFilterControl
-            columnFilters={ticketListTableProps.columnFilters}
-            isLabelHidden={hasFilterChips && hasNonDefaultFilters}
-            properties={filterProperties}
-            setColumnFilters={ticketListTableProps.setColumnFilters}
-          />
+      <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        {hasFilterChips ? (
+          <div className="flex flex-wrap items-center gap-2 sm:contents">
+            <TicketListFilterChips
+              columnFilters={ticketListTableProps.columnFilters}
+              properties={filterProperties}
+              setColumnFilters={ticketListTableProps.setColumnFilters}
+            />
+          </div>
         ) : null}
 
-        {hasNonDefaultFilters ? (
-          <TicketListResetFiltersButton
-            serverDefaultColumnFilters={serverDefaultColumnFilters}
-            setColumnFilters={ticketListTableProps.setColumnFilters}
-          />
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2 sm:contents">
+          {filterProperties.length ? (
+            <TicketListFilterControl
+              columnFilters={ticketListTableProps.columnFilters}
+              isLabelHidden={hasFilterChips && hasNonDefaultFilters}
+              properties={filterProperties}
+              setColumnFilters={ticketListTableProps.setColumnFilters}
+            />
+          ) : null}
 
-        <p className="ml-auto text-neutral-200 light:text-neutral-900">
-          {unfilteredTotal && unfilteredTotal !== visibleTotal
-            ? t('{{visible, number}} of {{total, number}} tickets', {
-                visible: visibleTotal,
-                total: unfilteredTotal,
-                count: unfilteredTotal,
-              })
-            : t('{{val, number}} tickets', { count: visibleTotal, val: visibleTotal })}
-        </p>
+          {hasNonDefaultFilters ? (
+            <TicketListResetFiltersButton
+              serverDefaultColumnFilters={serverDefaultColumnFilters}
+              setColumnFilters={ticketListTableProps.setColumnFilters}
+            />
+          ) : null}
 
-        <TicketListDisplayPanel
-          columnDefinitions={columnDefinitions}
-          columnVisibility={ticketListTableProps.columnVisibility}
-          hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
-          onResetDisplay={ticketListTableProps.resetDisplay}
-          onSortChange={ticketListTableProps.setSortParam}
-          onToggleColumn={ticketListTableProps.toggleColumnVisibility}
-          sortParam={ticketListTableProps.sortParam}
-        />
+          <div className="ml-auto flex items-center gap-2">
+            {visibleTotal > 0 ? (
+              <p className="whitespace-nowrap text-neutral-200 light:text-neutral-900">
+                {unfilteredTotal && unfilteredTotal !== visibleTotal
+                  ? t('{{visible, number}} of {{total, number}} tickets', {
+                      visible: visibleTotal,
+                      total: unfilteredTotal,
+                      count: unfilteredTotal,
+                    })
+                  : t('{{val, number}} tickets', { count: visibleTotal, val: visibleTotal })}
+              </p>
+            ) : null}
+
+            <TicketListDisplayPanel
+              columnDefinitions={columnDefinitions}
+              columnVisibility={ticketListTableProps.columnVisibility}
+              hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
+              onResetDisplay={ticketListTableProps.resetDisplay}
+              onSortChange={ticketListTableProps.setSortParam}
+              onToggleColumn={ticketListTableProps.toggleColumnVisibility}
+              sortParam={ticketListTableProps.sortParam}
+            />
+          </div>
+        </div>
       </div>
 
       <TicketListTable
