@@ -6,6 +6,7 @@ namespace App\Api\V2\GameHashes;
 
 use App\Models\GameHash;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
+use LaravelJsonApi\Eloquent\Fields\ArrayList;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
@@ -48,6 +49,7 @@ class GameHashSchema extends Schema
             Str::make('name')->readOnly(),
             Str::make('compatibility')->readOnly(),
             Str::make('patchUrl', 'patch_url')->readOnly(),
+            ArrayList::make('labels')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->readOnly(),
@@ -70,6 +72,7 @@ class GameHashSchema extends Schema
             'patchUrl' => true,
             'createdAt' => true,
             'updatedAt' => true,
+            'labels' => false,
         ];
     }
 

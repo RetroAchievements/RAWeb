@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56e313caa35b19b89134bb37e0990433",
+    "content-hash": "697cb7574f053e300c17440645ce7a93",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -9231,16 +9231,16 @@
         },
         {
             "name": "retroachievements/openapi-spec-generator",
-            "version": "v1.4.0",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RetroAchievements/openapi-spec-generator.git",
-                "reference": "7794ce4f2ca865ff54df717d7eae286925874b12"
+                "reference": "ac7bbd653c689f627235880cbf654d2a3812736e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/7794ce4f2ca865ff54df717d7eae286925874b12",
-                "reference": "7794ce4f2ca865ff54df717d7eae286925874b12",
+                "url": "https://api.github.com/repos/RetroAchievements/openapi-spec-generator/zipball/ac7bbd653c689f627235880cbf654d2a3812736e",
+                "reference": "ac7bbd653c689f627235880cbf654d2a3812736e",
                 "shasum": ""
             },
             "require": {
@@ -9332,9 +9332,9 @@
                 "swisnl"
             ],
             "support": {
-                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.4.0"
+                "source": "https://github.com/RetroAchievements/openapi-spec-generator/tree/v1.7.0"
             },
-            "time": "2026-08-15T12:34:53+00:00"
+            "time": "2026-08-30T17:41:57+00:00"
         },
         {
             "name": "ryangjchandler/blade-capture-directive",

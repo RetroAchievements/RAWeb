@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Api\Middleware\RequireOAuthTokenWithScope;
 use App\Enums\OAuthScope;
 
 $scopes = [];
@@ -12,7 +13,7 @@ foreach (OAuthScope::cases() as $scope) {
 return [
     'servers' => [
         'v2' => [
-            'url' => 'https://api.retroachievements.org/api/v2',
+            'url' => 'https://api.retroachievements.org/v2',
 
             'info' => [
                 'title' => 'RetroAchievements API',
@@ -27,6 +28,7 @@ return [
             'securitySchemes' => [
                 'ApiKey' => [
                     'middleware' => ['auth:api-token-header,oauth'],
+                    'excludeMiddleware' => [RequireOAuthTokenWithScope::class],
                     'type' => 'apiKey',
                     'in' => 'header',
                     'name' => 'X-API-Key',
