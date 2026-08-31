@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\LeaderboardPromoted;
-use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use Spatie\Activitylog\CauserResolver;
 
@@ -16,7 +15,6 @@ class EnsureTriggerVersionedOnPromotion
 {
     public function handle(AchievementPromoted|LeaderboardPromoted $event): void
     {
-        /* Model $model */
         $model = null;
         $conditions = null;
 
