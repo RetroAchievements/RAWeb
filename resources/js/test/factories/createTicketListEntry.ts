@@ -10,7 +10,6 @@ export const createTicketListEntry = createFactory<App.Platform.Data.TicketListE
     state: faker.helpers.arrayElement(['open', 'request', 'quarantined', 'resolved', 'closed']),
     type: faker.helpers.arrayElement(['did_not_trigger', 'triggered_at_wrong_time']),
     hardcore: faker.datatype.boolean(),
-    reportExcerpt: faker.lorem.sentence(),
     createdAt: faker.date.recent().toISOString(),
     resolvedAt: null,
     ticketableType: 'achievement',

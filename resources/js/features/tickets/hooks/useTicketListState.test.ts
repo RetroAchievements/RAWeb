@@ -33,7 +33,7 @@ describe('Hook: useTicketListState', () => {
   it('uses persisted display preferences and resets the page when the sort changes', () => {
     // ARRANGE
     const persistedViewPreferences = {
-      columnVisibility: { game: false, report: true },
+      columnVisibility: { game: false, type: true },
       sortParam: 'state',
     };
 
@@ -41,7 +41,7 @@ describe('Hook: useTicketListState', () => {
     const { result } = renderTicketListState({ currentPage: 3, persistedViewPreferences });
 
     // ASSERT
-    expect(result.current.columnVisibilityOverrides).toEqual({ game: false, report: true });
+    expect(result.current.columnVisibilityOverrides).toEqual({ game: false, type: true });
     expect(result.current.sortParam).toBe('state');
     expect(result.current.pageNumber).toBe(3);
 

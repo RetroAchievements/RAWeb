@@ -92,7 +92,6 @@ describe('Component: TicketListTable', () => {
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'ID',
       'Issue with',
-      'Report',
       'Game',
       'Issue type',
       'Mode',
@@ -354,32 +353,6 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
-  });
-
-  it('given the report column is visible, shows the report blurb', () => {
-    // ARRANGE
-    const ticket = createTicketListEntry({
-      reportExcerpt: 'The achievement fired on the title screen',
-    });
-
-    render(<TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, report: true }} />);
-
-    // ASSERT
-    expect(screen.getByText('The achievement fired on the title screen')).toBeVisible();
-    expect(screen.getByText('The achievement fired on the title screen')).toHaveClass('text-text');
-  });
-
-  it('given the report blurb is empty, shows the translated issue type', () => {
-    // ARRANGE
-    const ticket = createTicketListEntry({
-      reportExcerpt: '',
-      type: 'did_not_trigger',
-    });
-
-    render(<TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, report: true }} />);
-
-    // ASSERT
-    expect(screen.getByText('Did not trigger')).toBeVisible();
   });
 
   it('given the type column is visible, shows the translated issue type', () => {

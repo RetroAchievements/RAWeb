@@ -9,7 +9,6 @@ use App\Community\Enums\TicketType;
 use App\Data\UserData;
 use App\Models\Ticket;
 use App\Platform\Enums\TicketableType;
-use App\Support\Shortcode\Shortcode;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -17,14 +16,11 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript('TicketListEntry')]
 class TicketListEntryData extends Data
 {
-    private const REPORT_EXCERPT_LENGTH = 110;
-
     public function __construct(
         public int $id,
         public TicketState $state,
         public TicketType $type,
         public ?bool $hardcore,
-        public string $reportExcerpt,
         public Carbon $createdAt,
         public ?Carbon $resolvedAt,
         public TicketableType $ticketableType,
@@ -42,10 +38,7 @@ class TicketListEntryData extends Data
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $shortcodeRecords
-     */
-    public static function fromTicket(Ticket $ticket, array $shortcodeRecords): self
+    public static function fromTicket(Ticket $ticket): self
     {
         $ticketable = $ticket->getTicketableModel();
 
@@ -54,11 +47,6 @@ class TicketListEntryData extends Data
             state: $ticket->state,
             type: $ticket->type,
             hardcore: $ticket->hardcore === null ? null : (bool) $ticket->hardcore,
-            reportExcerpt: Shortcode::stripAndClamp(
-                $ticket->body,
-                self::REPORT_EXCERPT_LENGTH,
-                shortcodeRecords: $shortcodeRecords,
-            ),
             createdAt: Carbon::parse($ticket->created_at),
             resolvedAt: $ticket->resolved_at ? Carbon::parse($ticket->resolved_at) : null,
             ticketableType: TicketableType::from($ticket->ticketable_type),

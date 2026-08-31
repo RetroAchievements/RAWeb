@@ -5,7 +5,6 @@ import { buildAgeColumnDef } from '../utils/column-definitions/buildAgeColumnDef
 import { buildGameColumnDef } from '../utils/column-definitions/buildGameColumnDef';
 import { buildHashColumnDef } from '../utils/column-definitions/buildHashColumnDef';
 import { buildIdColumnDef } from '../utils/column-definitions/buildIdColumnDef';
-import { buildReportColumnDef } from '../utils/column-definitions/buildReportColumnDef';
 import { buildTicketableColumnDef } from '../utils/column-definitions/buildTicketableColumnDef';
 import { buildTicketMetadataColumnDef } from '../utils/column-definitions/buildTicketMetadataColumnDef';
 import { buildUserColumnDef } from '../utils/column-definitions/buildUserColumnDef';
@@ -28,10 +27,6 @@ export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
   return [
     buildIdColumnDef({ t_label: t('ID') }),
     buildTicketableColumnDef({ t_label: t('Issue with') }),
-    buildReportColumnDef({
-      t_label: t('Report'),
-      ticketTypeLabels,
-    }),
     buildGameColumnDef({ t_label: t('Game') }),
     buildTicketMetadataColumnDef({
       id: 'type',

@@ -24,7 +24,7 @@ const visibleColumnIdsByScope: Record<
 > = {
   all: ['id', 'ticketable', 'game', 'developer', 'reporter', 'age'],
   game: ['id', 'ticketable', 'developer', 'reporter', 'age'],
-  achievement: ['id', 'report', 'reporter', 'age'],
+  achievement: ['id', 'type', 'reporter', 'age'],
   assignedTo: ['id', 'ticketable', 'game', 'reporter', 'age'],
   reportedBy: ['id', 'ticketable', 'game', 'developer', 'age'],
   awaitingReporter: ['id', 'ticketable', 'game', 'developer', 'age'],

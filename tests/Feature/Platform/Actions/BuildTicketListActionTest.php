@@ -17,7 +17,6 @@ use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Str;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -276,25 +275,4 @@ it('prefers the URL sort over the persisted sort', function () {
         'field' => TicketListSortField::ResolvedAt,
         'direction' => 'desc',
     ]);
-});
-
-it('normalizes and truncates ticket reports for list rows', function () {
-    // ARRANGE
-    $fixture = createTicketListFixture(1);
-    $fixture['tickets'][0]->update([
-        'body' => '[quote]Ignore this[/quote]  [b]' . Str::repeat('a', 120) . '[/b]',
-    ]);
-
-    // ACT
-    $ticketList = (new BuildTicketListAction())->execute(
-        TicketListScope::All,
-        null,
-        TicketListRequest::create('/tickets'),
-    );
-
-    // ASSERT
-    /** @var TicketListEntryData $entry */
-    $entry = $ticketList['paginatedTickets']->items[0];
-
-    expect($entry->reportExcerpt)->toBe(Str::repeat('a', 110) . '...');
 });

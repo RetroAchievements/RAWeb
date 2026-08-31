@@ -1190,7 +1190,6 @@ id: number;
 state: App.Community.Enums.TicketState;
 type: App.Community.Enums.TicketType;
 hardcore: boolean | null;
-reportExcerpt: string;
 createdAt: string;
 resolvedAt: string | null;
 ticketableType: App.Platform.Enums.TicketableType;
@@ -1250,14 +1249,14 @@ pointsForNext: number;
 }
 declare namespace App.Platform.Enums {
 export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
+export type UnlockMode = 0 | 1;
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
-export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
-export type UnlockMode = 0 | 1;
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
+export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'all' | 'only-games' | 'only-subsets';
 export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
