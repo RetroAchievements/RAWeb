@@ -4,18 +4,13 @@
 
 use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Enums\Permissions;
-use App\Policies\ForumTopicCommentPolicy;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$userModel = Auth::user();
-$forumIndexMaskedAuthorIds = $userModel && (new ForumTopicCommentPolicy())->manage($userModel)
-    ? [] // mods see everything
-    : (new GetMaskedForumAuthorIdsAction())->execute($userModel);
-
-$forumList = getForumList($requestedCategoryID, maskedAuthorIds: $forumIndexMaskedAuthorIds);
+$maskedAuthorIds = (new GetMaskedForumAuthorIdsAction())->execute(Auth::user());
+$forumList = getForumList($requestedCategoryID, maskedAuthorIds: $maskedAuthorIds);
 
 $numUnofficialLinks = 0;
 if ($permissions >= Permissions::Moderator) {
