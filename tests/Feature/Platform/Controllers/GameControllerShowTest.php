@@ -3138,6 +3138,30 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
+    it('given the pending submission limit is zero, does not include screenshot upload props even for eligible users', function () {
+        // ARRANGE
+        config()->set('screenshots.max_pending_submissions_per_user', 0);
+
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create([
+            'points_hardcore' => 250,
+            'email_verified_at' => now(),
+            'created_at' => now()->subDays(45),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.createGameScreenshot', false)
+            ->missing('screenshotUploadStatuses')
+            ->missing('screenshotUploadPendingCount')
+            ->missing('screenshotUploadUserSubmissions')
+        );
+    });
+
     it('given the game has an in-progress claim, does not include screenshot upload props', function (ClaimStatus $claimStatus) {
         // ARRANGE
         $system = System::factory()->create();

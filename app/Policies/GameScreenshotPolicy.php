@@ -55,6 +55,11 @@ class GameScreenshotPolicy
             return false;
         }
 
+        $maxPendingSubmissions = (int) config('screenshots.max_pending_submissions_per_user');
+        if ($maxPendingSubmissions <= 0) {
+            return false;
+        }
+
         if ($user->isBanned() || $user->isMuted()) {
             return false;
         }
