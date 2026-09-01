@@ -60,7 +60,7 @@ class TicketController extends Controller
          * exposes this in the UI.
          */
         $target = $request->filled('user')
-            ? (new User())->resolveRouteBinding($request->input('user'))
+            ? User::whereName($request->input('user'))->firstOrFail()
             : $request->user();
 
         $props = (new BuildTicketInboxPagePropsAction())->execute($target);

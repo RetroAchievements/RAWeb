@@ -24,7 +24,6 @@ export const TicketInboxMainRoot: FC = () => {
   };
 
   const emptyMessageLabelMap: Partial<Record<SectionKind, TranslatedString>> = {
-    toResolve: t('No tickets are waiting on you right now.'),
     awaitingYourFeedback: t('No tickets are waiting on your feedback.'),
   };
 

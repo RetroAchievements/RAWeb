@@ -29,7 +29,7 @@ describe('Component: TicketInboxMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given nothing needs attention, says so and only renders the two action sections', () => {
+  it('given nothing needs attention, says so and only renders the reporter action section', () => {
     // ARRANGE
     render<App.Platform.Data.TicketInboxPageProps>(<TicketInboxMainRoot />, {
       pageProps: {
@@ -43,7 +43,6 @@ describe('Component: TicketInboxMainRoot', () => {
     // ASSERT
     expect(screen.getByText('Nothing needs your attention right now.')).toBeVisible();
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-      'Waiting on you',
       'Waiting on your feedback',
     ]);
   });
