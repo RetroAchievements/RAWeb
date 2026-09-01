@@ -782,6 +782,29 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByText(/reload the game and try again/i)).toBeVisible();
   });
 
+  it('given the logic changed but the user has already unlocked the achievement, does not display the retry label', () => {
+    // ARRANGE
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement({ unlockedAt: new Date('2026-03-04').toISOString() }), // !!
+          auth: { user: createAuthenticatedUser() },
+          didLogicChangeSinceLastPlayed: true,
+          gameHashes: [createGameHash()],
+          emulators: [createEmulator()],
+          ziggy: createZiggyProps({ query: { type: 'did_not_trigger' } }),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.getByText(/the logic for this achievement has changed since you last played/i),
+    ).toBeVisible();
+    expect(screen.queryByText(/reload the game and try again/i)).not.toBeInTheDocument();
+  });
+
   it('given the logic did not change, does not show the notice', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(

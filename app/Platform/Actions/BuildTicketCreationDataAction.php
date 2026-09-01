@@ -34,14 +34,15 @@ class BuildTicketCreationDataAction
 
     public function execute(Achievement $achievement, User $user): CreateAchievementTicketPagePropsData
     {
-        $props = CreateAchievementTicketPagePropsData::fromAchievement($achievement);
+        $playerAchievement = $user->playerAchievements()
+            ->where('achievement_id', $achievement->id)
+            ->first();
+
+        $props = CreateAchievementTicketPagePropsData::fromAchievement($achievement, $playerAchievement);
 
         $this->addSessionRelatedMultisetHashes($props, $achievement, $user);
 
         $sessionGameIds = $achievement->getRelatedGameIds();
-        $playerAchievement = $user->playerAchievements()
-            ->where('achievement_id', $achievement->id)
-            ->first();
 
         $playerSession = $this->findRelevantSession($playerAchievement, $user, $sessionGameIds);
         if ($playerSession === null) {

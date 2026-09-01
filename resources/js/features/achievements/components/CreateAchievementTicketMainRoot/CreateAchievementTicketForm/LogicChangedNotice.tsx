@@ -12,7 +12,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const LogicChangedNotice: FC = () => {
-  const { didLogicChangeSinceLastPlayed } =
+  const { achievement, didLogicChangeSinceLastPlayed } =
     usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
   const { t } = useTranslation();
 
@@ -23,6 +23,8 @@ export const LogicChangedNotice: FC = () => {
     return null;
   }
 
+  const hasUnlocked = !!achievement.unlockedAt || !!achievement.unlockedHardcoreAt;
+
   return (
     <div className="pt-2">
       <BaseAlert variant="notice" className="bg-embed light:bg-neutral-50">
@@ -30,9 +32,11 @@ export const LogicChangedNotice: FC = () => {
           {t('The logic for this achievement has changed since you last played.')}
         </BaseAlertTitle>
 
-        <BaseAlertDescription>
-          {t('Reload the game and try again. If it still happens, tell us below.')}
-        </BaseAlertDescription>
+        {!hasUnlocked ? (
+          <BaseAlertDescription>
+            {t('Reload the game and try again. If it still happens, tell us below.')}
+          </BaseAlertDescription>
+        ) : null}
       </BaseAlert>
     </div>
   );
