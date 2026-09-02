@@ -73,13 +73,13 @@ describe('Component: TicketInboxSection', () => {
     // ARRANGE
     renderSection({
       section: createTicketInboxSection({ count: 12, tickets: [createTicketListEntry()] }),
-      viewAllHref: '/user/Scott/tickets2',
+      viewAllHref: '/user/Scott/tickets',
     });
 
     // ASSERT
     expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
       'href',
-      '/user/Scott/tickets2',
+      '/user/Scott/tickets',
     );
   });
 
@@ -87,7 +87,7 @@ describe('Component: TicketInboxSection', () => {
     // ARRANGE
     renderSection({
       section: createTicketInboxSection({ count: 2, tickets: [createTicketListEntry()] }),
-      viewAllHref: '/user/Scott/tickets2',
+      viewAllHref: '/user/Scott/tickets',
     });
 
     // ASSERT
