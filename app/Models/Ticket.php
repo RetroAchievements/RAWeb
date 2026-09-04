@@ -182,6 +182,17 @@ class Ticket extends BaseModel
     }
 
     /**
+     * Excludes tickets whose ticketable was deleted.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeWithLiveTicketable(Builder $query): Builder
+    {
+        return $query->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
+    }
+
+    /**
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
