@@ -8,6 +8,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useTicketListColumnDefinitions } from '../../hooks/useTicketListColumnDefinitions';
 import { useTicketListFilterProperties } from '../../hooks/useTicketListFilterProperties';
 import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
+import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
@@ -20,7 +21,7 @@ import { TicketListTable } from '../TicketListTable';
 const SERVER_DEFAULT_STATUS_FILTER: ColumnFiltersState = [{ id: 'status', value: ['unresolved'] }];
 
 export const TicketIndexRoot: FC = () => {
-  const { availableFilters, facetCounts, paginatedTickets, scope, stateCounts } =
+  const { achievement, availableFilters, facetCounts, game, paginatedTickets, scope, stateCounts } =
     usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
@@ -37,6 +38,7 @@ export const TicketIndexRoot: FC = () => {
     paginatedTickets,
     scope,
     stateCounts,
+    targetParams: buildTicketListTargetParams({ achievement, game }),
   });
 
   const filterProperties = useTicketListFilterProperties(

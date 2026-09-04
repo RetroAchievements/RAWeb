@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Platform\Requests;
 
+use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TicketListRequest extends FormRequest
 {
+    public function getScope(): TicketListScope
+    {
+        $scope = $this->route('scope') ?? $this->input('scope');
+
+        return TicketListScope::tryFrom((string) $scope) ?? TicketListScope::All;
+    }
+
     public function rules(): array
     {
         $sortValues = array_merge(
@@ -33,7 +41,7 @@ class TicketListRequest extends FormRequest
     public function getCookiePreferences(): ?array
     {
         return once(function (): ?array {
-            $cookie = $this->cookie('datatable_view_preference_tickets_all');
+            $cookie = $this->cookie($this->getScope()->persistenceCookieName());
             if (!is_string($cookie)) {
                 return null;
             }

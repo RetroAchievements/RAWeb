@@ -107,6 +107,20 @@ enum TicketListScope: string
         };
     }
 
+    public function systemId(Game|Achievement|User|null $target): ?int
+    {
+        return match ($this) {
+            self::Game => $target->system_id,
+            self::Achievement => $target->game->system_id,
+            default => null,
+        };
+    }
+
+    public function persistenceCookieName(): string
+    {
+        return 'datatable_view_preference_tickets_' . $this->value;
+    }
+
     public function comparisonUser(?Model $target): ?User
     {
         return match ($this) {

@@ -7,11 +7,15 @@ namespace App\Platform\Controllers;
 use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\System;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Platform\Actions\BuildTicketListAction;
+use App\Platform\Data\AchievementData;
+use App\Platform\Data\GameData;
 use App\Platform\Data\TicketListPagePropsData;
-use App\Platform\Enums\TicketListScope;
 use App\Platform\Requests\TicketListRequest;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Http\Request;
@@ -30,24 +34,19 @@ class TicketController extends Controller
 
     public function index(TicketListRequest $request): InertiaResponse
     {
-        $this->authorize('viewAny', Ticket::class);
+        return $this->renderTicketList($request, 'tickets', null);
+    }
 
-        $scope = TicketListScope::All;
+    public function forGame(TicketListRequest $request, Game $game): InertiaResponse
+    {
+        abort_if(in_array($game->system_id, [System::Hubs, System::Events], true), 404);
 
-        $action = new BuildTicketListAction();
-        $result = $action->execute($scope, null, $request);
+        return $this->renderTicketList($request, 'game/[game]/tickets', $game);
+    }
 
-        $props = new TicketListPagePropsData(
-            scope: $scope,
-            paginatedTickets: $result['paginatedTickets'],
-            stateCounts: $result['stateCounts'],
-            availableFilters: $action->getAvailableFilters($scope),
-            facetCounts: $result['facetCounts'],
-            persistenceCookieName: 'datatable_view_preference_tickets_all',
-            persistedViewPreferences: $request->getCookiePreferences(),
-        );
-
-        return Inertia::render('tickets', $props);
+    public function forAchievement(TicketListRequest $request, Achievement $achievement): InertiaResponse
+    {
+        return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', $achievement);
     }
 
     /*
@@ -102,5 +101,36 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket): void
     {
+    }
+
+    private function renderTicketList(
+        TicketListRequest $request,
+        string $component,
+        Game|Achievement|User|null $target,
+    ): InertiaResponse {
+        $this->authorize('viewAny', Ticket::class);
+
+        $scope = $request->getScope();
+
+        $action = new BuildTicketListAction();
+        $result = $action->execute($scope, $target, $request);
+
+        $props = new TicketListPagePropsData(
+            scope: $scope,
+            paginatedTickets: $result['paginatedTickets'],
+            stateCounts: $result['stateCounts'],
+            availableFilters: $action->getAvailableFilters($scope, $scope->systemId($target)),
+            facetCounts: $result['facetCounts'],
+            persistenceCookieName: $scope->persistenceCookieName(),
+            persistedViewPreferences: $request->getCookiePreferences(),
+            game: $target instanceof Game
+                ? GameData::fromGame($target)->include('badgeUrl', 'system')
+                : null,
+            achievement: $target instanceof Achievement
+                ? AchievementData::fromAchievement($target)->include('game', 'game.system')
+                : null,
+        );
+
+        return Inertia::render($component, $props);
     }
 }

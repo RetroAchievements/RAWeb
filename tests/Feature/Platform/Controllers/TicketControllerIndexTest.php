@@ -94,6 +94,21 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
     );
 });
 
+it('given a hub or event game, the game route returns a 404', function (int $systemId) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => $systemId]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('game.tickets2', ['game' => $game->id]));
+
+    // ASSERT
+    $response->assertNotFound();
+})->with([
+    'hub' => System::Hubs,
+    'event' => System::Events,
+]);
+
 it('uses persisted display preferences for the initial ticket list', function () {
     // ARRANGE
     $tickets = createTicketListPageTickets(2);
@@ -116,5 +131,27 @@ it('uses persisted display preferences for the initial ticket list', function ()
         ->where('persistedViewPreferences', $preferences)
         ->where('paginatedTickets.items.0.id', $tickets[0]->id)
         ->where('paginatedTickets.items.1.id', $tickets[1]->id)
+    );
+});
+
+it("given a scoped list, reads that scope's preference cookie", function () {
+    // ARRANGE
+    $tickets = createTicketListPageTickets(2);
+    $game = $tickets[0]->getTicketableModel()->game;
+    actingAs(User::factory()->create());
+
+    $scopedPreferences = ['columnVisibility' => ['hash' => true], 'sortParam' => 'createdAt'];
+    $globalPreferences = ['columnVisibility' => ['emulator' => true], 'sortParam' => 'state'];
+
+    // ACT
+    $response = $this
+        ->withUnencryptedCookie('datatable_view_preference_tickets_game', json_encode($scopedPreferences))
+        ->withUnencryptedCookie('datatable_view_preference_tickets_all', json_encode($globalPreferences))
+        ->get(route('game.tickets2', ['game' => $game->id]));
+
+    // ASSERT
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('persistenceCookieName', 'datatable_view_preference_tickets_game')
+        ->where('persistedViewPreferences', $scopedPreferences)
     );
 });

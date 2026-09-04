@@ -28,6 +28,7 @@ use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
 use App\Platform\Controllers\TicketController;
 use App\Platform\Controllers\UserGameAchievementSetPreferenceController;
+use App\Platform\Enums\TicketListScope;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -184,7 +185,15 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
 
-                    Route::get('tickets2', [TicketController::class, 'index'])->name('tickets2.index');
+                    Route::get('tickets2', [TicketController::class, 'index'])
+                        ->defaults('scope', TicketListScope::All->value)
+                        ->name('tickets2.index');
+                    Route::get('game/{game}/tickets2', [TicketController::class, 'forGame'])
+                        ->defaults('scope', TicketListScope::Game->value)
+                        ->name('game.tickets2');
+                    Route::get('achievement/{achievement}/tickets2', [TicketController::class, 'forAchievement'])
+                        ->defaults('scope', TicketListScope::Achievement->value)
+                        ->name('achievement.tickets2');
                 });
             });
         });

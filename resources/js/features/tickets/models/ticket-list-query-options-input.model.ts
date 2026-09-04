@@ -7,4 +7,5 @@ export interface TicketListQueryOptionsInput {
   pageNumber: number;
   scope: App.Platform.Enums.TicketListScope;
   sortParam: TicketListSortParam;
+  targetParams: Record<string, number>;
 }

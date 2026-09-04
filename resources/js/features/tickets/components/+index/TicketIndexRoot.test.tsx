@@ -622,4 +622,49 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('spinbutton', { name: 'current page number' })).toHaveValue(2);
     expect(getSpy).not.toHaveBeenCalled();
   });
+
+  it('given the list is scoped to a game, the API request contains the game param', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 2001 })], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ id: 1701, title: 'Sonic the Hedgehog', system: createSystem() }),
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'game',
+          game: 1701,
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 2,
+        },
+      ]);
+    });
+  });
 });
