@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -58,10 +59,9 @@ new class extends Component implements HasForms {
                 Forms\Components\Select::make('userId')
                     ->label('Username')
                     ->getOptionLabelUsing(function (int $value): string {
-                        return str($value);
-                        // $user = User::withTrashed()->where('id', $value)->get();
+                        $user = User::withTrashed()->where('id', $value)->first();
 
-                        // return $user->display_name;
+                        return $user?->display_name ?? '[Unknown user]';
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
@@ -95,7 +95,7 @@ new class extends Component implements HasForms {
     </form>
 
     <x-filament::modal id="alts-found-modal" width="4xl">
-        <x-slot name="heading">@if (count($this->altsFound) === 1)No @endif Alts Found</x-slot>
+        <x-slot name="heading">@if (count($this->altsFound) < 2)No @endif Alts Found</x-slot>
             @php
                 $alts = User::withTrashed()->whereIn('id', $this->altsFound)->orderByDesc('last_activity_at')->get();
             @endphp
