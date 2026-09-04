@@ -35,7 +35,7 @@ function readCookieWrite(cookieWrite: string, cookieName: string): unknown {
 function setWindowLocation(search: string) {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: { search, pathname: '/tickets2' },
+    value: { search, pathname: '/tickets' },
   });
 }
 
@@ -130,7 +130,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      `/tickets2?${encodeURIComponent('page[number]')}=3`,
+      `/tickets?${encodeURIComponent('page[number]')}=3`,
     );
 
     // ACT
@@ -143,7 +143,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      '/tickets2',
+      '/tickets',
     );
   });
 
@@ -160,7 +160,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      '/tickets2?filter%5Bstatus%5D=resolved',
+      '/tickets?filter%5Bstatus%5D=resolved',
     );
 
     setWindowLocation('?filter[status]=resolved');
@@ -172,7 +172,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      '/tickets2',
+      '/tickets',
     );
   });
 
@@ -192,7 +192,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      `/tickets2?highlight=17&${encodeURIComponent('page[number]')}=2`,
+      `/tickets?highlight=17&${encodeURIComponent('page[number]')}=2`,
     );
   });
 
@@ -210,7 +210,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: 'state' },
       '',
-      '/tickets2?sort=state',
+      '/tickets?sort=state',
     );
   });
 
@@ -321,7 +321,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
       '',
-      `/tickets2?${encodeURIComponent('page[number]')}=2`,
+      `/tickets?${encodeURIComponent('page[number]')}=2`,
     );
   });
 });

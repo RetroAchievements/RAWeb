@@ -185,29 +185,29 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
 
-                    Route::get('tickets2/mine', [TicketController::class, 'mine'])->name('tickets.mine');
-                    Route::get('tickets2', [TicketController::class, 'index'])
+                    Route::get('tickets/mine', [TicketController::class, 'mine'])->name('tickets.mine');
+                    Route::get('tickets', [TicketController::class, 'index'])
                         ->defaults('scope', TicketListScope::All->value)
-                        ->name('tickets2.index');
-                    Route::get('game/{game}/tickets2', [TicketController::class, 'forGame'])
+                        ->name('tickets.index');
+                    Route::get('game/{game}/tickets', [TicketController::class, 'forGame'])
                         ->defaults('scope', TicketListScope::Game->value)
-                        ->name('game.tickets2');
-                    Route::get('achievement/{achievement}/tickets2', [TicketController::class, 'forAchievement'])
+                        ->name('game.tickets');
+                    Route::get('achievement/{achievement}/tickets', [TicketController::class, 'forAchievement'])
                         ->defaults('scope', TicketListScope::Achievement->value)
-                        ->name('achievement.tickets2');
-                    Route::get('user/{user}/tickets2', [TicketController::class, 'forAssignee'])
+                        ->name('achievement.tickets');
+                    Route::get('user/{user}/tickets', [TicketController::class, 'forAssignee'])
                         ->withTrashed()
                         ->defaults('scope', TicketListScope::AssignedTo->value)
-                        ->name('developer.tickets2');
-                    Route::get('user/{user}/tickets2/created', [TicketController::class, 'forReporter'])
+                        ->name('developer.tickets');
+                    Route::get('user/{user}/tickets/created', [TicketController::class, 'forReporter'])
                         ->defaults('scope', TicketListScope::ReportedBy->value)
-                        ->name('user.tickets2.created');
-                    Route::get('user/{user}/tickets2/feedback', [TicketController::class, 'forAwaitingReporter'])
+                        ->name('user.tickets.created');
+                    Route::get('user/{user}/tickets/feedback', [TicketController::class, 'forAwaitingReporter'])
                         ->defaults('scope', TicketListScope::AwaitingReporter->value)
-                        ->name('reporter.tickets2');
-                    Route::get('user/{user}/tickets2/resolved', [TicketController::class, 'forResolver'])
+                        ->name('reporter.tickets');
+                    Route::get('user/{user}/tickets/resolved', [TicketController::class, 'forResolver'])
                         ->defaults('scope', TicketListScope::ResolvedBy->value)
-                        ->name('developer.tickets2.resolved');
+                        ->name('developer.tickets.resolved');
                 });
             });
         });

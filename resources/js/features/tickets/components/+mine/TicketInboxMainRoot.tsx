@@ -36,17 +36,17 @@ export const TicketInboxMainRoot: FC = () => {
   };
 
   const viewAllHrefs: Record<SectionKind, string> = {
-    toResolve: route('developer.tickets2', { user: displayName, 'filter[status]': 'open' }),
-    awaitingYourFeedback: route('reporter.tickets2', { user: displayName }),
-    awaitingReporter: route('developer.tickets2', {
+    toResolve: route('developer.tickets', { user: displayName, 'filter[status]': 'open' }),
+    awaitingYourFeedback: route('reporter.tickets', { user: displayName }),
+    awaitingReporter: route('developer.tickets', {
       user: displayName,
       'filter[status]': 'request',
     }),
-    reportedOpen: route('user.tickets2.created', {
+    reportedOpen: route('user.tickets.created', {
       user: displayName,
       'filter[status]': 'open',
     }),
-    resolvedByYou: route('developer.tickets2.resolved', {
+    resolvedByYou: route('developer.tickets.resolved', {
       user: displayName,
       'filter[status]': 'resolved',
     }),

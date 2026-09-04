@@ -58,7 +58,7 @@ function createTicketListPageTickets(int $ticketCount): array
 
 it('given a guest, the index route redirects to login', function () {
     // ACT
-    $response = get(route('tickets2.index'));
+    $response = get(route('tickets.index'));
 
     // ASSERT
     $response->assertRedirect(route('login'));
@@ -70,7 +70,7 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
     actingAs(User::factory()->create());
 
     // ACT
-    $response = get(route('tickets2.index'));
+    $response = get(route('tickets.index'));
 
     // ASSERT
     $response->assertOk();
@@ -101,7 +101,7 @@ it('given a hub or event game, the game route returns a 404', function (int $sys
     actingAs(User::factory()->create());
 
     // ACT
-    $response = get(route('game.tickets2', ['game' => $game->id]));
+    $response = get(route('game.tickets', ['game' => $game->id]));
 
     // ASSERT
     $response->assertNotFound();
@@ -123,7 +123,7 @@ it('uses persisted display preferences for the initial ticket list', function ()
     // ACT
     $response = $this
         ->withUnencryptedCookie($cookieName, json_encode($preferences))
-        ->get(route('tickets2.index'));
+        ->get(route('tickets.index'));
 
     // ASSERT
     $response->assertOk();
@@ -148,7 +148,7 @@ it("given a scoped list, reads that scope's preference cookie", function () {
     $response = $this
         ->withUnencryptedCookie('datatable_view_preference_tickets_game', json_encode($scopedPreferences))
         ->withUnencryptedCookie('datatable_view_preference_tickets_all', json_encode($globalPreferences))
-        ->get(route('game.tickets2', ['game' => $game->id]));
+        ->get(route('game.tickets', ['game' => $game->id]));
 
     // ASSERT
     $response->assertInertia(fn (Assert $page) => $page
@@ -205,8 +205,8 @@ it('given the open status filter, returns only open tickets while unresolved als
     actingAs(User::factory()->create());
 
     // ACT
-    $openResponse = get(route('tickets2.index', ['filter' => ['status' => 'open']]));
-    $unresolvedResponse = get(route('tickets2.index', ['filter' => ['status' => 'unresolved']]));
+    $openResponse = get(route('tickets.index', ['filter' => ['status' => 'open']]));
+    $unresolvedResponse = get(route('tickets.index', ['filter' => ['status' => 'unresolved']]));
 
     // ASSERT
     $openTotal = $openResponse->viewData('page')['props']['paginatedTickets']['total'];

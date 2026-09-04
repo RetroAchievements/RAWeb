@@ -34,10 +34,7 @@ export const SidebarExtrasSection: FC<SidebarExtrasSectionProps> = ({ game }) =>
           </PlayableSidebarButton>
 
           <PlayableSidebarButton
-            href={route('game.tickets', {
-              game: backingGame.id,
-              'filter[achievement]': 'core',
-            })}
+            href={route('game.tickets', { game: backingGame.id })}
             IconComponent={LuTickets}
             count={numOpenTickets}
             showSubsetIndicator={showSubsetIndicator}
