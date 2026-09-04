@@ -30,6 +30,8 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
         total: 1,
       }),
       stateCounts: createTicketListStateCounts(),
+      defaultStatusFilter: 'unresolved',
+      hasStatusFilter: true,
       availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
@@ -666,5 +668,36 @@ describe('Component: TicketIndexRoot', () => {
         },
       ]);
     });
+  });
+
+  it('given the scope sets a specific default status, shows that status', () => {
+    // ARRANGE
+    renderTicketIndexRoot({ scope: 'assignedTo', defaultStatusFilter: 'request' });
+
+    // ASSERT
+    expect(screen.getByTestId('chip-status-value')).toHaveTextContent('Request');
+  });
+
+  it('given the scope has a defaultStatusFilter value of "all", no status value chip displays', () => {
+    // ARRANGE
+    renderTicketIndexRoot({ scope: 'resolvedBy', defaultStatusFilter: 'all' });
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-status-value')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
+  });
+
+  it('given the scope has no filters at all, hides the status chip and the filter button', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'awaitingReporter',
+      defaultStatusFilter: 'request',
+      hasStatusFilter: false,
+      availableFilters: [],
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-status-value')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('add-filter')).not.toBeInTheDocument();
   });
 });

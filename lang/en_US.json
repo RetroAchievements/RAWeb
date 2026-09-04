@@ -1578,5 +1578,11 @@
     "Descending": "Descending",
     "Oldest first": "Oldest first",
     "Newest first": "Newest first",
-    "Tickets - {{title}}": "Tickets - {{title}}"
+    "Tickets - {{title}}": "Tickets - {{title}}",
+    "Tickets Created": "Tickets Created",
+    "Tickets Awaiting Feedback": "Tickets Awaiting Feedback",
+    "Tickets Resolved": "Tickets Resolved",
+    "Tickets Created - {{title}}": "Tickets Created - {{title}}",
+    "Tickets Awaiting Feedback - {{title}}": "Tickets Awaiting Feedback - {{title}}",
+    "Tickets Resolved - {{title}}": "Tickets Resolved - {{title}}"
 }

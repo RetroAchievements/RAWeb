@@ -194,6 +194,19 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('achievement/{achievement}/tickets2', [TicketController::class, 'forAchievement'])
                         ->defaults('scope', TicketListScope::Achievement->value)
                         ->name('achievement.tickets2');
+                    Route::get('user/{user}/tickets2', [TicketController::class, 'forAssignee'])
+                        ->withTrashed()
+                        ->defaults('scope', TicketListScope::AssignedTo->value)
+                        ->name('developer.tickets2');
+                    Route::get('user/{user}/tickets2/created', [TicketController::class, 'forReporter'])
+                        ->defaults('scope', TicketListScope::ReportedBy->value)
+                        ->name('user.tickets2.created');
+                    Route::get('user/{user}/tickets2/feedback', [TicketController::class, 'forAwaitingReporter'])
+                        ->defaults('scope', TicketListScope::AwaitingReporter->value)
+                        ->name('reporter.tickets2');
+                    Route::get('user/{user}/tickets2/resolved', [TicketController::class, 'forResolver'])
+                        ->defaults('scope', TicketListScope::ResolvedBy->value)
+                        ->name('developer.tickets2.resolved');
                 });
             });
         });

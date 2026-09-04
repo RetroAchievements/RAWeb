@@ -97,6 +97,14 @@ enum TicketListScope: string
         };
     }
 
+    public function hasStatusFilter(): bool
+    {
+        return match ($this) {
+            self::AwaitingReporter, self::ResolvedBy => false,
+            default => true,
+        };
+    }
+
     public function defaultStatusFilter(): TicketListStatusFilter
     {
         return match ($this) {

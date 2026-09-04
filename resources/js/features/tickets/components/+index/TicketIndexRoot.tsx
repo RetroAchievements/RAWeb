@@ -18,17 +18,25 @@ import { TicketListHeading } from '../TicketListHeading';
 import { TicketListResetFiltersButton } from '../TicketListResetFiltersButton';
 import { TicketListTable } from '../TicketListTable';
 
-const SERVER_DEFAULT_STATUS_FILTER: ColumnFiltersState = [{ id: 'status', value: ['unresolved'] }];
-
 export const TicketIndexRoot: FC = () => {
-  const { achievement, availableFilters, facetCounts, game, paginatedTickets, scope, stateCounts } =
-    usePageProps<App.Platform.Data.TicketListPageProps>();
+  const {
+    achievement,
+    availableFilters,
+    defaultStatusFilter,
+    facetCounts,
+    hasStatusFilter,
+    game,
+    paginatedTickets,
+    scope,
+    stateCounts,
+    user,
+  } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
   const columnDefinitions = useTicketListColumnDefinitions();
 
   const serverDefaultColumnFilters: ColumnFiltersState = [
-    ...SERVER_DEFAULT_STATUS_FILTER,
+    { id: 'status', value: [defaultStatusFilter] },
     ...availableFilters.map((filter) => ({ id: filter.kind, value: [filter.values[0]] })),
   ];
 
@@ -38,13 +46,14 @@ export const TicketIndexRoot: FC = () => {
     paginatedTickets,
     scope,
     stateCounts,
-    targetParams: buildTicketListTargetParams({ achievement, game }),
+    targetParams: buildTicketListTargetParams({ achievement, game, user }),
   });
 
   const filterProperties = useTicketListFilterProperties(
     availableFilters,
     ticketListTableProps.stateCounts,
     ticketListTableProps.facetCounts,
+    hasStatusFilter,
   );
 
   const hasFilterChips =
@@ -74,12 +83,14 @@ export const TicketIndexRoot: FC = () => {
           setColumnFilters={ticketListTableProps.setColumnFilters}
         />
 
-        <TicketListFilterControl
-          columnFilters={ticketListTableProps.columnFilters}
-          isLabelHidden={hasFilterChips && hasNonDefaultFilters}
-          properties={filterProperties}
-          setColumnFilters={ticketListTableProps.setColumnFilters}
-        />
+        {filterProperties.length ? (
+          <TicketListFilterControl
+            columnFilters={ticketListTableProps.columnFilters}
+            isLabelHidden={hasFilterChips && hasNonDefaultFilters}
+            properties={filterProperties}
+            setColumnFilters={ticketListTableProps.setColumnFilters}
+          />
+        ) : null}
 
         {hasNonDefaultFilters ? (
           <TicketListResetFiltersButton
