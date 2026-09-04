@@ -48,7 +48,7 @@ new class extends Component implements HasForms {
             Notification::make()
                 ->danger()
                 ->title('Failed')
-                ->body("No users have all {$fromAchievementIdsCount} achievements.")
+                ->body('No users have all ' . count($this->fromAchievementIds) . ' achievements.')
                 ->send();
 
             return;
