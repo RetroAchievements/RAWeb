@@ -1185,6 +1185,37 @@ ticketableType: App.Platform.Enums.TicketableType;
 state?: App.Community.Enums.TicketState;
 ticketable?: App.Platform.Data.Achievement | App.Platform.Data.Leaderboard | App.Platform.Data.Game;
 };
+export type TicketListEntry = {
+id: number;
+state: App.Community.Enums.TicketState;
+type: App.Community.Enums.TicketType;
+hardcore: boolean | null;
+createdAt: string;
+resolvedAt: string | null;
+ticketableType: App.Platform.Enums.TicketableType;
+ticketableId: number;
+ticketableTitle: string;
+ticketableBadgeUrl: string | null;
+game: App.Platform.Data.Game;
+author: App.Data.User | null;
+reporter: App.Data.User | null;
+resolver: App.Data.User | null;
+emulator: App.Platform.Data.Emulator | null;
+emulatorVersion: string | null;
+emulatorCore: string | null;
+gameHash: App.Platform.Data.GameHash | null;
+};
+export type TicketListFilter = {
+kind: App.Platform.Enums.TicketListFilterKind;
+values: string[];
+};
+export type TicketListStateCounts = {
+unresolved: number;
+request: number;
+resolved: number;
+quarantined: number;
+all: number;
+};
 export type UserCredits = {
 displayName: string;
 avatarUrl: string;
@@ -1234,6 +1265,10 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
+export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
+export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
+export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
+export type TicketListStatusFilter = 'all' | 'unresolved' | 'request' | 'resolved' | 'quarantined';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
