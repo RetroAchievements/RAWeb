@@ -1,22 +1,12 @@
 <?php
 
-use App\Enums\Permissions;
-use App\Filament\Actions\ParseIdsFromCsvAction;
-use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementType;
-use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use App\Support\Media\UserAvatarUrl;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component implements HasForms {
@@ -37,6 +27,7 @@ new class extends Component implements HasForms {
                 ->title('Failed')
                 ->body('Unknown user')
                 ->send();
+
             return;
         }
 
@@ -85,7 +76,7 @@ new class extends Component implements HasForms {
                     })
                     ->statePath('userId')
                     ->required()
-                    ->live()
+                    ->live(),
             ]);
     }
 }

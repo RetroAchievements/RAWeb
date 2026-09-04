@@ -1,16 +1,13 @@
 <?php
 
-use App\Models\Achievement;
-use App\Models\Game;
 use App\Models\PlayerAchievement;
-use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -35,6 +32,7 @@ new class extends Component implements HasForms {
                 ->title('Error')
                 ->body('No IDs found in CSV')
                 ->send();
+
             return;
         }
 
@@ -62,6 +60,7 @@ new class extends Component implements HasForms {
                 ->title('Failed')
                 ->body("No users have all {$fromAchievementIdsCount} achievements.")
                 ->send();
+
             return;
         }
 
@@ -130,7 +129,7 @@ new class extends Component implements HasForms {
 
                 Forms\Components\Placeholder::make('Information')
                     ->content('All users who have unlocked every achievement in the "from" list will be awarded every achievement in the "to" list.'),
-        ]);
+            ]);
     }
 }
 
