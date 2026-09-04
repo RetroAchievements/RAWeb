@@ -1532,5 +1532,18 @@
     "Update the application name and redirect URI.": "Update the application name and redirect URI.",
     "https://example.com/oauth/callback": "https://example.com/oauth/callback",
     "View the people you follow and the people who follow you": "View the people you follow and the people who follow you",
-    "View your personal game lists, such as Want to Play and Want to Develop": "View your personal game lists, such as Want to Play and Want to Develop"
+    "View your personal game lists, such as Want to Play and Want to Develop": "View your personal game lists, such as Want to Play and Want to Develop",
+    "Ticket Manager": "Ticket Manager",
+    "(LB) {{title}}": "(LB) {{title}}",
+    "No tickets match these filters.": "No tickets match these filters.",
+    "Deleted user": "Deleted user",
+    "Closed": "Closed",
+    "Open": "Open",
+    "Quarantined": "Quarantined",
+    "Request": "Request",
+    "Resolved": "Resolved",
+    "ID": "ID",
+    "Issue with": "Issue with",
+    "Reporter": "Reporter",
+    "Age": "Age"
 }

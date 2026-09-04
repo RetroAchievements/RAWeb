@@ -183,6 +183,8 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
+
+                    Route::get('tickets2', [TicketController::class, 'index'])->name('tickets2.index');
                 });
             });
         });

@@ -9,8 +9,11 @@ use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Ticket;
 use App\Platform\Actions\BuildTicketCreationDataAction;
+use App\Platform\Actions\BuildTicketListAction;
+use App\Platform\Data\TicketListPagePropsData;
+use App\Platform\Enums\TicketListScope;
+use App\Platform\Requests\TicketListRequest;
 use App\Support\Concerns\HandlesResources;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -25,12 +28,21 @@ class TicketController extends Controller
         return 'ticket';
     }
 
-    public function index(): View
+    public function index(TicketListRequest $request): InertiaResponse
     {
-        $this->authorize('viewAny', $this->resourceClass());
+        $this->authorize('viewAny', Ticket::class);
 
-        return view('resource.index')
-            ->with('resource', $this->resourceName());
+        $action = new BuildTicketListAction();
+        $result = $action->execute(TicketListScope::All, null, $request);
+
+        $props = new TicketListPagePropsData(
+            scope: TicketListScope::All,
+            paginatedTickets: $result['paginatedTickets'],
+            stateCounts: $result['stateCounts'],
+            availableFilters: $action->getAvailableFilters(TicketListScope::All),
+        );
+
+        return Inertia::render('tickets', $props);
     }
 
     /*
