@@ -16,12 +16,19 @@ jobs:
     outputs:
       php: ${{ steps.filter.outputs.php }}
       node: ${{ steps.filter.outputs.node }}
+      openapi: ${{ steps.filter.outputs.openapi }}
     steps:
       - name: Check changed files
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
           filters: |
+            openapi:
+              - 'app/**/*.php'
+              - 'config/**'
+              - 'routes/**'
+              - 'composer.lock'
+              - 'public/openapi/v2.json'
             php:
               - '**/*.php'
               - 'composer.json'
@@ -53,7 +60,7 @@ jobs:
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.17
 
@@ -76,7 +83,6 @@ jobs:
           - check: analyse
             command: composer analyse -- --memory-limit=1G
             env:
-              # PHPStan explodes if we're missing an APP_KEY. This is a value pulled from the Laravel docs.
               APP_KEY: 'base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY='
     steps:
       - name: Skip if no PHP changes
@@ -124,6 +130,50 @@ jobs:
         with:
           path: tmp
           key: phpstan-result-cache-${{ github.run_id }}
+
+  openapi-spec:
+    needs: changes
+    runs-on: ubuntu-24.04
+    name: OpenAPI Spec
+    steps:
+      - name: Skip if no API changes
+        if: ${{ needs.changes.outputs.openapi != 'true' }}
+        run: |
+          echo "No API changes detected - skipping the OpenAPI spec check"
+          exit 0
+
+      - name: Checkout code
+        if: ${{ needs.changes.outputs.openapi == 'true' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.openapi == 'true' }}
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: 8.4
+          extensions: mbstring, :psr
+          coverage: none
+          ini-values: memory_limit=1G
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.openapi == 'true' }}
+        run: composer install --prefer-dist --no-interaction
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ github.token }}"}}'
+
+      - name: Check the committed spec is current
+        if: ${{ needs.changes.outputs.openapi == 'true' }}
+        run: php artisan ra:api:generate-openapi-spec --check
+        env:
+          APP_KEY: 'base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY='
+          APP_URL: 'http://localhost'
+          API_URL: 'http://localhost/api'
+
+      - name: Lint the spec
+        if: ${{ needs.changes.outputs.openapi == 'true' }}
+        run: npx --yes @redocly/cli@2.5.0 lint public/openapi/v2.json --max-problems 50
 
   php-tests:
     needs: changes
@@ -214,7 +264,7 @@ jobs:
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.17
 
@@ -272,7 +322,7 @@ jobs:
 
       - name: Install pnpm
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.17
 
@@ -332,7 +382,7 @@ jobs:
           fetch-depth: 1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.17
 

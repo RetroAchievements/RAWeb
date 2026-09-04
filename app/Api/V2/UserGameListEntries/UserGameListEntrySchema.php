@@ -14,12 +14,12 @@ use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class UserGameListEntrySchema extends Schema
 {
@@ -65,15 +65,34 @@ class UserGameListEntrySchema extends Schema
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
 
-            Number::make('gameId', 'game_id')->readOnly(),
+            Integer::make('gameId', 'game_id')->readOnly(),
             Str::make('gameTitle')->readOnly(),
             Str::make('gameIconUrl')->readOnly(),
-            Number::make('systemId')->readOnly(),
+            Integer::make('systemId')->readOnly(),
             Str::make('systemName')->readOnly(),
-            Number::make('pointsTotal')->readOnly(),
-            Number::make('achievementsPublished')->readOnly(),
+            Integer::make('pointsTotal')->readOnly(),
+            Integer::make('achievementsPublished')->readOnly(),
 
             BelongsTo::make('game')->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'createdAt' => false,
+            'gameId' => false,
+            'gameTitle' => false,
+            'gameIconUrl' => false,
+            'systemId' => false,
+            'systemName' => false,
+            'pointsTotal' => false,
+            'achievementsPublished' => false,
         ];
     }
 

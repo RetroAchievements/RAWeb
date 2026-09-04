@@ -130,4 +130,32 @@ describe('Component: OAuthRegistrationDialogTrigger', () => {
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('given the user dismisses the credentials step, keeps them visible while the dialog closes and clears them on reopen', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: { id: 'client-123', secret: 'secret-123' },
+    });
+
+    render(<OAuthRegistrationDialogTrigger />, {
+      pageProps: { ziggy: createZiggyProps() },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Register application' }));
+    await userEvent.type(screen.getByLabelText('Application name'), 'My Integration');
+    await userEvent.type(screen.getByLabelText('Redirect URI'), 'https://example.com/callback');
+    await userEvent.click(screen.getByRole('button', { name: 'Register application' }));
+    await userEvent.click(await screen.findByRole('button', { name: "I've saved these" }));
+
+    expect(screen.queryByLabelText('Application name')).not.toBeInTheDocument();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Register application' }));
+
+    // ASSERT
+    expect(await screen.findByLabelText('Application name')).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { name: 'Save your credentials' }),
+    ).not.toBeInTheDocument();
+  });
 });

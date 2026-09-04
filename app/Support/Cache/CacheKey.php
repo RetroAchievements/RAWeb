@@ -7,6 +7,7 @@ namespace App\Support\Cache;
 class CacheKey
 {
     public const SystemMenuList = 'ui:menu:systems:v3';
+    public const ModerationWatchlistTerms = 'moderation:watchlist-terms:v1';
 
     public static function buildGameCardDataCacheKey(int $gameId): string
     {
@@ -58,6 +59,16 @@ class CacheKey
     public static function buildUserExpiringClaimsCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "expiring-claims");
+    }
+
+    public static function buildUserMaskedForumAuthorIdsCacheKey(int $userId): string
+    {
+        $teamAccountUsernames = array_keys(config('teams.accounts', []));
+        sort($teamAccountUsernames);
+
+        return self::buildNormalizedCacheKey("user", $userId, "masked-forum-author-ids", [
+            substr(md5(implode(',', $teamAccountUsernames)), 0, 8),
+        ]);
     }
 
     public static function buildUnsubscribeUndoTokenCacheKey(string $token): string

@@ -141,6 +141,8 @@ class UpdateGameClaimAction
                     $setRequest->user->notify(new SetAchievementsPublishedNotification($game));
                 }
             }
+
+            (new QueueAchievementSetReleaseNotificationsAction())->execute($game);
         }
 
         // create a new AchievementSetVersion

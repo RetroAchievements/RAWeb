@@ -18,6 +18,7 @@ use App\Models\AchievementSetAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
@@ -25,6 +26,7 @@ use App\Models\GameScreenshot;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
@@ -42,6 +44,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Services\EventHubIdCacheService;
+use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -3068,17 +3071,14 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
-    it('given an eligible user with the feature enabled, includes screenshot upload props', function () {
+    it('given an eligible user, includes screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3095,15 +3095,12 @@ describe('Screenshot Upload Props', function () {
 
     it('given a user with enough points but it is a fresh account, does not include screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(7), // !!
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3120,8 +3117,6 @@ describe('Screenshot Upload Props', function () {
 
     it('given a user with an old enough account but not enough points, does not include screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
@@ -3129,7 +3124,6 @@ describe('Screenshot Upload Props', function () {
             'points' => 0, // !!
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3144,9 +3138,9 @@ describe('Screenshot Upload Props', function () {
         );
     });
 
-    it('given the feature is disabled, does not include screenshot upload props even for eligible users', function () {
+    it('given the pending submission limit is zero, does not include screenshot upload props even for eligible users', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', false);
+        config()->set('screenshots.max_pending_submissions_per_user', 0);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3154,32 +3148,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
-        ]);
-
-        // ACT
-        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
-
-        // ASSERT
-        $response->assertInertia(fn (Assert $page) => $page
-            ->where('can.createGameScreenshot', false)
-            ->missing('screenshotUploadStatuses')
-            ->missing('screenshotUploadPendingCount')
-            ->missing('screenshotUploadUserSubmissions')
-        );
-    });
-
-    it('given an otherwise-eligible user has not opted into beta features, does not include screenshot upload props', function () {
-        // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
-        $system = System::factory()->create();
-        $game = createGameWithAchievements($system, 'Test Game');
-        $user = User::factory()->create([
-            'points_hardcore' => 250,
-            'email_verified_at' => now(),
-            'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 0, // !! not set
         ]);
 
         // ACT
@@ -3196,15 +3164,12 @@ describe('Screenshot Upload Props', function () {
 
     it('given the game has an in-progress claim, does not include screenshot upload props', function (ClaimStatus $claimStatus) {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3229,15 +3194,12 @@ describe('Screenshot Upload Props', function () {
 
     it('given the game has a resolved claim, includes screenshot upload props', function (ClaimStatus $claimStatus) {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -3262,8 +3224,6 @@ describe('Screenshot Upload Props', function () {
 
     it('given this is a linked subset, does not include screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         ['baseGame' => $baseGame, 'subsetSet' => $subsetSet] = createGameWithSubset(
             $system,
@@ -3274,7 +3234,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3294,15 +3253,12 @@ describe('Screenshot Upload Props', function () {
 
     it('given the game title starts with "~Z~", does not include screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, '~Z~ Test Game');
         $user = User::factory()->create([
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3320,8 +3276,6 @@ describe('Screenshot Upload Props', function () {
 
     it('given an unranked non-developer, does not include screenshot upload props', function () {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
-
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
         $user = User::factory()->create([
@@ -3329,7 +3283,6 @@ describe('Screenshot Upload Props', function () {
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3346,7 +3299,6 @@ describe('Screenshot Upload Props', function () {
 
     it('given an unranked developer or junior developer, still includes screenshot upload props', function (string $role) {
         // ARRANGE
-        config()->set('feature.game_screenshot_uploads', true);
         seed(RolesTableSeeder::class);
 
         $system = System::factory()->create();
@@ -3356,7 +3308,6 @@ describe('Screenshot Upload Props', function () {
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
             'unranked_at' => now(), // !!
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
         $user->assignRole($role);
 
@@ -3378,7 +3329,6 @@ describe('Screenshot Upload Props', function () {
     it('given an eligible user, screenshotUploadStatuses groups primary approved screenshots by type', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3386,7 +3336,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... primary approved screenshots should be counted ...
@@ -3414,7 +3363,6 @@ describe('Screenshot Upload Props', function () {
     it('given screenshots with wrong resolutions for the system, screenshotUploadStatuses reports resolution issues', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create([
             'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
@@ -3424,7 +3372,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3442,7 +3389,6 @@ describe('Screenshot Upload Props', function () {
     it('given a game with no approved primary screenshots, screenshotUploadConsistency is null', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3450,7 +3396,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ACT
@@ -3465,7 +3410,6 @@ describe('Screenshot Upload Props', function () {
     it('given approved primary screenshots share one resolution, screenshotUploadConsistency exposes a canonical resolution', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3473,7 +3417,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3494,7 +3437,6 @@ describe('Screenshot Upload Props', function () {
     it('given approved primary screenshots only differ by tolerated rounding, screenshotUploadConsistency normalizes them to one canonical resolution', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create([
             'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
@@ -3504,7 +3446,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3525,7 +3466,6 @@ describe('Screenshot Upload Props', function () {
     it('given approved primary screenshots have mixed resolutions, screenshotUploadConsistency omits a canonical resolution', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3533,7 +3473,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 256, 'height' => 224]);
@@ -3552,7 +3491,6 @@ describe('Screenshot Upload Props', function () {
     it('given the only approved primary screenshot is invalid for the system, screenshotUploadConsistency is present with no existing resolutions so the nudge fires', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create([
             'screenshot_resolutions' => [['width' => 256, 'height' => 224]],
@@ -3562,7 +3500,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         GameScreenshot::factory()->for($game)->title()->primary()->create(['width' => 320, 'height' => 240]);
@@ -3582,7 +3519,6 @@ describe('Screenshot Upload Props', function () {
     it('given an eligible user, screenshotUploadPendingCount reflects their total pending screenshots across all games', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3591,7 +3527,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... the user's pending screenshots on any game should be counted ...
@@ -3615,7 +3550,6 @@ describe('Screenshot Upload Props', function () {
     it('given an eligible user, screenshotUploadUserSubmissions returns only their pending screenshots for this game', function () {
         // ARRANGE
         Storage::fake('s3');
-        config()->set('feature.game_screenshot_uploads', true);
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -3624,7 +3558,6 @@ describe('Screenshot Upload Props', function () {
             'points_hardcore' => 250,
             'email_verified_at' => now(),
             'created_at' => now()->subDays(45),
-            'preferences_bitfield' => 1 << UserPreference::User_EnableBetaFeatures,
         ]);
 
         // ... the user's pending screenshots on this game should be returned ...
@@ -3642,6 +3575,121 @@ describe('Screenshot Upload Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->has('screenshotUploadUserSubmissions', 2)
+        );
+    });
+});
+
+function createActiveEventForSourceAchievement(
+    Achievement $sourceAchievement,
+    ?Carbon $activeUntil,
+): EventAchievement {
+    $eventsSystem = System::find(System::Events) ?? System::factory()->create(['id' => System::Events]);
+
+    $eventGame = Game::factory()->create(['system_id' => $eventsSystem->id]);
+    Event::factory()->create(['legacy_game_id' => $eventGame->id]);
+
+    $mirrorAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $eventGame->id,
+        'user_id' => User::factory()->create()->id,
+    ]);
+
+    return EventAchievement::create([
+        'achievement_id' => $mirrorAchievement->id,
+        'source_achievement_id' => $sourceAchievement->id,
+        'active_from' => now()->subDay(),
+        'active_until' => $activeUntil,
+    ]);
+}
+
+describe('Active Event Achievements', function () {
+    it('given an achievement is in an active time-limited event, exposes the event to everyone', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek());
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+            ->where('activeEventAchievements.0.userUnlocked', false)
+        );
+    });
+
+    it('given an evergreen event, hides it from guests and users without the preference', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, null);
+
+        $userWithoutPreference = User::factory()->create();
+
+        // ACT
+        $guestResponse = get(route('game.show', ['game' => $game]));
+        $withoutPreferenceResponse = actingAs($userWithoutPreference)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $guestResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
+        );
+        $withoutPreferenceResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
+        );
+    });
+
+    it('given an evergreen event, exposes it to users who opt in via their preferences', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, null);
+
+        $userWithPreference = User::factory()->create([
+            'preferences_bitfield' => 1 << UserPreference::Game_ShowEvergreenEventIndicators,
+        ]);
+
+        // ACT
+        $response = actingAs($userWithPreference)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+            ->missing('activeEventAchievements.0.activeUntil')
+        );
+    });
+
+    it('given the user has a hardcore unlock on the event achievement, flags it as unlocked', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        $eventAchievement = createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek());
+
+        $user = User::factory()->create();
+        PlayerAchievement::create([
+            'user_id' => $user->id,
+            'achievement_id' => $eventAchievement->achievement_id,
+            'unlocked_at' => now()->subHour(),
+            'unlocked_hardcore_at' => now()->subHour(),
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.userUnlocked', true)
         );
     });
 });

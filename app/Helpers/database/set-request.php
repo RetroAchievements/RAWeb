@@ -20,14 +20,14 @@ function getUserRequestsInformation(User $user, int $gameId = -1): array
         ->where('type', UserGameListType::AchievementSetRequest)
         ->join('games', 'games.id', '=', 'game_id')
         ->select(['games.id', 'games.achievements_published']);
-    foreach ($setRequests->get() as $request) {
+    foreach ($setRequests->toBase()->get() as $request) {
         // If the game does not have achievements then it counts as a legit request
-        if ($request['achievements_published'] == 0) {
+        if ($request->achievements_published == 0) {
             $requests['used']++;
         }
 
         // Determine if we have made a request for the input game
-        if ($request['id'] == $gameId) {
+        if ($request->id == $gameId) {
             $requests['requestedThisGame'] = 1;
         }
     }

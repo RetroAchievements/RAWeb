@@ -19,6 +19,7 @@ use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class EventAchievementSchema extends Schema
 {
@@ -72,10 +73,38 @@ class EventAchievementSchema extends Schema
             DateTime::make('activeFrom', 'active_from')->sortable()->readOnly(),
             DateTime::make('activeUntil', 'active_until')->sortable()->readOnly(),
             Str::make('decorator')->readOnly(),
+            Str::make('achievementTitle')->readOnly(),
+            Str::make('achievementDescription')->readOnly(),
+            Integer::make('achievementPoints')->readOnly(),
+            Str::make('achievementBadgeUrl')->readOnly(),
+            Str::make('achievementBadgeLockedUrl')->readOnly(),
+            Str::make('eventTitle')->readOnly(),
+            Str::make('eventBadgeUrl')->readOnly(),
 
             HasOneThrough::make('event')->type('events'),
             BelongsTo::make('sourceAchievement')->type('achievements')->readOnly(),
             BelongsTo::make('eventAchievement', 'achievement')->type('achievements')->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'activeFrom' => true,
+            'activeUntil' => true,
+            'decorator' => true,
+            'achievementTitle' => false,
+            'achievementDescription' => false,
+            'achievementPoints' => false,
+            'achievementBadgeUrl' => false,
+            'achievementBadgeLockedUrl' => false,
+            'eventTitle' => true,
+            'eventBadgeUrl' => true,
         ];
     }
 

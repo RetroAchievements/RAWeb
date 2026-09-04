@@ -63,6 +63,23 @@ class CommentSchema extends Schema
     }
 
     /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'body' => false,
+            'authorAvatarUrl' => false,
+            'authorDisplayName' => false,
+            'authorId' => false,
+            'permalink' => false,
+            'submittedAt' => false,
+        ];
+    }
+
+    /**
      * Get the resource filters.
      */
     public function filters(): array
