@@ -32,6 +32,8 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       stateCounts: createTicketListStateCounts(),
       availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
       facetCounts: {},
+      persistenceCookieName: 'datatable_view_preference_tickets_all',
+      persistedViewPreferences: null,
       ziggy: createZiggyProps({ query: {} }),
       ...pageProps,
     },
@@ -58,11 +60,13 @@ function createTicketListResponse(
 describe('Component: TicketIndexRoot', () => {
   it('shows the ticket manager list', () => {
     // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get');
     renderTicketIndexRoot();
 
     // ASSERT
     expect(screen.getByTestId('ticket-list')).toBeVisible();
     expect(screen.getByRole('heading', { level: 1, name: 'Ticket Manager' })).toBeVisible();
+    expect(getSpy).not.toHaveBeenCalled();
   });
 
   it('renders every default column and one row per ticket from the page props', () => {
@@ -262,7 +266,13 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.ticket.index',
-        { scope: 'all', 'filter[status]': 'quarantined', 'filter[type]': '0', 'page[number]': 1 },
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'quarantined',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
       ]);
     });
 
@@ -271,13 +281,13 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true },
+      { inertia: true, ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('filter%5Bstatus%5D=quarantined'),
     );
 
     expect(pushStateSpy).not.toHaveBeenCalledWith(
-      { inertia: true },
+      { inertia: true, ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('filter%5Btype%5D'),
     );
@@ -307,7 +317,13 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.ticket.index',
-        { scope: 'all', 'filter[status]': 'all', 'filter[type]': '0', 'page[number]': 1 },
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'all',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
       ]);
     });
 
@@ -347,7 +363,13 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.ticket.index',
-        { scope: 'all', 'filter[status]': 'resolved', 'filter[type]': '0', 'page[number]': 1 },
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'resolved',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
       ]);
     });
   });
@@ -413,14 +435,26 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.ticket.index',
-        { scope: 'all', 'filter[status]': 'unresolved', 'filter[type]': '0', 'page[number]': 2 },
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 2,
+        },
       ]);
     });
 
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.ticket.index',
-        { scope: 'all', 'filter[status]': 'unresolved', 'filter[type]': '0', 'page[number]': 3 },
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 3,
+        },
       ]);
     });
 
@@ -429,7 +463,7 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true },
+      { inertia: true, ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('page%5Bnumber%5D=2'),
     );
@@ -477,7 +511,13 @@ describe('Component: TicketIndexRoot', () => {
       () => {
         expect(getSpy).toHaveBeenCalledWith([
           'api.ticket.index',
-          { scope: 'all', 'filter[status]': 'unresolved', 'filter[type]': '0', 'page[number]': 3 },
+          {
+            scope: 'all',
+            sort: '-createdAt',
+            'filter[status]': 'unresolved',
+            'filter[type]': '0',
+            'page[number]': 3,
+          },
         ]);
       },
       { timeout: 2000 },
@@ -529,5 +569,57 @@ describe('Component: TicketIndexRoot', () => {
         },
       ]);
     });
+  });
+
+  it('given the user hides a column then shows it again, the display returns to its default state', async () => {
+    // ARRANGE
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-game'));
+
+    // ASSERT
+    expect(screen.queryByRole('columnheader', { name: 'Game' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('reset-display')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('column-toggle-game'));
+
+    expect(screen.getByRole('columnheader', { name: 'Game' })).toBeVisible();
+    expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given only column visibility changed, resetting the display keeps the current page', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 2,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+      ziggy: createZiggyProps({ query: { 'page[number]': '2' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('reset-display'));
+
+    // ASSERT
+    expect(screen.getByRole('spinbutton', { name: 'current page number' })).toHaveValue(2);
+    expect(getSpy).not.toHaveBeenCalled();
   });
 });

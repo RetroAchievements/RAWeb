@@ -93,3 +93,28 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
         ->missing('user')
     );
 });
+
+it('uses persisted display preferences for the initial ticket list', function () {
+    // ARRANGE
+    $tickets = createTicketListPageTickets(2);
+    actingAs(User::factory()->create());
+    $cookieName = 'datatable_view_preference_tickets_all';
+    $preferences = [
+        'columnVisibility' => ['game' => false],
+        'sortParam' => 'createdAt',
+    ];
+
+    // ACT
+    $response = $this
+        ->withUnencryptedCookie($cookieName, json_encode($preferences))
+        ->get(route('tickets2.index'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('persistenceCookieName', $cookieName)
+        ->where('persistedViewPreferences', $preferences)
+        ->where('paginatedTickets.items.0.id', $tickets[0]->id)
+        ->where('paginatedTickets.items.1.id', $tickets[1]->id)
+    );
+});

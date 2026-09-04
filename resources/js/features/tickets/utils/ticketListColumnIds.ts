@@ -2,9 +2,14 @@ export const TICKET_LIST_COLUMN_IDS = [
   'id',
   'ticketable',
   'game',
+  'type',
+  'mode',
   'developer',
   'reporter',
+  'resolver',
+  'emulator',
+  'version',
+  'core',
+  'hash',
   'age',
 ] as const;
-
-export type TicketListColumnId = (typeof TICKET_LIST_COLUMN_IDS)[number];

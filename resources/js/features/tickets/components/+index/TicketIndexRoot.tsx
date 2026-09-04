@@ -1,4 +1,3 @@
-import { HydrationBoundary } from '@tanstack/react-query';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,16 +10,12 @@ import { useTicketListFilterProperties } from '../../hooks/useTicketListFilterPr
 import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
-import { TICKET_LIST_COLUMN_IDS } from '../../utils/ticketListColumnIds';
-import { TicketListEmptyState } from '../TicketListEmptyState';
+import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
 import { TicketListFilterChips } from '../TicketListFilterChips';
 import { TicketListFilterControl } from '../TicketListFilterControl';
 import { TicketListHeading } from '../TicketListHeading';
 import { TicketListResetFiltersButton } from '../TicketListResetFiltersButton';
 import { TicketListTable } from '../TicketListTable';
-
-// temporary - selectable columns will arrive in a future commit
-const columnVisibility = Object.fromEntries(TICKET_LIST_COLUMN_IDS.map((id) => [id, true]));
 
 const SERVER_DEFAULT_STATUS_FILTER: ColumnFiltersState = [{ id: 'status', value: ['unresolved'] }];
 
@@ -36,7 +31,7 @@ export const TicketIndexRoot: FC = () => {
     ...availableFilters.map((filter) => ({ id: filter.kind, value: [filter.values[0]] })),
   ];
 
-  const { hydrationState, ticketListTableProps } = useTicketListTableRoot({
+  const { ticketListTableProps } = useTicketListTableRoot({
     serverDefaultColumnFilters,
     facetCounts,
     paginatedTickets,
@@ -100,27 +95,34 @@ export const TicketIndexRoot: FC = () => {
               })
             : t('{{val, number}} tickets', { count: visibleTotal, val: visibleTotal })}
         </p>
+
+        <TicketListDisplayPanel
+          columnDefinitions={columnDefinitions}
+          columnVisibility={ticketListTableProps.columnVisibility}
+          hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
+          onResetDisplay={ticketListTableProps.resetDisplay}
+          onSortChange={ticketListTableProps.setSortParam}
+          onToggleColumn={ticketListTableProps.toggleColumnVisibility}
+          sortParam={ticketListTableProps.sortParam}
+        />
       </div>
 
-      <HydrationBoundary state={hydrationState}>
-        <TicketListTable
-          columnDefinitions={columnDefinitions}
-          columnVisibility={columnVisibility}
-          emptyStateNode={<TicketListEmptyState />}
-          isFetching={ticketListTableProps.isFetching}
-          paginatedTickets={ticketListTableProps.paginatedTickets}
-          paginatorNode={
-            <div className="flex items-center justify-center sm:justify-end">
-              <DataTablePaginationControls
-                currentPage={ticketListTableProps.paginatedTickets.currentPage}
-                lastPage={ticketListTableProps.paginatedTickets.lastPage}
-                onPageChange={ticketListTableProps.setPageNumber}
-                onPrefetchPage={ticketListTableProps.prefetchPage}
-              />
-            </div>
-          }
-        />
-      </HydrationBoundary>
+      <TicketListTable
+        columnDefinitions={columnDefinitions}
+        columnVisibility={ticketListTableProps.columnVisibility}
+        isFetching={ticketListTableProps.isFetching}
+        paginatedTickets={ticketListTableProps.paginatedTickets}
+        paginatorNode={
+          <div className="flex items-center justify-center sm:justify-end">
+            <DataTablePaginationControls
+              currentPage={ticketListTableProps.paginatedTickets.currentPage}
+              lastPage={ticketListTableProps.paginatedTickets.lastPage}
+              onPageChange={ticketListTableProps.setPageNumber}
+              onPrefetchPage={ticketListTableProps.prefetchPage}
+            />
+          </div>
+        }
+      />
     </div>
   );
 };

@@ -13,6 +13,7 @@ use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Data\TicketListEntryData;
 use App\Platform\Enums\TicketListFilterKind;
 use App\Platform\Enums\TicketListScope;
+use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -261,4 +262,17 @@ describe('available filters', function () {
         $emulatorFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::Emulator);
         expect($emulatorFilter->values)->toEqual(['all', 'Bizhawk', 'unknown']);
     });
+});
+
+it('prefers the URL sort over the persisted sort', function () {
+    // ACT
+    $request = TicketListRequest::create('/tickets', 'GET', ['sort' => '-resolvedAt'], [
+        'datatable_view_preference_tickets_all' => json_encode(['sortParam' => 'state']),
+    ]);
+
+    // ASSERT
+    expect($request->getSort())->toEqual([
+        'field' => TicketListSortField::ResolvedAt,
+        'direction' => 'desc',
+    ]);
 });

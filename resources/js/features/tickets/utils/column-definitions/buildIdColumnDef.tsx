@@ -1,17 +1,17 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import { route } from 'ziggy-js';
 
 import type { TranslatedString } from '@/types/i18next';
+
+import type { TicketListColumnDefinition } from '../../models';
 
 interface BuildIdColumnDefProps {
   t_label: TranslatedString;
 }
 
-export function buildIdColumnDef({
-  t_label,
-}: BuildIdColumnDefProps): ColumnDef<App.Platform.Data.TicketListEntry> {
+export function buildIdColumnDef({ t_label }: BuildIdColumnDefProps): TicketListColumnDefinition {
   return {
     id: 'id',
+    enableHiding: false,
     meta: {
       t_label,
       align: 'left',

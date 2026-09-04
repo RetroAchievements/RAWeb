@@ -1215,6 +1215,8 @@ paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
 stateCounts: App.Platform.Data.TicketListStateCounts;
 availableFilters: Array<App.Platform.Data.TicketListFilter>;
 facetCounts: Record<string, Record<string, number>>;
+persistenceCookieName: string;
+persistedViewPreferences: Record<string, any> | null;
 game: App.Platform.Data.Game | null;
 achievement: App.Platform.Data.Achievement | null;
 user: App.Data.User | null;
@@ -1247,14 +1249,14 @@ pointsForNext: number;
 }
 declare namespace App.Platform.Enums {
 export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
+export type UnlockMode = 0 | 1;
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
-export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
-export type UnlockMode = 0 | 1;
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
+export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'all' | 'only-games' | 'only-subsets';
 export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';

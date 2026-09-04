@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -6,6 +5,7 @@ import { route } from 'ziggy-js';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
+import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
 interface BuildTicketableColumnDefProps {
@@ -14,7 +14,7 @@ interface BuildTicketableColumnDefProps {
 
 export function buildTicketableColumnDef({
   t_label,
-}: BuildTicketableColumnDefProps): ColumnDef<App.Platform.Data.TicketListEntry> {
+}: BuildTicketableColumnDefProps): TicketListColumnDefinition {
   return {
     id: 'ticketable',
     meta: {

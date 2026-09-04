@@ -1,10 +1,13 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { VisibilityState } from '@tanstack/react-table';
+import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { route } from 'ziggy-js';
 
-import { render, screen } from '@/test';
+import { render, screen, within } from '@/test';
 import {
+  createEmulator,
   createGame,
+  createGameHash,
   createPaginatedData,
   createSystem,
   createTicketListEntry,
@@ -12,14 +15,19 @@ import {
 } from '@/test/factories';
 
 import { useTicketListColumnDefinitions } from '../../hooks/useTicketListColumnDefinitions';
+import type { TicketListColumnDefinition } from '../../models';
 import { TICKET_LIST_COLUMN_IDS } from '../../utils/ticketListColumnIds';
 import { TicketListTable } from './TicketListTable';
 
-const allVisible = Object.fromEntries(TICKET_LIST_COLUMN_IDS.map((id) => [id, true]));
-const noneVisible = Object.fromEntries(TICKET_LIST_COLUMN_IDS.map((id) => [id, false]));
+const allVisible = Object.fromEntries(
+  TICKET_LIST_COLUMN_IDS.map((id) => [id, true]),
+) as VisibilityState;
+const noneVisible = Object.fromEntries(
+  TICKET_LIST_COLUMN_IDS.map((id) => [id, false]),
+) as VisibilityState;
 
 interface TestHarnessProps {
-  columnVisibility?: Record<string, boolean>;
+  columnVisibility?: VisibilityState;
   emptyStateNode?: React.ReactNode;
   isFetching?: boolean;
   lastPage?: number;
@@ -35,8 +43,7 @@ const TestHarness: FC<TestHarnessProps> = ({
   lastPage = 1,
   tickets = [createTicketListEntry()],
 }) => {
-  const columnDefinitions: ColumnDef<App.Platform.Data.TicketListEntry>[] =
-    useTicketListColumnDefinitions();
+  const columnDefinitions: TicketListColumnDefinition[] = useTicketListColumnDefinitions();
 
   const paginatedTickets = createPaginatedData(tickets, {
     lastPage,
@@ -77,7 +84,7 @@ describe('Component: TicketListTable', () => {
     expect(headers.map((header) => header.textContent)).toEqual(['ID', 'Issue with', 'Age']);
   });
 
-  it('given every column is visible, renders all six headers in registry order', () => {
+  it('given every column is visible, renders all the headers in registry order', () => {
     // ARRANGE
     render(<TestHarness columnVisibility={allVisible} />);
 
@@ -86,8 +93,15 @@ describe('Component: TicketListTable', () => {
       'ID',
       'Issue with',
       'Game',
+      'Issue type',
+      'Mode',
       'Developer',
       'Reporter',
+      'Resolved by',
+      'Emulator',
+      'Version',
+      'Core',
+      'Hash',
       'Age',
     ]);
   });
@@ -236,6 +250,24 @@ describe('Component: TicketListTable', () => {
     expect(route).not.toHaveBeenCalledWith('user.show', expect.anything());
   });
 
+  it('leaves an unassigned resolver empty but labels a deleted resolver', () => {
+    // ARRANGE
+    const unresolvedTicket = createTicketListEntry({ id: 640, state: 'open', resolver: null });
+    const resolvedTicket = createTicketListEntry({ id: 641, state: 'resolved', resolver: null });
+
+    render(
+      <TestHarness
+        tickets={[unresolvedTicket, resolvedTicket]}
+        columnVisibility={{ ...noneVisible, resolver: true }}
+      />,
+    );
+
+    // ASSERT
+    const unresolvedRow = screen.getByRole('row', { name: /Ticket #640/ });
+    expect(within(unresolvedRow).getAllByRole('cell').at(-1)).toBeEmptyDOMElement();
+    expect(screen.getAllByText('Deleted user')).toHaveLength(1);
+  });
+
   it('given a game with a badge and a short system name, links to the game and shows the system name inline', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
@@ -321,5 +353,105 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
+  });
+
+  it('given the type column is visible, shows the translated issue type', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({ type: 'submitted_wrong_value' });
+
+    render(<TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, type: true }} />);
+
+    // ASSERT
+    expect(screen.getByText('Submitted wrong value')).toBeVisible();
+  });
+
+  it('given the mode column is visible, shows the mode, and shows nothing when the mode is unknown', () => {
+    // ARRANGE
+    const hardcoreTicket = createTicketListEntry({ hardcore: true });
+    const casualTicket = createTicketListEntry({ hardcore: false });
+    const unknownTicket = createTicketListEntry({ id: 7303, hardcore: null });
+
+    render(
+      <TestHarness
+        tickets={[hardcoreTicket, casualTicket, unknownTicket]}
+        columnVisibility={{ ...noneVisible, mode: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('Hardcore')).toBeVisible();
+    expect(screen.getByText('Casual')).toBeVisible();
+    expect(
+      within(screen.getByRole('row', { name: /Ticket #7303/ })).queryByText(/Hardcore|Casual/),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given the emulator columns are visible, shows the emulator, version, and core', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      emulator: createEmulator({ name: 'Bizhawk' }),
+      emulatorVersion: '2.9.1',
+      emulatorCore: 'mGBA',
+    });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, emulator: true, version: true, core: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('Bizhawk')).toBeVisible();
+    expect(screen.getByText('2.9.1')).toBeVisible();
+    expect(screen.getByText('mGBA')).toBeVisible();
+  });
+
+  it('given the hash column is visible, shows the hash name tags and falls back to a short md5', async () => {
+    // ARRANGE
+    const namedTicket = createTicketListEntry({
+      gameHash: createGameHash({
+        name: 'Sonic The Hedgehog (USA, Europe).md',
+        md5: 'aaaaaaaabbbbbbbbccccccccdddddddd',
+      }),
+    });
+    const unnamedTicket = createTicketListEntry({
+      gameHash: createGameHash({ name: null, md5: 'bbbbbbbbccccccccddddddddeeeeeeee' }),
+    });
+
+    render(
+      <TestHarness
+        tickets={[namedTicket, unnamedTicket]}
+        columnVisibility={{ ...noneVisible, hash: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('(USA, Europe)')).toBeVisible();
+    expect(screen.getByText('bbbbbbbb')).toBeVisible();
+
+    // ... the full name and md5 are available in a tooltip ...
+    await userEvent.hover(screen.getByText('(USA, Europe)'));
+    expect(
+      (await screen.findAllByText('Sonic The Hedgehog (USA, Europe).md'))[0],
+    ).toBeVisible();
+  });
+
+  it('given the ticket has no emulator or hash, those cells stay empty', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({ id: 7404, emulator: null, gameHash: null });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, emulator: true, hash: true }}
+      />,
+    );
+
+    // ASSERT
+    const row = screen.getByRole('row', { name: /Ticket #7404/ });
+    const [, emulatorCell, hashCell] = within(row).getAllByRole('cell');
+    expect(emulatorCell.textContent).toEqual('');
+    expect(hashCell.textContent).toEqual('');
   });
 });

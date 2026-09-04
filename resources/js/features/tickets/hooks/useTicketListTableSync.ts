@@ -1,18 +1,26 @@
-import type { ColumnFiltersState } from '@tanstack/react-table';
+import type { ColumnFiltersState, VisibilityState } from '@tanstack/react-table';
 import { useEffect, useRef } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useCookie, useUpdateEffect } from 'react-use';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
+
+import type { TicketListSortParam, TicketListUrlState } from '../models';
 import { readTicketListSearchParams } from '../utils/readTicketListSearchParams';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
 import { serializeTicketListSearchParams } from '../utils/serializeTicketListSearchParams';
+import { ticketListSort } from '../utils/ticketListSort';
 
-// TODO user's persistence cookie support
+interface TicketListHistoryState {
+  ticketListSortParam?: unknown;
+}
 
 interface UseTicketListTableSyncProps {
   columnFilters: ColumnFiltersState;
+  columnVisibilityOverrides: VisibilityState;
   serverDefaultColumnFilters: ColumnFiltersState;
   pageNumber: number;
-  restoreState: (columnFilters: ColumnFiltersState, pageNumber: number) => void;
+  restoreState: (urlState: TicketListUrlState) => void;
+  sortParam: TicketListSortParam;
 }
 
 /**
@@ -21,28 +29,44 @@ interface UseTicketListTableSyncProps {
  */
 export function useTicketListTableSync({
   columnFilters,
+  columnVisibilityOverrides,
   serverDefaultColumnFilters,
   pageNumber,
   restoreState,
+  sortParam,
 }: UseTicketListTableSyncProps) {
-  const restoredStateRef = useRef<{
-    columnFilters: ColumnFiltersState;
-    pageNumber: number;
-  } | null>(null);
+  const { persistenceCookieName } =
+    usePageProps<Pick<App.Platform.Data.TicketListPageProps, 'persistenceCookieName'>>();
+  const [, setCookie] = useCookie(persistenceCookieName);
+  const restoredUrlStateRef = useRef<TicketListUrlState | null>(null);
+  const initialSortParamRef = useRef(sortParam);
 
   useEffect(() => {
-    const handlePopState = () => {
-      const restored = readTicketListSearchParams(window.location.search);
-      const restoredColumnFilters = resolveInitialTicketListColumnFilters(
-        restored.query,
-        serverDefaultColumnFilters,
-      );
+    window.history.replaceState(
+      { ...window.history.state, ticketListSortParam: initialSortParamRef.current },
+      '',
+    );
+  }, []);
 
-      restoredStateRef.current = {
-        columnFilters: restoredColumnFilters,
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const restored = readTicketListSearchParams(window.location.search);
+      const historyState = event.state as TicketListHistoryState | null;
+
+      const urlState: TicketListUrlState = {
+        columnFilters: resolveInitialTicketListColumnFilters(
+          restored.query,
+          serverDefaultColumnFilters,
+        ),
         pageNumber: restored.pageNumber,
+        sortParam: ticketListSort.resolve(
+          historyState?.ticketListSortParam,
+          ticketListSort.resolve(restored.sort),
+        ),
       };
-      restoreState(restoredColumnFilters, restored.pageNumber);
+
+      restoredUrlStateRef.current = urlState;
+      restoreState(urlState);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -51,13 +75,24 @@ export function useTicketListTableSync({
   });
 
   useUpdateEffect(() => {
-    const restoredState = restoredStateRef.current;
-    restoredStateRef.current = null;
+    setCookie(
+      JSON.stringify({
+        columnVisibility: columnVisibilityOverrides,
+        sortParam,
+      }),
+      { expires: 180 },
+    );
+  }, [columnVisibilityOverrides, sortParam]);
+
+  useUpdateEffect(() => {
+    const restoredUrlState = restoredUrlStateRef.current;
+    restoredUrlStateRef.current = null;
 
     if (
-      restoredState &&
-      restoredState.columnFilters === columnFilters &&
-      restoredState.pageNumber === pageNumber
+      restoredUrlState &&
+      restoredUrlState.columnFilters === columnFilters &&
+      restoredUrlState.pageNumber === pageNumber &&
+      restoredUrlState.sortParam === sortParam
     ) {
       return;
     }
@@ -66,6 +101,7 @@ export function useTicketListTableSync({
       columnFilters,
       serverDefaultColumnFilters,
       pageNumber,
+      sortParam,
       currentSearch: window.location.search,
     });
 
@@ -79,6 +115,6 @@ export function useTicketListTableSync({
       return;
     }
 
-    window.history.pushState({ inertia: true }, '', newUrl);
-  }, [columnFilters, pageNumber]);
+    window.history.pushState({ inertia: true, ticketListSortParam: sortParam }, '', newUrl);
+  }, [columnFilters, pageNumber, sortParam]);
 }

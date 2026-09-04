@@ -1,9 +1,8 @@
-import type { ColumnDef } from '@tanstack/react-table';
-
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
+import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
 interface BuildGameColumnDefProps {
@@ -12,7 +11,7 @@ interface BuildGameColumnDefProps {
 
 export function buildGameColumnDef({
   t_label,
-}: BuildGameColumnDefProps): ColumnDef<App.Platform.Data.TicketListEntry> {
+}: BuildGameColumnDefProps): TicketListColumnDefinition {
   return {
     id: 'game',
     meta: {
@@ -32,7 +31,10 @@ export function buildGameColumnDef({
             {...game}
             size={24}
             hasTooltip={false}
-            wrapperClassName={cn('max-w-full min-w-0', ticketListCellClassNames.entityLinkWrapper)}
+            wrapperClassName={cn(
+              'min-w-0 flex-1 overflow-hidden',
+              ticketListCellClassNames.entityLinkWrapper,
+            )}
             gameTitleClassName={cn(
               ticketListCellClassNames.entityLinkLabel,
               ticketListCellClassNames.truncate,

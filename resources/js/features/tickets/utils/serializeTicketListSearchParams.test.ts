@@ -18,6 +18,7 @@ describe('Util: serializeTicketListSearchParams', () => {
         { id: 'status', value: ['resolved'] },
         { id: 'emulator', value: ['RetroArch'] },
       ],
+      sortParam: '-createdAt',
       pageNumber: 2,
       serverDefaultColumnFilters,
     });
@@ -33,6 +34,7 @@ describe('Util: serializeTicketListSearchParams', () => {
     const result = serializeTicketListSearchParams({
       currentSearch: '?filter[status]=resolved&page[number]=3',
       columnFilters: serverDefaultColumnFilters,
+      sortParam: '-createdAt',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -46,6 +48,7 @@ describe('Util: serializeTicketListSearchParams', () => {
     const result = serializeTicketListSearchParams({
       currentSearch: '?filter[emulator]=RetroArch',
       columnFilters: [{ id: 'status', value: ['resolved'] }],
+      sortParam: '-createdAt',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -59,6 +62,7 @@ describe('Util: serializeTicketListSearchParams', () => {
     const result = serializeTicketListSearchParams({
       currentSearch: '?filter[emulator]=RetroArch',
       columnFilters: [{ id: 'emulator', value: [] }],
+      sortParam: '-createdAt',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -72,6 +76,7 @@ describe('Util: serializeTicketListSearchParams', () => {
     const result = serializeTicketListSearchParams({
       currentSearch: '',
       columnFilters: [{ id: 'status', value: 'all' }],
+      sortParam: '-createdAt',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -85,6 +90,7 @@ describe('Util: serializeTicketListSearchParams', () => {
     const result = serializeTicketListSearchParams({
       currentSearch: '',
       columnFilters: serverDefaultColumnFilters,
+      sortParam: '-createdAt',
       pageNumber: 1,
     });
 
@@ -95,13 +101,42 @@ describe('Util: serializeTicketListSearchParams', () => {
   it('given the URL has a param the list does not even own, leaves it alone', () => {
     // ACT
     const result = serializeTicketListSearchParams({
-      currentSearch: '?sort=state',
+      currentSearch: '?highlight=17',
       columnFilters: serverDefaultColumnFilters,
+      sortParam: '-createdAt',
       pageNumber: 2,
       serverDefaultColumnFilters,
     });
 
     // ASSERT
-    expect(result.toString()).toEqual('sort=state&page%5Bnumber%5D=2');
+    expect(result.toString()).toEqual('highlight=17&page%5Bnumber%5D=2');
+  });
+
+  it('serializes a non-default sort', () => {
+    // ACT
+    const result = serializeTicketListSearchParams({
+      currentSearch: '',
+      columnFilters: serverDefaultColumnFilters,
+      sortParam: 'state',
+      pageNumber: 1,
+      serverDefaultColumnFilters,
+    });
+
+    // ASSERT
+    expect(result.toString()).toEqual('sort=state');
+  });
+
+  it('always omits the default sort', () => {
+    // ACT
+    const result = serializeTicketListSearchParams({
+      currentSearch: '?sort=state',
+      columnFilters: serverDefaultColumnFilters,
+      sortParam: '-createdAt',
+      pageNumber: 1,
+      serverDefaultColumnFilters,
+    });
+
+    // ASSERT
+    expect(result.toString()).toEqual('');
   });
 });

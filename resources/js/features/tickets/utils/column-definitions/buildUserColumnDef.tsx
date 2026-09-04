@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -6,11 +5,12 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
+import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
 interface BuildUserColumnDefProps {
   getUser: (entry: App.Platform.Data.TicketListEntry) => App.Data.User | null;
-  id: string;
+  id: 'developer' | 'reporter' | 'resolver';
   t_label: TranslatedString;
 }
 
@@ -18,7 +18,7 @@ export function buildUserColumnDef({
   getUser,
   id,
   t_label,
-}: BuildUserColumnDefProps): ColumnDef<App.Platform.Data.TicketListEntry> {
+}: BuildUserColumnDefProps): TicketListColumnDefinition {
   return {
     id,
     meta: {
@@ -29,16 +29,28 @@ export function buildUserColumnDef({
       ),
     },
 
-    cell: ({ row }) => <UserCell user={getUser(row.original)} />,
+    cell: ({ row }) => (
+      <UserCell
+        user={getUser(row.original)}
+        shouldHideWhenUserIsMissing={
+          id === 'resolver' && row.original.state !== 'closed' && row.original.state !== 'resolved'
+        }
+      />
+    ),
   };
 }
 
 interface UserCellProps {
+  shouldHideWhenUserIsMissing: boolean;
   user: App.Data.User | null;
 }
 
-const UserCell: FC<UserCellProps> = ({ user }) => {
+const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
   const { t } = useTranslation();
+
+  if (!user && shouldHideWhenUserIsMissing) {
+    return null;
+  }
 
   if (!user) {
     return (

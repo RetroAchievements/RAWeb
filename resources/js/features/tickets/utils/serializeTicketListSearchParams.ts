@@ -1,10 +1,13 @@
 import type { ColumnFiltersState } from '@tanstack/react-table';
 
+import type { TicketListSortParam } from '../models';
 import { normalizeTicketListFilterValue } from './normalizeTicketListFilterValue';
+import { ticketListSort } from './ticketListSort';
 
 interface SerializeTicketListSearchParamsOptions {
   columnFilters: ColumnFiltersState;
   pageNumber: number;
+  sortParam: TicketListSortParam;
 
   currentSearch?: string;
   serverDefaultColumnFilters?: ColumnFiltersState;
@@ -17,10 +20,17 @@ interface SerializeTicketListSearchParamsOptions {
 export function serializeTicketListSearchParams({
   columnFilters,
   pageNumber,
+  sortParam,
   currentSearch = '',
   serverDefaultColumnFilters = [],
 }: SerializeTicketListSearchParamsOptions): URLSearchParams {
   const searchParams = new URLSearchParams(currentSearch);
+
+  if (sortParam !== ticketListSort.defaultParam) {
+    searchParams.set('sort', sortParam);
+  } else {
+    searchParams.delete('sort');
+  }
 
   if (pageNumber > 1) {
     searchParams.set('page[number]', String(pageNumber));

@@ -3,6 +3,7 @@ import type { AppGlobalProps } from '@/common/models';
 interface TicketListSearchParams {
   pageNumber: number;
   query: AppGlobalProps['ziggy']['query'];
+  sort: string | null;
 }
 
 export function readTicketListSearchParams(search: string): TicketListSearchParams {
@@ -19,5 +20,6 @@ export function readTicketListSearchParams(search: string): TicketListSearchPara
   return {
     pageNumber: Number(searchParams.get('page[number]') ?? 1),
     query: { filter },
+    sort: searchParams.get('sort'),
   };
 }
