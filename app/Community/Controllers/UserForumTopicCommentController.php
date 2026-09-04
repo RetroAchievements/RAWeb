@@ -43,14 +43,7 @@ class UserForumTopicCommentController extends Controller
             page: $page,
         );
 
-        $shortcodeIds = [];
-        foreach ($posts as $post) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($post['ShortMsg']);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
-        }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        $shortcodeRecords = Shortcode::fetchRecordsFor(array_column($posts, 'ShortMsg'));
 
         $transformedPosts = array_map(
             fn ($post) => ForumTopicData::fromUserPost($post, $shortcodeRecords)->include('latestComment'),

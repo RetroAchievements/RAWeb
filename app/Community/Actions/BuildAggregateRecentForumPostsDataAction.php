@@ -49,14 +49,7 @@ class BuildAggregateRecentForumPostsDataAction
             $total = $maskedTopics['total'];
         }
 
-        $shortcodeIds = [];
-        foreach ($topics as $topic) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($topic['ShortMsg']);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
-        }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        $shortcodeRecords = Shortcode::fetchRecordsFor(array_column($topics, 'ShortMsg'));
 
         $transformedTopics = array_map(
             fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic, $shortcodeRecords)->include(

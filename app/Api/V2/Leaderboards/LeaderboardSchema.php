@@ -10,7 +10,6 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
@@ -19,6 +18,7 @@ use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class LeaderboardSchema extends Schema
 {
@@ -56,7 +56,7 @@ class LeaderboardSchema extends Schema
             Boolean::make('rankAsc', 'rank_asc')->readOnly(),
 
             Str::make('state')->readOnly(),
-            Number::make('orderColumn', 'order_column')->sortable()->readOnly(),
+            Integer::make('orderColumn', 'order_column')->sortable()->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->sortable()->readOnly(),
@@ -69,6 +69,25 @@ class LeaderboardSchema extends Schema
             // TODO implement relationship endpoints to enable links
             // - /leaderboards/{id}/game
             // - /leaderboards/{id}/developer
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'description' => false,
+            'format' => false,
+            'rankAsc' => false,
+            'state' => false,
+            'orderColumn' => false,
+            'createdAt' => true,
+            'updatedAt' => false,
         ];
     }
 

@@ -58,6 +58,14 @@ function sharedSpec(): array
     return $document ??= specAt(sharedSpecPath());
 }
 
+/**
+ * @return array<string, array<string, mixed>>
+ */
+function resourceAttributes(string $type): array
+{
+    return sharedSpec()['components']['schemas']["resources.{$type}.resource.fetch"]['properties']['attributes']['properties'];
+}
+
 it('given the command runs, it writes the spec', function () {
     // Act
     generate()->assertSuccessful();
@@ -94,7 +102,7 @@ it('given the spec is written, it holds no environment specific values', functio
     // Assert
     expect(File::get(sharedSpecPath()))->not->toContain('localhost');
     expect(sharedSpec()['servers'][0]['url'])
-        ->toEqual('https://api.retroachievements.org/api/v2');
+        ->toEqual('https://api.retroachievements.org/v2');
 });
 
 it('given every documented operation, each one names the OAuth scope it needs', function () {
@@ -114,10 +122,10 @@ it('given every documented operation, each one names the OAuth scope it needs', 
     expect($scopeless)->toEqual([]);
 });
 
-it('given an endpoint that declares its own scope, it documents that scope', function () {
+it('given an endpoint that refuses API keys, it offers only an OAuth token with the required scope', function () {
     // Assert
     expect(sharedSpec()['paths']['/users/{user}/followers']['get']['security'])
-        ->toEqual([['ApiKey' => []], ['OAuth2' => ['follows:read']]]);
+        ->toEqual([['OAuth2' => ['follows:read']]]);
 });
 
 it('given an endpoint behind the baseline read gate, it documents the baseline read scope', function () {
@@ -185,4 +193,18 @@ it('given a spec that will not parse, check fails', function () {
     generate(check: true)
         ->expectsOutputToContain('not valid JSON')
         ->assertFailed();
+});
+
+it('given a schema that declares nullability, it flags only the attributes that can be null', function () {
+    // Assert
+    $attributes = resourceAttributes('games');
+
+    expect($attributes['releasedAt']['nullable'])->toEqual(true);
+    expect($attributes['title'])->not->toHaveKey('nullable');
+});
+
+it('given a whole number field, it documents an integer rather than a number', function () {
+    // Assert
+    expect(resourceAttributes('games')['playersTotal']['type'])->toEqual('integer');
+    expect(resourceAttributes('achievements')['unlockPercentage']['type'])->toEqual('number');
 });

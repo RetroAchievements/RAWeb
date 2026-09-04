@@ -167,18 +167,20 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
-    public function scopeResolved(Builder $query): Builder
-    {
-        return $query->whereIn('state', [TicketState::Resolved, TicketState::Closed]);
-    }
-
-    /**
-     * @param Builder<Ticket> $query
-     * @return Builder<Ticket>
-     */
     public function scopeQuarantined(Builder $query): Builder
     {
         return $query->where('state', TicketState::Quarantined);
+    }
+
+    /**
+     * Excludes tickets whose ticketable was deleted.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeWithLiveTicketable(Builder $query): Builder
+    {
+        return $query->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
     }
 
     /**
@@ -187,18 +189,12 @@ class Ticket extends BaseModel
      */
     public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
     {
+        // Guests can't see tickets.
         if ($user === null) {
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->can('manage', self::class)) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($user) {
-            $q->where('state', '!=', TicketState::Quarantined->value)
-                ->orWhere('reporter_id', $user->id);
-        });
+        return $query;
     }
 
     /**

@@ -58,14 +58,7 @@ class BuildThinRecentForumPostsDataAction
             ->limit($limit)
             ->get();
 
-        $shortcodeIds = [];
-        foreach ($latestComments as $post) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($post->Payload);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
-        }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        $shortcodeRecords = Shortcode::fetchRecordsFor($latestComments->pluck('Payload'));
 
         return $latestComments->map(function ($post) use ($numMessageChars, $shortcodeRecords) {
             $postArray = (array) $post;
