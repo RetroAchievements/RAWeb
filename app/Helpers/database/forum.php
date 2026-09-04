@@ -386,13 +386,18 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 
     $topicTitle = $gameTitle;
 
-    $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
-    $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
+    $searchTitle = "$gameTitle $consoleName";
 
     $hashesURL = route('game.hashes.index', ['game' => $gameId]);
-    $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
-    $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
-    $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
+    $gameFAQsURL = 'https://www.google.com/search?' . http_build_query([
+        'q' => "site:www.gamefaqs.com $searchTitle",
+    ]);
+    $longplaysURL = 'https://www.google.com/search?' . http_build_query([
+        'q' => "site:www.youtube.com longplay $searchTitle",
+    ]);
+    $wikipediaURL = 'https://www.google.com/search?' . http_build_query([
+        'q' => "site:en.wikipedia.org $searchTitle",
+    ]);
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->display_name}]\n\n" .

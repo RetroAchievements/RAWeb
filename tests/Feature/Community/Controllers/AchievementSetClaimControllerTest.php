@@ -15,6 +15,7 @@ use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\Subscription;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Support\Alerts\ClaimWithUnresolvedTicketsAlert;
@@ -31,6 +32,38 @@ class AchievementSetClaimControllerTest extends TestCase
     use RefreshDatabase;
 
     private const CLAIM_ALERT_WEBHOOK_URL = 'https://discord.com/api/webhooks/test';
+
+    public function testGameForumTopicEncodesResourceSearchUrls(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        Forum::factory()->create(['id' => 18, 'title' => 'Default']);
+
+        /** @var System $system */
+        $system = System::factory()->create(['id' => 7, 'name' => 'NES']);
+
+        /** @var Game $game */
+        $game = $this->seedGame(system: $system, withHash: false);
+        $game->update(['title' => "Kirby's Adventure & More?"]);
+
+        $comment = generateGameForumTopic($user, $game->id);
+
+        $this->assertNotNull($comment);
+        $this->assertStringContainsString(
+            '[url=https://www.google.com/search?q=site%3Awww.gamefaqs.com+Kirby%27s+Adventure+%26+More%3F+NES]GameFAQs[/url]',
+            $comment->body,
+        );
+        $this->assertStringContainsString(
+            '[url=https://www.google.com/search?q=site%3Awww.youtube.com+longplay+Kirby%27s+Adventure+%26+More%3F+NES]Longplay[/url]',
+            $comment->body,
+        );
+        $this->assertStringContainsString(
+            '[url=https://www.google.com/search?q=site%3Aen.wikipedia.org+Kirby%27s+Adventure+%26+More%3F+NES]Wikipedia[/url]',
+            $comment->body,
+        );
+    }
 
     private function createOpenTicketsForDeveloper(User $developer, int $count): void
     {
