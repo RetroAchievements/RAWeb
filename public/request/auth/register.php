@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\VerifyTurnstileTokenAction;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Support\Rules\PasswordRules;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ValidNewUsername::get(),
     'password' => PasswordRules::get(),
-    'email' => 'required|email:filter|confirmed|not_disposable_email',
+    'email' => 'required|email:filter,dns|confirmed|not_disposable_email',
     'terms' => 'accepted',
 ]);
 
@@ -20,27 +21,14 @@ $username = $input['username'];
 $pass = $input['password'];
 $email = $input['email'];
 
-if (config('services.google.recaptcha_secret')) {
-    if (empty($_POST['g-recaptcha-response'])) {
-        return back()->withErrors(__('legacy.error.recaptcha'));
-    }
+if (config('services.cloudflare.turnstile_secret_key')) {
+    $isHuman = (new VerifyTurnstileTokenAction())->execute(
+        request()->post('cf-turnstile-response'),
+        request()->ip(),
+    );
 
-    $url = 'https://www.google.com/recaptcha/api/siteverify';
-    $data = ['secret' => config('services.google.recaptcha_secret'), 'response' => $_POST['g-recaptcha-response']];
-
-    // use key 'http' even if you send the request to https://...
-    $context = stream_context_create([
-        'http' => [
-            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data),
-        ],
-    ]);
-    $result = file_get_contents($url, false, $context);
-    $resultJSON = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
-
-    if (array_key_exists('success', $resultJSON) && !$resultJSON['success']) {
-        return back()->withErrors(__('legacy.error.recaptcha'));
+    if (!$isHuman) {
+        return back()->withErrors(__('legacy.error.captcha'));
     }
 }
 
