@@ -140,6 +140,14 @@ class Ticket extends BaseModel
         return $this->belongsTo(GameHash::class, 'game_hash_id', 'id');
     }
 
+    /**
+     * @return BelongsTo<Trigger, $this>
+     */
+    public function trigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'id')->withTrashed();
+    }
+
     // == scopes
 
     /**

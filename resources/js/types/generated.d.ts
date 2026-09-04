@@ -663,6 +663,7 @@ selectedGameHashId: number | null;
 emulatorVersion: string | null;
 emulatorCore: string | null;
 selectedMode: number | null;
+didLogicChangeSinceLastPlayed: boolean;
 };
 export type DeveloperInterestPageProps = {
 game: App.Platform.Data.Game;
