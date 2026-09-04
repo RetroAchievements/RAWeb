@@ -29,5 +29,15 @@
                 <livewire:administrative-tools.migrate-achievements />
             </div>
         </x-filament::section>
+
+        <x-filament::section>
+            <div class="flex flex-col gap-y-4">
+                <x-filament::section.heading>
+                    Copy Unlocks
+                </x-filament::section.heading>
+
+                <livewire:administrative-tools.copy-unlocks />
+            </div>
+        </x-filament::section>
     </div>
 </x-filament-panels::page>
