@@ -34,7 +34,7 @@ class GeneralNotificationsIcon extends Component
             $ticketFeedback = app(UserTicketCountService::class)->countRequestsForReporter($user);
             if ($ticketFeedback) {
                 $notifications->push([
-                    'link' => route('reporter.tickets', ['user' => $user->display_name]),
+                    'link' => route('tickets.mine'),
                     'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
                 ]);
             }

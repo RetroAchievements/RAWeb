@@ -71,19 +71,24 @@ class UpsertTriggerVersionAction
          */
         $currentTrigger = $triggerable->trigger;
 
-        // If conditions haven't changed and we're converting unversioned -> versioned,
-        // just update the trigger's version in-place.
-        if ($currentTrigger && $currentTrigger->conditions === $conditions) {
-            // If conditions match and it's unversioned, convert to version 1.
+        if ($currentTrigger) {
+            // If we're converting unversioned -> versioned, just update the trigger in-place.
             if ($currentTrigger->version === null) {
+                // Keep the newest conditions and mark them as version 1.
                 $currentTrigger->update([
                     'version' => 1,
+                    'conditions' => $conditions,
                     'user_id' => $currentTrigger->user_id ?? $user?->id,
                 ]);
                 $this->assignTriggerIdQuietly($triggerable, $currentTrigger->id);
+
+                return $currentTrigger;
             }
 
-            return $currentTrigger;
+            // If the conditions didn't actually change, don't create a new version
+            if ($currentTrigger->conditions === $conditions) {
+                return $currentTrigger;
+            }
         }
 
         $latestVersion = $triggerable->triggers()->whereNotNull('version')->max('version') ?? 0;

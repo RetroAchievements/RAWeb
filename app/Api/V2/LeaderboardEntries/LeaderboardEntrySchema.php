@@ -16,6 +16,7 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
@@ -58,6 +59,7 @@ class LeaderboardEntrySchema extends Schema
 
             Integer::make('score')->sortable()->readOnly(),
             Integer::make('rank')->readOnly(),
+            Str::make('formattedScore')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->sortable()->readOnly(),
@@ -79,6 +81,7 @@ class LeaderboardEntrySchema extends Schema
             'rank' => true,
             'createdAt' => true,
             'updatedAt' => false,
+            'formattedScore' => false,
         ];
     }
 
