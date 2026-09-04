@@ -388,22 +388,17 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 
     $searchTitle = "$gameTitle $consoleName";
 
+    $searchUrl = fn (string $query): string => 'https://www.google.com/search?' . http_build_query(['q' => $query]);
+
     $hashesURL = route('game.hashes.index', ['game' => $gameId]);
-    $gameFAQsURL = 'https://www.google.com/search?' . http_build_query([
-        'q' => "site:www.gamefaqs.com $searchTitle",
-    ]);
-    $longplaysURL = 'https://www.google.com/search?' . http_build_query([
-        'q' => "site:www.youtube.com longplay $searchTitle",
-    ]);
-    $wikipediaURL = 'https://www.google.com/search?' . http_build_query([
-        'q' => "site:en.wikipedia.org $searchTitle",
-    ]);
+    $gameFAQsURL = $searchUrl("site:www.gamefaqs.com $searchTitle");
+    $longplaysURL = $searchUrl("site:www.youtube.com longplay $searchTitle");
+    $wikipediaURL = $searchUrl("site:en.wikipedia.org $searchTitle");
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->display_name}]\n\n" .
         "[b][url=$hashesURL]Supported Game Hashes[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
-        // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
         "[url=$longplaysURL]Longplay[/url]\n" .
         "[url=$wikipediaURL]Wikipedia[/url]\n";
