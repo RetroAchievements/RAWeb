@@ -13,6 +13,7 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketCreationDataAction;
+use App\Platform\Actions\BuildTicketInboxPagePropsAction;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
@@ -48,6 +49,23 @@ class TicketController extends Controller
     public function forAchievement(TicketListRequest $request, Achievement $achievement): InertiaResponse
     {
         return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', $achievement);
+    }
+
+    public function mine(Request $request): InertiaResponse
+    {
+        $this->authorize('viewAny', Ticket::class);
+
+        /**
+         * We have a `user` param here for debugging purposes only. Nothing
+         * exposes this in the UI.
+         */
+        $target = $request->filled('user')
+            ? User::whereName($request->input('user'))->firstOrFail()
+            : $request->user();
+
+        $props = (new BuildTicketInboxPagePropsAction())->execute($target);
+
+        return Inertia::render('tickets/mine', $props);
     }
 
     public function forAssignee(TicketListRequest $request, User $user): InertiaResponse

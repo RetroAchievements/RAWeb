@@ -66,6 +66,7 @@ export * from './createSetUserRequestInfo';
 export * from './createSubscription';
 export * from './createSystem';
 export * from './createTicket';
+export * from './createTicketInboxSection';
 export * from './createTicketListEntry';
 export * from './createTicketListStateCounts';
 export * from './createUser';

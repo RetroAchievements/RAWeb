@@ -256,6 +256,10 @@ class TicketListService
                 $tickets->open();
                 break;
 
+            case TicketListStatusFilter::Open:
+                $tickets->where('state', TicketState::Open);
+                break;
+
             case TicketListStatusFilter::Request:
                 $tickets->where('state', TicketState::Request);
                 break;
@@ -573,7 +577,7 @@ class TicketListService
      *
      * @param Builder<Ticket> $tickets
      * @param User|null $comparisonUser the user the developer and reporter filters compare against
-     * @return array{unresolved: int, request: int, resolved: int, closed: int, quarantined: int, all: int}
+     * @return array{unresolved: int, open: int, request: int, resolved: int, closed: int, quarantined: int, all: int}
      */
     public function getStateCounts(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): array
     {
@@ -590,14 +594,16 @@ class TicketListService
 
         $countFor = fn (TicketState $state): int => $countsByState->get($state->value, 0);
 
+        $open = $countFor(TicketState::Open);
         $request = $countFor(TicketState::Request);
-        $unresolved = $countFor(TicketState::Open) + $request;
+        $unresolved = $open + $request;
         $resolved = $countFor(TicketState::Resolved);
         $closed = $countFor(TicketState::Closed);
         $quarantined = $countFor(TicketState::Quarantined);
 
         return [
             'unresolved' => $unresolved,
+            'open' => $open,
             'request' => $request,
             'resolved' => $resolved,
             'closed' => $closed,

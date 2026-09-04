@@ -24,7 +24,6 @@ class TicketListPagePropsData extends Data
         #[LiteralTypeScriptType('App.Data.PaginatedData<App.Platform.Data.TicketListEntry>')]
         public PaginatedData $paginatedTickets,
         public TicketListStateCountsData $stateCounts,
-        #[LiteralTypeScriptType('App.Platform.Data.TicketListFilter[]')]
         public array $availableFilters,
         #[LiteralTypeScriptType('Record<string, Record<string, number>>')]
         public array $facetCounts,

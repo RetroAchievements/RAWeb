@@ -58,7 +58,8 @@ export function useTicketListFilterLabels() {
   };
 
   const statusLabels: Record<App.Platform.Enums.TicketListStatusFilter, TranslatedString> = {
-    unresolved: t('Open'),
+    unresolved: t('Unresolved'),
+    open: t('Open'),
     request: t('Request'),
     resolved: t('Resolved'),
     closed: t('Closed'),

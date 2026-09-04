@@ -82,6 +82,7 @@ it('given an authenticated user, the list renders with scope all, at most fifty 
         ->where('paginatedTickets.total', 52)
         ->has('stateCounts', fn (Assert $counts) => $counts
             ->has('unresolved')
+            ->has('open')
             ->has('request')
             ->has('resolved')
             ->has('closed')
@@ -154,4 +155,64 @@ it("given a scoped list, reads that scope's preference cookie", function () {
         ->where('persistenceCookieName', 'datatable_view_preference_tickets_game')
         ->where('persistedViewPreferences', $scopedPreferences)
     );
+});
+
+it('given a guest, inbox redirects to login', function () {
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertRedirect(route('login'));
+});
+
+it('given an authenticated user, inbox renders every section for that user', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    actingAs($viewer);
+
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('tickets/mine')
+        ->has('sections', 5)
+        ->where('sectionLimit', 8)
+        ->where('attentionCount', 0)
+        ->where('user.displayName', $viewer->display_name)
+    );
+});
+
+it('given a user param, the inbox reports on that user rather than the currently authenticated user', function () {
+    // ARRANGE
+    $target = User::factory()->create();
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('user.displayName', $target->display_name)
+    );
+});
+
+it('given the open status filter, returns only open tickets while unresolved also returns requests', function () {
+    // ARRANGE
+    createTicketListPageTickets(10);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $openResponse = get(route('tickets2.index', ['filter' => ['status' => 'open']]));
+    $unresolvedResponse = get(route('tickets2.index', ['filter' => ['status' => 'unresolved']]));
+
+    // ASSERT
+    $openTotal = $openResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $unresolvedTotal = $unresolvedResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $requestCount = $openResponse->viewData('page')['props']['stateCounts']['request'];
+
+    expect($requestCount)->toBeGreaterThan(0);
+    expect($unresolvedTotal)->toEqual($openTotal + $requestCount);
 });
