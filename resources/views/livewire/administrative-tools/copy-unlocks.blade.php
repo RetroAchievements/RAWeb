@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
@@ -29,8 +30,10 @@ new class extends Component implements HasForms {
         // Validate.
         $this->form->getState();
 
-        $this->fromAchievementIds = $this->processCsv($this->fromAchievementIdsCsv);
-        $this->toAchievementIds = $this->processCsv($this->toAchievementIdsCsv);
+        $parseCsv = new ParseIdsFromCsvAction();
+
+        $this->fromAchievementIds = $parseCsv->execute($this->fromAchievementIdsCsv);
+        $this->toAchievementIds = $parseCsv->execute($this->toAchievementIdsCsv);
 
         if (empty($this->fromAchievementIds) || empty($this->toAchievementIds)) {
             Notification::make()
@@ -55,20 +58,6 @@ new class extends Component implements HasForms {
         }
 
         $this->dispatch('open-modal', id: 'confirm-copy-unlocks-modal');
-    }
-
-    private function processCsv(string $csv): array
-    {
-        // Split the CSV string by commas, trim excess whitespace, and filter out any empty values.
-        $csvIds = array_filter(array_map('trim', explode(',', $csv)));
-
-        // Convert string IDs to integers.
-        $csvIds = array_filter($csvIds, function ($id) {
-            return is_numeric($id) && (int) $id > 0;
-        });
-
-        // Eliminate duplicates.
-        return array_unique(array_map('intval', $csvIds));
     }
 
     private function affectedPlayersQuery(): Builder

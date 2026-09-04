@@ -109,7 +109,7 @@ new class extends Component implements HasForms {
                             <tr class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition" onclick="window.open('{{ route('user.show', $user->display_name) }}', '_blank')">
                                 <td class="fi-ta-cell px-4 py-3 align-top w-full min-w-128">
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ $user->avatar_url }}" alt="{$user->display_name}" class="w-10 h-10 rounded-xs object-contain bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
+                                        <img src="{{ $user->avatar_url }}" alt="{{ $user->display_name }}" class="w-10 h-10 rounded-xs object-contain bg-white dark:bg-gray-900 ring-1 ring-gray-950/10 dark:ring-white/20" onerror="this.style.display='none'">
                                         <div class="flex flex-col">
                                             @if ($user->deleted_at)
                                                 <span class="line-through">{{ $user->display_name }}</span>
