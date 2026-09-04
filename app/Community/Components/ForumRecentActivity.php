@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\User;
@@ -41,7 +42,8 @@ class ForumRecentActivity extends Component
     private function prepareRecentForumPosts(int $numToFetch = 4, int $userPermissions = Permissions::Unregistered, int $userPreferences = 0): array
     {
         $recentForumPosts = [];
-        $rawRecentPosts = getRecentForumPosts(0, $numToFetch, 100, $userPermissions);
+        $maskedAuthorIds = (new GetMaskedForumAuthorIdsAction())->execute($this->user);
+        $rawRecentPosts = getRecentForumPosts(0, $numToFetch, 100, $userPermissions, maskedAuthorIds: $maskedAuthorIds);
 
         if ($rawRecentPosts->isEmpty()) {
             return $recentForumPosts;

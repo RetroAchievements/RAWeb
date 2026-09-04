@@ -9,6 +9,7 @@ export const createForumTopicComment = createFactory<App.Data.ForumTopicComment>
     forumTopicId: faker.number.int({ min: 1, max: 999999 }),
     id: faker.number.int({ min: 1, max: 999999 }),
     isAuthorized: faker.datatype.boolean(),
+    isFromBlockedUser: false,
     updatedAt: faker.date.recent().toISOString(),
     user: createUser(),
   };
