@@ -16,6 +16,7 @@ class TicketListPagePropsData extends Data
 {
     /**
      * @param TicketListFilterData[] $availableFilters
+     * @param array<string, array<string, int>> $facetCounts
      */
     public function __construct(
         public TicketListScope $scope,
@@ -24,6 +25,8 @@ class TicketListPagePropsData extends Data
         public TicketListStateCountsData $stateCounts,
         #[LiteralTypeScriptType('App.Platform.Data.TicketListFilter[]')]
         public array $availableFilters,
+        #[LiteralTypeScriptType('Record<string, Record<string, number>>')]
+        public array $facetCounts,
         public ?GameData $game = null,
         public ?AchievementData $achievement = null,
         public ?UserData $user = null,

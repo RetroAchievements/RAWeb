@@ -77,6 +77,30 @@ function entryIds(array $result): array
 }
 
 describe('scope default values', function () {
+    it('excludes tickets for deleted ticketables from rows and counts', function () {
+        // ARRANGE
+        $fixture = createTicketListFixture(2);
+        $fixture['otherAchievement']->delete();
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/internal-api/tickets', 'GET', [
+                'filter' => ['emulator' => 'unknown'],
+            ]),
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([$fixture['tickets'][0]->id]);
+        expect($result['paginatedTickets']->total)->toEqual(1);
+        expect($result['paginatedTickets']->unfilteredTotal)->toEqual(1);
+        expect($result['stateCounts']->unresolved)->toEqual(1);
+        expect($result['stateCounts']->request)->toEqual(0);
+        expect($result['stateCounts']->all)->toEqual(1);
+        expect($result['facetCounts']['type']['0'])->toEqual(1);
+    });
+
     it('given scope is set to game and there is no query string, only the open and request tickets are returned for the game, sorted by newest tickets first', function () {
         // ARRANGE
         $developer = User::factory()->create();
@@ -176,6 +200,11 @@ describe('scope default values', function () {
             'resolver_id' => $otherUser->id,
         ]);
         Ticket::factory()->forAchievement($achievement)->open()->create($attributes);
+
+        Ticket::factory()->forAchievement($achievement)->open()->create([
+            ...$attributes,
+            'resolver_id' => $user->id,
+        ]);
 
         // ACT
         $result = (new BuildTicketListAction())->execute(

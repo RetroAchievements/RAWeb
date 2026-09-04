@@ -29,7 +29,7 @@ class BuildTicketListAction
     private const PER_PAGE = 50;
 
     /**
-     * @return array{paginatedTickets: PaginatedData, stateCounts: TicketListStateCountsData}
+     * @return array{paginatedTickets: PaginatedData, stateCounts: TicketListStateCountsData, facetCounts: array<string, array<string, int>>}
      */
     public function execute(
         TicketListScope $scope,
@@ -41,10 +41,20 @@ class BuildTicketListAction
         $filterOptions = $service->getFilterOptions($request, $scope->defaultStatusFilter());
         $comparisonUser = $scope->comparisonUser($target);
 
-        $base = $scope->baseQuery($target)->withLiveTicketable();
-        $stateCounts = $service->getStateCounts($filterOptions, clone $base, $comparisonUser);
+        $scopedTickets = $scope->baseQuery($target);
+        $renderableTickets = (clone $scopedTickets)->withLiveTicketable();
+
+        $stateCounts = $service->getStateCounts($filterOptions, clone $scopedTickets, $comparisonUser);
 
         $total = TicketListStatusFilter::from($filterOptions['status'])->filteredTotal($stateCounts);
+
+        $facetCounts = $service->getFacetCounts(
+            $filterOptions,
+            clone $scopedTickets,
+            $scope->filterKinds(),
+            $comparisonUser,
+            $total,
+        );
         $lastPage = max(1, (int) ceil($total / self::PER_PAGE));
         $page = $request->getPage();
 
@@ -52,7 +62,7 @@ class BuildTicketListAction
             $page = 1;
         }
 
-        $query = $service->applyFilters(clone $base, $filterOptions, $comparisonUser);
+        $query = $service->applyFilters(clone $renderableTickets, $filterOptions, $comparisonUser);
         $this->applySort($query, $request->getSort());
         $this->applyTicketListEntryEagerLoads($query);
 
@@ -64,14 +74,19 @@ class BuildTicketListAction
             options: ['path' => $request->url(), 'query' => $request->query()],
         );
 
+        $unfilteredTotal = $service->hasNonStatusFilters($filterOptions)
+            ? (clone $scopedTickets)->count()
+            : $stateCounts['all'];
+
         $paginatedTickets = PaginatedData::fromLengthAwarePaginator(
             $paginator,
-            unfilteredTotal: (clone $base)->count(),
+            unfilteredTotal: $unfilteredTotal,
         );
 
         return [
             'paginatedTickets' => $paginatedTickets,
             'stateCounts' => TicketListStateCountsData::fromCounts($stateCounts),
+            'facetCounts' => $facetCounts,
         ];
     }
 

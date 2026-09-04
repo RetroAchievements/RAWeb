@@ -1,6 +1,25 @@
+import type { ColumnFiltersState } from '@tanstack/react-table';
+
 import { renderHook } from '@/test';
 
 import { useTicketListTableSync } from './useTicketListTableSync';
+
+const serverDefaultColumnFilters: ColumnFiltersState = [{ id: 'status', value: ['unresolved'] }];
+
+type TicketListTableSyncProps = Parameters<typeof useTicketListTableSync>[0];
+
+const defaultProps: TicketListTableSyncProps = {
+  columnFilters: serverDefaultColumnFilters,
+  serverDefaultColumnFilters,
+  pageNumber: 1,
+  restoreState: vi.fn(),
+};
+
+function renderTicketListTableSync() {
+  return renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
+    initialProps: defaultProps,
+  });
+}
 
 function setWindowLocation(search: string) {
   Object.defineProperty(window, 'location', {
@@ -28,30 +47,23 @@ describe('Hook: useTicketListTableSync', () => {
     pushStateSpy.mockRestore();
   });
 
-  it('renders without crashing', () => {
-    // ARRANGE
-    const { result } = renderHook(() => useTicketListTableSync(1));
-
-    // ASSERT
-    expect(result).toBeDefined();
-  });
-
   it('given it is the first render cycle, does not update URL params', () => {
     // ARRANGE
-    renderHook(() => useTicketListTableSync(1));
+    renderTicketListTableSync();
 
     // ASSERT
     expect(pushStateSpy).not.toHaveBeenCalled();
   });
 
-  it('given the user advances from page 1 to page 2, updates URL params accordingly', () => {
+  it('updates URL params when the page changes', () => {
     // ARRANGE
-    const { rerender } = renderHook((pageNumber: number) => useTicketListTableSync(pageNumber), {
-      initialProps: 1,
-    });
+    const { rerender } = renderTicketListTableSync();
 
     // ACT
-    rerender(3);
+    rerender({
+      ...defaultProps,
+      pageNumber: 3,
+    });
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
@@ -59,18 +71,37 @@ describe('Hook: useTicketListTableSync', () => {
       '',
       `/tickets2?${encodeURIComponent('page[number]')}=3`,
     );
-  });
-
-  it('given the user goes from page 2 to page 1, updates URL params accordingly', () => {
-    // ARRANGE
-    setWindowLocation('?page[number]=3');
-
-    const { rerender } = renderHook((pageNumber: number) => useTicketListTableSync(pageNumber), {
-      initialProps: 3,
-    });
 
     // ACT
-    rerender(1);
+    setWindowLocation('?page[number]=3');
+    rerender({
+      ...defaultProps,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', '/tickets2');
+  });
+
+  it('given a filter value changes from the default, the URL updates accordingly', () => {
+    // ARRANGE
+    const { rerender } = renderTicketListTableSync();
+
+    // ACT
+    rerender({
+      ...defaultProps,
+      columnFilters: [{ id: 'status', value: ['resolved'] }] as ColumnFiltersState,
+    });
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      '/tickets2?filter%5Bstatus%5D=resolved',
+    );
+
+    setWindowLocation('?filter[status]=resolved');
+    rerender({
+      ...defaultProps,
+    });
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith({ inertia: true }, '', '/tickets2');
@@ -78,20 +109,21 @@ describe('Hook: useTicketListTableSync', () => {
 
   it('given the URL contains unrelated params, leaves them untouched', () => {
     // ARRANGE
-    setWindowLocation('?filter[status]=resolved&sort=state');
+    setWindowLocation('?sort=state');
 
-    const { rerender } = renderHook((pageNumber: number) => useTicketListTableSync(pageNumber), {
-      initialProps: 1,
-    });
+    const { rerender } = renderTicketListTableSync();
 
     // ACT
-    rerender(2);
+    rerender({
+      ...defaultProps,
+      pageNumber: 2,
+    });
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true },
       '',
-      '/tickets2?filter%5Bstatus%5D=resolved&sort=state&page%5Bnumber%5D=2',
+      `/tickets2?sort=state&${encodeURIComponent('page[number]')}=2`,
     );
   });
 
@@ -99,14 +131,71 @@ describe('Hook: useTicketListTableSync', () => {
     // ARRANGE
     setWindowLocation('?page%5Bnumber%5D=3');
 
-    const { rerender } = renderHook((pageNumber: number) => useTicketListTableSync(pageNumber), {
-      initialProps: 1,
-    });
+    const { rerender } = renderTicketListTableSync();
 
     // ACT
-    rerender(3);
+    rerender({
+      ...defaultProps,
+      pageNumber: 3,
+    });
 
     // ASSERT
     expect(pushStateSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user navigates history, syncs state correctly', () => {
+    // ARRANGE
+    const restoreState = vi.fn();
+
+    renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
+      initialProps: { ...defaultProps, restoreState },
+    });
+
+    // ACT
+    setWindowLocation('?filter[status]=resolved&page[number]=3');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    // ASSERT
+    expect(restoreState).toHaveBeenCalledWith([{ id: 'status', value: ['resolved'] }], 3);
+  });
+
+  it('given history restores a URL with different state, does not push a new history entry', () => {
+    // ARRANGE
+    const restoreState = vi.fn();
+
+    const { rerender } = renderHook(
+      (props: TicketListTableSyncProps) => useTicketListTableSync(props),
+      {
+        initialProps: { ...defaultProps, restoreState },
+      },
+    );
+
+    // ACT
+    setWindowLocation('?filter[status]=unresolved');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    const [restoredColumnFilters, restoredPageNumber] = restoreState.mock.calls[0];
+    rerender({
+      ...defaultProps,
+      restoreState,
+      columnFilters: restoredColumnFilters,
+      pageNumber: restoredPageNumber,
+    });
+
+    // ASSERT
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    rerender({
+      ...defaultProps,
+      restoreState,
+      columnFilters: restoredColumnFilters,
+      pageNumber: 2,
+    });
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true },
+      '',
+      `/tickets2?${encodeURIComponent('page[number]')}=2`,
+    );
   });
 });

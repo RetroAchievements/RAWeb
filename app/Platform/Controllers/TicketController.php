@@ -40,6 +40,7 @@ class TicketController extends Controller
             paginatedTickets: $result['paginatedTickets'],
             stateCounts: $result['stateCounts'],
             availableFilters: $action->getAvailableFilters(TicketListScope::All),
+            facetCounts: $result['facetCounts'],
         );
 
         return Inertia::render('tickets', $props);

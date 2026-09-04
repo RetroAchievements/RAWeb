@@ -500,7 +500,7 @@ describe('index', function () {
         $response->assertUnauthorized();
     });
 
-    it('given scope game and a game id, the JSON has paginated tickets and four state counts', function () {
+    it('given scope game and a game id, the JSON has paginated tickets, every state count, and the facet counts', function () {
         // ARRANGE
         $fixture = createTicketIndexFixture(3);
         $this->actingAs(User::factory()->create());
@@ -515,10 +515,15 @@ describe('index', function () {
         $response->assertJsonCount(3, 'paginatedTickets.items');
         $response->assertJsonStructure([
             'paginatedTickets' => ['currentPage', 'lastPage', 'perPage', 'total', 'unfilteredTotal', 'items', 'links'],
-            'stateCounts' => ['unresolved', 'request', 'resolved', 'quarantined', 'all'],
+            'stateCounts' => ['unresolved', 'request', 'resolved', 'closed', 'quarantined', 'all'],
         ]);
         $response->assertJsonPath('stateCounts.unresolved', 3);
+        $response->assertJsonPath('stateCounts.closed', 0);
         $response->assertJsonPath('stateCounts.all', 3);
+
+        $response->assertJsonStructure(['facetCounts' => ['type', 'mode', 'emulator']]);
+        $response->assertJsonPath('facetCounts.mode.all', 3);
+        $response->assertJsonMissingPath('facetCounts.developer');
 
         $ids = collect($response->json('paginatedTickets.items'))->pluck('id')->all();
         $expectedIds = collect($fixture['tickets'])->sortByDesc('created_at')->pluck('id')->values()->all();

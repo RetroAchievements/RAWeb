@@ -27,6 +27,7 @@ class TicketApiController extends Controller
         return response()->json([
             'paginatedTickets' => $result['paginatedTickets'],
             'stateCounts' => $result['stateCounts'],
+            'facetCounts' => $result['facetCounts'],
         ]);
     }
 

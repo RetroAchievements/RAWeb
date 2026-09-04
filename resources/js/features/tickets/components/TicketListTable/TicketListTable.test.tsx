@@ -177,6 +177,7 @@ describe('Component: TicketListTable', () => {
   it('given a reporter and a developer, both user cells link to the user page', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
+      ticketableTitle: 'Ring Collector',
       author: createUser({ displayName: 'Dev' }),
       reporter: createUser({ displayName: 'Scott' }),
     });
