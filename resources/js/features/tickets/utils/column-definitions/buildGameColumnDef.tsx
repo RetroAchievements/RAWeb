@@ -30,7 +30,6 @@ export function buildGameColumnDef({
           <GameAvatar
             {...game}
             size={24}
-            hasTooltip={false}
             wrapperClassName={cn(
               'min-w-0 flex-1 overflow-hidden',
               ticketListCellClassNames.entityLinkWrapper,

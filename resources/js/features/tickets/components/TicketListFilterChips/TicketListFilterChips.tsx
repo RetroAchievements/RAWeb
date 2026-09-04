@@ -57,7 +57,7 @@ export const TicketListFilterChips: FC<TicketListFilterChipsProps> = ({
             key={property.id}
             data-testid={`chip-${property.id}`}
             className={cn(
-              'flex h-7.5 items-center divide-x divide-neutral-700 rounded-md border border-neutral-700 text-[13px]',
+              'flex h-7.5 items-center divide-x divide-neutral-700 rounded-md border border-neutral-700 text-[13px] max-sm:h-9',
               'bg-neutral-950 light:divide-neutral-200 light:border-neutral-200 light:bg-white',
             )}
           >

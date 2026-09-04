@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -33,6 +34,11 @@ interface TicketableCellProps {
 const TicketableCell: FC<TicketableCellProps> = ({ entry }) => {
   const { t } = useTranslation();
 
+  const { cardTooltipProps } = useCardTooltip({
+    dynamicType: 'achievement', // TODO leaderboards
+    dynamicId: entry.ticketableId,
+  });
+
   if (entry.ticketableType === 'leaderboard') {
     return (
       <span className={cn(ticketListCellClassNames.dimText, ticketListCellClassNames.truncate)}>
@@ -50,6 +56,7 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry }) => {
         'flex max-w-full min-w-0 items-center gap-2',
         ticketListCellClassNames.entityLinkWrapper,
       )}
+      {...cardTooltipProps}
     >
       {badgeUrl ? (
         <img

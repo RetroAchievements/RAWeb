@@ -74,7 +74,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
           role="table"
           aria-busy={isFetching ? true : undefined}
           className={cn(
-            'flex min-w-full flex-col overflow-hidden rounded-[0.3em] bg-embed',
+            'flex min-w-full flex-col overflow-hidden rounded-[0.3em] bg-embed sm:w-fit',
             isFetching ? 'opacity-50' : null,
           )}
         >
