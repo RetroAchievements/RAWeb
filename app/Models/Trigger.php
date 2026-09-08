@@ -21,6 +21,13 @@ class Trigger extends BaseModel
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * The triggers table became the source of truth for logic
+     * changes starting Jan 2025. Before this, logic changes were
+     * only recorded in legacy comments.
+     */
+    public const VERSIONING_CUTOFF = '2025-01-01';
+
     protected $fillable = [
         'triggerable_type',
         'triggerable_id',

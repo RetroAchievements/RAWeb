@@ -28,13 +28,6 @@ class BuildAchievementChangelogAction
      */
     private const ACTIVITYLOG_CUTOFF = '2024-02-01';
 
-    /**
-     * The triggers table became the source of truth for logic
-     * changes starting Jan 2025. Before this, logic changes are
-     * only recorded in legacy comments.
-     */
-    private const TRIGGERS_CUTOFF = '2025-01-01';
-
     private const MAX_ENTRIES = 100;
 
     /** @var array<string, User|null> Pre-resolved user lookup to avoid N+1 queries on legacy comments. */
@@ -332,7 +325,7 @@ class BuildAchievementChangelogAction
         $triggers = Trigger::query()
             ->where('triggerable_type', 'achievement')
             ->where('triggerable_id', $achievement->id)
-            ->where('created_at', '>=', self::TRIGGERS_CUTOFF)
+            ->where('created_at', '>=', Trigger::VERSIONING_CUTOFF)
             ->whereNotNull('parent_id')
             ->with('user')
             ->orderByDesc('created_at')

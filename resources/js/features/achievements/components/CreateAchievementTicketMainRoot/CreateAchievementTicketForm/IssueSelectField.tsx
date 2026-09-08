@@ -17,6 +17,7 @@ import {
   BaseSelectValue,
 } from '@/common/components/+vendor/BaseSelect';
 
+import { LogicChangedNotice } from './LogicChangedNotice';
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const IssueSelectField: FC = () => {
@@ -107,6 +108,8 @@ export const IssueSelectField: FC = () => {
                 )}
               </BaseFormDescription>
             ) : null}
+
+            <LogicChangedNotice />
           </div>
         </BaseFormItem>
       )}

@@ -28,6 +28,7 @@ use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
 use App\Platform\Controllers\TicketController;
 use App\Platform\Controllers\UserGameAchievementSetPreferenceController;
+use App\Platform\Enums\TicketListScope;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -168,6 +169,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/media-contribution/tier-preference', [UserDisplayedBadgePreferenceApiController::class, 'updateMediaContributionTier'])
                         ->name('api.user.media-contribution-tier-preference.update');
 
+                    Route::get('tickets', [TicketApiController::class, 'index'])->name('api.ticket.index');
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
 
                     Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
@@ -182,6 +184,30 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
+
+                    Route::get('tickets/mine', [TicketController::class, 'mine'])->name('tickets.mine');
+                    Route::get('tickets', [TicketController::class, 'index'])
+                        ->defaults('scope', TicketListScope::All->value)
+                        ->name('tickets.index');
+                    Route::get('game/{game}/tickets', [TicketController::class, 'forGame'])
+                        ->defaults('scope', TicketListScope::Game->value)
+                        ->name('game.tickets');
+                    Route::get('achievement/{achievement}/tickets', [TicketController::class, 'forAchievement'])
+                        ->defaults('scope', TicketListScope::Achievement->value)
+                        ->name('achievement.tickets');
+                    Route::get('user/{user}/tickets', [TicketController::class, 'forAssignee'])
+                        ->withTrashed()
+                        ->defaults('scope', TicketListScope::AssignedTo->value)
+                        ->name('developer.tickets');
+                    Route::get('user/{user}/tickets/created', [TicketController::class, 'forReporter'])
+                        ->defaults('scope', TicketListScope::ReportedBy->value)
+                        ->name('user.tickets.created');
+                    Route::get('user/{user}/tickets/feedback', [TicketController::class, 'forAwaitingReporter'])
+                        ->defaults('scope', TicketListScope::AwaitingReporter->value)
+                        ->name('reporter.tickets');
+                    Route::get('user/{user}/tickets/resolved', [TicketController::class, 'forResolver'])
+                        ->defaults('scope', TicketListScope::ResolvedBy->value)
+                        ->name('developer.tickets.resolved');
                 });
             });
         });

@@ -17,6 +17,8 @@ use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
+use App\Platform\Events\LeaderboardPromoted;
+use App\Platform\Events\LeaderboardUnpromoted;
 use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -106,6 +108,11 @@ class EventServiceProvider extends ServiceProvider
         GamePlayerGameMetricsUpdated::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameBeatenMetricsJob::class,
+        ],
+        LeaderboardPromoted::class => [
+            EnsureTriggerVersionedOnPromotion::class,
+        ],
+        LeaderboardUnpromoted::class => [
         ],
         PlayerAchievementLocked::class => [
             DispatchUpdateAchievementMetricsJob::class,

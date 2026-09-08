@@ -51,15 +51,12 @@ class GameScreenshotPolicy
             return false;
         }
 
-        if (!$user->hasRole(Role::ROOT) && !config('feature.game_screenshot_uploads')) {
-            return false;
-        }
-
-        if (!$user->hasRole(Role::ROOT) && !$user->enable_beta_features) {
-            return false;
-        }
-
         if ($game->is_media_restricted) {
+            return false;
+        }
+
+        $maxPendingSubmissions = (int) config('screenshots.max_pending_submissions_per_user');
+        if ($maxPendingSubmissions <= 0) {
             return false;
         }
 

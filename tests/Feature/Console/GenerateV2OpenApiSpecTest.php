@@ -122,10 +122,10 @@ it('given every documented operation, each one names the OAuth scope it needs', 
     expect($scopeless)->toEqual([]);
 });
 
-it('given an endpoint that declares its own scope, it documents that scope', function () {
+it('given an endpoint that refuses API keys, it offers only an OAuth token with the required scope', function () {
     // Assert
     expect(sharedSpec()['paths']['/users/{user}/followers']['get']['security'])
-        ->toEqual([['ApiKey' => []], ['OAuth2' => ['follows:read']]]);
+        ->toEqual([['OAuth2' => ['follows:read']]]);
 });
 
 it('given an endpoint behind the baseline read gate, it documents the baseline read scope', function () {

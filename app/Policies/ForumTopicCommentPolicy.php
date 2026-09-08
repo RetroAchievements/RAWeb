@@ -49,11 +49,6 @@ class ForumTopicCommentPolicy
         return false;
     }
 
-    public function viewUserPosts(User $currentUser, User $targetUser): bool
-    {
-        return !$targetUser->isBlocking($currentUser);
-    }
-
     public function create(User $user, ForumTopic $topic, ?User $teamAccount = null): bool
     {
         if ($user->isMuted()) {
