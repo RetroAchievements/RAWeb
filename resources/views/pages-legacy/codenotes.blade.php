@@ -30,7 +30,8 @@ $baseMemoryNoteQuery = function(int $gameId)
         ->whereNot('body', '')
         ->whereNot('body', "''")
         ->select(['address', 'body', 'user_id'])
-        ->orderBy('address');
+        ->orderBy('address')
+        ->toBase();
 };
 
 $codeNoteCount = $baseMemoryNoteQuery($gameID)->count();
@@ -65,21 +66,30 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
     // empty collection for subset selector
     $subsets = new Collection();
 
+    $codeNoteCount = $baseMemoryNoteQuery($baseGameId)->count();
     $codeNotes = $baseMemoryNoteQuery($baseGameId)
-        ->toBase()
         ->limit($perPage)
         ->offset($offset)
         ->get();
 
-    $subsetNotes = $baseMemoryNoteQuery($gameID)
-        ->toBase()
-        ->get();
+    if ($codeNoteCount > $perPage) {
+        $subsetNotes = $baseMemoryNoteQuery($gameID);
+        if ($offset > 0) {
+            $subsetNotes->where('address', '>=', $codeNotes->first()->address);
+        }
+        if ($offset + $perPage < $codeNoteCount) {
+            $subsetNotes->where('address', '<=', $codeNotes->last()->address);
+        }
+        $subsetNotes = $subsetNotes->get();
+    } else {
+        $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
+    }
 
     // make sure dummy notes exist for all addresses defined in the subset
     foreach ($subsetNotes as $note) {
         $baseNote = $codeNotes->where('address', $note->address)->first();
         if (!$baseNote) {
-            $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => $note->user_id]);
+            $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
         }
     }
     $codeNotes = $codeNotes->sortBy('address');
@@ -87,7 +97,6 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
     $hasSubsetNotes = true;
 } else {
     $codeNotes = $baseMemoryNoteQuery($gameID)
-        ->toBase()
         ->limit($perPage)
         ->offset($offset)
         ->get();
@@ -501,10 +510,14 @@ function saveCodeNote(rowIndex, isDeleting = false) {
                 </td>
             HTML;
 
-            $userName = $users[$nextCodeNote->user_id] ?? '[Unknown User]';
-            echo "<td class='note-author-avatar' data-current-author='" . $userName . "'>";
-            echo userAvatar($userName, label: false, iconSize: 24);
-            echo "</td>";
+            if ($nextCodeNote->user_id) {
+                $userName = $users[$nextCodeNote->user_id] ?? '[Unknown User]';
+                echo "<td class='note-author-avatar' data-current-author='" . $userName . "'>";
+                echo userAvatar($userName, label: false, iconSize: 24);
+                echo "</td>";
+            } else {
+                echo "<td class='note-author-avatar' data-current-author='None' />";
+            }
 
             if ($hasSubsetNotes) {
                 if ($subsetNote) {
