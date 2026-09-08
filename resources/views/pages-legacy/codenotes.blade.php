@@ -72,27 +72,31 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
         ->offset($offset)
         ->get();
 
-    if ($codeNoteCount > $perPage) {
-        $subsetNotes = $baseMemoryNoteQuery($gameID);
-        if ($offset > 0) {
-            $subsetNotes->where('address', '>=', $codeNotes->first()->address);
-        }
-        if ($offset + $perPage < $codeNoteCount) {
-            $subsetNotes->where('address', '<=', $codeNotes->last()->address);
-        }
-        $subsetNotes = $subsetNotes->get();
+    if ($codeNotes->empty()) {
+        $subsetNotes = new Collection();
     } else {
-        $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
-    }
-
-    // make sure dummy notes exist for all addresses defined in the subset
-    foreach ($subsetNotes as $note) {
-        $baseNote = $codeNotes->where('address', $note->address)->first();
-        if (!$baseNote) {
-            $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
+        if ($codeNoteCount > $perPage) {
+            $subsetNotes = $baseMemoryNoteQuery($gameID);
+            if ($offset > 0) {
+                $subsetNotes->where('address', '>=', $codeNotes->first()->address);
+            }
+            if ($offset + $perPage < $codeNoteCount) {
+                $subsetNotes->where('address', '<=', $codeNotes->last()->address);
+            }
+            $subsetNotes = $subsetNotes->get();
+        } else {
+            $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
         }
+
+        // make sure dummy notes exist for all addresses defined in the subset
+        foreach ($subsetNotes as $note) {
+            $baseNote = $codeNotes->where('address', $note->address)->first();
+            if (!$baseNote) {
+                $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
+            }
+        }
+        $codeNotes = $codeNotes->sortBy('address');
     }
-    $codeNotes = $codeNotes->sortBy('address');
 
     $hasSubsetNotes = true;
 } else {
