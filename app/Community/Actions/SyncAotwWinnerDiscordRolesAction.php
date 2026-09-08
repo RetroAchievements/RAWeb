@@ -34,7 +34,9 @@ class SyncAotwWinnerDiscordRolesAction
             ->where(fn (Builder $query) => $query->whereNull('muted_until')->orWhere('muted_until', '<=', now()))
             ->whereHas('playerAchievements', fn (Builder $query) => $query
                 ->where('achievement_id', $current?->achievement_id)
-                ->whereNotNull('unlocked_hardcore_at'))
+                ->when($current, fn (Builder $query, EventAchievement $eventAchievement) => $query
+                    ->where('unlocked_hardcore_at', '>=', $eventAchievement->active_from)
+                    ->where('unlocked_hardcore_at', '<', $eventAchievement->active_until)))
             ->get()
             ->keyBy('id');
 
@@ -42,7 +44,9 @@ class SyncAotwWinnerDiscordRolesAction
 
         // Revoke expired grants before assigning roles for the new week.
         foreach ($grants as $key => $grant) {
-            if ($current && $grant->expires_at->equalTo($current->active_until) && $winners->has($grant->user_id)) {
+            if ($current && $grant->expires_at->isFuture() && $winners->has($grant->user_id)) {
+                $grant->update(['expires_at' => $current->active_until]);
+
                 continue;
             }
 
