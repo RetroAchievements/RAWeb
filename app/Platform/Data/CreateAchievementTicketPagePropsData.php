@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\PlayerAchievement;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -24,11 +25,14 @@ class CreateAchievementTicketPagePropsData extends Data
         public ?string $emulatorVersion = null,
         public ?string $emulatorCore = null,
         public ?int $selectedMode = null,
+        public bool $didLogicChangeSinceLastPlayed = false,
     ) {
     }
 
-    public static function fromAchievement(Achievement $achievement): self
-    {
+    public static function fromAchievement(
+        Achievement $achievement,
+        ?PlayerAchievement $playerAchievement = null,
+    ): self {
         $emulators = Emulator::query()
             ->forSystem($achievement->game->system->id)
             ->active()
@@ -38,9 +42,11 @@ class CreateAchievementTicketPagePropsData extends Data
         $gameHashes = GameHashData::fromCollection($achievement->game->hashes);
 
         return new self(
-            achievement: AchievementData::fromAchievement($achievement)->include(
+            achievement: AchievementData::fromAchievement($achievement, $playerAchievement)->include(
                 'game',
-                'game.system'
+                'game.system',
+                'unlockedAt',
+                'unlockedHardcoreAt',
             ),
             emulators: $emulators,
             gameHashes: $gameHashes,

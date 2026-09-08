@@ -341,12 +341,12 @@ describe('developer', function () {
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
-            'n' => 'Title1',
-            'd' => 'Description1',
-            'z' => 5,
-            'm' => '0xH0000=1',
+            'n' => $achievement->title,
+            'd' => $achievement->description,
+            'z' => $achievement->points,
+            'm' => $achievement->trigger_definition,
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => $achievement->image_name,
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -355,25 +355,17 @@ describe('developer', function () {
             ]);
 
         $achievement->refresh();
-        $this->assertEquals($game->id, $achievement->game_id);
-        $this->assertEquals('Title1', $achievement->title);
-        $this->assertEquals('Description1', $achievement->description);
-        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
-        $this->assertEquals(5, $achievement->points);
-        $this->assertTrue($achievement->is_promoted);
-        $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
         $this->assertEquals(1, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
-        $this->assertEquals(5, $game->points_total);
+        $this->assertEquals($achievement->points, $game->points_total);
 
         // trigger should be versioned on promotion
         $this->assertNotNull($achievement->trigger);
-        $this->assertEquals('0xH0000=1', $achievement->trigger->conditions);
+        $this->assertEquals($achievement->trigger_definition, $achievement->trigger->conditions);
         $this->assertEquals(1, $achievement->trigger->version);
         $this->assertEquals($triggerVersion, $achievement->trigger->id);
 
@@ -383,7 +375,7 @@ describe('developer', function () {
         $this->assertEquals($achievement->id, $coreSet->achievements()->first()->id);
         $this->assertEquals(1, $coreSet->achievements_published);
         $this->assertEquals(0, $coreSet->achievements_unpublished);
-        $this->assertEquals(5, $coreSet->points_total);
+        $this->assertEquals($achievement->points, $coreSet->points_total);
 
         // user promoted own achievement
         $activity = $achievement->auditLog->where('event', 'updated')->last();

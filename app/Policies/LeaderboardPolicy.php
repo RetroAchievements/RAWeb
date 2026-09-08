@@ -76,7 +76,7 @@ class LeaderboardPolicy
         // Junior Developers have additional specific criteria that must be satisfied
         // before they are allowed to edit leaderboard fields.
         if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-            return $user->is($leaderboard->developer);
+            return $this->juniorDeveloperCanUpdate($user, $leaderboard);
         }
 
         return false;
@@ -85,7 +85,7 @@ class LeaderboardPolicy
     public function updateField(User $user, ?Leaderboard $leaderboard, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state', 'trigger_definition'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column', 'trigger_definition'],
             Role::DEVELOPER => ['title', 'description', 'format', 'rank_asc', 'order_column', 'state', 'trigger_definition'],
             Role::WRITER => ['title', 'description'],
             Role::EVENT_MANAGER => ['title', 'description', 'order_column', 'state'],
@@ -124,8 +124,14 @@ class LeaderboardPolicy
 
     private function juniorDeveloperCanUpdate(User $user, Leaderboard $leaderboard): bool
     {
-        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim on the game
-        return $user->hasActiveClaimOnGameId($leaderboard->game->id);
+        // If the user has a DEVELOPER_JUNIOR role, they need to be the leaderboard author,
+        // have a claim on the game, and the leaderboard must not be promoted.
+
+        // NOTE: we can't restrict changes to just unpromoted leaderboards until the DLL
+        //       changes to support unpromoted leaderboards are available to users.
+        return // $leaderboard->state === LeaderboardState::Unpromoted &&
+            $leaderboard->author_id === $user->id
+            && $user->hasActiveClaimOnGameId($leaderboard->game_id);
     }
 
     public function delete(User $user, Leaderboard $leaderboard): bool

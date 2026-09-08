@@ -1,5 +1,7 @@
+import userEvent from '@testing-library/user-event';
+
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createForumTopic, createForumTopicComment, createUser } from '@/test/factories';
 
 import { ForumPostCard } from './ForumPostCard';
@@ -167,5 +169,104 @@ describe('Component: ForumPostCard', () => {
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the post is from a blocked user and the viewer cannot manage posts, shows an inert nameless marker', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      isFromBlockedUser: true,
+      user: createUser({ displayName: 'BlockedUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="a masked body" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: {
+          authorizeForumTopicComments: false,
+          createModerationReports: false,
+          manageForumTopicComments: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('Hidden post')).toBeVisible();
+    expect(screen.queryByText(/a masked body/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Show post' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/blockeduser/i)).not.toBeInTheDocument();
+  });
+
+  it('given the post is from a blocked user and the viewer can manage posts, hides the body behind a reveal control', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      isFromBlockedUser: true,
+      user: createUser({ displayName: 'BlockedUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="a masked body" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: {
+          authorizeForumTopicComments: false,
+          createModerationReports: false,
+          manageForumTopicComments: true, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Show post' })).toBeVisible();
+    expect(screen.getByText(/hidden post from blockeduser/i)).toBeVisible();
+  });
+
+  it('given the post is not from a blocked user, shows the body and no reveal control', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      isFromBlockedUser: false,
+      user: createUser({ displayName: 'OtherUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="a visible body" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: { authorizeForumTopicComments: false, createModerationReports: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/a visible body/i)).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Show post' })).not.toBeInTheDocument();
+  });
+
+  it('given a moderator user reveals a blocked post, shows the body and removes the reveal control', async () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      isFromBlockedUser: true,
+      user: createUser({ displayName: 'BlockedUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="a masked body" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: {
+          authorizeForumTopicComments: false,
+          createModerationReports: false,
+          manageForumTopicComments: true,
+        },
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Show post' }));
+
+    // ASSERT
+    expect(screen.getByText(/a masked body/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Show post' })).not.toBeInTheDocument();
+    });
   });
 });

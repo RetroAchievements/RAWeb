@@ -465,3 +465,105 @@ it('given a subset achievement, a session only on the parent game, and an emulat
         'state' => TicketState::Quarantined,
     ]);
 });
+
+/**
+ * @return array{developer: User, game: Game, tickets: Ticket[]}
+ */
+function createTicketIndexFixture(int $ticketCount = 3): array
+{
+    $developer = User::factory()->create();
+    $reporter = User::factory()->create();
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+
+    $tickets = [];
+    for ($i = 0; $i < $ticketCount; $i++) {
+        $tickets[] = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => $developer->id,
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2024-01-01')->addHours($i),
+        ]);
+    }
+
+    return ['developer' => $developer, 'game' => $game, 'tickets' => $tickets];
+}
+
+describe('index', function () {
+    it('given a guest, they are unauthorized', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture();
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertUnauthorized();
+    });
+
+    it('given the scope is game, tickets associated with other games are excluded', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+
+        $otherDeveloper = User::factory()->create();
+        $otherGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $otherGame->id,
+            'user_id' => $otherDeveloper->id,
+        ]);
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create([
+            'ticketable_author_id' => $otherDeveloper->id,
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertJsonPath('paginatedTickets.total', 3);
+    });
+
+    it('given scope game and a game id, the JSON has paginated tickets, every state count, and the facet counts', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.total', 3);
+        $response->assertJsonPath('paginatedTickets.perPage', 50);
+        $response->assertJsonCount(3, 'paginatedTickets.items');
+        $response->assertJsonStructure([
+            'paginatedTickets' => ['currentPage', 'lastPage', 'perPage', 'total', 'unfilteredTotal', 'items', 'links'],
+            'stateCounts' => ['unresolved', 'request', 'resolved', 'closed', 'quarantined', 'all'],
+        ]);
+        $response->assertJsonPath('stateCounts.unresolved', 3);
+        $response->assertJsonPath('stateCounts.closed', 0);
+        $response->assertJsonPath('stateCounts.all', 3);
+
+        $response->assertJsonStructure(['facetCounts' => ['type', 'mode', 'emulator']]);
+        $response->assertJsonPath('facetCounts.mode.all', 3);
+        $response->assertJsonMissingPath('facetCounts.developer');
+
+        $ids = collect($response->json('paginatedTickets.items'))->pluck('id')->all();
+        $expectedIds = collect($fixture['tickets'])->sortByDesc('created_at')->pluck('id')->values()->all();
+        expect($ids)->toEqual($expectedIds);
+    });
+
+    it('given the scope is unset, the global list is returned', function () {
+        // ARRANGE
+        createTicketIndexFixture(2);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.total', 2);
+    });
+});

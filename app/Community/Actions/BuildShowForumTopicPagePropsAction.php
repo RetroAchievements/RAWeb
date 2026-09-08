@@ -45,8 +45,20 @@ class BuildShowForumTopicPagePropsAction
             return ['props' => null, 'redirectToPage' => $lastPage];
         }
 
+        $maskedAuthorIds = (new GetMaskedForumAuthorIdsAction())->execute($user);
+        $canRevealMaskedPosts = $user && (new ForumTopicCommentPolicy())->manage($user);
+        $comments = $paginatedForumTopicComments->getCollection()->values();
+
         // Extract the post bodies for processing before they're sent to the UI.
-        $postBodies = $paginatedForumTopicComments->getCollection()->pluck('body')->all();
+        $postBodies = $comments->pluck('body')->all();
+
+        if (!$canRevealMaskedPosts) {
+            foreach ($comments as $index => $comment) {
+                if (in_array($comment->author_id, $maskedAuthorIds, true)) {
+                    $postBodies[$index] = '';
+                }
+            }
+        }
 
         // Convert user ID shortcodes to use display names.
         $updatedBodies = (new ConvertUserShortcodesFromIdsToDisplayNamesAction())->execute($postBodies);
@@ -83,8 +95,8 @@ class BuildShowForumTopicPagePropsAction
         }
 
         // Finally, update the message bodies sent to the UI with the converted user shortcodes.
-        $forumTopicComments = $paginatedForumTopicComments->getCollection()->map(
-            function ($comment, $index) use ($updatedBodies, $user, $accessibleTeamIds) {
+        $forumTopicComments = $comments->map(
+            function ($comment, $index) use ($updatedBodies, $user, $accessibleTeamIds, $maskedAuthorIds, $canRevealMaskedPosts) {
                 $comment->body = $updatedBodies[$index];
 
                 $includes = [
@@ -103,7 +115,7 @@ class BuildShowForumTopicPagePropsAction
                  */
                 $shouldIncludeSentByEditedBy = $user && (
                     ($comment->sent_by_id !== null && in_array($comment->author_id, $accessibleTeamIds, true))
-                    || ($comment->edited_by_id !== null && (new ForumTopicCommentPolicy())->manage($user))
+                    || ($comment->edited_by_id !== null && $canRevealMaskedPosts)
                 );
 
                 if ($shouldIncludeSentByEditedBy) {
@@ -111,13 +123,26 @@ class BuildShowForumTopicPagePropsAction
                     $includes[] = 'editedBy';
                 }
 
-                return ForumTopicCommentData::from($comment)->include(...$includes);
+                $data = ForumTopicCommentData::from($comment);
+                $data->isFromBlockedUser = in_array($comment->author_id, $maskedAuthorIds, true);
+
+                return $data->include(...$includes);
             }
         )->all();
 
-        $comments = collect($forumTopicComments);
-        /** @var ForumTopicComment $selectedComment */
-        $selectedComment = $comments->firstWhere('id', $selectedCommentId) ?? $comments->first();
+        $commentData = collect($forumTopicComments);
+        /** @var ForumTopicCommentData|null $selectedComment */
+        $selectedComment = $commentData->firstWhere('id', $selectedCommentId) ?? $commentData->first();
+
+        if ($selectedComment->isFromBlockedUser && !$canRevealMaskedPosts) {
+            $selectedComment = $commentData->last(
+                fn (ForumTopicCommentData $comment): bool => !$comment->isFromBlockedUser,
+            );
+        }
+
+        $metaDescription = $selectedComment
+            ? Shortcode::stripAndClamp($selectedComment->body, 220)
+            : $topic->title;
 
         $props = new ShowForumTopicPagePropsData(
             accessibleTeamAccounts: $accessibleTeamAccounts,
@@ -145,7 +170,7 @@ class BuildShowForumTopicPagePropsAction
                 total: $paginatedForumTopicComments->total(),
                 items: $forumTopicComments
             ),
-            metaDescription: Shortcode::stripAndClamp($selectedComment->body, 220),
+            metaDescription: $metaDescription,
         );
 
         return ['props' => $props, 'redirectToPage' => null];

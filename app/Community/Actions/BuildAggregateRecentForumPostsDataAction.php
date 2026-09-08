@@ -8,6 +8,7 @@ use App\Data\ForumTopicData;
 use App\Data\PaginatedData;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -18,23 +19,37 @@ use Illuminate\Support\Facades\DB;
  */
 class BuildAggregateRecentForumPostsDataAction
 {
+    /** Maximum comments to inspect for the masked recent-topics paginator. */
+    private const int MASKED_SCAN_WINDOW = 20000;
+
+    /**
+     * @param array<int, int> $maskedAuthorIds authors the viewer has blocked
+     */
     public function execute(
         int $permissions = Permissions::Unregistered,
         ?int $page = null,
         int $limit = 25,
         ?string $paginationPath = null,
         array $paginationQuery = [],
+        array $maskedAuthorIds = [],
     ): PaginatedData|array {
-        $topics = $this->getRecentForumTopics($page, $permissions, $limit);
+        $currentPage = $page ?? 1;
 
-        $shortcodeIds = [];
-        foreach ($topics as $topic) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($topic['ShortMsg']);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
+        if (empty($maskedAuthorIds)) {
+            $topics = $this->getRecentForumTopics($currentPage, $permissions, $limit);
+            $total = $this->getTotalRecentForumTopics($permissions);
+        } else {
+            $maskedTopics = $this->getMaskedRecentForumTopics(
+                $currentPage,
+                $permissions,
+                $limit,
+                $maskedAuthorIds,
+            );
+            $topics = $maskedTopics['topics'];
+            $total = $maskedTopics['total'];
         }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+
+        $shortcodeRecords = Shortcode::fetchRecordsFor(array_column($topics, 'ShortMsg'));
 
         $transformedTopics = array_map(
             fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic, $shortcodeRecords)->include(
@@ -49,9 +64,9 @@ class BuildAggregateRecentForumPostsDataAction
         // Create a paginated response.
         $paginator = new LengthAwarePaginator(
             items: $transformedTopics,
-            total: $this->getTotalRecentForumTopics($permissions),
+            total: $total,
             perPage: $limit,
-            currentPage: $page,
+            currentPage: $currentPage,
             options: [
                 'path' => $paginationPath,
                 'query' => $paginationQuery,
@@ -63,20 +78,117 @@ class BuildAggregateRecentForumPostsDataAction
 
     private function getTotalRecentForumTopics(int $permissions = Permissions::Unregistered): int
     {
-        return ForumTopic::where("required_permissions", "<=", $permissions)
-            ->whereNull("deleted_at")
+        return ForumTopic::where('required_permissions', '<=', $permissions)
+            ->whereNull('deleted_at')
             ->where(function ($query) {
                 $query
-                    ->whereNotNull("latest_comment_id")
-                    ->orWhereIn("id", function ($subQuery) {
+                    ->whereNotNull('latest_comment_id')
+                    ->orWhereIn('id', function ($subQuery) {
                         $subQuery
-                            ->select("forum_topic_id")
+                            ->select('forum_topic_id')
                             ->distinct()
-                            ->from("forum_topic_comments")
-                            ->where("is_authorized", 1);
+                            ->from('forum_topic_comments')
+                            ->where('is_authorized', 1);
                     });
             })
             ->count();
+    }
+
+    /**
+     * @param array<int, int> $maskedAuthorIds
+     * @return array{topics: array<int, array<string, mixed>>, total: int}
+     */
+    private function getMaskedRecentForumTopics(
+        int $page,
+        int $permissions,
+        int $count,
+        array $maskedAuthorIds,
+    ): array {
+        $offset = ($page - 1) * $count;
+
+        $recentVisibleComments = ForumTopicComment::query()
+            ->select(['forum_topic_comments.id', 'forum_topic_comments.forum_topic_id'])
+            ->join('forum_topics', 'forum_topics.id', '=', 'forum_topic_comments.forum_topic_id')
+            ->where('forum_topic_comments.is_authorized', 1)
+            ->whereNotIn('forum_topic_comments.author_id', $maskedAuthorIds)
+            ->whereNotIn('forum_topics.author_id', $maskedAuthorIds)
+            ->where('forum_topics.required_permissions', '<=', $permissions)
+            ->whereNull('forum_topics.deleted_at')
+            ->orderByDesc('forum_topic_comments.created_at')
+            ->orderByDesc('forum_topic_comments.id')
+            ->limit(self::MASKED_SCAN_WINDOW)
+            ->toBase()
+            ->get();
+
+        $latestVisibleCommentIdByTopic = [];
+        foreach ($recentVisibleComments as $comment) {
+            $latestVisibleCommentIdByTopic[(int) $comment->forum_topic_id] ??= (int) $comment->id;
+        }
+
+        $pagedCommentIds = array_slice(array_values($latestVisibleCommentIdByTopic), $offset, $count);
+
+        return [
+            'topics' => empty($pagedCommentIds) ? [] : $this->hydrateTopicsFromComments($pagedCommentIds, $maskedAuthorIds),
+            'total' => count($latestVisibleCommentIdByTopic),
+        ];
+    }
+
+    /**
+     * @param array<int, int> $commentIds
+     * @param array<int, int> $maskedAuthorIds
+     */
+    private function hydrateTopicsFromComments(array $commentIds, array $maskedAuthorIds): array
+    {
+        $oneDayAgo = now()->subDay()->toDateTimeString();
+        $sevenDaysAgo = now()->subDays(7)->toDateTimeString();
+
+        $countsOneDay = ForumTopicComment::query()
+            ->selectRaw('forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count')
+            ->where('is_authorized', 1)
+            ->whereNotIn('author_id', $maskedAuthorIds)
+            ->where('created_at', '>=', $oneDayAgo)
+            ->groupBy('forum_topic_id');
+
+        $countsSevenDays = ForumTopicComment::query()
+            ->selectRaw('forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count')
+            ->where('is_authorized', 1)
+            ->whereNotIn('author_id', $maskedAuthorIds)
+            ->where('created_at', '>=', $sevenDaysAgo)
+            ->groupBy('forum_topic_id');
+
+        $results = ForumTopicComment::query()
+            ->select([
+                'forum_topics.id as ForumTopicID',
+                'forum_topics.title as ForumTopicTitle',
+                'f.id as ForumID',
+                'f.title as ForumTitle',
+                'forum_topic_comments.id as CommentID',
+                'forum_topic_comments.created_at as PostedAt',
+                'forum_topic_comments.author_id',
+                'ua.username as Author',
+                'ua.display_name as AuthorDisplayName',
+                'ua.avatar_updated_at',
+                'forum_topic_comments.body as ShortMsg',
+                'd1.CommentID as CommentID_1d',
+                'd1.Count as Count_1d',
+                'd7.CommentID as CommentID_7d',
+                'd7.Count as Count_7d',
+            ])
+            ->selectRaw('0 AS IsTruncated')
+            ->join('forum_topics', 'forum_topics.id', '=', 'forum_topic_comments.forum_topic_id')
+            ->join('forums as f', 'f.id', '=', 'forum_topics.forum_id')
+            ->leftJoin('users as ua', 'ua.id', '=', 'forum_topic_comments.author_id')
+            ->leftJoinSub($countsOneDay, 'd1', 'd1.forum_topic_id', '=', 'forum_topics.id')
+            ->leftJoinSub($countsSevenDays, 'd7', 'd7.forum_topic_id', '=', 'forum_topics.id')
+            ->whereIn('forum_topic_comments.id', $commentIds)
+            ->get()
+            ->map(fn (ForumTopicComment $comment): array => $comment->getAttributes())
+            ->keyBy(fn (array $topic): int => (int) $topic['CommentID']);
+
+        return array_values(array_filter(array_map(
+            fn (int $commentId): ?array => $results->get($commentId),
+            $commentIds,
+        )));
     }
 
     private function getRecentForumTopics(int $page = 1, int $permissions = Permissions::Unregistered, int $count = 25): array

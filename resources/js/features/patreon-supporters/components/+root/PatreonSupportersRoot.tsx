@@ -45,7 +45,7 @@ export const PatreonSupportersRoot: FC = () => {
 
       {tier2Count > 0 ? (
         <SupporterTierSection
-          heading={t('$2 Supporters ({{val, number}})', { val: tier2Count })}
+          heading={t('$2 Supporters')}
           initialSupporters={initialTier2Supporters}
           deferredSupporters={deferredTier2Supporters}
           totalCount={tier2Count}
@@ -53,7 +53,7 @@ export const PatreonSupportersRoot: FC = () => {
       ) : null}
 
       <SupporterTierSection
-        heading={t('$1 Supporters ({{val, number}})', { val: tier1Count })}
+        heading={t('$1 Supporters')}
         initialSupporters={initialTier1Supporters}
         deferredSupporters={deferredTier1Supporters}
         totalCount={tier1Count}

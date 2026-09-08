@@ -344,7 +344,7 @@ class TicketsTest extends TestCase
         $this->assertEquals((string) $leaderboardTicket->id, $response->json('data.0.id'));
     }
 
-    public function testItHidesQuarantinedTicketsFromNonManagersOnIndex(): void
+    public function testItShowsQuarantinedTicketsToNonManagersOnIndex(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -353,7 +353,7 @@ class TicketsTest extends TestCase
         $openTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
             'ticketable_author_id' => $author->id,
         ]);
-        Ticket::factory()->forAchievement($achievement)->quarantined()->create([
+        $quarantinedTicket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
             'ticketable_author_id' => $author->id,
         ]);
 
@@ -365,8 +365,11 @@ class TicketsTest extends TestCase
 
         // Assert
         $response->assertSuccessful();
-        $this->assertCount(1, $response->json('data'));
-        $this->assertEquals((string) $openTicket->id, $response->json('data.0.id'));
+        $this->assertCount(2, $response->json('data'));
+        $this->assertEqualsCanonicalizing(
+            [(string) $openTicket->id, (string) $quarantinedTicket->id],
+            collect($response->json('data'))->pluck('id')->all(),
+        );
     }
 
     public function testItInlinesAchievementContextOnAchievementTickets(): void

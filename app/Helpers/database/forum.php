@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\BuildThinRecentForumPostsDataAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionNotificationService;
@@ -16,14 +17,17 @@ use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-function getForumList(int $categoryID = 0): array
+/**
+ * @param array<int, int> $maskedAuthorIds
+ */
+function getForumList(int $categoryID = 0, array $maskedAuthorIds = []): array
 {
     $query = DB::table('forums as f')
         ->selectRaw('
             f.id AS ID, f.forum_category_id AS CategoryID, f.title AS Title, f.description AS Description, f.order_column AS DisplayOrder,
             fc.title AS CategoryName, fc.Description AS CategoryDescription,
             COUNT(DISTINCT ft.id) AS NumTopics, COUNT( ft.id ) AS NumPosts,
-            ftc2.id AS LastPostID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
+            ftc2.id AS LastPostID, ftc2.author_id AS LastPostAuthorID, ua.username AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
             ft2.title AS LastPostTopicName, ft2.id AS LastPostTopicID
         ')
         ->leftJoin('forum_categories as fc', 'fc.id', '=', 'f.forum_category_id')
@@ -42,24 +46,61 @@ function getForumList(int $categoryID = 0): array
         ->orderBy('f.order_column')
         ->orderBy('f.id');
 
-    return $query->get()
+    $forums = $query->get()
         ->map(fn ($row): array => (array) $row)
         ->toArray();
+
+    // Masked (blocked) most recent users are swapped for the
+    // most recent post the current user can see.
+    foreach ($forums as $index => $forum) {
+        $lastPostAuthorId = $forum['LastPostAuthorID'];
+        if ($lastPostAuthorId === null || !in_array((int) $lastPostAuthorId, $maskedAuthorIds, true)) {
+            continue;
+        }
+
+        $replacement = ForumTopicComment::query()
+            ->with(['user', 'forumTopic'])
+            ->whereNotIn('author_id', $maskedAuthorIds)
+            ->whereHas('forumTopic', function ($query) use ($forum, $maskedAuthorIds) {
+                $query->where('forum_id', $forum['ID'])
+                    ->whereNotIn('author_id', $maskedAuthorIds);
+            })
+            ->orderByDesc('created_at')
+            ->first();
+
+        $forums[$index]['LastPostID'] = $replacement?->id;
+        $forums[$index]['LastPostAuthor'] = $replacement?->user?->username;
+        $forums[$index]['LastPostCreated'] = $replacement?->created_at?->toDateTimeString();
+        $forums[$index]['LastPostTopicName'] = $replacement?->forumTopic?->title;
+        $forums[$index]['LastPostTopicID'] = $replacement?->forumTopic?->id;
+    }
+
+    return $forums;
 }
 
-function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): array
-{
+/**
+ * @param array<int, int> $maskedAuthorIds authors the viewing user has blocked
+ */
+function getForumTopics(
+    int $forumID,
+    int $offset,
+    int $count,
+    int $permissions,
+    ?int &$maxCountOut,
+    array $maskedAuthorIds = [],
+): array {
     $maxCountOut = DB::table('forum_topics')
         ->join('forum_topic_comments as ftc', 'ftc.id', '=', 'forum_topics.latest_comment_id')
         ->where('forum_topics.forum_id', $forumID)
         ->where('ftc.is_authorized', 1)
         ->where('forum_topics.required_permissions', '<=', $permissions)
         ->whereNull('forum_topics.deleted_at')
+        ->whereNotIn('forum_topics.author_id', $maskedAuthorIds)
         ->count();
 
     $dataOut = DB::table('forum_topics as ft')
         ->selectRaw('
-            f.title AS ForumTitle, ft.id AS ForumTopicID, ft.title AS TopicTitle, LEFT( ftc2.body, 54 ) AS TopicPreview,
+            f.title AS ForumTitle, ft.id AS ForumTopicID, ft.title AS TopicTitle, SUBSTR( ftc2.body, 1, 54 ) AS TopicPreview,
             ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID,
             ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
         ')
@@ -72,6 +113,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
         ->where('ft.forum_id', $forumID)
         ->where('ft.required_permissions', '<=', $permissions)
         ->whereNull('ft.deleted_at')
+        ->whereNotIn('ft.author_id', $maskedAuthorIds)
         ->groupBy('ft.id', 'LatestCommentPostedDate')
         ->havingRaw('NumTopicReplies >= 0')
         ->orderByDesc('LatestCommentPostedDate')
@@ -82,7 +124,72 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
         ->values()
         ->toArray();
 
+    if (!empty($maskedAuthorIds)) {
+        $dataOut = replaceMaskedLatestComments($dataOut, $maskedAuthorIds);
+    }
+
     return $dataOut;
+}
+
+/**
+ * @param array<int, array<string, mixed>> $topicRows
+ * @param array<int, int> $maskedAuthorIds
+ * @return array<int, array<string, mixed>>
+ */
+function replaceMaskedLatestComments(array $topicRows, array $maskedAuthorIds): array
+{
+    $affectedTopicIds = [];
+    foreach ($topicRows as $row) {
+        if (in_array((int) $row['LatestCommentAuthorID'], $maskedAuthorIds, true)) {
+            $affectedTopicIds[] = (int) $row['ForumTopicID'];
+        }
+    }
+
+    if (empty($affectedTopicIds)) {
+        return $topicRows;
+    }
+
+    $replacements = DB::table('forum_topic_comments as ftc')
+        ->select(['ftc.forum_topic_id', 'ftc.id', 'ftc.author_id', 'ftc.created_at'])
+        ->whereIn('ftc.forum_topic_id', $affectedTopicIds)
+        ->where('ftc.is_authorized', 1)
+        ->whereNotIn('ftc.author_id', $maskedAuthorIds)
+        ->whereNull('ftc.deleted_at')
+        ->whereNotExists(function ($query) use ($maskedAuthorIds): void {
+            $query->selectRaw('1')
+                ->from('forum_topic_comments as newer_ftc')
+                ->whereColumn('newer_ftc.forum_topic_id', 'ftc.forum_topic_id')
+                ->where('newer_ftc.is_authorized', 1)
+                ->whereNotIn('newer_ftc.author_id', $maskedAuthorIds)
+                ->whereNull('newer_ftc.deleted_at')
+                ->where(function ($query): void {
+                    $query->whereColumn('newer_ftc.created_at', '>', 'ftc.created_at')
+                        ->orWhere(function ($query): void {
+                            $query->whereColumn('newer_ftc.created_at', 'ftc.created_at')
+                                ->whereColumn('newer_ftc.id', '>', 'ftc.id');
+                        });
+                });
+        })
+        ->get();
+
+    $newestVisibleByTopic = [];
+    foreach ($replacements as $replacement) {
+        $newestVisibleByTopic[(int) $replacement->forum_topic_id] = $replacement;
+    }
+
+    foreach ($topicRows as $index => $row) {
+        if (!in_array((int) $row['LatestCommentAuthorID'], $maskedAuthorIds, true)) {
+            continue;
+        }
+
+        $replacement = $newestVisibleByTopic[(int) $row['ForumTopicID']] ?? null;
+
+        $topicRows[$index]['LatestCommentID'] = $replacement ? (int) $replacement->id : null;
+        $topicRows[$index]['LatestCommentAuthorID'] = $replacement ? (int) $replacement->author_id : null;
+        $topicRows[$index]['LatestCommentPostedDate'] = $replacement?->created_at;
+    }
+
+    return $topicRows;
 }
 
 function getUnauthorisedForumLinks(): array
@@ -305,6 +412,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 }
 
 /**
+ * @param array<int, int> $maskedAuthorIds authors the viewing user has blocked
  * @return Collection<int, non-empty-array>
  */
 function getRecentForumPosts(
@@ -313,6 +421,7 @@ function getRecentForumPosts(
     int $numMessageChars,
     ?int $permissions = Permissions::Unregistered,
     ?int $fromAuthorId = null,
+    array $maskedAuthorIds = [],
 ): Collection {
     $effectivePermissions = $permissions ?? Permissions::Unregistered;
 
@@ -330,9 +439,10 @@ function getRecentForumPosts(
                 $query->where('ftc.is_authorized', 1);
             }
         )
+        ->whereNotIn('ftc.author_id', $maskedAuthorIds)
         ->orderByDesc('ftc.created_at')
         ->offset($offset)
-        ->limit($limit + 20); // cater for 20 spam messages
+        ->limit($limit + 20 + (empty($maskedAuthorIds) ? 0 : BuildThinRecentForumPostsDataAction::MASKED_AUTHOR_SCAN_BUFFER));
 
     $query = DB::query()
         ->fromSub($latestComments, 'LatestComments')
@@ -351,6 +461,7 @@ function getRecentForumPosts(
         ->leftJoin('users as ua', 'ua.id', '=', 'LatestComments.author_id')
         ->where('ft.required_permissions', '<=', $effectivePermissions)
         ->whereNull('ft.deleted_at')
+        ->whereNotIn('ft.author_id', $maskedAuthorIds)
         ->orderByDesc('LatestComments.created_at')
         ->limit($limit);
 

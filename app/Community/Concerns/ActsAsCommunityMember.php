@@ -136,6 +136,14 @@ trait ActsAsCommunityMember
     }
 
     /**
+     * @return BelongsToMany<User, $this>
+     */
+    public function blockedUsers(): BelongsToMany
+    {
+        return $this->relatedUsers()->where('status', '=', UserRelationStatus::Blocked);
+    }
+
+    /**
      * Rows for users this user follows.
      *
      * @return HasMany<UserRelation, $this>

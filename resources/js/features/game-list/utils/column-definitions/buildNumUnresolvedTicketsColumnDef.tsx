@@ -50,7 +50,7 @@ export function buildNumUnresolvedTicketsColumnDef<TEntry extends App.Platform.D
 
       return (
         <a
-          href={route('game.tickets', { game: gameId, 'filter[achievement]': 'core' })}
+          href={route('game.tickets', { game: gameId })}
           className={numUnresolvedTickets === 0 ? 'text-muted' : ''}
         >
           {formatNumber(numUnresolvedTickets)}

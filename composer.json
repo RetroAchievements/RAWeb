@@ -42,7 +42,7 @@
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^3.0",
         "propaganistas/laravel-disposable-email": "^2.4",
-        "retroachievements/openapi-spec-generator": "^1.4.0",
+        "retroachievements/openapi-spec-generator": "^1.7.0",
         "sentry/sentry-laravel": "^4.13",
         "snipe/banbuilder": "dev-master",
         "socialiteproviders/discord": "^4.1",

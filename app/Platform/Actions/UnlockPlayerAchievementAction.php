@@ -7,8 +7,11 @@ namespace App\Platform\Actions;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
 use App\Models\GameHash;
+use App\Models\PlayerSession;
 use App\Models\System;
+use App\Models\Trigger;
 use App\Models\User;
+use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
@@ -73,10 +76,10 @@ class UnlockPlayerAchievementAction
             }
         }
 
-        $unlock = $user->playerAchievements()->firstOrCreate([
-            'achievement_id' => $achievement->id,
-            // TODO 'trigger_id' => assume trigger_id from most recent version of the achievement trigger
-        ]);
+        $unlock = $user->playerAchievements()->firstOrCreate(
+            ['achievement_id' => $achievement->id],
+            ['trigger_id' => $this->resolveEvaluatedTriggerId($achievement, $playerSession)],
+        );
 
         // determine if the unlock needs to occur
         $alreadyUnlockedInThisMode = false;
@@ -130,5 +133,23 @@ class UnlockPlayerAchievementAction
             // post the unlock notification
             PlayerAchievementUnlocked::dispatch($user, $achievement, $hardcore);
         }
+    }
+
+    /**
+     * Resolve the logic version the client was most likely running.
+     */
+    private function resolveEvaluatedTriggerId(Achievement $achievement, ?PlayerSession $playerSession): ?int
+    {
+        if (!$playerSession?->created_at) {
+            return null;
+        }
+
+        return Trigger::query()
+            ->where('triggerable_type', TriggerableType::Achievement)
+            ->where('triggerable_id', $achievement->id)
+            ->whereNotNull('version')
+            ->where('created_at', '<=', $playerSession->created_at)
+            ->orderByDesc('version')
+            ->value('id');
     }
 }

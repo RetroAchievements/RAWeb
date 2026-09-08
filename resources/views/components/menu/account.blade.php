@@ -69,7 +69,7 @@ $user = request()->user();
                 <x-dropdown-item :href="route('user.achievement-author.feed', ['user' => $user->display_name])">Feed</x-dropdown-item>
             @endif
             @if($user->yield_unlocks > 0)
-                <x-dropdown-item :href="route('developer.tickets', ['user' => $user->display_name])">Tickets</x-dropdown-item>
+                <x-dropdown-item :href="route('tickets.mine')">Tickets</x-dropdown-item>
                 <x-dropdown-item :href="route('developer.sets', ['user' => $user->display_name])">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
