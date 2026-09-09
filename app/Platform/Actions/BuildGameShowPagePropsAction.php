@@ -684,6 +684,7 @@ class BuildGameShowPagePropsAction
         $shouldShowEvergreen = $user?->prefers_evergreen_event_indicators ?? false;
 
         $activeEventAchievements = EventAchievement::active()
+            ->whereHas('event', fn ($query) => $query->visibleTo($user))
             ->with('event.legacyGame')
             ->whereIn('source_achievement_id', $game->achievements->pluck('id'))
             ->when(!$shouldShowEvergreen, fn ($query) => $query->whereNotNull('active_until'))
