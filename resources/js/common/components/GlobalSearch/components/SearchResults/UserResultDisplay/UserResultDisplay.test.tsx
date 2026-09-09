@@ -123,7 +123,7 @@ describe('Component: UserResultDisplay', () => {
 
     const user = createUser({
       lastActivityAt: '2024-01-15T10:00:00Z', // !! 2 hours ago
-      roles: ['team-account'],
+      isTeamAccount: true,
     });
 
     render(<UserResultDisplay user={user} />);
@@ -139,7 +139,7 @@ describe('Component: UserResultDisplay', () => {
 
     const user = createUser({
       lastActivityAt: '2024-01-15T11:57:00Z', // !! 3 minutes ago
-      roles: ['team-account'],
+      isTeamAccount: true,
     });
 
     render(<UserResultDisplay user={user} />);
@@ -152,7 +152,7 @@ describe('Component: UserResultDisplay', () => {
     // ARRANGE
     const user = createUser({
       lastActivityAt: undefined,
-      roles: ['team-account'],
+      isTeamAccount: true,
     });
 
     render(<UserResultDisplay user={user} />);
@@ -162,14 +162,14 @@ describe('Component: UserResultDisplay', () => {
     expect(screen.queryByTestId('active-indicator')).not.toBeInTheDocument();
   });
 
-  it('given the user has no roles defined and has last activity, still shows the last seen label', () => {
+  it('given the user has no team account flag and has last activity, still shows the last seen label', () => {
     // ARRANGE
     const mockCurrentTime = dayjs.utc('2024-01-15T12:00:00Z').toDate();
     vi.setSystemTime(mockCurrentTime);
 
     const user = createUser({
       lastActivityAt: '2024-01-15T10:00:00Z',
-      roles: undefined,
+      isTeamAccount: undefined,
     });
 
     render(<UserResultDisplay user={user} />);
