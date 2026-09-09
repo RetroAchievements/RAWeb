@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { UserRole } from '@/common/utils/generatedAppConstants';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 interface UserResultDisplayProps {
@@ -10,10 +9,8 @@ interface UserResultDisplayProps {
 }
 
 export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
-  const isTeamAccount = user.roles?.includes(UserRole.TEAM_ACCOUNT) ?? false;
-
   const isActive =
-    !isTeamAccount && user.lastActivityAt
+    !user.isTeamAccount && user.lastActivityAt
       ? Math.abs(dayjs(user.lastActivityAt).diff(dayjs(), 'minute')) <= 5
       : false;
 
@@ -34,7 +31,7 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
         <div className="font-medium text-link">{user.displayName}</div>
 
         <div className="flex items-center gap-4 text-xs text-neutral-400 light:text-neutral-600">
-          {user.lastActivityAt && !isTeamAccount ? (
+          {user.lastActivityAt && !user.isTeamAccount ? (
             <LastSeenLabel userLastActivityAt={user.lastActivityAt} />
           ) : null}
         </div>
