@@ -9,6 +9,8 @@ use App\Models\EventAchievement;
 use App\Models\EventWinnerDiscordRoleGrant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -20,15 +22,28 @@ class SyncAotwWinnerDiscordRolesAction
     ) {
     }
 
-    public function execute(): void
+    public function execute(?User $user = null): void
+    {
+        // This number will never get hit unless something has gone wrong,
+        // like a Horizon worker freezing. This is just to make sure the lock
+        // isn't held indefinitely, as the default value is 0.
+        $lockTtl = 600;
+
+        // Never allow the scheduled command and unlock listener to have overlapping executions.
+        Cache::lock(self::class, $lockTtl)->get(fn () => $this->sync($user));
+    }
+
+    private function sync(?User $targetUser): void
     {
         $roleId = config('services.discord.aotw_winner_role');
+        $channelId = config('services.discord.aotw_channel_id');
         if (!$roleId || !config('services.discord.rabot_token') || !config('services.discord.guild_id')) {
             return;
         }
 
         $current = EventAchievement::currentAchievementOfTheWeek()->first();
         $winners = User::query()
+            ->when($targetUser, fn (Builder $query, User $user) => $query->whereKey($user->id))
             ->whereNull('banned_at')
             ->whereNull('unranked_at')
             ->where(fn (Builder $query) => $query->whereNull('muted_until')->orWhere('muted_until', '<=', now()))
@@ -40,7 +55,10 @@ class SyncAotwWinnerDiscordRolesAction
             ->get()
             ->keyBy('id');
 
-        $grants = EventWinnerDiscordRoleGrant::with('user')->where('discord_role_id', $roleId)->get();
+        $grants = EventWinnerDiscordRoleGrant::with('user')
+            ->where('discord_role_id', $roleId)
+            ->when($targetUser, fn (Builder $query, User $user) => $query->where('user_id', $user->id))
+            ->get();
 
         // Revoke expired grants before assigning roles for the new week.
         foreach ($grants as $key => $grant) {
@@ -84,6 +102,7 @@ class SyncAotwWinnerDiscordRolesAction
             try {
                 $member = $this->findDiscordMemberAction->execute($user->display_name);
                 $discordUserId = $member['user']['id'] ?? null;
+
                 if ($discordUserId !== null && $grants->contains('discord_user_id', $discordUserId)) {
                     continue;
                 }
@@ -107,8 +126,18 @@ class SyncAotwWinnerDiscordRolesAction
                     'discord_user_id' => $discordUserId,
                     'expires_at' => $current->active_until,
                 ]));
+
+                if ($discordUserId !== null && $channelId) {
+                    Http::withToken(config('services.discord.rabot_token'), 'Bot')
+                        ->connectTimeout(3)
+                        ->timeout(10)
+                        ->post("https://discord.com/api/v10/channels/{$channelId}/messages", [
+                            'content' => "<@{$discordUserId}> You earned the AOTW winner role!",
+                        ])
+                        ->throw();
+                }
             } catch (Throwable $e) {
-                Log::warning('Failed to grant AOTW Discord role', ['user_id' => $user->id, 'exception' => $e]);
+                Log::warning('Failed to sync AOTW winner', ['user_id' => $user->id, 'exception' => $e]);
             }
         }
     }

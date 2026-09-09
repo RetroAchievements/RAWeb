@@ -22,6 +22,7 @@ beforeEach(function () {
         'services.discord.rabot_token' => 'token',
         'services.discord.guild_id' => '123',
         'services.discord.aotw_winner_role' => '456',
+        'services.discord.aotw_channel_id' => null,
     ]);
 });
 

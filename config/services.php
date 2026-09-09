@@ -29,6 +29,7 @@ return [
         'rabot_token' => env('DISCORD_RABOT_TOKEN'),
         'muted_role' => env('DISCORD_ROLE_MUTED'),
         'aotw_winner_role' => env('DISCORD_ROLE_AOTW_WINNER'),
+        'aotw_channel_id' => env('DISCORD_AOTW_CHANNEL_ID'),
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
