@@ -153,6 +153,136 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
+  it('given the default status has no matches, shows ticket history and a recovery action', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('No tickets match these filters.')).toBeVisible();
+    expect(screen.getByText('0 of 24 tickets')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'View all tickets' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['View all tickets', 'all'],
+    ['Reset', 'unresolved'],
+  ])(
+    '%s clears custom filters while preserving the game scope and sort',
+    async (action, status) => {
+      // ARRANGE
+      vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+      const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+        data: createTicketListResponse(
+          createPaginatedData([createTicketListEntry({ id: 4001 })], {
+            total: 1,
+            unfilteredTotal: 24,
+            lastPage: 1,
+          }),
+        ),
+      });
+
+      renderTicketIndexRoot({
+        scope: 'game',
+        game: createGame({ id: 1701, system: createSystem() }),
+        availableFilters: [
+          { kind: 'type', values: ['0', '1', '2'] },
+          { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
+          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] },
+        ],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+        ziggy: createZiggyProps({
+          query: {
+            sort: 'createdAt',
+            filter: { status: 'open', type: '1', mode: 'hardcore', emulator: 'RetroArch' },
+          },
+        }),
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: action }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(getSpy).toHaveBeenCalledWith([
+          'api.ticket.index',
+          {
+            scope: 'game',
+            game: 1701,
+            sort: 'createdAt',
+            'filter[status]': status,
+            'filter[type]': '0',
+            'filter[mode]': 'all',
+            'filter[emulator]': 'all',
+            'page[number]': 1,
+          },
+        ]);
+      });
+
+      expect(await screen.findByRole('link', { name: 'Ticket #4001' })).toBeVisible();
+      expect(screen.queryByText('No tickets match these filters.')).not.toBeInTheDocument();
+    },
+  );
+
+  it('given the user hovers the empty state button, prefetches all tickets', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], { total: 1, lastPage: 1 }),
+      ),
+    });
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ id: 1701, system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      ziggy: createZiggyProps({ query: { sort: 'createdAt', filter: { type: '1' } } }),
+    });
+    const viewAllButton = screen.getByRole('button', { name: 'View all tickets' });
+
+    // ACT
+    await userEvent.hover(viewAllButton);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'game',
+          game: 1701,
+          sort: 'createdAt',
+          'filter[status]': 'all',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+  });
+
+  it.each([
+    ['awaitingReporter', 'request', false],
+    ['all', 'all', true],
+  ] as const)(
+    'does not offer to clear filters in an unfiltered %s scope',
+    (scope, status, hasStatusFilter) => {
+      // ARRANGE
+      renderTicketIndexRoot({
+        scope,
+        defaultStatusFilter: status,
+        hasStatusFilter,
+        availableFilters: [],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      });
+
+      // ASSERT
+      expect(screen.queryByRole('button', { name: 'View all tickets' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+    },
+  );
+
   it('given the scope exposes filters, offers them all behind one filter button', async () => {
     // ARRANGE
     renderTicketIndexRoot({

@@ -11,7 +11,9 @@ import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
+import { setTicketListColumnFilterValue } from '../../utils/setTicketListColumnFilterValue';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
+import { TicketListEmptyState } from '../TicketListEmptyState';
 import { TicketListFilterChips } from '../TicketListFilterChips';
 import { TicketListFilterControl } from '../TicketListFilterControl';
 import { TicketListHeading } from '../TicketListHeading';
@@ -68,6 +70,16 @@ export const TicketIndexRoot: FC = () => {
   const visibleTotal = ticketListTableProps.paginatedTickets.total;
   const unfilteredTotal = ticketListTableProps.paginatedTickets.unfilteredTotal;
 
+  const unfilteredColumnFilters = setTicketListColumnFilterValue(
+    serverDefaultColumnFilters,
+    'status',
+    hasStatusFilter ? 'all' : defaultStatusFilter,
+  );
+  const hasFiltersToClear = getAreTicketListFiltersNonDefault(
+    ticketListTableProps.columnFilters,
+    unfilteredColumnFilters,
+  );
+
   return (
     <div
       id="pagination-scroll-target"
@@ -105,7 +117,7 @@ export const TicketIndexRoot: FC = () => {
           ) : null}
 
           <div className="ml-auto flex items-center gap-2">
-            {visibleTotal > 0 ? (
+            {visibleTotal > 0 || (unfilteredTotal !== null && unfilteredTotal !== undefined) ? (
               <p className="whitespace-nowrap text-neutral-200 light:text-neutral-900">
                 {unfilteredTotal && unfilteredTotal !== visibleTotal
                   ? t('{{visible, number}} of {{total, number}} tickets', {
@@ -135,6 +147,18 @@ export const TicketIndexRoot: FC = () => {
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}
         paginatedTickets={ticketListTableProps.paginatedTickets}
+        emptyStateNode={
+          <TicketListEmptyState
+            scope={scope}
+            unfilteredTotal={unfilteredTotal}
+            onPrefetchViewAll={() => ticketListTableProps.prefetchFilters(unfilteredColumnFilters)}
+            onViewAll={
+              hasFiltersToClear
+                ? () => ticketListTableProps.setColumnFilters(unfilteredColumnFilters)
+                : undefined
+            }
+          />
+        }
         paginatorNode={
           <div className="flex items-center justify-center sm:justify-end">
             <DataTablePaginationControls
