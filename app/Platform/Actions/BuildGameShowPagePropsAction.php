@@ -12,6 +12,9 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
+use App\Models\Achievement;
+use App\Models\Event;
+use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -684,13 +687,19 @@ class BuildGameShowPagePropsAction
         $shouldShowEvergreen = $user?->prefers_evergreen_event_indicators ?? false;
 
         $activeEventAchievements = EventAchievement::active()
-            ->whereHas('event', fn ($query) => $query->visibleTo($user))
             ->with('event.legacyGame')
             ->whereIn('source_achievement_id', $game->achievements->pluck('id'))
             ->when(!$shouldShowEvergreen, fn ($query) => $query->whereNotNull('active_until'))
             ->orderBy('source_achievement_id')
             ->orderBy('active_until')
-            ->get();
+            ->get()
+            ->filter(function (EventAchievement $eventAchievement) use ($user) {
+                if (!$user) {
+                    return !$eventAchievement->event->active_from?->isFuture();
+                }
+
+                return $user->can('view', $eventAchievement->event);
+            });
 
         if ($activeEventAchievements->isEmpty()) {
             return [];
