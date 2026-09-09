@@ -395,6 +395,22 @@ class LeaderboardEntriesTest extends TestCase
         ], collect($response->json('data'))->pluck('id')->all());
     }
 
+    public function testItLimitsTheMaximumNumberOfReturnedResults(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $leaderboard = Leaderboard::factory()->create();
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/leaderboards/{$leaderboard->id}/entries?filter[maxRank]=101");
+
+        // Assert
+        $response->assertStatus(400);
+    }
+
     public function testItReturnsFormattedScore(): void
     {
         // Arrange
