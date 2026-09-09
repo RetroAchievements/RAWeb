@@ -31,7 +31,7 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
         <div className="font-medium text-link">{user.displayName}</div>
 
         <div className="flex items-center gap-4 text-xs text-neutral-400 light:text-neutral-600">
-          {user.lastActivityAt && user.isTeamAccount ? (
+          {user.lastActivityAt && !user.isTeamAccount ? (
             <LastSeenLabel userLastActivityAt={user.lastActivityAt} />
           ) : null}
         </div>
