@@ -405,6 +405,7 @@ isEmailVerified?: boolean;
 isGone?: boolean;
 isMuted?: boolean;
 isNew?: boolean;
+isTeamAccount?: boolean;
 isUserWallActive?: boolean | null;
 lastActivityAt?: string | null;
 legacyPermissions?: number | null;
