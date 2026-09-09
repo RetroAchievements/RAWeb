@@ -14,7 +14,6 @@ use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Models\Achievement;
 use App\Models\Event;
-use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
