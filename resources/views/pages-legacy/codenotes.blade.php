@@ -72,7 +72,7 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
         ->offset($offset)
         ->get();
 
-    if ($codeNotes->empty()) {
+    if (empty($codeNotes)) {
         $subsetNotes = new Collection();
     } else {
         if ($codeNoteCount > $perPage) {
