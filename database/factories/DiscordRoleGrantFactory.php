@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\EventWinnerDiscordRoleGrant;
+use App\Models\DiscordRoleGrant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EventWinnerDiscordRoleGrant>
+ * @extends Factory<DiscordRoleGrant>
  */
-class EventWinnerDiscordRoleGrantFactory extends Factory
+class DiscordRoleGrantFactory extends Factory
 {
-    protected $model = EventWinnerDiscordRoleGrant::class;
+    protected $model = DiscordRoleGrant::class;
 
     public function definition(): array
     {

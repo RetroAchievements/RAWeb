@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
-use Database\Factories\EventWinnerDiscordRoleGrantFactory;
+use Database\Factories\DiscordRoleGrantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class EventWinnerDiscordRoleGrant extends BaseModel
+class DiscordRoleGrant extends BaseModel
 {
-    /** @use HasFactory<EventWinnerDiscordRoleGrantFactory> */
+    /** @use HasFactory<DiscordRoleGrantFactory> */
     use HasFactory;
 
-    protected $table = 'event_winner_discord_role_grants';
+    protected $table = 'discord_role_grants';
 
     protected $fillable = [
         'user_id',
@@ -27,9 +27,9 @@ class EventWinnerDiscordRoleGrant extends BaseModel
         'expires_at' => 'datetime',
     ];
 
-    protected static function newFactory(): EventWinnerDiscordRoleGrantFactory
+    protected static function newFactory(): DiscordRoleGrantFactory
     {
-        return EventWinnerDiscordRoleGrantFactory::new();
+        return DiscordRoleGrantFactory::new();
     }
 
     // == accessors

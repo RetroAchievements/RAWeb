@@ -6,8 +6,8 @@ use App\Community\Actions\SetDiscordMemberRoleAction;
 use App\Community\Actions\SyncAotwWinnerDiscordRolesAction;
 use App\Http\Actions\FindDiscordMemberAction;
 use App\Models\Achievement;
+use App\Models\DiscordRoleGrant;
 use App\Models\EventAchievement;
-use App\Models\EventWinnerDiscordRoleGrant;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\User;
@@ -63,14 +63,14 @@ describe('AOTW Discord Roles', function () {
         $action->execute();
 
         // ASSERT
-        $grant = EventWinnerDiscordRoleGrant::sole();
+        $grant = DiscordRoleGrant::sole();
         expect($grant->user_id)->toBe($user->id);
         expect($grant->discord_user_id)->toBe('100');
     });
 
     it('given an expired grant, removes the role and its record', function () {
         // ARRANGE
-        $grant = EventWinnerDiscordRoleGrant::factory()->create([
+        $grant = DiscordRoleGrant::factory()->create([
             'discord_role_id' => '456',
             'discord_user_id' => '100',
             'expires_at' => now()->subDay(),
@@ -105,6 +105,6 @@ describe('AOTW Discord Roles', function () {
         $action->execute();
 
         // ASSERT
-        expect(EventWinnerDiscordRoleGrant::sole()->discord_user_id)->toBe('100');
+        expect(DiscordRoleGrant::sole()->discord_user_id)->toBe('100');
     });
 });

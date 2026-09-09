@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Http\Actions\FindDiscordMemberAction;
+use App\Models\DiscordRoleGrant;
 use App\Models\EventAchievement;
-use App\Models\EventWinnerDiscordRoleGrant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -55,7 +55,7 @@ class SyncAotwWinnerDiscordRolesAction
             ->get()
             ->keyBy('id');
 
-        $grants = EventWinnerDiscordRoleGrant::with('user')
+        $grants = DiscordRoleGrant::with('user')
             ->where('discord_role_id', $roleId)
             ->when($targetUser, fn (Builder $query, User $user) => $query->where('user_id', $user->id))
             ->get();
@@ -120,7 +120,7 @@ class SyncAotwWinnerDiscordRolesAction
                     }
                 }
 
-                $grants->push(EventWinnerDiscordRoleGrant::create([
+                $grants->push(DiscordRoleGrant::create([
                     'user_id' => $user->id,
                     'discord_role_id' => $roleId,
                     'discord_user_id' => $discordUserId,
