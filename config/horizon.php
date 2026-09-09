@@ -201,7 +201,7 @@ return [
                 'maxJobs' => 0,
                 'memory' => 128,
                 'tries' => 1,
-                'timeout' => 300,
+                'timeout' => 3300,
                 'nice' => 0,
 
                 // these settings are unique to the local environment
@@ -240,6 +240,9 @@ return [
 
                     // supervisor-7: media conversions
                     'media',
+
+                    // supervisor-8: player global rankings
+                    'player-global-rankings',
                 ],
             ],
         ],
@@ -254,7 +257,7 @@ return [
              * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
              * high-volume and slow queues to prevent them from monopolizing shared workers.
              *
-             * Total Workers: 49 (19+10+2+8+4+2+4)
+             * Total Workers: 50 (19+10+2+8+4+2+4+1)
              * - supervisor-1: General queues (fast, medium volume)
              * - supervisor-2: Batch processing (slower, larger timeout)
              * - supervisor-3: Search indexing (very fast, isolated)
@@ -262,6 +265,7 @@ return [
              * - supervisor-5: Game player count (very slow - 351ms avg)
              * - supervisor-6: Email dispatching (low priority)
              * - supervisor-7: Media conversions (CPU-intensive, isolated)
+             * - supervisor-8: Player global rankings (one worker, very slow, longer timeout)
              */
 
             /**
@@ -421,6 +425,24 @@ return [
                 'tries' => 1,
                 'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
                 'nice' => 5, // low priority - don't starve other processes
+            ],
+
+            /**
+             * Player global rankings supervisor - runs full materialized view rebuilds.
+             */
+            'supervisor-8' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'player-global-rankings',
+                ],
+                'balance' => 'simple',
+                'processes' => 1,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 3300,
+                'nice' => 0,
             ],
         ],
     ],
