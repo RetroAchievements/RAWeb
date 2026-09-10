@@ -72,10 +72,10 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
         ->offset($offset)
         ->get();
 
-    if (empty($codeNotes)) {
-        $subsetNotes = new Collection();
-    } else {
-        if ($codeNoteCount > $perPage) {
+    if ($codeNoteCount > $perPage) {
+        if ($codeNotes->isEmpty()) {
+            $subsetNotes = new Collection();
+        } else {
             $subsetNotes = $baseMemoryNoteQuery($gameID);
             if ($offset > 0) {
                 $subsetNotes->where('address', '>=', $codeNotes->first()->address);
@@ -84,19 +84,19 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
                 $subsetNotes->where('address', '<=', $codeNotes->last()->address);
             }
             $subsetNotes = $subsetNotes->get();
-        } else {
-            $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
         }
-
-        // make sure dummy notes exist for all addresses defined in the subset
-        foreach ($subsetNotes as $note) {
-            $baseNote = $codeNotes->where('address', $note->address)->first();
-            if (!$baseNote) {
-                $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
-            }
-        }
-        $codeNotes = $codeNotes->sortBy('address');
+    } else {
+        $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
     }
+
+    // make sure dummy notes exist for all addresses defined in the subset
+    foreach ($subsetNotes as $note) {
+        $baseNote = $codeNotes->where('address', $note->address)->first();
+        if (!$baseNote) {
+            $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
+        }
+    }
+    $codeNotes = $codeNotes->sortBy('address');
 
     $hasSubsetNotes = true;
 } else {
