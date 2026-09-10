@@ -94,7 +94,7 @@ describe('Component: TicketListDisplayPanel', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('given the status sort, labels its directions as ascending and descending', async () => {
+  it('given the status sort, labels its directions as open first and closed first', async () => {
     // ARRANGE
     const { props, rerender } = renderTicketListDisplayPanel({ sortParam: 'state' });
 
@@ -102,9 +102,9 @@ describe('Component: TicketListDisplayPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
 
     // ASSERT
-    expect(screen.getByRole('button', { name: 'Ascending' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Open first' })).toBeVisible();
     rerender(<TicketListDisplayPanel {...props} sortParam="-state" />);
-    expect(screen.getByRole('button', { name: 'Descending' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Closed first' })).toBeVisible();
   });
 
   it('given a column is hidden, marks its control as unpressed', async () => {
