@@ -193,8 +193,6 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         ?string $richPresencePatch = null,
         GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
     ): array {
-        $gamePlayerCount = $this->calculateGamePlayerCount($game);
-
         $sets = [];
         if ($resolvedSets?->isNotEmpty()) {
             // Preload all games.
@@ -204,6 +202,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
             foreach ($resolvedSets as $resolvedSet) {
                 $setGame = $games[$resolvedSet->core_game_id];
 
+                $gamePlayerCount = $this->calculateGamePlayerCount($setGame);
                 $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount);
                 $leaderboards = $this->buildLeaderboardsData($setGame);
 
@@ -223,6 +222,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
                 ->with('achievementSet.achievements.developer')
                 ->first();
 
+            $gamePlayerCount = $this->calculateGamePlayerCount($game);
             $achievements = $coreAchievementSet
                 ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount)
                 : [];
