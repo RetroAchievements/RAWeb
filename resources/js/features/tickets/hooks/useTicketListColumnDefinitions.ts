@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import type { TicketListColumnDefinition } from '../models';
-import { buildAgeColumnDef } from '../utils/column-definitions/buildAgeColumnDef';
+import { buildDateColumnDef } from '../utils/column-definitions/buildDateColumnDef';
 import { buildGameColumnDef } from '../utils/column-definitions/buildGameColumnDef';
 import { buildHashColumnDef } from '../utils/column-definitions/buildHashColumnDef';
 import { buildIdColumnDef } from '../utils/column-definitions/buildIdColumnDef';
@@ -81,6 +81,7 @@ export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
     }),
     buildHashColumnDef({ t_label: t('Hash') }),
 
-    buildAgeColumnDef({ t_label: t('Age') }),
+    buildDateColumnDef({ id: 'age', t_label: t('Created') }),
+    buildDateColumnDef({ id: 'resolvedAt', t_label: t('Resolved') }),
   ];
 }

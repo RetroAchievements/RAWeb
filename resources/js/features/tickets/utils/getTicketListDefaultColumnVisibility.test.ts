@@ -20,6 +20,7 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
       core: false,
       hash: false,
       age: true,
+      resolvedAt: false,
     });
   });
 
@@ -42,8 +43,11 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
 
     // ASSERT
     expect(resolvedResult.resolver).toEqual(true);
+    expect(resolvedResult.resolvedAt).toEqual(true);
     expect(closedResult.resolver).toEqual(true);
+    expect(closedResult.resolvedAt).toEqual(true);
     expect(allResult.resolver).toEqual(true);
+    expect(allResult.resolvedAt).toEqual(true);
     expect(unresolvedResult.resolver).toEqual(false);
   });
 
@@ -53,5 +57,21 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
 
     // ASSERT
     expect(result.resolver).toEqual(false);
+  });
+
+  it('given a resolution date sort, shows the resolved column in either direction', () => {
+    // ACT
+    const ascendingResult = getTicketListDefaultColumnVisibility('all', 'unresolved', 'resolvedAt');
+    const descendingResult = getTicketListDefaultColumnVisibility(
+      'all',
+      'unresolved',
+      '-resolvedAt',
+    );
+
+    // ASSERT
+    expect(ascendingResult.resolvedAt).toEqual(true);
+    expect(descendingResult.resolvedAt).toEqual(true);
+    expect(ascendingResult.resolver).toEqual(false);
+    expect(descendingResult.resolver).toEqual(false);
   });
 });
