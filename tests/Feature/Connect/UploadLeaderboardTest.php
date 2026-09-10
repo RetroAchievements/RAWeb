@@ -1451,6 +1451,37 @@ describe('non-developer', function () {
         $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
     });
 
+    test('writer cannot update state', function () {
+        $this->user->assignRole(Role::WRITER);
+        $game = UploadLeaderboardTestHelpers::createGame();
+        $user2 = User::factory()->create();
+        $leaderboard1 = UploadLeaderboardTestHelpers::createPromotedLeaderboard($game, $user2);
+
+        $this->get(UploadLeaderboardTestHelpers::apiUrlWithChecksum($this->apiParams('uploadleaderboard', [
+            'i' => $leaderboard1->id,
+            'g' => $game->id,
+            'n' => $leaderboard1->title,
+            'd' => $leaderboard1->description,
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 0,
+            'f' => 'VALUE',
+            'm' => 'disabled',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Access denied.',
+            ]);
+
+        $leaderboard1->refresh();
+        $this->assertEquals(LeaderboardState::Active, $leaderboard1->state);
+    });
+
     test('writer cannot update logic', function () {
         $this->user->assignRole(Role::WRITER);
         $game = UploadLeaderboardTestHelpers::createGame();

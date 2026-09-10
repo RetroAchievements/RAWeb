@@ -3582,11 +3582,12 @@ describe('Screenshot Upload Props', function () {
 function createActiveEventForSourceAchievement(
     Achievement $sourceAchievement,
     ?Carbon $activeUntil,
+    ?Carbon $eventActiveFrom = null,
 ): EventAchievement {
     $eventsSystem = System::find(System::Events) ?? System::factory()->create(['id' => System::Events]);
 
     $eventGame = Game::factory()->create(['system_id' => $eventsSystem->id]);
-    Event::factory()->create(['legacy_game_id' => $eventGame->id]);
+    Event::factory()->create(['legacy_game_id' => $eventGame->id, 'active_from' => $eventActiveFrom]);
 
     $mirrorAchievement = Achievement::factory()->promoted()->create([
         'game_id' => $eventGame->id,
@@ -3618,6 +3619,29 @@ describe('Active Event Achievements', function () {
             ->has('activeEventAchievements', 1)
             ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
             ->where('activeEventAchievements.0.userUnlocked', false)
+        );
+    });
+
+    it('given an achievement is in an event that has not started yet, does not show the event to guests and most authenticated users', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeeks(2), now()->addWeek());
+
+        $nonGuest = User::factory()->create();
+
+        // ACT
+        $guestResponse = get(route('game.show', ['game' => $game]));
+        $nonGuestResponse = actingAs($nonGuest)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $guestResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
+        );
+        $nonGuestResponse->assertInertia(fn (Assert $page) => $page
+            ->missing('activeEventAchievements.0')
         );
     });
 
