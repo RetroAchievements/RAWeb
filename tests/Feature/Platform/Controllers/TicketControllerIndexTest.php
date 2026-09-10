@@ -110,6 +110,22 @@ it('given a hub or event game, the game route returns a 404', function (int $sys
     'event' => System::Events,
 ]);
 
+it('given a hub or event achievement, the achievement route returns a 404', function (int $systemId) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => $systemId]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('achievement.tickets', ['achievement' => $achievement->id]));
+
+    // ASSERT
+    $response->assertNotFound();
+})->with([
+    'hub' => System::Hubs,
+    'event' => System::Events,
+]);
+
 it('uses persisted display preferences for the initial ticket list', function () {
     // ARRANGE
     $tickets = createTicketListPageTickets(2);
