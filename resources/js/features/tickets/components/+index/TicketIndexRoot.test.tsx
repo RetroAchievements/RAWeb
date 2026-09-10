@@ -109,7 +109,7 @@ describe('Component: TicketIndexRoot', () => {
       'Game',
       'Developer',
       'Reporter',
-      'Age',
+      'Created',
     ]);
 
     expect(screen.getAllByRole('row')).toHaveLength(3);
@@ -590,6 +590,38 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('columnheader', { name: 'Game' })).toBeVisible();
     expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given a resolved date sort, shows the resolved column by default', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { sort: '-resolvedAt' } }),
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: 'Created' })).toBeVisible();
+  });
+
+  it('given a hidden resolved column preference, keeps it hidden under a resolved date sort', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      persistedViewPreferences: {
+        columnVisibility: { resolvedAt: false },
+        sortParam: '-resolvedAt',
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('columnheader', { name: 'Resolved' })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-resolvedAt'));
+
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.queryByRole('columnheader', { name: 'Resolved by' })).not.toBeInTheDocument();
   });
 
   it('given only column visibility changed, resetting the display keeps the current page', async () => {

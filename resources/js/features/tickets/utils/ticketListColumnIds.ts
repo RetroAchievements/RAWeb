@@ -12,4 +12,5 @@ export const TICKET_LIST_COLUMN_IDS = [
   'core',
   'hash',
   'age',
+  'resolvedAt',
 ] as const;

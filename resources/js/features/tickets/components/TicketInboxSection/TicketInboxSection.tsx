@@ -44,6 +44,10 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
     counterpartyColumnId,
     'age',
   ]);
+  if (section.kind === 'resolvedByYou') {
+    visibleColumnIds.add('resolvedAt');
+  }
+
   const columnVisibility: VisibilityState = Object.fromEntries(
     TICKET_LIST_COLUMN_IDS.map((columnId) => [columnId, visibleColumnIds.has(columnId)]),
   );
