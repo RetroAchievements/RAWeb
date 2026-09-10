@@ -175,6 +175,10 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
                     return $this->mustBeDeveloper();
                 }
 
+                if (!$this->user->can('updateField', [$leaderboard, 'state'])) {
+                    return $this->accessDenied();
+                }
+
                 if (!isValidConsoleId($leaderboard->game->system_id)) {
                     return $this->accessDenied("You cannot promote leaderboards for a game from an unsupported console (console ID: {$leaderboard->game->system_id}).");
                 }
