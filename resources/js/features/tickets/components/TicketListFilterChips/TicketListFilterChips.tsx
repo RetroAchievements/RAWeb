@@ -19,10 +19,13 @@ interface TicketListFilterChipsProps {
   columnFilters: ColumnFiltersState;
   properties: TicketListFilterProperty[];
   setColumnFilters: (updaterOrValue: Updater<ColumnFiltersState>) => void;
+
+  onPrefetchStatus?: (value: string) => void;
 }
 
 export const TicketListFilterChips: FC<TicketListFilterChipsProps> = ({
   columnFilters,
+  onPrefetchStatus,
   properties,
   setColumnFilters,
 }) => {
@@ -91,9 +94,10 @@ export const TicketListFilterChips: FC<TicketListFilterChipsProps> = ({
 
               <BaseDropdownMenuContent align="start" className="min-w-64 p-0">
                 <TicketListFilterValueList
+                  onPrefetchStatus={onPrefetchStatus}
+                  onSelect={(nextValue) => handleValueChange(property, nextValue)}
                   property={property}
                   selectedValue={value}
-                  onSelect={(nextValue) => handleValueChange(property, nextValue)}
                 />
               </BaseDropdownMenuContent>
             </BaseDropdownMenu>

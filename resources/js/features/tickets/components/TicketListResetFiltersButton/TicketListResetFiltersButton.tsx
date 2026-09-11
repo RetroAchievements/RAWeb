@@ -8,11 +8,14 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 interface TicketListResetFiltersButtonProps {
   serverDefaultColumnFilters: ColumnFiltersState;
   setColumnFilters: (updaterOrValue: Updater<ColumnFiltersState>) => void;
+
+  onPrefetch?: () => void;
 }
 
 export const TicketListResetFiltersButton: FC<TicketListResetFiltersButtonProps> = ({
   serverDefaultColumnFilters,
   setColumnFilters,
+  onPrefetch,
 }) => {
   const { t } = useTranslation();
 
@@ -20,8 +23,9 @@ export const TicketListResetFiltersButton: FC<TicketListResetFiltersButtonProps>
     <BaseButton
       variant="ghost"
       size="sm"
-      onClick={() => setColumnFilters(serverDefaultColumnFilters)}
       className="px-2 text-link max-sm:h-9 lg:px-3"
+      onClick={() => setColumnFilters(serverDefaultColumnFilters)}
+      onMouseEnter={onPrefetch}
       data-testid="reset-all-filters"
     >
       {t('Reset')} <RxCross2 className="ml-2 size-4" />
