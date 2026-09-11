@@ -21,6 +21,8 @@ interface TicketListFilterValueListProps {
   onSelect: (value: string) => void;
   property: TicketListFilterProperty;
   selectedValue: string;
+
+  onPrefetchStatus?: (value: string) => void;
 }
 
 const MAX_OPTIONS_WITHOUT_SEARCH = 8;
@@ -29,6 +31,7 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
   onSelect,
   property,
   selectedValue,
+  onPrefetchStatus,
 }) => {
   const { t } = useTranslation();
 
@@ -40,8 +43,11 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
         {property.options.map((option) => (
           <BaseDropdownMenuItem
             key={option.value}
-            onSelect={() => onSelect(option.value)}
             className="gap-0"
+            onSelect={() => onSelect(option.value)}
+            onMouseEnter={
+              property.id === 'status' ? () => onPrefetchStatus?.(option.value) : undefined
+            }
           >
             <TicketListFilterValueRow
               hasGlyphSlot={hasGlyphSlot}

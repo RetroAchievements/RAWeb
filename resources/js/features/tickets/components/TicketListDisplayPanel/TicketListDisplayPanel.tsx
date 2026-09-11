@@ -42,12 +42,15 @@ interface TicketListDisplayPanelProps {
   onSortChange: (sortParam: TicketListSortParam) => void;
   onToggleColumn: (columnId: TicketListColumnId) => void;
   sortParam: TicketListSortParam;
+
+  onPrefetchSort?: (sortParam: TicketListSortParam) => void;
 }
 
 export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   columnDefinitions,
   columnVisibility,
   hasColumnVisibilityOverrides,
+  onPrefetchSort,
   onResetDisplay,
   onSortChange,
   onToggleColumn,
@@ -115,6 +118,9 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
                   className="size-8 flex-none p-0"
                   data-testid="toggle-sort-direction"
                   onClick={() => onSortChange(ticketListSort.build(sortField, !isAscending))}
+                  onMouseEnter={() =>
+                    onPrefetchSort?.(ticketListSort.build(sortField, !isAscending))
+                  }
                 >
                   {isAscending ? (
                     <LuArrowUpNarrowWide className="size-4" />
@@ -138,7 +144,11 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
 
               <BaseSelectContent>
                 {ticketListSort.fields.map((field) => (
-                  <BaseSelectItem key={field} value={field}>
+                  <BaseSelectItem
+                    key={field}
+                    value={field}
+                    onMouseEnter={() => onPrefetchSort?.(ticketListSort.build(field, isAscending))}
+                  >
                     {sortFieldLabels[field]}
                   </BaseSelectItem>
                 ))}
@@ -179,7 +189,12 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
           <>
             <BaseSeparator className="my-3" />
 
-            <BaseButton size="xs" data-testid="reset-display" onClick={onResetDisplay}>
+            <BaseButton
+              size="xs"
+              data-testid="reset-display"
+              onClick={onResetDisplay}
+              onMouseEnter={() => onPrefetchSort?.(ticketListSort.defaultParam)}
+            >
               {t('Reset to defaults')}
             </BaseButton>
           </>

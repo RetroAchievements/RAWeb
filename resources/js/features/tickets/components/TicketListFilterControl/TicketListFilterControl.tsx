@@ -30,10 +30,12 @@ interface TicketListFilterControlProps {
   setColumnFilters: (updaterOrValue: Updater<ColumnFiltersState>) => void;
 
   isLabelHidden?: boolean;
+  onPrefetchStatus?: (value: string) => void;
 }
 
 export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
   columnFilters,
+  onPrefetchStatus,
   properties,
   setColumnFilters,
   isLabelHidden = false,
@@ -106,9 +108,10 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
               <BaseDropdownMenuSeparator />
 
               <TicketListFilterValueList
+                onPrefetchStatus={onPrefetchStatus}
+                onSelect={(value) => handleValueSelect(selectedFilter, value)}
                 property={selectedFilter}
                 selectedValue={getSelectedValue(selectedFilter)}
-                onSelect={(value) => handleValueSelect(selectedFilter, value)}
               />
             </>
           ) : (
@@ -158,9 +161,10 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
 
                 <BaseDropdownMenuSubContent className="min-w-64 p-0">
                   <TicketListFilterValueList
+                    onPrefetchStatus={onPrefetchStatus}
+                    onSelect={(value) => handleValueSelect(property, value)}
                     property={property}
                     selectedValue={selectedValue}
-                    onSelect={(value) => handleValueSelect(property, value)}
                   />
                 </BaseDropdownMenuSubContent>
               </BaseDropdownMenuSub>
