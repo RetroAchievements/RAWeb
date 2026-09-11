@@ -9,8 +9,10 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\TicketListFilterKind;
 use App\Platform\Enums\TicketListStatusFilter;
@@ -25,9 +27,6 @@ class TicketListService
 
     /** @var array<int, string>|null */
     private ?array $emulatorNamesById = null;
-
-    /** @var array<string, int> */
-    private array $countsForCurrentBaseQuery = [];
 
     /**
      * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string}
@@ -217,10 +216,8 @@ class TicketListService
         ?User $comparisonUser = null,
         ?int $filteredTotal = null,
     ): array {
-        $this->countsForCurrentBaseQuery = [];
-
         $widestFacetRowCount = $this->hasNonStatusFilters($filterOptions)
-            ? $this->countForFilters($tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)
+            ? $this->applyFilters(clone $tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)->count()
             : $filteredTotal;
 
         if ($widestFacetRowCount !== null && $widestFacetRowCount > self::MAX_FACET_COUNT_ROWS) {
@@ -229,11 +226,14 @@ class TicketListService
 
         $counts = [];
         foreach ($kinds as $kind) {
-            $facetCounts = match ($kind) {
+            if ($kind === TicketListFilterKind::Developer || $kind === TicketListFilterKind::Reporter) {
+                continue;
+            }
+
+            $query = $this->applyFilters(clone $tickets, $this->withoutFilter($filterOptions, $kind), $comparisonUser)->reorder();
+            $counts[$kind->value] = match ($kind) {
                 TicketListFilterKind::Type => $this->countGroupedFacet(
-                    $tickets,
-                    $filterOptions,
-                    $comparisonUser,
+                    $query,
                     $kind,
                     'tickets.type',
                     fn (?string $value) => match ($value) {
@@ -243,9 +243,7 @@ class TicketListService
                     },
                 ),
                 TicketListFilterKind::Mode => $this->countGroupedFacet(
-                    $tickets,
-                    $filterOptions,
-                    $comparisonUser,
+                    $query,
                     $kind,
                     'tickets.hardcore',
                     fn (?string $value) => match ($value) {
@@ -255,53 +253,35 @@ class TicketListService
                     },
                 ),
                 TicketListFilterKind::Emulator => $this->countGroupedFacet(
-                    $tickets,
-                    $filterOptions,
-                    $comparisonUser,
+                    $query,
                     $kind,
                     'tickets.emulator_id',
                     fn (?string $value) => $value === null
                         ? 'unknown'
                         : ($this->emulatorNamesById()[(int) $value] ?? null),
                 ),
-                TicketListFilterKind::PublishedStatus,
-                TicketListFilterKind::DeveloperType => $this->countFacetOptions(
-                    $tickets,
-                    $filterOptions,
-                    $comparisonUser,
-                    $kind,
-                    $filteredTotal,
-                ),
-                TicketListFilterKind::Developer,
-                TicketListFilterKind::Reporter => null,
+                TicketListFilterKind::PublishedStatus => $this->countPublishedStatusFacet($query),
+                TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query),
             };
-
-            if ($facetCounts !== null) {
-                $counts[$kind->value] = $facetCounts;
-            }
         }
 
         return $counts;
     }
 
     /**
-     * @param Builder<Ticket> $tickets
+     * @param Builder<Ticket> $query
      * @param callable(?string): ?string $toFilterValue
      * @return array<string, int>
      */
     private function countGroupedFacet(
-        Builder $tickets,
-        array $filterOptions,
-        ?User $comparisonUser,
+        Builder $query,
         TicketListFilterKind $kind,
         string $column,
         callable $toFilterValue,
     ): array {
-        $rows = $this->applyFilters(clone $tickets, $this->withoutFilter($filterOptions, $kind), $comparisonUser)
-            ->reorder()
-            ->select($column . ' as facet_value', DB::raw('count(*) as aggregate'))
+        $rows = $query->select($column . ' as facet_value', DB::raw('count(*) as aggregate'))
             ->groupBy('facet_value')
-            ->get();
+            ->toBase()->get();
 
         $noFilterValue = (string) $kind->noFilterValue();
         $counts = [$noFilterValue => 0];
@@ -320,47 +300,71 @@ class TicketListService
     }
 
     /**
-     * @param Builder<Ticket> $tickets
+     * @param Builder<Ticket> $query
      * @return array<string, int>
      */
-    private function countFacetOptions(
-        Builder $tickets,
-        array $filterOptions,
-        ?User $comparisonUser,
-        TicketListFilterKind $kind,
-        ?int $filteredTotal,
-    ): array {
-        $noFilterValue = $kind->noFilterValue();
-        $lifted = $this->withoutFilter($filterOptions, $kind);
+    private function countPublishedStatusFacet(Builder $query): array
+    {
+        $kind = TicketListFilterKind::PublishedStatus;
 
-        $isAlreadyUnfiltered = ($filterOptions[$kind->value] ?? $noFilterValue) === $noFilterValue;
+        // Aliases keep joined columns from conflicting with unqualified scope columns such as id and state.
+        $rows = $query->selectRaw('count(*) as aggregate')
+            ->leftJoinSub(Achievement::select('id as facet_achievement_id', 'is_promoted'), 'facet_achievement', fn ($join) => $join
+                ->on('facet_achievement_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Achievement->value))
+            ->leftJoinSub(Leaderboard::select('id as facet_leaderboard_id', 'state as facet_state'), 'facet_leaderboard', fn ($join) => $join
+                ->on('facet_leaderboard_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Leaderboard->value))
+            ->selectRaw('coalesce(is_promoted, facet_state != ?) as published', [LeaderboardState::Unpromoted->value])
+            ->groupBy('published')->toBase()->get();
 
-        $counts = [];
-        foreach ($kind->values() as $value) {
-            $counts[$value] = $value === (string) $noFilterValue && $isAlreadyUnfiltered && $filteredTotal !== null
-                ? $filteredTotal
-                : $this->countForFilters(
-                    $tickets,
-                    array_merge($lifted, [$kind->value => $value]),
-                    $comparisonUser,
-                );
+        $counts = array_fill_keys($kind->values(), 0);
+        foreach ($rows as $row) {
+            $counts[$kind->noFilterValue()] += (int) $row->aggregate;
+            if ($row->published !== null) {
+                $counts[$row->published ? 'published' : 'unpublished'] += (int) $row->aggregate;
+            }
         }
 
         return $counts;
     }
 
     /**
-     * @param Builder<Ticket> $tickets
+     * @param Builder<Ticket> $query
+     * @return array<string, int>
      */
-    private function countForFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser): int
+    private function countDeveloperTypeFacet(Builder $query): array
     {
-        $key = serialize([$filterOptions, $comparisonUser?->id]);
+        $kind = TicketListFilterKind::DeveloperType;
+        $rows = $query->selectRaw('count(*) as aggregate')
+            ->withAggregate('author as permissions', 'Permissions')
+            ->withExists(['achievement as unmaintained' => fn ($achievement) => $achievement
+                ->where('tickets.ticketable_type', TicketableType::Achievement->value)
+                ->whereDoesntHave('activeMaintainer')])
+            ->addSelect('tickets.ticketable_type')
+            ->groupBy('permissions', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
 
-        return $this->countsForCurrentBaseQuery[$key] ??= $this->applyFilters(
-            clone $tickets,
-            $filterOptions,
-            $comparisonUser,
-        )->count();
+        $counts = array_fill_keys($kind->values(), 0);
+        foreach ($rows as $row) {
+            $count = (int) $row->aggregate;
+            $permissions = $row->permissions === null ? null : (int) $row->permissions;
+            $counts[$kind->noFilterValue()] += $count;
+
+            if ($permissions === null) {
+                continue;
+            }
+
+            if ($permissions >= Permissions::JuniorDeveloper) {
+                $counts['active'] += $count;
+                if ($permissions === Permissions::JuniorDeveloper) {
+                    $counts['junior'] += $count;
+                }
+            } elseif ($row->ticketable_type === TicketableType::Leaderboard->value || $row->unmaintained) {
+                $counts['inactive'] += $count;
+            }
+        }
+
+        return $counts;
     }
 
     /**

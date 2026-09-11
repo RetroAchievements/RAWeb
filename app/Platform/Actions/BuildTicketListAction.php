@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\TicketState;
 use App\Data\PaginatedData;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -112,21 +111,7 @@ class BuildTicketListAction
     {
         switch ($sort['field']) {
             case TicketListSortField::State:
-                $stateOrder = [
-                    TicketState::Open,
-                    TicketState::Request,
-                    TicketState::Quarantined,
-                    TicketState::Resolved,
-                    TicketState::Closed,
-                ];
-                $cases = implode(' ', array_map(
-                    fn (int $index) => "WHEN ? THEN {$index}",
-                    array_keys($stateOrder),
-                ));
-                $query->orderByRaw(
-                    "CASE state {$cases} ELSE ? END {$sort['direction']}",
-                    [...array_map(fn (TicketState $state) => $state->value, $stateOrder), count($stateOrder)],
-                );
+                $query->orderBy('state_sort_order', $sort['direction']);
                 $query->orderByDesc('created_at');
                 break;
 
