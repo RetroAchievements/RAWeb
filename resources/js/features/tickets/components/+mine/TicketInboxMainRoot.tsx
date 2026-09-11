@@ -23,10 +23,6 @@ export const TicketInboxMainRoot: FC = () => {
     resolvedByYou: t('Resolved by you'),
   };
 
-  const emptyMessageLabelMap: Partial<Record<SectionKind, TranslatedString>> = {
-    awaitingYourFeedback: t('No tickets are waiting on your feedback.'),
-  };
-
   const counterpartyColumnIds: Record<SectionKind, 'developer' | 'reporter'> = {
     toResolve: 'reporter',
     awaitingYourFeedback: 'developer',
@@ -54,20 +50,14 @@ export const TicketInboxMainRoot: FC = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-1">
-        <div className="flex w-full">
-          <h1 className="text-h3 w-full sm:text-[2.0em]!">{t('Tickets')}</h1>
-        </div>
-
-        <p className="text-neutral-200 light:text-neutral-900">
-          {attentionCount
-            ? t('{{val, number}} tickets need your attention.', {
-                count: attentionCount,
-                val: attentionCount,
-              })
-            : t('Nothing needs your attention right now.')}
-        </p>
-      </div>
+      <p className="text-neutral-200 light:text-neutral-900">
+        {attentionCount
+          ? t('{{val, number}} tickets need your attention.', {
+              count: attentionCount,
+              val: attentionCount,
+            })
+          : t("You're all caught up.")}
+      </p>
 
       <div className="flex flex-col gap-8">
         {sections.map((section) => (
@@ -75,7 +65,6 @@ export const TicketInboxMainRoot: FC = () => {
             key={section.kind}
             counterpartyColumnId={counterpartyColumnIds[section.kind]}
             section={section}
-            t_emptyMessage={emptyMessageLabelMap[section.kind]}
             t_heading={headingLabelMap[section.kind]}
             viewAllHref={viewAllHrefs[section.kind]}
           />

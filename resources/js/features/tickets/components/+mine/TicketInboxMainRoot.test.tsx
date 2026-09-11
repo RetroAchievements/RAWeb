@@ -29,7 +29,7 @@ describe('Component: TicketInboxMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given nothing needs attention, says so and only renders the reporter action section', () => {
+  it('given nothing needs attention, says so', () => {
     // ARRANGE
     render<App.Platform.Data.TicketInboxPageProps>(<TicketInboxMainRoot />, {
       pageProps: {
@@ -41,10 +41,7 @@ describe('Component: TicketInboxMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText('Nothing needs your attention right now.')).toBeVisible();
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-      'Waiting on your feedback',
-    ]);
+    expect(screen.getByText("You're all caught up.")).toBeVisible();
   });
 
   it('given one ticket needs attention, uses the singular copy', () => {
@@ -77,7 +74,7 @@ describe('Component: TicketInboxMainRoot', () => {
     expect(screen.getByText('4 tickets need your attention.')).toBeVisible();
   });
 
-  it('given a section with rows, renders its heading and links View all past the limit', () => {
+  it('given resolved tickets and no pending actions, keeps the history and links to resolved tickets', () => {
     // ARRANGE
     render<App.Platform.Data.TicketInboxPageProps>(<TicketInboxMainRoot />, {
       pageProps: {
@@ -98,6 +95,7 @@ describe('Component: TicketInboxMainRoot', () => {
     expect(screen.getByRole('heading', { level: 2, name: /Resolved by you/ })).toHaveTextContent(
       '12',
     );
+    expect(screen.getByText("You're all caught up.")).toBeVisible();
     expect(screen.getByRole('link', { name: 'View all' })).toBeVisible();
   });
 });
