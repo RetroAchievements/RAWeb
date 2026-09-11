@@ -371,6 +371,7 @@ describe('Component: CommentList', () => {
       { pageProps },
     );
 
+    // ACT
     await userEvent.type(
       screen.getByRole('textbox', { name: /comment/i }),
       'this comment is not finished',
@@ -378,7 +379,6 @@ describe('Component: CommentList', () => {
 
     await waitFor(() => expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled());
 
-    // ACT
     unmount();
 
     render(
@@ -395,6 +395,7 @@ describe('Component: CommentList', () => {
     expect(screen.getByRole('textbox', { name: /comment/i })).toHaveValue(
       'this comment is not finished',
     );
+    await waitFor(() => expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled());
   });
 
   it('given the user submits their comment, does not restore it as a draft afterwards', async () => {
