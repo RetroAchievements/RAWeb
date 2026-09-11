@@ -98,7 +98,7 @@ const TicketListFilterValueRow: FC<TicketListFilterValueRowProps> = ({
   const glyph = option.glyphState ? TICKET_STATE_GLYPHS[option.glyphState] : null;
 
   return (
-    <span className="flex w-full items-center">
+    <span className={cn('flex w-full items-center', option.count === 0 ? 'opacity-50' : null)}>
       <span
         className={cn(
           'mr-2 flex size-4 min-w-4 items-center justify-center rounded-full',
