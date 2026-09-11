@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { GameTitle } from '@/common/components/GameTitle';
+import { cn } from '@/common/utils/cn';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 import { ticketListCellClassNames } from '../../utils/column-definitions/ticketListCellClassNames';
@@ -8,9 +10,15 @@ import { TicketStateGlyph } from '../TicketStateGlyph';
 
 interface TicketListMobileRowProps {
   entry: App.Platform.Data.TicketListEntry;
+
+  /** Should be falsy for game-scoped lists, as it'd be redundant. */
+  shouldShowGameTitle: boolean;
 }
 
-export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({ entry }) => {
+export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
+  entry,
+  shouldShowGameTitle,
+}) => {
   const { t } = useTranslation();
 
   const { diffForHumans } = useDiffForHumans();
@@ -31,11 +39,20 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({ entry }) => 
         />
       ) : null}
 
-      <span className="min-w-0 truncate text-link">
-        {entry.ticketableType === 'leaderboard'
-          ? t('(LB) {{title}}', { title: entry.ticketableTitle })
-          : entry.ticketableTitle}
-      </span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-link">
+          {entry.ticketableType === 'leaderboard'
+            ? t('(LB) {{title}}', { title: entry.ticketableTitle })
+            : entry.ticketableTitle}
+        </span>
+
+        {shouldShowGameTitle ? (
+          <GameTitle
+            title={entry.game.title}
+            className={cn('truncate text-xs', ticketListCellClassNames.dimText)}
+          />
+        ) : null}
+      </div>
 
       <div className="ml-auto flex flex-none items-center gap-2">
         {entry.reporter ? (
