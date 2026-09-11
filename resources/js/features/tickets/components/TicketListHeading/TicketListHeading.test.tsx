@@ -14,14 +14,14 @@ describe('Component: TicketListHeading', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given no target, shows the Ticket Manager heading copy', () => {
+  it('given the scope is "all", does not render a heading value', () => {
     // ARRANGE
     render<App.Platform.Data.TicketListPageProps>(<TicketListHeading />, {
       pageProps: { scope: 'all' },
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { level: 1, name: /ticket manager/i })).toBeVisible();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
   it('given a game target, shows the game breadcrumbs and heading', () => {

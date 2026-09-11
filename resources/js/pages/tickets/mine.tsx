@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
 import { SEO } from '@/common/components/SEO';
-import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { TicketInboxMainRoot } from '@/features/tickets/components/+mine';
+import { TicketPageLayout } from '@/features/tickets/components/TicketPageLayout';
 
 const TicketInbox: AppPage = () => {
   const { t } = useTranslation();
@@ -12,13 +12,11 @@ const TicketInbox: AppPage = () => {
     <>
       <SEO title={t('Tickets')} description="Tickets that need your attention" />
 
-      <AppLayout.Main>
-        <TicketInboxMainRoot />
-      </AppLayout.Main>
+      <TicketInboxMainRoot />
     </>
   );
 };
 
-TicketInbox.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+TicketInbox.layout = (page) => <TicketPageLayout currentView="mine">{page}</TicketPageLayout>;
 
 export default TicketInbox;

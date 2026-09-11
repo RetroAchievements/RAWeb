@@ -67,7 +67,6 @@ describe('Component: TicketIndexRoot', () => {
 
     // ASSERT
     expect(screen.getByTestId('ticket-list')).toBeVisible();
-    expect(screen.getByRole('heading', { level: 1, name: 'Ticket Manager' })).toBeVisible();
     expect(getSpy).not.toHaveBeenCalled();
   });
 
