@@ -70,7 +70,7 @@
     },
     "devDependencies": {
         "@crowdin/crowdin-api-client": "^1.47.0",
-        "@faker-js/faker": "^9.6.0",
+        "@faker-js/faker": "^10.6.0",
         "@inertiajs/vite": "^3.1.1",
         "@rolldown/plugin-babel": "^0.2.3",
         "@sentry/vite-plugin": "^4.9.1",
@@ -90,8 +90,8 @@
         "@types/react-dom": "^19.2.3",
         "@types/ua-parser-js": "^0.7.36",
         "@vitejs/plugin-react": "^6.0.1",
-        "@vitest/coverage-v8": "^4.1.5",
-        "@vitest/ui": "^4.1.5",
+        "@vitest/coverage-v8": "^4.1.11",
+        "@vitest/ui": "^4.1.11",
         "alpinejs": "^3.12.2",
         "babel-plugin-react-compiler": "^1.0.0",
         "chokidar": "^4.0.1",
@@ -109,7 +109,7 @@
         "type-fest": "^4.39.1",
         "typescript": "^7.0.2",
         "vite": "^8.0.16",
-        "vitest": "^4.1.5"
+        "vitest": "^4.1.11"
     },
     "engines": {
         "node": "24.x",
@@ -121,12 +121,12 @@
             "@opentelemetry/core@<2.8.0": ">=2.8.0",
             "axios@>=1.0.0 <1.18.1": ">=1.18.1",
             "brace-expansion@>=2.0.0 <2.0.2": ">=2.0.2",
-            "brace-expansion@>=5.0.0 <5.0.8": ">=5.0.8",
+            "brace-expansion@>=4.0.0 <5.0.9": ">=5.0.9",
             "esbuild@<0.28.1": ">=0.28.1",
             "flatted@<3.4.2": ">=3.4.2",
             "form-data@>=4.0.0 <4.0.6": ">=4.0.6",
             "js-cookie@<3.0.6": ">=3.0.6",
-            "js-yaml@>=4.0.0 <4.2.0": ">=4.2.0",
+            "js-yaml@>=4.0.0 <4.3.2": ">=4.3.2",
             "lodash@>=4.0.0 <4.18.0": ">=4.18.0",
             "minimatch@>=9.0.0 <9.0.8": ">=9.0.8",
             "minimatch@3": ">=3.1.5",
