@@ -6,6 +6,7 @@ namespace App\Community;
 
 use App\Community\Events\MessageCreated;
 use App\Community\Listeners\NotifyMessageThreadParticipants;
+use App\Community\Listeners\SyncAotwWinnerDiscordRole;
 use App\Community\Listeners\WriteUserActivity;
 use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
@@ -52,6 +53,7 @@ class EventServiceProvider extends ServiceProvider
             WriteUserActivity::class,
         ],
         PlayerAchievementUnlocked::class => [
+            SyncAotwWinnerDiscordRole::class,
             WriteUserActivity::class,
         ],
         PlayerGameAttached::class => [
