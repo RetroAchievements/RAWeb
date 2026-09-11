@@ -658,7 +658,8 @@ describe('Component: TicketIndexRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
     await userEvent.click(screen.getByTestId('column-toggle-game'));
-    await userEvent.click(screen.getByTestId('reset-display'), { skipHover: true });
+    await userEvent.hover(screen.getByTestId('reset-display'));
+    await userEvent.click(screen.getByTestId('reset-display'));
 
     // ASSERT
     expect(screen.getByRole('spinbutton', { name: 'current page number' })).toHaveValue(2);
@@ -861,7 +862,7 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     renderTicketIndexRoot({
-      ziggy: createZiggyProps({ query: { 'filter[status]': 'resolved' } }),
+      ziggy: createZiggyProps({ query: { filter: { status: 'resolved' } } }),
     });
 
     // ACT

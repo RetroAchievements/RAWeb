@@ -193,7 +193,11 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
               size="xs"
               data-testid="reset-display"
               onClick={onResetDisplay}
-              onMouseEnter={() => onPrefetchSort?.(ticketListSort.defaultParam)}
+              onMouseEnter={() => {
+                if (sortParam !== ticketListSort.defaultParam) {
+                  onPrefetchSort?.(ticketListSort.defaultParam);
+                }
+              }}
             >
               {t('Reset to defaults')}
             </BaseButton>
