@@ -62,6 +62,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   const visibleColumns = table.getVisibleLeafColumns();
 
   const hasIdColumn = visibleColumns.some((column) => column.id === 'id');
+  const hasGameColumn = visibleColumns.some((column) => column.id === 'game');
 
   if (!rows.length) {
     return <>{emptyStateNode ?? <TicketListEmptyState />}</>;
@@ -104,7 +105,10 @@ export const TicketListTable: FC<TicketListTableProps> = ({
             <div
               key={row.id}
               role="row"
-              className="relative flex h-[2.6em] min-w-full items-center px-[0.6em] focus-within:bg-embed-highlight hover:bg-embed-highlight"
+              className={cn(
+                'relative flex h-[2.6em] min-w-full items-center px-[0.6em] focus-within:bg-embed-highlight hover:bg-embed-highlight',
+                hasGameColumn ? 'max-sm:h-[3.6em]' : null,
+              )}
             >
               <a
                 href={route('ticket.show', { ticket: row.original.id })}
@@ -112,7 +116,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
               />
 
-              <TicketListMobileRow entry={row.original} />
+              <TicketListMobileRow entry={row.original} shouldShowGameTitle={hasGameColumn} />
 
               <div className="min-w-0 flex-1 items-center gap-[0.6em] max-sm:hidden sm:flex">
                 {hasIdColumn ? null : (

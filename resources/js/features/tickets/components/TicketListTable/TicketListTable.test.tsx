@@ -381,6 +381,29 @@ describe('Component: TicketListTable', () => {
     expect(screen.queryByTestId('paginator')).not.toBeInTheDocument();
   });
 
+  it('given the game column is visible, the mobile row shows the formatted game title', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 12345,
+      ticketableTitle: 'That Was Easy',
+      game: createGame({ title: 'Sonic the Hedgehog' }),
+    });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, ticketable: true, game: true }}
+      />,
+    );
+
+    // ASSERT
+    const mobileCell = within(screen.getByRole('row', { name: /Ticket #12345/ })).getAllByRole(
+      'cell',
+    )[0];
+    expect(within(mobileCell).getByText('That Was Easy')).toBeVisible();
+    expect(within(mobileCell).getByText('Sonic the Hedgehog')).toBeVisible();
+  });
+
   it('given a ticket whose reporter was deleted, the mobile row omits the avatar', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
