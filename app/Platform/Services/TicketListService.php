@@ -6,10 +6,10 @@ namespace App\Platform\Services;
 
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Leaderboard;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\LeaderboardState;
@@ -131,20 +131,20 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('author', function ($query) {
-                    $query->where('Permissions', '>=', Permissions::JuniorDeveloper);
+                $tickets->whereHas('author.roles', function ($query) {
+                    $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
                 });
                 break;
 
             case 'junior':
-                $tickets->whereHas('author', function ($query) {
-                    $query->where('Permissions', '=', Permissions::JuniorDeveloper);
+                $tickets->whereHas('author.roles', function ($query) {
+                    $query->where('name', Role::DEVELOPER_JUNIOR);
                 });
                 break;
 
             case 'inactive':
                 // For achievement tickets, also exclude any with an active maintainer.
-                // Leaderboards don't have a maintainer concept, so author permissions
+                // Leaderboards don't have a maintainer concept, so author roles
                 // alone are checked.
                 $tickets->where(function ($query) {
                     $query->where(function ($achievementQuery) {
@@ -155,7 +155,7 @@ class TicketListService
                             });
                     })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
                 })->whereHas('author', function ($query) {
-                    $query->where('Permissions', '<', Permissions::JuniorDeveloper);
+                    $query->whereDoesntHave('roles', fn ($roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
                 });
                 break;
         }
@@ -336,27 +336,36 @@ class TicketListService
     private function countDeveloperTypeFacet(Builder $query): array
     {
         $kind = TicketListFilterKind::DeveloperType;
+        $developerRoles = DB::table('auth_model_roles')
+            ->join('auth_roles', 'auth_roles.id', '=', 'auth_model_roles.role_id')
+            ->where('model_type', (new User())->getMorphClass())
+            ->whereIn('auth_roles.name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
+            ->select('model_id as facet_author_id')
+            ->selectRaw('max(auth_roles.name = ?) as facet_junior', [Role::DEVELOPER_JUNIOR])
+            ->groupBy('model_id');
+
         $rows = $query->selectRaw('count(*) as aggregate')
-            ->withAggregate('author as permissions', 'Permissions')
+            ->withExists('author')
+            ->leftJoinSub($developerRoles, 'facet_roles', 'facet_author_id', '=', 'tickets.ticketable_author_id')
+            ->selectRaw('(facet_author_id is not null) as active, coalesce(facet_junior, 0) as junior')
             ->withExists(['achievement as unmaintained' => fn ($achievement) => $achievement
                 ->where('tickets.ticketable_type', TicketableType::Achievement->value)
                 ->whereDoesntHave('activeMaintainer')])
             ->addSelect('tickets.ticketable_type')
-            ->groupBy('permissions', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
+            ->groupBy('author_exists', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
 
         $counts = array_fill_keys($kind->values(), 0);
         foreach ($rows as $row) {
             $count = (int) $row->aggregate;
-            $permissions = $row->permissions === null ? null : (int) $row->permissions;
             $counts[$kind->noFilterValue()] += $count;
 
-            if ($permissions === null) {
+            if (!$row->author_exists) {
                 continue;
             }
 
-            if ($permissions >= Permissions::JuniorDeveloper) {
+            if ($row->active) {
                 $counts['active'] += $count;
-                if ($permissions === Permissions::JuniorDeveloper) {
+                if ($row->junior) {
                     $counts['junior'] += $count;
                 }
             } elseif ($row->ticketable_type === TicketableType::Leaderboard->value || $row->unmaintained) {
