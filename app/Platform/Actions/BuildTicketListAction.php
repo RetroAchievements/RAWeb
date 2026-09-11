@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\TicketState;
 use App\Data\PaginatedData;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -63,7 +62,15 @@ class BuildTicketListAction
         }
 
         $query = $service->applyFilters(clone $renderableTickets, $filterOptions, $comparisonUser);
-        $this->applySort($query, $request->getSort());
+        $sort = $request->getSort();
+
+        // If the result set is small, filter it first instead of scanning creation dates for a full page.
+        // This makes several queries ~20x faster.
+        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt && $sort['direction'] === 'desc') {
+            $query->ignoreIndex('tickets_created_at_index');
+        }
+
+        $this->applySort($query, $sort, TicketListStatusFilter::from($filterOptions['status']));
         $this->applyTicketListEntryEagerLoads($query);
 
         $paginator = new LengthAwarePaginator(
@@ -108,25 +115,24 @@ class BuildTicketListAction
      * @param Builder<Ticket> $query
      * @param array{field: TicketListSortField, direction: 'asc'|'desc'} $sort
      */
-    private function applySort(Builder $query, array $sort): void
+    private function applySort(Builder $query, array $sort, TicketListStatusFilter $status): void
     {
         switch ($sort['field']) {
             case TicketListSortField::State:
-                $stateOrder = [
-                    TicketState::Open,
-                    TicketState::Request,
-                    TicketState::Quarantined,
-                    TicketState::Resolved,
-                    TicketState::Closed,
-                ];
-                $cases = implode(' ', array_map(
-                    fn (int $index) => "WHEN ? THEN {$index}",
-                    array_keys($stateOrder),
-                ));
-                $query->orderByRaw(
-                    "CASE state {$cases} ELSE ? END {$sort['direction']}",
-                    [...array_map(fn (TicketState $state) => $state->value, $stateOrder), count($stateOrder)],
-                );
+                // Avoid scanning unrelated statuses.
+                $ranks = match ($status) {
+                    TicketListStatusFilter::All => null,
+                    TicketListStatusFilter::Unresolved => [0, 1],
+                    TicketListStatusFilter::Open => [0],
+                    TicketListStatusFilter::Request => [1],
+                    TicketListStatusFilter::Quarantined => [2],
+                    TicketListStatusFilter::Resolved => [3],
+                    TicketListStatusFilter::Closed => [4],
+                };
+                if ($ranks !== null) {
+                    $query->whereIn('state_sort_order', $ranks);
+                }
+                $query->orderBy('state_sort_order', $sort['direction']);
                 $query->orderByDesc('created_at');
                 break;
 
