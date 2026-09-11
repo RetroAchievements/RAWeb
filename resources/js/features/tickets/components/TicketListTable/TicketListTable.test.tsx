@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { route } from 'ziggy-js';
 
-import { render, screen, within } from '@/test';
+import { fireEvent, render, screen, within } from '@/test';
 import {
   createEmulator,
   createGame,
@@ -105,6 +105,23 @@ describe('Component: TicketListTable', () => {
       'Created',
       'Resolved',
     ]);
+  });
+
+  it('synchronizes horizontal scrolling between the separate header element and row elements', () => {
+    // ARRANGE
+    render(<TestHarness columnVisibility={allVisible} />);
+
+    const table = screen.getByRole('table');
+    const header = screen.getAllByRole('columnheader')[0].parentElement!;
+    const headerViewport = header.parentElement!;
+    const row = within(table).getAllByRole('row')[1];
+    const bodyViewport = row.parentElement!;
+
+    // ASSERT
+    fireEvent.scroll(bodyViewport, { target: { scrollLeft: 200 } });
+    expect(headerViewport.scrollLeft).toBe(200);
+    fireEvent.scroll(headerViewport, { target: { scrollLeft: 100 } });
+    expect(bodyViewport.scrollLeft).toBe(100);
   });
 
   it('given created and resolved dates, shows their separate values and the exact date on hover in a tooltip', async () => {
