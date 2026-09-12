@@ -40,9 +40,6 @@ class BuildGamePageClaimDataAction
             ->where('user_id', '!=', $user->id)
             ->first();
 
-        // Determine the user's max number of claims, based on their developer role.
-        $maxClaimCount = AchievementSetClaim::getMaxClaimsForUser($user);
-
         // Calculate if the user is the sole author of all existing achievements for the set.
         $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
@@ -70,22 +67,11 @@ class BuildGamePageClaimDataAction
                 )
                 : null,
 
-            doesPrimaryClaimExist: $primaryClaimByOtherUser !== null,
             isSoleAuthor: $isSoleAuthor,
-            maxClaimCount: $maxClaimCount,
-            numClaimsRemaining: $this->calculateNumClaimsRemaining($user, $maxClaimCount),
             numUnresolvedTickets: Ticket::forAssignee($user)->awaitingDeveloper()->count(),
             wouldBeCollaboration: $wouldBeCollaboration,
             wouldBeRevision: $wouldBeRevision,
         );
-    }
-
-    private function calculateNumClaimsRemaining(User $user, int $maxClaims): int
-    {
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
-        $remaining = $maxClaims - $activeClaimCount;
-
-        return max(0, $remaining);
     }
 
     private function calculateHasOfficialAchievements(Game $game): bool

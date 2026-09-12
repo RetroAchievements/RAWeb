@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\Forum;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -490,7 +491,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(0, $collabClaim->extensions_count);
     }
 
-    public function testCollaborationClaimCanBeCreatedWhenDeveloperHasMaxPrimaryClaims(): void
+    public function testCollaborationClaimCannotBeCreatedWhenDeveloperHasMaxPrimaryClaims(): void
     {
         $this->seed(RolesTableSeeder::class);
 
@@ -508,7 +509,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $targetGame = $this->seedGame(withHash: false);
 
         // another developer already owns the active primary claim on the target game
-        $primaryClaimDate = Carbon::now()->startOfSecond();
+        $primaryClaimDate = Carbon::parse('2026-09-24 00:00:00', 'UTC');
         Carbon::setTestNow($primaryClaimDate);
 
         $this->actingAs($primaryDeveloper)->postJson(route('achievement-set-claim.create', $targetGame->id));
@@ -527,26 +528,15 @@ class AchievementSetClaimControllerTest extends TestCase
             $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $claimedGame->id));
         }
 
-        // with no primary slots remaining, the collaborator can still join this claimed game
+        // with no slots remaining, the collaborator cannot join this claimed game
         $collaborationDate = $primaryClaimDate->clone()->addHours(5);
         Carbon::setTestNow($collaborationDate);
         Session::flush();
 
         $response = $this->actingAs($collaborator)->postJson(route('achievement-set-claim.create', $targetGame->id));
 
-        $response->assertStatus(302);
-        $response->assertRedirect('/');
-        $response->assertSessionHas('success', 'Claim created successfully');
-
-        $collabClaim = $targetGame->achievementSetClaims()->where('user_id', $collaborator->id)->first();
-        $this->assertNotNull($collabClaim);
-        $this->assertEquals($collaborator->id, $collabClaim->user_id);
-        $this->assertEquals($targetGame->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
-        $this->assertEquals($collaborationDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $response->assertForbidden();
+        $this->assertFalse($targetGame->achievementSetClaims()->where('user_id', $collaborator->id)->exists());
 
         $activePrimaryClaims = $collaborator->achievementSetClaims()
             ->active()
@@ -1288,5 +1278,25 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
 
         Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
+
+    public function testDevComplianceCanMarkACollaborationClaimReleaseScheduled(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEV_COMPLIANCE);
+        $claim = AchievementSetClaim::factory()->create(['claim_type' => ClaimType::Collaboration]);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->post(route('achievement-set-claim.release-scheduled', $claim));
+
+        // Assert
+        $response->assertRedirect()->assertSessionHas('success');
+        $claim->refresh();
+        $this->assertSame(ClaimSpecial::ScheduledRelease, $claim->special_type);
+        $this->assertSame(ClaimStatus::Active, $claim->status);
+        $this->assertSame(ClaimType::Collaboration, $claim->claim_type);
     }
 }

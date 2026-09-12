@@ -1,6 +1,8 @@
+import userEvent from '@testing-library/user-event';
+
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { createAchievementSetClaim, createGame, createUser } from '@/test/factories';
 
 import { SidebarManagementSection } from './SidebarManagementSection';
 
@@ -253,7 +255,11 @@ describe('Component: SidebarManagementSection', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         backingGame,
-        can: { manageGames: true, manageGameHashes: true, updateAnyAchievementSetClaim: true }, // !!
+        can: {
+          manageGames: true,
+          manageGameHashes: true,
+          updateAnyAchievementSetClaim: true,
+        },
       },
     });
 
@@ -294,5 +300,49 @@ describe('Component: SidebarManagementSection', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /edit base game details/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /edit subset game details/i })).toBeVisible();
+  });
+
+  it('given no claim can be marked release scheduled, does not show the mark claim part complete button', () => {
+    // ARRANGE
+    render(<SidebarManagementSection game={createGame()} />, {
+      pageProps: {
+        backingGame: createGame(),
+        can: {},
+        achievementSetClaims: [createAchievementSetClaim({ canMarkReleaseScheduled: false })],
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('button', { name: /mark claim part complete/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given some claims can be marked release scheduled, shows one button that opens a dialog listing only those claimants', async () => {
+    // ARRANGE
+    render(<SidebarManagementSection game={createGame()} />, {
+      pageProps: {
+        backingGame: createGame(),
+        can: {},
+        achievementSetClaims: [
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Alice' }),
+            canMarkReleaseScheduled: true,
+          }),
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Bob' }),
+            canMarkReleaseScheduled: false,
+          }),
+        ],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /mark claim part complete/i }));
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: 'Mark claim part complete?' })).toBeVisible();
+    expect(screen.getByRole('option', { name: /Alice/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Bob/ })).not.toBeInTheDocument();
   });
 });
