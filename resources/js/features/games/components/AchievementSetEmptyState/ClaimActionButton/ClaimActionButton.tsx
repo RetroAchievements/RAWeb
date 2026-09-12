@@ -11,10 +11,9 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
-import { getCanCreateClaim } from '@/features/games/utils/getCanCreateClaim';
 
 export const ClaimActionButton: FC = () => {
-  const { auth, backingGame, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { auth, backingGame, can, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const hasClaimRole =
@@ -43,18 +42,7 @@ export const ClaimActionButton: FC = () => {
     return null;
   }
 
-  if (!getCanCreateClaim(claimData)) {
-    return (
-      <BaseTooltip>
-        <BaseTooltipTrigger>
-          <DisabledButton />
-        </BaseTooltipTrigger>
-
-        <BaseTooltipContent>{t("You've used all your achievement set claims.")}</BaseTooltipContent>
-      </BaseTooltip>
-    );
-  }
-
+  // Check the forum requirement first so a policy denial shows the correct tooltip.
   if (auth.user.roles.includes('developer-junior') && !backingGame.forumTopicId) {
     return (
       <BaseTooltip>
@@ -65,6 +53,18 @@ export const ClaimActionButton: FC = () => {
         <BaseTooltipContent>
           {t('Please ask a Code Reviewer to create a forum topic for the game first.')}
         </BaseTooltipContent>
+      </BaseTooltip>
+    );
+  }
+
+  if (!can.createAchievementSetClaims) {
+    return (
+      <BaseTooltip>
+        <BaseTooltipTrigger>
+          <DisabledButton />
+        </BaseTooltipTrigger>
+
+        <BaseTooltipContent>{t("You've used all your achievement set claims.")}</BaseTooltipContent>
       </BaseTooltip>
     );
   }

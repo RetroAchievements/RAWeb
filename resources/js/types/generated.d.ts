@@ -838,9 +838,6 @@ targetUser: App.Data.User | null;
 userRequestInfo: App.Platform.Data.UserSetRequestInfo | null;
 };
 export type GamePageClaimData = {
-doesPrimaryClaimExist: boolean;
-maxClaimCount: number;
-numClaimsRemaining: number | null;
 numUnresolvedTickets: number;
 userClaim: App.Platform.Data.AchievementSetClaim | null;
 isSoleAuthor: boolean;

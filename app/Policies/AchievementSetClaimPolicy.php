@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
@@ -11,6 +12,7 @@ use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Carbon;
 
 class AchievementSetClaimPolicy
 {
@@ -62,25 +64,31 @@ class AchievementSetClaimPolicy
             return true;
         }
 
-        // If another user has a primary claim, collaboration claims don't count against the cap.
-        $activePrimaryClaimByOtherUser = $game->achievementSetClaims()
-            ->active()
-            ->primaryClaim()
-            ->where('user_id', '!=', $user->id)
-            ->exists();
-
-        if ($activePrimaryClaimByOtherUser) {
-            return true;
-        }
-
         // Determine max claims based on role.
         $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
+        $activeClaimCount = once(fn () => $user->achievementSetClaims()->consumesSlot()->count());
         $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
-        // The user can create a claim if they have claims remaining OR they're the sole author.
-        return ($activeClaimCount < $maxClaims) || $isSoleAuthor;
+        // Claims normally require an available slot. Sole authors can claim revisions to their
+        // own sets even at the cap because OwnRevision claims don't consume a slot.
+        if ($activeClaimCount < $maxClaims || $isSoleAuthor) {
+            return true;
+        }
+
+        // TODO after 2026/09/24 make the FreeRollout filter unconditional
+        $collaborationsConsumeSlots = Carbon::now('UTC')->greaterThanOrEqualTo(AchievementSetClaim::COLLABORATION_SLOT_CUTOFF);
+
+        // At the cap, the user can only join a collaboration that does not consume a slot.
+        // Before the cutoff, all collaborations are free. After the cutoff, only joining
+        // an active primary claim marked FreeRollout qualifies for this exception.
+        return $game->achievementSetClaims()
+            ->active()
+            ->primaryClaim()
+            ->when($collaborationsConsumeSlots, function ($query) {
+                $query->where('special_type', ClaimSpecial::FreeRollout);
+            })
+            ->exists();
     }
 
     public function updateAny(User $user): bool

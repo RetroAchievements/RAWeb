@@ -11,9 +11,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class GamePageClaimData extends Data
 {
     public function __construct(
-        public bool $doesPrimaryClaimExist,
-        public int $maxClaimCount,
-        public ?int $numClaimsRemaining,
         public int $numUnresolvedTickets,
         public ?AchievementSetClaimData $userClaim,
         public bool $isSoleAuthor,

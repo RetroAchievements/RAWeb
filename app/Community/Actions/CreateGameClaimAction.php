@@ -48,7 +48,9 @@ class CreateGameClaimAction
 
             $claimType = ClaimType::Collaboration;
             $setType = $primaryClaim->set_type;
-            $special = $primaryClaim->special_type;
+            $special = $primaryClaim->special_type === ClaimSpecial::FreeRollout
+                ? ClaimSpecial::FreeRollout
+                : ClaimSpecial::None;
         }
 
         if ($game->achievements_published > 0) {
