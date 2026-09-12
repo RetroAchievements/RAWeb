@@ -1,6 +1,10 @@
+import { router } from '@inertiajs/react';
+import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { render, screen, waitFor } from '@/test';
+import { createAchievementSetClaim, createGame, createUser } from '@/test/factories';
 
 import { SidebarManagementSection } from './SidebarManagementSection';
 
@@ -294,5 +298,44 @@ describe('Component: SidebarManagementSection', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /edit base game details/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /edit subset game details/i })).toBeVisible();
+  });
+
+  it('given permission for one claimant, marks only that claimant part complete', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
+    const reloadSpy = vi.spyOn(router, 'reload').mockImplementationOnce(vi.fn());
+
+    render(<SidebarManagementSection game={createGame()} />, {
+      pageProps: {
+        backingGame: createGame(),
+        can: {},
+        achievementSetClaims: [
+          createAchievementSetClaim({
+            id: 123,
+            user: createUser({ displayName: 'Alice' }),
+            canMarkReleaseScheduled: true,
+          }),
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Bob' }),
+            canMarkReleaseScheduled: false,
+          }),
+        ],
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /mark Alice's part complete/i }));
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /mark Bob/i })).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(reloadSpy).toHaveBeenCalledOnce();
+    });
+
+    expect(postSpy).toHaveBeenCalledWith([
+      'achievement-set-claim.release-scheduled',
+      { claim: 123 },
+    ]);
   });
 });

@@ -91,6 +91,14 @@ class AchievementSetClaimPolicy
             ->exists();
     }
 
+    public function markReleaseScheduled(User $user, AchievementSetClaim $claim): bool
+    {
+        return
+            $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::ADMINISTRATOR, Role::MODERATOR])
+            && $claim->status === ClaimStatus::Active
+            && $claim->special_type === ClaimSpecial::None;
+    }
+
     public function updateAny(User $user): bool
     {
         // Admins and moderators have the ability to update any claim.

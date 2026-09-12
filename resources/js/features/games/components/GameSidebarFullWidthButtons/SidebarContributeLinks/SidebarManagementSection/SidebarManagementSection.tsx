@@ -2,19 +2,24 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuFileCheck, LuFlagTriangleRight, LuWrench } from 'react-icons/lu';
 
+import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { GameCreateForumTopicButton } from '@/common/components/GameCreateForumTopicButton';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { useMarkClaimReleaseScheduledMutation } from '@/features/games/hooks/mutations/useMarkClaimReleaseScheduledMutation';
 
 interface SidebarManagementSectionProps {
   game: App.Platform.Data.Game;
 }
 
 export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ game }) => {
-  const { backingGame, can } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { achievementSetClaims, backingGame, can } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
+
+  const markClaimReleaseScheduledMutation = useMarkClaimReleaseScheduledMutation();
 
   const isViewingSubset = game.id !== backingGame.id;
 
@@ -93,6 +98,28 @@ export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ ga
           </PlayableSidebarButton>
         ) : null}
       </div>
+
+      {achievementSetClaims
+        ?.filter((claim) => claim.canMarkReleaseScheduled)
+        .map((claim) => (
+          <PlayableSidebarButton
+            key={claim.id}
+            IconComponent={LuFlagTriangleRight}
+            disabled={markClaimReleaseScheduledMutation.isPending}
+            onClick={() =>
+              toastMessage.promise(
+                markClaimReleaseScheduledMutation.mutateAsync({ claimId: claim.id }),
+                {
+                  loading: t('Updating...'),
+                  success: t('Updated.'),
+                  error: t('Something went wrong.'),
+                },
+              )
+            }
+          >
+            {t("Mark {{user}}'s part complete", { user: claim.user!.displayName })}
+          </PlayableSidebarButton>
+        ))}
     </PlayableSidebarButtonsSection>
   );
 };

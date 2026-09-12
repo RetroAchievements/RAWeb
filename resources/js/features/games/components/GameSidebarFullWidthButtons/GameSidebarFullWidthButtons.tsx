@@ -16,8 +16,15 @@ interface GameSidebarFullWidthButtonsProps {
 }
 
 export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> = ({ game }) => {
-  const { auth, backingGame, can, numCompatibleHashes, targetAchievementSetId, ziggy } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    achievementSetClaims,
+    auth,
+    backingGame,
+    can,
+    numCompatibleHashes,
+    targetAchievementSetId,
+    ziggy,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const canShowEssentialResources = numCompatibleHashes > 0 || game.forumTopicId;
@@ -26,7 +33,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
     can.manageGames ||
     can.updateGame ||
     can.manageGameHashes ||
-    can.updateAnyAchievementSetClaim
+    can.updateAnyAchievementSetClaim ||
+    achievementSetClaims?.some((claim) => claim.canMarkReleaseScheduled)
   );
 
   const userRoles = auth?.user.roles ?? [];

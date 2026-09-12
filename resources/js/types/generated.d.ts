@@ -583,6 +583,7 @@ minutesLeft?: number;
 isCompletable?: boolean;
 isDroppable?: boolean;
 isExtendable?: boolean;
+canMarkReleaseScheduled?: boolean;
 };
 export type AchievementSet = {
 id: number;
