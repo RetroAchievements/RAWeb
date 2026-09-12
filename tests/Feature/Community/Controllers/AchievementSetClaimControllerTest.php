@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\Forum;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -1277,5 +1278,25 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
 
         Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
+
+    public function testDevComplianceCanMarkACollaborationClaimReleaseScheduled(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEV_COMPLIANCE);
+        $claim = AchievementSetClaim::factory()->create(['claim_type' => ClaimType::Collaboration]);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->post(route('achievement-set-claim.release-scheduled', $claim));
+
+        // Assert
+        $response->assertRedirect()->assertSessionHas('success');
+        $claim->refresh();
+        $this->assertSame(ClaimSpecial::ScheduledRelease, $claim->special_type);
+        $this->assertSame(ClaimStatus::Active, $claim->status);
+        $this->assertSame(ClaimType::Collaboration, $claim->claim_type);
     }
 }
