@@ -1142,7 +1142,6 @@
     "Please ensure you have approval to complete this claim within 24 hours of the claim being made.": "Please ensure you have approval to complete this claim within 24 hours of the claim being made.",
     "Yes, complete the claim": "Yes, complete the claim",
     "Completing the review...": "Completing the review...",
-    "Mark {{user}}'s part complete": "Mark {{user}}'s part complete",
     "Marking the claim for review...": "Marking the claim for review...",
     "Completed the review!": "Completed the review!",
     "Marked the claim for review!": "Marked the claim for review!",
@@ -1603,5 +1602,14 @@
     "{{val, number}} tickets_one": "{{val, number}} ticket",
     "{{visible, number}} of {{total, number}} tickets_one": "{{visible, number}} of {{total, number}} ticket",
     "{{val, number}} tickets need your attention._one": "{{val, number}} ticket needs your attention.",
-    "Unresolved": "Unresolved"
+    "Unresolved": "Unresolved",
+    "Mark Claim Part Complete": "Mark Claim Part Complete",
+    "Mark claim part complete?": "Mark claim part complete?",
+    "The selected claim will be marked as Release Scheduled and will no longer use one of that developer's claim slots.": "The selected claim will be marked as Release Scheduled and will no longer use one of that developer's claim slots.",
+    "Select a claimant": "Select a claimant",
+    "{{displayName}} (Primary)": "{{displayName}} (Primary)",
+    "{{displayName}} (Collaboration)": "{{displayName}} (Collaboration)",
+    "Mark part complete": "Mark part complete",
+    "Marking part complete...": "Marking part complete...",
+    "Marked!": "Marked!"
 }

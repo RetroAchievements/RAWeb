@@ -1,9 +1,7 @@
-import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen } from '@/test';
 import { createAchievementSetClaim, createGame, createUser } from '@/test/factories';
 
 import { SidebarManagementSection } from './SidebarManagementSection';
@@ -257,7 +255,11 @@ describe('Component: SidebarManagementSection', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         backingGame,
-        can: { manageGames: true, manageGameHashes: true, updateAnyAchievementSetClaim: true }, // !!
+        can: {
+          manageGames: true,
+          manageGameHashes: true,
+          updateAnyAchievementSetClaim: true,
+        },
       },
     });
 
@@ -300,18 +302,30 @@ describe('Component: SidebarManagementSection', () => {
     expect(screen.getByRole('link', { name: /edit subset game details/i })).toBeVisible();
   });
 
-  it('given permission for one claimant, marks only that claimant part complete', async () => {
+  it('given no claim can be marked release scheduled, does not show the mark claim part complete button', () => {
     // ARRANGE
-    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
-    const reloadSpy = vi.spyOn(router, 'reload').mockImplementationOnce(vi.fn());
+    render(<SidebarManagementSection game={createGame()} />, {
+      pageProps: {
+        backingGame: createGame(),
+        can: {},
+        achievementSetClaims: [createAchievementSetClaim({ canMarkReleaseScheduled: false })],
+      },
+    });
 
+    // ASSERT
+    expect(
+      screen.queryByRole('button', { name: /mark claim part complete/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given some claims can be marked release scheduled, shows one button that opens a dialog listing only those claimants', async () => {
+    // ARRANGE
     render(<SidebarManagementSection game={createGame()} />, {
       pageProps: {
         backingGame: createGame(),
         can: {},
         achievementSetClaims: [
           createAchievementSetClaim({
-            id: 123,
             user: createUser({ displayName: 'Alice' }),
             canMarkReleaseScheduled: true,
           }),
@@ -324,18 +338,11 @@ describe('Component: SidebarManagementSection', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /mark Alice's part complete/i }));
+    await userEvent.click(screen.getByRole('button', { name: /mark claim part complete/i }));
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /mark Bob/i })).not.toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(reloadSpy).toHaveBeenCalledOnce();
-    });
-
-    expect(postSpy).toHaveBeenCalledWith([
-      'achievement-set-claim.release-scheduled',
-      { claim: 123 },
-    ]);
+    expect(screen.getByRole('heading', { name: 'Mark claim part complete?' })).toBeVisible();
+    expect(screen.getByRole('option', { name: /Alice/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Bob/ })).not.toBeInTheDocument();
   });
 });
