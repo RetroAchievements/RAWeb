@@ -149,7 +149,7 @@
             "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\"",
             "@php -r \"(file_exists('storage/oauth-private.key') && file_exists('storage/oauth-public.key')) ? print('Passport Keys already exist, to regenerate them run: php artisan passport:keys --force' . PHP_EOL) : passthru('php artisan passport:keys');\""
         ],
-        "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
+        "stan": "@php vendor/bin/phpstan analyse --memory-limit 1G --ansi",
         "stan-baseline": "@php vendor/bin/phpstan analyse --generate-baseline --memory-limit 1G",
         "stan-clear": "@php vendor/bin/phpstan clear-result-cache",
         "start": "@php artisan serve --port=64000",

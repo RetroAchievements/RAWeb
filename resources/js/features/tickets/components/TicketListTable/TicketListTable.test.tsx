@@ -81,7 +81,7 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     const headers = screen.getAllByRole('columnheader');
-    expect(headers.map((header) => header.textContent)).toEqual(['ID', 'Issue with', 'Age']);
+    expect(headers.map((header) => header.textContent)).toEqual(['ID', 'Issue with', 'Created']);
   });
 
   it('given every column is visible, renders all the headers in registry order', () => {
@@ -102,8 +102,48 @@ describe('Component: TicketListTable', () => {
       'Version',
       'Core',
       'Hash',
-      'Age',
+      'Created',
+      'Resolved',
     ]);
+  });
+
+  it('given created and resolved dates, shows their separate values and the exact date on hover in a tooltip', async () => {
+    // ARRANGE
+    vi.setSystemTime(new Date('2026-09-10T12:00:00Z'));
+    const ticket = createTicketListEntry({
+      id: 501,
+      state: 'resolved',
+      createdAt: '2026-09-05T12:00:00Z',
+      resolvedAt: '2026-09-08T12:00:00Z',
+    });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, age: true, resolvedAt: true }}
+      />,
+    );
+
+    // ASSERT
+    const cells = within(screen.getByRole('row', { name: /Ticket #501/ })).getAllByRole('cell');
+    expect(cells.at(-2)).toHaveTextContent('5d ago');
+    expect(cells.at(-1)).toHaveTextContent('2d ago');
+
+    await userEvent.hover(screen.getByText('2d ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Sep 8, 2026 12:00 PM');
+  });
+
+  it('given no resolved date, shows a dash as the column value', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        tickets={[createTicketListEntry({ resolvedAt: null })]}
+        columnVisibility={{ ...noneVisible, resolvedAt: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('-')).toBeVisible();
   });
 
   it('given zero rows, shows the empty state copy and no table', () => {
@@ -313,7 +353,7 @@ describe('Component: TicketListTable', () => {
     // ASSERT
     expect(screen.getAllByRole('columnheader').map((el) => el.textContent)).toEqual([
       'Issue with',
-      'Age',
+      'Created',
     ]);
     expect(screen.getAllByRole('img', { name: 'Open' })).toHaveLength(2);
   });

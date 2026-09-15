@@ -48,6 +48,8 @@ class TicketController extends Controller
 
     public function forAchievement(TicketListRequest $request, Achievement $achievement): InertiaResponse
     {
+        abort_if(in_array($achievement->game->system_id, [System::Hubs, System::Events], true), 404);
+
         return $this->renderTicketList($request, 'achievement/[achievement]/tickets/index', $achievement);
     }
 

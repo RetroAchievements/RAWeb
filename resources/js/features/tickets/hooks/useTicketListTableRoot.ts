@@ -43,7 +43,11 @@ export function useTicketListTableRoot({
     'status',
   ) as App.Platform.Enums.TicketListStatusFilter;
 
-  const defaultColumnVisibility = getTicketListDefaultColumnVisibility(scope, statusValue);
+  const defaultColumnVisibility = getTicketListDefaultColumnVisibility(
+    scope,
+    statusValue,
+    sortParam,
+  );
 
   const toggleColumnVisibility = (columnId: TicketListColumnId) => {
     setColumnVisibilityOverrides((previousOverrides) =>

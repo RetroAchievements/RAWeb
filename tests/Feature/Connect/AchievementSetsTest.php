@@ -1817,6 +1817,108 @@ describe('Rarity', function () {
                 ],
             ]);
     });
+
+    test('returns subset rarity based on subset player count', function () {
+        $data = AchievementSetsTestHelpers::createMultiSetGame();
+
+        $game = $data['game'];
+        $game->players_total = 11;
+        $game->players_hardcore = 9; // both rarity calculations should use the non-hardcore player count
+        $game->save();
+        $achievementSet = $game->achievementSets()->first();
+
+        // rarity calculation = (unlocks + 1) / (num_players) [max:100.0]
+        $data['achievements'][0]->unlocks_total = 10;
+        $data['achievements'][0]->unlocks_hardcore = 9;
+        $data['achievements'][0]->save();
+
+        $data['achievements'][2]->unlocks_total = 7;
+        $data['achievements'][2]->unlocks_hardcore = 5;
+        $data['achievements'][2]->save();
+
+        $data['achievements'][1]->unlocks_total = 2;
+        $data['achievements'][1]->unlocks_hardcore = 0;
+        $data['achievements'][1]->save();
+
+        $data['achievements'][3]->unlocks_total = 0;
+        $data['achievements'][3]->unlocks_hardcore = 0;
+        $data['achievements'][3]->save();
+
+        $data['achievements'][4]->unlocks_total = 4;
+        $data['achievements'][4]->unlocks_hardcore = 5;
+        $data['achievements'][4]->save();
+
+        $bonusGame = $data['bonusGame'];
+        $bonusGame->players_total = 4;
+        $bonusGame->players_hardcore = 3; // both rarity calculations should use the non-hardcore player count
+        $bonusGame->save();
+        $bonusAchievementSet = $bonusGame->achievementSets()->first();
+
+        $data['bonusAchievements'][1]->unlocks_total = 2;
+        $data['bonusAchievements'][1]->unlocks_hardcore = 0;
+        $data['bonusAchievements'][1]->save();
+
+        $data['bonusAchievements'][0]->unlocks_total = 1;
+        $data['bonusAchievements'][0]->unlocks_hardcore = 1;
+        $data['bonusAchievements'][0]->save();
+
+        $data['bonusAchievements'][2]->unlocks_total = 4;
+        $data['bonusAchievements'][2]->unlocks_hardcore = 3;
+        $data['bonusAchievements'][2]->save();
+
+        $data['bonusAchievements'][3]->unlocks_total = 0;
+        $data['bonusAchievements'][3]->unlocks_hardcore = 0;
+        $data['bonusAchievements'][3]->save();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $data['bonusHash']->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0], 91.67, 83.33), // 11/12=91.67, 10/12=83.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2], 66.67, 50.00), //  8/12=66.67,  6/12=50.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1], 25.00, 8.33), //   3/12=25.00,  1/12= 8.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3], 8.33, 8.33), //    1/12= 8.33,  1/12= 8.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4], 0.00, 0.00), //   unpromoted - rarity is not returned
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][1], 60.00, 20.00), // 3/5=60.00, 1/5=20.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][0], 40.00, 40.00), // 2/5=40.00, 2/5=40.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][2], 0.00, 0.00), //   unpromoted - rarity is not returned
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][3], 20.00, 20.00), // 1/5=20.00, 1/5=20.00
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['bonusLeaderboards'][0]), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+    });
 });
 
 const UNKNOWN_CLIENT_WARNING = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';

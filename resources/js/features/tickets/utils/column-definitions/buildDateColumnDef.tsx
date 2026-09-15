@@ -13,43 +13,52 @@ import type { TranslatedString } from '@/types/i18next';
 import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
-interface BuildAgeColumnDefProps {
+interface BuildDateColumnDefProps {
+  id: 'age' | 'resolvedAt';
   t_label: TranslatedString;
 }
 
-export function buildAgeColumnDef({ t_label }: BuildAgeColumnDefProps): TicketListColumnDefinition {
+export function buildDateColumnDef({
+  id,
+  t_label,
+}: BuildDateColumnDefProps): TicketListColumnDefinition {
   return {
-    id: 'age',
+    id,
     meta: {
       t_label,
       align: 'right',
       responsiveClassName: 'w-[6em] flex-none text-right tabular-nums',
     },
 
-    cell: ({ row }) => <AgeCell createdAt={row.original.createdAt} />,
+    cell: ({ row }) => <DateCell date={row.original[id === 'age' ? 'createdAt' : 'resolvedAt']} />,
   };
 }
 
-interface AgeCellProps {
-  createdAt: string;
+interface DateCellProps {
+  date: string | null;
 }
 
-const AgeCell: FC<AgeCellProps> = ({ createdAt }) => {
+// TODO extract to common when something like this is needed later
+const DateCell: FC<DateCellProps> = ({ date }) => {
   const { formatDate } = useFormatDate();
   const { diffForHumans } = useDiffForHumans();
+
+  if (!date) {
+    return <span className={ticketListCellClassNames.dimText}>{'-'}</span>;
+  }
 
   return (
     <BaseTooltip>
       <BaseTooltipTrigger asChild>
         <span
-          className={cn(ticketListCellClassNames.dimText, 'block truncate')}
+          className={cn(ticketListCellClassNames.dimText, 'relative z-10 block truncate')}
           suppressHydrationWarning={true}
         >
-          {diffForHumans(createdAt, { style: 'narrow' })}
+          {diffForHumans(date, { style: 'narrow' })}
         </span>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent>{formatDate(createdAt, 'MMM DD, YYYY, HH:mm')}</BaseTooltipContent>
+      <BaseTooltipContent>{formatDate(date, 'lll')}</BaseTooltipContent>
     </BaseTooltip>
   );
 };

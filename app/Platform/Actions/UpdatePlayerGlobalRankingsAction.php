@@ -14,12 +14,9 @@ use App\Models\PlayerGlobalRankingTotal;
 use App\Models\User;
 use App\Platform\Enums\GlobalRankingMode;
 use App\Platform\Enums\GlobalRankingWindow;
-use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UpdatePlayerGlobalRankingsAction
 {
@@ -29,51 +26,43 @@ class UpdatePlayerGlobalRankingsAction
         // same period, even if the wall clock crosses a day or week boundary mid-run.
         $boundaries = $this->windowBoundaries($window);
 
-        try {
-            Cache::lock('player-global-rankings-update', 300)->block(240, function () use ($window, $boundaries): void {
-                /**
-                 * The default REPEATABLE READ isolation makes INSERT ... SELECT hold
-                 * shared locks on each source row it reads. These locks block unlock
-                 * inserts and achievement metric updates until the rebuild ends.
-                 * READ COMMITTED makes the same reads lock-free.
-                 *
-                 * This only affects the next transaction on the current DB connection.
-                 */
-                if (DB::transactionLevel() === 0) {
-                    DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
-                }
-
-                DB::transaction(function () use ($window, $boundaries): void {
-                    PlayerGlobalRanking::query()->where('window', $window)->delete();
-
-                    foreach (GlobalRankingMode::cases() as $mode) {
-                        PlayerGlobalRanking::insertUsing(
-                            [
-                                'user_id',
-                                'window',
-                                'mode',
-                                'achievements_unlocked',
-                                'points',
-                                'points_weighted',
-                                'awards_count',
-                                'rank_number',
-                                'weighted_rank_number',
-                                'created_at',
-                            ],
-                            $this->rankingSelect($window, $mode, $boundaries),
-                        );
-                    }
-
-                    if ($window === GlobalRankingWindow::AllTime) {
-                        $this->replaceRankedUserTotals();
-                    }
-                });
-            });
-        } catch (LockTimeoutException) {
-            Log::warning('Skipped player global rankings rebuild: lock timed out.', [
-                'window' => $window->value,
-            ]);
+        /**
+         * The default REPEATABLE READ isolation makes INSERT ... SELECT hold
+         * shared locks on each source row it reads. These locks block unlock
+         * inserts and achievement metric updates until the rebuild ends.
+         * READ COMMITTED makes the same reads lock-free.
+         *
+         * This only affects the next transaction on the current DB connection.
+         */
+        if (DB::transactionLevel() === 0) {
+            DB::statement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
         }
+
+        DB::transaction(function () use ($window, $boundaries): void {
+            PlayerGlobalRanking::query()->where('window', $window)->delete();
+
+            foreach (GlobalRankingMode::cases() as $mode) {
+                PlayerGlobalRanking::insertUsing(
+                    [
+                        'user_id',
+                        'window',
+                        'mode',
+                        'achievements_unlocked',
+                        'points',
+                        'points_weighted',
+                        'awards_count',
+                        'rank_number',
+                        'weighted_rank_number',
+                        'created_at',
+                    ],
+                    $this->rankingSelect($window, $mode, $boundaries),
+                );
+            }
+
+            if ($window === GlobalRankingWindow::AllTime) {
+                $this->replaceRankedUserTotals();
+            }
+        });
     }
 
     /**
