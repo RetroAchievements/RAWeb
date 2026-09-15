@@ -24,6 +24,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useHoverIntent } from '@/common/hooks/useHoverIntent';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
 
@@ -57,6 +58,8 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   sortParam,
 }) => {
   const { t } = useTranslation();
+
+  const hoverIntent = useHoverIntent();
 
   const isAscending = ticketListSort.isAscending(sortParam);
   const sortField = ticketListSort.field(sortParam);
@@ -147,7 +150,12 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
                   <BaseSelectItem
                     key={field}
                     value={field}
-                    onMouseEnter={() => onPrefetchSort?.(ticketListSort.build(field, isAscending))}
+                    onMouseEnter={() =>
+                      hoverIntent.start(() =>
+                        onPrefetchSort?.(ticketListSort.build(field, isAscending)),
+                      )
+                    }
+                    onMouseLeave={hoverIntent.cancel}
                   >
                     {sortFieldLabels[field]}
                   </BaseSelectItem>

@@ -12,6 +12,7 @@ import {
 } from '@/common/components/+vendor/BaseCommand';
 import { BaseDropdownMenuItem } from '@/common/components/+vendor/BaseDropdownMenu';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { useHoverIntent } from '@/common/hooks/useHoverIntent';
 import { cn } from '@/common/utils/cn';
 
 import type { TicketListFilterProperty, TicketListFilterPropertyOption } from '../../models';
@@ -35,6 +36,8 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const hoverIntent = useHoverIntent();
+
   const hasGlyphSlot = property.options.some((option) => option.glyphState);
 
   if (property.options.length <= MAX_OPTIONS_WITHOUT_SEARCH) {
@@ -46,8 +49,11 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
             className="gap-0"
             onSelect={() => onSelect(option.value)}
             onMouseEnter={
-              property.id === 'status' ? () => onPrefetchStatus?.(option.value) : undefined
+              property.id === 'status'
+                ? () => hoverIntent.start(() => onPrefetchStatus?.(option.value))
+                : undefined
             }
+            onMouseLeave={hoverIntent.cancel}
           >
             <TicketListFilterValueRow
               hasGlyphSlot={hasGlyphSlot}

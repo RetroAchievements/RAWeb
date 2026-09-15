@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { act, render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, fireEvent, render, screen, waitFor } from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -828,6 +828,25 @@ describe('Component: TicketIndexRoot', () => {
     ]);
   });
 
+  it('given the user mouses through a filter option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    const quarantinedMenuItem = screen.getByRole('menuitem', { name: /^quarantined/i });
+    await userEvent.hover(quarantinedMenuItem);
+    fireEvent.mouseLeave(quarantinedMenuItem);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
   it('given the user hovers a sort field, prefetches it with the current direction', async () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
@@ -853,6 +872,26 @@ describe('Component: TicketIndexRoot', () => {
         'page[number]': 1,
       },
     ]);
+  });
+
+  it('given the user mouses through a sort field option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    const statusOption = screen.getByRole('option', { name: 'Status' });
+    await userEvent.hover(statusOption);
+    fireEvent.mouseLeave(statusOption);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
   });
 
   it('given the user hovers the reset filters button, prefetches the default filters', async () => {
