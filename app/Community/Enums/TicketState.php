@@ -37,6 +37,38 @@ enum TicketState: string
         };
     }
 
+    /**
+     * The rank used when any ticket list sorts by a specific state value.
+     */
+    public function sortOrder(): int
+    {
+        return match ($this) {
+            self::Open => 0,
+            self::Request => 1,
+            self::Quarantined => 2,
+            self::Resolved => 3,
+            self::Closed => 4,
+        };
+    }
+
+    /**
+     * @see 2026_09_11_152324_add_state_sort_order_to_tickets_table.php
+     *
+     * When adding a new status, be sure to include a migration that also
+     * recreates `state_sort_order`.
+     */
+    public static function sortOrderSqlExpression(): string
+    {
+        $states = self::cases();
+        usort($states, fn (self $a, self $b) => $a->sortOrder() <=> $b->sortOrder());
+        $cases = implode(' ', array_map(
+            fn (self $state) => "WHEN '{$state->value}' THEN {$state->sortOrder()}",
+            $states,
+        ));
+
+        return "CASE state {$cases} ELSE " . count(self::cases()) . ' END';
+    }
+
     public function isResolved(): bool
     {
         return match ($this) {

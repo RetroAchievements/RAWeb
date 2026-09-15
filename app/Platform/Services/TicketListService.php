@@ -71,33 +71,9 @@ class TicketListService
      */
     public function applyFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser = null): Builder
     {
-        switch (TicketListStatusFilter::from($filterOptions['status'])) {
-            case TicketListStatusFilter::Unresolved:
-                $tickets->open();
-                break;
-
-            case TicketListStatusFilter::Open:
-                $tickets->where('state', TicketState::Open);
-                break;
-
-            case TicketListStatusFilter::Request:
-                $tickets->where('state', TicketState::Request);
-                break;
-
-            case TicketListStatusFilter::Resolved:
-                $tickets->where('state', TicketState::Resolved);
-                break;
-
-            case TicketListStatusFilter::Closed:
-                $tickets->where('state', TicketState::Closed);
-                break;
-
-            case TicketListStatusFilter::Quarantined:
-                $tickets->quarantined();
-                break;
-
-            case TicketListStatusFilter::All:
-                break;
+        $states = TicketListStatusFilter::from($filterOptions['status'])->states();
+        if ($states !== null) {
+            $tickets->whereIn('state', $states);
         }
 
         if ($filterOptions['type'] > 0) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\TicketState;
 use App\Data\PaginatedData;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -66,7 +67,7 @@ class BuildTicketListAction
 
         // If the result set is small, filter it first instead of scanning creation dates for a full page.
         // This makes several queries ~20x faster.
-        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt && $sort['direction'] === 'desc') {
+        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt) {
             $query->ignoreIndex('tickets_created_at_index');
         }
 
@@ -119,18 +120,9 @@ class BuildTicketListAction
     {
         switch ($sort['field']) {
             case TicketListSortField::State:
-                // Avoid scanning unrelated statuses.
-                $ranks = match ($status) {
-                    TicketListStatusFilter::All => null,
-                    TicketListStatusFilter::Unresolved => [0, 1],
-                    TicketListStatusFilter::Open => [0],
-                    TicketListStatusFilter::Request => [1],
-                    TicketListStatusFilter::Quarantined => [2],
-                    TicketListStatusFilter::Resolved => [3],
-                    TicketListStatusFilter::Closed => [4],
-                };
-                if ($ranks !== null) {
-                    $query->whereIn('state_sort_order', $ranks);
+                $states = $status->states(); // avoid scanning unrelated statuses
+                if ($states !== null) {
+                    $query->whereIn('state_sort_order', array_map(fn (TicketState $state) => $state->sortOrder(), $states));
                 }
                 $query->orderBy('state_sort_order', $sort['direction']);
                 $query->orderByDesc('created_at');
