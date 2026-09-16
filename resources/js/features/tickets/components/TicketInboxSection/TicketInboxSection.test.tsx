@@ -103,6 +103,20 @@ describe('Component: TicketInboxSection', () => {
 
     // ASSERT
     const headers = screen.getAllByRole('columnheader').map((header) => header.textContent);
-    expect(headers).toEqual(['ID', 'Issue with', 'Game', 'Developer', 'Age']);
+    expect(headers).toEqual(['ID', 'Issue with', 'Game', 'Developer', 'Created']);
+  });
+
+  it('given the resolved by you section, shows the resolved date column', () => {
+    // ARRANGE
+    renderSection({
+      section: createTicketInboxSection({
+        kind: 'resolvedByYou',
+        count: 1,
+        tickets: [createTicketListEntry()],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
   });
 });
