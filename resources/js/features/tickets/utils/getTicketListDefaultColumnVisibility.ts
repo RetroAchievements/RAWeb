@@ -29,13 +29,13 @@ const visibleColumnIdsByScope: Record<
   App.Platform.Enums.TicketListScope,
   readonly TicketListColumnId[]
 > = {
-  all: ['id', 'ticketable', 'game', 'developer', 'reporter', 'age'],
+  all: ['id', 'ticketable', 'developer', 'reporter', 'age'],
   game: ['id', 'ticketable', 'developer', 'reporter', 'age'],
   achievement: ['id', 'type', 'reporter', 'age'],
-  assignedTo: ['id', 'ticketable', 'game', 'reporter', 'age'],
-  reportedBy: ['id', 'ticketable', 'game', 'developer', 'age'],
-  awaitingReporter: ['id', 'ticketable', 'game', 'developer', 'age'],
-  resolvedBy: ['id', 'ticketable', 'game', 'reporter', 'age', 'resolvedAt'],
+  assignedTo: ['id', 'ticketable', 'reporter', 'age'],
+  reportedBy: ['id', 'ticketable', 'developer', 'age'],
+  awaitingReporter: ['id', 'ticketable', 'developer', 'age'],
+  resolvedBy: ['id', 'ticketable', 'reporter', 'age', 'resolvedAt'],
 };
 
 const statusValuesShowingResolver: App.Platform.Enums.TicketListStatusFilter[] = [

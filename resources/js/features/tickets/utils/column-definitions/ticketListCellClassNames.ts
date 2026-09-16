@@ -3,7 +3,6 @@ export const ticketListCellClassNames: Record<string, string> = {
 
   truncate: 'min-w-0 truncate',
 
-  gameResponsive: 'max-lg:hidden',
   userResponsive: 'max-md:hidden',
 
   entityLinkWrapper: 'group/entity relative z-10 no-underline!',
