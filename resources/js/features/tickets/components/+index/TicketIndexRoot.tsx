@@ -11,6 +11,7 @@ import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
+import { getTicketListColumnFiltersForSort } from '../../utils/getTicketListColumnFiltersForSort';
 import { setTicketListColumnFilterValue } from '../../utils/setTicketListColumnFilterValue';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
 import { TicketListEmptyState } from '../TicketListEmptyState';
@@ -139,7 +140,15 @@ export const TicketIndexRoot: FC = () => {
               columnDefinitions={columnDefinitions}
               columnVisibility={ticketListTableProps.columnVisibility}
               hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
-              onPrefetchSort={(sortParam) => ticketListTableProps.prefetchList({ sortParam })}
+              onPrefetchSort={(sortParam) =>
+                ticketListTableProps.prefetchList({
+                  sortParam,
+                  columnFilters: getTicketListColumnFiltersForSort(
+                    ticketListTableProps.columnFilters,
+                    sortParam,
+                  ),
+                })
+              }
               onResetDisplay={ticketListTableProps.resetDisplay}
               onSortChange={ticketListTableProps.setSortParam}
               onToggleColumn={ticketListTableProps.toggleColumnVisibility}
