@@ -28,6 +28,7 @@ interface TicketListTableProps {
   columnVisibility: VisibilityState;
   paginatedTickets: TicketListTablePage;
 
+  shouldShowGameTitle?: boolean;
   emptyStateNode?: ReactNode;
   isFetching?: boolean;
   paginatorNode?: ReactNode;
@@ -40,6 +41,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   emptyStateNode,
   paginatorNode,
   isFetching = false,
+  shouldShowGameTitle = true,
 }) => {
   const { t } = useTranslation();
 
@@ -72,6 +74,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   const visibleColumns = table.getVisibleLeafColumns();
 
   const hasIdColumn = visibleColumns.some((column) => column.id === 'id');
+  const hasTicketableColumn = visibleColumns.some((column) => column.id === 'ticketable');
 
   if (!rows.length) {
     return <>{emptyStateNode ?? <TicketListEmptyState />}</>;
@@ -133,6 +136,8 @@ export const TicketListTable: FC<TicketListTableProps> = ({
               className={cn(
                 'relative flex h-[2.6em] min-w-full items-center gap-[0.6em] px-[0.6em]',
                 'focus-within:bg-embed-highlight hover:bg-embed-highlight sm:w-min',
+                shouldShowGameTitle ? 'max-sm:h-[3.6em]' : null,
+                shouldShowGameTitle && hasTicketableColumn ? 'sm:h-[3.6em]' : null,
               )}
             >
               <a
@@ -141,7 +146,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
               />
 
-              <TicketListMobileRow entry={row.original} />
+              <TicketListMobileRow entry={row.original} shouldShowGameTitle={shouldShowGameTitle} />
 
               <div className="max-sm:hidden sm:contents">
                 {hasIdColumn ? null : (
