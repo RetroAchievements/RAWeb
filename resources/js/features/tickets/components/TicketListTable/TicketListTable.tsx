@@ -10,10 +10,13 @@ import { route } from 'ziggy-js';
 
 import { cn } from '@/common/utils/cn';
 
+import { useSyncedHorizontalScroll } from '../../hooks/useSyncedHorizontalScroll';
 import type { TicketListColumnDefinition } from '../../models';
 import { TicketListEmptyState } from '../TicketListEmptyState';
 import { TicketStateGlyph } from '../TicketStateGlyph';
 import { TicketListMobileRow } from './TicketListMobileRow';
+
+const glyphSlotClassName = 'mx-[0.6em] flex w-4 flex-none items-center justify-center';
 
 type TicketListTablePage = Pick<
   App.Data.PaginatedData<App.Platform.Data.TicketListEntry>,
@@ -25,12 +28,11 @@ interface TicketListTableProps {
   columnVisibility: VisibilityState;
   paginatedTickets: TicketListTablePage;
 
+  shouldShowGameTitle?: boolean;
   emptyStateNode?: ReactNode;
   isFetching?: boolean;
   paginatorNode?: ReactNode;
 }
-
-const glyphSlotClassName = 'mx-[0.6em] flex w-4 flex-none items-center justify-center';
 
 export const TicketListTable: FC<TicketListTableProps> = ({
   columnDefinitions,
@@ -39,8 +41,18 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   emptyStateNode,
   paginatorNode,
   isFetching = false,
+  shouldShowGameTitle = true,
 }) => {
   const { t } = useTranslation();
+
+  /**
+   * The header and row elements use separate horizontal scroll containers
+   * so the header can stay sticky while other things scroll around on desktop.
+   * The browser doesn't sync scroll positions of the containers automatically,
+   * so we do it ourselves with a little bit of JS.
+   */
+  const { headerElRef, bodyElRef, handleHeaderScroll, handleBodyScroll } =
+    useSyncedHorizontalScroll();
 
   const table = useReactTable({
     columns: columnDefinitions,
@@ -62,7 +74,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   const visibleColumns = table.getVisibleLeafColumns();
 
   const hasIdColumn = visibleColumns.some((column) => column.id === 'id');
-  const hasGameColumn = visibleColumns.some((column) => column.id === 'game');
+  const hasTicketableColumn = visibleColumns.some((column) => column.id === 'ticketable');
 
   if (!rows.length) {
     return <>{emptyStateNode ?? <TicketListEmptyState />}</>;
@@ -70,18 +82,25 @@ export const TicketListTable: FC<TicketListTableProps> = ({
 
   return (
     <div className="flex flex-col gap-[0.6em]">
-      <div className="max-w-full overflow-x-auto">
+      <div
+        role="table"
+        aria-busy={isFetching ? true : undefined}
+        className={cn(
+          'min-w-0 max-w-full rounded-[0.3em] bg-embed',
+          isFetching ? 'opacity-50' : null,
+        )}
+      >
         <div
-          role="table"
-          aria-busy={isFetching ? true : undefined}
+          ref={headerElRef}
           className={cn(
-            'flex min-w-full flex-col overflow-hidden rounded-[0.3em] bg-embed sm:w-fit',
-            isFetching ? 'opacity-50' : null,
+            'scrollbar-none overflow-x-auto rounded-t-[0.3em] bg-embed',
+            'max-sm:hidden lg:sticky lg:top-10.25 lg:z-20 [&::-webkit-scrollbar]:hidden',
           )}
+          onScroll={handleHeaderScroll}
         >
           <div
             role="row"
-            className="flex min-w-full items-center gap-[0.6em] p-[0.6em] text-menu-link max-sm:hidden"
+            className="flex w-min min-w-full items-center gap-[0.6em] p-[0.6em] text-menu-link"
           >
             {hasIdColumn ? null : <span aria-hidden="true" className={glyphSlotClassName} />}
 
@@ -89,7 +108,10 @@ export const TicketListTable: FC<TicketListTableProps> = ({
               <Fragment key={column.id}>
                 <div
                   role="columnheader"
-                  className={cn('truncate', column.columnDef.meta?.responsiveClassName)}
+                  className={cn(
+                    'truncate contain-[inline-size]',
+                    column.columnDef.meta?.responsiveClassName,
+                  )}
                 >
                   {column.columnDef.meta?.t_label}
                 </div>
@@ -100,14 +122,22 @@ export const TicketListTable: FC<TicketListTableProps> = ({
               </Fragment>
             ))}
           </div>
+        </div>
 
+        <div
+          ref={bodyElRef}
+          className="overflow-x-auto rounded-b-[0.3em]"
+          onScroll={handleBodyScroll}
+        >
           {rows.map((row) => (
             <div
               key={row.id}
               role="row"
               className={cn(
-                'relative flex h-[2.6em] min-w-full items-center px-[0.6em] focus-within:bg-embed-highlight hover:bg-embed-highlight',
-                hasGameColumn ? 'max-sm:h-[3.6em]' : null,
+                'relative flex h-[2.6em] min-w-full items-center gap-[0.6em] px-[0.6em]',
+                'focus-within:bg-embed-highlight hover:bg-embed-highlight sm:w-min',
+                shouldShowGameTitle ? 'max-sm:h-[3.6em]' : null,
+                shouldShowGameTitle && hasTicketableColumn ? 'sm:h-[3.6em]' : null,
               )}
             >
               <a
@@ -116,9 +146,9 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
               />
 
-              <TicketListMobileRow entry={row.original} shouldShowGameTitle={hasGameColumn} />
+              <TicketListMobileRow entry={row.original} shouldShowGameTitle={shouldShowGameTitle} />
 
-              <div className="min-w-0 flex-1 items-center gap-[0.6em] max-sm:hidden sm:flex">
+              <div className="max-sm:hidden sm:contents">
                 {hasIdColumn ? null : (
                   <div role="cell" className={glyphSlotClassName}>
                     <TicketStateGlyph state={row.original.state} />
@@ -130,7 +160,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                     <div
                       role="cell"
                       className={cn(
-                        'min-w-0 overflow-hidden',
+                        'min-w-0 overflow-hidden contain-[inline-size]',
                         cell.column.columnDef.meta?.responsiveClassName,
                       )}
                     >
