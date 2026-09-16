@@ -41,7 +41,7 @@ describe('Hook: useTicketListState', () => {
     const { result } = renderTicketListState({ currentPage: 3, persistedViewPreferences });
 
     // ASSERT
-    expect(result.current.columnVisibilityOverrides).toEqual({ game: false, type: true });
+    expect(result.current.columnVisibilityOverrides).toEqual({ type: true });
     expect(result.current.sortParam).toBe('state');
     expect(result.current.pageNumber).toBe(3);
 
@@ -117,7 +117,7 @@ describe('Hook: useTicketListState', () => {
     const { result } = renderTicketListState({ persistedViewPreferences });
 
     // ASSERT
-    expect(result.current.columnVisibilityOverrides).toEqual({ game: false });
+    expect(result.current.columnVisibilityOverrides).toEqual({});
     expect(result.current.sortParam).toBe('-createdAt');
   });
 });

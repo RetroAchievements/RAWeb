@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { route } from 'ziggy-js';
 
-import { render, screen, within } from '@/test';
+import { fireEvent, render, screen, within } from '@/test';
 import {
   createEmulator,
   createGame,
@@ -32,6 +32,7 @@ interface TestHarnessProps {
   isFetching?: boolean;
   lastPage?: number;
   paginatorNode?: React.ReactNode;
+  shouldShowGameTitle?: boolean;
   tickets?: App.Platform.Data.TicketListEntry[];
 }
 
@@ -41,9 +42,11 @@ const TestHarness: FC<TestHarnessProps> = ({
   paginatorNode,
   columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
   lastPage = 1,
+  shouldShowGameTitle = true,
   tickets = [createTicketListEntry()],
 }) => {
-  const columnDefinitions: TicketListColumnDefinition[] = useTicketListColumnDefinitions();
+  const columnDefinitions: TicketListColumnDefinition[] =
+    useTicketListColumnDefinitions(shouldShowGameTitle);
 
   const paginatedTickets = createPaginatedData(tickets, {
     lastPage,
@@ -56,10 +59,11 @@ const TestHarness: FC<TestHarnessProps> = ({
     <TicketListTable
       columnDefinitions={columnDefinitions}
       columnVisibility={columnVisibility}
-      paginatedTickets={paginatedTickets}
       emptyStateNode={emptyStateNode}
       isFetching={isFetching}
+      paginatedTickets={paginatedTickets}
       paginatorNode={paginatorNode}
+      shouldShowGameTitle={shouldShowGameTitle}
     />
   );
 };
@@ -81,7 +85,7 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     const headers = screen.getAllByRole('columnheader');
-    expect(headers.map((header) => header.textContent)).toEqual(['ID', 'Issue with', 'Age']);
+    expect(headers.map((header) => header.textContent)).toEqual(['ID', 'Issue with', 'Created']);
   });
 
   it('given every column is visible, renders all the headers in registry order', () => {
@@ -92,7 +96,6 @@ describe('Component: TicketListTable', () => {
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'ID',
       'Issue with',
-      'Game',
       'Issue type',
       'Mode',
       'Developer',
@@ -102,8 +105,65 @@ describe('Component: TicketListTable', () => {
       'Version',
       'Core',
       'Hash',
-      'Age',
+      'Created',
+      'Resolved',
     ]);
+  });
+
+  it('synchronizes horizontal scrolling between the separate header element and row elements', () => {
+    // ARRANGE
+    render(<TestHarness columnVisibility={allVisible} />);
+
+    const table = screen.getByRole('table');
+    const header = screen.getAllByRole('columnheader')[0].parentElement!;
+    const headerViewport = header.parentElement!;
+    const row = within(table).getAllByRole('row')[1];
+    const bodyViewport = row.parentElement!;
+
+    // ASSERT
+    fireEvent.scroll(bodyViewport, { target: { scrollLeft: 200 } });
+    expect(headerViewport.scrollLeft).toBe(200);
+    fireEvent.scroll(headerViewport, { target: { scrollLeft: 100 } });
+    expect(bodyViewport.scrollLeft).toBe(100);
+  });
+
+  it('given created and resolved dates, shows their separate values and the exact date on hover in a tooltip', async () => {
+    // ARRANGE
+    vi.setSystemTime(new Date('2026-09-10T12:00:00Z'));
+    const ticket = createTicketListEntry({
+      id: 501,
+      state: 'resolved',
+      createdAt: '2026-09-05T12:00:00Z',
+      resolvedAt: '2026-09-08T12:00:00Z',
+    });
+
+    render(
+      <TestHarness
+        tickets={[ticket]}
+        columnVisibility={{ ...noneVisible, age: true, resolvedAt: true }}
+      />,
+    );
+
+    // ASSERT
+    const cells = within(screen.getByRole('row', { name: /Ticket #501/ })).getAllByRole('cell');
+    expect(cells.at(-2)).toHaveTextContent('5d ago');
+    expect(cells.at(-1)).toHaveTextContent('2d ago');
+
+    await userEvent.hover(screen.getByText('2d ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Sep 8, 2026 12:00 PM');
+  });
+
+  it('given no resolved date, shows a dash as the column value', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        tickets={[createTicketListEntry({ resolvedAt: null })]}
+        columnVisibility={{ ...noneVisible, resolvedAt: true }}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('-')).toBeVisible();
   });
 
   it('given zero rows, shows the empty state copy and no table', () => {
@@ -171,7 +231,7 @@ describe('Component: TicketListTable', () => {
     expect(badgeEls).toHaveLength(2);
   });
 
-  it('given a leaderboard ticket, prefixes the title as plain text', () => {
+  it('given a leaderboard ticket, links its title', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       ticketableType: 'leaderboard',
@@ -183,8 +243,11 @@ describe('Component: TicketListTable', () => {
     render(<TestHarness tickets={[ticket]} />);
 
     // ASSERT
-    expect(screen.getAllByText('(LB) Fastest lap')[0]).toBeVisible();
-    expect(screen.queryByRole('link', { name: /Fastest lap/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Fastest lap' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('leaderboard.show'),
+    );
+    expect(route).toHaveBeenCalledWith('leaderboard.show', { leaderboard: 88 });
     expect(screen.queryByRole('img', { name: 'Fastest lap' })).not.toBeInTheDocument();
   });
 
@@ -243,7 +306,7 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(screen.getAllByText('Deleted user')).toHaveLength(2);
-    expect(screen.getAllByRole('link')).toHaveLength(3);
+    expect(screen.getAllByRole('link')).toHaveLength(5);
     expect(screen.getByRole('link', { name: 'Ticket #640' })).toBeVisible();
     expect(screen.getByRole('link', { name: '640' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Some achievement' })).toBeVisible();
@@ -268,7 +331,7 @@ describe('Component: TicketListTable', () => {
     expect(screen.getAllByText('Deleted user')).toHaveLength(1);
   });
 
-  it('given a game with a badge and a short system name, links to the game and shows the system name inline', () => {
+  it('given a game, links its title beneath the issue title', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       game: createGame({
@@ -283,7 +346,7 @@ describe('Component: TicketListTable', () => {
     render(
       <TestHarness
         tickets={[ticket]}
-        columnVisibility={{ ...noneVisible, id: true, ticketable: true, game: true }}
+        columnVisibility={{ ...noneVisible, id: true, ticketable: true }}
       />,
     );
 
@@ -291,12 +354,10 @@ describe('Component: TicketListTable', () => {
     const linkEl = screen.getByRole('link', { name: /sonic the hedgehog/i });
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
     expect(route).toHaveBeenCalledWith('game.show', { game: 1234 });
-
-    expect(screen.getByRole('img', { name: 'Sonic the Hedgehog' })).toHaveAttribute(
-      'src',
-      'https://example.com/game.png',
+    expect(linkEl).toHaveAttribute(
+      'x-data',
+      expect.stringContaining("dynamicType: 'game', dynamicId: '1234'"),
     );
-    expect(screen.getByText('· MD')).toBeVisible();
   });
 
   it('given the id column is hidden, the state glyph leads the row and the header keeps its slot', () => {
@@ -313,7 +374,7 @@ describe('Component: TicketListTable', () => {
     // ASSERT
     expect(screen.getAllByRole('columnheader').map((el) => el.textContent)).toEqual([
       'Issue with',
-      'Age',
+      'Created',
     ]);
     expect(screen.getAllByRole('img', { name: 'Open' })).toHaveLength(2);
   });
@@ -339,6 +400,39 @@ describe('Component: TicketListTable', () => {
     // it should be hidden for a single page
     rerender(<TestHarness lastPage={1} paginatorNode={<div data-testid="paginator" />} />);
     expect(screen.queryByTestId('paginator')).not.toBeInTheDocument();
+  });
+
+  it('given a list with different games, the mobile row shows the formatted game title', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 12345,
+      ticketableTitle: 'That Was Easy',
+      game: createGame({ title: 'Sonic the Hedgehog' }),
+    });
+
+    render(
+      <TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, ticketable: true }} />,
+    );
+
+    // ASSERT
+    const mobileCell = within(screen.getByRole('row', { name: /Ticket #12345/ })).getAllByRole(
+      'cell',
+    )[0];
+    expect(within(mobileCell).getByText('That Was Easy')).toBeVisible();
+    expect(within(mobileCell).getByText('Sonic the Hedgehog')).toBeVisible();
+  });
+
+  it('given a game-scoped list, omits the game title on desktop and mobile', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        shouldShowGameTitle={false}
+        tickets={[createTicketListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText('Sonic the Hedgehog')).not.toBeInTheDocument();
   });
 
   it('given a ticket whose reporter was deleted, the mobile row omits the avatar', () => {

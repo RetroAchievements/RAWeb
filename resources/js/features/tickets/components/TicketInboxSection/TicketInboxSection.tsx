@@ -37,13 +37,11 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
     return null;
   }
 
-  const visibleColumnIds = new Set<string>([
-    'id',
-    'ticketable',
-    'game',
-    counterpartyColumnId,
-    'age',
-  ]);
+  const visibleColumnIds = new Set<string>(['id', 'ticketable', counterpartyColumnId, 'age']);
+  if (section.kind === 'resolvedByYou') {
+    visibleColumnIds.add('resolvedAt');
+  }
+
   const columnVisibility: VisibilityState = Object.fromEntries(
     TICKET_LIST_COLUMN_IDS.map((columnId) => [columnId, visibleColumnIds.has(columnId)]),
   );

@@ -1,15 +1,16 @@
 import { useTranslation } from 'react-i18next';
 
 import type { TicketListColumnDefinition } from '../models';
-import { buildAgeColumnDef } from '../utils/column-definitions/buildAgeColumnDef';
-import { buildGameColumnDef } from '../utils/column-definitions/buildGameColumnDef';
+import { buildDateColumnDef } from '../utils/column-definitions/buildDateColumnDef';
 import { buildHashColumnDef } from '../utils/column-definitions/buildHashColumnDef';
 import { buildIdColumnDef } from '../utils/column-definitions/buildIdColumnDef';
 import { buildTicketableColumnDef } from '../utils/column-definitions/buildTicketableColumnDef';
 import { buildTicketMetadataColumnDef } from '../utils/column-definitions/buildTicketMetadataColumnDef';
 import { buildUserColumnDef } from '../utils/column-definitions/buildUserColumnDef';
 
-export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
+export function useTicketListColumnDefinitions(
+  shouldShowGameTitle = true,
+): TicketListColumnDefinition[] {
   const { t } = useTranslation();
 
   const ticketTypeLabels: Record<App.Community.Enums.TicketType, string> = {
@@ -26,8 +27,7 @@ export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
 
   return [
     buildIdColumnDef({ t_label: t('ID') }),
-    buildTicketableColumnDef({ t_label: t('Issue with') }),
-    buildGameColumnDef({ t_label: t('Game') }),
+    buildTicketableColumnDef({ t_label: t('Issue with'), shouldShowGameTitle }),
     buildTicketMetadataColumnDef({
       id: 'type',
       t_label: t('Issue type'),
@@ -81,6 +81,7 @@ export function useTicketListColumnDefinitions(): TicketListColumnDefinition[] {
     }),
     buildHashColumnDef({ t_label: t('Hash') }),
 
-    buildAgeColumnDef({ t_label: t('Age') }),
+    buildDateColumnDef({ id: 'age', t_label: t('Created') }),
+    buildDateColumnDef({ id: 'resolvedAt', t_label: t('Resolved') }),
   ];
 }

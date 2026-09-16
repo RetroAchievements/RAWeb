@@ -1,7 +1,6 @@
 export const TICKET_LIST_COLUMN_IDS = [
   'id',
   'ticketable',
-  'game',
   'type',
   'mode',
   'developer',
@@ -12,4 +11,5 @@ export const TICKET_LIST_COLUMN_IDS = [
   'core',
   'hash',
   'age',
+  'resolvedAt',
 ] as const;
