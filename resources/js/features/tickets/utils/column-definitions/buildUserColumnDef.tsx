@@ -68,7 +68,7 @@ const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
       size={16}
       wrapperClassName={cn('max-w-full min-w-0', ticketListCellClassNames.entityLinkWrapper)}
       labelClassName={cn(
-        ticketListCellClassNames.entityLinkLabel,
+        user.isGone ? ticketListCellClassNames.dimText : ticketListCellClassNames.entityLinkLabel,
         ticketListCellClassNames.truncate,
       )}
     />
