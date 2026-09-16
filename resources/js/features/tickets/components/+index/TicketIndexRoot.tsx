@@ -160,7 +160,7 @@ export const TicketIndexRoot: FC = () => {
             scope={scope}
             unfilteredTotal={unfilteredTotal}
             onPrefetchResetFilters={() =>
-              ticketListTableProps.prefetchFilters(serverDefaultColumnFilters)
+              ticketListTableProps.prefetchList({ columnFilters: serverDefaultColumnFilters })
             }
             onResetFilters={
               hasNonDefaultFilters
