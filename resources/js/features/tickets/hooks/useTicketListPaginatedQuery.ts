@@ -1,4 +1,5 @@
 import { hashKey, keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import { useRef, useState } from 'react';
 
 import type { TicketListQueryData, TicketListQueryOptionsInput } from '../models';
@@ -37,5 +38,11 @@ export function useTicketListPaginatedQuery({
     queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
   };
 
-  return { data: data ?? initialData, isFetching, prefetchPage };
+  const prefetchFilters = (columnFilters: ColumnFiltersState) => {
+    queryClient.prefetchQuery(
+      buildTicketListQueryOptions({ ...queryOptionsInput, columnFilters, pageNumber: 1 }),
+    );
+  };
+
+  return { data: data ?? initialData, isFetching, prefetchFilters, prefetchPage };
 }
