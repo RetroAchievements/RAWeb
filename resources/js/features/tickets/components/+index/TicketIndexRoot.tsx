@@ -33,7 +33,8 @@ export const TicketIndexRoot: FC = () => {
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
-  const columnDefinitions = useTicketListColumnDefinitions();
+  const shouldShowGameTitle = scope !== 'game' && scope !== 'achievement';
+  const columnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
 
   const serverDefaultColumnFilters: ColumnFiltersState = [
     { id: 'status', value: [defaultStatusFilter] },
@@ -131,6 +132,7 @@ export const TicketIndexRoot: FC = () => {
       </div>
 
       <TicketListTable
+        shouldShowGameTitle={shouldShowGameTitle}
         columnDefinitions={columnDefinitions}
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}

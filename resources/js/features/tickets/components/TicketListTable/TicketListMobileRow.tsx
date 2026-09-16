@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { LuChartBar } from 'react-icons/lu';
 
 import { GameTitle } from '@/common/components/GameTitle';
 import { cn } from '@/common/utils/cn';
@@ -19,8 +19,6 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
   entry,
   shouldShowGameTitle,
 }) => {
-  const { t } = useTranslation();
-
   const { diffForHumans } = useDiffForHumans();
 
   return (
@@ -39,12 +37,12 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
         />
       ) : null}
 
+      {entry.ticketableType === 'leaderboard' ? (
+        <LuChartBar aria-hidden="true" className="size-6 flex-none text-link" />
+      ) : null}
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-link">
-          {entry.ticketableType === 'leaderboard'
-            ? t('(LB) {{title}}', { title: entry.ticketableTitle })
-            : entry.ticketableTitle}
-        </span>
+        <span className="truncate text-link">{entry.ticketableTitle}</span>
 
         {shouldShowGameTitle ? (
           <GameTitle

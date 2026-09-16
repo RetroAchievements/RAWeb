@@ -106,7 +106,6 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'ID',
       'Issue with',
-      'Game',
       'Developer',
       'Reporter',
       'Created',
@@ -579,15 +578,15 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
 
     // ASSERT
-    expect(screen.queryByRole('columnheader', { name: 'Game' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Reporter' })).not.toBeInTheDocument();
     expect(screen.getByTestId('reset-display')).toBeVisible();
 
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
 
-    expect(screen.getByRole('columnheader', { name: 'Game' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: 'Reporter' })).toBeVisible();
     expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
   });
@@ -649,7 +648,7 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
     await userEvent.click(screen.getByTestId('reset-display'));
 
     // ASSERT
