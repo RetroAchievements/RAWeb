@@ -94,7 +94,7 @@ describe('Component: TicketInboxSection', () => {
 
     // ASSERT
     const headers = screen.getAllByRole('columnheader').map((header) => header.textContent);
-    expect(headers).toEqual(['ID', 'Issue with', 'Game', 'Developer', 'Created']);
+    expect(headers).toEqual(['ID', 'Issue with', 'Developer', 'Created']);
   });
 
   it('given the resolved by you section, shows the resolved date column', () => {

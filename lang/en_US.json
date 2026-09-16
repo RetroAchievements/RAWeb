@@ -1537,7 +1537,6 @@
     "View the people you follow and the people who follow you": "View the people you follow and the people who follow you",
     "View your personal game lists, such as Want to Play and Want to Develop": "View your personal game lists, such as Want to Play and Want to Develop",
     "Ticket Manager": "Ticket Manager",
-    "(LB) {{title}}": "(LB) {{title}}",
     "No tickets match these filters.": "No tickets match these filters.",
     "Deleted user": "Deleted user",
     "Closed": "Closed",
@@ -1603,5 +1602,9 @@
     "Unresolved": "Unresolved",
     "For you": "For you",
     "All tickets": "All tickets",
-    "You're all caught up.": "You're all caught up."
+    "You're all caught up.": "You're all caught up.",
+    "No tickets have been reported for this game.": "No tickets have been reported for this game.",
+    "No tickets have been reported for this achievement.": "No tickets have been reported for this achievement.",
+    "There are no tickets in this list.": "There are no tickets in this list.",
+    "Reset filters": "Reset filters"
 }

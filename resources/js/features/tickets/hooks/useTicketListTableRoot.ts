@@ -87,10 +87,11 @@ export function useTicketListTableRoot({
       setSortParam,
       sortParam,
       toggleColumnVisibility,
-      prefetchPage: ticketListQuery.prefetchPage,
       columnVisibility: { ...defaultColumnVisibility, ...columnVisibilityOverrides },
       hasColumnVisibilityOverrides: Object.keys(columnVisibilityOverrides).length > 0,
       isFetching: ticketListQuery.isFetching,
+      prefetchFilters: ticketListQuery.prefetchFilters,
+      prefetchPage: ticketListQuery.prefetchPage,
       ...ticketListQuery.data,
     },
   };

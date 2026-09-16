@@ -42,10 +42,7 @@ export const TicketInboxMainRoot: FC = () => {
       user: displayName,
       'filter[status]': 'all',
     }),
-    resolvedByYou: route('developer.tickets.resolved', {
-      user: displayName,
-      'filter[status]': 'resolved',
-    }),
+    resolvedByYou: route('developer.tickets.resolved', { user: displayName }),
   };
 
   return (
