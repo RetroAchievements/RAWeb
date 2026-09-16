@@ -24,9 +24,11 @@ type SearchResult =
   | App.Platform.Data.Game
   | App.Platform.Data.Achievement
   | App.Platform.Data.GameSet
-  | App.Platform.Data.Event;
+  | App.Platform.Data.Event
+  | App.Data.ForumTopicComment
+  | App.Community.Data.Comment;
 
-interface SearchSection {
+export interface SearchSection {
   key: string;
   heading: string;
   results: SearchResult[];
@@ -40,6 +42,25 @@ interface SearchResultsProps {
   currentSearchMode: SearchMode;
   searchResults: ReturnType<typeof useSearchQuery>['data'];
   onClose: () => void;
+}
+
+export function sortSections(a: SearchSection, b: SearchSection) {
+  // If one section has significantly higher relevance (>0.3 difference), prioritize it.
+  const relevanceDiff = b.relevance - a.relevance;
+  if (Math.abs(relevanceDiff) > 0.3) {
+    return relevanceDiff > 0 ? 1 : -1;
+  }
+
+  // Otherwise, use logical default ordering.
+  const defaultOrder: Record<string, number> = {
+    games: 1,
+    hubs: 2,
+    users: 3,
+    events: 4,
+    achievements: 5,
+  };
+
+  return (defaultOrder[a.key] ?? 10) - (defaultOrder[b.key] ?? 10);
 }
 
 export const SearchResults: FC<SearchResultsProps> = ({
@@ -216,24 +237,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
   const sectionsWithResults = sections.filter((section) => section.results.length > 0);
 
   // Use smart section ordering with fallback to logical defaults.
-  sectionsWithResults.sort((a, b) => {
-    // If one section has significantly higher relevance (>0.3 difference), prioritize it.
-    const relevanceDiff = b.relevance - a.relevance;
-    if (Math.abs(relevanceDiff) > 0.3) {
-      return relevanceDiff > 0 ? 1 : -1;
-    }
-
-    // Otherwise, use logical default ordering.
-    const defaultOrder: Record<string, number> = {
-      games: 1,
-      hubs: 2,
-      users: 3,
-      events: 4,
-      achievements: 5,
-    };
-
-    return (defaultOrder[a.key] as number) - (defaultOrder[b.key] as number);
-  });
+  sectionsWithResults.sort(sortSections);
 
   const maxResultsSize = 10;
 
