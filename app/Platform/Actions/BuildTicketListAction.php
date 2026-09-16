@@ -63,7 +63,15 @@ class BuildTicketListAction
         }
 
         $query = $service->applyFilters(clone $renderableTickets, $filterOptions, $comparisonUser);
-        $this->applySort($query, $request->getSort());
+        $sort = $request->getSort();
+
+        // If the result set is small, filter it first instead of scanning creation dates for a full page.
+        // This makes several queries ~20x faster.
+        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt) {
+            $query->ignoreIndex('tickets_created_at_index');
+        }
+
+        $this->applySort($query, $sort, TicketListStatusFilter::from($filterOptions['status']));
         $this->applyTicketListEntryEagerLoads($query);
 
         $paginator = new LengthAwarePaginator(
@@ -108,25 +116,15 @@ class BuildTicketListAction
      * @param Builder<Ticket> $query
      * @param array{field: TicketListSortField, direction: 'asc'|'desc'} $sort
      */
-    private function applySort(Builder $query, array $sort): void
+    private function applySort(Builder $query, array $sort, TicketListStatusFilter $status): void
     {
         switch ($sort['field']) {
             case TicketListSortField::State:
-                $stateOrder = [
-                    TicketState::Open,
-                    TicketState::Request,
-                    TicketState::Quarantined,
-                    TicketState::Resolved,
-                    TicketState::Closed,
-                ];
-                $cases = implode(' ', array_map(
-                    fn (int $index) => "WHEN ? THEN {$index}",
-                    array_keys($stateOrder),
-                ));
-                $query->orderByRaw(
-                    "CASE state {$cases} ELSE ? END {$sort['direction']}",
-                    [...array_map(fn (TicketState $state) => $state->value, $stateOrder), count($stateOrder)],
-                );
+                $states = $status->states(); // avoid scanning unrelated statuses
+                if ($states !== null) {
+                    $query->whereIn('state_sort_order', array_map(fn (TicketState $state) => $state->sortOrder(), $states));
+                }
+                $query->orderBy('state_sort_order', $sort['direction']);
                 $query->orderByDesc('created_at');
                 break;
 

@@ -276,3 +276,18 @@ it('prefers the URL sort over the persisted sort', function () {
         'direction' => 'desc',
     ]);
 });
+
+it('the generated sort column is consistent with the enum sort order', function () {
+    // ARRANGE
+    $fixture = createTicketListFixture();
+    foreach (TicketState::cases() as $state) {
+        Ticket::factory()->forAchievement($fixture['achievement'])->create(['state' => $state]);
+    }
+
+    $ranksByState = Ticket::query()->pluck('state_sort_order', 'state');
+
+    // ASSERT
+    foreach (TicketState::cases() as $state) {
+        expect((int) $ranksByState[$state->value])->toEqual($state->sortOrder());
+    }
+});
