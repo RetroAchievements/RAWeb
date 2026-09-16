@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { act, render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, fireEvent, render, screen, waitFor } from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -557,7 +557,7 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+    await userEvent.hover(screen.getByRole('button', { name: 'Go to next page' }));
 
     // ASSERT
     await waitFor(() => {
@@ -572,6 +572,12 @@ describe('Component: TicketIndexRoot', () => {
         },
       ]);
     });
+
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('link', { name: 'Ticket #1001' })).toBeVisible();
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
 
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
@@ -589,6 +595,8 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'Ticket #2001' })).toBeVisible();
     });
+
+    expect(getSpy).toHaveBeenCalledTimes(2);
 
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
@@ -776,6 +784,7 @@ describe('Component: TicketIndexRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
     await userEvent.click(screen.getByTestId('column-toggle-reporter'));
+    await userEvent.hover(screen.getByTestId('reset-display'));
     await userEvent.click(screen.getByTestId('reset-display'));
 
     // ASSERT
@@ -872,5 +881,197 @@ describe('Component: TicketIndexRoot', () => {
 
     // ASSERT
     expect(screen.getByText('1 ticket')).toBeVisible();
+  });
+
+  it('given the user hovers a status chip option, reuses the prefetched first page on selection', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([createTicketListEntry({ id: 9001 })])),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 4,
+        lastPage: 5,
+        perPage: 50,
+        total: 250,
+      }),
+      ziggy: createZiggyProps({ query: { filter: { type: '1' } } }),
+    });
+
+    const originalRow = screen.getByRole('link', { name: 'Ticket #1001' });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Change Status filter' }));
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '1',
+        'page[number]': 1,
+      },
+    ]);
+    expect(originalRow).toBeVisible();
+    expect(originalRow).toHaveAttribute('aria-label', 'Ticket #1001');
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Ticket #9001' })).toBeVisible());
+    expect(getSpy).toHaveBeenCalledOnce();
+  });
+
+  it('given the user hovers a status menu option, prefetches that status', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a filter option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    const quarantinedMenuItem = screen.getByRole('menuitem', { name: /^quarantined/i });
+    await userEvent.hover(quarantinedMenuItem);
+    fireEvent.mouseLeave(quarantinedMenuItem);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers a sort field, prefetches it with the current direction', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.hover(screen.getByRole('option', { name: 'Status' }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-state',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a sort field option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    const statusOption = screen.getByRole('option', { name: 'Status' });
+    await userEvent.hover(statusOption);
+    fireEvent.mouseLeave(statusOption);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers the reset filters button, prefetches the default filters', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { filter: { status: 'resolved' } } }),
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByTestId('reset-all-filters'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user hovers the reset display button, prefetches the default sort', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { sort: 'state' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.hover(screen.getByTestId('reset-display'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
   });
 });

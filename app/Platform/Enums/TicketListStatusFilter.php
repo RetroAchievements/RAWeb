@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
+use App\Community\Enums\TicketState;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
@@ -16,6 +17,25 @@ enum TicketListStatusFilter: string
     case Resolved = 'resolved';
     case Closed = 'closed';
     case Quarantined = 'quarantined';
+
+    /**
+     * Which states this filter shows when selected.
+     * If the value is null, every state is shown.
+     *
+     * @return TicketState[]|null
+     */
+    public function states(): ?array
+    {
+        return match ($this) {
+            self::All => null,
+            self::Unresolved => [TicketState::Open, TicketState::Request],
+            self::Open => [TicketState::Open],
+            self::Request => [TicketState::Request],
+            self::Resolved => [TicketState::Resolved],
+            self::Closed => [TicketState::Closed],
+            self::Quarantined => [TicketState::Quarantined],
+        };
+    }
 
     /**
      * @return 'all'|'unresolved'|'open'|'request'|'resolved'|'closed'|'quarantined'

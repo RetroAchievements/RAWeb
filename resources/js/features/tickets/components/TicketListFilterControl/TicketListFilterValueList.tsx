@@ -12,6 +12,7 @@ import {
 } from '@/common/components/+vendor/BaseCommand';
 import { BaseDropdownMenuItem } from '@/common/components/+vendor/BaseDropdownMenu';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { useHoverIntent } from '@/common/hooks/useHoverIntent';
 import { cn } from '@/common/utils/cn';
 
 import type { TicketListFilterProperty, TicketListFilterPropertyOption } from '../../models';
@@ -21,6 +22,8 @@ interface TicketListFilterValueListProps {
   onSelect: (value: string) => void;
   property: TicketListFilterProperty;
   selectedValue: string;
+
+  onPrefetchStatus?: (value: string) => void;
 }
 
 const MAX_OPTIONS_WITHOUT_SEARCH = 8;
@@ -29,8 +32,11 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
   onSelect,
   property,
   selectedValue,
+  onPrefetchStatus,
 }) => {
   const { t } = useTranslation();
+
+  const hoverIntent = useHoverIntent();
 
   const hasGlyphSlot = property.options.some((option) => option.glyphState);
 
@@ -40,8 +46,14 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
         {property.options.map((option) => (
           <BaseDropdownMenuItem
             key={option.value}
-            onSelect={() => onSelect(option.value)}
             className="gap-0"
+            onSelect={() => onSelect(option.value)}
+            onMouseEnter={
+              property.id === 'status'
+                ? () => hoverIntent.start(() => onPrefetchStatus?.(option.value))
+                : undefined
+            }
+            onMouseLeave={hoverIntent.cancel}
           >
             <TicketListFilterValueRow
               hasGlyphSlot={hasGlyphSlot}

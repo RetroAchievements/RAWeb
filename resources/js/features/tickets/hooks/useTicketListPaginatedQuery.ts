@@ -1,5 +1,4 @@
 import { hashKey, keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
-import type { ColumnFiltersState } from '@tanstack/react-table';
 import { useRef, useState } from 'react';
 
 import type { TicketListQueryData, TicketListQueryOptionsInput } from '../models';
@@ -34,15 +33,15 @@ export function useTicketListPaginatedQuery({
     queryClient,
   );
 
-  const prefetchPage = (pageNumber: number) => {
-    queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
-  };
-
-  const prefetchFilters = (columnFilters: ColumnFiltersState) => {
+  const prefetchList = (
+    overrides: Partial<
+      Pick<TicketListQueryOptionsInput, 'columnFilters' | 'sortParam' | 'pageNumber'>
+    >,
+  ) => {
     queryClient.prefetchQuery(
-      buildTicketListQueryOptions({ ...queryOptionsInput, columnFilters, pageNumber: 1 }),
+      buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber: 1, ...overrides }),
     );
   };
 
-  return { data: data ?? initialData, isFetching, prefetchFilters, prefetchPage };
+  return { data: data ?? initialData, isFetching, prefetchList };
 }
