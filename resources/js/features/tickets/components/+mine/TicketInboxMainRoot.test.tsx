@@ -1,3 +1,5 @@
+import { route } from 'ziggy-js';
+
 import { render, screen } from '@/test';
 import { createTicketInboxSection, createTicketListEntry, createUser } from '@/test/factories';
 
@@ -8,7 +10,7 @@ function buildEmptySections(): App.Platform.Data.TicketInboxSection[] {
     createTicketInboxSection({ kind: 'toResolve' }),
     createTicketInboxSection({ kind: 'awaitingYourFeedback' }),
     createTicketInboxSection({ kind: 'awaitingReporter' }),
-    createTicketInboxSection({ kind: 'reportedOpen' }),
+    createTicketInboxSection({ kind: 'reportedByYou' }),
     createTicketInboxSection({ kind: 'resolvedByYou' }),
   ];
 }
@@ -97,5 +99,37 @@ describe('Component: TicketInboxMainRoot', () => {
     );
     expect(screen.getByText("You're all caught up.")).toBeVisible();
     expect(screen.getByRole('link', { name: 'View all' })).toBeVisible();
+  });
+
+  it('given reported history and no pending actions, shows the history and links to all statuses', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketInboxPageProps>(<TicketInboxMainRoot />, {
+      pageProps: {
+        sections: [
+          createTicketInboxSection({
+            kind: 'reportedByYou',
+            count: 12,
+            tickets: [createTicketListEntry({ id: 1001 })],
+          }),
+        ],
+        sectionLimit: 8,
+        attentionCount: 0,
+        user: createUser({ displayName: 'Dugtrio' }),
+      },
+    });
+
+    // ASSERT
+    expect(route).toHaveBeenCalledWith('user.tickets.created', {
+      user: 'Dugtrio',
+      'filter[status]': 'all',
+    });
+    expect(screen.getByRole('heading', { level: 2, name: /Reported by you/ })).toHaveTextContent(
+      '12',
+    );
+    expect(screen.getByText("You're all caught up.")).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('user.tickets.created,'),
+    );
   });
 });

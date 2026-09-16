@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createTicketInboxSection, createTicketListEntry } from '@/test/factories';
+import { createTicketInboxSection, createTicketListEntry, createUser } from '@/test/factories';
 import type { TranslatedString } from '@/types/i18next';
 
 import { TicketInboxSection } from './TicketInboxSection';
@@ -109,5 +109,41 @@ describe('Component: TicketInboxSection', () => {
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+  });
+
+  it('given a "gone" developer, does not show a profile link or hover link styling', () => {
+    // ARRANGE
+    const author = createUser({ displayName: 'Banned', isGone: true });
+
+    // ACT
+    renderSection({
+      counterpartyColumnId: 'developer',
+      section: createTicketInboxSection({
+        count: 1,
+        tickets: [createTicketListEntry({ author })],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('Banned')).not.toHaveClass('group-hover/entity:text-link');
+    expect(screen.queryByRole('link', { name: /Banned/ })).not.toBeInTheDocument();
+  });
+
+  it('given an active developer, shows a profile link with hover link styling', () => {
+    // ARRANGE
+    const author = createUser({ displayName: 'Active', isGone: false });
+
+    // ACT
+    renderSection({
+      counterpartyColumnId: 'developer',
+      section: createTicketInboxSection({
+        count: 1,
+        tickets: [createTicketListEntry({ author })],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('Active')).toHaveClass('group-hover/entity:text-link');
+    expect(screen.getByRole('link', { name: /Active/ })).toBeVisible();
   });
 });

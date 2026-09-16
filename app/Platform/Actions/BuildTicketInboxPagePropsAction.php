@@ -78,9 +78,8 @@ class BuildTicketInboxPagePropsAction
                 ->forAssignee($viewer)
                 ->where('state', TicketState::Request),
 
-            TicketInboxSectionKind::ReportedOpen => $query
-                ->where('reporter_id', $viewer->id)
-                ->where('state', TicketState::Open),
+            TicketInboxSectionKind::ReportedByYou => $query
+                ->where('reporter_id', $viewer->id),
 
             TicketInboxSectionKind::ResolvedByYou => $query
                 ->where('resolver_id', $viewer->id)

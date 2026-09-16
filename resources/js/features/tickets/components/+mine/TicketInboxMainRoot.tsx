@@ -19,7 +19,7 @@ export const TicketInboxMainRoot: FC = () => {
     toResolve: t('Waiting on you'),
     awaitingYourFeedback: t('Waiting on your feedback'),
     awaitingReporter: t('Waiting on the reporter'),
-    reportedOpen: t('Open tickets you reported'),
+    reportedByYou: t('Reported by you'),
     resolvedByYou: t('Resolved by you'),
   };
 
@@ -27,7 +27,7 @@ export const TicketInboxMainRoot: FC = () => {
     toResolve: 'reporter',
     awaitingYourFeedback: 'developer',
     awaitingReporter: 'reporter',
-    reportedOpen: 'developer',
+    reportedByYou: 'developer',
     resolvedByYou: 'reporter',
   };
 
@@ -38,9 +38,9 @@ export const TicketInboxMainRoot: FC = () => {
       user: displayName,
       'filter[status]': 'request',
     }),
-    reportedOpen: route('user.tickets.created', {
+    reportedByYou: route('user.tickets.created', {
       user: displayName,
-      'filter[status]': 'open',
+      'filter[status]': 'all',
     }),
     resolvedByYou: route('developer.tickets.resolved', {
       user: displayName,
