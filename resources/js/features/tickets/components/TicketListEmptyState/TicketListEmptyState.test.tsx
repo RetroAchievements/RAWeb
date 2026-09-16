@@ -21,11 +21,11 @@ describe('Component: TicketListEmptyState', () => {
 
   it('does not claim there is no ticket history when the total is unavailable', () => {
     // ARRANGE
-    render(<TicketListEmptyState unfilteredTotal={null} onViewAll={vi.fn()} />);
+    render(<TicketListEmptyState unfilteredTotal={null} onResetFilters={vi.fn()} />);
 
     // ASSERT
     expect(screen.getByText('No tickets match these filters.')).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'View all tickets' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
   });
 
   it.each([
@@ -34,11 +34,13 @@ describe('Component: TicketListEmptyState', () => {
     ['assignedTo', 'There are no tickets in this list.'],
   ])('distinguishes a truly empty %s scope from filtered results', (scope, message) => {
     // ARRANGE
-    render(<TicketListEmptyState scope={scope as any} unfilteredTotal={0} onViewAll={vi.fn()} />);
+    render(
+      <TicketListEmptyState scope={scope as any} unfilteredTotal={0} onResetFilters={vi.fn()} />,
+    );
 
     // ASSERT
     expect(screen.getByText(message)).toBeVisible();
     expect(screen.queryByText('No tickets match these filters.')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'View all tickets' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
   });
 });

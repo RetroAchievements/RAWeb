@@ -153,7 +153,7 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('given the default status has no matches, shows ticket history and a recovery action', () => {
+  it('given the default status has no matches, shows ticket history without a reset action', () => {
     // ARRANGE
     renderTicketIndexRoot({
       scope: 'game',
@@ -164,12 +164,11 @@ describe('Component: TicketIndexRoot', () => {
     // ASSERT
     expect(screen.getByText('No tickets match these filters.')).toBeVisible();
     expect(screen.getByText('0 of 24 tickets')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'View all tickets' })).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
   });
 
   it.each([
-    ['View all tickets', 'all'],
+    ['Reset filters', 'unresolved'],
     ['Reset', 'unresolved'],
   ])(
     '%s clears custom filters while preserving the game scope and sort',
@@ -228,7 +227,7 @@ describe('Component: TicketIndexRoot', () => {
     },
   );
 
-  it('given the user hovers the empty state button, prefetches all tickets', async () => {
+  it('given the user hovers the empty state button, prefetches tickets with the default filters', async () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
       data: createTicketListResponse(
@@ -241,10 +240,10 @@ describe('Component: TicketIndexRoot', () => {
       paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
       ziggy: createZiggyProps({ query: { sort: 'createdAt', filter: { type: '1' } } }),
     });
-    const viewAllButton = screen.getByRole('button', { name: 'View all tickets' });
+    const resetFiltersButton = screen.getByRole('button', { name: 'Reset filters' });
 
     // ACT
-    await userEvent.hover(viewAllButton);
+    await userEvent.hover(resetFiltersButton);
 
     // ASSERT
     await waitFor(() => {
@@ -254,7 +253,7 @@ describe('Component: TicketIndexRoot', () => {
           scope: 'game',
           game: 1701,
           sort: 'createdAt',
-          'filter[status]': 'all',
+          'filter[status]': 'unresolved',
           'filter[type]': '0',
           'page[number]': 1,
         },
@@ -278,7 +277,6 @@ describe('Component: TicketIndexRoot', () => {
       });
 
       // ASSERT
-      expect(screen.queryByRole('button', { name: 'View all tickets' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
     },
   );

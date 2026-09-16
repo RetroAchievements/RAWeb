@@ -5,15 +5,15 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { EmptyState } from '@/common/components/EmptyState';
 
 interface TicketListEmptyStateProps {
-  onPrefetchViewAll?: () => void;
-  onViewAll?: () => void;
+  onPrefetchResetFilters?: () => void;
+  onResetFilters?: () => void;
   scope?: App.Platform.Enums.TicketListScope;
   unfilteredTotal?: number | null;
 }
 
 export const TicketListEmptyState: FC<TicketListEmptyStateProps> = ({
-  onPrefetchViewAll,
-  onViewAll,
+  onPrefetchResetFilters,
+  onResetFilters,
   scope,
   unfilteredTotal,
 }) => {
@@ -35,15 +35,15 @@ export const TicketListEmptyState: FC<TicketListEmptyStateProps> = ({
           {unfilteredTotal === 0 ? noTicketsMessage : t('No tickets match these filters.')}
         </span>
 
-        {hasTicketHistory && onViewAll ? (
+        {hasTicketHistory && onResetFilters ? (
           <BaseButton
             variant="ghost"
             size="sm"
             className="mt-3 text-link"
-            onClick={onViewAll}
-            onMouseEnter={onPrefetchViewAll}
+            onClick={onResetFilters}
+            onMouseEnter={onPrefetchResetFilters}
           >
-            {t('View all tickets')}
+            {t('Reset filters')}
           </BaseButton>
         ) : null}
       </EmptyState>
