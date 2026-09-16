@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import type { TicketListSortParam, TicketListUrlState } from '../models';
-import { getTicketListFilterValue } from '../utils/getTicketListFilterValue';
+import { getTicketListColumnFiltersForSort } from '../utils/getTicketListColumnFiltersForSort';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
 import { resolveTicketListViewPreferences } from '../utils/resolveTicketListViewPreferences';
-import { setTicketListColumnFilterValue } from '../utils/setTicketListColumnFilterValue';
 import { ticketListSort } from '../utils/ticketListSort';
 
 /**
@@ -43,27 +42,6 @@ export function useTicketListState(
     initialViewPreferences.columnVisibility,
   );
 
-  const autoChangeStatusFilterValue = (nextSortParam: TicketListSortParam) => {
-    const statusValuesWithoutResolvedDate: App.Platform.Enums.TicketListStatusFilter[] = [
-      'unresolved',
-      'open',
-      'request',
-      'quarantined',
-    ];
-
-    const statusValue = getTicketListFilterValue<App.Platform.Enums.TicketListStatusFilter>(
-      columnFilters,
-      'status',
-    );
-
-    const isResolvedSort = ticketListSort.field(nextSortParam) === 'resolvedAt';
-    if (isResolvedSort && statusValue && statusValuesWithoutResolvedDate.includes(statusValue)) {
-      setColumnFilters((previousFilters) =>
-        setTicketListColumnFilterValue(previousFilters, 'status', 'resolved'),
-      );
-    }
-  };
-
   const setColumnFiltersAndResetPage = (updaterOrValue: Updater<ColumnFiltersState>) => {
     setPageNumber(1);
     setColumnFilters(updaterOrValue);
@@ -76,8 +54,9 @@ export function useTicketListState(
 
     setPageNumber(1);
     setSortParam(nextSortParam);
-
-    autoChangeStatusFilterValue(nextSortParam);
+    setColumnFilters((previousFilters) =>
+      getTicketListColumnFiltersForSort(previousFilters, nextSortParam),
+    );
   };
 
   const restoreState = (urlState: TicketListUrlState) => {

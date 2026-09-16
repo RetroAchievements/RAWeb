@@ -1000,6 +1000,35 @@ describe('Component: TicketIndexRoot', () => {
     ]);
   });
 
+  it('given the user hovers the resolved sort field, prefetches it with the resolved status and reuses it on selection', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.hover(screen.getByRole('option', { name: 'Resolved' }));
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    await userEvent.click(screen.getByRole('option', { name: 'Resolved' }));
+
+    // ASSERT
+    expect(getSpy).toHaveBeenCalledOnce();
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-resolvedAt',
+        'filter[status]': 'resolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
   it('given the user mouses through a sort field option, does not prefetch it', async () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
