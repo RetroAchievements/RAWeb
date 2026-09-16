@@ -111,7 +111,7 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry, shouldShowGameTitle })
             href={route('game.show', { game: entry.game.id })}
             {...gameCardTooltipProps}
             className={cn(
-              'truncate text-[11px] leading-tight text-neutral-500 hover:text-link light:text-neutral-600',
+              'truncate text-[11px] leading-tight text-neutral-400/80 hover:text-link light:text-neutral-600',
               ticketListCellClassNames.entityLinkWrapper,
             )}
           >
