@@ -131,6 +131,7 @@ class BuildTicketListAction
                 break;
 
             case TicketListSortField::ResolvedAt:
+                $query->orderByRaw('resolved_at IS NULL');
                 $query->orderBy('resolved_at', $sort['direction']);
                 $query->orderByDesc('created_at');
                 break;
