@@ -87,7 +87,7 @@ export function useTicketListTableRoot({
       setSortParam,
       sortParam,
       toggleColumnVisibility,
-      prefetchPage: ticketListQuery.prefetchPage,
+      prefetchList: ticketListQuery.prefetchList,
       columnVisibility: { ...defaultColumnVisibility, ...columnVisibilityOverrides },
       hasColumnVisibilityOverrides: Object.keys(columnVisibilityOverrides).length > 0,
       isFetching: ticketListQuery.isFetching,

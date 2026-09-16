@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { act, render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, fireEvent, render, screen, waitFor } from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -106,7 +106,6 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'ID',
       'Issue with',
-      'Game',
       'Developer',
       'Reporter',
       'Created',
@@ -152,6 +151,134 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByText('No tickets match these filters.')).toBeVisible();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
+
+  it('given the default status has no matches, shows ticket history without a reset action', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('No tickets match these filters.')).toBeVisible();
+    expect(screen.getByText('0 of 24 tickets')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Reset filters', 'unresolved'],
+    ['Reset', 'unresolved'],
+  ])(
+    '%s clears custom filters while preserving the game scope and sort',
+    async (action, status) => {
+      // ARRANGE
+      vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+      const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+        data: createTicketListResponse(
+          createPaginatedData([createTicketListEntry({ id: 4001 })], {
+            total: 1,
+            unfilteredTotal: 24,
+            lastPage: 1,
+          }),
+        ),
+      });
+
+      renderTicketIndexRoot({
+        scope: 'game',
+        game: createGame({ id: 1701, system: createSystem() }),
+        availableFilters: [
+          { kind: 'type', values: ['0', '1', '2'] },
+          { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
+          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] },
+        ],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+        ziggy: createZiggyProps({
+          query: {
+            sort: 'createdAt',
+            filter: { status: 'open', type: '1', mode: 'hardcore', emulator: 'RetroArch' },
+          },
+        }),
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: action }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(getSpy).toHaveBeenCalledWith([
+          'api.ticket.index',
+          {
+            scope: 'game',
+            game: 1701,
+            sort: 'createdAt',
+            'filter[status]': status,
+            'filter[type]': '0',
+            'filter[mode]': 'all',
+            'filter[emulator]': 'all',
+            'page[number]': 1,
+          },
+        ]);
+      });
+
+      expect(await screen.findByRole('link', { name: 'Ticket #4001' })).toBeVisible();
+      expect(screen.queryByText('No tickets match these filters.')).not.toBeInTheDocument();
+    },
+  );
+
+  it('given the user hovers the empty state button, prefetches tickets with the default filters', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], { total: 1, lastPage: 1 }),
+      ),
+    });
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ id: 1701, system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      ziggy: createZiggyProps({ query: { sort: 'createdAt', filter: { type: '1' } } }),
+    });
+    const resetFiltersButton = screen.getByRole('button', { name: 'Reset filters' });
+
+    // ACT
+    await userEvent.hover(resetFiltersButton);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'game',
+          game: 1701,
+          sort: 'createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+  });
+
+  it.each([
+    ['awaitingReporter', 'request', false],
+    ['all', 'all', true],
+  ] as const)(
+    'does not offer to clear filters in an unfiltered %s scope',
+    (scope, status, hasStatusFilter) => {
+      // ARRANGE
+      renderTicketIndexRoot({
+        scope,
+        defaultStatusFilter: status,
+        hasStatusFilter,
+        availableFilters: [],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      });
+
+      // ASSERT
+      expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+    },
+  );
 
   it('given the scope exposes filters, offers them all behind one filter button', async () => {
     // ARRANGE
@@ -431,7 +558,7 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+    await userEvent.hover(screen.getByRole('button', { name: 'Go to next page' }));
 
     // ASSERT
     await waitFor(() => {
@@ -446,6 +573,12 @@ describe('Component: TicketIndexRoot', () => {
         },
       ]);
     });
+
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('link', { name: 'Ticket #1001' })).toBeVisible();
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
 
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
@@ -463,6 +596,8 @@ describe('Component: TicketIndexRoot', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'Ticket #2001' })).toBeVisible();
     });
+
+    expect(getSpy).toHaveBeenCalledTimes(2);
 
     expect(pushStateSpy).toHaveBeenCalledWith(
       { inertia: true, ticketListSortParam: '-createdAt' },
@@ -579,15 +714,15 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
 
     // ASSERT
-    expect(screen.queryByRole('columnheader', { name: 'Game' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Reporter' })).not.toBeInTheDocument();
     expect(screen.getByTestId('reset-display')).toBeVisible();
 
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
 
-    expect(screen.getByRole('columnheader', { name: 'Game' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: 'Reporter' })).toBeVisible();
     expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
   });
@@ -649,7 +784,8 @@ describe('Component: TicketIndexRoot', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('column-toggle-game'));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
+    await userEvent.hover(screen.getByTestId('reset-display'));
     await userEvent.click(screen.getByTestId('reset-display'));
 
     // ASSERT
@@ -746,5 +882,197 @@ describe('Component: TicketIndexRoot', () => {
 
     // ASSERT
     expect(screen.getByText('1 ticket')).toBeVisible();
+  });
+
+  it('given the user hovers a status chip option, reuses the prefetched first page on selection', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([createTicketListEntry({ id: 9001 })])),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 4,
+        lastPage: 5,
+        perPage: 50,
+        total: 250,
+      }),
+      ziggy: createZiggyProps({ query: { filter: { type: '1' } } }),
+    });
+
+    const originalRow = screen.getByRole('link', { name: 'Ticket #1001' });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Change Status filter' }));
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '1',
+        'page[number]': 1,
+      },
+    ]);
+    expect(originalRow).toBeVisible();
+    expect(originalRow).toHaveAttribute('aria-label', 'Ticket #1001');
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Ticket #9001' })).toBeVisible());
+    expect(getSpy).toHaveBeenCalledOnce();
+  });
+
+  it('given the user hovers a status menu option, prefetches that status', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a filter option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    const quarantinedMenuItem = screen.getByRole('menuitem', { name: /^quarantined/i });
+    await userEvent.hover(quarantinedMenuItem);
+    fireEvent.mouseLeave(quarantinedMenuItem);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers a sort field, prefetches it with the current direction', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.hover(screen.getByRole('option', { name: 'Status' }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-state',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a sort field option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    const statusOption = screen.getByRole('option', { name: 'Status' });
+    await userEvent.hover(statusOption);
+    fireEvent.mouseLeave(statusOption);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers the reset filters button, prefetches the default filters', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { filter: { status: 'resolved' } } }),
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByTestId('reset-all-filters'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user hovers the reset display button, prefetches the default sort', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { sort: 'state' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.hover(screen.getByTestId('reset-display'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
   });
 });
