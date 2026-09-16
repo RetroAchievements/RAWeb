@@ -60,7 +60,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
 
   let directionLabel = isAscending ? t('Oldest first') : t('Newest first');
   if (sortField === 'state') {
-    directionLabel = isAscending ? t('Ascending') : t('Descending');
+    directionLabel = isAscending ? t('Open first') : t('Closed first');
   }
 
   const sortFieldLabels = {

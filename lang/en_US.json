@@ -1602,6 +1602,8 @@
     "{{visible, number}} of {{total, number}} tickets_one": "{{visible, number}} of {{total, number}} ticket",
     "{{val, number}} tickets need your attention._one": "{{val, number}} ticket needs your attention.",
     "Unresolved": "Unresolved",
+    "Open first": "Open first",
+    "Closed first": "Closed first",
     "No tickets have been reported for this game.": "No tickets have been reported for this game.",
     "No tickets have been reported for this achievement.": "No tickets have been reported for this achievement.",
     "There are no tickets in this list.": "There are no tickets in this list.",
