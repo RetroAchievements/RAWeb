@@ -83,7 +83,7 @@ class BuildTicketInboxPagePropsAction
 
             TicketInboxSectionKind::ResolvedByYou => $query
                 ->where('resolver_id', $viewer->id)
-                ->where('state', TicketState::Resolved),
+                ->whereIn('state', [TicketState::Resolved, TicketState::Closed]),
         };
     }
 }
