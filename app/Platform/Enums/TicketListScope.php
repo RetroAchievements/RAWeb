@@ -115,6 +115,14 @@ enum TicketListScope: string
         };
     }
 
+    public function defaultSortParam(): string
+    {
+        return match ($this) {
+            self::ResolvedBy => '-' . TicketListSortField::ResolvedAt->value,
+            default => '-' . TicketListSortField::CreatedAt->value,
+        };
+    }
+
     public function systemId(Game|Achievement|User|null $target): ?int
     {
         return match ($this) {

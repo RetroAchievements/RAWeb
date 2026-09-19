@@ -45,7 +45,7 @@ class BuildTicketInboxPagePropsAction
         $count = $this->sectionQuery($kind, $viewer)->count();
 
         $query = $this->sectionQuery($kind, $viewer)
-            ->orderByDesc('created_at')
+            ->orderByDesc($kind->sortColumn())
             ->orderByDesc('id')
             ->limit(self::SECTION_LIMIT);
 

@@ -25,6 +25,7 @@ export const TicketIndexRoot: FC = () => {
   const {
     achievement,
     availableFilters,
+    defaultSortParam,
     defaultStatusFilter,
     facetCounts,
     hasStatusFilter,
@@ -50,6 +51,7 @@ export const TicketIndexRoot: FC = () => {
     paginatedTickets,
     scope,
     stateCounts,
+    serverDefaultSortParam: defaultSortParam,
     targetParams: buildTicketListTargetParams({ achievement, game, user }),
   });
 
@@ -152,6 +154,7 @@ export const TicketIndexRoot: FC = () => {
               onResetDisplay={ticketListTableProps.resetDisplay}
               onSortChange={ticketListTableProps.setSortParam}
               onToggleColumn={ticketListTableProps.toggleColumnVisibility}
+              serverDefaultSortParam={ticketListTableProps.serverDefaultSortParam}
               sortParam={ticketListTableProps.sortParam}
             />
           </div>
