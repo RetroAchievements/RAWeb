@@ -316,6 +316,21 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
   });
 
+  it('given a free text filter, shows a text input with an example term', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [{ kind: 'core', values: [''], isFreeText: true }],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: 'Core contains' })).toBeVisible();
+    expect(screen.getByPlaceholderText('nestopia')).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /all/i })).not.toBeInTheDocument();
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({
