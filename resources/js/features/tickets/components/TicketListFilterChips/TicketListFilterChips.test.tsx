@@ -81,6 +81,30 @@ describe('Component: TicketListFilterChips', () => {
     expect(screen.getByTestId('chip-status')).toHaveTextContent('Status is Resolved');
   });
 
+  it('given a free text filter, the chip reads as a contains phrase and the clear button removes the filter', async () => {
+    // ARRANGE
+    const setColumnFilters = vi.fn();
+
+    render(
+      <TicketListFilterChips
+        columnFilters={[{ id: 'core', value: ['nestopia'] }]}
+        properties={[
+          { id: 'core', label: 'Core', noFilterValue: '', options: [], isFreeText: true },
+        ]}
+        setColumnFilters={setColumnFilters}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Remove Core filter' }));
+
+    // ASSERT
+    expect(screen.getByTestId('chip-core')).toHaveTextContent('Core contains nestopia');
+
+    const [updater] = setColumnFilters.mock.calls[0];
+    expect(updater([{ id: 'core', value: ['nestopia'] }])).toEqual([]);
+  });
+
   it('given an unknown value, falls back to showing the raw unknown value', () => {
     // ARRANGE
     render(

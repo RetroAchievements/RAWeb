@@ -29,7 +29,7 @@ class TicketListService
     private ?array $emulatorNamesById = null;
 
     /**
-     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string}
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string}
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
@@ -49,6 +49,7 @@ class TicketListService
             'developer' => $validatedData['filter']['developer'] ?? 'all',
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
+            'core' => trim($validatedData['filter']['core'] ?? ''),
         ];
     }
 
@@ -175,6 +176,10 @@ class TicketListService
             }
         }
 
+        if (($filterOptions['core'] ?? '') !== '') {
+            $tickets->whereRaw('instr(lower(tickets.emulator_core), ?) > 0', [mb_strtolower($filterOptions['core'])]);
+        }
+
         return $tickets;
     }
 
@@ -202,7 +207,7 @@ class TicketListService
 
         $counts = [];
         foreach ($kinds as $kind) {
-            if ($kind === TicketListFilterKind::Developer || $kind === TicketListFilterKind::Reporter) {
+            if (in_array($kind, [TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Core], true)) {
                 continue;
             }
 

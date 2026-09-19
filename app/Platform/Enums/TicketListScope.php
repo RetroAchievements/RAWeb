@@ -73,17 +73,20 @@ enum TicketListScope: string
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::DeveloperType,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::Achievement => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::AssignedTo, self::ReportedBy => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::AwaitingReporter => [],
             self::ResolvedBy => [
@@ -93,6 +96,7 @@ enum TicketListScope: string
                 TicketListFilterKind::Developer,
                 TicketListFilterKind::Reporter,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
         };
     }
