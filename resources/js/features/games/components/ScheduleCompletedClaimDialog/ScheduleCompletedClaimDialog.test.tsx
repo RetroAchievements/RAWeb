@@ -6,9 +6,9 @@ import { route } from 'ziggy-js';
 import { render, screen, waitFor } from '@/test';
 import { createAchievementSetClaim, createUser } from '@/test/factories';
 
-import { MarkClaimPartCompleteDialog } from './MarkClaimPartCompleteDialog';
+import { ScheduleCompletedClaimDialog } from './ScheduleCompletedClaimDialog';
 
-describe('Component: MarkClaimPartCompleteDialog', () => {
+describe('Component: ScheduleCompletedClaimDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -16,7 +16,7 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <MarkClaimPartCompleteDialog
+      <ScheduleCompletedClaimDialog
         claims={[createAchievementSetClaim()]}
         trigger={<button>Trigger</button>}
       />,
@@ -29,7 +29,7 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
   it('given the trigger is clicked, opens the dialog with the primary claimant listed first', async () => {
     // ARRANGE
     render(
-      <MarkClaimPartCompleteDialog
+      <ScheduleCompletedClaimDialog
         claims={[
           createAchievementSetClaim({
             claimType: 'collaboration',
@@ -48,7 +48,7 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Trigger' }));
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: 'Mark claim part complete?' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Schedule completed claim?' })).toBeVisible();
 
     const options = screen.getAllByRole('option');
     expect(options.map((option) => option.textContent)).toEqual([
@@ -61,8 +61,15 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
   it('disables the confirm button until a claimant is selected, and enables it once the user selects someone', async () => {
     // ARRANGE
     render(
-      <MarkClaimPartCompleteDialog
-        claims={[createAchievementSetClaim({ user: createUser({ displayName: 'Alice' }) })]}
+      <ScheduleCompletedClaimDialog
+        claims={[
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Alice' }),
+          }),
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Bob' }),
+          }),
+        ]}
         trigger={<button>Trigger</button>}
       />,
     );
@@ -71,7 +78,9 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Trigger' }));
 
     // ASSERT
-    const confirmButton = screen.getByRole('button', { name: 'Mark part complete' });
+    const confirmButton = screen.getByRole('button', {
+      name: 'Schedule claim',
+    });
     expect(confirmButton).toBeDisabled();
 
     await userEvent.selectOptions(
@@ -81,16 +90,44 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
     expect(confirmButton).toBeEnabled();
   });
 
+  it('given there is only one eligible claim, autoselects it by default', async () => {
+    // ARRANGE
+    render(
+      <ScheduleCompletedClaimDialog
+        claims={[
+          createAchievementSetClaim({
+            id: 101,
+            user: createUser({ displayName: 'Alice' }),
+          }),
+        ]}
+        trigger={<button>Trigger</button>}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    // ASSERT
+    expect(screen.getByRole('combobox')).toHaveValue('101');
+    expect(screen.getByRole('button', { name: 'Schedule claim' })).toBeEnabled();
+  });
+
   it('given a claimant is selected and confirmed, makes a POST call for that claim and then reloads the page client-side', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
     const reloadSpy = vi.spyOn(router, 'reload').mockImplementationOnce(vi.fn());
 
     render(
-      <MarkClaimPartCompleteDialog
+      <ScheduleCompletedClaimDialog
         claims={[
-          createAchievementSetClaim({ id: 101, user: createUser({ displayName: 'Alice' }) }),
-          createAchievementSetClaim({ id: 102, user: createUser({ displayName: 'Bob' }) }),
+          createAchievementSetClaim({
+            id: 101,
+            user: createUser({ displayName: 'Alice' }),
+          }),
+          createAchievementSetClaim({
+            id: 102,
+            user: createUser({ displayName: 'Bob' }),
+          }),
         ]}
         trigger={<button>Trigger</button>}
       />,
@@ -102,7 +139,7 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
       screen.getByRole('combobox'),
       screen.getByRole('option', { name: /Bob/ }),
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Mark part complete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Schedule claim' }));
 
     // ASSERT
     await waitFor(() => {
@@ -118,8 +155,15 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
   it('given the dialog is closed and reopened, clears the previous selection', async () => {
     // ARRANGE
     render(
-      <MarkClaimPartCompleteDialog
-        claims={[createAchievementSetClaim({ user: createUser({ displayName: 'Alice' }) })]}
+      <ScheduleCompletedClaimDialog
+        claims={[
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Alice' }),
+          }),
+          createAchievementSetClaim({
+            user: createUser({ displayName: 'Bob' }),
+          }),
+        ]}
         trigger={<button>Trigger</button>}
       />,
     );
@@ -135,6 +179,6 @@ describe('Component: MarkClaimPartCompleteDialog', () => {
 
     // ASSERT
     expect(screen.getByRole('combobox')).toHaveValue('');
-    expect(screen.getByRole('button', { name: 'Mark part complete' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Schedule claim' })).toBeDisabled();
   });
 });

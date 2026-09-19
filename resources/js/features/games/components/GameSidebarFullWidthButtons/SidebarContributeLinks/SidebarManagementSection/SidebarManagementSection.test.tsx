@@ -302,7 +302,7 @@ describe('Component: SidebarManagementSection', () => {
     expect(screen.getByRole('link', { name: /edit subset game details/i })).toBeVisible();
   });
 
-  it('given no claim can be marked release scheduled, does not show the mark claim part complete button', () => {
+  it('given no claim can be marked release scheduled, does not show the schedule completed claim button', () => {
     // ARRANGE
     render(<SidebarManagementSection game={createGame()} />, {
       pageProps: {
@@ -314,7 +314,7 @@ describe('Component: SidebarManagementSection', () => {
 
     // ASSERT
     expect(
-      screen.queryByRole('button', { name: /mark claim part complete/i }),
+      screen.queryByRole('button', { name: /schedule completed claim/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -338,10 +338,10 @@ describe('Component: SidebarManagementSection', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /mark claim part complete/i }));
+    await userEvent.click(screen.getByRole('button', { name: /schedule completed claim/i }));
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: 'Mark claim part complete?' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Schedule completed claim?' })).toBeVisible();
     expect(screen.getByRole('option', { name: /Alice/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Bob/ })).not.toBeInTheDocument();
   });

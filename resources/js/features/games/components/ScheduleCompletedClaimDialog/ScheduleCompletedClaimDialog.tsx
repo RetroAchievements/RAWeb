@@ -17,12 +17,12 @@ import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useMarkClaimReleaseScheduledMutation } from '@/features/games/hooks/mutations/useMarkClaimReleaseScheduledMutation';
 
-interface MarkClaimPartCompleteDialogProps {
+interface ScheduleCompletedClaimDialogProps {
   claims: App.Platform.Data.AchievementSetClaim[];
   trigger: ReactNode;
 }
 
-export const MarkClaimPartCompleteDialog: FC<MarkClaimPartCompleteDialogProps> = ({
+export const ScheduleCompletedClaimDialog: FC<ScheduleCompletedClaimDialogProps> = ({
   claims,
   trigger,
 }) => {
@@ -40,9 +40,9 @@ export const MarkClaimPartCompleteDialog: FC<MarkClaimPartCompleteDialogProps> =
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
 
-    if (!open) {
-      setSelectedClaimId('');
-    }
+    // If there's only one claimant, autoselect them. Otherwise, set an empty value.
+    const defaultClaimId = claims.length === 1 ? String(claims[0].id) : '';
+    setSelectedClaimId(open ? defaultClaimId : '');
   };
 
   const handleConfirmClick = async () => {
@@ -50,8 +50,8 @@ export const MarkClaimPartCompleteDialog: FC<MarkClaimPartCompleteDialogProps> =
     handleOpenChange(false);
 
     await toastMessage.promise(markClaimReleaseScheduledMutation.mutateAsync({ claimId }), {
-      loading: t('Marking part complete...'),
-      success: t('Marked!'),
+      loading: t('Scheduling claim...'),
+      success: t('Scheduled!'),
       error: t('Something went wrong.'),
     });
   };
@@ -62,7 +62,7 @@ export const MarkClaimPartCompleteDialog: FC<MarkClaimPartCompleteDialogProps> =
 
       <BaseDialogContent>
         <BaseDialogHeader>
-          <BaseDialogTitle>{t('Mark claim part complete?')}</BaseDialogTitle>
+          <BaseDialogTitle>{t('Schedule completed claim?')}</BaseDialogTitle>
           <BaseDialogDescription>
             {t(
               "The selected claim will be marked as Release Scheduled and will no longer use one of that developer's claim slots.",
@@ -109,7 +109,7 @@ export const MarkClaimPartCompleteDialog: FC<MarkClaimPartCompleteDialogProps> =
             disabled={selectedClaimId === ''}
             size="sm"
           >
-            {t('Mark part complete')}
+            {t('Schedule claim')}
           </BaseButton>
         </BaseDialogFooter>
       </BaseDialogContent>
