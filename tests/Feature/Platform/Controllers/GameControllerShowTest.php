@@ -3645,6 +3645,25 @@ describe('Active Event Achievements', function () {
         );
     });
 
+    it('given a hidden event sorts before a visible one, still sends the visible events as a sequential list', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $sourceAchievement = $game->achievements->first();
+
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek(), now()->addDays(3));
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeeks(3));
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+        );
+    });
+
     it('given an evergreen event, hides it from guests and users without the preference', function () {
         // ARRANGE
         $system = System::factory()->create();

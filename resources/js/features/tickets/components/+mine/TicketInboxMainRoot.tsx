@@ -19,19 +19,15 @@ export const TicketInboxMainRoot: FC = () => {
     toResolve: t('Waiting on you'),
     awaitingYourFeedback: t('Waiting on your feedback'),
     awaitingReporter: t('Waiting on the reporter'),
-    reportedOpen: t('Open tickets you reported'),
+    reportedByYou: t('Reported by you'),
     resolvedByYou: t('Resolved by you'),
-  };
-
-  const emptyMessageLabelMap: Partial<Record<SectionKind, TranslatedString>> = {
-    awaitingYourFeedback: t('No tickets are waiting on your feedback.'),
   };
 
   const counterpartyColumnIds: Record<SectionKind, 'developer' | 'reporter'> = {
     toResolve: 'reporter',
     awaitingYourFeedback: 'developer',
     awaitingReporter: 'reporter',
-    reportedOpen: 'developer',
+    reportedByYou: 'developer',
     resolvedByYou: 'reporter',
   };
 
@@ -42,32 +38,23 @@ export const TicketInboxMainRoot: FC = () => {
       user: displayName,
       'filter[status]': 'request',
     }),
-    reportedOpen: route('user.tickets.created', {
+    reportedByYou: route('user.tickets.created', {
       user: displayName,
-      'filter[status]': 'open',
+      'filter[status]': 'all',
     }),
-    resolvedByYou: route('developer.tickets.resolved', {
-      user: displayName,
-      'filter[status]': 'resolved',
-    }),
+    resolvedByYou: route('developer.tickets.resolved', { user: displayName }),
   };
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-1">
-        <div className="flex w-full">
-          <h1 className="text-h3 w-full sm:text-[2.0em]!">{t('Tickets')}</h1>
-        </div>
-
-        <p className="text-neutral-200 light:text-neutral-900">
-          {attentionCount
-            ? t('{{val, number}} tickets need your attention.', {
-                count: attentionCount,
-                val: attentionCount,
-              })
-            : t('Nothing needs your attention right now.')}
-        </p>
-      </div>
+      <p className="text-neutral-200 light:text-neutral-900">
+        {attentionCount
+          ? t('{{val, number}} tickets need your attention.', {
+              count: attentionCount,
+              val: attentionCount,
+            })
+          : t("You're all caught up.")}
+      </p>
 
       <div className="flex flex-col gap-8">
         {sections.map((section) => (
@@ -75,7 +62,6 @@ export const TicketInboxMainRoot: FC = () => {
             key={section.kind}
             counterpartyColumnId={counterpartyColumnIds[section.kind]}
             section={section}
-            t_emptyMessage={emptyMessageLabelMap[section.kind]}
             t_heading={headingLabelMap[section.kind]}
             viewAllHref={viewAllHrefs[section.kind]}
           />

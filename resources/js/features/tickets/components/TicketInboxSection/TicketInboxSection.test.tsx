@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createTicketInboxSection, createTicketListEntry } from '@/test/factories';
+import { createTicketInboxSection, createTicketListEntry, createUser } from '@/test/factories';
 import type { TranslatedString } from '@/types/i18next';
 
 import { TicketInboxSection } from './TicketInboxSection';
@@ -23,30 +23,21 @@ describe('Component: TicketInboxSection', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = renderSection({
-      t_emptyMessage: 'Nothing here.' as TranslatedString,
+      section: createTicketInboxSection({ count: 1, tickets: [createTicketListEntry()] }),
     });
 
     // ASSERT
     expect(container).toBeTruthy();
   });
 
-  it('given the section is empty and has empty copy, shows that copy and no associated count', () => {
-    // ARRANGE
-    renderSection({ t_emptyMessage: 'Nothing here.' as TranslatedString });
-
-    // ASSERT
-    expect(screen.getByText('Nothing here.')).toBeVisible();
-    expect(screen.getByRole('heading', { level: 2, name: 'Waiting on you' })).toBeVisible();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    expect(screen.queryByText('0')).not.toBeInTheDocument();
-  });
-
-  it('given the section is empty and has no empty copy, renders nothing at all', () => {
+  it('given the section is empty, shows no content', () => {
     // ARRANGE
     renderSection();
 
     // ASSERT
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByText('0')).not.toBeInTheDocument();
   });
 
   it('given the section has rows, shows the count and the rows', () => {
@@ -103,7 +94,7 @@ describe('Component: TicketInboxSection', () => {
 
     // ASSERT
     const headers = screen.getAllByRole('columnheader').map((header) => header.textContent);
-    expect(headers).toEqual(['ID', 'Issue with', 'Game', 'Developer', 'Created']);
+    expect(headers).toEqual(['ID', 'Issue with', 'Developer', 'Created']);
   });
 
   it('given the resolved by you section, shows the resolved date column', () => {
@@ -118,5 +109,41 @@ describe('Component: TicketInboxSection', () => {
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+  });
+
+  it('given a "gone" developer, does not show a profile link or hover link styling', () => {
+    // ARRANGE
+    const author = createUser({ displayName: 'Banned', isGone: true });
+
+    // ACT
+    renderSection({
+      counterpartyColumnId: 'developer',
+      section: createTicketInboxSection({
+        count: 1,
+        tickets: [createTicketListEntry({ author })],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('Banned')).not.toHaveClass('group-hover/entity:text-link');
+    expect(screen.queryByRole('link', { name: /Banned/ })).not.toBeInTheDocument();
+  });
+
+  it('given an active developer, shows a profile link with hover link styling', () => {
+    // ARRANGE
+    const author = createUser({ displayName: 'Active', isGone: false });
+
+    // ACT
+    renderSection({
+      counterpartyColumnId: 'developer',
+      section: createTicketInboxSection({
+        count: 1,
+        tickets: [createTicketListEntry({ author })],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('Active')).toHaveClass('group-hover/entity:text-link');
+    expect(screen.getByRole('link', { name: /Active/ })).toBeVisible();
   });
 });

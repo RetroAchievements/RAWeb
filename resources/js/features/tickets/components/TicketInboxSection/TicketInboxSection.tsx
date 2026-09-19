@@ -16,7 +16,6 @@ interface TicketInboxSectionProps {
   section: App.Platform.Data.TicketInboxSection;
   t_heading: TranslatedString;
 
-  t_emptyMessage?: TranslatedString;
   viewAllHref?: string;
 }
 
@@ -24,7 +23,6 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
   counterpartyColumnId,
   section,
   t_heading,
-  t_emptyMessage,
   viewAllHref,
 }) => {
   const { sectionLimit } = usePageProps<App.Platform.Data.TicketInboxPageProps>();
@@ -33,17 +31,11 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
 
   const columnDefinitions = useTicketListColumnDefinitions();
 
-  if (!section.count && !t_emptyMessage) {
+  if (!section.count) {
     return null;
   }
 
-  const visibleColumnIds = new Set<string>([
-    'id',
-    'ticketable',
-    'game',
-    counterpartyColumnId,
-    'age',
-  ]);
+  const visibleColumnIds = new Set<string>(['id', 'ticketable', counterpartyColumnId, 'age']);
   if (section.kind === 'resolvedByYou') {
     visibleColumnIds.add('resolvedAt');
   }
@@ -58,11 +50,9 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
         <h2 className="text-h4 border-b-0">
           {t_heading}
 
-          {section.count ? (
-            <span className="ml-2 text-neutral-400 light:text-neutral-600">
-              {formatNumber(section.count)}
-            </span>
-          ) : null}
+          <span className="ml-2 text-neutral-400 light:text-neutral-600">
+            {formatNumber(section.count)}
+          </span>
         </h2>
 
         {viewAllHref && section.count > sectionLimit ? (
@@ -72,20 +62,16 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
         ) : null}
       </div>
 
-      {section.count ? (
-        <TicketListTable
-          columnDefinitions={columnDefinitions}
-          columnVisibility={columnVisibility}
-          paginatedTickets={{
-            items: section.tickets,
-            currentPage: 1,
-            lastPage: 1,
-            total: section.count,
-          }}
-        />
-      ) : (
-        <p className="text-neutral-300 light:text-neutral-700">{t_emptyMessage}</p>
-      )}
+      <TicketListTable
+        columnDefinitions={columnDefinitions}
+        columnVisibility={columnVisibility}
+        paginatedTickets={{
+          items: section.tickets,
+          currentPage: 1,
+          lastPage: 1,
+          total: section.count,
+        }}
+      />
     </div>
   );
 };

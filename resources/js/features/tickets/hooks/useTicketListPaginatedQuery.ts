@@ -33,9 +33,15 @@ export function useTicketListPaginatedQuery({
     queryClient,
   );
 
-  const prefetchPage = (pageNumber: number) => {
-    queryClient.prefetchQuery(buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber }));
+  const prefetchList = (
+    overrides: Partial<
+      Pick<TicketListQueryOptionsInput, 'columnFilters' | 'sortParam' | 'pageNumber'>
+    >,
+  ) => {
+    queryClient.prefetchQuery(
+      buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber: 1, ...overrides }),
+    );
   };
 
-  return { data: data ?? initialData, isFetching, prefetchPage };
+  return { data: data ?? initialData, isFetching, prefetchList };
 }

@@ -14,8 +14,14 @@ export const TicketListHeading: FC = () => {
   const { achievement, game, scope, user } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
-  const headingCopyMap: Record<App.Platform.Enums.TicketListScope, TranslatedString> = {
-    all: t('Ticket Manager'),
+  if (scope === 'all') {
+    return null;
+  }
+
+  const headingCopyMap: Record<
+    Exclude<App.Platform.Enums.TicketListScope, 'all'>,
+    TranslatedString
+  > = {
     game: t('Tickets'),
     achievement: t('Tickets'),
     assignedTo: t('Tickets'),

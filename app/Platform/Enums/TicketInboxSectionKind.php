@@ -12,7 +12,7 @@ enum TicketInboxSectionKind: string
     case ToResolve = 'toResolve';
     case AwaitingYourFeedback = 'awaitingYourFeedback';
     case AwaitingReporter = 'awaitingReporter';
-    case ReportedOpen = 'reportedOpen';
+    case ReportedByYou = 'reportedByYou';
     case ResolvedByYou = 'resolvedByYou';
 
     public function needsViewerAction(): bool

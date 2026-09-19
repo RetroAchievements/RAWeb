@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
 import { SEO } from '@/common/components/SEO';
-import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { TicketIndexRoot } from '@/features/tickets/components/+index';
+import { TicketPageLayout } from '@/features/tickets/components/TicketPageLayout';
 
 const TicketIndex: AppPage = () => {
   const { t } = useTranslation();
@@ -11,15 +11,13 @@ const TicketIndex: AppPage = () => {
   return (
     <>
       {/* I'm not too fixated on this meta description - this page requires auth */}
-      <SEO title={t('Ticket Manager')} description="Browse all tickets on RetroAchievements" />
+      <SEO title={t('Tickets')} description="Browse all tickets on RetroAchievements" />
 
-      <AppLayout.Main>
-        <TicketIndexRoot />
-      </AppLayout.Main>
+      <TicketIndexRoot />
     </>
   );
 };
 
-TicketIndex.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+TicketIndex.layout = (page) => <TicketPageLayout currentView="all">{page}</TicketPageLayout>;
 
 export default TicketIndex;

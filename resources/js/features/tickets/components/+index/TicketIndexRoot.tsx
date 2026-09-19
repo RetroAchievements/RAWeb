@@ -11,7 +11,10 @@ import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
+import { getTicketListColumnFiltersForSort } from '../../utils/getTicketListColumnFiltersForSort';
+import { setTicketListColumnFilterValue } from '../../utils/setTicketListColumnFilterValue';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
+import { TicketListEmptyState } from '../TicketListEmptyState';
 import { TicketListFilterChips } from '../TicketListFilterChips';
 import { TicketListFilterControl } from '../TicketListFilterControl';
 import { TicketListHeading } from '../TicketListHeading';
@@ -33,7 +36,8 @@ export const TicketIndexRoot: FC = () => {
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
-  const columnDefinitions = useTicketListColumnDefinitions();
+  const shouldShowGameTitle = scope !== 'game' && scope !== 'achievement';
+  const columnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
 
   const serverDefaultColumnFilters: ColumnFiltersState = [
     { id: 'status', value: [defaultStatusFilter] },
@@ -68,6 +72,16 @@ export const TicketIndexRoot: FC = () => {
   const visibleTotal = ticketListTableProps.paginatedTickets.total;
   const unfilteredTotal = ticketListTableProps.paginatedTickets.unfilteredTotal;
 
+  const prefetchStatus = (value: string) => {
+    ticketListTableProps.prefetchList({
+      columnFilters: setTicketListColumnFilterValue(
+        ticketListTableProps.columnFilters,
+        'status',
+        value,
+      ),
+    });
+  };
+
   return (
     <div
       id="pagination-scroll-target"
@@ -80,6 +94,7 @@ export const TicketIndexRoot: FC = () => {
         {hasFilterChips ? (
           <div className="flex flex-wrap items-center gap-2 sm:contents">
             <TicketListFilterChips
+              onPrefetchStatus={prefetchStatus}
               columnFilters={ticketListTableProps.columnFilters}
               properties={filterProperties}
               setColumnFilters={ticketListTableProps.setColumnFilters}
@@ -92,6 +107,7 @@ export const TicketIndexRoot: FC = () => {
             <TicketListFilterControl
               columnFilters={ticketListTableProps.columnFilters}
               isLabelHidden={hasFilterChips && hasNonDefaultFilters}
+              onPrefetchStatus={prefetchStatus}
               properties={filterProperties}
               setColumnFilters={ticketListTableProps.setColumnFilters}
             />
@@ -99,13 +115,16 @@ export const TicketIndexRoot: FC = () => {
 
           {hasNonDefaultFilters ? (
             <TicketListResetFiltersButton
+              onPrefetch={() =>
+                ticketListTableProps.prefetchList({ columnFilters: serverDefaultColumnFilters })
+              }
               serverDefaultColumnFilters={serverDefaultColumnFilters}
               setColumnFilters={ticketListTableProps.setColumnFilters}
             />
           ) : null}
 
           <div className="ml-auto flex items-center gap-2">
-            {visibleTotal > 0 ? (
+            {visibleTotal > 0 || (unfilteredTotal !== null && unfilteredTotal !== undefined) ? (
               <p className="whitespace-nowrap text-neutral-200 light:text-neutral-900">
                 {unfilteredTotal && unfilteredTotal !== visibleTotal
                   ? t('{{visible, number}} of {{total, number}} tickets', {
@@ -121,6 +140,15 @@ export const TicketIndexRoot: FC = () => {
               columnDefinitions={columnDefinitions}
               columnVisibility={ticketListTableProps.columnVisibility}
               hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
+              onPrefetchSort={(sortParam) =>
+                ticketListTableProps.prefetchList({
+                  sortParam,
+                  columnFilters: getTicketListColumnFiltersForSort(
+                    ticketListTableProps.columnFilters,
+                    sortParam,
+                  ),
+                })
+              }
               onResetDisplay={ticketListTableProps.resetDisplay}
               onSortChange={ticketListTableProps.setSortParam}
               onToggleColumn={ticketListTableProps.toggleColumnVisibility}
@@ -131,17 +159,32 @@ export const TicketIndexRoot: FC = () => {
       </div>
 
       <TicketListTable
+        shouldShowGameTitle={shouldShowGameTitle}
         columnDefinitions={columnDefinitions}
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}
         paginatedTickets={ticketListTableProps.paginatedTickets}
+        emptyStateNode={
+          <TicketListEmptyState
+            scope={scope}
+            unfilteredTotal={unfilteredTotal}
+            onPrefetchResetFilters={() =>
+              ticketListTableProps.prefetchList({ columnFilters: serverDefaultColumnFilters })
+            }
+            onResetFilters={
+              hasNonDefaultFilters
+                ? () => ticketListTableProps.setColumnFilters(serverDefaultColumnFilters)
+                : undefined
+            }
+          />
+        }
         paginatorNode={
           <div className="flex items-center justify-center sm:justify-end">
             <DataTablePaginationControls
               currentPage={ticketListTableProps.paginatedTickets.currentPage}
               lastPage={ticketListTableProps.paginatedTickets.lastPage}
               onPageChange={ticketListTableProps.setPageNumber}
-              onPrefetchPage={ticketListTableProps.prefetchPage}
+              onPrefetchPage={(pageNumber) => ticketListTableProps.prefetchList({ pageNumber })}
             />
           </div>
         }

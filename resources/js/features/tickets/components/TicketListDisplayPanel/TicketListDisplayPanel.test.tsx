@@ -11,11 +11,11 @@ import { TicketListDisplayPanel } from './TicketListDisplayPanel';
 
 const columnDefinitions: TicketListColumnDefinition[] = [
   { id: 'id', enableHiding: false, meta: { t_label: 'ID' as TranslatedString } },
-  { id: 'game', meta: { t_label: 'Game' as TranslatedString } },
+  { id: 'reporter', meta: { t_label: 'Reporter' as TranslatedString } },
 ];
 
 const defaultColumnVisibility = Object.fromEntries(
-  TICKET_LIST_COLUMN_IDS.map((columnId) => [columnId, ['id', 'game'].includes(columnId)]),
+  TICKET_LIST_COLUMN_IDS.map((columnId) => [columnId, ['id', 'reporter'].includes(columnId)]),
 ) as VisibilityState;
 
 type TicketListDisplayPanelProps = ComponentProps<typeof TicketListDisplayPanel>;
@@ -94,7 +94,7 @@ describe('Component: TicketListDisplayPanel', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('given the status sort, labels its directions as ascending and descending', async () => {
+  it('given the status sort, labels its directions as open first and closed first', async () => {
     // ARRANGE
     const { props, rerender } = renderTicketListDisplayPanel({ sortParam: 'state' });
 
@@ -102,15 +102,15 @@ describe('Component: TicketListDisplayPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
 
     // ASSERT
-    expect(screen.getByRole('button', { name: 'Ascending' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Open first' })).toBeVisible();
     rerender(<TicketListDisplayPanel {...props} sortParam="-state" />);
-    expect(screen.getByRole('button', { name: 'Descending' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Closed first' })).toBeVisible();
   });
 
   it('given a column is hidden, marks its control as unpressed', async () => {
     // ARRANGE
     renderTicketListDisplayPanel({
-      columnVisibility: { ...defaultColumnVisibility, game: false },
+      columnVisibility: { ...defaultColumnVisibility, reporter: false },
     });
 
     // ACT
@@ -118,7 +118,7 @@ describe('Component: TicketListDisplayPanel', () => {
 
     // ASSERT
     expect(screen.queryByTestId('column-toggle-id')).not.toBeInTheDocument();
-    expect(screen.getByTestId('column-toggle-game')).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByTestId('column-toggle-game')).toHaveAttribute('data-state', 'off');
+    expect(screen.getByTestId('column-toggle-reporter')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('column-toggle-reporter')).toHaveAttribute('data-state', 'off');
   });
 });

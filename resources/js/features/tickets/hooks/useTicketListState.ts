@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import type { TicketListSortParam, TicketListUrlState } from '../models';
+import { getTicketListColumnFiltersForSort } from '../utils/getTicketListColumnFiltersForSort';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
 import { resolveTicketListViewPreferences } from '../utils/resolveTicketListViewPreferences';
 import { ticketListSort } from '../utils/ticketListSort';
@@ -53,6 +54,9 @@ export function useTicketListState(
 
     setPageNumber(1);
     setSortParam(nextSortParam);
+    setColumnFilters((previousFilters) =>
+      getTicketListColumnFiltersForSort(previousFilters, nextSortParam),
+    );
   };
 
   const restoreState = (urlState: TicketListUrlState) => {

@@ -9,7 +9,6 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
     expect(result).toEqual({
       id: true,
       ticketable: true,
-      game: true,
       type: false,
       mode: false,
       developer: true,
@@ -24,13 +23,12 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
     });
   });
 
-  it('given the achievement scope, shows the issue type column instead of the game column', () => {
+  it('given the achievement scope, shows the issue type column', () => {
     // ACT
     const result = getTicketListDefaultColumnVisibility('achievement', 'unresolved');
 
     // ASSERT
     expect(result.type).toEqual(true);
-    expect(result.game).toEqual(false);
     expect(result.ticketable).toEqual(false);
   });
 

@@ -160,6 +160,26 @@ describe('Component: TicketListFilterControl', () => {
     expect(screen.getByRole('menuitem', { name: /resolved/i })).toHaveTextContent('0');
   });
 
+  it('given a filter option would return zero results, dims the option', async () => {
+    // ARRANGE
+    const setColumnFilters = vi.fn();
+
+    render(
+      <TicketListFilterControl
+        columnFilters={[]}
+        properties={[statusProperty]}
+        setColumnFilters={setColumnFilters}
+      />,
+    );
+
+    // ACT
+    await openPropertySubmenu(0);
+
+    // ASSERT
+    expect(screen.getByText('Resolved').parentElement).toHaveClass('opacity-50');
+    expect(screen.getByText('Open').parentElement).not.toHaveClass('opacity-50');
+  });
+
   it('given the user picks a value, sets the filter', async () => {
     // ARRANGE
     const setColumnFilters = vi.fn();

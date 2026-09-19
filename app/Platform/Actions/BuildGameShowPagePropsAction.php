@@ -698,7 +698,8 @@ class BuildGameShowPagePropsAction
                 }
 
                 return $user->can('view', $eventAchievement->event);
-            });
+            })
+            ->values();
 
         if ($activeEventAchievements->isEmpty()) {
             return [];
