@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\Ticket;
@@ -24,66 +25,58 @@ if (!$ticket) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-$reason = null;
+$resolution = null;
 $ticketState = null;
 switch ($input['action']) {
     case TicketAction::ClosedMistaken:
-        $ticketState = TicketState::Closed;
-        $reason = "Mistaken report";
+        $resolution = TicketResolution::MistakenReport;
         break;
 
     case TicketAction::Resolved:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Resolved;
+            $resolution = TicketResolution::Fixed;
         }
         break;
 
     case TicketAction::Demoted:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = TicketState::REASON_DEMOTED;
+            $resolution = TicketResolution::Demoted;
         }
         break;
 
     case TicketAction::NotEnoughInfo:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "Not enough information";
+            $resolution = TicketResolution::NotEnoughInformation;
         }
         break;
 
     case TicketAction::WrongRom:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "Wrong ROM";
+            $resolution = TicketResolution::WrongRom;
         }
         break;
 
     case TicketAction::Network:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "Network problems";
+            $resolution = TicketResolution::NetworkProblems;
         }
         break;
 
     case TicketAction::UnableToReproduce:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "Unable to reproduce";
+            $resolution = TicketResolution::UnableToReproduce;
         }
         break;
 
     case TicketAction::UnableToDebug:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "Unable to debug due to no toolkit support";
+            $resolution = TicketResolution::UnableToDebug;
         }
         break;
 
     case TicketAction::ClosedOther:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TicketState::Closed;
-            $reason = "See the comments";
+            $resolution = TicketResolution::Other;
         }
         break;
 
@@ -100,12 +93,14 @@ switch ($input['action']) {
         break;
 }
 
+$ticketState ??= $resolution?->finishedState();
+
 if ($ticketState !== null && $ticketState !== $ticket->state) {
     $userModel = User::whereName($username)->first();
     if ($userModel
         && ($permissions >= Permissions::Developer || $userModel->id === $ticket->reporter_id)
     ) {
-        updateTicket($userModel, $ticketId, $ticketState, $reason);
+        updateTicket($userModel, $ticketId, $ticketState, $resolution);
 
         return back()->with('success', __('legacy.success.update'));
     }

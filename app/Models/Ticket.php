@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Platform\Enums\LeaderboardState;
@@ -39,6 +40,7 @@ class Ticket extends BaseModel
     protected $casts = [
         'type' => TicketType::class,
         'state' => TicketState::class,
+        'resolution' => TicketResolution::class,
         'resolved_at' => 'datetime',
     ];
 
