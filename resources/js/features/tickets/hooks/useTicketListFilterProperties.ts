@@ -55,7 +55,7 @@ export function useTicketListFilterProperties(
         noFilterValue: filter.values[0],
         options: filter.values.map((value) => ({
           value,
-          label: getFilterValueLabel(filter.kind, value),
+          label: getFilterValueLabel(filter.kind, value, filter.valueLabels),
           count: countsByValue ? (countsByValue[value] ?? 0) : undefined,
         })),
       };

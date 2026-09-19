@@ -31,6 +31,7 @@ function defaultTicketListFilterOptions(array $overrides = []): array
         'developer' => 'all',
         'reporter' => 'all',
         'emulator' => 'all',
+        'system' => 'all',
     ], $overrides);
 }
 
@@ -213,6 +214,44 @@ describe('applyFilters', function () {
         // ASSERT
         expect($ids)->toEqual([$matchingTicket->id]);
     });
+
+    it('given a system, returns achievement and leaderboard tickets for games on that system', function () {
+        // ARRANGE
+        $achievement = createTicketableAchievement();
+        $otherAchievement = createTicketableAchievement();
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $achievement->game_id]);
+        $matchingTickets = [
+            Ticket::factory()->forAchievement($achievement)->open()->create(),
+            Ticket::factory()->forLeaderboard($leaderboard)->open()->create(),
+        ];
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create();
+        $service = new TicketListService();
+
+        // ACT
+        $ids = buildTicketIds($service, defaultTicketListFilterOptions(['system' => (string) $achievement->game->system_id]));
+
+        // ASSERT
+        expect($ids)->toEqual(sortedTicketIds($matchingTickets));
+    });
+});
+
+it('keeps system facet counts in sync with the list filter', function () {
+    // ARRANGE
+    $achievement = createTicketableAchievement();
+    $otherAchievement = createTicketableAchievement();
+    $leaderboard = Leaderboard::factory()->create(['game_id' => $achievement->game_id]);
+    Ticket::factory()->forAchievement($achievement)->open()->create();
+    Ticket::factory()->forLeaderboard($leaderboard)->open()->create();
+    Ticket::factory()->forAchievement($otherAchievement)->open()->create();
+    $service = new TicketListService();
+
+    // ACT
+    $counts = $service->getFacetCounts(defaultTicketListFilterOptions(), Ticket::query(), [TicketListFilterKind::System]);
+
+    // ASSERT
+    expect($counts['system']['all'])->toEqual(3);
+    expect($counts['system'][(string) $achievement->game->system_id])->toEqual(2);
+    expect($counts['system'][(string) $otherAchievement->game->system_id])->toEqual(1);
 });
 
 it('given a facet filter, its counts always match the corresponding list filters', function (TicketListFilterKind $kind) {
@@ -252,4 +291,5 @@ it('given a facet filter, its counts always match the corresponding list filters
 })->with([
     'publication status' => [TicketListFilterKind::PublishedStatus],
     'developer type' => [TicketListFilterKind::DeveloperType],
+    'system' => [TicketListFilterKind::System],
 ]);
