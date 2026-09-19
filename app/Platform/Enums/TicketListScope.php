@@ -67,7 +67,15 @@ enum TicketListScope: string
     public function filterKinds(): array
     {
         return match ($this) {
-            self::All, self::Game => [
+            self::All => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::System,
+            ],
+            self::Game => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
@@ -84,6 +92,7 @@ enum TicketListScope: string
                 TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::System,
             ],
             self::AwaitingReporter => [],
             self::ResolvedBy => [
@@ -93,6 +102,7 @@ enum TicketListScope: string
                 TicketListFilterKind::Developer,
                 TicketListFilterKind::Reporter,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::System,
             ],
         };
     }
