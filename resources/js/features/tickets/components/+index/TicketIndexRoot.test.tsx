@@ -30,6 +30,7 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
         total: 1,
       }),
       stateCounts: createTicketListStateCounts(),
+      defaultSortParam: '-createdAt',
       defaultStatusFilter: 'unresolved',
       hasStatusFilter: true,
       availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
@@ -723,6 +724,67 @@ describe('Component: TicketIndexRoot', () => {
 
     expect(screen.getByRole('columnheader', { name: 'Reporter' })).toBeVisible();
     expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given the scope opens on a resolved date sort, treats that sort as the default display', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given a resolved by scope, marks a changed sort and resets it to the resolved date default', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.click(screen.getByRole('option', { name: 'Created' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenCalledWith(
+        { inertia: true, ticketListSortParam: '-createdAt' },
+        '',
+        expect.stringContaining('sort=-createdAt'),
+      );
+    });
+    expect(screen.getByTestId('display-changed-dot')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('reset-display'));
+
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenLastCalledWith(
+        { inertia: true, ticketListSortParam: '-resolvedAt' },
+        '',
+        expect.not.stringContaining('sort='),
+      );
+    });
     expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
   });
 

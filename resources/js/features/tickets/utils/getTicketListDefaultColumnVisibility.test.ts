@@ -3,7 +3,7 @@ import { getTicketListDefaultColumnVisibility } from './getTicketListDefaultColu
 describe('Util: getTicketListDefaultColumnVisibility', () => {
   it('given the all scope, shows the columns that scope defaults to and hides the rest', () => {
     // ACT
-    const result = getTicketListDefaultColumnVisibility('all', 'unresolved');
+    const result = getTicketListDefaultColumnVisibility('all', 'unresolved', '-createdAt');
 
     // ASSERT
     expect(result).toEqual({
@@ -25,7 +25,7 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
 
   it('given the achievement scope, shows the issue type column', () => {
     // ACT
-    const result = getTicketListDefaultColumnVisibility('achievement', 'unresolved');
+    const result = getTicketListDefaultColumnVisibility('achievement', 'unresolved', '-createdAt');
 
     // ASSERT
     expect(result.type).toEqual(true);
@@ -34,10 +34,14 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
 
   it('given a status that surfaces terminal tickets, shows the resolver column', () => {
     // ACT
-    const resolvedResult = getTicketListDefaultColumnVisibility('all', 'resolved');
-    const closedResult = getTicketListDefaultColumnVisibility('all', 'closed');
-    const allResult = getTicketListDefaultColumnVisibility('all', 'all');
-    const unresolvedResult = getTicketListDefaultColumnVisibility('all', 'unresolved');
+    const resolvedResult = getTicketListDefaultColumnVisibility('all', 'resolved', '-createdAt');
+    const closedResult = getTicketListDefaultColumnVisibility('all', 'closed', '-createdAt');
+    const allResult = getTicketListDefaultColumnVisibility('all', 'all', '-createdAt');
+    const unresolvedResult = getTicketListDefaultColumnVisibility(
+      'all',
+      'unresolved',
+      '-createdAt',
+    );
 
     // ASSERT
     expect(resolvedResult.resolver).toEqual(true);
@@ -51,7 +55,7 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
 
   it('given the resolvedBy scope, never adds the resolver column', () => {
     // ACT
-    const result = getTicketListDefaultColumnVisibility('resolvedBy', 'resolved');
+    const result = getTicketListDefaultColumnVisibility('resolvedBy', 'resolved', '-createdAt');
 
     // ASSERT
     expect(result.resolver).toEqual(false);
