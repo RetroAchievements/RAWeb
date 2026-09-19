@@ -32,7 +32,7 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       stateCounts: createTicketListStateCounts(),
       defaultStatusFilter: 'unresolved',
       hasStatusFilter: true,
-      availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+      availableFilters: [{ kind: 'type', values: ['0', '1', '2'], isFreeText: false }],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
       persistedViewPreferences: null,
@@ -187,9 +187,9 @@ describe('Component: TicketIndexRoot', () => {
         scope: 'game',
         game: createGame({ id: 1701, system: createSystem() }),
         availableFilters: [
-          { kind: 'type', values: ['0', '1', '2'] },
-          { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
-          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] },
+          { kind: 'type', values: ['0', '1', '2'], isFreeText: false },
+          { kind: 'mode', values: ['all', 'hardcore', 'softcore'], isFreeText: false },
+          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], isFreeText: false },
         ],
         paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
         ziggy: createZiggyProps({
@@ -284,8 +284,8 @@ describe('Component: TicketIndexRoot', () => {
     renderTicketIndexRoot({
       stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
       availableFilters: [
-        { kind: 'type', values: ['0', '1', '2'] },
-        { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
+        { kind: 'type', values: ['0', '1', '2'], isFreeText: false },
+        { kind: 'mode', values: ['all', 'hardcore', 'softcore'], isFreeText: false },
       ],
     });
 
@@ -301,7 +301,9 @@ describe('Component: TicketIndexRoot', () => {
   it('given the server counted a facet, every one of its options carries a count', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] }],
+      availableFilters: [
+        { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], isFreeText: false },
+      ],
       facetCounts: { emulator: { all: 100, RetroArch: 40 } },
     });
 
@@ -314,10 +316,27 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
   });
 
+  it('given a free text filter, shows a text input with an example term', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [{ kind: 'core', values: [''], isFreeText: true }],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: 'Core contains' })).toBeVisible();
+    expect(screen.getByPlaceholderText('nestopia')).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /all/i })).not.toBeInTheDocument();
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'developerType', values: ['all', 'active', 'junior'] }],
+      availableFilters: [
+        { kind: 'developerType', values: ['all', 'active', 'junior'], isFreeText: false },
+      ],
     });
 
     // ACT

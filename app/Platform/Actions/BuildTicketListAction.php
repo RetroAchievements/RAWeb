@@ -107,6 +107,7 @@ class BuildTicketListAction
             fn (TicketListFilterKind $kind) => new TicketListFilterData(
                 kind: $kind,
                 values: $kind->values($systemId),
+                isFreeText: $kind->isFreeText(),
             ),
             $scope->filterKinds(),
         );

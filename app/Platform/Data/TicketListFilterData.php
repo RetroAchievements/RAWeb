@@ -19,6 +19,7 @@ class TicketListFilterData extends Data
         public TicketListFilterKind $kind,
         #[LiteralTypeScriptType('string[]')]
         public array $values,
+        public bool $isFreeText = false,
     ) {
     }
 }

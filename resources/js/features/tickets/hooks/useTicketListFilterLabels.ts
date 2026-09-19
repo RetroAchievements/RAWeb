@@ -18,6 +18,11 @@ export function useTicketListFilterLabels() {
     developer: t('Developer'),
     reporter: t('Reporter'),
     emulator: t('Emulator'),
+    core: t('Core'),
+  };
+
+  const kindPlaceholders: Partial<Record<FilterKind, TranslatedString>> = {
+    core: t('nestopia'),
   };
 
   const selfOrOthersLabels = {
@@ -55,6 +60,7 @@ export function useTicketListFilterLabels() {
       all: t('All'),
       unknown: t('Unknown'),
     },
+    core: {},
   };
 
   const statusLabels: Record<App.Platform.Enums.TicketListStatusFilter, TranslatedString> = {
@@ -69,6 +75,9 @@ export function useTicketListFilterLabels() {
 
   const getFilterKindLabel = (kind: FilterKind): TranslatedString => kindLabels[kind];
 
+  const getFilterKindPlaceholder = (kind: FilterKind): TranslatedString | undefined =>
+    kindPlaceholders[kind];
+
   const getFilterValueLabel = (kind: FilterKind, value: string): string =>
     valueLabels[kind][value] ?? value;
 
@@ -76,5 +85,10 @@ export function useTicketListFilterLabels() {
     value: App.Platform.Enums.TicketListStatusFilter,
   ): TranslatedString => statusLabels[value];
 
-  return { getFilterKindLabel, getFilterValueLabel, getStatusValueLabel };
+  return {
+    getFilterKindLabel,
+    getFilterKindPlaceholder,
+    getFilterValueLabel,
+    getStatusValueLabel,
+  };
 }
