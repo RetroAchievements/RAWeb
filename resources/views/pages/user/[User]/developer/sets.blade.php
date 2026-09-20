@@ -8,7 +8,7 @@ use function Laravel\Folio\{middleware, name, render, withTrashed};
 
 withTrashed();
 
-middleware('can:view,user');
+middleware('can:viewDevelopedSets,user');
 name('developer.sets');
 
 render(function (View $view, User $user, DeveloperSetsService $pageService) {
