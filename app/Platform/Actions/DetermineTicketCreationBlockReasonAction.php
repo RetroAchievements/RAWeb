@@ -17,13 +17,13 @@ class DetermineTicketCreationBlockReasonAction
 
     public function execute(User $user, Achievement $achievement, bool $hasSession): ?TicketCreationBlockReason
     {
-        if (!$hasSession) {
-            return TicketCreationBlockReason::NoPlaySession;
-        }
-
         $ticketCreationData = $this->buildTicketCreationData->execute($achievement, $user);
         if (!count($ticketCreationData->gameHashes) || !count($ticketCreationData->emulators)) {
             return TicketCreationBlockReason::GameNotTicketable;
+        }
+
+        if (!$hasSession) {
+            return TicketCreationBlockReason::NoPlaySession;
         }
 
         return null;
