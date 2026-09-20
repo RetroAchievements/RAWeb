@@ -11,6 +11,7 @@ import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { ReportToDeveloperComplianceListItem } from './ReportToDeveloperComplianceListItem';
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
+import { TicketBlockedNotice } from './TicketBlockedNotice';
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
 export const ReportIssueMainRoot: FC = () => {
@@ -37,6 +38,8 @@ export const ReportIssueMainRoot: FC = () => {
       <p className="mb-2">{t('What sort of issue would you like to report?')}</p>
 
       <ul className="flex flex-col gap-5 sm:gap-3">
+        <TicketBlockedNotice />
+
         <SessionDrivenIssueListItems />
 
         <ReportToDeveloperComplianceListItem achievement={achievement} />

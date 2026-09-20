@@ -1608,5 +1608,8 @@
     "No tickets have been reported for this game.": "No tickets have been reported for this game.",
     "No tickets have been reported for this achievement.": "No tickets have been reported for this achievement.",
     "There are no tickets in this list.": "There are no tickets in this list.",
-    "Reset filters": "Reset filters"
+    "Reset filters": "Reset filters",
+    "This account has no record of a play session for this game. To open a ticket, play the game with a supported emulator or client that is logged in to your account.": "This account has no record of a play session for this game. To open a ticket, play the game with a supported emulator or client that is logged in to your account.",
+    "Read about emulator support": "Read about emulator support",
+    "Tickets are not available for this game. You can still send a message to a team below.": "Tickets are not available for this game. You can still send a message to a team below."
 }

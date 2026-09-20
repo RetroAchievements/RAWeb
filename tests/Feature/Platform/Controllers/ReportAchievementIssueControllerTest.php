@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\Emulator;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
@@ -16,16 +18,24 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
 
-function achievementForReportIssueTest(): Achievement
+function achievementForReportIssueTest(bool $isTicketable = true): Achievement
 {
     $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
     $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
+    if ($isTicketable) {
+        GameHash::factory()->create(['game_id' => $game->id]);
+        $system->emulators()->attach(Emulator::factory()->create()->id);
+    }
+
     return Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 }
 
-function playerForReportIssueTest(Achievement $achievement, array $overrides = []): User
-{
+function playerForReportIssueTest(
+    Achievement $achievement,
+    array $overrides = [],
+    bool $hasPlayed = true,
+): User {
     /** @var User $user */
     $user = User::factory()->create(array_merge([
         'preferences_bitfield' => 63,
@@ -35,12 +45,14 @@ function playerForReportIssueTest(Achievement $achievement, array $overrides = [
         'unread_messages' => 0,
     ], $overrides));
 
-    PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $achievement->game_id]);
+    if ($hasPlayed) {
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $achievement->game_id]);
+    }
 
     return $user;
 }
 
-it('given a tracked player, then the page carries the achievement and permission props', function () {
+it('given a tracked player, the page carries the achievement and permission props', function () {
     // Arrange
     $achievement = achievementForReportIssueTest();
     $user = playerForReportIssueTest($achievement);
@@ -67,29 +79,29 @@ it('given a tracked player, then the page carries the achievement and permission
         )
         ->has('hasSession')
         ->has('ticketType')
-        ->has('can', fn (Assert $can) => $can
-            ->has('createTicket')
-        )
+        ->where('can.createTicket', true)
+        ->missing('ticketBlockReason') // null props are auto-stripped from our payloads
         ->etc() // for whatever reason, component validation always fails. it's covered elsewhere, though.
     );
 });
 
-it('given an untracked player with no roles, then the page renders but withholds ticket creation', function () {
+it('given a player who cannot open tickets, the page is forbidden', function (Closure $buildOverrides) {
     // Arrange
     $achievement = achievementForReportIssueTest();
-    $user = playerForReportIssueTest($achievement, ['unranked_at' => Carbon::now()->subMonth()]);
+    $user = playerForReportIssueTest($achievement, $buildOverrides());
     $this->actingAs($user);
 
     // Act
     $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
 
     // Assert
-    $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
-        ->where('can.createTicket', false)
-        ->etc()
-    );
-});
+    $response->assertForbidden();
+})->with([
+    'untracked' => [fn () => ['unranked_at' => Carbon::now()->subMonth()]],
+    'muted' => [fn () => ['muted_until' => Carbon::now()->addWeek()]],
+    'unverified email' => [fn () => ['email_verified_at' => null]],
+    'new account' => [fn () => ['created_at' => Carbon::now()->subHours(3)]],
+]);
 
 it('given an untracked player with a team role, then the page still offers ticket creation', function () {
     // Arrange
@@ -107,6 +119,43 @@ it('given an untracked player with a team role, then the page still offers ticke
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
         ->where('can.createTicket', true)
+        ->missing('ticketBlockReason')
+        ->etc()
+    );
+});
+
+it('given a player with no play session, the page sets ticketBlockReason correctly', function () {
+    // Arrange
+    $achievement = achievementForReportIssueTest();
+    $user = playerForReportIssueTest($achievement, hasPlayed: false);
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('can.createTicket', false)
+        ->where('ticketBlockReason', 'no_play_session')
+        ->etc()
+    );
+});
+
+it('given a game with no hashes or emulators, the page sets ticketBlockReason correctly', function () {
+    // Arrange
+    $achievement = achievementForReportIssueTest(isTicketable: false);
+    $user = playerForReportIssueTest($achievement);
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('can.createTicket', false)
+        ->where('ticketBlockReason', 'game_not_ticketable')
         ->etc()
     );
 });

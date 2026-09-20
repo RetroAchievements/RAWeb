@@ -353,4 +353,82 @@ describe('Component: ReportIssueMainRoot', () => {
 
     expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
   });
+
+  it('given there is no block reason, does not show a notice', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no record of a play session/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/create ticket/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('given there is no play session, shows the reason with a link to the emulator docs and hides the ticket buttons', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: false,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/no record of a play session for this game/i)).toBeVisible();
+
+    const link = screen.getByRole('link', { name: 'Read about emulator support' });
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/general/emulator-support-and-issues.html',
+    );
+
+    expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
+  });
+
+  it('given the game has no hashes or emulators, shows the reason without a link', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'game_not_ticketable',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/tickets are not available for this game/i)).toBeVisible();
+    expect(
+      screen.queryByRole('link', { name: 'Read about emulator support' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
+  });
+
+  it('given a block reason exists, keeps the manual unlock option', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'game_not_ticketable',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: /request manual unlock/i })).toBeVisible();
+  });
 });
