@@ -55,8 +55,6 @@ class TicketController extends Controller
 
     public function mine(Request $request): InertiaResponse
     {
-        $this->authorize('viewAny', Ticket::class);
-
         /**
          * We have a `user` param here for debugging purposes only. Nothing
          * exposes this in the UI.
@@ -64,6 +62,8 @@ class TicketController extends Controller
         $target = $request->filled('user')
             ? User::whereName($request->input('user'))->firstOrFail()
             : $request->user();
+
+        $this->authorize('viewAny', [Ticket::class, $target]);
 
         $props = (new BuildTicketInboxPagePropsAction())->execute($target);
 

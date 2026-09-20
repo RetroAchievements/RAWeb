@@ -215,6 +215,18 @@ it('given a user param, the inbox reports on that user rather than the currently
     );
 });
 
+it('given a user param for a banned user, a non-dev is hit with a 404', function () {
+    // ARRANGE
+    $target = User::factory()->create(['banned_at' => Carbon::now()]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertNotFound();
+});
+
 it('given the open status filter, returns only open tickets while unresolved also returns requests', function () {
     // ARRANGE
     createTicketListPageTickets(10);

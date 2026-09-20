@@ -8,6 +8,7 @@ use App\Api\Controllers\CatchAllController;
 use App\Api\Controllers\HealthController;
 use App\Api\Internal\Controllers\AchievementController as InternalAchievementController;
 use App\Api\Middleware\AddContentLengthHeader;
+use App\Api\Middleware\BlockBannedUserRequests;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\RequireOAuthReadScope;
@@ -257,7 +258,7 @@ class RouteServiceProvider extends ServiceProvider
          * Casing should be handled by web server (API vs api).
          * Always has to be authenticated with an api token.
          */
-        Route::middleware(['api', 'auth:api-token', LogLegacyApiUsage::class])->prefix('API')->group(function () {
+        Route::middleware(['api', 'auth:api-token', LogLegacyApiUsage::class, BlockBannedUserRequests::class])->prefix('API')->group(function () {
             /**
              * Usually called via GET, should allow POST, too though
              */

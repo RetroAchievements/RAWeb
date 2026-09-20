@@ -54,8 +54,8 @@ class UserPolicy
         // Banned account subpages are hidden from the public. Tickets and sets are the
         // exception, and only for people whose job it is to clean them up.
         if (
-            $model?->isBanned()
-            && !$user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+            $model->isBanned()
+            && !$user?->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
         ) {
             throw new BannedUserException();
         }
