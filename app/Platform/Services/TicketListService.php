@@ -33,9 +33,11 @@ class TicketListService
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
+        $viewer = $request->user();
+
         $rules = ['filter.status' => ['sometimes', Rule::enum(TicketListStatusFilter::class)]];
         foreach (TicketListFilterKind::cases() as $kind) {
-            $rules["filter.{$kind->value}"] = $kind->validationRules();
+            $rules["filter.{$kind->value}"] = $kind->validationRules($viewer);
         }
 
         $validatedData = $request->validate($rules);
@@ -134,6 +136,12 @@ class TicketListService
                     $query->whereDoesntHave('roles', fn ($roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
                 });
                 break;
+
+            case 'banned':
+                $tickets->whereHas('author', function ($query) {
+                    $query->whereNotNull('banned_at');
+                });
+                break;
         }
 
         if ($comparisonUser !== null) {
@@ -191,6 +199,7 @@ class TicketListService
         array $kinds,
         ?User $comparisonUser = null,
         ?int $filteredTotal = null,
+        ?User $viewer = null,
     ): array {
         $widestFacetRowCount = $this->hasNonStatusFilters($filterOptions)
             ? $this->applyFilters(clone $tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)->count()
@@ -237,7 +246,7 @@ class TicketListService
                         : ($this->emulatorNamesById()[(int) $value] ?? null),
                 ),
                 TicketListFilterKind::PublishedStatus => $this->countPublishedStatusFacet($query),
-                TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query),
+                TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query, $viewer),
             };
         }
 
@@ -309,7 +318,7 @@ class TicketListService
      * @param Builder<Ticket> $query
      * @return array<string, int>
      */
-    private function countDeveloperTypeFacet(Builder $query): array
+    private function countDeveloperTypeFacet(Builder $query, ?User $viewer): array
     {
         $kind = TicketListFilterKind::DeveloperType;
         $developerRoles = DB::table('auth_model_roles')
@@ -322,18 +331,23 @@ class TicketListService
 
         $rows = $query->selectRaw('count(*) as aggregate')
             ->withExists('author')
+            ->withExists(['author as banned' => fn ($author) => $author->whereNotNull('banned_at')])
             ->leftJoinSub($developerRoles, 'facet_roles', 'facet_author_id', '=', 'tickets.ticketable_author_id')
             ->selectRaw('(facet_author_id is not null) as active, coalesce(facet_junior, 0) as junior')
             ->withExists(['achievement as unmaintained' => fn ($achievement) => $achievement
                 ->where('tickets.ticketable_type', TicketableType::Achievement->value)
                 ->whereDoesntHave('activeMaintainer')])
             ->addSelect('tickets.ticketable_type')
-            ->groupBy('author_exists', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
+            ->groupBy('author_exists', 'banned', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
 
-        $counts = array_fill_keys($kind->values(), 0);
+        $counts = array_fill_keys([...$kind->values(), ...$kind->managerOnlyValues()], 0);
         foreach ($rows as $row) {
             $count = (int) $row->aggregate;
             $counts[$kind->noFilterValue()] += $count;
+
+            if ($row->banned) {
+                $counts['banned'] += $count;
+            }
 
             if (!$row->author_exists) {
                 continue;
@@ -349,7 +363,7 @@ class TicketListService
             }
         }
 
-        return $counts;
+        return array_intersect_key($counts, array_flip($kind->permittedValues($viewer)));
     }
 
     /**

@@ -6,6 +6,8 @@ namespace App\Platform\Enums;
 
 use App\Community\Enums\TicketType;
 use App\Models\Emulator;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -42,6 +44,29 @@ enum TicketListFilterKind: string
         };
     }
 
+    /**
+     * @return string[]
+     */
+    public function managerOnlyValues(): array
+    {
+        return match ($this) {
+            self::DeveloperType => ['banned'],
+            default => [],
+        };
+    }
+
+    /**
+     * @return string[]
+     */
+    public function permittedValues(?User $viewer, ?int $systemId = null): array
+    {
+        $values = $this->values($systemId);
+
+        return $viewer?->can('manage', Ticket::class)
+            ? [...$values, ...$this->managerOnlyValues()]
+            : $values;
+    }
+
     public function noFilterValue(): int|string
     {
         return $this === self::Type ? 0 : 'all';
@@ -50,12 +75,12 @@ enum TicketListFilterKind: string
     /**
      * @return array<int, string|\Illuminate\Validation\Rules\In>
      */
-    public function validationRules(): array
+    public function validationRules(?User $viewer): array
     {
         return match ($this) {
             self::Type => ['sometimes', 'integer', Rule::in($this->values())],
             self::Emulator => ['sometimes', 'string'],
-            default => ['sometimes', 'string', Rule::in($this->values())],
+            default => ['sometimes', 'string', Rule::in($this->permittedValues($viewer))],
         };
     }
 

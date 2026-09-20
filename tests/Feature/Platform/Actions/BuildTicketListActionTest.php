@@ -6,6 +6,7 @@ use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -16,7 +17,10 @@ use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+
+use function Pest\Laravel\seed;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -226,7 +230,7 @@ describe('available filters', function () {
         $action = new BuildTicketListAction();
 
         // ACT
-        $filters = $action->getAvailableFilters($scope);
+        $filters = $action->getAvailableFilters($scope, null);
 
         // ASSERT
         expect(array_map(fn ($filter) => $filter->kind, $filters))->toEqual($expectedKinds);
@@ -246,6 +250,28 @@ describe('available filters', function () {
         'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Emulator]],
     ]);
 
+    it('given the user has a developer role, the banned developer filter option is exposed', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $manager = User::factory()->create();
+        $manager->assignRole(Role::DEVELOPER);
+        $action = new BuildTicketListAction();
+
+        // ACT
+        $forManager = $action->getAvailableFilters(TicketListScope::All, $manager);
+        $forPlayer = $action->getAvailableFilters(TicketListScope::All, User::factory()->create());
+        $forGuest = $action->getAvailableFilters(TicketListScope::All, null);
+
+        // ASSERT
+        $developerTypeValues = fn (array $filters) => collect($filters)
+            ->firstWhere('kind', TicketListFilterKind::DeveloperType)
+            ->values;
+
+        expect($developerTypeValues($forManager))->toEqual(['all', 'active', 'junior', 'inactive', 'banned']);
+        expect($developerTypeValues($forPlayer))->toEqual(['all', 'active', 'junior', 'inactive']);
+        expect($developerTypeValues($forGuest))->toEqual(['all', 'active', 'junior', 'inactive']);
+    });
+
     it('given a system id, then the emulator options are limited to that system', function () {
         // ARRANGE
         $system = System::factory()->create();
@@ -256,7 +282,7 @@ describe('available filters', function () {
         $otherEmulator->systems()->attach($otherSystem->id);
 
         // ACT
-        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::Game, $system->id);
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::Game, null, $system->id);
 
         // ASSERT
         $emulatorFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::Emulator);

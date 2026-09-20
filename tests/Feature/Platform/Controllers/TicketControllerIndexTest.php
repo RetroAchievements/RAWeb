@@ -5,15 +5,18 @@ declare(strict_types=1);
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\seed;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -231,4 +234,96 @@ it('given the open status filter, returns only open tickets while unresolved als
 
     expect($requestCount)->toBeGreaterThan(0);
     expect($unresolvedTotal)->toEqual($openTotal + $requestCount);
+});
+
+/** @return array{banned: Ticket, other: Ticket} */
+function createTicketListPageBannedTickets(): array
+{
+    $bannedAuthor = User::factory()->create(['banned_at' => now(), 'deleted_at' => now()]);
+    $otherAuthor = User::factory()->create();
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+
+    $buildTicket = function (User $author) use ($game): Ticket {
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $author->id,
+        ]);
+
+        return Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => $author->id,
+        ]);
+    };
+
+    return ['banned' => $buildTicket($bannedAuthor), 'other' => $buildTicket($otherAuthor)];
+}
+
+describe('banned developer type filter', function () {
+    it('given the current user can manage tickets, the banned value and its count are set in the page props', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        createTicketListPageBannedTickets();
+        $manager = User::factory()->create();
+        $manager->assignRole(Role::DEVELOPER);
+        actingAs($manager);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $props = $response->viewData('page')['props'];
+        $developerTypeFilter = collect($props['availableFilters'])->firstWhere('kind', 'developerType');
+
+        expect($developerTypeFilter['values'])->toEqual(['all', 'active', 'junior', 'inactive', 'banned']);
+        expect($props['facetCounts']['developerType']['banned'])->toEqual(1);
+    });
+
+    it('given the current user cannot manage tickets, the banned value and its count are not set in the page props', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        createTicketListPageBannedTickets();
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $props = $response->viewData('page')['props'];
+        $developerTypeFilter = collect($props['availableFilters'])->firstWhere('kind', 'developerType');
+
+        expect($developerTypeFilter['values'])->toEqual(['all', 'active', 'junior', 'inactive']);
+        expect($props['facetCounts']['developerType'])->not->toHaveKey('banned');
+    });
+
+    it('given the user is filtering by banned dev tickets, the correct tickets are returned', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $tickets = createTicketListPageBannedTickets();
+        $manager = User::factory()->create();
+        $manager->assignRole(Role::DEVELOPER);
+        actingAs($manager);
+
+        // ACT
+        $response = get(route('tickets.index', ['filter' => ['developerType' => 'banned']]));
+
+        // ASSERT
+        $response->assertOk();
+        $items = $response->viewData('page')['props']['paginatedTickets']['items'];
+        expect(array_column($items, 'id'))->toEqual([$tickets['banned']->id]);
+    });
+
+    it('given the user is not allowed to filter by banned dev tickets and they try anyway, the request is rejected', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        createTicketListPageBannedTickets();
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('tickets.index', ['filter' => ['developerType' => 'banned']]));
+
+        // ASSERT
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('filter.developerType');
+    });
 });

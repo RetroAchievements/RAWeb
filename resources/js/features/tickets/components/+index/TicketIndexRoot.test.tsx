@@ -327,6 +327,38 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveTextContent(/^Active$/);
   });
 
+  it('given the server exposes the banned developer type, shows it as an option', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'developerType', values: ['all', 'active', 'junior', 'inactive', 'banned'] },
+      ],
+      facetCounts: { developerType: { all: 10, banned: 3 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /^Banned/ })).toHaveTextContent('3');
+  });
+
+  it('given the server omits the banned developer type, does not show it as an option', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'developerType', values: ['all', 'active', 'junior', 'inactive'] },
+      ],
+      facetCounts: { developerType: { all: 10 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.queryByRole('menuitem', { name: /^Banned/ })).not.toBeInTheDocument();
+  });
+
   it('given the default status narrows the list, shows it as a chip with the current value', () => {
     // ARRANGE
     renderTicketIndexRoot();

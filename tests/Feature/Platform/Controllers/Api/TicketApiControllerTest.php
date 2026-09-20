@@ -13,10 +13,12 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -488,6 +490,21 @@ function createTicketIndexFixture(int $ticketCount = 3): array
     return ['developer' => $developer, 'game' => $game, 'tickets' => $tickets];
 }
 
+function createTicketByBannedAuthor(): Ticket
+{
+    $author = User::factory()->create(['banned_at' => now(), 'deleted_at' => now()]);
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->promoted()->create([
+        'game_id' => $game->id,
+        'user_id' => $author->id,
+    ]);
+
+    return Ticket::factory()->forAchievement($achievement)->open()->create([
+        'ticketable_author_id' => $author->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+}
+
 describe('index', function () {
     it('given a guest, they are unauthorized', function () {
         // ARRANGE
@@ -565,5 +582,41 @@ describe('index', function () {
         // ASSERT
         $response->assertOk();
         $response->assertJsonPath('paginatedTickets.total', 2);
+    });
+
+    it('given the user is a developer, the banned facet count is returned and the filter works', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        $bannedTicket = createTicketByBannedAuthor();
+        createTicketIndexFixture(1);
+        $manager = User::factory()->create();
+        $manager->assignRole(Role::DEVELOPER);
+        $this->actingAs($manager);
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['filter' => ['developerType' => 'banned']]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('facetCounts.developerType.banned', 1);
+        $response->assertJsonPath('paginatedTickets.total', 1);
+        $response->assertJsonPath('paginatedTickets.items.0.id', $bannedTicket->id);
+    });
+
+    it('given the user is not a developer, the banned facet count is absent and the filter is rejected by the server', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        createTicketByBannedAuthor();
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $unfiltered = $this->getJson(route('api.ticket.index'));
+        $filtered = $this->getJson(route('api.ticket.index', ['filter' => ['developerType' => 'banned']]));
+
+        // ASSERT
+        $unfiltered->assertOk();
+        $unfiltered->assertJsonMissingPath('facetCounts.developerType.banned');
+        $filtered->assertUnprocessable();
+        $filtered->assertJsonValidationErrors('filter.developerType');
     });
 });

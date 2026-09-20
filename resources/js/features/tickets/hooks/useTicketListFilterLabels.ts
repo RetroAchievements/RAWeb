@@ -48,6 +48,7 @@ export function useTicketListFilterLabels() {
       active: t('Active'),
       junior: t('Junior'),
       inactive: t('Inactive'),
+      banned: t('Banned'),
     },
     developer: selfOrOthersLabels,
     reporter: selfOrOthersLabels,

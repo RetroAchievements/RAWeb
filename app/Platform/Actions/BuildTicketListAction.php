@@ -54,6 +54,7 @@ class BuildTicketListAction
             $scope->filterKinds(),
             $comparisonUser,
             $total,
+            $request->user(),
         );
         $lastPage = max(1, (int) ceil($total / self::PER_PAGE));
         $page = $request->getPage();
@@ -101,12 +102,12 @@ class BuildTicketListAction
     /**
      * @return TicketListFilterData[]
      */
-    public function getAvailableFilters(TicketListScope $scope, ?int $systemId = null): array
+    public function getAvailableFilters(TicketListScope $scope, ?User $viewer, ?int $systemId = null): array
     {
         return array_map(
             fn (TicketListFilterKind $kind) => new TicketListFilterData(
                 kind: $kind,
-                values: $kind->values($systemId),
+                values: $kind->permittedValues($viewer, $systemId),
             ),
             $scope->filterKinds(),
         );

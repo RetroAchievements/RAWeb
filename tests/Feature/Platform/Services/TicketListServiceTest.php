@@ -17,6 +17,7 @@ use App\Platform\Services\TicketListService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -82,6 +83,31 @@ function sortedTicketIds(array $tickets): array
     return $ids;
 }
 
+/**
+ * @return array{ticket: Ticket, author: User}
+ */
+function createTicketForAuthor(array $authorAttributes = [], ?string $role = null): array
+{
+    $author = User::factory()->create($authorAttributes);
+    if ($role !== null) {
+        $author->assignRole($role);
+    }
+    $achievement = createTicketableAchievement($author);
+    $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+        'ticketable_author_id' => $author->id,
+    ]);
+
+    return ['ticket' => $ticket, 'author' => $author];
+}
+
+function ticketListRequestActingAs(?User $user, array $query = []): Request
+{
+    $request = Request::create('/tickets', 'GET', $query);
+    $request->setUserResolver(fn () => $user);
+
+    return $request;
+}
+
 describe('getFilterOptions', function () {
     it('given no filter params, every default is filled', function () {
         // ARRANGE
@@ -115,6 +141,31 @@ describe('getFilterOptions', function () {
 
         // ASSERT
         expect($options['status'])->toEqual('all');
+    });
+
+    it('given a user who can manage tickets, the banned developer filter option is accepted', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        $manager = User::factory()->create();
+        $manager->assignRole(Role::DEVELOPER);
+        $service = new TicketListService();
+        $request = ticketListRequestActingAs($manager, ['filter' => ['developerType' => 'banned']]);
+
+        // ACT
+        $options = $service->getFilterOptions($request);
+
+        // ASSERT
+        expect($options['developerType'])->toEqual('banned');
+    });
+
+    it('given a user who cannot manage tickets, the banned developer filter option is rejected', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        $service = new TicketListService();
+        $request = ticketListRequestActingAs(User::factory()->create(), ['filter' => ['developerType' => 'banned']]);
+
+        // ACT & ASSERT
+        expect(fn () => $service->getFilterOptions($request))->toThrow(ValidationException::class);
     });
 });
 
@@ -218,6 +269,10 @@ describe('applyFilters', function () {
 it('given a facet filter, its counts always match the corresponding list filters', function (TicketListFilterKind $kind) {
     // ARRANGE
     $this->seed(RolesTableSeeder::class);
+    $manager = User::factory()->create();
+    $manager->assignRole(Role::DEVELOPER);
+    createTicketForAuthor(['banned_at' => now(), 'deleted_at' => now()], Role::DEVELOPER);
+
     foreach ([Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED] as $role) {
         $author = User::factory()->create();
         $author->assignRole($role);
@@ -227,25 +282,30 @@ it('given a facet filter, its counts always match the corresponding list filters
         $achievement->save();
         Ticket::factory()->forAchievement($achievement)->open()->create(['ticketable_author_id' => $author->id]);
     }
+
     foreach ([LeaderboardState::Active, LeaderboardState::Unpromoted] as $state) {
         $leaderboard = Leaderboard::factory()->create(['game_id' => $achievement->game_id, 'state' => $state]);
         Ticket::factory()->forLeaderboard($leaderboard)->open()->create(['ticketable_author_id' => $author->id]);
     }
+
     $service = new TicketListService();
     $options = defaultTicketListFilterOptions([$kind->value => $kind->values()[1]]);
 
     // ACT
-    $counts = $service->getFacetCounts($options, Ticket::query(), [$kind]);
+    $counts = $service->getFacetCounts($options, Ticket::query(), [$kind], viewer: $manager);
 
     // ASSERT
     if ($kind === TicketListFilterKind::DeveloperType) {
-        expect($counts[$kind->value])->toEqual(['all' => 5, 'active' => 2, 'junior' => 1, 'inactive' => 3]);
+        expect($counts[$kind->value])->toEqual(['all' => 6, 'active' => 3, 'junior' => 1, 'inactive' => 3, 'banned' => 1]);
         $authors[Role::DEVELOPER]->assignRole(Role::DEVELOPER_JUNIOR);
-        $overlappingRoles = $service->getFacetCounts($options, Ticket::query(), [$kind]);
-        expect($overlappingRoles[$kind->value])->toEqual(['all' => 5, 'active' => 2, 'junior' => 2, 'inactive' => 3]);
+        $overlappingRoles = $service->getFacetCounts($options, Ticket::query(), [$kind], viewer: $manager);
+        expect($overlappingRoles[$kind->value])->toEqual(['all' => 6, 'active' => 3, 'junior' => 2, 'inactive' => 3, 'banned' => 1]);
         $authors[Role::DEVELOPER]->removeRole(Role::DEVELOPER_JUNIOR);
+
+        $withoutBanned = $service->getFacetCounts($options, Ticket::query(), [$kind], viewer: User::factory()->create());
+        expect($withoutBanned[$kind->value])->not->toHaveKey('banned');
     }
-    foreach ($kind->values() as $value) {
+    foreach ($kind->permittedValues($manager) as $value) {
         $expected = $service->applyFilters(Ticket::query(), array_merge($options, [$kind->value => $value]))->count();
         expect($counts[$kind->value][$value])->toEqual($expected);
     }
