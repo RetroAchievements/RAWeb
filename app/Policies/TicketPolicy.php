@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Exceptions\BannedUserException;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Role;
@@ -26,11 +27,20 @@ class TicketPolicy
         ]);
     }
 
-    public function viewAny(?User $user): bool
+    public function viewAny(?User $user, ?User $ticketsOwner = null): bool
     {
         // Guests cannot view tickets.
         if (!$user) {
             return false;
+        }
+
+        // Banned account subpages are hidden from the public. Tickets are the exception,
+        // and only for people whose job it is to clean them up.
+        if (
+            $ticketsOwner?->isBanned()
+            && !$user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+        ) {
+            throw new BannedUserException();
         }
 
         return true;

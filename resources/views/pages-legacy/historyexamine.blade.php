@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\Gate;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -14,6 +15,8 @@ $userDetails = User::whereName($userPage)->first();
 if (!$userDetails) {
     abort(404);
 }
+
+Gate::authorize('view', $userDetails);
 
 $userPage = $userDetails->display_name;
 

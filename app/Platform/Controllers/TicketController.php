@@ -72,21 +72,29 @@ class TicketController extends Controller
 
     public function forAssignee(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/index', $user);
     }
 
     public function forReporter(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/created', $user);
     }
 
     public function forAwaitingReporter(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/feedback', $user);
     }
 
     public function forResolver(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/resolved', $user);
     }
 
