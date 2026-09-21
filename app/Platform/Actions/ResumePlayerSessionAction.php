@@ -32,6 +32,8 @@ class ResumePlayerSessionAction
         bool $shouldDispatchPlayerGameAttached = true,
     ): PlayerSession {
         $sessionKeepAliveTimeInMinutes = 10;
+        $backdatedSessionResurrectionTimeInMinutes = 4 * 60;
+
         $isBackdated = ($timestamp && $timestamp->diffInMinutes(Carbon::now(), true) > $sessionKeepAliveTimeInMinutes);
 
         $timestamp ??= Carbon::now();
@@ -88,9 +90,12 @@ class ResumePlayerSessionAction
         }
 
         if ($playerSession) {
-            // if the session was last updated less than 10 minutes ago, extend it.
             $newDuration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
-            if ($isBackdated || $newDuration - $playerSession->duration < $sessionKeepAliveTimeInMinutes) {
+
+            // if the session was last updated less than 10 minutes ago, extend it.
+            $adjustment = $newDuration - $playerSession->duration;
+            if ($adjustment < $sessionKeepAliveTimeInMinutes
+                || ($isBackdated && $adjustment < $backdatedSessionResurrectionTimeInMinutes)) {
                 if ($newDuration > $playerSession->duration) {
                     // duration is in minutes, playtimes are in seconds.
                     $adjustment = ($newDuration - $playerSession->duration) * 60;
