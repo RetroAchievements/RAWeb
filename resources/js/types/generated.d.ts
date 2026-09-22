@@ -1220,6 +1220,7 @@ gameHash: App.Platform.Data.GameHash | null;
 export type TicketListFilter = {
 kind: App.Platform.Enums.TicketListFilterKind;
 values: string[];
+valueLabels: Record<string, string>;
 };
 export type TicketListPageProps = {
 scope: App.Platform.Enums.TicketListScope;
@@ -1284,6 +1285,7 @@ export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
 export type GlobalRankingMode = 'hardcore' | 'casual';
+export type GlobalRankingSortField = 'points' | 'points_weighted' | 'achievements_unlocked' | 'awards_count';
 export type GlobalRankingWindow = 'daily' | 'weekly' | 'alltime';
 export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
 export type PlatformExecutionEnvironment = 'desktop' | 'mobile' | 'console' | 'single_board' | 'original_hardware' | 'embedded' | 'web';
@@ -1294,7 +1296,7 @@ export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
-export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
+export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator' | 'system';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
 export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';

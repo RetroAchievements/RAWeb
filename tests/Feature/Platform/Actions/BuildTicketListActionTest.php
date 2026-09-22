@@ -237,14 +237,33 @@ describe('available filters', function () {
             expect(end($emulatorFilter->values))->toEqual('unknown');
         }
     })->with([
-        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator]],
+        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator, TicketListFilterKind::System]],
         'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator]],
         'achievement' => [TicketListScope::Achievement, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::Emulator]],
-        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator]],
-        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator]],
+        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::System]],
+        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::System]],
         'awaitingReporter' => [TicketListScope::AwaitingReporter, []],
-        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Emulator]],
+        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Emulator, TicketListFilterKind::System]],
     ]);
+
+    it('given active and inactive systems, lists active systems by name with labels for their IDs', function () {
+        // ARRANGE
+        $zebraSystem = System::factory()->create(['name' => 'Zebra System', 'active' => true]);
+        $alphaSystem = System::factory()->create(['name' => 'Alpha System', 'active' => true]);
+        System::factory()->create(['name' => 'Retired System', 'active' => false]);
+
+        // ACT
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::All);
+
+        // ASSERT
+        $systemFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::System);
+
+        expect($systemFilter->values)->toEqual(['all', (string) $alphaSystem->id, (string) $zebraSystem->id]);
+        expect((array) $systemFilter->valueLabels)->toEqual([
+            $alphaSystem->id => 'Alpha System',
+            $zebraSystem->id => 'Zebra System',
+        ]);
+    });
 
     it('given a system id, then the emulator options are limited to that system', function () {
         // ARRANGE
