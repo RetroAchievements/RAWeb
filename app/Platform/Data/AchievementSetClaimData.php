@@ -9,7 +9,9 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Data\UserData;
 use App\Models\AchievementSetClaim;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -33,6 +35,7 @@ class AchievementSetClaimData extends Data
         public Lazy|bool $isCompletable,
         public Lazy|bool $isDroppable,
         public Lazy|bool $isExtendable,
+        public Lazy|bool $canMarkReleaseScheduled,
     ) {
     }
 
@@ -41,6 +44,9 @@ class AchievementSetClaimData extends Data
         bool $isValidConsole = false,
         bool $hasOfficialAchievements = false,
     ): self {
+        /** @var User $user */
+        $user = Auth::user();
+
         $now = Carbon::now();
         $minutesLeft = (int) $now->diffInMinutes($claim->finished_at, false);
         $minutesActive = (int) $claim->created_at->diffInMinutes($now);
@@ -59,6 +65,7 @@ class AchievementSetClaimData extends Data
 
         return new self(
             id: $claim->id,
+            canMarkReleaseScheduled: Lazy::create(fn () => $user?->can('markReleaseScheduled', $claim) ?? false),
             user: Lazy::create(fn () => UserData::fromUser($claim->user)),
             game: Lazy::create(fn () => GameData::from($claim->game)->include('badgeUrl', 'system')),
             claimType: Lazy::create(fn () => $claim->claim_type),

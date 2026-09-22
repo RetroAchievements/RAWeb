@@ -385,6 +385,7 @@ class RouteServiceProvider extends ServiceProvider
                 ], function () {
                     Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
                     Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
+                    Route::post('claim/{claim}/release-scheduled', [AchievementSetClaimController::class, 'markReleaseScheduled'])->name('achievement-set-claim.release-scheduled');
                     Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
                 });
 
