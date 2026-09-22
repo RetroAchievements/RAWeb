@@ -583,6 +583,7 @@ minutesLeft?: number;
 isCompletable?: boolean;
 isDroppable?: boolean;
 isExtendable?: boolean;
+canMarkReleaseScheduled?: boolean;
 };
 export type AchievementSet = {
 id: number;
@@ -838,9 +839,6 @@ targetUser: App.Data.User | null;
 userRequestInfo: App.Platform.Data.UserSetRequestInfo | null;
 };
 export type GamePageClaimData = {
-doesPrimaryClaimExist: boolean;
-maxClaimCount: number;
-numClaimsRemaining: number | null;
 numUnresolvedTickets: number;
 userClaim: App.Platform.Data.AchievementSetClaim | null;
 isSoleAuthor: boolean;
@@ -1222,6 +1220,7 @@ gameHash: App.Platform.Data.GameHash | null;
 export type TicketListFilter = {
 kind: App.Platform.Enums.TicketListFilterKind;
 values: string[];
+valueLabels: Record<string, string>;
 };
 export type TicketListPageProps = {
 scope: App.Platform.Enums.TicketListScope;
@@ -1298,7 +1297,7 @@ export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
-export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator';
+export type TicketListFilterKind = 'type' | 'publishedStatus' | 'mode' | 'developerType' | 'developer' | 'reporter' | 'emulator' | 'system';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
 export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';

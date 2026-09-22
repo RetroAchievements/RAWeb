@@ -33,7 +33,7 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       defaultSortParam: '-createdAt',
       defaultStatusFilter: 'unresolved',
       hasStatusFilter: true,
-      availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+      availableFilters: [{ kind: 'type', values: ['0', '1', '2'], valueLabels: {} }],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
       persistedViewPreferences: null,
@@ -188,9 +188,9 @@ describe('Component: TicketIndexRoot', () => {
         scope: 'game',
         game: createGame({ id: 1701, system: createSystem() }),
         availableFilters: [
-          { kind: 'type', values: ['0', '1', '2'] },
-          { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
-          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] },
+          { kind: 'type', values: ['0', '1', '2'], valueLabels: {} },
+          { kind: 'mode', values: ['all', 'hardcore', 'softcore'], valueLabels: {} },
+          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], valueLabels: {} },
         ],
         paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
         ziggy: createZiggyProps({
@@ -285,8 +285,8 @@ describe('Component: TicketIndexRoot', () => {
     renderTicketIndexRoot({
       stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
       availableFilters: [
-        { kind: 'type', values: ['0', '1', '2'] },
-        { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {} },
+        { kind: 'mode', values: ['all', 'hardcore', 'softcore'], valueLabels: {} },
       ],
     });
 
@@ -302,7 +302,9 @@ describe('Component: TicketIndexRoot', () => {
   it('given the server counted a facet, every one of its options carries a count', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] }],
+      availableFilters: [
+        { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], valueLabels: {} },
+      ],
       facetCounts: { emulator: { all: 100, RetroArch: 40 } },
     });
 
@@ -315,10 +317,29 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
   });
 
+  it('given a filter with ID values, shows the server-supplied labels', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'system', values: ['all', '7'], valueLabels: { '7': 'NES/Famicom' } },
+      ],
+      facetCounts: { system: { all: 12, '7': 5 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /^NES\/Famicom/ })).toHaveTextContent('5');
+    expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('12');
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'developerType', values: ['all', 'active', 'junior'] }],
+      availableFilters: [
+        { kind: 'developerType', values: ['all', 'active', 'junior'], valueLabels: {} },
+      ],
     });
 
     // ACT

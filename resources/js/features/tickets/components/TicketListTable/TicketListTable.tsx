@@ -86,7 +86,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
         role="table"
         aria-busy={isFetching ? true : undefined}
         className={cn(
-          'min-w-0 max-w-full rounded-[0.3em] bg-embed',
+          'min-w-0 max-w-full rounded-[0.3em] bg-embed text-sm',
           isFetching ? 'opacity-50' : null,
         )}
       >
