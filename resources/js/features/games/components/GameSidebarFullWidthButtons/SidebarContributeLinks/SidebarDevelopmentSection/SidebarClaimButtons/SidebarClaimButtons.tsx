@@ -5,15 +5,14 @@ import { LuFlagTriangleRight } from 'react-icons/lu';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
-import { useCanShowCreateClaimButton } from '@/features/games/hooks/useCanShowCreateClaimButton';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
 export const SidebarClaimButtons: FC = () => {
-  const { achievementSetClaims, backingGame, claimData, game, targetAchievementSetId } =
+  const { achievementSetClaims, backingGame, can, claimData, game, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const canShowCreateClaimButton = useCanShowCreateClaimButton();
+  const canShowCreateClaimButton = !claimData?.userClaim && !!can.createAchievementSetClaims;
 
   const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === 'in_review');
   if (areAnyClaimsInReview) {
