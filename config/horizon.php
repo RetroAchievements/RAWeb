@@ -224,6 +224,7 @@ return [
                     'player-points-stats',
 
                     // supervisor-2: batch processing
+                    'event-backfill',
                     'game-beaten-metrics',
                     'game-player-games',
                     'player-game-metrics-batch',
@@ -308,6 +309,7 @@ return [
             'supervisor-2' => [
                 'connection' => 'redis',
                 'queue' => [
+                    'event-backfill',
                     'game-beaten-metrics',
                     'game-player-games',
                     'player-game-metrics-batch',

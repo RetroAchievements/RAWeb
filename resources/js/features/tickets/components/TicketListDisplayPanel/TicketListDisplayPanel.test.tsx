@@ -28,6 +28,7 @@ function renderTicketListDisplayPanel(overrides: Partial<TicketListDisplayPanelP
     onResetDisplay: vi.fn(),
     onSortChange: vi.fn(),
     onToggleColumn: vi.fn(),
+    serverDefaultSortParam: '-createdAt',
     sortParam: '-createdAt',
     ...overrides,
   };
