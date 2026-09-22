@@ -1229,6 +1229,7 @@ stateCounts: App.Platform.Data.TicketListStateCounts;
 availableFilters: Array<App.Platform.Data.TicketListFilter>;
 facetCounts: Record<string, Record<string, number>>;
 defaultStatusFilter: App.Platform.Enums.TicketListStatusFilter;
+defaultSortParam: App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`;
 hasStatusFilter: boolean;
 persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;

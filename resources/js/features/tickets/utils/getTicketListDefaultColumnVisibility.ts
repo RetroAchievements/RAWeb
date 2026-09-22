@@ -7,7 +7,7 @@ import { ticketListSort } from './ticketListSort';
 export function getTicketListDefaultColumnVisibility(
   scope: App.Platform.Enums.TicketListScope,
   statusValue: App.Platform.Enums.TicketListStatusFilter,
-  sortParam: TicketListSortParam = ticketListSort.defaultParam,
+  sortParam: TicketListSortParam,
 ): VisibilityState {
   const visibleColumnIds = new Set<TicketListColumnId>(visibleColumnIdsByScope[scope]);
 
