@@ -466,7 +466,7 @@ class BuildGameShowPagePropsAction
     private function buildAchievementSetClaims(Game $game, ?User $user): Collection
     {
         // Privileged roles can see when a claimant last played the game.
-        $claimIncludes = ['user', 'claimType', 'finishedAt', 'status'];
+        $claimIncludes = ['user', 'claimType', 'finishedAt', 'status', 'canMarkReleaseScheduled'];
         if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
             $claimIncludes[] = 'userLastPlayedAt';
         }
