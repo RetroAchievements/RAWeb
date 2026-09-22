@@ -58,7 +58,7 @@ class ResumePlayerSessionAction
             $playerSession = $user->playerSessions()
                 ->where('game_id', $game->id)
                 ->where('created_at', '<', $timestamp)
-                ->orderByDesc('id')
+                ->orderByDesc('created_at')
                 ->first();
         } else {
             // look for an active session
@@ -98,7 +98,7 @@ class ResumePlayerSessionAction
                 || ($isBackdated && $adjustment < $backdatedSessionResurrectionTimeInMinutes)) {
                 if ($newDuration > $playerSession->duration) {
                     // duration is in minutes, playtimes are in seconds.
-                    $adjustment = ($newDuration - $playerSession->duration) * 60;
+                    $adjustment = $adjustment * 60;
 
                     $playerSession->duration = $newDuration;
 
