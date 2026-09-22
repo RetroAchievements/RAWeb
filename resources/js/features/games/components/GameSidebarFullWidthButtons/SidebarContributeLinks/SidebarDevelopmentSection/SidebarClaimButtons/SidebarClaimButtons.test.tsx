@@ -16,6 +16,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     const { container } = render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
@@ -33,10 +34,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: [] }) },
         backingGame: createGame(),
-        claimData: createGamePageClaimData({ numClaimsRemaining: 1, userClaim: null }),
+        claimData: createGamePageClaimData({ userClaim: null }),
         game: createGame({ gameAchievementSets: [] }),
         targetAchievementSetId: null,
       },
@@ -50,6 +52,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [createAchievementSetClaim({ status: 'in_review' })],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
@@ -67,11 +70,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ gameAchievementSets: [] }),
@@ -94,11 +97,11 @@ describe('Component: SidebarClaimButtons', () => {
 
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ gameAchievementSets: [gameAchievementSet] }),
@@ -115,11 +118,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
           wouldBeCollaboration: true,
         }),
@@ -137,11 +140,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 0,
           isSoleAuthor: true,
           userClaim: null,
         }),
@@ -154,15 +157,39 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
 
-  it('given the user has no claims remaining but can collaborate, shows the collaboration claim button', () => {
+  it('given the policy denies creation, hides the collaboration claim button', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 0,
+          isSoleAuthor: false,
+          userClaim: null,
+          wouldBeCollaboration: true,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('button', { name: /create new collaboration claim/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given the user has no claims remaining and joins a free rollout, shows the collaboration claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        can: { createAchievementSetClaims: true },
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
           userClaim: null,
           wouldBeCollaboration: true,
         }),
@@ -179,6 +206,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
@@ -198,6 +226,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
@@ -217,6 +246,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
@@ -236,11 +266,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame({ id: 999 }),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ id: 1, gameAchievementSets: [] }),
@@ -256,11 +286,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: createAchievementSetClaim({
             isCompletable: true,
             isExtendable: true,
@@ -283,11 +313,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) }, // !!
         backingGame: createGame({ forumTopicId: undefined }), // !!
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ gameAchievementSets: [] }),
@@ -303,11 +333,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) }, // !!
         backingGame: createGame({ forumTopicId: 123 }), // !!
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ gameAchievementSets: [] }),
@@ -323,11 +353,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) }, // !!
         backingGame: createGame({ forumTopicId: undefined }), // !!
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           userClaim: null,
         }),
         game: createGame({ gameAchievementSets: [] }),
@@ -343,11 +373,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           numUnresolvedTickets: 2, // !!
           userClaim: null,
         }),
@@ -364,11 +394,11 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           numUnresolvedTickets: 1, // !!
           userClaim: null,
         }),

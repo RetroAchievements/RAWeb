@@ -323,30 +323,6 @@ function getFilteredClaims(
 }
 
 /**
- * Gets the number of active claims the user currently has or the total among all users. Has the
- * option to count or ignore collaboration claims.
- */
-function getActiveClaimCount(?User $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
-{
-    $query = AchievementSetClaim::query()
-        ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview]);
-
-    if (isset($user)) {
-        $query->where('user_id', $user->id);
-    }
-
-    if (!$countCollaboration) {
-        $query->where('claim_type', ClaimType::Primary);
-    }
-
-    if (!$countSpecial) {
-        $query->where('special_type', ClaimSpecial::None);
-    }
-
-    return $query->count();
-}
-
-/**
  * Gets the number of expiring and expired claims for a specific user.
  */
 function getExpiringClaim(User $user): array

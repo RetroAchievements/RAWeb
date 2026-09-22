@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Models\Achievement;
 use App\Models\EventAchievement;
-use App\Models\PlayerAchievement;
-use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Jobs\BackfillEventAchievementUnlocksJob;
 
 class EventAchievementObserver
 {
@@ -37,23 +35,9 @@ class EventAchievementObserver
                 $achievement->image_name = $sourceAchievement->image_name;
                 $achievement->save();
 
-                // copy any unlocks during the active period from the source achievement to the event achievement
-                $winners = PlayerAchievement::where('achievement_id', '=', $sourceAchievement->id)
-                    ->whereNotNull('unlocked_hardcore_at')
-                    ->whereHas('user', function ($query) {
-                        $query->whereNull('unranked_at');
-                    });
-
-                if ($eventAchievement->active_from) {
-                    $winners->where('unlocked_hardcore_at', '>=', $eventAchievement->active_from);
-                }
-                if ($eventAchievement->active_until) {
-                    $winners->where('unlocked_hardcore_at', '<', $eventAchievement->active_until);
-                }
-
-                foreach ($winners->get() as $winner) {
-                    dispatch(new UnlockPlayerAchievementJob($winner->user_id, $achievement->id, true, $winner->unlocked_hardcore_at))
-                        ->onQueue('player-achievements');
+                if ($achievement->is_promoted) {
+                    dispatch(new BackfillEventAchievementUnlocksJob($eventAchievement->id, $achievement->game_id))
+                        ->onQueue('event-backfill');
                 }
             }
         }
