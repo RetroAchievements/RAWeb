@@ -49,20 +49,6 @@ class UserPolicy
         return true;
     }
 
-    public function viewDevelopedSets(?User $user, User $model): bool
-    {
-        // Banned account subpages are hidden from the public. Tickets and sets are the
-        // exception, and only for people whose job it is to clean them up.
-        if (
-            $model->isBanned()
-            && !$user?->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
-        ) {
-            throw new BannedUserException();
-        }
-
-        return true;
-    }
-
     public function viewAchievementSetClaims(?User $user, User $model): bool
     {
         return true;

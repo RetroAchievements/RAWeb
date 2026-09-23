@@ -34,7 +34,7 @@ class TicketPolicy
             return false;
         }
 
-        // Banned account subpages are hidden from the public. Tickets and sets are the
+        // Banned account subpages are hidden from the public. Tickets are the
         // exception, and only for people whose job it is to clean them up.
         if (
             $ticketsOwner?->isBanned()

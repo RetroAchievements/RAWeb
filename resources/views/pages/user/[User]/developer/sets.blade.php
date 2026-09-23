@@ -4,11 +4,10 @@ use App\Models\User;
 use App\Platform\Services\DeveloperSetsService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\{middleware, name, render, withTrashed};
+use function Laravel\Folio\{name, render, withTrashed};
 
 withTrashed();
 
-middleware('can:viewDevelopedSets,user');
 name('developer.sets');
 
 render(function (View $view, User $user, DeveloperSetsService $pageService) {
