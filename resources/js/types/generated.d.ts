@@ -215,6 +215,7 @@ export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopic
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type RankType = 'hardcore' | 'casual' | 'retro_points';
 export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
+export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'demoted' | 'other';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
 export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' | 'did_not_trigger' | 'submitted_wrong_value' | 'triggered_at_wrong_time';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';

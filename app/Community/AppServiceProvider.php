@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Commands\BackfillModerationActions;
+use App\Community\Commands\BackfillTicketResolutions;
 use App\Community\Commands\DeactivateOAuthClient;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
@@ -48,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 BackfillModerationActions::class,
+                BackfillTicketResolutions::class,
                 DeactivateOAuthClient::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
