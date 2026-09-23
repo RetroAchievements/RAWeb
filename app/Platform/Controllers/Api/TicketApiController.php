@@ -5,6 +5,7 @@ namespace App\Platform\Controllers\Api;
 use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Actions\CreateTicketAction;
 use App\Platform\Data\StoreTicketData;
@@ -16,10 +17,10 @@ class TicketApiController extends Controller
 {
     public function index(TicketListApiRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', Ticket::class);
-
         $scope = $request->getScope();
         $target = $scope->resolveTarget($request);
+
+        $this->authorize('viewAny', [Ticket::class, $target instanceof User ? $target : null]);
 
         $result = (new BuildTicketListAction())->execute($scope, $target, $request);
 
