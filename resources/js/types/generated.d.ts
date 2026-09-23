@@ -1206,6 +1206,7 @@ type: App.Community.Enums.TicketType;
 hardcore: boolean | null;
 createdAt: string;
 resolvedAt: string | null;
+resolution: App.Community.Enums.TicketResolution | null;
 ticketableType: App.Platform.Enums.TicketableType;
 ticketableId: number;
 ticketableTitle: string;
@@ -1301,7 +1302,7 @@ export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gal
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketCreationBlockReason = 'game_not_ticketable' | 'no_play_session';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
-export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'system' | 'emulator' | 'core';
+export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'system' | 'emulator' | 'core';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
 export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';

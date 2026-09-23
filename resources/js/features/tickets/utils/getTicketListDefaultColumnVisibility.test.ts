@@ -14,6 +14,7 @@ describe('Util: getTicketListDefaultColumnVisibility', () => {
       developer: true,
       reporter: true,
       resolver: false,
+      resolution: false,
       emulator: false,
       version: false,
       core: false,

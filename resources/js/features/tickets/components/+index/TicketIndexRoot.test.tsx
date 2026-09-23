@@ -376,6 +376,82 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('12');
   });
 
+  it('given the resolution filter, shows a label and count for every filter option', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      defaultStatusFilter: 'all',
+      availableFilters: [
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce', 'wrong_rom'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      facetCounts: { resolution: { all: 31, unable_to_reproduce: 17 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /unable to reproduce/i })).toHaveTextContent('17');
+    expect(screen.getByRole('menuitem', { name: /wrong rom/i })).toHaveTextContent('0');
+    expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('31');
+  });
+
+  it('given the status is Closed, shows the resolution filter and the chip for its value in the URL', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'closed', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.getByTestId('chip-resolution')).toHaveTextContent('Unable to reproduce');
+    expect(screen.getByRole('menuitem', { name: /^Resolution/ })).toBeVisible();
+  });
+
+  it('given the status is not All or Closed, hides the resolution filter and ignores its value in the URL', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'unresolved', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-resolution')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /^Resolution/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /^Issue type/ })).toBeVisible();
+    expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({
