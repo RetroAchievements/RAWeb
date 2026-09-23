@@ -45,7 +45,7 @@ class BuildTicketInboxPagePropsAction
         $count = $this->sectionQuery($kind, $viewer)->count();
 
         $query = $this->sectionQuery($kind, $viewer)
-            ->orderByDesc('created_at')
+            ->orderByDesc($kind->sortColumn())
             ->orderByDesc('id')
             ->limit(self::SECTION_LIMIT);
 
@@ -83,7 +83,7 @@ class BuildTicketInboxPagePropsAction
 
             TicketInboxSectionKind::ResolvedByYou => $query
                 ->where('resolver_id', $viewer->id)
-                ->where('state', TicketState::Resolved),
+                ->whereIn('state', [TicketState::Resolved, TicketState::Closed]),
         };
     }
 }

@@ -28,6 +28,16 @@ class UserProfileTest extends TestCase
             ->assertJson([]);
     }
 
+    public function testGetUserProfileBannedUser(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create(['banned_at' => now()]);
+
+        $this->get($this->apiUrl('GetUserProfile', ['u' => $user->username]))
+            ->assertNotFound()
+            ->assertJson([]);
+    }
+
     public function testGetUserProfileUnknownUlid(): void
     {
         $this->get($this->apiUrl('GetUserProfile', ['u' => '01HNG49MXJA71KCVG3PXQS5B2C']))

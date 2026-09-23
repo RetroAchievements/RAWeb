@@ -13,10 +13,12 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -565,5 +567,43 @@ describe('index', function () {
         // ASSERT
         $response->assertOk();
         $response->assertJsonPath('paginatedTickets.total', 2);
+    });
+
+    it('given the scoped user is banned, a standard user cannot filter to narrow the list to their tickets', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $fixture['developer']->update(['banned_at' => Carbon::now()]);
+
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', [
+            'scope' => 'assignedTo',
+            'user' => $fixture['developer']->id,
+        ]));
+
+        // ASSERT
+        $response->assertNotFound();
+    });
+
+    it('given the scoped user is banned, a developer can still narrow the list to their tickets', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+
+        $fixture = createTicketIndexFixture(3);
+        $fixture['developer']->update(['banned_at' => Carbon::now()]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        $this->actingAs($viewer);
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', [
+            'scope' => 'assignedTo',
+            'user' => $fixture['developer']->id,
+        ]));
+
+        // ASSERT
+        $response->assertOk();
     });
 });

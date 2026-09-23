@@ -15,6 +15,14 @@ enum TicketInboxSectionKind: string
     case ReportedByYou = 'reportedByYou';
     case ResolvedByYou = 'resolvedByYou';
 
+    public function sortColumn(): string
+    {
+        return match ($this) {
+            self::ResolvedByYou => 'resolved_at',
+            default => 'created_at',
+        };
+    }
+
     public function needsViewerAction(): bool
     {
         return match ($this) {

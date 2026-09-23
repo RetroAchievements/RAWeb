@@ -43,6 +43,7 @@ class AchievementAuthorController extends Controller
     {
         abort_if($user->yield_unlocks === 0, 404);
 
+        $this->authorize('view', $user);
         $this->authorize('viewDeveloperFeed', $user);
 
         $props = (new BuildDeveloperFeedDataAction())->execute($user);

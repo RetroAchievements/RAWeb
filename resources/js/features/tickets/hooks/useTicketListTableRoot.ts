@@ -1,9 +1,8 @@
 import type { ColumnFiltersState } from '@tanstack/react-table';
 
-import type { TicketListColumnId } from '../models';
+import type { TicketListColumnId, TicketListSortParam } from '../models';
 import { getTicketListDefaultColumnVisibility } from '../utils/getTicketListDefaultColumnVisibility';
 import { getTicketListFilterValue } from '../utils/getTicketListFilterValue';
-import { ticketListSort } from '../utils/ticketListSort';
 import { toggleTicketListColumnOverride } from '../utils/toggleTicketListColumnOverride';
 import { useTicketListPaginatedQuery } from './useTicketListPaginatedQuery';
 import { useTicketListState } from './useTicketListState';
@@ -11,6 +10,7 @@ import { useTicketListTableSync } from './useTicketListTableSync';
 
 interface UseTicketListTableRootOptions {
   serverDefaultColumnFilters: ColumnFiltersState;
+  serverDefaultSortParam: TicketListSortParam;
   facetCounts: Record<string, Record<string, number>>;
   paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
   scope: App.Platform.Enums.TicketListScope;
@@ -20,6 +20,7 @@ interface UseTicketListTableRootOptions {
 
 export function useTicketListTableRoot({
   serverDefaultColumnFilters,
+  serverDefaultSortParam,
   facetCounts,
   paginatedTickets,
   scope,
@@ -36,7 +37,7 @@ export function useTicketListTableRoot({
     setPageNumber,
     setSortParam,
     sortParam,
-  } = useTicketListState(paginatedTickets, serverDefaultColumnFilters);
+  } = useTicketListState(paginatedTickets, serverDefaultColumnFilters, serverDefaultSortParam);
 
   const statusValue = getTicketListFilterValue(
     columnFilters,
@@ -57,13 +58,14 @@ export function useTicketListTableRoot({
 
   const resetDisplay = () => {
     setColumnVisibilityOverrides({});
-    setSortParam(ticketListSort.defaultParam);
+    setSortParam(serverDefaultSortParam);
   };
 
   useTicketListTableSync({
     columnFilters,
     columnVisibilityOverrides,
     serverDefaultColumnFilters,
+    serverDefaultSortParam,
     pageNumber,
     restoreState,
     sortParam,
@@ -82,6 +84,7 @@ export function useTicketListTableRoot({
     ticketListTableProps: {
       columnFilters,
       resetDisplay,
+      serverDefaultSortParam,
       setColumnFilters,
       setPageNumber,
       setSortParam,

@@ -28,6 +28,8 @@ class TicketListPagePropsData extends Data
         #[LiteralTypeScriptType('Record<string, Record<string, number>>')]
         public array $facetCounts,
         public TicketListStatusFilter $defaultStatusFilter,
+        #[LiteralTypeScriptType('App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`')]
+        public string $defaultSortParam,
         public bool $hasStatusFilter,
         public string $persistenceCookieName,
         #[LiteralTypeScriptType('Record<string, any> | null')]
