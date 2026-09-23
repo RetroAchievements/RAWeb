@@ -19,6 +19,7 @@ export function useTicketListFilterLabels() {
     reporter: t('Reporter'),
     emulator: t('Emulator'),
     core: t('Core'),
+    system: t('System'),
   };
 
   const kindPlaceholders: Partial<Record<FilterKind, TranslatedString>> = {
@@ -61,6 +62,9 @@ export function useTicketListFilterLabels() {
       unknown: t('Unknown'),
     },
     core: {},
+    system: {
+      all: t('All'),
+    },
   };
 
   const statusLabels: Record<App.Platform.Enums.TicketListStatusFilter, TranslatedString> = {
@@ -78,8 +82,11 @@ export function useTicketListFilterLabels() {
   const getFilterKindPlaceholder = (kind: FilterKind): TranslatedString | undefined =>
     kindPlaceholders[kind];
 
-  const getFilterValueLabel = (kind: FilterKind, value: string): string =>
-    valueLabels[kind][value] ?? value;
+  const getFilterValueLabel = (
+    kind: FilterKind,
+    value: string,
+    serverValueLabels: Record<string, string>,
+  ): string => valueLabels[kind][value] ?? serverValueLabels[value] ?? value;
 
   const getStatusValueLabel = (
     value: App.Platform.Enums.TicketListStatusFilter,

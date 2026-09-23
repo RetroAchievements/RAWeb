@@ -6,6 +6,7 @@ namespace App\Platform\Enums;
 
 use App\Community\Enums\TicketType;
 use App\Models\Emulator;
+use App\Models\System;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -21,6 +22,7 @@ enum TicketListFilterKind: string
     case Reporter = 'reporter';
     case Emulator = 'emulator';
     case Core = 'core';
+    case System = 'system';
 
     /**
      * These are listed in display order.
@@ -41,6 +43,7 @@ enum TicketListFilterKind: string
             self::Developer, self::Reporter => ['all', 'self', 'others'],
             self::Emulator => ['all', ...self::emulatorNames($systemId), 'unknown'],
             self::Core => [''],
+            self::System => ['all', ...array_map('strval', array_keys(self::systemNamesById()))],
         };
     }
 
@@ -72,8 +75,28 @@ enum TicketListFilterKind: string
             // a short term is as computationally expensive as a longer one.
             self::Core => ['sometimes', 'nullable', 'string', 'max:96'],
 
+            self::System => ['sometimes', 'string', 'regex:/^(all|\d+)$/'],
             default => ['sometimes', 'string', Rule::in($this->values())],
         };
+    }
+
+    /**
+     * @return array<array-key, string> map of option values to display labels
+     */
+    public function valueLabels(): array
+    {
+        return match ($this) {
+            self::System => self::systemNamesById(),
+            default => [],
+        };
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function systemNamesById(): array
+    {
+        return System::gameSystems()->active()->orderBy('name')->pluck('name', 'id')->all();
     }
 
     /**

@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createAchievementSetClaim, createGame, createGamePageClaimData } from '@/test/factories';
@@ -9,6 +11,7 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     const { container } = render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData(),
@@ -23,6 +26,7 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         auth: null,
         backingGame: createGame(),
         claimData: createGamePageClaimData(),
@@ -37,6 +41,7 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         auth: { user: createAuthenticatedUser({ roles: [] }) }, // !!
         backingGame: createGame(),
         claimData: createGamePageClaimData(),
@@ -51,6 +56,7 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
@@ -67,10 +73,10 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 0,
           isSoleAuthor: false,
         }),
       },
@@ -81,10 +87,11 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
-  it('given the user is a junior developer and the game has no forum topic, shows a fake disabled claim button', () => {
+  it('given a junior developer has no forum topic and cannot claim, explains the forum requirement first', async () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         auth: {
           user: createAuthenticatedUser({
             roles: ['developer-junior'], // !!
@@ -92,7 +99,6 @@ describe('Component: ClaimActionButton', () => {
         },
         backingGame: createGame({ forumTopicId: undefined }), // !!
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           numUnresolvedTickets: 0,
         }),
       },
@@ -101,16 +107,22 @@ describe('Component: ClaimActionButton', () => {
     // ASSERT
     expect(screen.getByText(/claim/i)).toBeVisible();
     expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
+
+    await userEvent.hover(screen.getByText(/^claim$/i));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      /ask a Code Reviewer to create a forum topic/i,
+    );
+    expect(screen.queryByText(/used all your achievement set claims/i)).not.toBeInTheDocument();
   });
 
   it('given the user can make a new claim and all conditions are met, and a claim already exists, shows a collaboration claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame({ forumTopicId: 12345 }),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           numUnresolvedTickets: 0,
           wouldBeCollaboration: true,
         }),
@@ -121,14 +133,34 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.getByRole('button', { name: /collaborate/i })).toBeVisible();
   });
 
-  it('given the user has no claims remaining but can collaborate, shows the collaboration claim button', () => {
+  it('given the policy denies creation, hides the collaboration claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: false },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame({ forumTopicId: 12345 }),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 0,
+          isSoleAuthor: false,
+          numUnresolvedTickets: 0,
+          wouldBeCollaboration: true,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /collaborate/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/^claim$/i)).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('given the user has no claims remaining and joins a free rollout, shows the collaboration claim button', () => {
+    // ARRANGE
+    render(<ClaimActionButton />, {
+      pageProps: {
+        can: { createAchievementSetClaims: true },
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame({ forumTopicId: 12345 }),
+        claimData: createGamePageClaimData({
           numUnresolvedTickets: 0,
           wouldBeCollaboration: true,
         }),
@@ -137,17 +169,16 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /collaborate/i })).toBeVisible();
-    expect(screen.queryByText(/used all your achievement set claims/i)).not.toBeInTheDocument();
   });
 
   it('given the user can make a new claim and all conditions are met, shows the real claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame({ forumTopicId: 12345 }),
         claimData: createGamePageClaimData({
-          numClaimsRemaining: 1,
           numUnresolvedTickets: 0,
         }),
       },
@@ -161,6 +192,7 @@ describe('Component: ClaimActionButton', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
       pageProps: {
+        can: { createAchievementSetClaims: true },
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData({

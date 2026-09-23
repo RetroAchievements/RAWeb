@@ -67,7 +67,16 @@ enum TicketListScope: string
     public function filterKinds(): array
     {
         return match ($this) {
-            self::All, self::Game => [
+            self::All => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+                TicketListFilterKind::System,
+            ],
+            self::Game => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
@@ -87,6 +96,7 @@ enum TicketListScope: string
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
+                TicketListFilterKind::System,
             ],
             self::AwaitingReporter => [],
             self::ResolvedBy => [
@@ -97,6 +107,7 @@ enum TicketListScope: string
                 TicketListFilterKind::Reporter,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
+                TicketListFilterKind::System,
             ],
         };
     }
@@ -116,6 +127,14 @@ enum TicketListScope: string
 
             self::AwaitingReporter => TicketListStatusFilter::Request,
             default => TicketListStatusFilter::Unresolved,
+        };
+    }
+
+    public function defaultSortParam(): string
+    {
+        return match ($this) {
+            self::ResolvedBy => '-' . TicketListSortField::ResolvedAt->value,
+            default => '-' . TicketListSortField::CreatedAt->value,
         };
     }
 

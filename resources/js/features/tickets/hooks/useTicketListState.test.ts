@@ -19,6 +19,7 @@ function renderTicketListState({
       useTicketListState(
         createPaginatedData<App.Platform.Data.TicketListEntry>([], { currentPage }),
         serverDefaultColumnFilters,
+        '-createdAt',
       ),
     {
       pageProps: {
