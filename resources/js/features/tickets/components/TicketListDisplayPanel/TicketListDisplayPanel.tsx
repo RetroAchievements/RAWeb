@@ -42,6 +42,7 @@ interface TicketListDisplayPanelProps {
   onResetDisplay: () => void;
   onSortChange: (sortParam: TicketListSortParam) => void;
   onToggleColumn: (columnId: TicketListColumnId) => void;
+  serverDefaultSortParam: TicketListSortParam;
   sortParam: TicketListSortParam;
 
   onPrefetchSort?: (sortParam: TicketListSortParam) => void;
@@ -55,6 +56,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   onResetDisplay,
   onSortChange,
   onToggleColumn,
+  serverDefaultSortParam,
   sortParam,
 }) => {
   const { t } = useTranslation();
@@ -75,8 +77,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
     resolvedAt: t('Resolved'),
   };
 
-  const hasDisplayChanges =
-    hasColumnVisibilityOverrides || sortParam !== ticketListSort.defaultParam;
+  const hasDisplayChanges = hasColumnVisibilityOverrides || sortParam !== serverDefaultSortParam;
 
   const handleSortFieldChange = (field: App.Platform.Enums.TicketListSortField) => {
     onSortChange(ticketListSort.build(field, isAscending));
@@ -202,8 +203,8 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
               data-testid="reset-display"
               onClick={onResetDisplay}
               onMouseEnter={() => {
-                if (sortParam !== ticketListSort.defaultParam) {
-                  onPrefetchSort?.(ticketListSort.defaultParam);
+                if (sortParam !== serverDefaultSortParam) {
+                  onPrefetchSort?.(serverDefaultSortParam);
                 }
               }}
             >

@@ -30,9 +30,12 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
         total: 1,
       }),
       stateCounts: createTicketListStateCounts(),
+      defaultSortParam: '-createdAt',
       defaultStatusFilter: 'unresolved',
       hasStatusFilter: true,
-      availableFilters: [{ kind: 'type', values: ['0', '1', '2'] }],
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+      ],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
       persistedViewPreferences: null,
@@ -187,9 +190,19 @@ describe('Component: TicketIndexRoot', () => {
         scope: 'game',
         game: createGame({ id: 1701, system: createSystem() }),
         availableFilters: [
-          { kind: 'type', values: ['0', '1', '2'] },
-          { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
-          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] },
+          { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+          {
+            kind: 'mode',
+            values: ['all', 'hardcore', 'softcore'],
+            valueLabels: {},
+            isFreeText: false,
+          },
+          {
+            kind: 'emulator',
+            values: ['all', 'RetroArch', 'unknown'],
+            valueLabels: {},
+            isFreeText: false,
+          },
         ],
         paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
         ziggy: createZiggyProps({
@@ -284,8 +297,13 @@ describe('Component: TicketIndexRoot', () => {
     renderTicketIndexRoot({
       stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
       availableFilters: [
-        { kind: 'type', values: ['0', '1', '2'] },
-        { kind: 'mode', values: ['all', 'hardcore', 'softcore'] },
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'mode',
+          values: ['all', 'hardcore', 'softcore'],
+          valueLabels: {},
+          isFreeText: false,
+        },
       ],
     });
 
@@ -301,7 +319,14 @@ describe('Component: TicketIndexRoot', () => {
   it('given the server counted a facet, every one of its options carries a count', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'emulator', values: ['all', 'RetroArch', 'unknown'] }],
+      availableFilters: [
+        {
+          kind: 'emulator',
+          values: ['all', 'RetroArch', 'unknown'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
       facetCounts: { emulator: { all: 100, RetroArch: 40 } },
     });
 
@@ -314,10 +339,54 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
   });
 
+  it('given a free text filter, shows a text input with an example term', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [{ kind: 'core', values: [''], valueLabels: {}, isFreeText: true }],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: 'Core contains' })).toBeVisible();
+    expect(screen.getByPlaceholderText('Search cores...')).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /all/i })).not.toBeInTheDocument();
+  });
+
+  it('given a filter with ID values, shows the server-supplied labels', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        {
+          kind: 'system',
+          values: ['all', '7'],
+          valueLabels: { '7': 'NES/Famicom' },
+          isFreeText: false,
+        },
+      ],
+      facetCounts: { system: { all: 12, '7': 5 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /^NES\/Famicom/ })).toHaveTextContent('5');
+    expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('12');
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({
-      availableFilters: [{ kind: 'developerType', values: ['all', 'active', 'junior'] }],
+      availableFilters: [
+        {
+          kind: 'developerType',
+          values: ['all', 'active', 'junior'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
     });
 
     // ACT
@@ -723,6 +792,67 @@ describe('Component: TicketIndexRoot', () => {
 
     expect(screen.getByRole('columnheader', { name: 'Reporter' })).toBeVisible();
     expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given the scope opens on a resolved date sort, treats that sort as the default display', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given a resolved by scope, marks a changed sort and resets it to the resolved date default', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.click(screen.getByRole('option', { name: 'Created' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenCalledWith(
+        { inertia: true, ticketListSortParam: '-createdAt' },
+        '',
+        expect.stringContaining('sort=-createdAt'),
+      );
+    });
+    expect(screen.getByTestId('display-changed-dot')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('reset-display'));
+
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenLastCalledWith(
+        { inertia: true, ticketListSortParam: '-resolvedAt' },
+        '',
+        expect.not.stringContaining('sort='),
+      );
+    });
     expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
   });
 

@@ -18,6 +18,7 @@ import { ticketListSort } from '../utils/ticketListSort';
 export function useTicketListState(
   paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>,
   serverDefaultColumnFilters: ColumnFiltersState,
+  serverDefaultSortParam: TicketListSortParam,
 ) {
   const {
     persistedViewPreferences,
@@ -25,7 +26,7 @@ export function useTicketListState(
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
 
   const [initialViewPreferences] = useState(() =>
-    resolveTicketListViewPreferences(persistedViewPreferences),
+    resolveTicketListViewPreferences(persistedViewPreferences, serverDefaultSortParam),
   );
 
   const [initialColumnFilters] = useState<ColumnFiltersState>(() =>

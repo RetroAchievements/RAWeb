@@ -6,6 +6,7 @@ namespace App\Platform\Enums;
 
 use App\Community\Enums\TicketType;
 use App\Models\Emulator;
+use App\Models\System;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -14,12 +15,14 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum TicketListFilterKind: string
 {
     case Type = 'type';
-    case PublishedStatus = 'publishedStatus';
     case Mode = 'mode';
+    case PublishedStatus = 'publishedStatus';
     case DeveloperType = 'developerType';
     case Developer = 'developer';
     case Reporter = 'reporter';
+    case System = 'system';
     case Emulator = 'emulator';
+    case Core = 'core';
 
     /**
      * These are listed in display order.
@@ -39,12 +42,23 @@ enum TicketListFilterKind: string
             self::DeveloperType => ['all', 'active', 'junior', 'inactive'],
             self::Developer, self::Reporter => ['all', 'self', 'others'],
             self::Emulator => ['all', ...self::emulatorNames($systemId), 'unknown'],
+            self::Core => [''],
+            self::System => ['all', ...array_map('strval', array_keys(self::systemNamesById()))],
         };
     }
 
     public function noFilterValue(): int|string
     {
-        return $this === self::Type ? 0 : 'all';
+        return match ($this) {
+            self::Type => 0,
+            self::Core => '',
+            default => 'all',
+        };
+    }
+
+    public function isFreeText(): bool
+    {
+        return $this === self::Core;
     }
 
     /**
@@ -55,8 +69,34 @@ enum TicketListFilterKind: string
         return match ($this) {
             self::Type => ['sometimes', 'integer', Rule::in($this->values())],
             self::Emulator => ['sometimes', 'string'],
+
+            // We intentionally don't set something like min:3 here.
+            // Some core names only have two characters (ie: "gw", "81"). Searching for
+            // a short term is as computationally expensive as a longer one.
+            self::Core => ['sometimes', 'nullable', 'string', 'max:96'],
+
+            self::System => ['sometimes', 'string', 'regex:/^(all|\d+)$/'],
             default => ['sometimes', 'string', Rule::in($this->values())],
         };
+    }
+
+    /**
+     * @return array<array-key, string> map of option values to display labels
+     */
+    public function valueLabels(): array
+    {
+        return match ($this) {
+            self::System => self::systemNamesById(),
+            default => [],
+        };
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function systemNamesById(): array
+    {
+        return System::gameSystems()->active()->orderBy('name')->pluck('name', 'id')->all();
     }
 
     /**

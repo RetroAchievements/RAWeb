@@ -46,13 +46,16 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilterId, setSelectedFilterId] = useState<string | null>(null);
+  const [isClosingFromSelect, setIsClosingFromSelect] = useState(false);
 
   const selectedFilter = properties.find((property) => property.id === selectedFilterId) ?? null;
 
   const handleOpenChange = (nextIsOpen: boolean) => {
     setIsOpen(nextIsOpen);
 
-    if (!nextIsOpen) {
+    if (nextIsOpen) {
+      setIsClosingFromSelect(false);
+    } else {
       setSelectedFilterId(null);
     }
   };
@@ -62,6 +65,7 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
       setTicketListColumnFilterValue(previousFilters, property.id, value),
     );
 
+    setIsClosingFromSelect(true); // skip the close animation
     handleOpenChange(false);
   };
 
@@ -89,7 +93,11 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
         <BaseDropdownMenuContent
           align="start"
           collisionPadding={16}
-          className={cn('w-[calc(100vw-2rem)] max-w-96', selectedFilter ? 'p-0' : null)}
+          className={cn(
+            'w-[calc(100vw-2rem)] max-w-96',
+            selectedFilter ? 'p-0' : null,
+            isClosingFromSelect ? 'data-[state=closed]:animate-none!' : null,
+          )}
         >
           {selectedFilter ? (
             <>
@@ -141,7 +149,13 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
           )}
         </BaseDropdownMenuContent>
       ) : (
-        <BaseDropdownMenuContent align="start" className="min-w-48">
+        <BaseDropdownMenuContent
+          align="start"
+          className={cn(
+            'min-w-48',
+            isClosingFromSelect ? 'data-[state=closed]:animate-none!' : null,
+          )}
+        >
           {properties.map((property) => {
             const selectedValue = getSelectedValue(property);
 
@@ -159,7 +173,12 @@ export const TicketListFilterControl: FC<TicketListFilterControlProps> = ({
                   />
                 </BaseDropdownMenuSubTrigger>
 
-                <BaseDropdownMenuSubContent className="min-w-64 p-0">
+                <BaseDropdownMenuSubContent
+                  className={cn(
+                    'min-w-64 p-0',
+                    isClosingFromSelect ? 'data-[state=closed]:animate-none!' : null,
+                  )}
+                >
                   <TicketListFilterValueList
                     onPrefetchStatus={onPrefetchStatus}
                     onSelect={(value) => handleValueSelect(property, value)}

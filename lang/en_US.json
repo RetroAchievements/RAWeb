@@ -1600,6 +1600,15 @@
     "{{visible, number}} of {{total, number}} tickets_one": "{{visible, number}} of {{total, number}} ticket",
     "{{val, number}} tickets need your attention._one": "{{val, number}} ticket needs your attention.",
     "Unresolved": "Unresolved",
+    "Schedule Completed Claim": "Schedule Completed Claim",
+    "Schedule completed claim?": "Schedule completed claim?",
+    "The selected claim will be marked as Release Scheduled and will no longer use one of that developer's claim slots.": "The selected claim will be marked as Release Scheduled and will no longer use one of that developer's claim slots.",
+    "Select a claimant": "Select a claimant",
+    "{{displayName}} (Primary)": "{{displayName}} (Primary)",
+    "{{displayName}} (Collaboration)": "{{displayName}} (Collaboration)",
+    "Schedule claim": "Schedule claim",
+    "Scheduling claim...": "Scheduling claim...",
+    "Scheduled!": "Scheduled!",
     "For you": "For you",
     "All tickets": "All tickets",
     "You're all caught up.": "You're all caught up.",
@@ -1608,5 +1617,8 @@
     "No tickets have been reported for this game.": "No tickets have been reported for this game.",
     "No tickets have been reported for this achievement.": "No tickets have been reported for this achievement.",
     "There are no tickets in this list.": "There are no tickets in this list.",
-    "Reset filters": "Reset filters"
+    "Reset filters": "Reset filters",
+    "Search cores...": "Search cores...",
+    "{{label}} contains": "{{label}} contains",
+    "{{label}} contains <1>{{value}}</1>": "{{label}} contains <1>{{value}}</1>"
 }

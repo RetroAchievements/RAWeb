@@ -59,7 +59,7 @@ class TicketListRequest extends FormRequest
     {
         $sortParam = $this->normalizeSortParam($this->input('sort'))
             ?? $this->normalizeSortParam($this->getCookiePreferences()['sortParam'] ?? null)
-            ?? '-' . TicketListSortField::CreatedAt->value;
+            ?? $this->getScope()->defaultSortParam();
 
         $isDescending = str_starts_with($sortParam, '-');
 
