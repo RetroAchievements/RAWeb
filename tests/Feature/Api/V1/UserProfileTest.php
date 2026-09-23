@@ -38,7 +38,9 @@ class UserProfileTest extends TestCase
     public function testGetUserProfileByUsername(): void
     {
         /** @var User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'rich_presence_updated_at' => '2026-09-23 12:34:56',
+        ]);
 
         $this->get($this->apiUrl('GetUserProfile', ['u' => $user->username]))
             ->assertSuccessful()
@@ -47,6 +49,7 @@ class UserProfileTest extends TestCase
                 'UserPic' => sprintf("/UserPic/%s.png", $user->username),
                 'MemberSince' => $user->created_at->toDateTimeString(),
                 'RichPresenceMsg' => ($user->rich_presence) ? $user->rich_presence : null,
+                'RichPresenceMsgDate' => '2026-09-23 12:34:56',
                 'LastGameID' => $user->rich_presence_game_id,
                 'ContribCount' => $user->yield_unlocks,
                 'ContribYield' => $user->yield_points,
@@ -74,6 +77,7 @@ class UserProfileTest extends TestCase
                 'UserPic' => sprintf("/UserPic/%s.png", $user->username),
                 'MemberSince' => $user->created_at->toDateTimeString(),
                 'RichPresenceMsg' => ($user->rich_presence) ? $user->rich_presence : null,
+                'RichPresenceMsgDate' => null,
                 'LastGameID' => $user->rich_presence_game_id,
                 'ContribCount' => $user->yield_unlocks,
                 'ContribYield' => $user->yield_points,

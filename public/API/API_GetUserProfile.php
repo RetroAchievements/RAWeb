@@ -18,6 +18,7 @@
  *  int        UserWallActive          "1" if the user allows comments to be posted to their wall, otherwise "0"
  *  int        LastGameID              unique identifier of the last game the user played
  *  string     RichPresenceMsg         activity information about the last game the user played
+ *  datetime   RichPresenceMsgDate     when the RichPresenceMsg was last updated
  *  int        ContribCount            achievements won by others
  *  int        ContribYield            points awarded to others
  */
@@ -42,6 +43,7 @@ return response()->json([
     'UserPic' => sprintf("/UserPic/%s.png", $user->username),
     'MemberSince' => $user->created_at->toDateTimeString(),
     'RichPresenceMsg' => empty($user->rich_presence) || $user->rich_presence === 'Unknown' ? null : $user->rich_presence,
+    'RichPresenceMsgDate' => $user->rich_presence_updated_at?->toDateTimeString(),
     'LastGameID' => $user->rich_presence_game_id,
     'ContribCount' => $user->yield_unlocks,
     'ContribYield' => $user->yield_points,
