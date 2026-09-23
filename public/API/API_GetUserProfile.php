@@ -18,7 +18,7 @@
  *  int        UserWallActive          "1" if the user allows comments to be posted to their wall, otherwise "0"
  *  int        LastGameID              unique identifier of the last game the user played
  *  string     RichPresenceMsg         activity information about the last game the user played
- *  datetime   RichPresenceMsgDate     when the RichPresenceMsg was last updated
+ *  datetime   RichPresenceMsgDate     when the user's rich presence activity was last updated
  *  int        ContribCount            achievements won by others
  *  int        ContribYield            points awarded to others
  */
