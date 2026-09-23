@@ -125,7 +125,7 @@ class TicketController extends Controller
         // If for some reason there are no hashes or emulators associated with a
         // game, then it isn't possible to create tickets for its triggerables.
         if (!count($props->gameHashes) || !count($props->emulators)) {
-            return redirect(route('achievement.show', ['achievement' => $achievement->id]));
+            return redirect(route('achievement.report-issue', ['achievement' => $achievement->id]));
         }
 
         return Inertia::render('achievement/[achievement]/tickets/create', $props);

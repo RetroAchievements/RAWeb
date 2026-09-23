@@ -11,6 +11,7 @@ use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\DetermineTicketCreationBlockReasonAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\ReportAchievementIssuePagePropsData;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,10 +22,14 @@ use Inertia\Response as InertiaResponse;
 
 class ReportAchievementIssueController extends Controller
 {
-    public function index(Request $request, Achievement $achievement): InertiaResponse
-    {
+    public function index(
+        Request $request,
+        Achievement $achievement,
+        DetermineTicketCreationBlockReasonAction $determineTicketCreationBlockReason,
+    ): InertiaResponse {
         $this->authorize('view', $achievement);
         $this->authorize('viewAny', Ticket::class);
+        $this->authorize('create', Ticket::class);
 
         /** @var User $user */
         $user = Auth::user();
@@ -43,14 +48,19 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
+        $hasSession = $foundPlayerAchievement !== null || $user->hasPlayedGameForAchievement($achievement);
+        $blockReason = $determineTicketCreationBlockReason->execute($user, $achievement, $hasSession);
+
         $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTicket');
+        $can->createTicket = $blockReason === null; // intentional shadowing
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
-            hasSession: $foundPlayerAchievement ? true : $user->hasPlayedGameForAchievement($achievement),
+            hasSession: $hasSession,
             ticketType: $this->determineTicketType($foundPlayerAchievement, $allPlayerAchievements),
             extra: $request->input('extra'),
             can: $can,
+            ticketBlockReason: $blockReason,
         );
 
         return Inertia::render('achievement/[achievement]/report-issue', $props);

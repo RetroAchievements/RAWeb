@@ -1145,6 +1145,7 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+ticketBlockReason: App.Platform.Enums.TicketCreationBlockReason | null;
 };
 export type ScreenshotUploadConsistency = {
 existingResolutions: Array<{ width: number; height: number }>;
@@ -1268,10 +1269,10 @@ pointsForNext: number;
 }
 declare namespace App.Platform.Enums {
 export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
-export type UnlockMode = 0 | 1;
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
+export type UnlockMode = 0 | 1;
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
@@ -1298,6 +1299,7 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
+export type TicketCreationBlockReason = 'game_not_ticketable' | 'no_play_session';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'system' | 'emulator' | 'core';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';

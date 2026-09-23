@@ -176,7 +176,7 @@ class TicketControllerTest extends TestCase
         $response = $this->get(route('achievement.tickets.create', ['achievement' => $achievement]));
 
         // Assert
-        $response->assertRedirect(route('achievement.show', $achievement->id));
+        $response->assertRedirect(route('achievement.report-issue', $achievement->id));
     }
 
     public function testCreateGivenThereAreNoEmulatorsItRedirects(): void
@@ -202,7 +202,7 @@ class TicketControllerTest extends TestCase
         $response = $this->get(route('achievement.tickets.create', ['achievement' => $achievement]));
 
         // Assert
-        $response->assertRedirect(route('achievement.show', $achievement->id));
+        $response->assertRedirect(route('achievement.report-issue', $achievement->id));
     }
 
     public function testCreateGivenUserHasNoPlayerSessionReturnsCorrectProps(): void

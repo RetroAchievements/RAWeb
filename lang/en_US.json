@@ -1618,6 +1618,10 @@
     "No tickets have been reported for this achievement.": "No tickets have been reported for this achievement.",
     "There are no tickets in this list.": "There are no tickets in this list.",
     "Reset filters": "Reset filters",
+    "Your account has no record of a play session for this game. To open a ticket, play the game with a supported emulator while logged in to your account.": "Your account has no record of a play session for this game. To open a ticket, play the game with a supported emulator while logged in to your account.",
+    "Your account has no record of a play session for this game. To open a ticket, play the game while logged in to your account.": "Your account has no record of a play session for this game. To open a ticket, play the game while logged in to your account.",
+    "Read about emulator support": "Read about emulator support",
+    "Tickets are not available for this game. You can still send a message to a team below.": "Tickets are not available for this game. You can still send a message to a team below.",
     "Search cores...": "Search cores...",
     "{{label}} contains": "{{label}} contains",
     "{{label}} contains <1>{{value}}</1>": "{{label}} contains <1>{{value}}</1>"
