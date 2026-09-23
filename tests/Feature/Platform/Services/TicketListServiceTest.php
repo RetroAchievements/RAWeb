@@ -31,6 +31,7 @@ function defaultTicketListFilterOptions(array $overrides = []): array
         'developer' => 'all',
         'reporter' => 'all',
         'emulator' => 'all',
+        'core' => '',
         'system' => 'all',
     ], $overrides);
 }
@@ -116,6 +117,18 @@ describe('getFilterOptions', function () {
 
         // ASSERT
         expect($options['status'])->toEqual('all');
+    });
+
+    it('given a core search term with outer spaces, the term is automatically trimmed', function () {
+        // ARRANGE
+        $service = new TicketListService();
+        $request = Request::create('/tickets', 'GET', ['filter' => ['core' => '  nestopia ']]);
+
+        // ACT
+        $options = $service->getFilterOptions($request);
+
+        // ASSERT
+        expect($options['core'])->toEqual('nestopia');
     });
 });
 
@@ -213,6 +226,54 @@ describe('applyFilters', function () {
 
         // ASSERT
         expect($ids)->toEqual([$matchingTicket->id]);
+    });
+
+    it('given a core search term, tickets match on any spelling that contains the term and ignore letter case', function () {
+        // ARRANGE
+        $achievement = createTicketableAchievement();
+        $matchingTickets = [
+            Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'nestopia']),
+            Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'FCEUmm, Mesen and Nestopia UE']),
+        ];
+        Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'fceumm']);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => null]);
+        $service = new TicketListService();
+
+        // ACT
+        $ids = buildTicketIds($service, defaultTicketListFilterOptions(['core' => 'NESTOPIA']));
+
+        // ASSERT
+        expect($ids)->toEqual(sortedTicketIds($matchingTickets));
+    });
+
+    it('given a core search term with a wildcard character, the character matches only itself', function () {
+        // ARRANGE
+        $achievement = createTicketableAchievement();
+        $matchingTicket = Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'genesis_plus_gx']);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'Genesis Plus GX']);
+        $service = new TicketListService();
+
+        // ACT
+        $ids = buildTicketIds($service, defaultTicketListFilterOptions(['core' => 's_p']));
+
+        // ASSERT
+        expect($ids)->toEqual([$matchingTicket->id]);
+    });
+
+    it('given a core search term, facet counts skip the core filter and still apply it to other filters', function () {
+        // ARRANGE
+        $achievement = createTicketableAchievement();
+        Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'nestopia', 'hardcore' => true]);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['emulator_core' => 'fceumm', 'hardcore' => true]);
+        $service = new TicketListService();
+        $options = defaultTicketListFilterOptions(['core' => 'nestopia']);
+
+        // ACT
+        $counts = $service->getFacetCounts($options, Ticket::query(), [TicketListFilterKind::Mode, TicketListFilterKind::Core]);
+
+        // ASSERT
+        expect($counts)->not->toHaveKey('core');
+        expect($counts['mode']['hardcore'])->toEqual(1);
     });
 
     it('given a system, returns achievement and leaderboard tickets for games on that system', function () {

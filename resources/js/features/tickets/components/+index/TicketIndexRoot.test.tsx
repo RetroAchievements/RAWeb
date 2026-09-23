@@ -33,7 +33,9 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       defaultSortParam: '-createdAt',
       defaultStatusFilter: 'unresolved',
       hasStatusFilter: true,
-      availableFilters: [{ kind: 'type', values: ['0', '1', '2'], valueLabels: {} }],
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+      ],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
       persistedViewPreferences: null,
@@ -188,9 +190,19 @@ describe('Component: TicketIndexRoot', () => {
         scope: 'game',
         game: createGame({ id: 1701, system: createSystem() }),
         availableFilters: [
-          { kind: 'type', values: ['0', '1', '2'], valueLabels: {} },
-          { kind: 'mode', values: ['all', 'hardcore', 'softcore'], valueLabels: {} },
-          { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], valueLabels: {} },
+          { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+          {
+            kind: 'mode',
+            values: ['all', 'hardcore', 'softcore'],
+            valueLabels: {},
+            isFreeText: false,
+          },
+          {
+            kind: 'emulator',
+            values: ['all', 'RetroArch', 'unknown'],
+            valueLabels: {},
+            isFreeText: false,
+          },
         ],
         paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
         ziggy: createZiggyProps({
@@ -285,8 +297,13 @@ describe('Component: TicketIndexRoot', () => {
     renderTicketIndexRoot({
       stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
       availableFilters: [
-        { kind: 'type', values: ['0', '1', '2'], valueLabels: {} },
-        { kind: 'mode', values: ['all', 'hardcore', 'softcore'], valueLabels: {} },
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'mode',
+          values: ['all', 'hardcore', 'softcore'],
+          valueLabels: {},
+          isFreeText: false,
+        },
       ],
     });
 
@@ -303,7 +320,12 @@ describe('Component: TicketIndexRoot', () => {
     // ARRANGE
     renderTicketIndexRoot({
       availableFilters: [
-        { kind: 'emulator', values: ['all', 'RetroArch', 'unknown'], valueLabels: {} },
+        {
+          kind: 'emulator',
+          values: ['all', 'RetroArch', 'unknown'],
+          valueLabels: {},
+          isFreeText: false,
+        },
       ],
       facetCounts: { emulator: { all: 100, RetroArch: 40 } },
     });
@@ -317,11 +339,31 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
   });
 
+  it('given a free text filter, shows a text input with an example term', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [{ kind: 'core', values: [''], valueLabels: {}, isFreeText: true }],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: 'Core contains' })).toBeVisible();
+    expect(screen.getByPlaceholderText('Search cores...')).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /all/i })).not.toBeInTheDocument();
+  });
+
   it('given a filter with ID values, shows the server-supplied labels', async () => {
     // ARRANGE
     renderTicketIndexRoot({
       availableFilters: [
-        { kind: 'system', values: ['all', '7'], valueLabels: { '7': 'NES/Famicom' } },
+        {
+          kind: 'system',
+          values: ['all', '7'],
+          valueLabels: { '7': 'NES/Famicom' },
+          isFreeText: false,
+        },
       ],
       facetCounts: { system: { all: 12, '7': 5 } },
     });
@@ -338,7 +380,12 @@ describe('Component: TicketIndexRoot', () => {
     // ARRANGE
     renderTicketIndexRoot({
       availableFilters: [
-        { kind: 'developerType', values: ['all', 'active', 'junior'], valueLabels: {} },
+        {
+          kind: 'developerType',
+          values: ['all', 'active', 'junior'],
+          valueLabels: {},
+          isFreeText: false,
+        },
       ],
     });
 

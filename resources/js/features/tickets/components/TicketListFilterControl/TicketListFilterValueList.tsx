@@ -17,6 +17,7 @@ import { cn } from '@/common/utils/cn';
 
 import type { TicketListFilterProperty, TicketListFilterPropertyOption } from '../../models';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
+import { TicketListFilterTextInput } from './TicketListFilterTextInput';
 
 interface TicketListFilterValueListProps {
   onSelect: (value: string) => void;
@@ -39,6 +40,17 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
   const hoverIntent = useHoverIntent();
 
   const hasGlyphSlot = property.options.some((option) => option.glyphState);
+
+  if (property.isFreeText) {
+    return (
+      <TicketListFilterTextInput
+        initialValue={selectedValue}
+        label={property.label}
+        onSubmit={onSelect}
+        placeholder={property.placeholder}
+      />
+    );
+  }
 
   if (property.options.length <= MAX_OPTIONS_WITHOUT_SEARCH) {
     return (

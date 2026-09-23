@@ -120,6 +120,7 @@ class BuildTicketListAction
             kind: $kind,
             values: $values,
             valueLabels: (object) $valueLabels,
+            isFreeText: $kind->isFreeText(),
         );
     }
 

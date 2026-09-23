@@ -28,7 +28,7 @@ export function useTicketListFilterProperties(
 ): TicketListFilterProperty[] {
   const { t } = useTranslation();
 
-  const { getFilterKindLabel, getFilterValueLabel, getStatusValueLabel } =
+  const { getFilterKindLabel, getFilterKindPlaceholder, getFilterValueLabel, getStatusValueLabel } =
     useTicketListFilterLabels();
 
   const statusProperty: TicketListFilterProperty = {
@@ -47,6 +47,17 @@ export function useTicketListFilterProperties(
   return [
     ...(hasStatusFilter ? [statusProperty] : []),
     ...availableFilters.map((filter) => {
+      if (filter.isFreeText) {
+        return {
+          id: filter.kind,
+          label: getFilterKindLabel(filter.kind),
+          noFilterValue: '',
+          options: [],
+          isFreeText: true,
+          placeholder: getFilterKindPlaceholder(filter.kind),
+        };
+      }
+
       const countsByValue = facetCounts[filter.kind];
 
       return {

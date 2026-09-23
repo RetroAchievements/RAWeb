@@ -22,6 +22,7 @@ class TicketListFilterData extends Data
         public array $values,
         #[LiteralTypeScriptType('Record<string, string>')]
         public stdClass $valueLabels,
+        public bool $isFreeText = false,
     ) {
     }
 }

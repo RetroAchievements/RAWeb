@@ -30,7 +30,7 @@ class TicketListService
     private ?array $emulatorNamesById = null;
 
     /**
-     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, system: string}
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string}
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
@@ -50,6 +50,7 @@ class TicketListService
             'developer' => $validatedData['filter']['developer'] ?? 'all',
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
+            'core' => trim($validatedData['filter']['core'] ?? ''),
             'system' => $validatedData['filter']['system'] ?? 'all',
         ];
     }
@@ -177,6 +178,10 @@ class TicketListService
             }
         }
 
+        if (($filterOptions['core'] ?? '') !== '') {
+            $tickets->whereRaw('instr(lower(tickets.emulator_core), ?) > 0', [mb_strtolower($filterOptions['core'])]);
+        }
+
         if ($filterOptions['system'] !== 'all') {
             $tickets->forSystem((int) $filterOptions['system']);
         }
@@ -208,7 +213,7 @@ class TicketListService
 
         $counts = [];
         foreach ($kinds as $kind) {
-            if ($kind === TicketListFilterKind::Developer || $kind === TicketListFilterKind::Reporter) {
+            if (in_array($kind, [TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Core], true)) {
                 continue;
             }
 
