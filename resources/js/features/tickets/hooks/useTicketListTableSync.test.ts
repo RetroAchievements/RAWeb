@@ -12,6 +12,7 @@ const defaultProps: TicketListTableSyncProps = {
   columnFilters: serverDefaultColumnFilters,
   columnVisibilityOverrides: {},
   serverDefaultColumnFilters,
+  serverDefaultSortParam: '-createdAt',
   pageNumber: 1,
   restoreState: vi.fn(),
   sortParam: '-createdAt',

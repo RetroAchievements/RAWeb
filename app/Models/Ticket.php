@@ -224,6 +224,19 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
+    public function scopeForSystem(Builder $query, int $systemId): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereHas('game', fn (Builder $game) => $game->where('system_id', $systemId)),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
     public function scopeForAchievement(Builder $query, Achievement $achievement): Builder
     {
         return $query->where('ticketable_id', $achievement->id)

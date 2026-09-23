@@ -524,6 +524,76 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(comboboxEl).toHaveTextContent(/select a hash/i);
   });
 
+  it('given the user picks a hash but no emulator and submits, shows the required error only for the emulator field', async () => {
+    // ARRANGE
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          gameHashes,
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
+          emulators: [createEmulator({ name: 'RetroArch' })],
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
+    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+
+    await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
+    await userEvent.paste('The achievement did not unlock after I beat the first boss.');
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText('Required')).toHaveLength(1);
+    });
+  });
+
+  it('given the user picks an emulator but no hash and submits, shows the required error for the hash field', async () => {
+    // ARRANGE
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          gameHashes,
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
+          emulators: [createEmulator({ name: 'RetroArch' })],
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+
+    await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
+    await userEvent.paste('The achievement did not unlock after I beat the first boss.');
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText('Required')).toHaveLength(1);
+    });
+  });
+
   it('given the user selects they had a network problem, shows a link to the Discord and disables the submit button', async () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(

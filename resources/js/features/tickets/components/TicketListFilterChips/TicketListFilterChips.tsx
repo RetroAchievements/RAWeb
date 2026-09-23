@@ -75,7 +75,11 @@ export const TicketListFilterChips: FC<TicketListFilterChipsProps> = ({
                 )}
               >
                 <Trans
-                  i18nKey="{{label}} is <1>{{value}}</1>"
+                  i18nKey={
+                    property.isFreeText
+                      ? '{{label}} contains <1>{{value}}</1>'
+                      : '{{label}} is <1>{{value}}</1>'
+                  }
                   values={{ label: property.label, value: selectedOption?.label ?? value }}
                   components={{
                     1: (

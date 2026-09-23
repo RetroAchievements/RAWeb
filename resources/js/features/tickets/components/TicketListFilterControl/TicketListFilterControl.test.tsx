@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketListFilterProperty } from '../../models';
 import { openPropertySubmenu } from '../../test/openPropertySubmenu';
@@ -413,5 +414,63 @@ describe('Component: TicketListFilterControl', () => {
     // ASSERT
     const [updater] = setColumnFilters.mock.calls[0];
     expect(updater([])).toEqual([{ id: 'status', value: ['resolved'] }]);
+  });
+
+  it('given a free text property, lets the user type a search term and sets a trimmed filter value', async () => {
+    // ARRANGE
+    const setColumnFilters = vi.fn();
+
+    render(
+      <TicketListFilterControl
+        columnFilters={[]}
+        properties={[
+          {
+            id: 'core',
+            label: 'Core',
+            noFilterValue: '',
+            options: [],
+            isFreeText: true,
+            placeholder: 'Search cores...' as TranslatedString,
+          },
+        ]}
+        setColumnFilters={setColumnFilters}
+      />,
+    );
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.type(screen.getByPlaceholderText('Search cores...'), ' nestopia {Enter}');
+
+    // ASSERT
+    const [updater] = setColumnFilters.mock.calls[0];
+    expect(updater([])).toEqual([{ id: 'core', value: ['nestopia'] }]);
+  });
+
+  it('given a free text property already has a value, shows the value and lets the user clear it', async () => {
+    // ARRANGE
+    const setColumnFilters = vi.fn();
+
+    render(
+      <TicketListFilterControl
+        columnFilters={[{ id: 'core', value: ['nestopia'] }]}
+        properties={[
+          { id: 'core', label: 'Core', noFilterValue: '', options: [], isFreeText: true },
+        ]}
+        setColumnFilters={setColumnFilters}
+      />,
+    );
+
+    // ACT
+    await openPropertySubmenu(0);
+    const textbox = screen.getByRole('textbox', { name: 'Core contains' });
+    const initialValue = (textbox as HTMLInputElement).value;
+    await userEvent.clear(textbox);
+    await userEvent.type(textbox, '{Enter}');
+
+    // ASSERT
+    expect(initialValue).toEqual('nestopia');
+
+    const [updater] = setColumnFilters.mock.calls[0];
+    expect(updater([{ id: 'core', value: ['nestopia'] }])).toEqual([]);
   });
 });

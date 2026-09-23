@@ -67,32 +67,47 @@ enum TicketListScope: string
     public function filterKinds(): array
     {
         return match ($this) {
-            self::All, self::Game => [
+            self::All => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::System,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+            self::Game => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::DeveloperType,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::Achievement => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::AssignedTo, self::ReportedBy => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::System,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
             self::AwaitingReporter => [],
             self::ResolvedBy => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Developer,
                 TicketListFilterKind::Reporter,
+                TicketListFilterKind::System,
                 TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
             ],
         };
     }
@@ -112,6 +127,14 @@ enum TicketListScope: string
 
             self::AwaitingReporter => TicketListStatusFilter::Request,
             default => TicketListStatusFilter::Unresolved,
+        };
+    }
+
+    public function defaultSortParam(): string
+    {
+        return match ($this) {
+            self::ResolvedBy => '-' . TicketListSortField::ResolvedAt->value,
+            default => '-' . TicketListSortField::CreatedAt->value,
         };
     }
 

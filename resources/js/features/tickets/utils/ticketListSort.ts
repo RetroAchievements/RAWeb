@@ -1,6 +1,5 @@
 import type { TicketListSortParam } from '../models';
 
-const defaultParam: TicketListSortParam = '-createdAt';
 const fields: readonly App.Platform.Enums.TicketListSortField[] = [
   'createdAt',
   'state',
@@ -8,7 +7,6 @@ const fields: readonly App.Platform.Enums.TicketListSortField[] = [
 ];
 
 export const ticketListSort = {
-  defaultParam,
   fields,
 
   build(field: App.Platform.Enums.TicketListSortField, isAscending: boolean): TicketListSortParam {
@@ -23,7 +21,7 @@ export const ticketListSort = {
     return !sortParam.startsWith('-');
   },
 
-  resolve(value: unknown, fallback: TicketListSortParam = defaultParam): TicketListSortParam {
+  resolve(value: unknown, fallback: TicketListSortParam): TicketListSortParam {
     const isKnown = fields.some((field) => value === field || value === `-${field}`);
 
     return isKnown ? (value as TicketListSortParam) : fallback;
