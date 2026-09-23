@@ -27,7 +27,9 @@ return [
         'invite_id' => env('DISCORD_INVITE_ID'),
         'guild_id' => env('DISCORD_GUILD_ID'),
         'rabot_token' => env('DISCORD_RABOT_TOKEN'),
-        'muted' => env('DISCORD_ROLE_MUTED'),
+        'muted_role' => env('DISCORD_ROLE_MUTED'),
+        'aotw_winner_role' => env('DISCORD_ROLE_AOTW_WINNER'),
+        'aotw_channel_id' => env('DISCORD_AOTW_CHANNEL_ID'),
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
