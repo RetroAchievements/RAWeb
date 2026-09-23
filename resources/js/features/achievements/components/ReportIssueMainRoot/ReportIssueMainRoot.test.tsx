@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 import { render, screen } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createGame, createSystem } from '@/test/factories';
 
 import { ReportIssueMainRoot } from './ReportIssueMainRoot';
 import { testId } from './UnlockStatusLabel';
@@ -383,7 +383,7 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/no record of a play session for this game/i)).toBeVisible();
+    expect(screen.getByText(/play the game with a supported emulator/i)).toBeVisible();
 
     const link = screen.getByRole('link', { name: 'Read about emulator support' });
     expect(link).toHaveAttribute('target', '_blank');
@@ -393,6 +393,28 @@ describe('Component: ReportIssueMainRoot', () => {
     );
 
     expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
+  });
+
+  it('given there is no play session for a Standalone game, tells the player to log in and hides the emulator docs link', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement({
+          game: createGame({ system: createSystem({ id: 102, name: 'Standalone' }) }),
+        }),
+        hasSession: false,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/play the game while logged in to your account/i)).toBeVisible();
+    expect(screen.queryByText(/emulator/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Read about emulator support' }),
+    ).not.toBeInTheDocument();
   });
 
   it('given the game has no hashes or emulators, shows the reason without a link', () => {

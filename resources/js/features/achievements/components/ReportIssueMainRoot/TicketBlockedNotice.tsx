@@ -8,7 +8,8 @@ const emulatorSupportDocsHref =
   'https://docs.retroachievements.org/general/emulator-support-and-issues.html';
 
 export const TicketBlockedNotice: FC = () => {
-  const { ticketBlockReason } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
+  const { achievement, ticketBlockReason } =
+    usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
   const { t } = useTranslation();
 
   if (!ticketBlockReason) {
@@ -16,11 +17,16 @@ export const TicketBlockedNotice: FC = () => {
   }
 
   const isMissingPlaySession = ticketBlockReason === 'no_play_session';
+  const isStandaloneSystem = achievement.game?.system?.id === 102;
 
   let message: TranslatedString;
-  if (isMissingPlaySession) {
+  if (isMissingPlaySession && isStandaloneSystem) {
     message = t(
-      'This account has no record of a play session for this game. To open a ticket, play the game with a supported emulator or client that is logged in to your account.',
+      'Your account has no record of a play session for this game. To open a ticket, play the game while logged in to your account.',
+    );
+  } else if (isMissingPlaySession) {
+    message = t(
+      'Your account has no record of a play session for this game. To open a ticket, play the game with a supported emulator while logged in to your account.',
     );
   } else {
     message = t(
@@ -32,7 +38,7 @@ export const TicketBlockedNotice: FC = () => {
     <li className="flex w-full flex-col gap-1 rounded-sm bg-embed px-3 py-2">
       <p className="text-neutral-300 light:text-neutral-900">{message}</p>
 
-      {isMissingPlaySession ? (
+      {isMissingPlaySession && !isStandaloneSystem ? (
         <a href={emulatorSupportDocsHref} target="_blank" rel="noreferrer">
           {t('Read about emulator support')}
         </a>
