@@ -15,14 +15,14 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum TicketListFilterKind: string
 {
     case Type = 'type';
-    case PublishedStatus = 'publishedStatus';
     case Mode = 'mode';
+    case PublishedStatus = 'publishedStatus';
     case DeveloperType = 'developerType';
     case Developer = 'developer';
     case Reporter = 'reporter';
+    case System = 'system';
     case Emulator = 'emulator';
     case Core = 'core';
-    case System = 'system';
 
     /**
      * These are listed in display order.

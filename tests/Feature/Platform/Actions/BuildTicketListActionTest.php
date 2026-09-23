@@ -241,13 +241,13 @@ describe('available filters', function () {
             expect(end($emulatorFilter->values))->toEqual('unknown');
         }
     })->with([
-        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator, TicketListFilterKind::Core, TicketListFilterKind::System]],
-        'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
         'achievement' => [TicketListScope::Achievement, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
-        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::Core, TicketListFilterKind::System]],
-        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::Core, TicketListFilterKind::System]],
+        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
         'awaitingReporter' => [TicketListScope::AwaitingReporter, []],
-        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Mode, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Emulator, TicketListFilterKind::Core, TicketListFilterKind::System]],
+        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
     ]);
 
     it('given active and inactive systems, lists active systems by name with labels for their IDs', function () {

@@ -430,7 +430,7 @@ describe('Component: TicketListFilterControl', () => {
             noFilterValue: '',
             options: [],
             isFreeText: true,
-            placeholder: 'nestopia' as TranslatedString,
+            placeholder: 'Search cores...' as TranslatedString,
           },
         ]}
         setColumnFilters={setColumnFilters}
@@ -439,7 +439,7 @@ describe('Component: TicketListFilterControl', () => {
 
     // ACT
     await openPropertySubmenu(0);
-    await userEvent.type(screen.getByPlaceholderText('nestopia'), ' nestopia {Enter}');
+    await userEvent.type(screen.getByPlaceholderText('Search cores...'), ' nestopia {Enter}');
 
     // ASSERT
     const [updater] = setColumnFilters.mock.calls[0];

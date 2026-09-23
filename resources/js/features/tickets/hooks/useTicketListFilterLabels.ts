@@ -23,7 +23,7 @@ export function useTicketListFilterLabels() {
   };
 
   const kindPlaceholders: Partial<Record<FilterKind, TranslatedString>> = {
-    core: t('nestopia'),
+    core: t('Search cores...'),
   };
 
   const selfOrOthersLabels = {

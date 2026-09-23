@@ -69,17 +69,17 @@ enum TicketListScope: string
         return match ($this) {
             self::All => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::System,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
-                TicketListFilterKind::System,
             ],
             self::Game => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::DeveloperType,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
@@ -92,22 +92,22 @@ enum TicketListScope: string
             ],
             self::AssignedTo, self::ReportedBy => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::System,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
-                TicketListFilterKind::System,
             ],
             self::AwaitingReporter => [],
             self::ResolvedBy => [
                 TicketListFilterKind::Type,
-                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
                 TicketListFilterKind::Developer,
                 TicketListFilterKind::Reporter,
+                TicketListFilterKind::System,
                 TicketListFilterKind::Emulator,
                 TicketListFilterKind::Core,
-                TicketListFilterKind::System,
             ],
         };
     }
