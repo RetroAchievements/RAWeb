@@ -452,6 +452,55 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
   });
 
+  it('given the user leaves Closed with a resolution filter set and then picks All, the filter does not persist', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'closed', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^unresolved/i }));
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^all/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy.mock.lastCall?.[0]).toEqual([
+        'api.ticket.index',
+        expect.objectContaining({ 'filter[status]': 'all' }),
+      ]);
+    });
+    expect(getSpy.mock.lastCall?.[0]).toEqual([
+      'api.ticket.index',
+      expect.not.objectContaining({ 'filter[resolution]': expect.anything() }),
+    ]);
+    expect(screen.queryByTestId('chip-resolution')).not.toBeInTheDocument();
+  });
+
   it('omits counts when the server does not provide them', async () => {
     // ARRANGE
     renderTicketIndexRoot({

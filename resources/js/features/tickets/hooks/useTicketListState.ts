@@ -1,10 +1,11 @@
-import type { ColumnFiltersState, Updater } from '@tanstack/react-table';
+import { type ColumnFiltersState, functionalUpdate, type Updater } from '@tanstack/react-table';
 import { useState } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import type { TicketListSortParam, TicketListUrlState } from '../models';
 import { getTicketListColumnFiltersForSort } from '../utils/getTicketListColumnFiltersForSort';
+import { getTicketListColumnFiltersForStatus } from '../utils/getTicketListColumnFiltersForStatus';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
 import { resolveTicketListViewPreferences } from '../utils/resolveTicketListViewPreferences';
 import { ticketListSort } from '../utils/ticketListSort';
@@ -45,7 +46,9 @@ export function useTicketListState(
 
   const setColumnFiltersAndResetPage = (updaterOrValue: Updater<ColumnFiltersState>) => {
     setPageNumber(1);
-    setColumnFilters(updaterOrValue);
+    setColumnFilters((previousFilters) =>
+      getTicketListColumnFiltersForStatus(functionalUpdate(updaterOrValue, previousFilters)),
+    );
   };
 
   const setSortParamAndResetPage = (nextSortParam: TicketListSortParam) => {
@@ -56,7 +59,9 @@ export function useTicketListState(
     setPageNumber(1);
     setSortParam(nextSortParam);
     setColumnFilters((previousFilters) =>
-      getTicketListColumnFiltersForSort(previousFilters, nextSortParam),
+      getTicketListColumnFiltersForStatus(
+        getTicketListColumnFiltersForSort(previousFilters, nextSortParam),
+      ),
     );
   };
 

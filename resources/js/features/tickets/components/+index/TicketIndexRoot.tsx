@@ -13,6 +13,7 @@ import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicket
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
 import { getDoesTicketListFilterApplyToStatus } from '../../utils/getDoesTicketListFilterApplyToStatus';
 import { getTicketListColumnFiltersForSort } from '../../utils/getTicketListColumnFiltersForSort';
+import { getTicketListColumnFiltersForStatus } from '../../utils/getTicketListColumnFiltersForStatus';
 import { getTicketListFilterValue } from '../../utils/getTicketListFilterValue';
 import { setTicketListColumnFilterValue } from '../../utils/setTicketListColumnFilterValue';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
@@ -67,11 +68,8 @@ export const TicketIndexRoot: FC = () => {
     getDoesTicketListFilterApplyToStatus(filter.kind, statusValue),
   );
 
-  const appliedColumnFilters = ticketListTableProps.columnFilters.filter((columnFilter) =>
-    getDoesTicketListFilterApplyToStatus(
-      columnFilter.id as App.Platform.Enums.TicketListFilterKind,
-      statusValue,
-    ),
+  const appliedColumnFilters = getTicketListColumnFiltersForStatus(
+    ticketListTableProps.columnFilters,
   );
 
   const filterProperties = useTicketListFilterProperties(
