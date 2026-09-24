@@ -1,14 +1,8 @@
 <?php
 
-use App\Community\Enums\CommentableType;
-use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
-use App\Enums\UserPreference;
-use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Notifications\Ticket\TicketStatusUpdatedNotification;
-use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\DB;
 
 function getTicket(int $ticketID): ?array
@@ -30,89 +24,6 @@ function getTicket(int $ticketID): ?array
         ->first();
 
     return $row ? (array) $row : null;
-}
-
-function updateTicket(User $userModel, int $ticketID, TicketState $ticketState, ?TicketResolution $resolution = null): bool
-{
-    $ticket = Ticket::with(['reporter', 'author', 'ticketable.game.system'])->find($ticketID);
-
-    if (!$ticket) {
-        return false;
-    }
-
-    $previousState = $ticket->state;
-    $ticket->state = $ticketState;
-
-    if ($ticketState === TicketState::Resolved || $ticketState === TicketState::Closed) {
-        $ticket->resolved_at = now();
-        $ticket->resolver_id = $userModel->id;
-        $ticket->resolution = $resolution;
-    } elseif (in_array($previousState, [TicketState::Resolved, TicketState::Closed])) {
-        // Clear any resolver info when reopening a previously resolved ticket.
-        $ticket->resolved_at = null;
-        $ticket->resolver_id = null;
-        $ticket->resolution = null;
-    }
-
-    $ticket->save();
-
-    $status = $ticketState->label();
-    $comment = null;
-
-    switch ($ticketState) {
-        case TicketState::Closed:
-            if ($resolution === TicketResolution::Demoted && $ticket->ticketable) {
-                $ticket->getTicketableModel()->demoteForTicket($userModel);
-            }
-            $comment = $resolution?->closeCommentBody($userModel->display_name);
-            break;
-
-        case TicketState::Open:
-            if ($previousState === TicketState::Request) {
-                $comment = "Ticket reassigned to author by {$userModel->display_name}.";
-            } elseif ($previousState === TicketState::Quarantined) {
-                $comment = "Ticket approved by {$userModel->display_name}.";
-            } else {
-                $comment = "Ticket reopened by {$userModel->display_name}.";
-            }
-            break;
-
-        case TicketState::Resolved:
-            $comment = "Ticket resolved as fixed by {$userModel->display_name}.";
-            break;
-
-        case TicketState::Request:
-            $comment = "Ticket reassigned to reporter by {$userModel->display_name}.";
-            break;
-    }
-
-    // add the system comment without generating an email. subscribers get an email below.
-    $serverUserId = getUserIDFromUser('Server');
-    if ($serverUserId > 0) {
-        Comment::create([
-            'commentable_type' => CommentableType::AchievementTicket,
-            'commentable_id' => $ticketID,
-            'body' => $comment,
-            'user_id' => $serverUserId,
-        ]);
-    }
-
-    $userTicketCountService = app(UserTicketCountService::class);
-
-    if ($ticket->author) {
-        $userTicketCountService->clearForUserId($ticket->author->id);
-    }
-
-    if ($ticket->reporter) {
-        $userTicketCountService->clearForUserId($ticket->reporter->id);
-
-        // Only send email if the reporter has email notifications enabled for ticket activity.
-        if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
-            $ticket->reporter->notify(new TicketStatusUpdatedNotification($ticket, $userModel, $status, $comment));
-        }
-    }
-
-    return true;
 }
 
 function countOpenTicketsByAchievement(int $achievementID): int

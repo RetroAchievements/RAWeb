@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketState;
 use App\Exceptions\BannedUserException;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
@@ -147,11 +149,34 @@ class TicketPolicy
         return $user->hasPlayedGame($leaderboard->game);
     }
 
-    public function updateState(User $user): bool
+    public function updateState(User $user, Ticket $ticket, TicketAction $action): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::TICKET_MANAGER,
-        ]);
+        // Don't write a comment for the same/current status.
+        if ($action->targetState() === $ticket->state) {
+            return false;
+        }
+
+        // Don't request from a user who is deleted.
+        if ($action === TicketAction::Request && (!$ticket->reporter || $ticket->reporter->trashed())) {
+            return false;
+        }
+
+        if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            return true;
+        }
+
+        if ($user->id !== $ticket->reporter_id) {
+            return false;
+        }
+
+        return match ($action) {
+            TicketAction::ClosedMistaken => in_array(
+                $ticket->state,
+                [TicketState::Open, TicketState::Request, TicketState::Quarantined],
+                true,
+            ),
+            TicketAction::Reopen => $ticket->state === TicketState::Request,
+            default => false,
+        };
     }
 }
