@@ -10,7 +10,6 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerBadge;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
-use App\Platform\Actions\RevalidateAchievementSetBadgeEligibilityAction;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
@@ -169,7 +168,7 @@ class ResetPlayerProgressAction
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
 
-            // UpdatePlayerGameMetricsAction and RevalidateAchievementSetBadgeEligibilityAction 
+            // UpdatePlayerGameMetricsAction and RevalidateAchievementSetBadgeEligibilityAction
             // won't revoke beaten/completion status if all the achievements for the game are demoted.
             if (Game::where('id', $gameID)->value('achievements_published') == 0) {
                 $playerGame = $user->playerGames()->where('game_id', $gameID)->first();
