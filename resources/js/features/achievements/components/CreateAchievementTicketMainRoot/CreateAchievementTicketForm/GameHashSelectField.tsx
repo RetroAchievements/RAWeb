@@ -67,9 +67,7 @@ export const GameHashSelectField: FC = () => {
                   ))}
                 </BaseSelectContent>
 
-                <BaseFormMessage>
-                  {form.formState.errors.emulator?.message === 'Required' ? t('Required') : null}
-                </BaseFormMessage>
+                <BaseFormMessage />
               </BaseSelect>
             </BaseFormControl>
 

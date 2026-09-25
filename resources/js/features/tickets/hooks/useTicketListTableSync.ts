@@ -18,6 +18,7 @@ interface UseTicketListTableSyncProps {
   columnFilters: ColumnFiltersState;
   columnVisibilityOverrides: VisibilityState;
   serverDefaultColumnFilters: ColumnFiltersState;
+  serverDefaultSortParam: TicketListSortParam;
   pageNumber: number;
   restoreState: (urlState: TicketListUrlState) => void;
   sortParam: TicketListSortParam;
@@ -31,13 +32,16 @@ export function useTicketListTableSync({
   columnFilters,
   columnVisibilityOverrides,
   serverDefaultColumnFilters,
+  serverDefaultSortParam,
   pageNumber,
   restoreState,
   sortParam,
 }: UseTicketListTableSyncProps) {
   const { persistenceCookieName } =
     usePageProps<Pick<App.Platform.Data.TicketListPageProps, 'persistenceCookieName'>>();
+
   const [, setCookie] = useCookie(persistenceCookieName);
+
   const restoredUrlStateRef = useRef<TicketListUrlState | null>(null);
   const initialSortParamRef = useRef(sortParam);
 
@@ -61,7 +65,7 @@ export function useTicketListTableSync({
         pageNumber: restored.pageNumber,
         sortParam: ticketListSort.resolve(
           historyState?.ticketListSortParam,
-          ticketListSort.resolve(restored.sort),
+          ticketListSort.resolve(restored.sort, serverDefaultSortParam),
         ),
       };
 
@@ -99,8 +103,9 @@ export function useTicketListTableSync({
 
     const searchParams = serializeTicketListSearchParams({
       columnFilters,
-      serverDefaultColumnFilters,
       pageNumber,
+      serverDefaultColumnFilters,
+      serverDefaultSortParam,
       sortParam,
       currentSearch: window.location.search,
     });

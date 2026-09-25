@@ -173,6 +173,52 @@ it("given a scoped list, reads that scope's preference cookie", function () {
     );
 });
 
+it('given the resolved by list has no sort in the URL, uses resolution date as the default sort and orders tickets by newest resolution', function () {
+    // ARRANGE
+    $resolver = User::factory()->create();
+    actingAs($resolver);
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    $ticketResolvedLater = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $resolver->id,
+        'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-09 00:00:00'),
+    ]);
+    $ticketResolvedEarlier = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $resolver->id,
+        'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-02 00:00:00'),
+    ]);
+
+    // ACT
+    $response = get(route('developer.tickets.resolved', ['user' => $resolver->display_name]));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('scope', 'resolvedBy')
+        ->where('defaultSortParam', '-resolvedAt')
+        ->where('paginatedTickets.items.0.id', $ticketResolvedLater->id)
+        ->where('paginatedTickets.items.1.id', $ticketResolvedEarlier->id)
+    );
+});
+
+it('given the main list has no sort in the URL, reports created date as the default sort', function () {
+    // ARRANGE
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.index'));
+
+    // ASSERT
+    $response->assertInertia(fn (Assert $page) => $page->where('defaultSortParam', '-createdAt'));
+});
+
 it('given a guest, inbox redirects to login', function () {
     // ACT
     $response = get(route('tickets.mine'));
@@ -200,6 +246,38 @@ it('given an authenticated user, inbox renders every section for that user', fun
     );
 });
 
+it('given resolved tickets, orders the resolved by you section by resolution date', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    actingAs($viewer);
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    $ticketResolvedLater = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $viewer->id,
+        'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-09 00:00:00'),
+    ]);
+    $ticketResolvedEarlier = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $viewer->id,
+        'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-02 00:00:00'),
+    ]);
+
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $sections = collect($response->viewData('page')['props']['sections']);
+    $section = $sections->firstWhere('kind', 'resolvedByYou');
+
+    expect(array_column($section['tickets'], 'id'))->toEqual([$ticketResolvedLater->id, $ticketResolvedEarlier->id]);
+});
+
 it('given a user param, the inbox reports on that user rather than the currently authenticated user', function () {
     // ARRANGE
     $target = User::factory()->create();
@@ -213,6 +291,18 @@ it('given a user param, the inbox reports on that user rather than the currently
     $response->assertInertia(fn (Assert $page) => $page
         ->where('user.displayName', $target->display_name)
     );
+});
+
+it('given a user param for a banned user, a non-dev is hit with a 404', function () {
+    // ARRANGE
+    $target = User::factory()->create(['banned_at' => Carbon::now()]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertNotFound();
 });
 
 it('given the open status filter, returns only open tickets while unresolved also returns requests', function () {

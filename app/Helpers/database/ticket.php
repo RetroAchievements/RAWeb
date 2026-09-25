@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Enums\UserPreference;
 use App\Models\Comment;
@@ -31,7 +32,7 @@ function getTicket(int $ticketID): ?array
     return $row ? (array) $row : null;
 }
 
-function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?string $reason = null): bool
+function updateTicket(User $userModel, int $ticketID, TicketState $ticketState, ?TicketResolution $resolution = null): bool
 {
     $ticket = Ticket::with(['reporter', 'author', 'ticketable.game.system'])->find($ticketID);
 
@@ -40,28 +41,30 @@ function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?s
     }
 
     $previousState = $ticket->state;
-    $ticket->state = $ticketVal;
+    $ticket->state = $ticketState;
 
-    if ($ticketVal === TicketState::Resolved || $ticketVal === TicketState::Closed) {
+    if ($ticketState === TicketState::Resolved || $ticketState === TicketState::Closed) {
         $ticket->resolved_at = now();
         $ticket->resolver_id = $userModel->id;
+        $ticket->resolution = $resolution;
     } elseif (in_array($previousState, [TicketState::Resolved, TicketState::Closed])) {
         // Clear any resolver info when reopening a previously resolved ticket.
         $ticket->resolved_at = null;
         $ticket->resolver_id = null;
+        $ticket->resolution = null;
     }
 
     $ticket->save();
 
-    $status = $ticketVal->label();
+    $status = $ticketState->label();
     $comment = null;
 
-    switch ($ticketVal) {
+    switch ($ticketState) {
         case TicketState::Closed:
-            if ($reason === TicketState::REASON_DEMOTED && $ticket->ticketable) {
+            if ($resolution === TicketResolution::Demoted && $ticket->ticketable) {
                 $ticket->getTicketableModel()->demoteForTicket($userModel);
             }
-            $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
+            $comment = $resolution?->closeCommentBody($userModel->display_name);
             break;
 
         case TicketState::Open:

@@ -1,11 +1,12 @@
 import type { VisibilityState } from '@tanstack/react-table';
 
-import type { TicketListViewPreferences } from '../models';
+import type { TicketListSortParam, TicketListViewPreferences } from '../models';
 import { TICKET_LIST_COLUMN_IDS } from './ticketListColumnIds';
 import { ticketListSort } from './ticketListSort';
 
 export function resolveTicketListViewPreferences(
   preferences: Partial<TicketListViewPreferences> | null,
+  serverDefaultSortParam: TicketListSortParam,
 ): TicketListViewPreferences {
   const rawColumnVisibility = preferences?.columnVisibility ?? {};
 
@@ -19,6 +20,6 @@ export function resolveTicketListViewPreferences(
 
   return {
     columnVisibility,
-    sortParam: ticketListSort.resolve(preferences?.sortParam),
+    sortParam: ticketListSort.resolve(preferences?.sortParam, serverDefaultSortParam),
   };
 }

@@ -8,6 +8,7 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -29,7 +30,7 @@ class TicketListService
     private ?array $emulatorNamesById = null;
 
     /**
-     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string}
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string}
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
@@ -49,6 +50,8 @@ class TicketListService
             'developer' => $validatedData['filter']['developer'] ?? 'all',
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
+            'core' => trim($validatedData['filter']['core'] ?? ''),
+            'system' => $validatedData['filter']['system'] ?? 'all',
         ];
     }
 
@@ -175,6 +178,14 @@ class TicketListService
             }
         }
 
+        if (($filterOptions['core'] ?? '') !== '') {
+            $tickets->whereRaw('instr(lower(tickets.emulator_core), ?) > 0', [mb_strtolower($filterOptions['core'])]);
+        }
+
+        if ($filterOptions['system'] !== 'all') {
+            $tickets->forSystem((int) $filterOptions['system']);
+        }
+
         return $tickets;
     }
 
@@ -202,7 +213,7 @@ class TicketListService
 
         $counts = [];
         foreach ($kinds as $kind) {
-            if ($kind === TicketListFilterKind::Developer || $kind === TicketListFilterKind::Reporter) {
+            if (in_array($kind, [TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Core], true)) {
                 continue;
             }
 
@@ -237,6 +248,12 @@ class TicketListService
                         : ($this->emulatorNamesById()[(int) $value] ?? null),
                 ),
                 TicketListFilterKind::PublishedStatus => $this->countPublishedStatusFacet($query),
+                TicketListFilterKind::System => $this->countGroupedFacet(
+                    $this->joinTicketableGame($query),
+                    $kind,
+                    'facet_system_id',
+                    fn (?string $value): ?string => $value,
+                ),
                 TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query),
             };
         }
@@ -283,14 +300,11 @@ class TicketListService
     {
         $kind = TicketListFilterKind::PublishedStatus;
 
-        // Aliases keep joined columns from conflicting with unqualified scope columns such as id and state.
-        $rows = $query->selectRaw('count(*) as aggregate')
-            ->leftJoinSub(Achievement::select('id as facet_achievement_id', 'is_promoted'), 'facet_achievement', fn ($join) => $join
-                ->on('facet_achievement_id', '=', 'tickets.ticketable_id')
-                ->where('tickets.ticketable_type', TicketableType::Achievement->value))
-            ->leftJoinSub(Leaderboard::select('id as facet_leaderboard_id', 'state as facet_state'), 'facet_leaderboard', fn ($join) => $join
-                ->on('facet_leaderboard_id', '=', 'tickets.ticketable_id')
-                ->where('tickets.ticketable_type', TicketableType::Leaderboard->value))
+        $rows = $this->joinTicketables(
+            $query,
+            ['is_promoted'],
+            ['state as facet_state'],
+        )->selectRaw('count(*) as aggregate')
             ->selectRaw('coalesce(is_promoted, facet_state != ?) as published', [LeaderboardState::Unpromoted->value])
             ->groupBy('published')->toBase()->get();
 
@@ -303,6 +317,37 @@ class TicketListService
         }
 
         return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    private function joinTicketableGame(Builder $query): Builder
+    {
+        return $this->joinTicketables(
+            $query,
+            ['game_id as facet_achievement_game_id'],
+            ['game_id as facet_leaderboard_game_id'],
+        )->leftJoinSub(Game::select('id as facet_game_id', 'system_id as facet_system_id'), 'facet_game', fn ($join) => $join
+            ->on('facet_game_id', '=', DB::raw('coalesce(facet_achievement_game_id, facet_leaderboard_game_id)')));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @param list<string> $achievementColumns
+     * @param list<string> $leaderboardColumns
+     * @return Builder<Ticket>
+     */
+    private function joinTicketables(Builder $query, array $achievementColumns, array $leaderboardColumns): Builder
+    {
+        return $query
+            ->leftJoinSub(Achievement::select(['id as facet_achievement_id', ...$achievementColumns]), 'facet_achievement', fn ($join) => $join
+                ->on('facet_achievement_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Achievement->value))
+            ->leftJoinSub(Leaderboard::select(['id as facet_leaderboard_id', ...$leaderboardColumns]), 'facet_leaderboard', fn ($join) => $join
+                ->on('facet_leaderboard_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Leaderboard->value));
     }
 
     /**

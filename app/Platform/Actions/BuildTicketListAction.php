@@ -104,11 +104,23 @@ class BuildTicketListAction
     public function getAvailableFilters(TicketListScope $scope, ?int $systemId = null): array
     {
         return array_map(
-            fn (TicketListFilterKind $kind) => new TicketListFilterData(
-                kind: $kind,
-                values: $kind->values($systemId),
-            ),
+            fn (TicketListFilterKind $kind): TicketListFilterData => $this->buildFilterData($kind, $systemId),
             $scope->filterKinds(),
+        );
+    }
+
+    private function buildFilterData(TicketListFilterKind $kind, ?int $systemId): TicketListFilterData
+    {
+        $valueLabels = $kind->valueLabels();
+        $values = $kind === TicketListFilterKind::System
+            ? ['all', ...array_map('strval', array_keys($valueLabels))]
+            : $kind->values($systemId);
+
+        return new TicketListFilterData(
+            kind: $kind,
+            values: $values,
+            valueLabels: (object) $valueLabels,
+            isFreeText: $kind->isFreeText(),
         );
     }
 

@@ -8,9 +8,11 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -19,6 +21,25 @@ class TicketDataTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
+
+    private function createTicketForAuthor(User $author): Ticket
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
+
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $this->user->id,
+            'ticketable_author_id' => $author->id,
+        ]);
+
+        return $ticket;
+    }
 
     public function testGetTicketDataForTicket(): void
     {
@@ -343,6 +364,35 @@ class TicketDataTest extends TestCase
                 'Resolved' => 1,
                 'Total' => 3,
                 'URL' => config('app.url') . '/user/' . $this->user->username . '/tickets',
+            ]);
+    }
+
+    public function testGetTicketDataForBannedUserIsHiddenFromRegularCallers(): void
+    {
+        /** @var User $bannedAuthor */
+        $bannedAuthor = User::factory()->create(['banned_at' => Carbon::now()]);
+        $this->createTicketForAuthor($bannedAuthor);
+
+        $this->get($this->apiUrl('GetTicketData', ['u' => $bannedAuthor->username]))
+            ->assertNotFound();
+    }
+
+    public function testGetTicketDataForBannedUserIsServedToDevelopers(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+        $this->user->assignRole(Role::DEVELOPER);
+
+        /** @var User $bannedAuthor */
+        $bannedAuthor = User::factory()->create(['banned_at' => Carbon::now()]);
+        $this->createTicketForAuthor($bannedAuthor);
+
+        $this->get($this->apiUrl('GetTicketData', ['u' => $bannedAuthor->username]))
+            ->assertSuccessful()
+            ->assertJson([
+                'User' => $bannedAuthor->username,
+                'ULID' => $bannedAuthor->ulid,
+                'Open' => 1,
+                'Total' => 1,
             ]);
     }
 

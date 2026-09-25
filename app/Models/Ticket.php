@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Platform\Enums\LeaderboardState;
@@ -39,6 +40,7 @@ class Ticket extends BaseModel
     protected $casts = [
         'type' => TicketType::class,
         'state' => TicketState::class,
+        'resolution' => TicketResolution::class,
         'resolved_at' => 'datetime',
     ];
 
@@ -215,6 +217,19 @@ class Ticket extends BaseModel
             'ticketable',
             [Achievement::class, Leaderboard::class],
             fn (Builder $q) => $q->where('game_id', $game->id),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForSystem(Builder $query, int $systemId): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereHas('game', fn (Builder $game) => $game->where('system_id', $systemId)),
         );
     }
 

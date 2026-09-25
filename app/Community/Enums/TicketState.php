@@ -16,8 +16,6 @@ enum TicketState: string
     case Request = 'request';
     case Quarantined = 'quarantined';
 
-    public const REASON_DEMOTED = 'Demoted';
-
     public function label(): string
     {
         return match ($this) {

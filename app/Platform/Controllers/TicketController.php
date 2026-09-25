@@ -55,8 +55,6 @@ class TicketController extends Controller
 
     public function mine(Request $request): InertiaResponse
     {
-        $this->authorize('viewAny', Ticket::class);
-
         /**
          * We have a `user` param here for debugging purposes only. Nothing
          * exposes this in the UI.
@@ -65,6 +63,8 @@ class TicketController extends Controller
             ? User::whereName($request->input('user'))->firstOrFail()
             : $request->user();
 
+        $this->authorize('viewAny', [Ticket::class, $target]);
+
         $props = (new BuildTicketInboxPagePropsAction())->execute($target);
 
         return Inertia::render('tickets/mine', $props);
@@ -72,21 +72,29 @@ class TicketController extends Controller
 
     public function forAssignee(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/index', $user);
     }
 
     public function forReporter(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/created', $user);
     }
 
     public function forAwaitingReporter(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/feedback', $user);
     }
 
     public function forResolver(TicketListRequest $request, User $user): InertiaResponse
     {
+        $this->authorize('viewAny', [Ticket::class, $user]);
+
         return $this->renderTicketList($request, 'user/[user]/tickets/resolved', $user);
     }
 
@@ -117,7 +125,7 @@ class TicketController extends Controller
         // If for some reason there are no hashes or emulators associated with a
         // game, then it isn't possible to create tickets for its triggerables.
         if (!count($props->gameHashes) || !count($props->emulators)) {
-            return redirect(route('achievement.show', ['achievement' => $achievement->id]));
+            return redirect(route('achievement.report-issue', ['achievement' => $achievement->id]));
         }
 
         return Inertia::render('achievement/[achievement]/tickets/create', $props);
@@ -163,6 +171,7 @@ class TicketController extends Controller
             availableFilters: $action->getAvailableFilters($scope, $scope->systemId($target)),
             facetCounts: $result['facetCounts'],
             defaultStatusFilter: $scope->defaultStatusFilter(),
+            defaultSortParam: $scope->defaultSortParam(),
             hasStatusFilter: $scope->hasStatusFilter(),
             persistenceCookieName: $scope->persistenceCookieName(),
             persistedViewPreferences: $request->getCookiePreferences(),
