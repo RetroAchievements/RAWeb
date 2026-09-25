@@ -456,6 +456,25 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
         $this->assertEquals($backdateAt, $playerSession->created_at);
         $this->assertEquals(1, $playerSession->duration);
+
+        // ===== backdated session more than four hours outside session will generate a new session =====
+        $thirdSessionAt = $secondSessionStartAt->clone()->addHours(6);
+        Carbon::setTestNow($thirdSessionAt);
+
+        $secondBackdateAt = $thirdSessionAt->clone()->subMinutes(60);
+        $latestSession = PlayerSession::query()
+            ->where('user_id', $user->id)
+            ->where('game_id', $game->id)
+            ->where('created_at', '<', $secondBackdateAt)
+            ->orderByDesc('id')
+            ->first();
+        $action->execute($user, $game, $gameHash, timestamp: $secondBackdateAt);
+
+        $this->assertEquals(4, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count());
+
+        $latestSessionRefreshed = PlayerSession::find($latestSession->id);
+        $this->assertEquals($latestSession->updated_at, $latestSessionRefreshed->updated_at);
+        $this->assertEquals($latestSession->duration, $latestSessionRefreshed->duration);
     }
 
     public function testResumePlayerSessionMultiDisc(): void
