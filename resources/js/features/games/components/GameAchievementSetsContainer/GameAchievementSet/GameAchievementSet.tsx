@@ -39,7 +39,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards, activeEventAchievements } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, playerAchievementSets, numLeaderboards, activeEventAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -108,6 +108,10 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     disabledLeaderboards.length > 0 &&
     isViewingPublishedAchievements;
 
+  const playerAchievementSet = playerAchievementSets ? (playerAchievementSets[gameAchievementSet.achievementSet.id] ?? null) : null;
+  const canShowAwardIndicators = isViewingPublishedAchievements &&
+    (achievements.length || playerAchievementSet?.completedAt);
+
   return (
     <div className="flex flex-col gap-2.5">
       <div
@@ -120,7 +124,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
           <GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />
         </div>
 
-        {auth?.user && achievements.length ? (
+        {auth?.user && canShowAwardIndicators ? (
           <div className="my-2 flex justify-center sm:hidden">
             <GameAchievementSetProgress
               achievements={achievements}
