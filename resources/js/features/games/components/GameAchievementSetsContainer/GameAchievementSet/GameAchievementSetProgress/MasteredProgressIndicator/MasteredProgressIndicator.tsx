@@ -193,7 +193,7 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
 
         <BaseProgress
           className="h-2 w-46 bg-zinc-800"
-          max={achievements.length}
+          max={achievements.length || 1}
           segments={[
             {
               value: unlockedHardcoreCount,
@@ -251,7 +251,7 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
         </>
       ) : null}
 
-      {unlockedHardcoreCount || unlockedCasualCount ? (
+      {unlockedHardcoreCount || unlockedCasualCount || completionDate ? (
         <BaseButton
           size="sm"
           className="mt-3 mb-1 h-fit py-0.5"

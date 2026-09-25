@@ -26,6 +26,8 @@ export const GameShowMainRoot: FC = () => {
 
   const hasBeatenGame =
     !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
+  const hasCompletedGame =
+    !!playerGameProgressionAwards?.completed || !!playerGameProgressionAwards?.mastered;
 
   const currentListView = useAtomValue(currentListViewAtom);
 
@@ -41,7 +43,7 @@ export const GameShowMainRoot: FC = () => {
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
+      {allPageAchievements.length || hasCompletedGame ? <ResetAllProgressDialog /> : null}
 
       <PlayableMainMedia
         hasAnalogTvOutput={game.system?.hasAnalogTvOutput}
