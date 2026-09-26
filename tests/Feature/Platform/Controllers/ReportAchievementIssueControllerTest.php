@@ -218,3 +218,30 @@ it('given a casual unlock from a client that can award hardcore unlocks, hasCasu
         ->etc()
     );
 });
+
+it('given a casual unlock from a restricted client and a later session on an unrestricted client, hasCasualUnlockFromRestrictedClient is set to false', function () {
+    // Arrange
+    $this->seedEmulatorUserAgents();
+    $achievement = achievementForReportIssueTest();
+    $user = playerForReportIssueTest($achievement);
+    casualUnlockForReportIssueTest($achievement, $user, $this->userAgentOutdated);
+
+    PlayerSession::factory()->create([
+        'user_id' => $user->id,
+        'game_id' => $achievement->game_id,
+        'user_agent' => $this->userAgentValid,
+        'rich_presence_updated_at' => Carbon::now(),
+    ]);
+
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('hasCasualUnlockFromRestrictedClient', false)
+        ->etc()
+    );
+});
