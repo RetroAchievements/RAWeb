@@ -151,12 +151,12 @@ class TicketPolicy
 
     public function updateState(User $user, Ticket $ticket, TicketAction $action): bool
     {
-        // Don't write a comment for the same/current status.
+        // An update must actually change the ticket state.
         if ($action->targetState() === $ticket->state) {
             return false;
         }
 
-        // Don't request from a user who is deleted.
+        // Tickets cannot be reassigned to deleted users.
         if ($action === TicketAction::Request && (!$ticket->reporter || $ticket->reporter->trashed())) {
             return false;
         }

@@ -23,8 +23,6 @@ class ChangeTicketStateAction
 
     public function execute(Ticket $ticket, TicketAction $action, User $actor): void
     {
-        $ticket->loadMissing(['reporter', 'author', 'ticketable.game.system']);
-
         $previousState = $ticket->state;
         $newState = $action->targetState();
         $ticket->state = $newState;
@@ -59,8 +57,8 @@ class ChangeTicketStateAction
             ]);
         }
 
-        if ($ticket->author) {
-            $this->userTicketCountService->clearForUserId($ticket->author->id);
+        if ($ticket->ticketable_author_id) {
+            $this->userTicketCountService->clearForUserId($ticket->ticketable_author_id);
         }
 
         if ($ticket->reporter) {
