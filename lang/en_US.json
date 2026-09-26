@@ -337,7 +337,6 @@
     "Terms and Conditions": "Terms and Conditions",
     "The RetroAchievements API documentation can be found <1>here</1>.": "The RetroAchievements API documentation can be found <1>here</1>.",
     "The achievement contains an <1>unwelcome concept</1>.": "The achievement contains an <1>unwelcome concept</1>.",
-    "The achievement triggered, but the unlock didn't appear on my profile.": "The achievement triggered, but the unlock didn't appear on my profile.",
     "The achievement type (progression/win/missable) is not correct.": "The achievement type (progression/win/missable) is not correct.",
     "The achievement unlocked unexpectedly, even though you didn't complete its requirement.": "The achievement unlocked unexpectedly, even though you didn't complete its requirement.",
     "The logic for this achievement has changed since you last played.": "The logic for this achievement has changed since you last played.",
@@ -389,7 +388,6 @@
     "We will protect personal information by reasonable security safeguards against loss or theft, as well as unauthorized access, disclosure, copying, use or modification.": "We will protect personal information by reasonable security safeguards against loss or theft, as well as unauthorized access, disclosure, copying, use or modification.",
     "Web API Key": "Web API Key",
     "Welcome!": "Welcome!",
-    "What sort of issue would you like to report?": "What sort of issue would you like to report?",
     "Which of these achievements do you think you can get?": "Which of these achievements do you think you can get?",
     "Without your explicit consent or a legal basis, your personal data is not passed on to third parties.": "Without your explicit consent or a legal basis, your personal data is not passed on to third parties.",
     "Writing Team": "Writing Team",
@@ -1633,5 +1631,12 @@
     "Network problems": "Network problems",
     "Unable to reproduce": "Unable to reproduce",
     "Unable to debug": "Unable to debug",
-    "Other": "Other"
+    "Other": "Other",
+    "I earned this achievement, but it is missing from my profile": "I earned this achievement, but it is missing from my profile",
+    "I earned this achievement in hardcore mode, but my profile shows only the casual unlock": "I earned this achievement in hardcore mode, but my profile shows only the casual unlock",
+    "The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator or core.": "The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator or core.",
+    "You need proof: a screenshot of the achievement popup, a video, or a later achievement.": "You need proof: a screenshot of the achievement popup, a video, or a later achievement.",
+    "The achievement has a bug": "The achievement has a bug",
+    "A ticket tells the developer about the bug. It does not add the achievement to your profile.": "A ticket tells the developer about the bug. It does not add the achievement to your profile.",
+    "Something else is wrong with the achievement": "Something else is wrong with the achievement"
 }
