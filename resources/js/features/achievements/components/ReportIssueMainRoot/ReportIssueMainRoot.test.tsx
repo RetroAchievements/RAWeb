@@ -255,6 +255,62 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(within(somethingElseList).getByRole('link', { name: 'Message QATeam' })).toBeVisible();
   });
 
+  it('given the user has only a casual unlock and the ticket type is `DidNotTrigger`, says the hardcore unlock is missing', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByRole('heading', {
+        name: 'I earned this achievement in hardcore mode, but my profile shows only the casual unlock',
+      }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
+  });
+
+  it('given the casual unlock came from a client that does not allow hardcore, explains why and hides the unlock request', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        hasCasualUnlockFromRestrictedClient: true,
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/we cannot change it to hardcore/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Read about emulator support' })).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/general/emulator-support-and-issues.html',
+    );
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+  });
+
   it('given the user already unlocked the achievement, does not show the missing unlock heading', () => {
     // ARRANGE
     const achievement = createAchievement({

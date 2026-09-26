@@ -9,11 +9,13 @@ use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerSession;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\DetermineTicketCreationBlockReasonAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\ReportAchievementIssuePagePropsData;
+use App\Platform\Services\UserAgentService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +63,7 @@ class ReportAchievementIssueController extends Controller
             extra: $request->input('extra'),
             can: $can,
             ticketBlockReason: $blockReason,
+            hasCasualUnlockFromRestrictedClient: $this->getHasCasualUnlockFromRestrictedClient($foundPlayerAchievement),
         );
 
         return Inertia::render('achievement/[achievement]/report-issue', $props);
@@ -109,5 +112,28 @@ class ReportAchievementIssueController extends Controller
         }
 
         return $ticketType;
+    }
+
+    /**
+     * Hardcore unlocks from restricted emulators/cores are automatically
+     * demoted to casual. We don't want to offer the manual unlock option
+     * for users who find themselves in this circumstance.
+     */
+    private function getHasCasualUnlockFromRestrictedClient(?PlayerAchievement $playerAchievement): bool
+    {
+        if (
+            !$playerAchievement?->unlocked_at
+            || $playerAchievement->unlocked_hardcore_at
+            || !$playerAchievement->player_session_id
+        ) {
+            return false;
+        }
+
+        $userAgent = PlayerSession::whereKey($playerAchievement->player_session_id)->value('user_agent');
+        if (!$userAgent) {
+            return false;
+        }
+
+        return !(new UserAgentService())->getSupportLevel($userAgent)->allowsHardcoreUnlocks();
     }
 }

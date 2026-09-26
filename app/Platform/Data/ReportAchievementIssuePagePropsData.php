@@ -20,6 +20,7 @@ class ReportAchievementIssuePagePropsData extends Data
         public ?string $extra,
         public UserPermissionsData $can,
         public ?TicketCreationBlockReason $ticketBlockReason = null,
+        public bool $hasCasualUnlockFromRestrictedClient = false,
     ) {
     }
 }
