@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { render, screen } from '@/test';
+import { render, screen, within } from '@/test';
 import { createAchievement, createGame, createSystem } from '@/test/factories';
 
 import { ReportIssueMainRoot } from './ReportIssueMainRoot';
@@ -63,7 +63,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTicket: true },
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
       },
     });
 
@@ -147,7 +148,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTicket: true },
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
       },
     });
 
@@ -211,7 +213,72 @@ describe('Component: ReportIssueMainRoot', () => {
       screen.getByText(/unlocked this achievement without meeting the requirements/i),
     ).toBeVisible();
 
-    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
+  });
+
+  it('given the ticket type is `DidNotTrigger`, shows the correct ordered options under their headings', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: undefined,
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    const headings = screen.getAllByRole('heading', { level: 2 });
+    expect(headings.map((heading) => heading.textContent)).toEqual([
+      'I earned this achievement, but it is missing from my profile',
+      'The achievement has a bug',
+      'Something else is wrong with the achievement',
+    ]);
+
+    const [missingUnlockList, bugList, somethingElseList] = screen.getAllByRole('list');
+
+    expect(
+      within(missingUnlockList).getByRole('link', { name: 'Request Manual Unlock' }),
+    ).toBeVisible();
+    expect(
+      within(missingUnlockList).getByText(/you need proof: a screenshot of the achievement popup/i),
+    ).toBeVisible();
+
+    expect(screen.getByText(/it does not add the achievement to your profile/i)).toBeVisible();
+    expect(within(bugList).getAllByRole('link', { name: 'Create Ticket' }).length).toEqual(2);
+
+    expect(within(somethingElseList).getByRole('link', { name: 'Message QATeam' })).toBeVisible();
+  });
+
+  it('given the user already unlocked the achievement, does not show the missing unlock heading', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'triggered_at_wrong_time',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The achievement has a bug' })).toBeVisible();
   });
 
   it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime`, shows the correct issue report links', () => {
@@ -325,7 +392,7 @@ describe('Component: ReportIssueMainRoot', () => {
       screen.queryByText(/unlocked this achievement without meeting the requirements/i),
     ).not.toBeInTheDocument();
 
-    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
   });
 
   it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime` but the user does not have permission to create tickets, does not show a single Create Ticket link', () => {
@@ -384,6 +451,12 @@ describe('Component: ReportIssueMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/play the game with a supported emulator/i)).toBeVisible();
+
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
 
     const link = screen.getByRole('link', { name: 'Read about emulator support' });
     expect(link).toHaveAttribute('target', '_blank');
@@ -450,7 +523,7 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
     expect(screen.getByRole('link', { name: /request manual unlock/i })).toBeVisible();
   });
 });

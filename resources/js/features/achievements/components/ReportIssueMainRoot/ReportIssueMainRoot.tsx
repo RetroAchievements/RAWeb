@@ -7,16 +7,17 @@ import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
+import { BugReportSection } from './BugReportSection';
 import { buildStructuredMessage } from './buildStructuredMessage';
+import { MissingUnlockSection } from './MissingUnlockSection';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
+import { ReportIssueSection } from './ReportIssueSection';
 import { ReportToDeveloperComplianceListItem } from './ReportToDeveloperComplianceListItem';
-import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
-import { TicketBlockedNotice } from './TicketBlockedNotice';
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
 export const ReportIssueMainRoot: FC = () => {
-  const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
-
+  const { achievement, hasSession, ticketType } =
+    usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
   const { t } = useTranslation();
 
   return (
@@ -31,50 +32,50 @@ export const ReportIssueMainRoot: FC = () => {
         {t('{{achievementTitle}} - Report Issue', { achievementTitle: achievement.title })}
       </AchievementHeading>
 
-      <div className="mb-3">
+      <div className="flex flex-col gap-8">
         <UnlockStatusLabel />
+
+        <div className="flex flex-col gap-8 md:gap-12">
+          {hasSession && ticketType === 'did_not_trigger' ? <MissingUnlockSection /> : null}
+
+          <BugReportSection />
+
+          <ReportIssueSection t_heading={t('Something else is wrong with the achievement')}>
+            <ReportToDeveloperComplianceListItem achievement={achievement} />
+
+            <ReportIssueOptionItem
+              t_buttonText={t('Report to QATeam')}
+              href={route('message-thread.create', {
+                to: 'QATeam',
+                ...buildStructuredMessage(achievement, 'misclassification'),
+              })}
+              anchorClassName={buildTrackingClassNames('Click Report Misclassification')}
+            >
+              {t('The achievement type (progression/win/missable) is not correct.')}
+            </ReportIssueOptionItem>
+
+            <ReportIssueOptionItem
+              t_buttonText={t('Report to WritingTeam')}
+              href={route('message-thread.create', {
+                to: 'WritingTeam',
+                ...buildStructuredMessage(achievement, 'writing-error'),
+              })}
+            >
+              {t('There is a spelling or grammatical error in the title or description.')}
+            </ReportIssueOptionItem>
+
+            <ReportIssueOptionItem
+              t_buttonText={t('Message QATeam')}
+              href={route('message-thread.create', {
+                to: 'QATeam',
+                ...buildStructuredMessage(achievement, 'achievement-issue'),
+              })}
+            >
+              {t('I have an issue with this achievement that is not described above.')}
+            </ReportIssueOptionItem>
+          </ReportIssueSection>
+        </div>
       </div>
-
-      <p className="mb-2">{t('What sort of issue would you like to report?')}</p>
-
-      <ul className="flex flex-col gap-5 sm:gap-3">
-        <TicketBlockedNotice />
-
-        <SessionDrivenIssueListItems />
-
-        <ReportToDeveloperComplianceListItem achievement={achievement} />
-
-        <ReportIssueOptionItem
-          t_buttonText={t('Report to QATeam')}
-          href={route('message-thread.create', {
-            to: 'QATeam',
-            ...buildStructuredMessage(achievement, 'misclassification'),
-          })}
-          anchorClassName={buildTrackingClassNames('Click Report Misclassification')}
-        >
-          {t('The achievement type (progression/win/missable) is not correct.')}
-        </ReportIssueOptionItem>
-
-        <ReportIssueOptionItem
-          t_buttonText={t('Report to WritingTeam')}
-          href={route('message-thread.create', {
-            to: 'WritingTeam',
-            ...buildStructuredMessage(achievement, 'writing-error'),
-          })}
-        >
-          {t('There is a spelling or grammatical error in the title or description.')}
-        </ReportIssueOptionItem>
-
-        <ReportIssueOptionItem
-          t_buttonText={t('Message QATeam')}
-          href={route('message-thread.create', {
-            to: 'QATeam',
-            ...buildStructuredMessage(achievement, 'achievement-issue'),
-          })}
-        >
-          {t('I have an issue with this achievement that is not described above.')}
-        </ReportIssueOptionItem>
-      </ul>
     </div>
   );
 };
