@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { render, screen, within } from '@/test';
+import { render, screen } from '@/test';
 import { createAchievement, createGame, createSystem } from '@/test/factories';
 
 import { ReportIssueMainRoot } from './ReportIssueMainRoot';
@@ -240,19 +240,15 @@ describe('Component: ReportIssueMainRoot', () => {
       'Something else is wrong with the achievement',
     ]);
 
-    const [missingUnlockList, bugList, somethingElseList] = screen.getAllByRole('list');
-
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
     expect(
-      within(missingUnlockList).getByRole('link', { name: 'Request Manual Unlock' }),
-    ).toBeVisible();
-    expect(
-      within(missingUnlockList).getByText(/you need proof: a screenshot of the achievement popup/i),
+      screen.getByText(/you need proof: a screenshot of the achievement popup/i),
     ).toBeVisible();
 
     expect(screen.getByText(/it does not add the achievement to your profile/i)).toBeVisible();
-    expect(within(bugList).getAllByRole('link', { name: 'Create Ticket' }).length).toEqual(2);
+    expect(screen.getAllByRole('link', { name: 'Create Ticket' }).length).toEqual(2);
 
-    expect(within(somethingElseList).getByRole('link', { name: 'Message QATeam' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Message QATeam' })).toBeVisible();
   });
 
   it('given the user has only a casual unlock and the ticket type is `DidNotTrigger`, says the hardcore unlock is missing', () => {
