@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketType;
 use App\Models\Emulator;
 use App\Models\System;
@@ -20,6 +21,7 @@ enum TicketListFilterKind: string
     case DeveloperType = 'developerType';
     case Developer = 'developer';
     case Reporter = 'reporter';
+    case Resolution = 'resolution';
     case System = 'system';
     case Emulator = 'emulator';
     case Core = 'core';
@@ -41,9 +43,18 @@ enum TicketListFilterKind: string
             self::Mode => ['all', 'hardcore', 'softcore', 'unspecified'],
             self::DeveloperType => ['all', 'active', 'junior', 'inactive'],
             self::Developer, self::Reporter => ['all', 'self', 'others'],
+            self::Resolution => ['all', ...array_map(fn (TicketResolution $resolution): string => $resolution->value, TicketResolution::cases())],
             self::Emulator => ['all', ...self::emulatorNames($systemId), 'unknown'],
             self::Core => [''],
             self::System => ['all', ...array_map('strval', array_keys(self::systemNamesById()))],
+        };
+    }
+
+    public function appliesToStatus(TicketListStatusFilter $status): bool
+    {
+        return match ($this) {
+            self::Resolution => $status === TicketListStatusFilter::All || $status === TicketListStatusFilter::Closed,
+            default => true,
         };
     }
 
@@ -59,6 +70,11 @@ enum TicketListFilterKind: string
     public function isFreeText(): bool
     {
         return $this === self::Core;
+    }
+
+    public function isExemptFromFacetRowLimit(): bool
+    {
+        return $this === self::Resolution;
     }
 
     /**

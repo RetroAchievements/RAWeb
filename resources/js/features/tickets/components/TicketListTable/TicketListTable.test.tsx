@@ -101,6 +101,7 @@ describe('Component: TicketListTable', () => {
       'Developer',
       'Reporter',
       'Resolved by',
+      'Resolution',
       'Emulator',
       'Version',
       'Core',
@@ -329,6 +330,30 @@ describe('Component: TicketListTable', () => {
     const unresolvedRow = screen.getByRole('row', { name: /Ticket #640/ });
     expect(within(unresolvedRow).getAllByRole('cell').at(-1)).toBeEmptyDOMElement();
     expect(screen.getAllByText('Deleted user')).toHaveLength(1);
+  });
+
+  it('given the resolution column is visible, shows the label on a closed ticket and does not show a label on an open ticket', () => {
+    // ARRANGE
+    const openTicket = createTicketListEntry({ id: 640, state: 'open', resolution: null });
+    const closedTicket = createTicketListEntry({
+      id: 641,
+      state: 'closed',
+      resolution: 'unable_to_reproduce',
+    });
+
+    render(
+      <TestHarness
+        tickets={[openTicket, closedTicket]}
+        columnVisibility={{ ...noneVisible, resolution: true }}
+      />,
+    );
+
+    // ASSERT
+    const openRow = screen.getByRole('row', { name: /Ticket #640/ });
+    expect(within(openRow).getAllByRole('cell').at(-1)).toHaveTextContent(/^$/);
+
+    const closedRow = screen.getByRole('row', { name: /Ticket #641/ });
+    expect(within(closedRow).getByText('Unable to reproduce')).toBeVisible();
   });
 
   it('given a game, links its title beneath the issue title', () => {
