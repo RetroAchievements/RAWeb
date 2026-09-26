@@ -1624,5 +1624,14 @@
     "Tickets are not available for this game. You can still send a message to a team below.": "Tickets are not available for this game. You can still send a message to a team below.",
     "Search cores...": "Search cores...",
     "{{label}} contains": "{{label}} contains",
-    "{{label}} contains <1>{{value}}</1>": "{{label}} contains <1>{{value}}</1>"
+    "{{label}} contains <1>{{value}}</1>": "{{label}} contains <1>{{value}}</1>",
+    "Resolution": "Resolution",
+    "Fixed": "Fixed",
+    "Mistaken report": "Mistaken report",
+    "Not enough information": "Not enough information",
+    "Wrong ROM": "Wrong ROM",
+    "Network problems": "Network problems",
+    "Unable to reproduce": "Unable to reproduce",
+    "Unable to debug": "Unable to debug",
+    "Other": "Other"
 }

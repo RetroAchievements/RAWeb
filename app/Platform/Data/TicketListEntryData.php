@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Data\UserData;
@@ -23,6 +24,7 @@ class TicketListEntryData extends Data
         public ?bool $hardcore,
         public Carbon $createdAt,
         public ?Carbon $resolvedAt,
+        public ?TicketResolution $resolution,
         public TicketableType $ticketableType,
         public int $ticketableId,
         public string $ticketableTitle,
@@ -49,6 +51,7 @@ class TicketListEntryData extends Data
             hardcore: $ticket->hardcore === null ? null : (bool) $ticket->hardcore,
             createdAt: Carbon::parse($ticket->created_at),
             resolvedAt: $ticket->resolved_at ? Carbon::parse($ticket->resolved_at) : null,
+            resolution: $ticket->resolution,
             ticketableType: TicketableType::from($ticket->ticketable_type),
             ticketableId: $ticketable->id,
             ticketableTitle: $ticketable->getTicketableTitle(),

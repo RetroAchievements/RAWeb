@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\TicketResolution;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
@@ -33,6 +34,7 @@ function defaultTicketListFilterOptions(array $overrides = []): array
         'emulator' => 'all',
         'core' => '',
         'system' => 'all',
+        'resolution' => 'all',
     ], $overrides);
 }
 
@@ -313,6 +315,40 @@ it('keeps system facet counts in sync with the list filter', function () {
     expect($counts['system']['all'])->toEqual(3);
     expect($counts['system'][(string) $achievement->game->system_id])->toEqual(2);
     expect($counts['system'][(string) $otherAchievement->game->system_id])->toEqual(1);
+});
+
+it('given tickets with and without a resolution, the resolution facet counts match the list filter', function () {
+    // ARRANGE
+    $achievement = createTicketableAchievement();
+    Ticket::factory()->forAchievement($achievement)->closed()->count(2)->create(['resolution' => TicketResolution::UnableToReproduce]);
+    Ticket::factory()->forAchievement($achievement)->resolved()->create(['resolution' => TicketResolution::Fixed]);
+    Ticket::factory()->forAchievement($achievement)->closed()->create(['resolution' => null]);
+    Ticket::factory()->forAchievement($achievement)->open()->create();
+    $service = new TicketListService();
+    $options = defaultTicketListFilterOptions(['status' => 'all', 'resolution' => 'fixed']);
+
+    // ACT
+    $counts = $service->getFacetCounts($options, Ticket::query(), [TicketListFilterKind::Resolution]);
+
+    // ASSERT
+    expect($counts['resolution'])->toEqual(['all' => 5, 'unable_to_reproduce' => 2, 'fixed' => 1]);
+});
+
+it('given a status that does not allow a resolution, no resolution facet counts are inserted into page props', function () {
+    // ARRANGE
+    Ticket::factory()->forAchievement(createTicketableAchievement())->resolved()->create(['resolution' => TicketResolution::Fixed]);
+    $service = new TicketListService();
+
+    // ACT
+    $counts = $service->getFacetCounts(
+        defaultTicketListFilterOptions(['status' => 'resolved']),
+        Ticket::query(),
+        [TicketListFilterKind::Mode, TicketListFilterKind::Resolution],
+    );
+
+    // ASSERT
+    expect($counts)->toHaveKey('mode');
+    expect($counts)->not->toHaveKey('resolution');
 });
 
 it('given a facet filter, its counts always match the corresponding list filters', function (TicketListFilterKind $kind) {
