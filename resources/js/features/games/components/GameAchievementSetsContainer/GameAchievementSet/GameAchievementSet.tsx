@@ -109,8 +109,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     isViewingPublishedAchievements;
 
   const playerAchievementSet = playerAchievementSets ? (playerAchievementSets[gameAchievementSet.achievementSet.id] ?? null) : null;
-  const canShowAwardIndicators = isViewingPublishedAchievements &&
-    (achievements.length || playerAchievementSet?.completedAt);
+  const canShowAwardIndicators = (achievements.length || playerAchievementSet?.completedAt);
 
   return (
     <div className="flex flex-col gap-2.5">
