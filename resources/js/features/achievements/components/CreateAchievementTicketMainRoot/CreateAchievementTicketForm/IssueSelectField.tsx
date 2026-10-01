@@ -18,6 +18,7 @@ import {
 } from '@/common/components/+vendor/BaseSelect';
 
 import { LogicChangedNotice } from './LogicChangedNotice';
+import { RequestManualUnlockLink } from './RequestManualUnlockLink';
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const IssueSelectField: FC = () => {
@@ -88,7 +89,7 @@ export const IssueSelectField: FC = () => {
                 )}
 
                 {field.value === 'NetworkIssue' && (
-                  <>
+                  <span className="flex flex-col items-start gap-1">
                     <span className="block font-bold text-text-danger">
                       {t('Please do not create a ticket for this issue.')}
                     </span>
@@ -104,7 +105,9 @@ export const IssueSelectField: FC = () => {
                         {'. Include a screenshot or some other form of proof.'}
                       </Trans>
                     </span>
-                  </>
+
+                    <RequestManualUnlockLink />
+                  </span>
                 )}
               </BaseFormDescription>
             ) : null}

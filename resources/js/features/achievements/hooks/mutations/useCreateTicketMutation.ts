@@ -21,6 +21,6 @@ interface Variables {
 export function useCreateTicketMutation() {
   return useMutation({
     mutationFn: ({ payload }: Variables) =>
-      axios.post<{ message: string; ticketId: string }>(route('api.ticket.store'), payload),
+      axios.post<{ message: string; ticketId: number }>(route('api.ticket.store'), payload),
   });
 }
