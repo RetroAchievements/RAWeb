@@ -572,6 +572,46 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->assertEquals($teamAccount->display_name, $payload['embeds'][0]['author']['name']);
     }
 
+    public function testItRoutesTeamRepliesInStructuredThreadsToDedicatedWebhook(): void
+    {
+        // Arrange
+        $teamUser = User::factory()->create(['username' => 'QATeam']);
+        $recipientUser = User::factory()->create(['username' => 'RetroGamer']);
+
+        config([
+            'services.discord.inbox_webhook.QATeam' => [
+                'url' => 'https://discord.com/api/webhooks/qa-forum/default',
+                'is_forum' => true,
+                'incorrect_type_url' => 'https://discord.com/api/webhooks/incorrect-types/custom-route',
+            ],
+        ]);
+
+        $this->thread->update(['title' => 'Incorrect type: Mailing List [174011] (Crisis Core: Final Fantasy VII)']);
+
+        DiscordMessageThreadMapping::storeMapping(
+            $this->thread->id,
+            'discord_thread_custom_456'
+        );
+
+        $replyMessage = Message::factory()->create([
+            'thread_id' => $this->thread->id,
+            'author_id' => $teamUser->id,
+            'body' => 'We verified and resolved the reported type mismatch.',
+        ]);
+
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute($teamUser, $recipientUser, $this->thread, $replyMessage);
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $requestUri = $this->webhookHistory[0]['request']->getUri();
+        $this->assertEquals('/api/webhooks/incorrect-types/custom-route', $requestUri->getPath());
+        $this->assertEquals('thread_id=discord_thread_custom_456', $requestUri->getQuery());
+    }
+
     public function testItHandlesLongTeamAccountReplies(): void
     {
         // Arrange
