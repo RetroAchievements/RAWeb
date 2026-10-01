@@ -33,7 +33,7 @@ export const MissingUnlockSection: FC = () => {
         <li className="flex w-full flex-col gap-1 rounded-sm bg-embed px-3 py-2">
           <p className="text-neutral-300 light:text-neutral-900">
             {t(
-              'The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator or core.',
+              'The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator and core.',
             )}
           </p>
 

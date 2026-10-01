@@ -307,6 +307,33 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
   });
 
+  it('given every unlock is casual from a client that does not allow hardcore, shows the notice', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'triggered_at_wrong_time',
+        hasCasualUnlockFromRestrictedClient: true,
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByRole('heading', {
+        name: 'I earned this achievement in hardcore mode, but my profile shows only the casual unlock',
+      }),
+    ).toBeVisible();
+    expect(screen.getByText(/we cannot change it to hardcore/i)).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+  });
+
   it('given the user already unlocked the achievement, does not show the missing unlock heading', () => {
     // ARRANGE
     const achievement = createAchievement({

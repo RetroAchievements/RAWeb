@@ -16,9 +16,12 @@ import { ReportToDeveloperComplianceListItem } from './ReportToDeveloperComplian
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
 export const ReportIssueMainRoot: FC = () => {
-  const { achievement, hasSession, ticketType } =
+  const { achievement, hasCasualUnlockFromRestrictedClient, hasSession, ticketType } =
     usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
   const { t } = useTranslation();
+
+  const shouldShowMissingUnlockSection =
+    hasSession && (ticketType === 'did_not_trigger' || hasCasualUnlockFromRestrictedClient);
 
   return (
     <div>
@@ -36,7 +39,7 @@ export const ReportIssueMainRoot: FC = () => {
         <UnlockStatusLabel />
 
         <div className="flex flex-col gap-8 md:gap-12">
-          {hasSession && ticketType === 'did_not_trigger' ? <MissingUnlockSection /> : null}
+          {shouldShowMissingUnlockSection ? <MissingUnlockSection /> : null}
 
           <BugReportSection />
 
