@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
@@ -17,11 +18,38 @@ import { CreateAchievementTicketMainRoot } from './CreateAchievementTicketMainRo
 // Suppress "Not implemented: navigation (except hash changes)"
 console.error = vi.fn();
 
+async function fillOutAndSubmitTicketForm(
+  issueTypeOptionPattern: RegExp,
+  description = 'I met the requirement, but it never unlocked.',
+) {
+  await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+  await userEvent.click(screen.getByRole('option', { name: issueTypeOptionPattern }));
+
+  await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+  await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+
+  await userEvent.type(screen.getByRole('textbox', { name: /emulator version/i }), '1.16.0');
+  await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+  await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
+
+  await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
+  await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+
+  await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
+  await userEvent.paste(description);
+
+  await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+}
+
 describe('Component: CreateAchievementTicketMainRoot', () => {
   beforeEach(() => {
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     window.HTMLElement.prototype.setPointerCapture = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('renders without crashing', () => {
@@ -596,11 +624,17 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
   it('given the user selects they had a network problem, shows a link to the Discord and disables the submit button', async () => {
     // ARRANGE
+    const achievement = createAchievement({
+      id: 14,
+      title: 'Street-Smart Scorer',
+      game: createGame({ title: 'Streets of Rage 2' }),
+    });
+
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
       {
         pageProps: {
-          achievement: createAchievement(),
+          achievement,
           auth: { user: createAuthenticatedUser() },
           gameHashes: [createGameHash()],
           emulators: [createEmulator()],
@@ -610,7 +644,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ACT
-    await userEvent.type(screen.getByRole('textbox', { name: /description/i }), 'asdfasdfasdf'); // make this field dirty
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /description/i }),
+      'network dropped midway',
+    );
 
     await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
     await userEvent.click(screen.getByRole('option', { name: /not showing as earned/i }));
@@ -618,6 +655,14 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     // ASSERT
     expect(screen.getByText(/please do not create a ticket for this issue/i)).toBeVisible();
     expect(screen.getByRole('link', { name: /discord server/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /request manual unlock/i })).toBeVisible();
+    expect(route).toHaveBeenCalledWith('message-thread.create', {
+      to: 'UnlockTeam',
+      subject: 'Manual Unlock: Street-Smart Scorer [14] (Streets of Rage 2)',
+      message: `I'd like a manual unlock for [ach=14]:
+(Provide link to video/screenshot showing evidence)`,
+      templateKind: 'manual-unlock',
+    });
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
   });
 
@@ -690,27 +735,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
-    await userEvent.click(screen.getByRole('option', { name: /triggered at the wrong time/i }));
-
-    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
-    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
-
-    await userEvent.type(screen.getByRole('textbox', { name: /emulator version/i }), '1.16.0');
-
-    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
-
-    await userEvent.click(screen.getByRole('radio', { name: /casual/i }));
-
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game hash/i }));
-    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
-
-    await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
-    await userEvent.paste(
+    await fillOutAndSubmitTicketForm(
+      /triggered at the wrong time/i,
       'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
     );
-
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -1124,5 +1152,116 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await waitFor(() => {
       expect(screen.queryByText(/please be more specific/i)).not.toBeInTheDocument();
     });
+  });
+
+  it('displays a disclaimer stating that ticket creation does not unlock achievements on profiles', () => {
+    // ARRANGE
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          auth: { user: createAuthenticatedUser({ locale: 'en_US' }) },
+          gameHashes: [createGameHash()],
+          emulators: [createEmulator()],
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        'A ticket tells the developer about the bug. It does not add the achievement to your profile.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('given the user is submitting a "did not trigger" ticket, replaces the form with the confirmation panel', async () => {
+    // ARRANGE
+    const mockTicketId = 456;
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: mockTicketId } });
+    const locationHrefSpy = vi.spyOn(window.location, 'href', 'set').mockImplementation(() => {});
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const targetAchievement = createAchievement({
+      id: 25,
+      title: 'Labyrinth Zone Survivor',
+      game: createGame({ title: 'Sonic the Hedgehog' }),
+    });
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: targetAchievement,
+          emulators: [createEmulator({ name: 'RetroArch' })],
+          gameHashes: [createGameHash({ name: 'Hash A' })],
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await fillOutAndSubmitTicketForm(/did not trigger/i);
+
+    // ASSERT
+    const confirmationHeader = await screen.findByRole('heading', { name: /ticket submitted/i });
+    expect(confirmationHeader).toBeVisible();
+    expect(confirmationHeader).toHaveFocus();
+
+    expect(screen.queryByRole('button', { name: /submit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: /issue/i })).not.toBeInTheDocument();
+
+    const manualUnlockButton = screen.getByRole('link', { name: /request manual unlock/i });
+    expect(manualUnlockButton).toBeVisible();
+    expect(manualUnlockButton).toHaveClass('plausible-event-name=Click+Request+Manual+Unlock');
+    expect(route).toHaveBeenCalledWith('message-thread.create', {
+      to: 'UnlockTeam',
+      subject: 'Manual Unlock: Labyrinth Zone Survivor [25] (Sonic the Hedgehog)',
+      message: `I'd like a manual unlock for [ach=25]:
+(Provide link to video/screenshot showing evidence)
+Ticket: [ticket=456]`,
+      templateKind: 'manual-unlock',
+    });
+
+    expect(screen.getByRole('link', { name: /view your ticket/i })).toBeVisible();
+    expect(route).toHaveBeenCalledWith('ticket.show', { ticket: mockTicketId });
+
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(locationHrefSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user is submitting a "triggered at the wrong time" ticket, maintains the form and redirects to the ticket view on submit', async () => {
+    // ARRANGE
+    const mockTicketId = 789;
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: mockTicketId } });
+    const locationHrefSpy = vi.spyOn(window.location, 'href', 'set').mockImplementation(() => {});
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          emulators: [createEmulator({ name: 'RetroArch' })],
+          gameHashes: [createGameHash({ name: 'Hash A' })],
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await fillOutAndSubmitTicketForm(/triggered at the wrong time/i);
+
+    // ASSERT
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(locationHrefSpy).toHaveBeenCalledWith(['ticket.show', { ticket: mockTicketId }]);
+
+    expect(screen.queryByRole('heading', { name: /ticket submitted/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submit/i })).toBeVisible();
   });
 });

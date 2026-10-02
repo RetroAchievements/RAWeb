@@ -4,8 +4,8 @@ import { route } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { buildManualUnlockRequestUrl } from '@/features/achievements/utils/buildManualUnlockRequestUrl';
 
-import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 
 export const SessionDrivenIssueListItems: FC = () => {
@@ -54,10 +54,7 @@ export const SessionDrivenIssueListItems: FC = () => {
 
         <ReportIssueOptionItem
           t_buttonText={t('Request Manual Unlock')}
-          href={route('message-thread.create', {
-            to: 'UnlockTeam',
-            ...buildStructuredMessage(achievement, 'manual-unlock'),
-          })}
+          href={buildManualUnlockRequestUrl(achievement)}
           anchorClassName={buildTrackingClassNames('Click Request Manual Unlock')}
         >
           {t("The achievement triggered, but the unlock didn't appear on my profile.")}

@@ -1633,5 +1633,10 @@
     "Network problems": "Network problems",
     "Unable to reproduce": "Unable to reproduce",
     "Unable to debug": "Unable to debug",
-    "Other": "Other"
+    "Other": "Other",
+    "A ticket tells the developer about the bug. It does not add the achievement to your profile.": "A ticket tells the developer about the bug. It does not add the achievement to your profile.",
+    "Ticket submitted": "Ticket submitted",
+    "If you earned this achievement, request a manual unlock.": "If you earned this achievement, request a manual unlock.",
+    "You need proof: a screenshot of the achievement popup, a video, or a later achievement.": "You need proof: a screenshot of the achievement popup, a video, or a later achievement.",
+    "View your ticket": "View your ticket"
 }
