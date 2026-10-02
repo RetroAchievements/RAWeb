@@ -15,14 +15,16 @@ export const GameAchievementSetProgress: FC<GameAchievementSetProgressProps> = (
   achievements,
   gameAchievementSet,
 }) => {
-  const { auth, backingGame, game, isViewingPublishedAchievements } =
+  const { auth, backingGame, game, playerAchievementSets, isViewingPublishedAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!auth?.user) {
     return null;
   }
 
-  const canShowAwardIndicators = isViewingPublishedAchievements && achievements.length;
+  const playerAchievementSet = playerAchievementSets ? (playerAchievementSets[gameAchievementSet.achievementSet.id] ?? null) : null;
+  const canShowAwardIndicators = isViewingPublishedAchievements &&
+    (achievements.length || playerAchievementSet?.completedAt);
 
   return (
     <div className="flex items-center gap-4">

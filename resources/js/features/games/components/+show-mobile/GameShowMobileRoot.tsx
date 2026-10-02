@@ -69,6 +69,8 @@ export const GameShowMobileRoot: FC = () => {
 
   const hasBeatenGame =
     !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
+  const hasCompletedGame =
+    !!playerGameProgressionAwards?.completed || !!playerGameProgressionAwards?.mastered;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -84,7 +86,7 @@ export const GameShowMobileRoot: FC = () => {
       {currentTab === 'achievements' ? <ScrollToTopButton /> : null}
 
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
+      {allPageAchievements.length || hasCompletedGame ? <ResetAllProgressDialog /> : null}
 
       <GameMobileHeader />
 
