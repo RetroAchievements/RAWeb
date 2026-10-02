@@ -25,10 +25,15 @@ export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
   const AnchorTag = shouldUseClientSideRoute ? InertiaLink : 'a';
 
   return (
-    <li className="flex w-full flex-col items-center justify-between gap-2 rounded-sm bg-embed px-3 py-2 sm:flex-row">
+    <li
+      className={cn(
+        'flex w-full flex-col gap-2 rounded-sm bg-embed px-3 py-2',
+        'sm:flex-row sm:items-center sm:justify-between',
+      )}
+    >
       <p>{children}</p>
 
-      <div className="self-end sm:self-auto">
+      <div className="self-start sm:self-auto">
         <AnchorTag href={href} className={cn(baseButtonVariants({ size: 'sm' }), anchorClassName)}>
           {t_buttonText}
         </AnchorTag>
