@@ -208,6 +208,8 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('user/{user}/tickets/resolved', [TicketController::class, 'forResolver'])
                         ->defaults('scope', TicketListScope::ResolvedBy->value)
                         ->name('developer.tickets.resolved');
+
+                    Route::get('ticket2/{ticket}', [TicketController::class, 'show'])->name('ticket2.show');
                 });
             });
         });

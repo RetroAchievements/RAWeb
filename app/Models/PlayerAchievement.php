@@ -79,6 +79,16 @@ class PlayerAchievement extends BasePivot
     }
 
     /**
+     * User that manually awarded this achievement, or null when earned through normal gameplay.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function unlocker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'unlocker_id')->withTrashed();
+    }
+
+    /**
      * @return HasOneThrough<Game, Achievement, $this>
      */
     public function game(): HasOneThrough
