@@ -18,6 +18,8 @@ class TicketViewService
     public int $unlocksSinceReported = 0;
     public array $openTickets = [];
     public array $closedTickets = [];
+    /** @var Ticket[] */
+    public array $relatedTickets = [];
     public string $contactReporterUrl = '';
     public ?PlayerAchievement $existingUnlock = null;
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
@@ -50,19 +52,21 @@ class TicketViewService
                     ->where('user_id', $ticket->reporter->id)
                     ->first();
             }
+        }
 
-            $this->openTickets = [];
-            $this->closedTickets = [];
-            $relatedTickets = Ticket::where('ticketable_id', $ticket->ticketable_id)
-                ->where('ticketable_type', $ticket->ticketable_type)
-                ->where('id', '!=', $ticket->id)
-                ->get();
-            foreach ($relatedTickets as $otherTicket) {
-                if ($otherTicket->state->isOpen()) {
-                    $this->openTickets[] = $otherTicket->id;
-                } else {
-                    $this->closedTickets[] = $otherTicket->id;
-                }
+        $this->openTickets = [];
+        $this->closedTickets = [];
+        $siblingTickets = Ticket::query()
+            ->where('ticketable_id', $ticket->ticketable_id)
+            ->where('ticketable_type', $ticket->ticketable_type)
+            ->where('id', '!=', $ticket->id)
+            ->get();
+        $this->relatedTickets = $siblingTickets->all();
+        foreach ($siblingTickets as $sibling) {
+            if ($sibling->state->isOpen()) {
+                $this->openTickets[] = $sibling->id;
+            } else {
+                $this->closedTickets[] = $sibling->id;
             }
         }
 
