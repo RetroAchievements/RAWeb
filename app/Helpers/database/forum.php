@@ -332,7 +332,7 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
         UserPreference::EmailOn_ForumReply);
 
     if (!$emailTargets->isEmpty()) {
-        $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
+        $payload = Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true);
         $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
 
         foreach ($emailTargets as $subscriber) {
