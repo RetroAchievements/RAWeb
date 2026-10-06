@@ -79,27 +79,42 @@ export const TicketShowHeader: FC = () => {
           <span>{ticket.game.system!.nameShort}</span>
         </p>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-neutral-400">
-          <span className="flex w-full items-center gap-x-3 min-[480px]:w-auto">
-            <span className="flex items-center gap-1.5 whitespace-nowrap text-neutral-200 light:text-neutral-800">
+        <div className="overflow-x-clip text-neutral-400">
+          <div className="-ml-5 flex flex-wrap items-center gap-y-1">
+            <span className="flex items-center gap-1.5 pl-5 text-neutral-200 light:text-neutral-800">
               <TicketStateGlyph state={ticket.state} />
               {buildTicketStateLabel(ticket.state, ticket.resolution)}
             </span>
 
-            <span>{ticketTypeLabels[ticket.type]}</span>
-          </span>
+            <span className="flex items-center">
+              <StatusSeparator />
+              {ticketTypeLabels[ticket.type]}
+            </span>
 
-          <span className="flex flex-wrap items-center gap-x-1">
-            <Trans
-              i18nKey="Reported by <1>{{user}}</1> <2>{{timeAgo}}</2>"
-              components={{
-                1: <TicketUserValue user={ticket.reporter} variant="quiet" />,
-                2: <DiffTimestamp at={ticket.createdAt} />,
-              }}
-            />
-          </span>
+            <span className="flex items-center">
+              <StatusSeparator />
+
+              <span className="flex flex-wrap items-center gap-x-1">
+                <Trans
+                  i18nKey="Reported by <1>{{user}}</1> <2>{{timeAgo}}</2>"
+                  components={{
+                    1: <TicketUserValue user={ticket.reporter} variant="quiet" />,
+                    2: <DiffTimestamp at={ticket.createdAt} />,
+                  }}
+                />
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
+  );
+};
+
+const StatusSeparator: FC = () => {
+  return (
+    <span aria-hidden="true" className="w-5 flex-none text-center">
+      {'·'}
+    </span>
   );
 };

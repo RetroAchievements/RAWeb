@@ -1634,6 +1634,7 @@
     "Other": "Other",
     "Ticket {{ticketId}}: {{title}} ({{type}})": "Ticket {{ticketId}}: {{title}} ({{type}})",
     "Logic at filing": "Logic at filing",
+    "Current logic": "Current logic",
     "v{{version}}": "v{{version}}",
     "Format": "Format",
     "Rank order": "Rank order",

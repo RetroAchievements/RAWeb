@@ -24,7 +24,7 @@ import { TicketLogicVersionLink } from '../TicketLogicVersionLink';
 import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketPropertiesPanel: FC = () => {
-  const { hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
+  const { currentTriggerVersion, hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -83,12 +83,21 @@ export const TicketPropertiesPanel: FC = () => {
           ) : null}
 
           {reportedTriggerVersion ? (
-            <PropertyRow t_label={t('Logic at filing')}>
-              <TicketLogicVersionLink
-                achievementId={ticket.ticketableId}
-                version={reportedTriggerVersion}
-              />
-            </PropertyRow>
+            <>
+              <PropertyRow t_label={t('Logic at filing')}>
+                <TicketLogicVersionLink
+                  achievementId={ticket.ticketableId}
+                  version={reportedTriggerVersion}
+                />
+              </PropertyRow>
+
+              <PropertyRow t_label={t('Current logic')}>
+                <TicketLogicVersionLink
+                  achievementId={ticket.ticketableId}
+                  version={currentTriggerVersion!}
+                />
+              </PropertyRow>
+            </>
           ) : null}
 
           {leaderboard ? (

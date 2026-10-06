@@ -113,9 +113,9 @@ class TicketViewService
             return;
         }
 
-        if ($achievement->trigger_id !== $ticket->trigger_id) {
-            $this->currentTriggerVersion = $achievement->currentTrigger?->version;
-        }
+        $this->currentTriggerVersion = $achievement->trigger_id === $ticket->trigger_id
+            ? $this->reportedTriggerVersion
+            : $achievement->currentTrigger?->version;
     }
 
     public function buildHistory(Ticket $ticket, User $actingUser): array

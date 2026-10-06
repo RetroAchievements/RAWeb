@@ -250,6 +250,7 @@ describe('Component: TicketPropertiesPanel', () => {
         ticket: createTicketListEntry({ ticketableId: 88 }),
         can: { viewAchievementLogic: true },
         reportedTriggerVersion: 5,
+        currentTriggerVersion: 6,
       },
     });
 
@@ -269,6 +270,7 @@ describe('Component: TicketPropertiesPanel', () => {
         ticket: createTicketListEntry(),
         can: {},
         reportedTriggerVersion: 5,
+        currentTriggerVersion: 6,
       },
     });
 
@@ -277,7 +279,49 @@ describe('Component: TicketPropertiesPanel', () => {
     expect(screen.queryByRole('link', { name: 'v5' })).not.toBeInTheDocument();
   });
 
-  it('given an older ticket with no recorded trigger version, omits the logic at filing row', () => {
+  it('given a current trigger version that differs from the reported one, displays both version rows', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        leaderboard: null,
+        ticket: createTicketListEntry({ ticketableId: 88 }),
+        can: { viewAchievementLogic: true },
+        reportedTriggerVersion: 2,
+        currentTriggerVersion: 4,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: 'Logic at filing' })).toBeVisible();
+    expect(screen.getByRole('rowheader', { name: 'Current logic' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'v2' })).toHaveAttribute(
+      'href',
+      '/manage/achievements/88/logic?version=2',
+    );
+    expect(screen.getByRole('link', { name: 'v4' })).toHaveAttribute(
+      'href',
+      '/manage/achievements/88/logic?version=4',
+    );
+  });
+
+  it('given the logic has not changed since filing, displays the same version in both rows', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        leaderboard: null,
+        ticket: createTicketListEntry(),
+        can: {},
+        reportedTriggerVersion: 2,
+        currentTriggerVersion: 2,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: 'Current logic' })).toBeVisible();
+    expect(screen.getAllByText('v2')).toHaveLength(2);
+  });
+
+  it('given an older ticket with no recorded trigger version, omits both logic version rows', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: { leaderboard: null, ticket: createTicketListEntry() },
@@ -285,6 +329,7 @@ describe('Component: TicketPropertiesPanel', () => {
 
     // ASSERT
     expect(screen.queryByText('Logic at filing')).not.toBeInTheDocument();
+    expect(screen.queryByText('Current logic')).not.toBeInTheDocument();
   });
 
   it('given a leaderboard with a configured format, displays the format label', () => {
