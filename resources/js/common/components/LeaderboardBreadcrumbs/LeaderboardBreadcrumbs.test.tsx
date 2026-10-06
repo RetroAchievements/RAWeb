@@ -91,7 +91,7 @@ describe('Component: LeaderboardBreadcrumbs', () => {
     // ARRANGE
     const system = createSystem({ name: 'SNES' });
     const game = createGame({ title: '~Hack~ Super Junkoid' });
-    const leaderboard = createLeaderboard();
+    const leaderboard = createLeaderboard({ title: 'Fastest Time' });
 
     render(
       <LeaderboardBreadcrumbs

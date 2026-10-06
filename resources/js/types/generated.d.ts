@@ -802,8 +802,8 @@ export type GameHash = {
 id: number;
 md5: string;
 name: string | null;
-labels: Array<App.Platform.Data.GameHashLabel>;
-patchUrl: string | null;
+labels?: Array<App.Platform.Data.GameHashLabel>;
+patchUrl?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {
@@ -1009,6 +1009,7 @@ topEntry?: App.Platform.Data.LeaderboardEntry | null;
 userEntry?: App.Platform.Data.LeaderboardEntry | null;
 rankAsc?: boolean | null;
 state?: App.Platform.Enums.LeaderboardState | null;
+developer?: App.Data.User | null;
 };
 export type LeaderboardEntry = {
 id: number;
@@ -1147,6 +1148,7 @@ ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
 ticketBlockReason: App.Platform.Enums.TicketCreationBlockReason | null;
+hasCasualUnlockFromRestrictedClient: boolean;
 };
 export type ScreenshotUploadConsistency = {
 existingResolutions: Array<{ width: number; height: number }>;
@@ -1266,9 +1268,7 @@ export type TicketShowPageProps = {
 ticket: App.Platform.Data.TicketListEntry;
 achievement: App.Platform.Data.Achievement | null;
 leaderboard: App.Platform.Data.Leaderboard | null;
-ticketableIconUrl: string;
 ticketableDescription: string;
-author: App.Data.User | null;
 hasMaintainer: boolean;
 can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;

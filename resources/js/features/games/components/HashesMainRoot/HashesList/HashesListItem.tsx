@@ -15,7 +15,7 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
       <p className="space-x-1 sm:space-x-2">
         {hash.name ? <span className="font-bold">{hash.name}</span> : null}
 
-        {hash.labels.length ? (
+        {hash.labels?.length ? (
           <>
             {hash.labels.map((hashLabel, index) => (
               <HashLabel key={`${hash.md5}-${hashLabel.label}-${index}`} hashLabel={hashLabel} />

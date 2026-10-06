@@ -42,22 +42,18 @@ class BuildTicketShowPagePropsAction
             $leaderboardEntryCount = $ticketable->entries()->count();
         }
 
-        $author = $ticketable instanceof Leaderboard ? $ticketable->getTicketableAssignee() : $ticket->author;
-
         $propsData = new TicketShowPagePropsData(
-            ticket: TicketListEntryData::fromTicket($ticket)->include('reporter.id'),
+            ticket: TicketListEntryData::fromTicket($ticket),
 
             achievement: $ticketable instanceof Achievement
-                ? AchievementData::fromAchievement($ticketable)->include('points')
+                ? AchievementData::fromAchievement($ticketable)->include('points', 'developer.isGone')
                 : null,
 
             leaderboard: $ticketable instanceof Leaderboard
-                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc')
+                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'developer.isGone')
                 : null,
 
-            ticketableIconUrl: $ticketable->getTicketableIconUrl(),
             ticketableDescription: $ticketable->description,
-            author: $author ? UserData::fromUser($author)->include('isGone') : null,
 
             // The ticket author is whoever maintained the achievement when the ticket was filed.
             hasMaintainer: $ticketable instanceof Achievement && !$ticket->author->is($ticketable->developer),

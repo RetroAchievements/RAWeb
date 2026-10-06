@@ -28,8 +28,7 @@ describe('Component: TicketPropertiesPanel', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
         leaderboard: null,
-        ticket: createTicketListEntry(),
-        author: createUser({ displayName: 'CoreDev' }),
+        ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
         hasMaintainer: false,
       },
     });
@@ -45,8 +44,7 @@ describe('Component: TicketPropertiesPanel', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
         leaderboard: null,
-        ticket: createTicketListEntry(),
-        author: createUser({ displayName: 'CoreDev' }),
+        ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
         hasMaintainer: true,
       },
     });
@@ -61,7 +59,7 @@ describe('Component: TicketPropertiesPanel', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
         leaderboard: null,
-        ticket: createTicketListEntry(),
+        ticket: createTicketListEntry({ author: null }),
         hasMaintainer: false,
       },
     });

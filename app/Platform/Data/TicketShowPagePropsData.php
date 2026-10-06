@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
-use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -16,9 +15,7 @@ class TicketShowPagePropsData extends Data
         public TicketListEntryData $ticket,
         public ?AchievementData $achievement,
         public ?LeaderboardData $leaderboard,
-        public string $ticketableIconUrl,
         public string $ticketableDescription,
-        public ?UserData $author,
         public bool $hasMaintainer,
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */

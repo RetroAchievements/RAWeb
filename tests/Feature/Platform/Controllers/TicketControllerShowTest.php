@@ -140,7 +140,6 @@ describe('Achievement Ticket Props', function () {
             ->has('ticket.createdAt')
             ->missing('ticket.resolvedAt')
             ->where('ticket.reporter.displayName', $reporter->display_name)
-            ->where('ticket.reporter.id', $reporter->id)
             ->where('ticket.reporter.isGone', false)
             ->where('ticket.author.displayName', $developer->display_name)
             ->missing('ticket.resolver')
@@ -155,7 +154,7 @@ describe('Achievement Ticket Props', function () {
             ->where('achievement.points', $achievement->points)
             ->where('ticketableDescription', 'Complete Level 3 without taking damage')
             ->missing('leaderboard')
-            ->where('ticketableIconUrl', $achievement->badge_url)
+            ->where('ticket.ticketableBadgeUrl', $achievement->badge_url)
             ->has('relatedTickets', 2)
             ->has('relatedTickets.0.createdAt')
             ->where('relatedTickets', fn ($relatedTickets) => collect($relatedTickets)
@@ -171,8 +170,7 @@ describe('Achievement Ticket Props', function () {
             ->where('unlocksSinceReported', 1)
             ->where('reportedTriggerVersion', 1)
             ->where('currentTriggerVersion', 2)
-            ->where('author.displayName', $developer->display_name)
-            ->where('author.isGone', false)
+            ->where('ticket.author.isGone', false)
             ->where('hasMaintainer', false)
             ->missing('reporterLeaderboardEntry')
             ->missing('leaderboardEntryCount')
@@ -198,7 +196,9 @@ describe('Achievement Ticket Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('author.displayName', $maintainer->display_name)
+            ->where('ticket.author.displayName', $maintainer->display_name)
+            ->where('achievement.developer.displayName', $developer->display_name)
+            ->where('achievement.developer.isGone', false)
             ->where('hasMaintainer', true)
         );
     });
@@ -273,9 +273,10 @@ describe('Leaderboard Ticket Props', function () {
             ->where('leaderboard.id', $leaderboard->id)
             ->where('leaderboard.format', 'SCORE')
             ->where('leaderboard.rankAsc', false)
-            ->where('author.displayName', $developer->display_name)
+            ->where('leaderboard.developer.displayName', $developer->display_name)
+            ->where('leaderboard.developer.isGone', false)
             ->where('ticketableDescription', $leaderboard->description)
-            ->where('ticketableIconUrl', $game->badge_url)
+            ->where('ticket.game.badgeUrl', $game->badge_url)
             ->where('reporterLeaderboardEntry.formattedScore', '003850')
             ->where('reporterLeaderboardEntry.rank', 2)
             ->where('leaderboardEntryCount', 2)

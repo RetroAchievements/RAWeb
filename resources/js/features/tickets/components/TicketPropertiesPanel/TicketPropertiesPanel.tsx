@@ -24,12 +24,13 @@ import { TicketLogicVersionLink } from '../TicketLogicVersionLink';
 import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketPropertiesPanel: FC = () => {
-  const { author, hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
+  const { hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const leaderboardFormatLabels = useLeaderboardFormatLabels();
 
+  const author = leaderboard ? (leaderboard.developer ?? null) : ticket.author;
   const resolvedEmulatorName = ticket.emulator?.name ?? t('Unknown');
 
   return (

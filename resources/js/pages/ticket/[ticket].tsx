@@ -9,8 +9,7 @@ import { TicketPropertiesPanel } from '@/features/tickets/components/TicketPrope
 import { useTicketTypeLabels } from '@/features/tickets/hooks/useTicketTypeLabels';
 
 const TicketShow: AppPage = () => {
-  const { ticket, ticketableDescription, ticketableIconUrl } =
-    usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { ticket, ticketableDescription } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const typeLabels = useTicketTypeLabels();
@@ -24,7 +23,7 @@ const TicketShow: AppPage = () => {
           type: typeLabels[ticket.type],
         })}
         description={ticketableDescription}
-        ogImage={ticketableIconUrl}
+        ogImage={ticket.ticketableBadgeUrl ?? ticket.game.badgeUrl}
       />
 
       <AppLayout.Main>

@@ -8,6 +8,7 @@ use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
@@ -44,9 +45,10 @@ class BuildGameHashesPagePropsAction
      */
     private function buildCompatibleHashes(Game $game, ?GameAchievementSet $targetAchievementSet): array
     {
-        $filteredHashes = $this->resolveHashesAction->execute($game, $targetAchievementSet);
-
-        return GameHashData::fromCollection($filteredHashes);
+        return $this->resolveHashesAction->execute($game, $targetAchievementSet)
+            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl'))
+            ->values()
+            ->all();
     }
 
     /**
@@ -54,9 +56,11 @@ class BuildGameHashesPagePropsAction
      */
     private function buildHashesByCompatibility(Game $game, GameHashCompatibility $compatibility): array
     {
-        return GameHashData::fromCollection(
-            $game->hashes->where('compatibility', $compatibility)
-        );
+        return $game->hashes
+            ->where('compatibility', $compatibility)
+            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl'))
+            ->values()
+            ->all();
     }
 
     private function buildTargetAchievementSetData(?GameAchievementSet $targetAchievementSet): ?GameAchievementSetData
