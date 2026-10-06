@@ -363,6 +363,28 @@ describe('Hash Props', function () {
             ->has('patchRequiredHashes', 1)
         );
     });
+
+    it('includes labels and the patch URL for each hash', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievementsForHashes($system, 'Test Game');
+        GameHash::factory()->create([
+            'game_id' => $game->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'labels' => 'nointro,rapatches',
+            'patch_url' => 'https://github.com/RetroAchievements/RAPatches/raw/main/GBA/Translation/Russian/510-CAoS-Russian.zip',
+        ]);
+
+        // ACT
+        $response = get(route('game.hashes.index', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hashes.0.labels.0.label', 'nointro')
+            ->where('hashes.0.labels.1.label', 'rapatches')
+            ->where('hashes.0.patchUrl', 'https://github.com/RetroAchievements/RAPatches/raw/main/GBA/Translation/Russian/510-CAoS-Russian.zip')
+        );
+    });
 });
 
 describe('Permissions Props', function () {

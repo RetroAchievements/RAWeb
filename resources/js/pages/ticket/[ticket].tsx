@@ -24,8 +24,7 @@ const TicketShow: AppPage = () => {
       <SEO
         title={t('Ticket #{{ticketId}}', { ticketId: ticketData.ticket.id })}
         description={ticketData.ticketableDescription}
-        // TODO for leaderboards should be the game icon
-        ogImage={ticketData.ticketableIconUrl}
+        ogImage={ticketData.ticket.ticketableBadgeUrl ?? ticketData.ticket.game.badgeUrl}
       />
 
       <AppLayout.Main>
