@@ -1148,6 +1148,7 @@ ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
 ticketBlockReason: App.Platform.Enums.TicketCreationBlockReason | null;
+hasCasualUnlockFromRestrictedClient: boolean;
 };
 export type ScreenshotUploadConsistency = {
 existingResolutions: Array<{ width: number; height: number }>;
