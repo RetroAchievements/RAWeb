@@ -36,7 +36,7 @@ class UserFactory extends Factory
             'Permissions' => Permissions::Registered,
             'password' => Hash::make('password'),
             'legacy_salted_password' => '',
-            'points_hardcore' => fake()->numberBetween(0, 9999) * 10,
+            'points_hardcore' => fake()->numberBetween(1, 9999) * 10,
             'points' => 0,
             'points_weighted' => 0,
             'yield_unlocks' => 0,
