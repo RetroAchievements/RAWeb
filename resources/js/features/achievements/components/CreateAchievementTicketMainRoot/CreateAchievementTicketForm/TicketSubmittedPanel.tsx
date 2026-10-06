@@ -37,7 +37,7 @@ export const TicketSubmittedPanel: FC<TicketSubmittedPanelProps> = ({ ticketId }
             'A ticket tells the developer about the bug. It does not add the achievement to your profile.',
           )}
         </p>
-        <p>{t('If you earned this achievement, request a manual unlock.')}</p>
+        <p>{t("If you completed this achievement's requirement, request a manual unlock.")}</p>
         <p>
           {t(
             'You need proof: a screenshot of the achievement popup, a video, or a later achievement.',

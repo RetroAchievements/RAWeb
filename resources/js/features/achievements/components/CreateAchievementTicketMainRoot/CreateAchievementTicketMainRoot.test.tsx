@@ -622,7 +622,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     });
   });
 
-  it('given the user selects they had a network problem, shows a link to the Discord and disables the submit button', async () => {
+  it('given the user selects they had a network problem, shows a manual unlock request link and disables the submit button', async () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 14,
@@ -654,7 +654,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/please do not create a ticket for this issue/i)).toBeVisible();
-    expect(screen.getByRole('link', { name: /discord server/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /request manual unlock/i })).toBeVisible();
     expect(route).toHaveBeenCalledWith('message-thread.create', {
       to: 'UnlockTeam',
