@@ -1,10 +1,10 @@
 import { renderHook } from '@/test';
-
-import { useCanManageProgress } from './useCanManageProgress';
 import {
   createAchievement,
   createPlayerAchievementSet,
 } from '@/test/factories';
+
+import { useCanManageProgress } from './useCanManageProgress';
 
 describe('Hook: useCanManageProgress', () => {
   it('given no achievements exist, returns false', () => {

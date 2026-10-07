@@ -71,15 +71,15 @@ export const GameShowMobileRoot: FC = () => {
   const hasBeatenGame =
     !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
 
-  if (!game.badgeUrl || !game.system?.iconUrl) {
-    return null;
-  }
-
   const allPageAchievements = getAllPageAchievements(
     game.gameAchievementSets!,
     targetAchievementSetId,
   );
   const canManageProgress = useCanManageProgress(targetAchievementSetId!, allPageAchievements);
+
+  if (!game.badgeUrl || !game.system?.iconUrl) {
+    return null;
+  }
 
   return (
     <div data-testid="game-mobile" className="flex flex-col gap-3">

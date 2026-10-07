@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-
 import { useCanManageProgress } from '@/features/games/hooks/useCanManageProgress';
+
 import { BeatenProgressIndicator } from './BeatenProgressIndicator';
 import { MasteredProgressIndicator } from './MasteredProgressIndicator';
 import { PlaytimeIndicator } from './PlaytimeIndicator';
@@ -19,12 +19,11 @@ export const GameAchievementSetProgress: FC<GameAchievementSetProgressProps> = (
   const { auth, backingGame, game, isViewingPublishedAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
+  const canShowAwardIndicators = useCanManageProgress(gameAchievementSet.achievementSet.id, achievements) && isViewingPublishedAchievements;
+
   if (!auth?.user) {
     return null;
   }
-
-  const canShowAwardIndicators = isViewingPublishedAchievements &&
-    useCanManageProgress(gameAchievementSet.achievementSet.id, achievements);
 
   return (
     <div className="flex items-center gap-4">
