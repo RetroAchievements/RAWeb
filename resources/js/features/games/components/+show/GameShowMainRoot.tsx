@@ -5,9 +5,9 @@ import { MatureContentWarningDialog } from '@/common/components/MatureContentWar
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useCanManageProgress } from '../../hooks/useCanManageProgress';
 import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
+import { getCanManageProgress } from '../../utils/getCanManageProgress';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
@@ -21,6 +21,7 @@ export const GameShowMainRoot: FC = () => {
     isViewingPublishedAchievements,
     numScreenshots,
     playerGameProgressionAwards,
+    playerAchievementSets,
     screenshots,
     targetAchievementSetId,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -30,15 +31,15 @@ export const GameShowMainRoot: FC = () => {
 
   const currentListView = useAtomValue(currentListViewAtom);
 
+  if (!game.badgeUrl || !game.system?.iconUrl) {
+    return null;
+  }
+
   const allPageAchievements = getAllPageAchievements(
     game.gameAchievementSets!,
     targetAchievementSetId,
   );
-  const canManageProgress = useCanManageProgress(targetAchievementSetId!, allPageAchievements);
-
-  if (!game.badgeUrl || !game.system?.iconUrl) {
-    return null;
-  }
+  const canManageProgress = getCanManageProgress(targetAchievementSetId, allPageAchievements, playerAchievementSets);
 
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">

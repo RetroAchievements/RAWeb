@@ -1,22 +1,17 @@
-import { renderHook } from '@/test';
 import {
   createAchievement,
   createPlayerAchievementSet,
 } from '@/test/factories';
 
-import { useCanManageProgress } from './useCanManageProgress';
+import { getCanManageProgress } from './getCanManageProgress';
 
 describe('Hook: useCanManageProgress', () => {
   it('given no achievements exist, returns false', () => {
     // ARRANGE
-    const { result } = renderHook(() => useCanManageProgress(123, []), {
-      pageProps: {
-        playerAchievementSets: {},
-      },
-    });
+    const result = getCanManageProgress(123, [], {});
 
     // ASSERT
-    expect(result.current.canManageProgress).toEqual(false);
+    expect(result).toEqual(false);
   });
 
   it('given the user has no progress, returns false', () => {
@@ -27,14 +22,10 @@ describe('Hook: useCanManageProgress', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    const { result } = renderHook(() => useCanManageProgress(123, achievements), {
-      pageProps: {
-        playerAchievementSets: {},
-      },
-    });
+    const result = getCanManageProgress(123, achievements, {});
 
     // ASSERT
-    expect(result.current.canManageProgress).toEqual(false);
+    expect(result).toEqual(false);
   });
 
   it('given the user has progress, returns true', () => {
@@ -45,34 +36,42 @@ describe('Hook: useCanManageProgress', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    const { result } = renderHook(() => useCanManageProgress(123, achievements), {
-      pageProps: {
-        playerAchievementSets: {},
-      },
-    });
+    const result = getCanManageProgress(123, achievements, {});
 
     // ASSERT
-    expect(result.current.canManageProgress).toEqual(true);
+    expect(result).toEqual(true);
   });
 
   // simulates a case where a set was demoted.
   // a player should still be able to fully reset the game if they want.
   it('given no achievements exist, but the user has a completion timestamp, returns true', () => {
     // ARRANGE
-    const { result } = renderHook(() => useCanManageProgress(123, []), {
-      pageProps: {
-        playerAchievementSets: {
-          123: createPlayerAchievementSet({
-            completedAt: '2024-05-15T14:30:00.000000Z', // !!
-            completedHardcoreAt: null,
-            timeTaken: 7200,
-            timeTakenHardcore: null,
-          }),
-        },
-      },
+    const result = getCanManageProgress(123, [], {
+      123: createPlayerAchievementSet({
+        completedAt: '2024-05-15T14:30:00.000000Z', // !!
+        completedHardcoreAt: null,
+        timeTaken: 7200,
+        timeTakenHardcore: null,
+      }),
     });
 
     // ASSERT
-    expect(result.current.canManageProgress).toEqual(true);
+    expect(result).toEqual(true);
+  });
+
+  // If a game doesn't have subsets it may not pass an achievement set id through the PageProps
+  it('given no achievements exist and no achievement set id is provided, but the user has a completion timestamp, returns true', () => {
+    // ARRANGE
+    const result = getCanManageProgress(null, [], {
+      123: createPlayerAchievementSet({
+        completedAt: '2024-05-15T14:30:00.000000Z', // !!
+        completedHardcoreAt: null,
+        timeTaken: 7200,
+        timeTakenHardcore: null,
+      }),
+    });
+
+    // ASSERT
+    expect(result).toEqual(true);
   });
 });

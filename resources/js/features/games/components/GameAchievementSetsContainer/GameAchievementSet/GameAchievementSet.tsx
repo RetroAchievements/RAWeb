@@ -12,7 +12,6 @@ import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
 import { useAchievementGrouping } from '@/features/games/hooks/useAchievementGrouping';
-import { useCanManageProgress } from '@/features/games/hooks/useCanManageProgress';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -21,6 +20,7 @@ import {
   userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
+import { getCanManageProgress } from '@/features/games/utils/getCanManageProgress';
 import { UNGROUPED_BUCKET_ID } from '@/features/games/utils/UNGROUPED_BUCKET_ID';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
@@ -40,7 +40,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards, activeEventAchievements } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, playerAchievementSets, numLeaderboards, activeEventAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -109,7 +109,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     disabledLeaderboards.length > 0 &&
     isViewingPublishedAchievements;
 
-  const canShowAwardIndicators = useCanManageProgress(gameAchievementSet.achievementSet.id, achievements);
+  const canShowAwardIndicators = getCanManageProgress(gameAchievementSet.achievementSet.id, achievements, playerAchievementSets);
 
   return (
     <div className="flex flex-col gap-2.5">
