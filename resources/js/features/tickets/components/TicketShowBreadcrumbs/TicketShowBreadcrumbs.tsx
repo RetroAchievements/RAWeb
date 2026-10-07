@@ -13,6 +13,8 @@ import {
 import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 
+import { buildAchievementTicketListHref } from '../../utils/buildAchievementTicketListHref';
+
 interface TicketShowBreadcrumbsProps {
   ticket: App.Platform.Data.TicketListEntry;
 }
@@ -21,6 +23,7 @@ export const TicketShowBreadcrumbs: FC<TicketShowBreadcrumbsProps> = ({ ticket }
   const { t } = useTranslation();
 
   const { game } = ticket;
+  const achievementTicketsHref = buildAchievementTicketListHref(ticket);
   const t_currentTicketCrumb = t('Ticket #{{ticketId}}', { ticketId: ticket.id });
 
   return (
@@ -50,17 +53,11 @@ export const TicketShowBreadcrumbs: FC<TicketShowBreadcrumbsProps> = ({ ticket }
 
           <BaseBreadcrumbSeparator />
 
-          {ticket.ticketableType === 'achievement' ? (
+          {achievementTicketsHref ? (
             <>
               <BaseBreadcrumbItem>
                 <BaseBreadcrumbLink asChild>
-                  <InertiaLink
-                    href={route('achievement.tickets', {
-                      achievement: ticket.ticketableId,
-                      filter: { status: 'all' },
-                    })}
-                    prefetch="desktop-hover-only"
-                  >
+                  <InertiaLink href={achievementTicketsHref} prefetch="desktop-hover-only">
                     {ticket.ticketableTitle}
                   </InertiaLink>
                 </BaseBreadcrumbLink>
