@@ -12,6 +12,7 @@ import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
 import { useAchievementGrouping } from '@/features/games/hooks/useAchievementGrouping';
+import { useCanManageProgress } from '@/features/games/hooks/useCanManageProgress';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -39,7 +40,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, playerAchievementSets, numLeaderboards, activeEventAchievements } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards, activeEventAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -108,8 +109,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     disabledLeaderboards.length > 0 &&
     isViewingPublishedAchievements;
 
-  const playerAchievementSet = playerAchievementSets ? (playerAchievementSets[gameAchievementSet.achievementSet.id] ?? null) : null;
-  const canShowAwardIndicators = (achievements.length || playerAchievementSet?.completedAt);
+  const canShowAwardIndicators = useCanManageProgress(gameAchievementSet.achievementSet.id, achievements);
 
   return (
     <div className="flex flex-col gap-2.5">

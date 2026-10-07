@@ -194,7 +194,7 @@ class ResetPlayerProgressAction
                     ->get();
 
                 foreach ($badges as $badge) {
-                    PlayerBadgeLost::dispatch($badge->user, $badge->award_type, $badge->award_key, $badge->award_tier);
+                    PlayerBadgeLost::dispatch($user, $badge->award_type, $badge->award_key, $badge->award_tier);
                     $badge->delete();
                 }
 

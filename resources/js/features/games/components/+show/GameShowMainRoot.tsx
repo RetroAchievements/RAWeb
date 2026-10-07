@@ -7,6 +7,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
+import { useCanManageProgress } from '../../hooks/useCanManageProgress';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
@@ -26,8 +27,6 @@ export const GameShowMainRoot: FC = () => {
 
   const hasBeatenGame =
     !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
-  const hasCompletedGame =
-    !!playerGameProgressionAwards?.completed || !!playerGameProgressionAwards?.mastered;
 
   const currentListView = useAtomValue(currentListViewAtom);
 
@@ -39,11 +38,12 @@ export const GameShowMainRoot: FC = () => {
     game.gameAchievementSets!,
     targetAchievementSetId,
   );
+  const canManageProgress = useCanManageProgress(targetAchievementSetId!, allPageAchievements);
 
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length || hasCompletedGame ? <ResetAllProgressDialog /> : null}
+      {canManageProgress ? <ResetAllProgressDialog /> : null}
 
       <PlayableMainMedia
         hasAnalogTvOutput={game.system?.hasAnalogTvOutput}

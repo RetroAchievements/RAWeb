@@ -21,6 +21,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import { useCanManageProgress } from '../../hooks/useCanManageProgress';
 import type { GameShowTab } from '../../models';
 import { currentListViewAtom, currentTabAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -69,8 +70,6 @@ export const GameShowMobileRoot: FC = () => {
 
   const hasBeatenGame =
     !!playerGameProgressionAwards?.beatenCasual || !!playerGameProgressionAwards?.beatenHardcore;
-  const hasCompletedGame =
-    !!playerGameProgressionAwards?.completed || !!playerGameProgressionAwards?.mastered;
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -80,13 +79,14 @@ export const GameShowMobileRoot: FC = () => {
     game.gameAchievementSets!,
     targetAchievementSetId,
   );
+  const canManageProgress = useCanManageProgress(targetAchievementSetId!, allPageAchievements);
 
   return (
     <div data-testid="game-mobile" className="flex flex-col gap-3">
       {currentTab === 'achievements' ? <ScrollToTopButton /> : null}
 
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length || hasCompletedGame ? <ResetAllProgressDialog /> : null}
+      {canManageProgress ? <ResetAllProgressDialog /> : null}
 
       <GameMobileHeader />
 
