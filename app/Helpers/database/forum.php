@@ -319,13 +319,15 @@ function submitTopicComment(
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
+function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment, bool $canQueueNotification = true): void
 {
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSegmentedSubscriberIds(SubscriptionSubjectType::ForumTopic, $topic->id, $topic->author_id);
 
     $notificationService = new SubscriptionNotificationService();
-    $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'], SubscriptionSubjectType::ForumTopic, $topic->id, $newComment->id, UserPreference::EmailOn_ForumReply);
+    if ($canQueueNotification) {
+        $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'], SubscriptionSubjectType::ForumTopic, $topic->id, $newComment->id, UserPreference::EmailOn_ForumReply);
+    }
 
     $emailTargets = $notificationService->getEmailTargets(
         array_merge($subscribers['explicitlySubscribed'], $subscribers['implicitlySubscribedNotifyNow']),
@@ -474,38 +476,4 @@ function getRecentForumPosts(
 
             return $post;
         });
-}
-
-function authorizeAllForumPostsForUser(User $user): bool
-{
-    $userUnauthorizedPosts = $user->forumPosts()
-        ->unauthorized()
-        ->with(['forumTopic' => function ($query) {
-            $query->select('id', 'title', 'author_id');
-        }])
-        ->get();
-
-    foreach ($userUnauthorizedPosts as $unauthorizedPost) {
-        if ($unauthorizedPost->forumTopic) {
-            notifyUsersAboutForumActivity(
-                $unauthorizedPost->forumTopic,
-                $user,
-                $unauthorizedPost,
-            );
-        }
-    }
-
-    // Set all unauthorized forum posts by the user to authorized.
-    $postIds = $user->forumPosts()->unauthorized()->pluck('id');
-    $user->forumPosts()->unauthorized()->update([
-        'is_authorized' => 1,
-        'authorized_at' => now(),
-    ]);
-
-    // Re-index the newly authorized posts so they appear in search results.
-    if ($postIds->isNotEmpty()) {
-        ForumTopicComment::whereIn('id', $postIds)->get()->searchable();
-    }
-
-    return true;
 }
