@@ -1664,5 +1664,6 @@
     "The achievement has a bug": "The achievement has a bug",
     "A ticket tells the developer about the bug. It does not add the achievement to your profile.": "A ticket tells the developer about the bug. It does not add the achievement to your profile.",
     "Something else is wrong with the achievement": "Something else is wrong with the achievement",
-    "Related Tickets": "Related Tickets"
+    "Related Tickets": "Related Tickets",
+    "View all {{val, number}} tickets": "View all {{val, number}} tickets"
 }

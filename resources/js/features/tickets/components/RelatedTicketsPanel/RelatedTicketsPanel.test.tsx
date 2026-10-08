@@ -36,15 +36,14 @@ describe('Component: RelatedTicketsPanel', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Related Tickets' })).toBeVisible();
   });
 
-  it('given a mix of open and closed tickets, lists open ones ahead and each state group newest first', () => {
+  it('given related tickets, links each one to its corresponding page', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<RelatedTicketsPanel />, {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-05T12:00:00Z' },
-          { id: 2, state: 'open', resolution: null, createdAt: '2024-01-01T12:00:00Z' },
           { id: 3, state: 'request', resolution: null, createdAt: '2024-03-01T12:00:00Z' },
+          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-05T12:00:00Z' },
           { id: 4, state: 'closed', resolution: 'other', createdAt: '2024-04-01T12:00:00Z' },
         ],
       },
@@ -52,7 +51,11 @@ describe('Component: RelatedTicketsPanel', () => {
 
     // ASSERT
     const orderedLinkTexts = screen.getAllByRole('link').map((linkEl) => linkEl.textContent);
-    expect(orderedLinkTexts).toEqual(['#3', '#2', '#1', '#4']);
+    expect(orderedLinkTexts).toEqual(['#3', '#1', '#4']);
+    expect(screen.getByRole('link', { name: '#3' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('ticket2.show'),
+    );
     expect(route).toHaveBeenCalledWith('ticket2.show', { ticket: 3 });
   });
 
@@ -100,8 +103,9 @@ describe('Component: RelatedTicketsPanel', () => {
 
     // ASSERT
     expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(8);
-    expect(screen.queryByRole('link', { name: '#1' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'See more' })).toHaveAttribute(
+    expect(screen.queryByRole('link', { name: '#9' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '#10' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View all 11 tickets' })).toHaveAttribute(
       'href',
       expect.stringContaining('achievement.tickets'),
     );
@@ -111,7 +115,7 @@ describe('Component: RelatedTicketsPanel', () => {
     });
   });
 
-  it('given exactly eight tickets, lists them all without a see more link', () => {
+  it('given exactly eight tickets, lists them all without a view all link', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<RelatedTicketsPanel />, {
       pageProps: {
@@ -131,11 +135,11 @@ describe('Component: RelatedTicketsPanel', () => {
 
     // ASSERT
     expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(8);
-    expect(screen.queryByRole('link', { name: 'See more' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view all/i })).not.toBeInTheDocument();
   });
 
   // FIXME in a subsequent change
-  it('given nine tickets on a leaderboard, caps the list at eight without a see more link', () => {
+  it('given nine tickets on a leaderboard, caps the list at eight without a view all link', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<RelatedTicketsPanel />, {
       pageProps: {
@@ -156,6 +160,6 @@ describe('Component: RelatedTicketsPanel', () => {
 
     // ASSERT
     expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(8);
-    expect(screen.queryByRole('link', { name: 'See more' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view all/i })).not.toBeInTheDocument();
   });
 });

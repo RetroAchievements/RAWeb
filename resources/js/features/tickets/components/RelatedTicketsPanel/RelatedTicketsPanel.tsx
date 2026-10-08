@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -13,7 +12,6 @@ import {
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { getIsTicketStateOpen } from '@/common/utils/getIsTicketStateOpen';
 
 import { useTicketResolutionLabels } from '../../hooks/useTicketResolutionLabels';
 import { buildAchievementTicketListHref } from '../../utils/buildAchievementTicketListHref';
@@ -28,23 +26,14 @@ export const RelatedTicketsPanel: FC = () => {
 
   const resolutionLabels = useTicketResolutionLabels();
 
-  // Open tickets should sort ahead of everything else.
-  const prioritizedTickets = [...relatedTickets].sort((a, b) => {
-    const openBeforeResolved =
-      Number(getIsTicketStateOpen(b.state)) - Number(getIsTicketStateOpen(a.state));
-
-    if (openBeforeResolved !== 0) {
-      return openBeforeResolved;
-    }
-
-    return dayjs(b.createdAt).diff(a.createdAt);
-  });
-  const listedTickets = prioritizedTickets.slice(0, MAX_VISIBLE_RELATED_TICKETS);
+  const listedTickets = relatedTickets.slice(0, MAX_VISIBLE_RELATED_TICKETS);
 
   const seeAllTicketsHref =
     relatedTickets.length > MAX_VISIBLE_RELATED_TICKETS
       ? buildAchievementTicketListHref(ticket)
       : null;
+
+  const allTicketsCount = relatedTickets.length + 1; // also includes the ticket being viewed
 
   return (
     <section>
@@ -95,13 +84,9 @@ export const RelatedTicketsPanel: FC = () => {
         </BaseTable>
 
         {seeAllTicketsHref ? (
-          <div className="flex w-full justify-end">
-            <InertiaLink
-              href={seeAllTicketsHref}
-              className="text-2xs"
-              prefetch="desktop-hover-only"
-            >
-              {t('See more')}
+          <div className="flex justify-center p-1">
+            <InertiaLink href={seeAllTicketsHref} className="text-xs" prefetch="desktop-hover-only">
+              {t('View all {{val, number}} tickets', { val: allTicketsCount })}
             </InertiaLink>
           </div>
         ) : null}
