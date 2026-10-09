@@ -56,7 +56,7 @@ class BuildTicketShowPagePropsAction
             ticketableDescription: $ticketable->description,
 
             // The ticket author is whoever maintained the achievement when the ticket was filed.
-            hasMaintainer: $ticketable instanceof Achievement && !$ticket->author?->is($ticketable->developer),
+            hasMaintainer: $ticketable instanceof Achievement && !$ticket->author->is($ticketable->developer),
 
             can: UserPermissionsData::fromUser($user, triggerable: $ticketable)->include('viewAchievementLogic'),
 

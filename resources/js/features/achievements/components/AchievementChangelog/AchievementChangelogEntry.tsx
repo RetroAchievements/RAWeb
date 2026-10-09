@@ -11,6 +11,7 @@ import {
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildAchievementLogicHref } from '@/common/utils/buildAchievementLogicHref';
 import { cn } from '@/common/utils/cn';
 
 import { FIELD_LEVEL_TRACKING_CUTOFF } from '../../utils/fieldLevelTrackingCutoff';
@@ -157,7 +158,7 @@ function buildLogicHref(
     return null;
   }
 
-  return `/manage/achievements/${achievementId}/logic?version=${entry.triggerVersion}`;
+  return buildAchievementLogicHref(achievementId, entry.triggerVersion);
 }
 
 function getDotColor(type: EntryType, isCreatedAsPromoted?: boolean): string {

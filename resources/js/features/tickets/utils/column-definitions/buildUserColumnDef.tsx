@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { cn } from '@/common/utils/cn';
+import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
 import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketListColumnDefinition } from '../../models';
@@ -33,7 +34,7 @@ export function buildUserColumnDef({
       <UserCell
         user={getUser(row.original)}
         shouldHideWhenUserIsMissing={
-          id === 'resolver' && row.original.state !== 'closed' && row.original.state !== 'resolved'
+          id === 'resolver' && !getIsTicketStateFinished(row.original.state)
         }
       />
     ),

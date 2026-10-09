@@ -139,7 +139,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         @else
                             v{{ $reportedTriggerVersion }}
                         @endcan
-                        @if ($currentTriggerVersion !== null)<span>(now v{{ $currentTriggerVersion }})</span>@endif
+                        @if ($currentTriggerVersion !== null && $currentTriggerVersion !== $reportedTriggerVersion)<span>(now v{{ $currentTriggerVersion }})</span>@endif
                     </x-ticket.stat-element>
                 @endif
                 <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Casual" }}</x-ticket.stat-element>
