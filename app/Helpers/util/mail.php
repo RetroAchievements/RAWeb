@@ -135,7 +135,7 @@ function informAllSubscribersAboutActivity(
             if ($comment->user->created_at->diffInDays() >= 1
                 && ($comment->user->playerSessions()->where('duration', '>', 5)->exists()
                     || $comment->user->playerAchievementSets()->where('time_taken', '>', 5)->exists())) {
-                $payload = nl2br($comment->body);
+                $payload = $comment->body;
             }
         }
     }
