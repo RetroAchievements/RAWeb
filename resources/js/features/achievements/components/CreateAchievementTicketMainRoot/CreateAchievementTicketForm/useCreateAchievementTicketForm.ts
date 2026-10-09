@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useCreateTicketMutation } from '@/features/achievements/hooks/mutations/useCreateTicketMutation';
+import { shouldTicketTypeOfferManualUnlock } from '@/features/achievements/utils/shouldTicketTypeOfferManualUnlock';
 
 const createAchievementTicketFormSchema = z.object({
   /** @see TicketType.php */
@@ -38,13 +39,15 @@ export function useCreateAchievementTicketForm(
   const mutation = useCreateTicketMutation();
 
   const onSubmit = async (formValues: CreateAchievementTicketFormValues) => {
+    const ticketType = getTicketTypeFromIssue(formValues.issue);
+
     toastMessage.promise(
       mutation.mutateAsync({
         payload: {
           ticketableModel: 'achievement',
           ticketableId: achievement.id,
           mode: formValues.mode,
-          issue: getTicketTypeFromIssue(formValues.issue),
+          issue: ticketType,
           description: formValues.description,
           emulator: formValues.emulator,
           emulatorVersion: formValues.emulatorVersion?.trim() ? formValues.emulatorVersion : null,
@@ -56,13 +59,15 @@ export function useCreateAchievementTicketForm(
       {
         loading: t('Submitting...'),
         success: (submitResponse) => {
-          setTimeout(() => {
-            const { ticketId } = submitResponse.data;
+          if (!shouldTicketTypeOfferManualUnlock(ticketType)) {
+            setTimeout(() => {
+              const { ticketId } = submitResponse.data;
 
-            // TODO use router.visit after migrating this page to React
-            // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional. Eventually when ticket.show is powered by Inertia, this can be changed.
-            window.location.href = route('ticket.show', { ticket: ticketId });
-          }, 1000);
+              // TODO use router.visit after migrating this page to React
+              // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional. Eventually when ticket.show is powered by Inertia, this can be changed.
+              window.location.href = route('ticket.show', { ticket: ticketId });
+            }, 1000);
+          }
 
           return t('Submitted!');
         },
