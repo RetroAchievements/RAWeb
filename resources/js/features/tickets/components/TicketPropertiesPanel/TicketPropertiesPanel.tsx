@@ -12,6 +12,7 @@ import {
 import {
   BaseTooltip,
   BaseTooltipContent,
+  BaseTooltipPortal,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { InertiaLink } from '@/common/components/InertiaLink';
@@ -63,12 +64,16 @@ export const TicketPropertiesPanel: FC = () => {
                     </span>
                   </BaseTooltipTrigger>
 
-                  <BaseTooltipContent>
-                    {ticket.gameHash.name ?? ticket.gameHash.md5}
-                  </BaseTooltipContent>
+                  <BaseTooltipPortal>
+                    <BaseTooltipContent>
+                      {ticket.gameHash.name ?? ticket.gameHash.md5}
+                    </BaseTooltipContent>
+                  </BaseTooltipPortal>
                 </BaseTooltip>
 
-                <span className="font-mono text-2xs text-neutral-500">{ticket.gameHash.md5}</span>
+                <span className="font-mono text-2xs break-all text-neutral-500">
+                  {ticket.gameHash.md5}
+                </span>
               </span>
             ) : (
               t('Unknown')
@@ -125,11 +130,14 @@ interface PropertyRowProps {
 const PropertyRow: FC<PropertyRowProps> = ({ children, t_label }) => {
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
+      <BaseTableHead
+        scope="row"
+        className="h-auto text-right align-top whitespace-nowrap text-text"
+      >
         {t_label}
       </BaseTableHead>
 
-      <BaseTableCell className="break-all">{children}</BaseTableCell>
+      <BaseTableCell className="wrap-break-word">{children}</BaseTableCell>
     </BaseTableRow>
   );
 };
