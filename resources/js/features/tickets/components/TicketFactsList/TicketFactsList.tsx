@@ -81,7 +81,9 @@ export const TicketFactsList: FC = () => {
 
       {ticket.state === 'resolved' && isViewerReporter ? (
         <TicketFactRow Icon={LuInfo}>
-          {t('If the achievement still does not work for you, you can open a new ticket.')}
+          {ticket.ticketableType === 'leaderboard'
+            ? t('If the leaderboard still does not work for you, you can open a new ticket.')
+            : t('If the achievement still does not work for you, you can open a new ticket.')}
         </TicketFactRow>
       ) : null}
 

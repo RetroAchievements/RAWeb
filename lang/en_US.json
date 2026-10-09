@@ -1690,6 +1690,7 @@
     "<2>{{user}}</2> unlocked this achievement in casual mode <3>{{duration}}</3> after the report.": "<2>{{user}}</2> unlocked this achievement in casual mode <3>{{duration}}</3> after the report.",
     "<2>{{user}}</2> unlocked this achievement in casual mode <3>{{duration}}</3> before the report.": "<2>{{user}}</2> unlocked this achievement in casual mode <3>{{duration}}</3> before the report.",
     "If the achievement still does not work for you, you can open a new ticket.": "If the achievement still does not work for you, you can open a new ticket.",
+    "If the leaderboard still does not work for you, you can open a new ticket.": "If the leaderboard still does not work for you, you can open a new ticket.",
     "This achievement has no other tickets.": "This achievement has no other tickets.",
     "This leaderboard has no other tickets.": "This leaderboard has no other tickets.",
     "The logic changed from <1>v{{reportedVersion}}</1> to <2>v{{currentVersion}}</2> after the report.": "The logic changed from <1>v{{reportedVersion}}</1> to <2>v{{currentVersion}}</2> after the report.",

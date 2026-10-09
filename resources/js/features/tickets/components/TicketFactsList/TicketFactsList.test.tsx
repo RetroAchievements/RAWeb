@@ -128,28 +128,32 @@ describe('Component: TicketFactsList', () => {
     );
   });
 
-  it('given a resolved ticket and a viewer who is the reporter, says they can still open a new ticket', () => {
-    // ARRANGE
-    const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
-      pageProps: {
-        can: {},
-        relatedTickets: [],
-        isViewerReporter: true,
-        ticket: createTicketListEntry({
-          state: 'resolved',
-          ticketableType: 'achievement',
-          resolvedAt: '2024-05-03T12:00:00Z',
-          resolver: createUser({ displayName: 'Scott' }),
-          reporter: createUser({ displayName: 'Reporter' }),
-        }),
-      },
-    });
+  it.each([
+    ['achievement', 'If the achievement still does not work for you, you can open a new ticket.'],
+    ['leaderboard', 'If the leaderboard still does not work for you, you can open a new ticket.'],
+  ] as const)(
+    'given a resolved %s ticket and a viewer who is the reporter, says they can still open a new ticket',
+    (ticketableType, expectedSentence) => {
+      // ARRANGE
+      const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+        pageProps: {
+          can: {},
+          relatedTickets: [],
+          isViewerReporter: true,
+          ticket: createTicketListEntry({
+            state: 'resolved',
+            ticketableType,
+            resolvedAt: '2024-05-03T12:00:00Z',
+            resolver: createUser({ displayName: 'Scott' }),
+            reporter: createUser({ displayName: 'Reporter' }),
+          }),
+        },
+      });
 
-    // ASSERT
-    expect(container).toHaveTextContent(
-      'If the achievement still does not work for you, you can open a new ticket.',
-    );
-  });
+      // ASSERT
+      expect(container).toHaveTextContent(expectedSentence);
+    },
+  );
 
   it.each([
     ['resolved', false],
