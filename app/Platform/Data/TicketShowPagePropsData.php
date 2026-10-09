@@ -17,6 +17,7 @@ class TicketShowPagePropsData extends Data
         public ?LeaderboardData $leaderboard,
         public string $ticketableDescription,
         public bool $hasMaintainer,
+        public bool $isViewerReporter,
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,

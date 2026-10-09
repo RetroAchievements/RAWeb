@@ -1,15 +1,10 @@
 import type { FC } from 'react';
 
-import {
-  BaseTooltip,
-  BaseTooltipContent,
-  BaseTooltipTrigger,
-} from '@/common/components/+vendor/BaseTooltip';
-import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 import type { TranslatedString } from '@/types/i18next';
 
+import { TicketDateTooltip } from '../../components/TicketDateTooltip';
 import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
@@ -38,9 +33,7 @@ interface DateCellProps {
   date: string | null;
 }
 
-// TODO extract to common when something like this is needed later
 const DateCell: FC<DateCellProps> = ({ date }) => {
-  const { formatDate } = useFormatDate();
   const { diffForHumans } = useDiffForHumans();
 
   if (!date) {
@@ -48,17 +41,11 @@ const DateCell: FC<DateCellProps> = ({ date }) => {
   }
 
   return (
-    <BaseTooltip>
-      <BaseTooltipTrigger asChild>
-        <span
-          className={cn(ticketListCellClassNames.dimText, 'relative z-10 block truncate')}
-          suppressHydrationWarning={true}
-        >
-          {diffForHumans(date, { style: 'narrow' })}
-        </span>
-      </BaseTooltipTrigger>
-
-      <BaseTooltipContent>{formatDate(date, 'lll')}</BaseTooltipContent>
-    </BaseTooltip>
+    <TicketDateTooltip
+      date={date}
+      className={cn(ticketListCellClassNames.dimText, 'relative z-10 block truncate')}
+    >
+      {diffForHumans(date, { style: 'narrow' })}
+    </TicketDateTooltip>
   );
 };
