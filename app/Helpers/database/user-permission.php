@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\ApproveUserForumPostsAction;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
@@ -111,11 +112,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
     }
 
     // This user is not a spam user. Authorize all their posts and set their account to verified.
-    $targetUser->ManuallyVerified = 1;
-    $targetUser->forum_verified_at = now();
-    $targetUser->saveQuietly();
-
-    authorizeAllForumPostsForUser($targetUser);
+    (new ApproveUserForumPostsAction())->execute($targetUser);
 
     addArticleComment('Server', CommentableType::UserModeration, $targetUser->id,
         $sourceUser->display_name . ' authorized user\'s forum posts'
