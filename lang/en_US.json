@@ -1666,5 +1666,7 @@
     "I earned this achievement in hardcore mode, but my profile shows only the casual unlock": "I earned this achievement in hardcore mode, but my profile shows only the casual unlock",
     "The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator and core.": "The emulator or core that recorded your unlock does not allow hardcore unlocks, so the site recorded it as casual. We cannot change it to hardcore. To earn hardcore unlocks, use a supported, up-to-date emulator and core.",
     "The achievement has a bug": "The achievement has a bug",
+    "Related Tickets": "Related Tickets",
+    "View all {{val, number}} tickets": "View all {{val, number}} tickets",
     "Something else is wrong with the achievement": "Something else is wrong with the achievement"
 }
