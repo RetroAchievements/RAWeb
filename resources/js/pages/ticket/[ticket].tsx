@@ -4,36 +4,39 @@ import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
+import { TicketShowRoot } from '@/features/tickets/components/+show';
+import { TicketPropertiesPanel } from '@/features/tickets/components/TicketPropertiesPanel';
+import { useTicketTypeLabels } from '@/features/tickets/hooks/useTicketTypeLabels';
 
 const TicketShow: AppPage = () => {
-  // Do a pick for `ticketData`. We're just going to dump it to the screen for now.
-  const {
-    auth: _auth,
-    config: _config,
-    csrfToken: _csrfToken,
-    errors: _errors,
-    flash: _flash,
-    metaKey: _metaKey,
-    ziggy: _ziggy,
-    ...ticketData
-  } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { ticket, ticketableDescription } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
+
+  const typeLabels = useTicketTypeLabels();
 
   return (
     <>
       <SEO
-        title={t('Ticket #{{ticketId}}', { ticketId: ticketData.ticket.id })}
-        description={ticketData.ticketableDescription}
-        ogImage={ticketData.ticket.ticketableBadgeUrl ?? ticketData.ticket.game.badgeUrl}
+        title={t('Ticket {{ticketId}}: {{title}} ({{type}})', {
+          ticketId: ticket.id,
+          title: ticket.ticketableTitle,
+          type: typeLabels[ticket.type],
+        })}
+        description={ticketableDescription}
+        ogImage={ticket.ticketableBadgeUrl ?? ticket.game.badgeUrl}
       />
 
       <AppLayout.Main>
-        <pre className="overflow-x-auto text-2xs">{JSON.stringify(ticketData, null, 2)}</pre>
+        <TicketShowRoot />
       </AppLayout.Main>
+
+      <AppLayout.Sidebar>
+        <TicketPropertiesPanel />
+      </AppLayout.Sidebar>
     </>
   );
 };
 
-TicketShow.layout = (pageContent) => <AppLayout withSidebar={false}>{pageContent}</AppLayout>;
+TicketShow.layout = (page) => <AppLayout withSidebar={true}>{page}</AppLayout>;
 
 export default TicketShow;
