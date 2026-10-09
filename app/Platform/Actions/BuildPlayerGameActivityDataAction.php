@@ -74,7 +74,9 @@ class BuildPlayerGameActivityDataAction
                     );
                 }
 
-                return PlayerGameActivityEventData::from($event);
+                return PlayerGameActivityEventData::from($event)->include(
+                    'unlocker.isGone',
+                );
             }, $events);
 
             $parsedUserAgent = isset($session['userAgent']) && is_string($session['userAgent'])
