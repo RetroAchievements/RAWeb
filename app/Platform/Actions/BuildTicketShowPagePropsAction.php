@@ -21,7 +21,7 @@ use App\Platform\Services\TicketViewService;
 
 class BuildTicketShowPagePropsAction
 {
-    public function execute(Ticket $ticket, ?User $user): TicketShowPagePropsData
+    public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
     {
         $ticketViewService = new TicketViewService();
         $ticketViewService->load($ticket);
@@ -58,6 +58,8 @@ class BuildTicketShowPagePropsAction
             // The ticket author is whoever maintained the achievement when the ticket was filed.
             hasMaintainer: $ticketable instanceof Achievement && !$ticket->author->is($ticketable->developer),
 
+            isViewerReporter: $user->is($ticket->reporter),
+
             can: UserPermissionsData::fromUser($user, triggerable: $ticketable)->include('viewAchievementLogic'),
 
             relatedTickets: array_map(
@@ -83,10 +85,10 @@ class BuildTicketShowPagePropsAction
     /**
      * Only roles allowed to see player history receive it in page props.
      */
-    private function buildReporterUnlock(TicketViewService $ticketViewService, ?User $user): ?TicketReporterUnlockData
+    private function buildReporterUnlock(TicketViewService $ticketViewService, User $user): ?TicketReporterUnlockData
     {
         $unlock = $ticketViewService->existingUnlock;
-        if (!$unlock || !$user?->canAny(['manage', 'viewHistory'], Ticket::class)) {
+        if (!$unlock || !$user->canAny(['manage', 'viewHistory'], Ticket::class)) {
             return null;
         }
 
