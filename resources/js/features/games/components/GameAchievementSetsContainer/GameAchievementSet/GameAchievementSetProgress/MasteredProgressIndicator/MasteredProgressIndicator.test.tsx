@@ -427,6 +427,50 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(container).toBeTruthy();
   });
 
+  it('given the user completed the set before it was demoted, displays a Manage progress button', async () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 456 }),
+    });
+
+    const { container } = render(
+      <MasteredProgressIndicator
+        achievements={[]} // !! no promoted achievements
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            456: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z', // !!
+              completedHardcoreAt: null,
+              timeTaken: 7200, // !!
+              timeTakenHardcore: null,
+            }),
+          },
+          playerGame: { achievementsUnlocked: 0 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('0%'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
+    });
+
+    await userEvent.click(screen.getAllByRole('button', { name: /manage progress/i })[0]);
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
   it('given the user has a mastery award, shows amber color styling', () => {
     // ARRANGE
     const achievements = [

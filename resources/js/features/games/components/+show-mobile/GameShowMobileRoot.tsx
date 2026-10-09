@@ -24,6 +24,7 @@ import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import type { GameShowTab } from '../../models';
 import { currentListViewAtom, currentTabAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
+import { getCanManageProgress } from '../../utils/getCanManageProgress';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { CommentsPreviewCard } from '../CommentsPreviewCard';
@@ -51,6 +52,7 @@ export const GameShowMobileRoot: FC = () => {
     numMasters,
     numScreenshots,
     playerAchievementChartBuckets,
+    playerAchievementSets,
     playerGame,
     playerGameProgressionAwards,
     screenshots,
@@ -78,13 +80,14 @@ export const GameShowMobileRoot: FC = () => {
     game.gameAchievementSets!,
     targetAchievementSetId,
   );
+  const canManageProgress = getCanManageProgress(targetAchievementSetId, allPageAchievements, playerAchievementSets);
 
   return (
     <div data-testid="game-mobile" className="flex flex-col gap-3">
       {currentTab === 'achievements' ? <ScrollToTopButton /> : null}
 
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
+      {canManageProgress ? <ResetAllProgressDialog /> : null}
 
       <GameMobileHeader />
 
