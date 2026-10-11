@@ -450,4 +450,31 @@ describe('Comment Props', function () {
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page->where('can.createTicketComments', false));
     });
+
+    it('given a comment that was posted by a now-banned user, a regular viewer can still see it', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create(['banned_at' => now()])->id,
+            'body' => 'The save state is attached.',
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('comments', 1)
+            ->where('comments.0.payload', 'The save state is attached.')
+        );
+    });
 });
