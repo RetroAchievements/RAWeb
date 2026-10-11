@@ -46,6 +46,22 @@ enum TicketResolution: string
     }
 
     /**
+     * Reverses closeReasonText() for the reason in a stored closing comment.
+     */
+    public static function fromCloseReasonText(string $reasonText): ?self
+    {
+        $reasonText = trim($reasonText);
+
+        foreach (self::cases() as $resolution) {
+            if ($resolution->closeReasonText() === $reasonText) {
+                return $resolution;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Builds the Server comment written when a ticket closes.
      */
     public function closeCommentBody(string $closerName): string

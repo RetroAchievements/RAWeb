@@ -438,6 +438,7 @@ createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createOAuthClients?: boolean;
 createTicket?: boolean;
+createTicketComments?: boolean;
 createUserBetaFeedbackSubmission?: boolean;
 createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
@@ -1279,6 +1280,8 @@ reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;
 reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
 leaderboardEntryCount: number | null;
+reportBody: string | null;
+comments: Array<App.Community.Data.Comment>;
 };
 export type UserCredits = {
 displayName: string;

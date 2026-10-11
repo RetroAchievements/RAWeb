@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
+use App\Models\Comment;
 use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -385,5 +387,67 @@ describe('Reporter Unlock Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->where('reporterUnlock.unlocker.displayName', $awarder->display_name)
         );
+    });
+});
+
+describe('Comment Props', function () {
+    it('given a ticket with comments, includes the data as props', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $commenter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'body' => "It never unlocks.\nI tried twice.",
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $commenter->id,
+            'body' => 'Second comment.',
+            'created_at' => Carbon::parse('2024-05-02 00:00:00'),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $commenter->id,
+            'body' => 'First comment.',
+            'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        ]);
+
+        actingAs($reporter);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('reportBody', "It never unlocks.\nI tried twice.")
+            ->has('comments', 2)
+            ->where('comments.0.payload', 'First comment.')
+            ->where('comments.1.payload', 'Second comment.')
+            ->where('can.createTicketComments', true)
+        );
+    });
+
+    it('given the user is muted, they cannot comment on the ticket', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+
+        actingAs(User::factory()->create(['muted_until' => now()->addWeek()]));
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('can.createTicketComments', false));
     });
 });

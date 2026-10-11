@@ -185,7 +185,7 @@ it('given ticket activity and a user wall comment, then the subject leads with t
     // Arrange
     $items = [
         digestItemForSubjectTest(SubscriptionSubjectType::UserWall->value),
-        digestItemForSubjectTest(SubscriptionSubjectType::AchievementTicket->value),
+        digestItemForSubjectTest(SubscriptionSubjectType::Ticket->value),
     ];
 
     // Act

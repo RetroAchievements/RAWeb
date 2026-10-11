@@ -76,7 +76,7 @@ function buildPostRoute({
   const commentableTypeRouteMap: Record<App.Community.Enums.CommentableType, string> = {
     'achievement.comment': route('api.achievement.comment.store', { achievement: commentableId }),
 
-    'trigger.ticket.comment': 'TODO',
+    'trigger.ticket.comment': route('api.ticket.comment.store', { ticket: commentableId }),
 
     'forum-topic-comment': 'TODO',
 
