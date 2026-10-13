@@ -802,8 +802,8 @@ export type GameHash = {
 id: number;
 md5: string;
 name: string | null;
-labels: Array<App.Platform.Data.GameHashLabel>;
-patchUrl: string | null;
+labels?: Array<App.Platform.Data.GameHashLabel>;
+patchUrl?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {
@@ -1009,6 +1009,7 @@ topEntry?: App.Platform.Data.LeaderboardEntry | null;
 userEntry?: App.Platform.Data.LeaderboardEntry | null;
 rankAsc?: boolean | null;
 state?: App.Platform.Enums.LeaderboardState | null;
+developer?: App.Data.User | null;
 };
 export type LeaderboardEntry = {
 id: number;
@@ -1251,6 +1252,32 @@ resolved: number;
 closed: number;
 quarantined: number;
 all: number;
+};
+export type TicketRelatedEntry = {
+id: number;
+state: App.Community.Enums.TicketState;
+resolution: App.Community.Enums.TicketResolution | null;
+createdAt: string;
+};
+export type TicketReporterUnlock = {
+unlockedAt: string;
+isHardcore: boolean;
+unlocker: App.Data.User | null;
+};
+export type TicketShowPageProps = {
+ticket: App.Platform.Data.TicketListEntry;
+achievement: App.Platform.Data.Achievement | null;
+leaderboard: App.Platform.Data.Leaderboard | null;
+ticketableDescription: string;
+hasMaintainer: boolean;
+can: App.Data.UserPermissions;
+relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
+unlocksSinceReported: number | null;
+reportedTriggerVersion: number | null;
+currentTriggerVersion: number | null;
+reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
+leaderboardEntryCount: number | null;
 };
 export type UserCredits = {
 displayName: string;

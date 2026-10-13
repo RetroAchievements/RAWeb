@@ -6,9 +6,9 @@ import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrum
 import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { buildStructuredMessage } from '@/features/achievements/utils/buildStructuredMessage';
 
 import { BugReportSection } from './BugReportSection';
-import { buildStructuredMessage } from './buildStructuredMessage';
 import { MissingUnlockSection } from './MissingUnlockSection';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { ReportIssueSection } from './ReportIssueSection';
