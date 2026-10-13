@@ -63,6 +63,22 @@ const Terms: AppPage = () => {
                     }}
                   />
                 </p>
+                <p>
+                  {t(
+                    'We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.',
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="mb-0 border-b-0 text-lg font-medium">
+                  {t('Limitation of liability')}
+                </h3>
+                <p>
+                  {t(
+                    'We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.',
+                  )}
+                </p>
               </div>
             </div>
           </div>

@@ -262,7 +262,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     @if ($existingUnlock)
                         @php $unlockedAt = $existingUnlock->unlocked_hardcore_at ?? $existingUnlock->unlocked_at; @endphp
                         @if ($existingUnlock->unlocker_id)
-                            <span>Manually unlocked by {!! userAvatar(User::firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
+                            <span>Manually unlocked by {!! userAvatar(User::withTrashed()->firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
                         @else
                             {{ $ticket->reporter->display_name }} earned this achievement at
                             {{ getNiceDate($unlockedAt->unix()) }}

@@ -174,7 +174,7 @@ class PlayerGameActivityService
         $unlockerIds = $playerAchievements->pluck('unlocker_id')->filter()->unique();
         $unlockers = [];
         if ($unlockerIds->isNotEmpty()) {
-            $unlockers = User::whereIn('id', $unlockerIds)->get()->keyBy('id');
+            $unlockers = User::withTrashed()->whereIn('id', $unlockerIds)->get()->keyBy('id');
         }
 
         foreach ($playerAchievements as $playerAchievement) {
