@@ -52,40 +52,6 @@ describe('Component: TicketShowRoot', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Comments' })).toBeVisible();
   });
 
-  it('displays the report body', () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
-      pageProps: {
-        can: {},
-        comments: [],
-        relatedTickets: [],
-        reportBody: 'It never unlocks.',
-        achievement: createAchievement(),
-        ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('heading', { level: 2, name: 'Report' })).toBeVisible();
-    expect(screen.getByText('It never unlocks.')).toBeVisible();
-  });
-
-  it('given the ticket has no report body, does not crash', () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
-      pageProps: {
-        can: {},
-        comments: [],
-        relatedTickets: [],
-        achievement: createAchievement(),
-        ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByRole('heading', { level: 2, name: 'Report' })).not.toBeInTheDocument();
-  });
-
   it('given a leaderboard ticket, displays the leaderboard header', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {

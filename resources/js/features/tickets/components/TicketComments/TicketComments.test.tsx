@@ -58,6 +58,41 @@ describe('Component: TicketComments', () => {
     expect(screen.getByText('No comments yet.')).toBeVisible();
   });
 
+  it('given the ticket has a report body but no comments, does not show the comments component empty state', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [],
+        reportBody: 'It never unlocks.',
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('article', { name: 'Report' })).toBeVisible();
+    expect(screen.queryByText('No comments yet.')).not.toBeInTheDocument();
+  });
+
+  it('given the ticket has a report body, shows the report before the first comment', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [createComment({ id: 1, payload: 'First comment.' })],
+        reportBody: 'It never unlocks.',
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    const report = screen.getByRole('article', { name: 'Report' });
+    const firstComment = screen.getByRole('listitem');
+
+    expect(report).toHaveTextContent('It never unlocks.');
+    expect(report.compareDocumentPosition(firstComment)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it('given the user cannot comment, does not let them', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
