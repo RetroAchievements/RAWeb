@@ -1668,5 +1668,8 @@
     "The achievement has a bug": "The achievement has a bug",
     "Related Tickets": "Related Tickets",
     "View all {{val, number}} tickets": "View all {{val, number}} tickets",
-    "Something else is wrong with the achievement": "Something else is wrong with the achievement"
+    "Something else is wrong with the achievement": "Something else is wrong with the achievement",
+    "Limitation of liability": "Limitation of liability",
+    "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.": "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.",
+    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct."
 }
