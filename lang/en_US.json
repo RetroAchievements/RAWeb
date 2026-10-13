@@ -1705,6 +1705,9 @@
     "leaderboardOtherOpenTickets_zero": "This leaderboard has no other open tickets.",
     "leaderboardOtherOpenTickets_one": "This leaderboard has <1>{{count, number}} other open ticket</1>.",
     "leaderboardOtherOpenTickets_other": "This leaderboard has <1>{{count, number}} other open tickets</1>.",
-    "otherClosedTickets_one": "It has <1>{{count, number}} other closed ticket</1>.",
-    "otherClosedTickets_other": "It has <1>{{count, number}} other closed tickets</1>."
+    "otherResolvedTickets_one": "It has <1>{{count, number}} other resolved ticket</1>.",
+    "otherResolvedTickets_other": "It has <1>{{count, number}} other resolved tickets</1>.",
+    "Limitation of liability": "Limitation of liability",
+    "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.": "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.",
+    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct."
 }

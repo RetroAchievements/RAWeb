@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
 import { getIsTicketStateOpen } from '@/common/utils/getIsTicketStateOpen';
 
 import { buildAchievementTicketListHref } from '../../utils/buildAchievementTicketListHref';
@@ -26,13 +25,14 @@ export const TicketRelatedFact: FC<RelatedFactProps> = ({ relatedTickets, ticket
   const unresolvedCount = relatedTickets.filter((relatedTicket) =>
     getIsTicketStateOpen(relatedTicket.state),
   ).length;
-  const finishedCount = relatedTickets.filter((relatedTicket) =>
-    getIsTicketStateFinished(relatedTicket.state),
+
+  const resolvedCount = relatedTickets.filter(
+    (relatedTicket) => relatedTicket.state === 'resolved',
   ).length;
 
   // TODO point these counts at the leaderboard's ticket list once one exists
   const unresolvedListHref = buildAchievementTicketListHref(ticket, 'unresolved');
-  const allTicketsListHref = buildAchievementTicketListHref(ticket, 'all');
+  const resolvedListHref = buildAchievementTicketListHref(ticket, 'resolved');
 
   return (
     <>
@@ -45,14 +45,14 @@ export const TicketRelatedFact: FC<RelatedFactProps> = ({ relatedTickets, ticket
         components={{ 1: unresolvedListHref ? <a href={unresolvedListHref} /> : <span /> }}
       />
 
-      {finishedCount ? (
+      {resolvedCount ? (
         <>
           {' '}
           <Trans
-            i18nKey="otherClosedTickets"
-            count={finishedCount}
+            i18nKey="otherResolvedTickets"
+            count={resolvedCount}
             // eslint-disable-next-line jsx-a11y/anchor-has-content -- the Trans component passes in the link text.
-            components={{ 1: allTicketsListHref ? <a href={allTicketsListHref} /> : <span /> }}
+            components={{ 1: resolvedListHref ? <a href={resolvedListHref} /> : <span /> }}
           />
         </>
       ) : null}

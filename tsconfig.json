@@ -14,7 +14,7 @@
       "@/*": ["./resources/js/*"],
       "ziggy-js": ["./vendor/tightenco/ziggy"]
     },
-    "types": ["vitest/globals"]
+    "types": ["node", "vitest/globals"]
   },
   "include": [
     "resources/js/**/*.ts",
