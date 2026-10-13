@@ -25,7 +25,7 @@ describe('Component: TicketShowRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given an achievement ticket, displays breadcrumbs and the achievement header', () => {
+  it('given an achievement ticket, displays breadcrumbs, the achievement header, and the facts list', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
@@ -46,6 +46,7 @@ describe('Component: TicketShowRoot', () => {
     // ASSERT
     expect(screen.getByText('Ticket #888')).toBeVisible();
     expect(screen.getByRole('heading', { level: 1, name: 'Crate Crusher (15)' })).toBeVisible();
+    expect(screen.getByText('This achievement has no other tickets.')).toBeVisible();
   });
 
   it('given a leaderboard ticket, displays the leaderboard header', () => {

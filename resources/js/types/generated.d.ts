@@ -1270,6 +1270,7 @@ achievement: App.Platform.Data.Achievement | null;
 leaderboard: App.Platform.Data.Leaderboard | null;
 ticketableDescription: string;
 hasMaintainer: boolean;
+isViewerReporter: boolean;
 can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;

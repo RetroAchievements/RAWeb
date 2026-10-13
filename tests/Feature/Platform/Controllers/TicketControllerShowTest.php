@@ -141,6 +141,8 @@ describe('Achievement Ticket Props', function () {
             ->missing('ticket.resolvedAt')
             ->where('ticket.reporter.displayName', $reporter->display_name)
             ->where('ticket.reporter.isGone', false)
+            ->missing('ticket.reporter.id')
+            ->where('isViewerReporter', false)
             ->where('ticket.author.displayName', $developer->display_name)
             ->missing('ticket.resolver')
             ->where('ticket.emulator.name', 'RetroArch')
