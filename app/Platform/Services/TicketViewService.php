@@ -60,6 +60,8 @@ class TicketViewService
             ->where('ticketable_id', $ticket->ticketable_id)
             ->where('ticketable_type', $ticket->ticketable_type)
             ->where('id', '!=', $ticket->id)
+            ->orderBy('state_sort_order')
+            ->orderByDesc('created_at')
             ->get();
         $this->relatedTickets = $siblingTickets->all();
         foreach ($siblingTickets as $sibling) {

@@ -5,7 +5,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { TicketShowRoot } from '@/features/tickets/components/+show';
-import { TicketPropertiesPanel } from '@/features/tickets/components/TicketPropertiesPanel';
+import { TicketShowSidebarRoot } from '@/features/tickets/components/+show-sidebar';
 import { useTicketTypeLabels } from '@/features/tickets/hooks/useTicketTypeLabels';
 
 const TicketShow: AppPage = () => {
@@ -31,7 +31,7 @@ const TicketShow: AppPage = () => {
       </AppLayout.Main>
 
       <AppLayout.Sidebar>
-        <TicketPropertiesPanel />
+        <TicketShowSidebarRoot />
       </AppLayout.Sidebar>
     </>
   );
