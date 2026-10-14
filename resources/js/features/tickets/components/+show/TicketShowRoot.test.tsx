@@ -16,6 +16,7 @@ describe('Component: TicketShowRoot', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         relatedTickets: [],
         achievement: createAchievement(),
         ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
@@ -32,6 +33,7 @@ describe('Component: TicketShowRoot', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         relatedTickets: [],
         achievement: createAchievement({ title: 'Crate Crusher', points: 15 }),
         ticket: createTicketListEntry({
@@ -58,6 +60,7 @@ describe('Component: TicketShowRoot', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         relatedTickets: [],
         leaderboard: createLeaderboard({ format: 'SCORE', rankAsc: true }),
         ticket: createTicketListEntry({

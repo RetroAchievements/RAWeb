@@ -20,12 +20,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LogicException;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Ticket extends BaseModel
 {
     /** @use HasFactory<TicketFactory> */
     use HasFactory;
     use SoftDeletes;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     protected $table = 'tickets';
 
@@ -61,6 +67,19 @@ class Ticket extends BaseModel
         }
 
         throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
+    }
+
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'state',
+                'resolution',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == accessors

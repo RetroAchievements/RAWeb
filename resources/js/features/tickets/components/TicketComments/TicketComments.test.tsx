@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createComment, createTicketListEntry } from '@/test/factories';
+import { createComment, createTicketListEntry, createUser } from '@/test/factories';
 
 import { TicketComments } from './TicketComments';
 
@@ -15,6 +15,7 @@ describe('Component: TicketComments', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         ticket: createTicketListEntry(),
       },
     });
@@ -32,6 +33,7 @@ describe('Component: TicketComments', () => {
           createComment({ id: 1, payload: 'First comment.' }),
           createComment({ id: 2, payload: 'Second comment.' }),
         ],
+        changelog: [],
         ticket: createTicketListEntry(),
       },
     });
@@ -50,6 +52,7 @@ describe('Component: TicketComments', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         ticket: createTicketListEntry(),
       },
     });
@@ -64,6 +67,7 @@ describe('Component: TicketComments', () => {
       pageProps: {
         can: {},
         comments: [],
+        changelog: [],
         reportBody: 'It never unlocks.',
         ticket: createTicketListEntry(),
       },
@@ -80,6 +84,7 @@ describe('Component: TicketComments', () => {
       pageProps: {
         can: {},
         comments: [createComment({ id: 1, payload: 'First comment.' })],
+        changelog: [],
         reportBody: 'It never unlocks.',
         ticket: createTicketListEntry(),
       },
@@ -93,6 +98,109 @@ describe('Component: TicketComments', () => {
     expect(report.compareDocumentPosition(firstComment)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
+  it('given the ticket has changelog items, displays them properly in the comments list', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [
+          createComment({ id: 1, payload: 'Which ROM?', createdAt: '2024-05-01T00:00:00.000000Z' }),
+          createComment({ id: 2, payload: 'Thanks.', createdAt: '2024-05-03T00:00:00.000000Z' }),
+        ],
+        changelog: [
+          {
+            type: 'closed',
+            resolution: 'wrong_rom',
+            user: createUser({ displayName: 'Scott' }),
+            createdAt: '2024-05-02T00:00:00.000000Z',
+          },
+        ],
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(3);
+    expect(items[0]).toHaveTextContent('Which ROM?');
+    expect(items[1]).toHaveTextContent(
+      'Scott closed this ticket because the reporter used the wrong ROM.',
+    );
+    expect(items[2]).toHaveTextContent('Thanks.');
+
+    expect(screen.getByRole('img', { name: 'Closed' })).toBeVisible();
+  });
+
+  it('given a changelog entry made by the author of the comment just before it, shows the entry under that comment without their name', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [
+          createComment({
+            id: 1,
+            payload: 'Found the issue.',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-01T00:00:00.000000Z',
+          }),
+        ],
+        changelog: [
+          {
+            type: 'resolved',
+            resolution: 'fixed',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-01T00:01:00.000000Z',
+          },
+        ],
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent('Found the issue.');
+    expect(items[0]).toHaveTextContent('Resolved this ticket as fixed.');
+  });
+
+  it('given a changelog entry that follows another entry, shows it as its own row even when the comment before both is by the same user', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [
+          createComment({
+            id: 1,
+            payload: 'Found the issue.',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-01T00:00:00.000000Z',
+          }),
+        ],
+        changelog: [
+          {
+            type: 'approved',
+            resolution: null,
+            user: createUser({ displayName: 'Scott' }),
+            createdAt: '2024-05-02T00:00:00.000000Z',
+          },
+          {
+            type: 'resolved',
+            resolution: 'fixed',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-03T00:00:00.000000Z',
+          },
+        ],
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(3);
+    expect(items[1]).toHaveTextContent('Scott approved this ticket.');
+    expect(items[2]).toHaveTextContent('Gudra resolved this ticket as fixed.');
+  });
+
   it('given the user cannot comment, does not let them', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
@@ -100,6 +208,7 @@ describe('Component: TicketComments', () => {
         auth: { user: createAuthenticatedUser() },
         can: {},
         comments: [],
+        changelog: [],
         ticket: createTicketListEntry(),
       },
     });
@@ -118,6 +227,7 @@ describe('Component: TicketComments', () => {
         auth: { user: createAuthenticatedUser() },
         can: { createTicketComments: true },
         comments: [],
+        changelog: [],
         ticket: createTicketListEntry({ id: 777 }),
       },
     });
@@ -153,6 +263,7 @@ describe('Component: TicketComments', () => {
             commentableType: 'trigger.ticket.comment',
           }),
         ],
+        changelog: [],
         ticket: createTicketListEntry({ id: 777 }),
       },
     });

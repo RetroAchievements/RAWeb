@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import type { CommentListInterleavedItem } from '@/common/models';
 
+import { TicketChangelogEntry } from '../TicketChangelogEntry';
 import { TicketReport } from '../TicketReport';
 
 export const TicketComments: FC = () => {
-  const { can, comments, reportBody, ticket } =
+  const { can, changelog, comments, reportBody, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -16,6 +18,26 @@ export const TicketComments: FC = () => {
   const reloadPage = () => {
     router.reload();
   };
+
+  const { footerEntries, rowEntries } = groupChangelogEntries(comments, changelog);
+
+  const mappedRowEntries: CommentListInterleavedItem[] = rowEntries.map((entry, index) => ({
+    createdAt: entry.createdAt,
+    key: `changelog-${index}`,
+    node: <TicketChangelogEntry entry={entry} ticketableType={ticket.ticketableType} />,
+  }));
+
+  const renderCommentFooter = (comment: App.Community.Data.Comment) =>
+    footerEntries
+      .get(comment.id)
+      ?.map((entry, index) => (
+        <TicketChangelogEntry
+          key={index}
+          entry={entry}
+          ticketableType={ticket.ticketableType}
+          variant="commentFooter"
+        />
+      ));
 
   return (
     <section id="comments" className="flex flex-col gap-2">
@@ -27,6 +49,8 @@ export const TicketComments: FC = () => {
         comments={comments}
         canComment={!!can.createTicketComments}
         hasEmptyState={!reportBody}
+        interleavedItems={mappedRowEntries}
+        footerSlot={renderCommentFooter}
         commentableId={ticket.id}
         commentableType="trigger.ticket.comment"
         onDeleteSuccess={reloadPage}
@@ -35,3 +59,32 @@ export const TicketComments: FC = () => {
     </section>
   );
 };
+
+function groupChangelogEntries(
+  comments: App.Community.Data.Comment[],
+  changelog: App.Platform.Data.TicketChangelogEntry[],
+) {
+  const footerEntries = new Map<number, App.Platform.Data.TicketChangelogEntry[]>();
+  const rowEntries: App.Platform.Data.TicketChangelogEntry[] = [];
+
+  const timeline = [...comments, ...changelog].sort(
+    (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
+  );
+
+  let previousComment: App.Community.Data.Comment | null = null;
+  for (const item of timeline) {
+    if ('payload' in item) {
+      previousComment = item;
+    } else if (previousComment && item.user?.displayName === previousComment.user.displayName) {
+      footerEntries.set(previousComment.id, [
+        ...(footerEntries.get(previousComment.id) ?? []),
+        item,
+      ]);
+    } else {
+      rowEntries.push(item);
+      previousComment = null;
+    }
+  }
+
+  return { footerEntries, rowEntries };
+}
