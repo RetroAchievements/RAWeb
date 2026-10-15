@@ -125,21 +125,13 @@ class Roles extends ManageRelatedRecords
 
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
                             $this->removeDeveloperStaffRoles($targetUser); // jr devs cannot be staff
 
                             $newPermissions = Permissions::JuniorDeveloper;
                         } elseif ($attachedRole->name === Role::DEVELOPER) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
                             $newPermissions = Permissions::Developer;
-                        } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
-                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER);
-                            $this->removeDeveloperStaffRoles($targetUser); // retired devs cannot be staff
-
-                            $newPermissions = Permissions::Registered;
                         } else {
                             // There's nothing to synchronize for non-developer roles.
                             return;
@@ -167,7 +159,6 @@ class Roles extends ManageRelatedRecords
                         if (!in_array($record->name, [
                             Role::DEVELOPER_JUNIOR,
                             Role::DEVELOPER,
-                            Role::DEVELOPER_RETIRED,
                         ])) {
                             return;
                         }

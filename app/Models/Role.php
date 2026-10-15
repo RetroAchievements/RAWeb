@@ -51,13 +51,11 @@ class Role extends SpatieRole
 
     // vanity roles assigned by root
     public const FOUNDER = 'founder';
-    public const ARCHITECT = 'architect';
     public const ENGINEER = 'engineer';
     public const TEAM_ACCOUNT = 'team-account';
 
     // vanity roles assigned by admin
     public const COMMUNITY_MANAGER = 'community-manager'; // effectively a moderator
-    public const DEVELOPER_RETIRED = 'developer-retired';
     public const SUPPORTER = 'supporter';
 
     /**
@@ -70,7 +68,6 @@ class Role extends SpatieRole
     public static function nonTeamRoles(): array
     {
         return [
-            self::DEVELOPER_RETIRED,
             self::SUPPORTER,
         ];
     }
@@ -110,13 +107,11 @@ class Role extends SpatieRole
 
             // vanity roles assigned by root
             Role::FOUNDER => 'primary',
-            Role::ARCHITECT => 'primary',
             Role::ENGINEER => 'primary',
             Role::TEAM_ACCOUNT => 'primary',
 
             // vanity roles assigned by admin
             Role::COMMUNITY_MANAGER => 'info', // effectively a moderator
-            Role::DEVELOPER_RETIRED => 'primary',
             Role::SUPPORTER => 'info',
 
             default => 'gray',
