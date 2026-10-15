@@ -78,7 +78,6 @@ class SubmitCodeNotesAction extends BaseAuthenticatedApiAction
         $memoryNotes = MemoryNote::withTrashed()
             ->where('game_id', $this->gameId)
             ->whereIn('address', array_keys($this->notes))
-            ->orderBy('deleted_at')
             ->get();
 
         $canCreate = $this->user->can('create', MemoryNote::class);

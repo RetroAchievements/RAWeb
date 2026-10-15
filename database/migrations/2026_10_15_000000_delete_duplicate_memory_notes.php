@@ -7,14 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Cleans up a data issue where merging a subset note would insert a second row next to
- * an already soft deleted note. We'll hang on to the most recently updated note at each
- * address and soft delete the rest.
+ * an already soft deleted note.
  */
 return new class extends Migration {
     public function up(): void
     {
         $duplicateAddresses = DB::table('memory_notes')
-            ->whereNull('deleted_at')
             ->whereNotNull('game_id')
             ->select(['game_id', 'address'])
             ->groupBy('game_id', 'address')
@@ -23,16 +21,16 @@ return new class extends Migration {
 
         foreach ($duplicateAddresses as $duplicateAddress) {
             $noteIds = DB::table('memory_notes')
-                ->whereNull('deleted_at')
                 ->where('game_id', $duplicateAddress->game_id)
                 ->where('address', $duplicateAddress->address)
+                ->orderByRaw('deleted_at IS NULL DESC')
                 ->orderByDesc('updated_at')
-                ->orderBy('id')
+                ->orderByDesc('id')
                 ->pluck('id');
 
             DB::table('memory_notes')
                 ->whereIn('id', $noteIds->skip(1))
-                ->update(['deleted_at' => now()]);
+                ->delete();
         }
     }
 

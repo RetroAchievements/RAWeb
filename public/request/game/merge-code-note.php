@@ -41,7 +41,6 @@ if ($input['keep']) {
             $note = MemoryNote::withTrashed()
                 ->where('game_id', $subset->game_id)
                 ->where('address', $input['address'])
-                ->orderBy('deleted_at')
                 ->first();
 
             if (!$note) {

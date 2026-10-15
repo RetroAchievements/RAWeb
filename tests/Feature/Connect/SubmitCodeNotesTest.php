@@ -246,34 +246,6 @@ describe('developer', function () {
         $this->assertFalse($note->trashed());
     });
 
-    test('overwrites the live memory note instead of restoring a deleted note at the same address', function () {
-        $this->user->assignRole(Role::DEVELOPER);
-        $game = Game::factory()->create();
-        $otherUser = User::factory()->create();
-        $deletedNote = MemoryNote::create(['game_id' => $game->id, 'user_id' => $otherUser->id, 'address' => 0x1234, 'body' => 'Old']);
-        $deletedNote->delete();
-        $liveNote = MemoryNote::create(['game_id' => $game->id, 'user_id' => $otherUser->id, 'address' => 0x1234, 'body' => 'Live']);
-
-        $this->post('dorequest.php', $this->apiParams('submitcodenotes', [
-            'g' => $game->id,
-            'n' => "4660:This is a note\n",
-        ]))
-            ->assertStatus(200)
-            ->assertExactJson([
-                'Success' => true,
-                'SuccessfulAddresses' => [0x1234],
-            ]);
-
-        $this->assertEquals(1, $game->memoryNotes()->where('address', 0x1234)->count());
-
-        $liveNote->refresh();
-        $this->assertEquals('This is a note', $liveNote->body);
-        $this->assertEquals($this->user->id, $liveNote->user_id);
-
-        $deletedNote->refresh();
-        $this->assertTrue($deletedNote->trashed());
-    });
-
     test('can create and delete in same request', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = Game::factory()->create();
