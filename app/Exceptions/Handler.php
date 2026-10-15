@@ -277,8 +277,11 @@ class Handler extends ExceptionHandler
             default => 500,
         };
 
+        $isUnexpectedHttpException = $status === 500 && !$e instanceof HttpExceptionInterface;
+        $shouldShowFullExceptionMessage = !$isUnexpectedHttpException || config('app.debug');
+
         $statusText = Response::$statusTexts[$status] ?? 'Error';
-        $title = $e->getMessage() ?: $statusText;
+        $title = ($shouldShowFullExceptionMessage ? $e->getMessage() : '') ?: $statusText;
 
         return response()->json([
             'message' => $title,
