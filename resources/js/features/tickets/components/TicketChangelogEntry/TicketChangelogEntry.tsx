@@ -48,7 +48,7 @@ const typeSentences = {
 const resolutionSentences = {
   fixed: typeSentences.resolved,
   other: {
-    asCommentFooter: 'Closed this ticket. See the comments for a reason.',
+    asCommentFooter: 'Closed this ticket.',
     withoutUser: 'This ticket was closed. See the comments for a reason.',
     withUser: '<1>{{user}}</1> closed this ticket. See the comments for a reason.',
   },
@@ -134,11 +134,9 @@ export const TicketChangelogEntry: FC<TicketChangelogEntryProps> = ({
   if (variant === 'commentFooter') {
     return (
       <p className="flex items-center gap-1.5 text-xs text-neutral-500">
-        <TicketStateGlyph state={typeStates[entry.type]} />
+        <TicketStateGlyph state={typeStates[entry.type]} className="[&>svg]:size-3.5" />
 
-        <span>
-          {t(sentences.asCommentFooter)} <EntryTimestamp at={entry.createdAt} />
-        </span>
+        <span>{t(sentences.asCommentFooter)}</span>
       </p>
     );
   }

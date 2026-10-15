@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { type FC, Fragment, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -48,8 +49,8 @@ export const CommentList: FC<CommentListProps> = ({
 
   // The sort is stable, so a comment keeps its place ahead of a row with the same timestamp.
   const listItems = interleavedItems?.length
-    ? [...mappedCommentItems, ...interleavedItems].sort(
-        (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
+    ? [...mappedCommentItems, ...interleavedItems].sort((a, b) =>
+        dayjs(a.createdAt).diff(dayjs(b.createdAt)),
       )
     : mappedCommentItems;
 

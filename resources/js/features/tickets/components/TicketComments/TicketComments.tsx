@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,17 +28,37 @@ export const TicketComments: FC = () => {
     node: <TicketChangelogEntry entry={entry} ticketableType={ticket.ticketableType} />,
   }));
 
-  const renderCommentFooter = (comment: App.Community.Data.Comment) =>
-    footerEntries
-      .get(comment.id)
-      ?.map((entry, index) => (
-        <TicketChangelogEntry
-          key={index}
-          entry={entry}
-          ticketableType={ticket.ticketableType}
-          variant="commentFooter"
-        />
-      ));
+  const renderCommentFooter = (comment: App.Community.Data.Comment) => {
+    const entries = footerEntries.get(comment.id);
+    if (!entries) {
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col">
+        {entries.map((entry, index) => (
+          <div key={index} className="relative py-0.5 pl-4.5">
+            <span
+              aria-hidden={true}
+              className="absolute -top-1 left-1 h-[calc(50%+0.25rem)] w-2.5 rounded-bl-md border-b border-l border-neutral-600 light:border-neutral-400"
+            />
+            {index < entries.length - 1 ? (
+              <span
+                aria-hidden={true}
+                className="absolute -top-1 bottom-0 left-1 border-l border-neutral-600 light:border-neutral-400"
+              />
+            ) : null}
+
+            <TicketChangelogEntry
+              entry={entry}
+              ticketableType={ticket.ticketableType}
+              variant="commentFooter"
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <section id="comments" className="flex flex-col gap-2">
@@ -60,6 +81,8 @@ export const TicketComments: FC = () => {
   );
 };
 
+const commentFooterWindowMinutes = 5;
+
 function groupChangelogEntries(
   comments: App.Community.Data.Comment[],
   changelog: App.Platform.Data.TicketChangelogEntry[],
@@ -67,15 +90,20 @@ function groupChangelogEntries(
   const footerEntries = new Map<number, App.Platform.Data.TicketChangelogEntry[]>();
   const rowEntries: App.Platform.Data.TicketChangelogEntry[] = [];
 
-  const timeline = [...comments, ...changelog].sort(
-    (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
+  const timeline = [...comments, ...changelog].sort((a, b) =>
+    dayjs(a.createdAt).diff(dayjs(b.createdAt)),
   );
 
   let previousComment: App.Community.Data.Comment | null = null;
   for (const item of timeline) {
     if ('payload' in item) {
       previousComment = item;
-    } else if (previousComment && item.user?.displayName === previousComment.user.displayName) {
+    } else if (
+      previousComment &&
+      item.user?.displayName === previousComment.user.displayName &&
+      dayjs(item.createdAt).diff(dayjs(previousComment.createdAt), 'minute', true) <=
+        commentFooterWindowMinutes
+    ) {
       footerEntries.set(previousComment.id, [
         ...(footerEntries.get(previousComment.id) ?? []),
         item,

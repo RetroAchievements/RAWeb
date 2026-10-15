@@ -163,6 +163,40 @@ describe('Component: TicketComments', () => {
     expect(items[0]).toHaveTextContent('Resolved this ticket as fixed.');
   });
 
+  it('given a changelog entry by the comment author that happened well after the comment, shows it on its own row instead of grouped with the comment', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        can: {},
+        comments: [
+          createComment({
+            id: 1,
+            payload: 'Can you send a save state?',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-01T00:00:00.000000Z',
+          }),
+        ],
+        changelog: [
+          {
+            type: 'closed',
+            resolution: 'not_enough_information',
+            user: createUser({ displayName: 'Gudra' }),
+            createdAt: '2024-05-08T00:00:00.000000Z',
+          },
+        ],
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(items[0]).not.toHaveTextContent(/closed this ticket/i);
+    expect(items[1]).toHaveTextContent(
+      'Gudra closed this ticket because the report did not have enough information.',
+    );
+  });
+
   it('given a changelog entry that follows another entry, shows it as its own row even when the comment before both is by the same user', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
