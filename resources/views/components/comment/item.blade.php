@@ -19,7 +19,7 @@ $commentTypeLabel = match ($commentableType) {
     CommentableType::Achievement => 'Achievement Wall Comment',
     CommentableType::User => 'User Wall Comment',
     CommentableType::Leaderboard => 'Leaderboard Comment',
-    CommentableType::AchievementTicket => 'Ticket Comment',
+    CommentableType::Ticket => 'Ticket Comment',
     default => 'Wall Comment',
 };
 
@@ -61,7 +61,7 @@ $canCreateModerationReports = (
             </div>
         </td>
     </tr>
-@elseif ($commentableType !== CommentableType::AchievementTicket &&
+@elseif ($commentableType !== CommentableType::Ticket &&
          $author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
@@ -127,7 +127,7 @@ $canCreateModerationReports = (
             @php
                 $formattedPayload = (new FormatLegacyCommentPayloadAction())->execute(
                     $payload,
-                    isTicketComment: $commentableType === CommentableType::AchievementTicket,
+                    isTicketComment: $commentableType === CommentableType::Ticket,
                 );
             @endphp
             <div style="word-break: break-word;">

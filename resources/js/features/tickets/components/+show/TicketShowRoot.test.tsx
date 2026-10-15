@@ -15,6 +15,7 @@ describe('Component: TicketShowRoot', () => {
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
         can: {},
+        comments: [],
         relatedTickets: [],
         achievement: createAchievement(),
         ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
@@ -25,11 +26,12 @@ describe('Component: TicketShowRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given an achievement ticket, displays breadcrumbs, the achievement header, and the facts list', () => {
+  it('given an achievement ticket, displays breadcrumbs, the achievement header, the facts list, and the comments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
         can: {},
+        comments: [],
         relatedTickets: [],
         achievement: createAchievement({ title: 'Crate Crusher', points: 15 }),
         ticket: createTicketListEntry({
@@ -47,6 +49,7 @@ describe('Component: TicketShowRoot', () => {
     expect(screen.getByText('Ticket #888')).toBeVisible();
     expect(screen.getByRole('heading', { level: 1, name: 'Crate Crusher (15)' })).toBeVisible();
     expect(screen.getByText('This achievement has no other tickets.')).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: 'Comments' })).toBeVisible();
   });
 
   it('given a leaderboard ticket, displays the leaderboard header', () => {
@@ -54,6 +57,7 @@ describe('Component: TicketShowRoot', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
         can: {},
+        comments: [],
         relatedTickets: [],
         leaderboard: createLeaderboard({ format: 'SCORE', rankAsc: true }),
         ticket: createTicketListEntry({

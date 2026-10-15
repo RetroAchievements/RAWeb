@@ -63,7 +63,7 @@ function informAllSubscribersAboutActivity(
             $subscriptionSubjectType = SubscriptionSubjectType::Achievement;
             break;
 
-        case CommentableType::User:  // User wall
+        case CommentableType::User:
             $wallUser = User::find($commentableId);
             if (!$wallUser) {
                 return;
@@ -76,7 +76,7 @@ function informAllSubscribersAboutActivity(
             $subscriptionSubjectType = SubscriptionSubjectType::UserWall;
             break;
 
-        case CommentableType::Leaderboard:  // Leaderboard
+        case CommentableType::Leaderboard:
             // note: cannot currently explicitly subscribe to leaderboard
             $leaderboard = Leaderboard::with('game')->find($commentableId);
             if (!$leaderboard) {
@@ -89,7 +89,7 @@ function informAllSubscribersAboutActivity(
             $subscriptionSubjectType = SubscriptionSubjectType::Leaderboard;
             break;
 
-        case CommentableType::AchievementTicket:  // Ticket
+        case CommentableType::Ticket:
             $ticket = Ticket::with(['ticketable.game', 'reporter'])->find($commentableId);
             if (!$ticket || !$ticket->ticketable) {
                 return;
@@ -100,7 +100,7 @@ function informAllSubscribersAboutActivity(
             $urlTarget = route('ticket.show', ['ticket' => $ticket->id]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;
-            $subscriptionSubjectType = SubscriptionSubjectType::AchievementTicket;
+            $subscriptionSubjectType = SubscriptionSubjectType::Ticket;
             break;
 
         default:
