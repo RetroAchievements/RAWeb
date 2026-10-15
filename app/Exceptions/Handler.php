@@ -128,7 +128,7 @@ class Handler extends ExceptionHandler
             return $e->redirect;
         }
 
-        if ($request->is('api/v2/*')) {
+        if ($request->is('api/v2/*', 'v2/*')) {
             return $this->renderWebApiV2Exception($e);
         }
 
