@@ -354,19 +354,24 @@ it('given a status that does not allow a resolution, no resolution facet counts 
 it('given a facet filter, its counts always match the corresponding list filters', function (TicketListFilterKind $kind) {
     // ARRANGE
     $this->seed(RolesTableSeeder::class);
-    foreach ([Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED] as $role) {
-        $author = User::factory()->create();
-        $author->assignRole($role);
-        $authors[$role] = $author;
+
+    $developer = User::factory()->create();
+    $developer->assignRole(Role::DEVELOPER);
+    $juniorDeveloper = User::factory()->create();
+    $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+    $inactiveDeveloper = User::factory()->create();
+
+    foreach ([$developer, $juniorDeveloper, $inactiveDeveloper] as $author) {
         $achievement = createTicketableAchievement($author);
-        $achievement->is_promoted = $role !== Role::DEVELOPER_JUNIOR;
+        $achievement->is_promoted = $author !== $juniorDeveloper;
         $achievement->save();
         Ticket::factory()->forAchievement($achievement)->open()->create(['ticketable_author_id' => $author->id]);
     }
     foreach ([LeaderboardState::Active, LeaderboardState::Unpromoted] as $state) {
         $leaderboard = Leaderboard::factory()->create(['game_id' => $achievement->game_id, 'state' => $state]);
-        Ticket::factory()->forLeaderboard($leaderboard)->open()->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forLeaderboard($leaderboard)->open()->create(['ticketable_author_id' => $inactiveDeveloper->id]);
     }
+
     $service = new TicketListService();
     $options = defaultTicketListFilterOptions([$kind->value => $kind->values()[1]]);
 
@@ -376,10 +381,10 @@ it('given a facet filter, its counts always match the corresponding list filters
     // ASSERT
     if ($kind === TicketListFilterKind::DeveloperType) {
         expect($counts[$kind->value])->toEqual(['all' => 5, 'active' => 2, 'junior' => 1, 'inactive' => 3]);
-        $authors[Role::DEVELOPER]->assignRole(Role::DEVELOPER_JUNIOR);
+        $developer->assignRole(Role::DEVELOPER_JUNIOR);
         $overlappingRoles = $service->getFacetCounts($options, Ticket::query(), [$kind]);
         expect($overlappingRoles[$kind->value])->toEqual(['all' => 5, 'active' => 2, 'junior' => 2, 'inactive' => 3]);
-        $authors[Role::DEVELOPER]->removeRole(Role::DEVELOPER_JUNIOR);
+        $developer->removeRole(Role::DEVELOPER_JUNIOR);
     }
     foreach ($kind->values() as $value) {
         $expected = $service->applyFilters(Ticket::query(), array_merge($options, [$kind->value => $value]))->count();
