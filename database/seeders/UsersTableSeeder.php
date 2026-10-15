@@ -37,7 +37,7 @@ class UsersTableSeeder extends Seeder
             $user->saveQuietly();
         });
 
-        // add a few developers (including juniors and retired developers)
+        // add a few developers (including juniors)
         User::factory()->count(rand(10, 20))->make()->each(function (User $user) {
             $user->username = $user->display_name = $this->generateUsername();
             $this->prepareUser($user);
@@ -51,14 +51,6 @@ class UsersTableSeeder extends Seeder
             $this->prepareUser($user);
             $user->setAttribute('Permissions', Permissions::JuniorDeveloper);
             $user->assignRole(Role::DEVELOPER_JUNIOR);
-            $user->save();
-        });
-
-        User::factory()->count(rand(2, 5))->make()->each(function (User $user) {
-            $user->username = $user->display_name = $this->generateUsername();
-            $this->prepareUser($user);
-            $user->setAttribute('Permissions', Permissions::Registered);
-            $user->assignRole(Role::DEVELOPER_RETIRED);
             $user->save();
         });
 
