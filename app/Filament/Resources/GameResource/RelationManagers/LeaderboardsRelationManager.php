@@ -142,7 +142,8 @@ class LeaderboardsRelationManager extends RelationManager
                         $leaderboard = Leaderboard::create([
                             'game_id' => $this->getOwnerRecord()->id,
                             'title' => $data['title'],
-                            'description' => $data['description'],
+                            'description' => $data['description'] ?? '',
+                            'trigger_definition' => '',
                             'author_id' => $user->id,
                             'format' => ValueFormat::Value,
                             'order_column' => -1,
@@ -185,13 +186,18 @@ class LeaderboardsRelationManager extends RelationManager
                         ->label('Move to Top')
                         ->icon('heroicon-o-arrow-up')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'top'))
-                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
-
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return !$this->isEditingDisplayOrders
+                                && $user->can('updateField', [$leaderboard, 'order_column']);
+                        }),
                     Action::make('move-to-bottom')
                         ->label('Move to Bottom')
                         ->icon('heroicon-o-arrow-down')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
-                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return !$this->isEditingDisplayOrders
+                                && $user->can('updateField', [$leaderboard, 'order_column']);
+                        }),
                     CloneLeaderboardAction::make('clone_leaderboard'),
                     MergeLeaderboardsAction::make('merge_leaderboards'),
                     Action::make('promote-leaderboard')
