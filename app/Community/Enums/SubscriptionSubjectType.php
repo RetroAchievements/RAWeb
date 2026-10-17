@@ -16,7 +16,7 @@ enum SubscriptionSubjectType: string
     case Leaderboard = "Leaderboard";
     case GameTickets = "GameTickets";
     case GameAchievements = "GameAchievements";
-    case AchievementTicket = "AchievementTicket";
+    case Ticket = "AchievementTicket";
     case GameScreenshotDecision = "GameScreenshotDecision";
     case AchievementSetRelease = "AchievementSetRelease";
 
@@ -32,7 +32,7 @@ enum SubscriptionSubjectType: string
             self::AchievementSetRelease,
             self::GameScreenshotDecision,
             self::ForumTopic,
-            self::AchievementTicket,
+            self::Ticket,
         ];
     }
 
@@ -43,7 +43,7 @@ enum SubscriptionSubjectType: string
             CommentableType::Achievement => SubscriptionSubjectType::Achievement,
             CommentableType::Leaderboard => SubscriptionSubjectType::Leaderboard,
             CommentableType::User => SubscriptionSubjectType::UserWall,
-            CommentableType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
+            CommentableType::Ticket => SubscriptionSubjectType::Ticket,
             default => null,
         };
     }

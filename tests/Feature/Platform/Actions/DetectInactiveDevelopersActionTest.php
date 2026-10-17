@@ -174,7 +174,7 @@ it('uses durable developer activity sources to suppress developer inactivity fin
     $ticketCommentDeveloper = createDeveloperForInactivityTest();
     Comment::create([
         'user_id' => $ticketCommentDeveloper->id,
-        'commentable_type' => CommentableType::AchievementTicket,
+        'commentable_type' => CommentableType::Ticket,
         'commentable_id' => 123,
         'body' => 'I am looking into this ticket.',
         'created_at' => $recentActivityAt,

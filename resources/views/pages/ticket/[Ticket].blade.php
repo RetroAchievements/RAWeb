@@ -139,7 +139,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         @else
                             v{{ $reportedTriggerVersion }}
                         @endcan
-                        @if ($currentTriggerVersion !== null)<span>(now v{{ $currentTriggerVersion }})</span>@endif
+                        @if ($currentTriggerVersion !== null && $currentTriggerVersion !== $reportedTriggerVersion)<span>(now v{{ $currentTriggerVersion }})</span>@endif
                     </x-ticket.stat-element>
                 @endif
                 <x-ticket.stat-element label="Mode">{{ $ticket->hardcore ? "Hardcore" : "Casual" }}</x-ticket.stat-element>
@@ -262,7 +262,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     @if ($existingUnlock)
                         @php $unlockedAt = $existingUnlock->unlocked_hardcore_at ?? $existingUnlock->unlocked_at; @endphp
                         @if ($existingUnlock->unlocker_id)
-                            <span>Manually unlocked by {!! userAvatar(User::firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
+                            <span>Manually unlocked by {!! userAvatar(User::withTrashed()->firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
                         @else
                             {{ $ticket->reporter->display_name }} earned this achievement at
                             {{ getNiceDate($unlockedAt->unix()) }}
@@ -325,12 +325,12 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
             <table id="feed" class="table-highlight">
                 <tbody>
                     <x-comment.item
-                        :commentableType="CommentableType::AchievementTicket"
+                        :commentableType="CommentableType::Ticket"
                         :author="$ticket->reporter"
                         :when="$ticket->created_at"
                         :payload="$ticketNotes"
                     />
-                    @php $numArticleComments = getRecentArticleComments(CommentableType::AchievementTicket, $ticket->id, $commentData) @endphp
+                    @php $numArticleComments = getRecentArticleComments(CommentableType::Ticket, $ticket->id, $commentData) @endphp
                     @php $allowDelete = $user->hasRole(Role::MODERATOR) @endphp
                     @foreach ($commentData as $comment)
                         @php
@@ -345,7 +345,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                             :author="$commentUser"
                             :when="$when"
                             :payload="nl2br($comment['CommentPayload'])"
-                            :commentableType="CommentableType::AchievementTicket"
+                            :commentableType="CommentableType::Ticket"
                             :commentableId="$ticket->id"
                             :commentId="$comment['ID']"
                             :allowDelete="$allowDelete || $comment['User'] === $user->username"
@@ -353,7 +353,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     @endforeach
 
                     <x-comment.input-row
-                        :commentableType="CommentableType::AchievementTicket"
+                        :commentableType="CommentableType::Ticket"
                         :commentableId="$ticket->id"
                         :article="$ticket"
                     />

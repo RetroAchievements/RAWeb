@@ -275,6 +275,20 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals($adjustment, $summary['generatedSessionAdjustment']);
         $this->assertEquals((int) $time7->diffInSeconds($time2, true), $summary['totalUnlockTime']);
         $this->assertEquals($firstSessionDuration + $adjustment + $secondSessionDuration, $summary['totalPlaytime']);
+
+        // ==== Deleted manual unlocker should still be returned ====
+        $user2->delete();
+
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game);
+        $this->assertEquals(3, count($activity->sessions));
+        $session = $activity->sessions[1];
+        $this->assertEquals(PlayerGameActivitySessionType::ManualUnlock, $session['type']);
+        $this->assertEquals($time6->timestamp, $session['startTime']->timestamp);
+        $this->assertEquals(0, $session['duration']);
+        $this->assertEquals($time6->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals(1, count($session['events']));
+        $this->assertManualUnlockEvent($session['events'][0], $ach4->id, $time6, true, $user2);
     }
 
     public function testMultisetActivity(): void

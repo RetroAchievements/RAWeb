@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Data\UserData;
 use App\Models\Leaderboard;
 use App\Platform\Enums\LeaderboardState;
 use Spatie\LaravelData\Data;
@@ -24,6 +25,7 @@ class LeaderboardData extends Data
         public Lazy|LeaderboardEntryData|null $userEntry = null,
         public Lazy|bool|null $rankAsc = null,
         public Lazy|LeaderboardState|null $state = null,
+        public Lazy|UserData|null $developer = null,
     ) {
     }
 
@@ -43,6 +45,7 @@ class LeaderboardData extends Data
             userEntry: $userEntry,
             rankAsc: Lazy::create(fn () => $leaderboard->rank_asc),
             state: Lazy::create(fn () => $leaderboard->state),
+            developer: Lazy::create(fn () => $leaderboard->developer ? UserData::fromUser($leaderboard->developer) : null),
         );
     }
 }

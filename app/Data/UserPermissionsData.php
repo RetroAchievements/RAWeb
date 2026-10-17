@@ -11,6 +11,8 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\OAuthClient;
+use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\User;
 use App\Policies\AchievementCommentPolicy;
 use App\Policies\GameCommentPolicy;
@@ -33,6 +35,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createModerationReports,
         public Lazy|bool $createOAuthClients,
         public Lazy|bool $createTicket,
+        public Lazy|bool $createTicketComments,
         public Lazy|bool $createUserBetaFeedbackSubmission,
         public Lazy|bool $createUsernameChangeRequest,
         public Lazy|bool $deleteForumTopic,
@@ -77,6 +80,7 @@ class UserPermissionsData extends Data
         ?ForumTopic $forumTopic = null,
         ?AchievementSetClaim $claim = null,
         ?GameSet $gameSet = null,
+        ?Ticket $ticket = null,
     ): self {
         return new self(
             authorizeForumTopicComments: Lazy::create(fn () => $user
@@ -108,8 +112,12 @@ class UserPermissionsData extends Data
             createModerationReports: Lazy::create(fn () => $user ? $user->can('createModerationReports', User::class) : false),
             createOAuthClients: Lazy::create(fn () => $user ? $user->can('create', OAuthClient::class) : false),
             createTicket: Lazy::create(fn () => $user && $triggerable
-                ? $user->can('createFor', [\App\Models\Ticket::class, $triggerable])
-                : $user?->can('create', \App\Models\Ticket::class) ?? false
+                ? $user->can('createFor', [Ticket::class, $triggerable])
+                : $user?->can('create', Ticket::class) ?? false
+            ),
+            createTicketComments: Lazy::create(fn () => $user && $ticket
+                ? $user->can('create', [TicketComment::class, $ticket])
+                : false
             ),
             createUserBetaFeedbackSubmission: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserBetaFeedbackSubmission::class) : false),
             createUsernameChangeRequest: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserUsername::class) : false),

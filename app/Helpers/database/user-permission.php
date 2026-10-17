@@ -19,6 +19,8 @@ function SetAccountPermissionsJSON(
     if (!$targetUser) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUsername not found";
+
+        return $retVal;
     }
 
     $targetUserCurrentPermissions = (int) $targetUser->getAttribute('Permissions');

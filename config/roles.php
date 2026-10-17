@@ -5,7 +5,6 @@ use App\Models\Role;
 
 $rootAssignable = [
     Role::ADMINISTRATOR,
-    Role::ARCHITECT,
     Role::ENGINEER,
     Role::FOUNDER,
     Role::RELEASE_MANAGER,
@@ -19,7 +18,6 @@ $adminAssignable = [
     Role::COMMUNITY_MANAGER,
     Role::DEV_COMPLIANCE,
     Role::DEVELOPER_JUNIOR,
-    Role::DEVELOPER_RETIRED,
     Role::DEVELOPER,
     Role::EVENT_MANAGER,
     Role::FORUM_MANAGER,
@@ -213,12 +211,6 @@ return [
         'legacy_role' => Permissions::Registered,
     ],
     [
-        'name' => Role::ARCHITECT,
-        'display' => 1,
-        'staff' => true,
-        'legacy_role' => Permissions::Registered,
-    ],
-    [
         'name' => Role::ENGINEER,
         'display' => 1,
         'staff' => true,
@@ -235,11 +227,6 @@ return [
     [
         'name' => Role::COMMUNITY_MANAGER,
         'display' => 3,
-        'legacy_role' => Permissions::Registered,
-    ],
-    [
-        'name' => Role::DEVELOPER_RETIRED,
-        'display' => 5,
         'legacy_role' => Permissions::Registered,
     ],
     [

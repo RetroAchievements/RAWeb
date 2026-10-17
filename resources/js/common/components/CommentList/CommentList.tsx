@@ -15,6 +15,7 @@ interface CommentListProps {
   commentableType: App.Community.Enums.CommentableType;
   comments: App.Community.Data.Comment[];
 
+  hasEmptyState?: boolean;
   onDeleteSuccess?: () => void;
   onSubmitSuccess?: () => void;
   targetUserDisplayName?: string;
@@ -28,6 +29,7 @@ export const CommentList: FC<CommentListProps> = ({
   onDeleteSuccess,
   onSubmitSuccess,
   targetUserDisplayName,
+  hasEmptyState = true,
 }) => {
   const { auth } = usePageProps();
 
@@ -50,9 +52,11 @@ export const CommentList: FC<CommentListProps> = ({
               <CommentListItem key={comment.id} {...comment} />
             ))}
           </ul>
-        ) : (
+        ) : null}
+
+        {!comments.length && hasEmptyState ? (
           <p className="mb-4 italic">{t('No comments yet.')}</p>
-        )}
+        ) : null}
 
         {auth?.user.isMuted && auth.user.mutedUntil ? (
           <MutedMessage mutedUntil={auth.user.mutedUntil} />

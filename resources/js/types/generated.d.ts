@@ -438,6 +438,7 @@ createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createOAuthClients?: boolean;
 createTicket?: boolean;
+createTicketComments?: boolean;
 createUserBetaFeedbackSubmission?: boolean;
 createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
@@ -526,7 +527,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired' | 'supporter';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'engineer' | 'team-account' | 'community-manager' | 'supporter';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -802,8 +803,8 @@ export type GameHash = {
 id: number;
 md5: string;
 name: string | null;
-labels: Array<App.Platform.Data.GameHashLabel>;
-patchUrl: string | null;
+labels?: Array<App.Platform.Data.GameHashLabel>;
+patchUrl?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {
@@ -1009,6 +1010,7 @@ topEntry?: App.Platform.Data.LeaderboardEntry | null;
 userEntry?: App.Platform.Data.LeaderboardEntry | null;
 rankAsc?: boolean | null;
 state?: App.Platform.Enums.LeaderboardState | null;
+developer?: App.Data.User | null;
 };
 export type LeaderboardEntry = {
 id: number;
@@ -1251,6 +1253,35 @@ resolved: number;
 closed: number;
 quarantined: number;
 all: number;
+};
+export type TicketRelatedEntry = {
+id: number;
+state: App.Community.Enums.TicketState;
+resolution: App.Community.Enums.TicketResolution | null;
+createdAt: string;
+};
+export type TicketReporterUnlock = {
+unlockedAt: string;
+isHardcore: boolean;
+unlocker: App.Data.User | null;
+};
+export type TicketShowPageProps = {
+ticket: App.Platform.Data.TicketListEntry;
+achievement: App.Platform.Data.Achievement | null;
+leaderboard: App.Platform.Data.Leaderboard | null;
+ticketableDescription: string;
+hasMaintainer: boolean;
+isViewerReporter: boolean;
+can: App.Data.UserPermissions;
+relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
+unlocksSinceReported: number | null;
+reportedTriggerVersion: number | null;
+currentTriggerVersion: number | null;
+reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
+leaderboardEntryCount: number | null;
+reportBody: string | null;
+comments: Array<App.Community.Data.Comment>;
 };
 export type UserCredits = {
 displayName: string;

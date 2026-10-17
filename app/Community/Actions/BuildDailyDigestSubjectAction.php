@@ -83,7 +83,7 @@ class BuildDailyDigestSubjectAction
 
             SubscriptionSubjectType::ForumTopic => 'New replies to your posts',
 
-            SubscriptionSubjectType::AchievementTicket => 'New activity on your tickets',
+            SubscriptionSubjectType::Ticket => 'New activity on your tickets',
 
             default => 'New comments on things you follow',
         };
