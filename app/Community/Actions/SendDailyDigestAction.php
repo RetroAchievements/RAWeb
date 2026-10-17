@@ -105,7 +105,7 @@ class SendDailyDigestAction
                     SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
                     SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                     SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
-                    SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
+                    SubscriptionSubjectType::Ticket->value => $this->buildTicketTitles($typeIds),
                     default => [],
                 };
             }
@@ -245,7 +245,7 @@ class SendDailyDigestAction
             SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
             SubscriptionSubjectType::UserWall => new CommentDelayedSubscriptionHandler(CommentableType::User),
             SubscriptionSubjectType::Leaderboard => new CommentDelayedSubscriptionHandler(CommentableType::Leaderboard),
-            SubscriptionSubjectType::AchievementTicket => new CommentDelayedSubscriptionHandler(CommentableType::AchievementTicket),
+            SubscriptionSubjectType::Ticket => new CommentDelayedSubscriptionHandler(CommentableType::Ticket),
 
             // other cases will be filled in as the calls are updated.
             default => throw new InvalidArgumentException("No handler for {$subjectType->value}"),
@@ -496,7 +496,7 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
             return route('comment.show', ['comment' => $firstUpdateId]);
         }
 
-        if ($this->commentableType === CommentableType::AchievementTicket) {
+        if ($this->commentableType === CommentableType::Ticket) {
             return route('ticket.show', ['ticket' => $subjectId]) . "#comment_{$firstUpdateId}";
         }
 

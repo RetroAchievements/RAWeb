@@ -438,6 +438,7 @@ createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createOAuthClients?: boolean;
 createTicket?: boolean;
+createTicketComments?: boolean;
 createUserBetaFeedbackSubmission?: boolean;
 createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
@@ -526,7 +527,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired' | 'supporter';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'engineer' | 'team-account' | 'community-manager' | 'supporter';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -1185,6 +1186,12 @@ persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;
 defaultDesktopPageSize: number;
 };
+export type TicketChangelogEntry = {
+type: App.Platform.Enums.TicketChangelogEntryType;
+createdAt: string;
+user: App.Data.User | null;
+resolution: App.Community.Enums.TicketResolution | null;
+};
 export type Ticket = {
 id: number;
 ticketableType: App.Platform.Enums.TicketableType;
@@ -1279,6 +1286,9 @@ reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;
 reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
 leaderboardEntryCount: number | null;
+reportBody: string | null;
+comments: Array<App.Community.Data.Comment>;
+changelog: Array<App.Platform.Data.TicketChangelogEntry>;
 };
 export type UserCredits = {
 displayName: string;
@@ -1303,7 +1313,6 @@ export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'writing';
 export type AchievementChangelogEntryType = 'created' | 'deleted' | 'restored' | 'edited' | 'promoted' | 'demoted' | 'description-updated' | 'title-updated' | 'points-changed' | 'badge-updated' | 'embed-url-updated' | 'logic-updated' | 'moved-to-different-game' | 'type-set' | 'type-changed' | 'type-removed';
 export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
-export type UnlockMode = 0 | 1;
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
@@ -1318,6 +1327,7 @@ export type GameScreenshotRejectionReason = 'wrong_game' | 'poor_quality' | 'dup
 export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected' | 'replaced';
 export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
+export type UnlockMode = 0 | 1;
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
 export type GlobalRankingMode = 'hardcore' | 'casual';
 export type GlobalRankingSortField = 'points' | 'points_weighted' | 'achievements_unlocked' | 'awards_count';
@@ -1330,6 +1340,7 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
+export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 'returned' | 'approved' | 'reopened';
 export type TicketCreationBlockReason = 'game_not_ticketable' | 'no_play_session';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'system' | 'emulator' | 'core';

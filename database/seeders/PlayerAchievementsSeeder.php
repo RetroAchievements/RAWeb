@@ -145,7 +145,7 @@ class PlayerAchievementsSeeder extends Seeder
 
         // update developer contribution yields
         $developers = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED]);
+            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
         })->get();
         $updateDeveloperContributionYieldAction = new UpdateDeveloperContributionYieldAction();
         foreach ($developers as $developer) {

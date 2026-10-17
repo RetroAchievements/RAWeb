@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -27,6 +28,11 @@ class TicketShowPagePropsData extends Data
         public ?int $currentTriggerVersion,
         public ?LeaderboardEntryData $reporterLeaderboardEntry,
         public ?int $leaderboardEntryCount,
+        public ?string $reportBody,
+        /** @var CommentData[] $comments */
+        public array $comments,
+        /** @var TicketChangelogEntryData[] $changelog */
+        public array $changelog,
     ) {
     }
 }

@@ -325,12 +325,12 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
             <table id="feed" class="table-highlight">
                 <tbody>
                     <x-comment.item
-                        :commentableType="CommentableType::AchievementTicket"
+                        :commentableType="CommentableType::Ticket"
                         :author="$ticket->reporter"
                         :when="$ticket->created_at"
                         :payload="$ticketNotes"
                     />
-                    @php $numArticleComments = getRecentArticleComments(CommentableType::AchievementTicket, $ticket->id, $commentData) @endphp
+                    @php $numArticleComments = getRecentArticleComments(CommentableType::Ticket, $ticket->id, $commentData) @endphp
                     @php $allowDelete = $user->hasRole(Role::MODERATOR) @endphp
                     @foreach ($commentData as $comment)
                         @php
@@ -345,7 +345,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                             :author="$commentUser"
                             :when="$when"
                             :payload="nl2br($comment['CommentPayload'])"
-                            :commentableType="CommentableType::AchievementTicket"
+                            :commentableType="CommentableType::Ticket"
                             :commentableId="$ticket->id"
                             :commentId="$comment['ID']"
                             :allowDelete="$allowDelete || $comment['User'] === $user->username"
@@ -353,7 +353,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                     @endforeach
 
                     <x-comment.input-row
-                        :commentableType="CommentableType::AchievementTicket"
+                        :commentableType="CommentableType::Ticket"
                         :commentableId="$ticket->id"
                         :article="$ticket"
                     />

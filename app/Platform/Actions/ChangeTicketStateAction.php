@@ -50,7 +50,7 @@ class ChangeTicketStateAction
         $serverUser = User::whereName('Server')->first();
         if ($serverUser) {
             Comment::create([
-                'commentable_type' => CommentableType::AchievementTicket,
+                'commentable_type' => CommentableType::Ticket,
                 'commentable_id' => $ticket->id,
                 'body' => $comment,
                 'user_id' => $serverUser->id,

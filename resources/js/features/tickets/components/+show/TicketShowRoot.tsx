@@ -2,6 +2,7 @@ import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { TicketComments } from '../TicketComments';
 import { TicketFactsList } from '../TicketFactsList';
 import { TicketShowBreadcrumbs } from '../TicketShowBreadcrumbs';
 import { TicketShowHeader } from '../TicketShowHeader';
@@ -14,6 +15,7 @@ export const TicketShowRoot: FC = () => {
       <TicketShowBreadcrumbs ticket={ticket} />
       <TicketShowHeader />
       <TicketFactsList />
+      <TicketComments />
     </div>
   );
 };
