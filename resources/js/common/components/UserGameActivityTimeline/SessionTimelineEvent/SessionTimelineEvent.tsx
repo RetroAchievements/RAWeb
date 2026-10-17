@@ -49,7 +49,9 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
       ) : null}
 
       {hasReportedMarker ? (
-        <BaseChip className="light:text-neutral-900">{t('Reported achievement')}</BaseChip>
+        <BaseChip className="shrink-0 whitespace-nowrap light:text-neutral-900">
+          {t('Reported achievement')}
+        </BaseChip>
       ) : null}
 
       {sessionEvent.type === 'rich-presence' && sessionEvent.description ? (
