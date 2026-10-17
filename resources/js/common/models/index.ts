@@ -2,6 +2,7 @@ export * from './achievement-section-props.model';
 export * from './app-global-props.model';
 export * from './app-page.model';
 export * from './base-avatar-props.model';
+export * from './comment-list-interleaved-item.model';
 export * from './event-achievement-time-status.model';
 export * from './laravel-validation-error.model';
 export * from './link-prefetch-behavior.model';

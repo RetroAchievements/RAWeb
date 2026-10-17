@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -11,9 +11,11 @@ import { useCommentListContext } from './CommentListContext';
 import { DeleteCommentButton } from './DeleteCommentButton';
 import { ReportCommentButton } from './ReportCommentButton';
 
-type CommentListItemProps = App.Community.Data.Comment;
+type CommentListItemProps = App.Community.Data.Comment & {
+  footer?: ReactNode;
+};
 
-export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
+export const CommentListItem: FC<CommentListItemProps> = ({ footer, ...comment }) => {
   const { auth, ziggy } = usePageProps();
   const { t } = useTranslation();
 
@@ -93,6 +95,8 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
         >
           <FormatNewlines>{comment.payload}</FormatNewlines>
         </p>
+
+        {footer ? <div className="mt-1.5 flex flex-col gap-1">{footer}</div> : null}
       </div>
     </li>
   );

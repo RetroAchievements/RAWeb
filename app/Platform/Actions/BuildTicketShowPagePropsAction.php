@@ -85,8 +85,10 @@ class BuildTicketShowPagePropsAction
             // NOTE: Ticket comments from banned users are always visible, intentionally.
             comments: array_map(
                 fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
-                $ticket->comments()->with('user')->orderBy('created_at')->orderBy('id')->get()->all(),
+                $ticket->comments()->notAutomated()->with('user')->orderBy('created_at')->orderBy('id')->get()->all(),
             ),
+
+            changelog: (new BuildTicketChangelogAction())->execute($ticket),
         );
 
         return $propsData;
