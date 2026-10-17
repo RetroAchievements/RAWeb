@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Trans } from 'react-i18next';
 
 import { useFormatCoarseDuration } from '@/common/hooks/useFormatCoarseDuration';
+import { TranslationKey } from '@/types/i18next';
 
 import { TicketDateTooltip } from '../TicketDateTooltip';
 import { TicketUserValue } from '../TicketUserValue';
@@ -24,13 +25,13 @@ const resolutionSentences = {
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because they could not debug the problem.',
   demoted:
     '<1>{{user}}</1> closed this ticket and demoted the achievement <2>{{duration}}</2> after the report.',
-} as const satisfies Record<App.Community.Enums.TicketResolution, string>;
+} as const satisfies Record<App.Community.Enums.TicketResolution, TranslationKey>;
 
 const demotedLeaderboardSentence =
   '<1>{{user}}</1> closed this ticket and demoted the leaderboard <2>{{duration}}</2> after the report.';
 
 // a few really old closed tickets don't have any recorded resolution, but this is an edge case
-const missingResolutionSentence =
+const missingResolutionSentence: TranslationKey =
   '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report.';
 
 type OutcomeSentenceKey =

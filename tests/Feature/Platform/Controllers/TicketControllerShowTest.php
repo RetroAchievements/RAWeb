@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
+use App\Models\Comment;
 use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -384,6 +386,139 @@ describe('Reporter Unlock Props', function () {
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
             ->where('reporterUnlock.unlocker.displayName', $awarder->display_name)
+        );
+    });
+});
+
+describe('Comment Props', function () {
+    it('given a ticket with comments, includes the data as props', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $commenter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'body' => "It never unlocks.\nI tried twice.",
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $commenter->id,
+            'body' => 'Second comment.',
+            'created_at' => Carbon::parse('2024-05-02 00:00:00'),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $commenter->id,
+            'body' => 'First comment.',
+            'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        ]);
+
+        actingAs($reporter);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('reportBody', "It never unlocks.\nI tried twice.")
+            ->has('comments', 2)
+            ->where('comments.0.payload', 'First comment.')
+            ->where('comments.1.payload', 'Second comment.')
+            ->where('can.createTicketComments', true)
+        );
+    });
+
+    it('given the user is muted, they cannot comment on the ticket', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+
+        actingAs(User::factory()->create(['muted_until' => now()->addWeek()]));
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('can.createTicketComments', false));
+    });
+
+    it('given a comment that was posted by a now-banned user, a regular viewer can still see it', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create(['banned_at' => now()])->id,
+            'body' => 'The save state is attached.',
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('comments', 1)
+            ->where('comments.0.payload', 'The save state is attached.')
+        );
+    });
+
+    it('given a ticket whose state at some point was changed, includes the changelog entry and hides associated legacy Server comments', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create()->id,
+            'body' => 'Which ROM did you use?',
+        ]);
+
+        actingAs(User::factory()->create(['display_name' => 'Scott']));
+        $ticket->state = TicketState::Closed;
+        $ticket->resolution = TicketResolution::WrongRom;
+        $ticket->save();
+
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create(['id' => Comment::SYSTEM_USER_ID])->id,
+            'body' => 'Ticket closed by Scott. Reason: "Wrong ROM".',
+            'created_at' => now(),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('comments', 1)
+            ->where('comments.0.payload', 'Which ROM did you use?')
+            ->has('changelog', 1)
+            ->where('changelog.0.type', 'closed')
+            ->where('changelog.0.resolution', 'wrong_rom')
+            ->where('changelog.0.user.displayName', 'Scott')
         );
     });
 });

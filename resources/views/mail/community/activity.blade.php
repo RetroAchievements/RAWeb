@@ -26,7 +26,7 @@ Hello {{ $toUserDisplayName }}!
 
 {{ $activityCommenterDisplayName }} has commented on {{ $activityDescription }}.
 
-@if ($commentableType === \App\Community\Enums\CommentableType::AchievementTicket && isset($ticketable) && isset($game))
+@if ($commentableType === \App\Community\Enums\CommentableType::Ticket && isset($ticketable) && isset($game))
 @php
     $ticketableType = $ticketable instanceof \App\Models\Achievement ? 'achievement' : 'leaderboard';
 @endphp

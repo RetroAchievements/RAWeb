@@ -170,7 +170,7 @@ class EventsSeeder extends Seeder
 
         $date = Carbon::now()->subDays(5);
         $developers = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED]);
+            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
         })->inRandomOrder()->limit(5)->get();
         foreach ($developers as $user) {
             PlayerGame::create([

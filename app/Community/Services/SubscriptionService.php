@@ -260,7 +260,7 @@ class SubscriptionService
     {
         return match ($subjectType) {
             SubscriptionSubjectType::Achievement => new AchievementWallSubscriptionHandler(),
-            SubscriptionSubjectType::AchievementTicket => new TicketSubscriptionHandler(),
+            SubscriptionSubjectType::Ticket => new TicketSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicSubscriptionHandler(),
             SubscriptionSubjectType::GameAchievements => new GameAchievementsSubscriptionHandler(),
             SubscriptionSubjectType::GameTickets => new GameTicketsSubscriptionHandler(),
@@ -448,7 +448,7 @@ class TicketSubscriptionHandler extends CommentSubscriptionHandler
 {
     protected function getCommentableType(): CommentableType
     {
-        return CommentableType::AchievementTicket;
+        return CommentableType::Ticket;
     }
 
     /**

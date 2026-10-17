@@ -36,13 +36,11 @@ return [
 
         // vanity roles assigned by root
         Role::FOUNDER => __('Founder'),
-        Role::ARCHITECT => __('Architect'),
         Role::ENGINEER => __('Engineer'),
         Role::TEAM_ACCOUNT => __('Team Account'),
 
         // vanity roles assigned by admins
         Role::COMMUNITY_MANAGER => __('Community Manager'),
-        Role::DEVELOPER_RETIRED => __('Developer (retired)'),
         Role::SUPPORTER => __('Supporter'),
     ],
 ];

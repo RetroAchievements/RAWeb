@@ -34,7 +34,7 @@ function createSystemUser(): User
     return User::factory()->create(['id' => Comment::SYSTEM_USER_ID]);
 }
 
-function createLegacyComment(Achievement $achievement, string $body, string $date): Comment
+function createAchievementLegacyComment(Achievement $achievement, string $body, string $date): Comment
 {
     return Comment::factory()->create([
         'commentable_type' => CommentableType::Achievement->value,
@@ -45,7 +45,7 @@ function createLegacyComment(Achievement $achievement, string $body, string $dat
     ]);
 }
 
-function createActivity(
+function createAchievementActivity(
     Achievement $achievement,
     string $event,
     string $date,
@@ -77,7 +77,7 @@ function createActivity(
 /**
  * @return AchievementChangelogEntryData[]
  */
-function entriesOfType(array $result, AchievementChangelogEntryType $type): array
+function achievementEntriesOfType(array $result, AchievementChangelogEntryType $type): array
 {
     return array_values(array_filter(
         $result,
@@ -92,13 +92,13 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, $event, '2024-06-15 12:00:00', $user);
+        createAchievementActivity($achievement, $event, '2024-06-15 12:00:00', $user);
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, $expectedType);
+        $entries = achievementEntriesOfType($result, $expectedType);
         expect($entries)->toHaveCount(1);
     })->with([
         'created' => ['created', AchievementChangelogEntryType::Created],
@@ -119,7 +119,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: [$field => $newVal],
             old: [$field => $oldVal],
         );
@@ -128,7 +128,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, $expectedType);
+        $entries = achievementEntriesOfType($result, $expectedType);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toHaveCount(1);
         expect($entries[0]->fieldChanges[0]->oldValue)->toEqual($expectedOld);
@@ -150,7 +150,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: [$field => $newVal],
             old: [$field => $oldVal],
         );
@@ -159,7 +159,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, $expectedType);
+        $entries = achievementEntriesOfType($result, $expectedType);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toEqual([]);
     })->with([
@@ -173,7 +173,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['image_name' => '12345'],
             old: ['image_name' => '00000'],
         );
@@ -182,7 +182,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::BadgeUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::BadgeUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toHaveCount(1);
         expect($entries[0]->fieldChanges[0]->oldValue)->toContain('/Badge/00000.png');
@@ -196,7 +196,7 @@ describe('Activitylog Entries', function () {
         $newGame = Game::factory()->create(['title' => 'Super Mario Bros. [Subset - Bonus]']);
         $achievement = createAchievementWithoutLog(['game_id' => $oldGame->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['game_id' => $newGame->id],
             old: ['game_id' => $oldGame->id],
         );
@@ -205,7 +205,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::MovedToDifferentGame);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::MovedToDifferentGame);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toHaveCount(1);
         expect($entries[0]->fieldChanges[0]->oldValue)->toEqual('Super Mario Bros.');
@@ -222,7 +222,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['is_promoted' => $newVal],
             old: ['is_promoted' => $oldVal],
         );
@@ -231,7 +231,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, $expectedType))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, $expectedType))->toHaveCount(1);
     })->with([
         'promoted' => [1, 0, AchievementChangelogEntryType::Promoted],
         'demoted' => [0, 1, AchievementChangelogEntryType::Demoted],
@@ -244,7 +244,7 @@ describe('Activitylog Entries', function () {
             $game = Game::factory()->create();
             $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-            createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+            createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
                 attributes: ['type' => 'progression'],
                 old: ['type' => null],
             );
@@ -253,7 +253,7 @@ describe('Activitylog Entries', function () {
             $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
             // Assert
-            $entries = entriesOfType($result, AchievementChangelogEntryType::TypeSet);
+            $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TypeSet);
             expect($entries)->toHaveCount(1);
             expect($entries[0]->fieldChanges)->toHaveCount(1);
             expect($entries[0]->fieldChanges[0]->newValue)->toEqual('Progression');
@@ -265,7 +265,7 @@ describe('Activitylog Entries', function () {
             $game = Game::factory()->create();
             $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-            createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+            createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
                 attributes: ['type' => 'win_condition'],
                 old: ['type' => 'progression'],
             );
@@ -274,7 +274,7 @@ describe('Activitylog Entries', function () {
             $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
             // Assert
-            $entries = entriesOfType($result, AchievementChangelogEntryType::TypeChanged);
+            $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TypeChanged);
             expect($entries)->toHaveCount(1);
             expect($entries[0]->fieldChanges[0]->oldValue)->toEqual('Progression');
             expect($entries[0]->fieldChanges[0]->newValue)->toEqual('Win Condition');
@@ -286,7 +286,7 @@ describe('Activitylog Entries', function () {
             $game = Game::factory()->create();
             $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-            createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+            createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
                 attributes: ['type' => null],
                 old: ['type' => 'missable'],
             );
@@ -295,7 +295,7 @@ describe('Activitylog Entries', function () {
             $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
             // Assert
-            expect(entriesOfType($result, AchievementChangelogEntryType::TypeRemoved))->toHaveCount(1);
+            expect(achievementEntriesOfType($result, AchievementChangelogEntryType::TypeRemoved))->toHaveCount(1);
         });
     });
 
@@ -310,7 +310,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: [$legacyField => $newVal],
             old: [$legacyField => $oldVal],
         );
@@ -319,7 +319,7 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, $expectedType))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, $expectedType))->toHaveCount(1);
     })->with([
         'Description -> DescriptionUpdated' => ['Description', 'New', 'Old', AchievementChangelogEntryType::DescriptionUpdated],
         'BadgeName -> BadgeUpdated' => ['BadgeName', '99999', '00000', AchievementChangelogEntryType::BadgeUpdated],
@@ -331,7 +331,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New Title', 'description' => 'New Desc'],
             old: ['title' => 'Old Title', 'description' => 'Old Desc'],
         );
@@ -340,8 +340,8 @@ describe('Activitylog Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::TitleUpdated))->toHaveCount(1);
-        expect(entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::TitleUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
     });
 
     it('serializes deleted user metadata on every entry from the same multi-field activity', function () {
@@ -352,7 +352,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New Title', 'description' => 'New Desc'],
             old: ['title' => 'Old Title', 'description' => 'Old Desc'],
         );
@@ -383,7 +383,7 @@ describe('Activitylog Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user);
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user);
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
@@ -423,7 +423,7 @@ describe('Trigger Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user->displayName)->toEqual($user->display_name);
         expect($entries[0]->triggerVersion)->toEqual(2);
@@ -457,7 +457,7 @@ describe('Trigger Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->triggerVersion)->toBeNull();
     });
@@ -499,7 +499,7 @@ describe('Trigger Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
         expect($entries)->toHaveCount(2);
         expect(collect($entries)->pluck('triggerVersion')->sort()->values()->all())->toEqual([2, 3]);
     });
@@ -522,7 +522,7 @@ describe('Trigger Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(0);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(0);
     });
 
     it('given a legacy comment describes a logic edit, it creates an entry with a null triggerVersion', function () {
@@ -532,13 +532,13 @@ describe('Trigger Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, "Scott edited this achievement's logic.", '2019-05-01 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's logic.", '2019-05-01 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->triggerVersion)->toBeNull();
     });
@@ -555,13 +555,13 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, $body, '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, $body, '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, $expectedType);
+        $entries = achievementEntriesOfType($result, $expectedType);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user->displayName)->toEqual('Scott');
     })->with([
@@ -583,13 +583,13 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, '"meleu" promoted this achievement to the Core set.', '2020-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, '"meleu" promoted this achievement to the Core set.', '2020-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::Promoted);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::Promoted);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user->displayName)->toEqual('meleu');
     });
@@ -601,14 +601,14 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, "Scott edited this achievement's description, logic.", '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's description, logic.", '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
-        expect(entriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::LogicUpdated))->toHaveCount(1);
     });
 
     it('serializes deleted user metadata on every entry from the same multi-field legacy comment', function () {
@@ -620,7 +620,7 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, "Scott edited this achievement's points, logic, description.", '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's points, logic, description.", '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
@@ -650,13 +650,13 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, "Scott set this achievement's type to Progression.", '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott set this achievement's type to Progression.", '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::TypeSet);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TypeSet);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->fieldChanges)->toHaveCount(1);
         expect($entries[0]->fieldChanges[0]->newValue)->toEqual('Progression');
@@ -669,13 +669,13 @@ describe('Legacy Comment Entries', function () {
         $user = User::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, 'Something completely unexpected happened.', '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, 'Something completely unexpected happened.', '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::Edited);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::Edited);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->toBeNull();
     });
@@ -687,14 +687,14 @@ describe('Legacy Comment Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, 'Scott uploaded this achievement.', '2024-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, 'Scott uploaded this achievement.', '2024-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
         // ... the only "Created" should be the synthesized one, not the post-cutoff comment ...
-        $created = entriesOfType($result, AchievementChangelogEntryType::Created);
+        $created = achievementEntriesOfType($result, AchievementChangelogEntryType::Created);
         expect($created)->toHaveCount(1);
         expect($created[0]->user->displayName)->toEqual($user->display_name);
 
@@ -714,9 +714,9 @@ describe('Merging and Sorting', function () {
             'created_at' => '2020-01-01 00:00:00',
         ]);
 
-        createLegacyComment($achievement, "Scott edited this achievement's badge.", '2023-01-15 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's badge.", '2023-01-15 12:00:00');
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
@@ -757,15 +757,15 @@ describe('Collapsing Consecutive Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-15 12:00:00');
-        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-14 12:00:00');
-        createLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-13 12:00:00');
+        createAchievementLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-14 12:00:00');
+        createAchievementLegacyComment($achievement, 'Scott edited this achievement.', '2023-06-13 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::Edited);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::Edited);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->count)->toEqual(3);
     });
@@ -776,15 +776,15 @@ describe('Collapsing Consecutive Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['embed_url' => 'https://example.com/a'],
             old: ['embed_url' => 'https://example.com/b'],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
             attributes: ['embed_url' => 'https://example.com/c'],
             old: ['embed_url' => 'https://example.com/a'],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:02:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:02:00', $user,
             attributes: ['embed_url' => 'https://example.com/d'],
             old: ['embed_url' => 'https://example.com/c'],
         );
@@ -793,7 +793,7 @@ describe('Collapsing Consecutive Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::EmbedUrlUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::EmbedUrlUpdated);
         expect($entries)->toHaveCount(3);
     });
 
@@ -803,11 +803,11 @@ describe('Collapsing Consecutive Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
             attributes: ['image_name' => '11111'],
             old: ['image_name' => '00000'],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
@@ -816,8 +816,8 @@ describe('Collapsing Consecutive Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::BadgeUpdated))->toHaveCount(1);
-        expect(entriesOfType($result, AchievementChangelogEntryType::TitleUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::BadgeUpdated))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::TitleUpdated))->toHaveCount(1);
     });
 
     it('does not collapse consecutive entries from different users', function () {
@@ -827,11 +827,11 @@ describe('Collapsing Consecutive Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $userA->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:01:00', $userA,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:01:00', $userA,
             attributes: ['image_name' => '11111'],
             old: ['image_name' => '00000'],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $userB,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $userB,
             attributes: ['image_name' => '22222'],
             old: ['image_name' => '11111'],
         );
@@ -840,7 +840,7 @@ describe('Collapsing Consecutive Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::BadgeUpdated))->toHaveCount(2);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::BadgeUpdated))->toHaveCount(2);
     });
 
     it('merges field changes during collapse, keeping oldest oldValue and newest newValue', function () {
@@ -849,11 +849,11 @@ describe('Collapsing Consecutive Entries', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
             attributes: ['points' => 50],
             old: ['points' => 25],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['points' => 25],
             old: ['points' => 10],
         );
@@ -862,7 +862,7 @@ describe('Collapsing Consecutive Entries', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::PointsChanged);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::PointsChanged);
         expect($entries)->toHaveCount(1);
 
         expect($entries[0]->fieldChanges[0]->oldValue)->toEqual('10');
@@ -878,11 +878,11 @@ describe('Net-Zero Removal', function () {
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
         // ... 10 -> 25 -> 10, this is a net-zero change ...
-        createActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:01:00', $user,
             attributes: ['points' => 10],
             old: ['points' => 25],
         );
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['points' => 25],
             old: ['points' => 10],
         );
@@ -891,7 +891,7 @@ describe('Net-Zero Removal', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::PointsChanged))->toHaveCount(0);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::PointsChanged))->toHaveCount(0);
     });
 });
 
@@ -906,7 +906,7 @@ describe('Created Entry Anchor', function () {
             'created_at' => '2020-06-15 12:00:00',
         ]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $developer,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $developer,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
@@ -927,13 +927,13 @@ describe('Created Entry Anchor', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'created', '2024-06-15 12:00:00', $user);
+        createAchievementActivity($achievement, 'created', '2024-06-15 12:00:00', $user);
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::Created))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::Created))->toHaveCount(1);
     });
 
     it('does not duplicate when Created already exists from legacy comments', function () {
@@ -943,13 +943,13 @@ describe('Created Entry Anchor', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, 'Scott uploaded this achievement.', '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, 'Scott uploaded this achievement.', '2023-06-15 12:00:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        expect(entriesOfType($result, AchievementChangelogEntryType::Created))->toHaveCount(1);
+        expect(achievementEntriesOfType($result, AchievementChangelogEntryType::Created))->toHaveCount(1);
     });
 
     it('sets user to null when the achievement has no developer', function () {
@@ -978,13 +978,13 @@ describe('User Backfilling', function () {
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
         // ... this entry has a causer ...
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
 
         // ... this entry has no causer, but is within 5 minutes ...
-        createActivity($achievement, 'updated', '2024-06-15 12:02:00', null,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:02:00', null,
             attributes: ['description' => 'New desc'],
             old: ['description' => 'Old desc'],
         );
@@ -993,7 +993,7 @@ describe('User Backfilling', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->not->toBeNull();
         expect($entries[0]->user->displayName)->toEqual($user->display_name);
@@ -1006,13 +1006,13 @@ describe('User Backfilling', function () {
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
         // ... this entry has a causer but is more than 5 minutes away ...
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
 
         // ... this entry has no causer and is more than 5 min from the other ...
-        createActivity($achievement, 'updated', '2024-06-15 12:10:00', null,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:10:00', null,
             attributes: ['description' => 'New desc'],
             old: ['description' => 'Old desc'],
         );
@@ -1021,7 +1021,7 @@ describe('User Backfilling', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::DescriptionUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->toBeNull();
     });
@@ -1034,19 +1034,19 @@ describe('User Backfilling', function () {
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
         // ... this activity has no causer ...
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', null,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', null,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
 
         // ... this is a post-cutoff legacy comment within 5 min that names the user ...
-        createLegacyComment($achievement, "Scott edited this achievement's title.", '2024-06-15 12:01:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's title.", '2024-06-15 12:01:00');
 
         // Act
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->not->toBeNull();
         expect($entries[0]->user->displayName)->toEqual('Scott');
@@ -1075,7 +1075,7 @@ describe('Edge Cases', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
+        createAchievementActivity($achievement, 'updated', '2024-06-15 12:00:00', $user,
             attributes: ['title' => 'New'],
             old: ['title' => 'Old'],
         );
@@ -1086,7 +1086,7 @@ describe('Edge Cases', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->not->toBeNull();
         expect($entries[0]->user->displayName)->toEqual($user->display_name);
@@ -1099,7 +1099,7 @@ describe('Edge Cases', function () {
         $game = Game::factory()->create();
         $achievement = createAchievementWithoutLog(['game_id' => $game->id, 'user_id' => $user->id]);
 
-        createLegacyComment($achievement, "Scott edited this achievement's title.", '2023-06-15 12:00:00');
+        createAchievementLegacyComment($achievement, "Scott edited this achievement's title.", '2023-06-15 12:00:00');
 
         $user->delete();
 
@@ -1107,7 +1107,7 @@ describe('Edge Cases', function () {
         $result = (new BuildAchievementChangelogAction())->execute($achievement);
 
         // Assert
-        $entries = entriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
+        $entries = achievementEntriesOfType($result, AchievementChangelogEntryType::TitleUpdated);
         expect($entries)->toHaveCount(1);
         expect($entries[0]->user)->not->toBeNull();
         expect($entries[0]->user->displayName)->toEqual('Scott');

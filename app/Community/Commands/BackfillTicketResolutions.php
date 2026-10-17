@@ -90,7 +90,7 @@ class BackfillTicketResolutions extends Command
     private function findResolutionsFromCloseComments(array $ticketIds): array
     {
         $comments = Comment::query()
-            ->where('commentable_type', CommentableType::AchievementTicket)
+            ->where('commentable_type', CommentableType::Ticket)
             ->whereIn('commentable_id', $ticketIds)
             ->where('user_id', Comment::SYSTEM_USER_ID)
             ->orderByDesc('created_at')
@@ -108,7 +108,7 @@ class BackfillTicketResolutions extends Command
                 continue;
             }
 
-            $resolutionsByTicketId[$comment->commentable_id] = $this->resolutionFromReasonText($reason);
+            $resolutionsByTicketId[$comment->commentable_id] = TicketResolution::fromCloseReasonText($reason);
         }
 
         return $resolutionsByTicketId;
@@ -117,19 +117,6 @@ class BackfillTicketResolutions extends Command
     private function parseCloseReasonText(string $body): ?string
     {
         return preg_match('/Reason: "(.+)"\.\s*$/s', $body, $matches) ? $matches[1] : null;
-    }
-
-    private function resolutionFromReasonText(string $reasonText): ?TicketResolution
-    {
-        $reasonText = trim($reasonText);
-
-        foreach (TicketResolution::cases() as $resolution) {
-            if ($resolution->closeReasonText() === $reasonText) {
-                return $resolution;
-            }
-        }
-
-        return null;
     }
 
     /**
