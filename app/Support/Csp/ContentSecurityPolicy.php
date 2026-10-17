@@ -110,5 +110,7 @@ class ContentSecurityPolicy extends Policy
         $this->add(Directive::FRAME, '*.youtube-nocookie.com');
         $this->add(Directive::FRAME, 'player.twitch.tv');
         $this->add(Directive::SCRIPT, 'cdn.jsdelivr.net');
+        $this->add(Directive::SCRIPT, 'challenges.cloudflare.com');
+        $this->add(Directive::FRAME, 'challenges.cloudflare.com');
     }
 }
