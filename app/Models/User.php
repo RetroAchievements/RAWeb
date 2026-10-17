@@ -174,6 +174,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'connect_token_expires_at' => 'datetime',
         'delete_requested_at' => 'datetime',
         'email_verified_at' => 'datetime',
+        'forum_verified_at' => 'datetime',
         'is_user_wall_active' => 'boolean',
         'last_activity_at' => 'datetime',
         'muted_until' => 'datetime',
