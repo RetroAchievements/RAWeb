@@ -91,10 +91,10 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
   const timingMessage = getTimingMessage();
 
   return (
-    <span className="flex items-center gap-0.5 text-2xs text-neutral-500">
-      {timingMessage !== null ? <LuArrowRight data-testid="arrow-icon" /> : null}
+    <span className="flex items-start gap-0.5 text-2xs text-neutral-500">
+      {timingMessage !== null ? <LuArrowRight data-testid="arrow-icon" className="mt-0.5" /> : null}
 
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-x-1">
         {/* Main timing message, ie: "5m 20s after previous." */}
         {timingMessage}
 
