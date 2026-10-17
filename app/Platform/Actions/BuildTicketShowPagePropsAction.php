@@ -8,8 +8,10 @@ use App\Community\Data\CommentData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\User;
@@ -20,6 +22,8 @@ use App\Platform\Data\TicketListEntryData;
 use App\Platform\Data\TicketRelatedEntryData;
 use App\Platform\Data\TicketReporterUnlockData;
 use App\Platform\Data\TicketShowPagePropsData;
+use App\Platform\Enums\AchievementSetType;
+use App\Platform\Services\PlayerGameActivityService;
 use App\Platform\Services\TicketViewService;
 use Spatie\LaravelData\Lazy;
 
@@ -56,10 +60,8 @@ class BuildTicketShowPagePropsAction
 
         // Resolving this up front avoids a layout shift that deferring the
         // player activity prop values would otherwise introduce.
-        $reporterHasPlayedGame = $reporterHasActivity && PlayerGame::query()
-            ->where('user_id', $ticket->reporter_id)
-            ->where('game_id', $ticketable->getTicketableGame()->id)
-            ->exists();
+        $reporterHasPlayedGame = $reporterHasActivity
+            && $this->getHasReporterPlayedGame($ticket->reporter_id, $ticketable->getTicketableGame());
 
         $propsData = new TicketShowPagePropsData(
             ticket: TicketListEntryData::fromTicket($ticket),
@@ -139,5 +141,21 @@ class BuildTicketShowPagePropsAction
             isHardcore: $unlock->unlocked_hardcore_at !== null,
             unlocker: $unlock->unlocker ? UserData::fromUser($unlock->unlocker) : null,
         );
+    }
+
+    private function getHasReporterPlayedGame(int $reporterId, Game $game): bool
+    {
+        if (PlayerGame::query()->where('user_id', $reporterId)->where('game_id', $game->id)->exists()) {
+            return true;
+        }
+
+        $baseAchievementSetId = (int) $game->gameAchievementSets()
+            ->where('type', AchievementSetType::Core)
+            ->value('achievement_set_id');
+
+        return PlayerSession::query()
+            ->where('user_id', $reporterId)
+            ->whereIn('game_id', PlayerGameActivityService::getMultisetParentGameIds($baseAchievementSetId))
+            ->exists();
     }
 }

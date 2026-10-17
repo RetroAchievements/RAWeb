@@ -73,7 +73,7 @@ const ReporterHistoryPanel: FC = () => {
     setIsOpen(isExpanding);
   };
 
-  const expandHeight = Math.min(contentHeight, window.innerHeight);
+  const expandHeight = isOpen ? Math.min(contentHeight, window.innerHeight) : 0;
   const expandTransition = doesPreferReducedMotion
     ? { height: { duration: 0 }, opacity: { duration: 0.15 } }
     : { duration: 0.25, ease: [0.23, 1, 0.32, 1] as const };
