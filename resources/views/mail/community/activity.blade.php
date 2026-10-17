@@ -8,6 +8,7 @@
         $body = str_replace(["\r\n", "\r"], "\n", $body); // Convert to Unix newlines.
         $body = preg_replace('/\n{3,}|(<br\s*\/?>\s*){3,}/i', "\n\n", $body);
         $body = Shortcode::sanitizeForMailMarkdown($body);
+        $body = preg_replace('/[ \t]*\n/', "  \n", $body); // Markdown hard line breaks.
     }
 
     $url = $urlTarget;
