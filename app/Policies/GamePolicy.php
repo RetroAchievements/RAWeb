@@ -29,6 +29,7 @@ class GamePolicy
             Role::PLAYTEST_MANAGER,
 
             Role::MANUAL_UNLOCKER,
+            Role::CHEAT_INVESTIGATOR,
         ]);
     }
 
