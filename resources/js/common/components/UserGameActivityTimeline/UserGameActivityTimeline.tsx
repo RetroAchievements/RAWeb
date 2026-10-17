@@ -42,7 +42,7 @@ export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
   });
 
   return (
-    <div className="rounded-lg border border-embed-highlight bg-embed p-4 text-gray-200">
+    <div className="text-gray-200">
       <Timeline>
         {filteredSessions.map((session, index) => {
           const isVisible = getShouldAchievementSessionBeVisible(
@@ -83,7 +83,7 @@ const SessionHeader: FC<SessionHeaderProps> = ({ session }) => {
         'border-neutral-700 bg-neutral-800 light:border-neutral-200 light:bg-neutral-100',
       )}
     >
-      <div className="flex w-full flex-col gap-1.5 md:flex-row md:justify-between">
+      <div className="flex w-full flex-col gap-1.5 md:flex-row md:items-start md:justify-between md:gap-4">
         <ClientLabel session={session} />
         <PlaytimeLabel session={session} />
       </div>
@@ -92,13 +92,13 @@ const SessionHeader: FC<SessionHeaderProps> = ({ session }) => {
         <div
           data-testid="rom-info"
           className={cn(
-            'flex items-center gap-1.5',
+            'flex items-start gap-1.5',
             !session.gameHash
               ? 'text-neutral-500 light:text-neutral-400'
               : 'light:text-neutral-900',
           )}
         >
-          <FaFileArchive className="size-4 min-w-5" />
+          <FaFileArchive className="mt-0.5 size-4 min-w-5" />
           <HashLabel session={session} />
         </div>
       ) : null}
@@ -143,19 +143,19 @@ const SessionEvents: FC<SessionEventsProps> = ({
             reportedAchievementId !== undefined &&
             event.achievement?.id === reportedAchievementId;
 
+          const isOutlined = isReportedAchievementUnlock || event.type === 'ticket-created';
+
           return (
             <li
               key={`sessionEvent-${sessionIndex}-${eventIndex}`}
               className={cn(
-                isGrouped ? 'px-3 pt-3' : 'px-3 pb-2.5 pt-3',
+                isGrouped && !isOutlined ? 'px-3 pt-3' : 'px-3 pb-2.5 pt-3',
 
                 eventIndex !== session.events.length - 1 && !isGrouped
                   ? 'border-b border-neutral-700 light:border-neutral-200'
                   : null,
 
-                isReportedAchievementUnlock || event.type === 'ticket-created'
-                  ? 'rounded-sm outline-2 -outline-offset-2 outline-text'
-                  : null,
+                isOutlined ? 'rounded-sm outline-2 -outline-offset-2 outline-text' : null,
               )}
             >
               <SessionTimelineEvent

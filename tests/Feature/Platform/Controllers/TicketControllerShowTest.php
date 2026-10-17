@@ -416,7 +416,7 @@ describe('Reporter Activity Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('hasReporterActivity', true)
+            ->where('hasReporterHistoryAccess', true)
             ->where('hasReporterPlayedGame', true)
             ->missing('reporterActivity')
             ->loadDeferredProps(fn (Assert $deferredPage) => $deferredPage
@@ -449,7 +449,7 @@ describe('Reporter Activity Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('hasReporterActivity', true)
+            ->where('hasReporterHistoryAccess', true)
             ->where('hasReporterPlayedGame', false)
             ->missing('reporterActivity')
             ->missing('deferredProps')
@@ -475,7 +475,7 @@ describe('Reporter Activity Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('hasReporterActivity', false)
+            ->where('hasReporterHistoryAccess', false)
             ->where('hasReporterPlayedGame', false)
             ->missing('reporterActivity')
             ->missing('deferredProps')

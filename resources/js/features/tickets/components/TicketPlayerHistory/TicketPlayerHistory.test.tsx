@@ -30,7 +30,7 @@ describe('Component: TicketPlayerHistory', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
-        hasReporterActivity: false,
+        hasReporterHistoryAccess: false,
         ticket: createTicketListEntry(),
       },
     });
@@ -43,7 +43,7 @@ describe('Component: TicketPlayerHistory', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
-        hasReporterActivity: false,
+        hasReporterHistoryAccess: false,
         ticket: createTicketListEntry({
           game: createGame({ title: 'Streets of Rage 2' }),
           reporter: createUser({ displayName: 'Scott' }),
@@ -60,7 +60,7 @@ describe('Component: TicketPlayerHistory', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: undefined,
         ticket: createTicketListEntry({
@@ -88,7 +88,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [
@@ -121,7 +121,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [
@@ -156,7 +156,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
@@ -184,7 +184,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
@@ -221,7 +221,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: markedAchievement,
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
@@ -255,7 +255,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: false,
         reporterActivity: undefined,
         ticket: createTicketListEntry({
@@ -279,7 +279,7 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         achievement: createAchievement(),
-        hasReporterActivity: true,
+        hasReporterHistoryAccess: true,
         hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],

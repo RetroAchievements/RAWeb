@@ -23,10 +23,10 @@ const historyPanelShellClassName = cn(
 );
 
 export const TicketPlayerHistory: FC = () => {
-  const { hasReporterActivity, hasReporterPlayedGame } =
+  const { hasReporterHistoryAccess, hasReporterPlayedGame } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
 
-  if (!hasReporterActivity) {
+  if (!hasReporterHistoryAccess) {
     return null;
   }
 

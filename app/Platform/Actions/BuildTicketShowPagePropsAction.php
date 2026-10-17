@@ -107,7 +107,7 @@ class BuildTicketShowPagePropsAction
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
 
-            hasReporterActivity: $reporterHasActivity,
+            hasReporterHistoryAccess: $reporterHasActivity,
             hasReporterPlayedGame: $reporterHasPlayedGame,
             reporterActivity: $reporterHasPlayedGame ? $this->deferReporterActivity($ticket, $ticketable) : null,
         );

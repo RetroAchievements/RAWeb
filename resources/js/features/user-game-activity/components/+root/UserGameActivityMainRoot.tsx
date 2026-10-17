@@ -50,10 +50,12 @@ export const UserGameActivityMainRoot: FC = () => {
             <UserGameSummarizedActivity />
           </div>
 
-          <UserGameActivityTimeline
-            activity={activity}
-            isOnlyShowingAchievementSessions={isOnlyShowingAchievementSessions}
-          />
+          <div className="rounded-lg border border-embed-highlight bg-embed p-4">
+            <UserGameActivityTimeline
+              activity={activity}
+              isOnlyShowingAchievementSessions={isOnlyShowingAchievementSessions}
+            />
+          </div>
         </div>
       ) : (
         <Trans
