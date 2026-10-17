@@ -88,10 +88,11 @@ const ReporterHistoryPanel: FC = () => {
         <LuClock className="size-4 flex-none text-neutral-400" aria-hidden="true" />
 
         <span className="grow">
-          {t("{{user}}'s activity for {{gameTitle}}", {
-            user: ticket.reporter?.displayName,
-            gameTitle: ticket.game.title,
-          })}
+          <Trans
+            i18nKey="{{user}}'s activity for <1>{{game}}</1>"
+            values={{ user: ticket.reporter?.displayName }}
+            components={{ 1: <GameTitle {...ticket.game} /> }}
+          />
         </span>
 
         <LuChevronDown
