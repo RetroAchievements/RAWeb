@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
-type TimeUnit = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
+import { getRelativeTimeUnit } from './getRelativeTimeUnit';
 
 interface DiffForHumansOptions {
   /**
@@ -13,7 +13,7 @@ interface DiffForHumansOptions {
    * Maximum time unit to display. Prevents rolling up to larger units.
    * @example `maxUnit: 'day'` will show "14 days ago" instead of "2 weeks ago".
    */
-  maxUnit?: TimeUnit;
+  maxUnit?: 'day' | 'week' | 'month';
 
   style?: Intl.RelativeTimeFormatStyle;
 }
@@ -48,47 +48,9 @@ export function useDiffForHumans() {
       return isPast ? t('less than a minute ago') : t('in less than a minute');
     }
 
-    // First, determine what unit we would naturally use based on the time elapsed.
-    let unit: TimeUnit;
-    let divisor: number;
+    const { unit, value } = getRelativeTimeUnit(seconds, maxUnit);
 
-    if (seconds < 3600) {
-      unit = 'minute';
-      divisor = 60;
-    } else if (seconds < 86_400) {
-      unit = 'hour';
-      divisor = 3600;
-    } else if (seconds < 604_800) {
-      unit = 'day';
-      divisor = 86_400;
-    } else if (seconds < 2_629_743) {
-      unit = 'week';
-      divisor = 604_800;
-    } else if (seconds < 31_556_926) {
-      unit = 'month';
-      divisor = 2_629_743;
-    } else {
-      unit = 'year';
-      divisor = 31_556_926;
-    }
-
-    // If maxUnit is specified, cap the unit to not exceed it.
-    // For example, if maxUnit is 'day', then "2 weeks" becomes "14 days".
-    if (maxUnit === 'day' && ['week', 'month', 'year'].includes(unit)) {
-      unit = 'day';
-      divisor = 86_400;
-    } else if (maxUnit === 'week' && ['month', 'year'].includes(unit)) {
-      unit = 'week';
-      divisor = 604_800;
-    } else if (maxUnit === 'month' && unit === 'year') {
-      unit = 'month';
-      divisor = 2_629_743;
-    }
-
-    return formatter.format(
-      isPast ? -Math.floor(seconds / divisor) : Math.floor(seconds / divisor),
-      unit,
-    );
+    return formatter.format(isPast ? -value : value, unit);
   };
 
   return { diffForHumans };

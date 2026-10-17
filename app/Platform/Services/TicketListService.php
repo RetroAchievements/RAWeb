@@ -30,7 +30,7 @@ class TicketListService
     private ?array $emulatorNamesById = null;
 
     /**
-     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string}
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string, resolution: string}
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
@@ -40,9 +40,10 @@ class TicketListService
         }
 
         $validatedData = $request->validate($rules);
+        $status = $validatedData['filter']['status'] ?? $defaultStatus->value;
 
-        return [
-            'status' => $validatedData['filter']['status'] ?? $defaultStatus->value,
+        $filterOptions = [
+            'status' => $status,
             'type' => (int) ($validatedData['filter']['type'] ?? 0),
             'publishedStatus' => $validatedData['filter']['publishedStatus'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
@@ -52,7 +53,16 @@ class TicketListService
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
             'core' => trim($validatedData['filter']['core'] ?? ''),
             'system' => $validatedData['filter']['system'] ?? 'all',
+            'resolution' => $validatedData['filter']['resolution'] ?? 'all',
         ];
+
+        foreach (TicketListFilterKind::cases() as $kind) {
+            if (!$kind->appliesToStatus(TicketListStatusFilter::from($status))) {
+                $filterOptions[$kind->value] = $kind->noFilterValue();
+            }
+        }
+
+        return $filterOptions;
     }
 
     public function hasNonStatusFilters(array $filterOptions): bool
@@ -186,6 +196,10 @@ class TicketListService
             $tickets->forSystem((int) $filterOptions['system']);
         }
 
+        if ($filterOptions['resolution'] !== 'all') {
+            $tickets->where('tickets.resolution', $filterOptions['resolution']);
+        }
+
         return $tickets;
     }
 
@@ -207,13 +221,20 @@ class TicketListService
             ? $this->applyFilters(clone $tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)->count()
             : $filteredTotal;
 
-        if ($widestFacetRowCount !== null && $widestFacetRowCount > self::MAX_FACET_COUNT_ROWS) {
-            return [];
-        }
+        $isOverRowLimit = $widestFacetRowCount !== null && $widestFacetRowCount > self::MAX_FACET_COUNT_ROWS;
+        $status = TicketListStatusFilter::from($filterOptions['status']);
 
         $counts = [];
         foreach ($kinds as $kind) {
             if (in_array($kind, [TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Core], true)) {
+                continue;
+            }
+
+            if ($isOverRowLimit && !$kind->isExemptFromFacetRowLimit()) {
+                continue;
+            }
+
+            if (!$kind->appliesToStatus($status)) {
                 continue;
             }
 
@@ -255,6 +276,12 @@ class TicketListService
                     fn (?string $value): ?string => $value,
                 ),
                 TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query),
+                TicketListFilterKind::Resolution => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.resolution',
+                    fn (?string $value): ?string => $value,
+                ),
             };
         }
 
@@ -437,23 +464,31 @@ class TicketListService
     public function getStateCounts(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): array
     {
         $countQuery = $tickets === null ? Ticket::query() : clone $tickets;
+        $resolution = $filterOptions['resolution'];
 
-        $countQuery = $this->applyFilters($countQuery, array_merge($filterOptions, ['status' => TicketListStatusFilter::All->value]), $comparisonUser);
-
-        $countsByState = $countQuery
+        $query = $this->applyFilters(
+            $countQuery,
+            array_merge($filterOptions, ['status' => TicketListStatusFilter::All->value, 'resolution' => 'all']),
+            $comparisonUser,
+        )
             ->reorder()
-            ->select('state', DB::raw('count(*) as aggregate'))
-            ->groupBy('state')
-            ->pluck('aggregate', 'state')
-            ->map(fn (mixed $count) => (int) $count);
+            ->select('state', DB::raw('count(*) as aggregate'));
 
-        $countFor = fn (TicketState $state): int => $countsByState->get($state->value, 0);
+        if ($resolution !== 'all') {
+            $query->selectRaw('coalesce(sum(tickets.resolution = ?), 0) as resolution_aggregate', [$resolution]);
+        }
+
+        $rows = $query->groupBy('state')->toBase()->get()->keyBy('state');
+        $countsWithoutResolution = $rows->map(fn (object $row): int => (int) $row->aggregate);
+        $countsWithResolution = $rows->map(fn (object $row): int => (int) ($row->resolution_aggregate ?? $row->aggregate));
+
+        $countFor = fn (TicketState $state): int => $countsWithoutResolution->get($state->value, 0);
 
         $open = $countFor(TicketState::Open);
         $request = $countFor(TicketState::Request);
         $unresolved = $open + $request;
         $resolved = $countFor(TicketState::Resolved);
-        $closed = $countFor(TicketState::Closed);
+        $closed = $countsWithResolution->get(TicketState::Closed->value, 0);
         $quarantined = $countFor(TicketState::Quarantined);
 
         return [
@@ -463,7 +498,7 @@ class TicketListService
             'resolved' => $resolved,
             'closed' => $closed,
             'quarantined' => $quarantined,
-            'all' => $unresolved + $resolved + $closed + $quarantined,
+            'all' => $countsWithResolution->sum(),
         ];
     }
 }

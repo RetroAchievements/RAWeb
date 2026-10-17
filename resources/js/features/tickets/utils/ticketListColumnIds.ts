@@ -6,6 +6,7 @@ export const TICKET_LIST_COLUMN_IDS = [
   'developer',
   'reporter',
   'resolver',
+  'resolution',
   'emulator',
   'version',
   'core',

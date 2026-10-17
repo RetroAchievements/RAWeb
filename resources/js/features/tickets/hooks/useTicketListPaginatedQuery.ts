@@ -2,6 +2,7 @@ import { hashKey, keepPreviousData, QueryClient, useQuery } from '@tanstack/reac
 import { useRef, useState } from 'react';
 
 import type { TicketListQueryData, TicketListQueryOptionsInput } from '../models';
+import { getTicketListColumnFiltersForStatus } from '../utils/getTicketListColumnFiltersForStatus';
 import { buildTicketListQueryOptions } from './ticketListQueryOptions';
 
 interface UseTicketListPaginatedQueryProps extends TicketListQueryOptionsInput {
@@ -38,8 +39,13 @@ export function useTicketListPaginatedQuery({
       Pick<TicketListQueryOptionsInput, 'columnFilters' | 'sortParam' | 'pageNumber'>
     >,
   ) => {
+    const input = { ...queryOptionsInput, pageNumber: 1, ...overrides };
+
     queryClient.prefetchQuery(
-      buildTicketListQueryOptions({ ...queryOptionsInput, pageNumber: 1, ...overrides }),
+      buildTicketListQueryOptions({
+        ...input,
+        columnFilters: getTicketListColumnFiltersForStatus(input.columnFilters),
+      }),
     );
   };
 

@@ -11,7 +11,10 @@ import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
+import { getDoesTicketListFilterApplyToStatus } from '../../utils/getDoesTicketListFilterApplyToStatus';
 import { getTicketListColumnFiltersForSort } from '../../utils/getTicketListColumnFiltersForSort';
+import { getTicketListColumnFiltersForStatus } from '../../utils/getTicketListColumnFiltersForStatus';
+import { getTicketListFilterValue } from '../../utils/getTicketListFilterValue';
 import { setTicketListColumnFilterValue } from '../../utils/setTicketListColumnFilterValue';
 import { TicketListDisplayPanel } from '../TicketListDisplayPanel';
 import { TicketListEmptyState } from '../TicketListEmptyState';
@@ -55,8 +58,22 @@ export const TicketIndexRoot: FC = () => {
     targetParams: buildTicketListTargetParams({ achievement, game, user }),
   });
 
+  const statusValue =
+    getTicketListFilterValue<App.Platform.Enums.TicketListStatusFilter>(
+      ticketListTableProps.columnFilters,
+      'status',
+    ) ?? defaultStatusFilter;
+
+  const filtersForStatus = availableFilters.filter((filter) =>
+    getDoesTicketListFilterApplyToStatus(filter.kind, statusValue),
+  );
+
+  const appliedColumnFilters = getTicketListColumnFiltersForStatus(
+    ticketListTableProps.columnFilters,
+  );
+
   const filterProperties = useTicketListFilterProperties(
-    availableFilters,
+    filtersForStatus,
     ticketListTableProps.stateCounts,
     ticketListTableProps.facetCounts,
     hasStatusFilter,
@@ -67,7 +84,7 @@ export const TicketIndexRoot: FC = () => {
       .length > 0;
 
   const hasNonDefaultFilters = getAreTicketListFiltersNonDefault(
-    ticketListTableProps.columnFilters,
+    appliedColumnFilters,
     serverDefaultColumnFilters,
   );
 

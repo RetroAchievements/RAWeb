@@ -144,7 +144,7 @@ class Comment extends BaseModel
             return route('comment.show', ['comment' => $this->id]);
         }
 
-        if ($this->commentable_type === CommentableType::AchievementTicket) {
+        if ($this->commentable_type === CommentableType::Ticket) {
             return route('ticket.show', ['ticket' => $this->commentable_id]) . "#comment_{$this->id}";
         }
 

@@ -33,6 +33,14 @@ class ForwardMessageToDiscordAction
     /** Discord forum tag IDs */
     private const DISCORD_TAG_MOD_REPORTS_OPEN = '1442949578629578882';
 
+    /** Title prefixes mapped to their target webhook config keys */
+    private const STRUCTURED_PREFIX_CONFIG_KEYS = [
+        'Incorrect type:' => 'incorrect_type_url',
+        'Issue:' => 'achievement_issues_url',
+        'Unwelcome Concept:' => 'unwelcome_concept_url',
+        'Writing:' => 'url',
+    ];
+
     private Client $client;
 
     public function __construct(?Client $client = null)
@@ -221,16 +229,7 @@ class ForwardMessageToDiscordAction
             $isForum = false;
         }
 
-        // These structured messages get routed to team-specific forum channels for
-        // better organization, internal discussion, and tracking of achievement-related issues.
-        $structuredTitlePrefixes = [
-            'Incorrect type:' => 'incorrect_type_url',
-            'Issue:' => 'achievement_issues_url',
-            'Unwelcome Concept:' => 'unwelcome_concept_url',
-            'Writing:' => 'url',
-        ];
-
-        foreach ($structuredTitlePrefixes as $prefix => $configKey) {
+        foreach (self::STRUCTURED_PREFIX_CONFIG_KEYS as $prefix => $configKey) {
             if (mb_strpos($threadTitle, $prefix) !== false && isset($inboxConfig[$configKey])) {
                 $webhookUrl = $inboxConfig[$configKey];
                 $isForum = true;
@@ -545,6 +544,17 @@ class ForwardMessageToDiscordAction
         if ($isReportThread && !empty($senderInboxConfig['reports_url'])) {
             $webhookUrl = $senderInboxConfig['reports_url'];
         } else {
+            // Discord webhooks can post only to threads in their parent channel.
+            // Match the structured webhook originally used to create this thread.
+            foreach (self::STRUCTURED_PREFIX_CONFIG_KEYS as $titlePrefix => $webhookKey) {
+                if (mb_strpos($messageThread->title, $titlePrefix) !== false && !empty($senderInboxConfig[$webhookKey])) {
+                    $webhookUrl = $senderInboxConfig[$webhookKey];
+                    break;
+                }
+            }
+        }
+
+        if (empty($webhookUrl)) {
             foreach (['url', 'reports_url', 'verify_url'] as $key) {
                 if (!empty($senderInboxConfig[$key])) {
                     $webhookUrl = $senderInboxConfig[$key];

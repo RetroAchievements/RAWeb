@@ -123,7 +123,7 @@ class BuildReportContextAction
         $anchor = '#comment_' . $comment->id;
 
         return match ($comment->commentable_type) {
-            CommentableType::AchievementTicket => route('ticket.show', ['ticket' => $comment->commentable_id]) . $anchor,
+            CommentableType::Ticket => route('ticket.show', ['ticket' => $comment->commentable_id]) . $anchor,
 
             default => null,
         };

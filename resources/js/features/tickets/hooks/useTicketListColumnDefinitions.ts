@@ -7,20 +7,16 @@ import { buildIdColumnDef } from '../utils/column-definitions/buildIdColumnDef';
 import { buildTicketableColumnDef } from '../utils/column-definitions/buildTicketableColumnDef';
 import { buildTicketMetadataColumnDef } from '../utils/column-definitions/buildTicketMetadataColumnDef';
 import { buildUserColumnDef } from '../utils/column-definitions/buildUserColumnDef';
+import { useTicketResolutionLabels } from './useTicketResolutionLabels';
+import { useTicketTypeLabels } from './useTicketTypeLabels';
 
 export function useTicketListColumnDefinitions(
   shouldShowGameTitle = true,
 ): TicketListColumnDefinition[] {
   const { t } = useTranslation();
 
-  const ticketTypeLabels: Record<App.Community.Enums.TicketType, string> = {
-    did_not_cancel: t('Did not cancel'),
-    did_not_start: t('Did not start'),
-    did_not_submit: t('Did not submit'),
-    did_not_trigger: t('Did not trigger'),
-    submitted_wrong_value: t('Submitted wrong value'),
-    triggered_at_wrong_time: t('Triggered at the wrong time'),
-  };
+  const resolutionLabels = useTicketResolutionLabels();
+  const ticketTypeLabels = useTicketTypeLabels();
 
   const hardcoreLabel = t('Hardcore');
   const casualLabel = t('Casual');
@@ -61,6 +57,12 @@ export function useTicketListColumnDefinitions(
       id: 'resolver',
       t_label: t('Resolved by'),
       getUser: (entry) => entry.resolver,
+    }),
+    buildTicketMetadataColumnDef({
+      id: 'resolution',
+      t_label: t('Resolution'),
+      getText: (entry) => (entry.resolution ? resolutionLabels[entry.resolution] : null),
+      widthClassName: 'w-[12em] flex-none',
     }),
 
     buildTicketMetadataColumnDef({

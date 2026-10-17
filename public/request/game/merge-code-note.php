@@ -38,20 +38,25 @@ if ($input['keep']) {
         if (!$subset) {
             $success = false;
         } else {
-            $note = MemoryNote::updateOrCreate(
-                [
+            $note = MemoryNote::withTrashed()
+                ->where('game_id', $subset->game_id)
+                ->where('address', $input['address'])
+                ->first();
+
+            if (!$note) {
+                $note = new MemoryNote([
                     'game_id' => $subset->game_id,
                     'address' => $input['address'],
-                ],
-                [
-                    'user_id' => $subsetNote->user_id,
-                    'body' => $subsetNote->body,
-                ]
-            );
+                ]);
+            } elseif ($note->trashed()) {
+                $note->restore();
+            }
+
+            $note->user_id = $subsetNote->user_id;
+            $note->body = $subsetNote->body;
+            $success = $note->save();
 
             $subsetNote->delete();
-
-            $success = $note->exists();
         }
     }
 } else {

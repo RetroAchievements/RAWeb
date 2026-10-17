@@ -43,6 +43,53 @@ describe('Component: CommentList', () => {
     expect(screen.getByText(/no comments yet/i)).toBeVisible();
   });
 
+  it('given an interleaved item with the same timestamp as a comment, keeps the comment first', () => {
+    // ARRANGE
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="trigger.ticket.comment"
+        comments={[
+          createComment({
+            id: 1,
+            payload: 'I tried again.',
+            createdAt: '2024-05-02T00:00:00.000000Z',
+          }),
+        ]}
+        interleavedItems={[
+          { createdAt: '2024-05-01T00:00:00.000000Z', key: 'a', node: <li>Earlier row</li> },
+          { createdAt: '2024-05-02T00:00:00.000000Z', key: 'b', node: <li>Same time row</li> },
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const items = screen.getAllByRole('listitem');
+    expect(items[0]).toHaveTextContent('Earlier row');
+    expect(items[1]).toHaveTextContent('I tried again.');
+    expect(items[2]).toHaveTextContent('Same time row');
+  });
+
+  it('given only interleaved items, does not display the empty state message', () => {
+    // ARRANGE
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="trigger.ticket.comment"
+        comments={[]}
+        interleavedItems={[
+          { createdAt: '2024-05-01T00:00:00.000000Z', key: 'a', node: <li>A row</li> },
+        ]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('listitem')).toHaveTextContent('A row');
+    expect(screen.queryByText(/no comments yet/i)).not.toBeInTheDocument();
+  });
+
   it('given the current user is muted, tells them and does not show an input field', () => {
     // ARRANGE
     render(

@@ -7,7 +7,9 @@ use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
@@ -15,8 +17,10 @@ use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 
 uses(RefreshDatabase::class);
+uses(TestsEmulatorUserAgent::class);
 
 function achievementForReportIssueTest(bool $isTicketable = true): Achievement
 {
@@ -29,6 +33,23 @@ function achievementForReportIssueTest(bool $isTicketable = true): Achievement
     }
 
     return Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+}
+
+function casualUnlockForReportIssueTest(Achievement $achievement, User $user, string $userAgent): void
+{
+    $session = PlayerSession::factory()->create([
+        'user_id' => $user->id,
+        'game_id' => $achievement->game_id,
+        'user_agent' => $userAgent,
+    ]);
+
+    PlayerAchievement::factory()->create([
+        'user_id' => $user->id,
+        'achievement_id' => $achievement->id,
+        'unlocked_at' => Carbon::now()->subDay(),
+        'unlocked_hardcore_at' => null,
+        'player_session_id' => $session->id,
+    ]);
 }
 
 function playerForReportIssueTest(
@@ -156,6 +177,71 @@ it('given a game with no hashes or emulators, the page sets ticketBlockReason co
     $response->assertInertia(fn (Assert $page) => $page
         ->where('can.createTicket', false)
         ->where('ticketBlockReason', 'game_not_ticketable')
+        ->etc()
+    );
+});
+
+it('given a casual unlock from a client that cannot award hardcore unlocks, hasCasualUnlockFromRestrictedClient is set to true', function () {
+    // Arrange
+    $this->seedEmulatorUserAgents();
+    $achievement = achievementForReportIssueTest();
+    $user = playerForReportIssueTest($achievement);
+    casualUnlockForReportIssueTest($achievement, $user, $this->userAgentOutdated);
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('hasCasualUnlockFromRestrictedClient', true)
+        ->etc()
+    );
+});
+
+it('given a casual unlock from a client that can award hardcore unlocks, hasCasualUnlockFromRestrictedClient is set to false', function () {
+    // Arrange
+    $this->seedEmulatorUserAgents();
+    $achievement = achievementForReportIssueTest();
+    $user = playerForReportIssueTest($achievement);
+    casualUnlockForReportIssueTest($achievement, $user, $this->userAgentValid);
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('hasCasualUnlockFromRestrictedClient', false)
+        ->etc()
+    );
+});
+
+it('given a casual unlock from a restricted client and a later session on an unrestricted client, hasCasualUnlockFromRestrictedClient is set to false', function () {
+    // Arrange
+    $this->seedEmulatorUserAgents();
+    $achievement = achievementForReportIssueTest();
+    $user = playerForReportIssueTest($achievement);
+    casualUnlockForReportIssueTest($achievement, $user, $this->userAgentOutdated);
+
+    PlayerSession::factory()->create([
+        'user_id' => $user->id,
+        'game_id' => $achievement->game_id,
+        'user_agent' => $this->userAgentValid,
+        'rich_presence_updated_at' => Carbon::now(),
+    ]);
+
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('hasCasualUnlockFromRestrictedClient', false)
         ->etc()
     );
 });

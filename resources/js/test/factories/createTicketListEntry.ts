@@ -12,6 +12,7 @@ export const createTicketListEntry = createFactory<App.Platform.Data.TicketListE
     hardcore: faker.datatype.boolean(),
     createdAt: faker.date.recent().toISOString(),
     resolvedAt: null,
+    resolution: null,
     ticketableType: 'achievement',
     ticketableId: faker.number.int({ min: 1, max: 99999 }),
     ticketableTitle: faker.word.words(3),

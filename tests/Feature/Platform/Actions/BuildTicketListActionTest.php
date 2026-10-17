@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Emulator;
@@ -241,13 +242,13 @@ describe('available filters', function () {
             expect(end($emulatorFilter->values))->toEqual('unknown');
         }
     })->with([
-        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
-        'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
-        'achievement' => [TicketListScope::Achievement, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
-        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
-        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Resolution, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'achievement' => [TicketListScope::Achievement, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::Resolution, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
         'awaitingReporter' => [TicketListScope::AwaitingReporter, []],
-        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
     ]);
 
     it('given active and inactive systems, lists active systems by name with labels for their IDs', function () {
@@ -313,4 +314,23 @@ it('the generated sort column is consistent with the enum sort order', function 
     foreach (TicketState::cases() as $state) {
         expect((int) $ranksByState[$state->value])->toEqual($state->sortOrder());
     }
+});
+
+it('given a closed ticket with a resolution, includes the resolution value in props', function () {
+    // ARRANGE
+    $fixture = createTicketListFixture(0);
+    $ticket = Ticket::factory()->forAchievement($fixture['achievement'])->closed()->create([
+        'resolution' => TicketResolution::UnableToReproduce,
+    ]);
+
+    // ACT
+    $result = (new BuildTicketListAction())->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['status' => 'closed']]),
+    );
+
+    // ASSERT
+    expect(entryIds($result))->toEqual([$ticket->id]);
+    expect($result['paginatedTickets']->items[0]->resolution)->toEqual(TicketResolution::UnableToReproduce);
 });

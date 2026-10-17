@@ -4,44 +4,47 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
-abstract class TicketAction
+enum TicketAction: string
 {
-    public const ClosedMistaken = 'closed-mistaken';
+    case ClosedMistaken = 'closed-mistaken';
+    case Resolved = 'resolved';
+    case Demoted = 'demoted';
+    case NotEnoughInfo = 'not-enough-info';
+    case WrongRom = 'wrong-rom';
+    case Network = 'network';
+    case UnableToReproduce = 'unable-to-reproduce';
+    case UnableToDebug = 'unable-to-debug';
+    case ClosedOther = 'closed-other';
+    case Request = 'request';
+    case Reopen = 'reopen';
 
-    public const Resolved = 'resolved';
-
-    public const Demoted = 'demoted';
-
-    public const NotEnoughInfo = 'not-enough-info';
-
-    public const WrongRom = 'wrong-rom';
-
-    public const Network = 'network';
-
-    public const UnableToReproduce = 'unable-to-reproduce';
-
-    public const UnableToDebug = 'unable-to-debug';
-
-    public const ClosedOther = 'closed-other';
-
-    public const Request = 'request';
-
-    public const Reopen = 'reopen';
-
-    public static function cases(): array
+    /**
+     * When this action sets a ticket to be done or resolved,
+     * which resolution gets recorded.
+     */
+    public function resolution(): ?TicketResolution
     {
-        return [
-            self::ClosedMistaken,
-            self::Resolved,
-            self::Demoted,
-            self::NotEnoughInfo,
-            self::WrongRom,
-            self::Network,
-            self::UnableToReproduce,
-            self::UnableToDebug,
-            self::ClosedOther,
-            self::Request,
-            self::Reopen,
-        ];
+        return match ($this) {
+            self::ClosedMistaken => TicketResolution::MistakenReport,
+            self::Resolved => TicketResolution::Fixed,
+            self::Demoted => TicketResolution::Demoted,
+            self::NotEnoughInfo => TicketResolution::NotEnoughInformation,
+            self::WrongRom => TicketResolution::WrongRom,
+            self::Network => TicketResolution::NetworkProblems,
+            self::UnableToReproduce => TicketResolution::UnableToReproduce,
+            self::UnableToDebug => TicketResolution::UnableToDebug,
+            self::ClosedOther => TicketResolution::Other,
+            self::Request, self::Reopen => null,
+        };
+    }
+
+    public function targetState(): TicketState
+    {
+        return match ($this) {
+            self::Request => TicketState::Request,
+            self::Reopen => TicketState::Open,
+            self::Resolved => TicketState::Resolved,
+            default => TicketState::Closed,
+        };
     }
 }

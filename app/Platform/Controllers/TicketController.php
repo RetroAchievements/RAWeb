@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Platform\Actions\BuildTicketInboxPagePropsAction;
 use App\Platform\Actions\BuildTicketListAction;
+use App\Platform\Actions\BuildTicketShowPagePropsAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\TicketListPagePropsData;
@@ -135,9 +136,21 @@ class TicketController extends Controller
     {
     }
 
-    public function show(Ticket $ticket): void
-    {
-        // TODO currently uses Folio, convert to Inertia/React
+    public function show(
+        Request $request,
+        Ticket $ticket,
+        BuildTicketShowPagePropsAction $buildTicketShowPagePropsAction,
+    ): InertiaResponse {
+        $this->authorize('view', $ticket);
+
+        abort_if(!$ticket->ticketable, 404);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        $props = $buildTicketShowPagePropsAction->execute($ticket, $user);
+
+        return Inertia::render('ticket/[ticket]', $props);
     }
 
     public function edit(Ticket $ticket): void
