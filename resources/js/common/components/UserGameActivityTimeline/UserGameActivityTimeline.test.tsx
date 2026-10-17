@@ -1,0 +1,334 @@
+import { render, screen } from '@/test';
+import {
+  createAchievement,
+  createPlayerGameActivityEvent,
+  createPlayerGameActivitySession,
+  createPlayerGameActivitySummary,
+} from '@/test/factories';
+
+import { UserGameActivityTimeline } from './UserGameActivityTimeline';
+
+describe('Component: UserGameActivityTimeline', () => {
+  it('renders without crashing', () => {
+    // ARRANGE
+    const { container } = render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
+  it('given there are no sessions, renders an empty timeline', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+  });
+
+  it('given isOnlyShowingAchievementSessions is true, filters out non-achievement sessions', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  achievement: createAchievement(),
+                }),
+              ],
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [createPlayerGameActivityEvent({ type: 'rich-presence', achievement: null })],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={true}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByTestId('session-header')).toHaveLength(2); // one header each for desktop and mobile
+  });
+
+  it('given a session has no game hash, displays with muted styling', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              gameHash: undefined,
+              events: [createPlayerGameActivityEvent()],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByTestId('rom-info')[0]).toHaveClass('text-neutral-500');
+  });
+
+  it('given a session has multiple events, shows borders between them', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({ type: 'unlock' }),
+                createPlayerGameActivityEvent({ type: 'unlock' }),
+                createPlayerGameActivityEvent({ type: 'unlock' }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    const events = screen.getAllByRole('listitem');
+    expect(events[0]).toHaveClass('border-b');
+    expect(events[1]).toHaveClass('border-b');
+    expect(events[2]).not.toHaveClass('border-b');
+  });
+
+  it('given a non-player session, does not display hash info', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'manual-unlock', // !!
+              events: [createPlayerGameActivityEvent()],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByTestId('rom-info')).not.toBeInTheDocument();
+  });
+
+  it('given events occur at the same time, groups them without bottom padding', () => {
+    // ARRANGE
+    const timestamp = '2024-01-01T12:00:00Z';
+
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when: timestamp, // !!
+                }),
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when: timestamp, // !!
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    const events = screen.getAllByRole('listitem');
+
+    expect(events[0]).not.toHaveClass('pb-2.5');
+    expect(events[0]).toHaveClass('px-3 pt-3');
+  });
+
+  it('given events occur at different times, includes bottom padding between them', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when: '2024-01-01T12:00:00Z',
+                }),
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when: '2024-01-01T12:01:00Z',
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    const events = screen.getAllByRole('listitem');
+
+    expect(events[0]).toHaveClass('pb-2.5');
+    expect(events[0]).toHaveClass('px-3 pt-3');
+  });
+
+  it('given a manual unlock session has no events, filters it out', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'manual-unlock',
+              events: [], // !!
+            }),
+            createPlayerGameActivitySession({
+              type: 'manual-unlock',
+              events: [createPlayerGameActivityEvent()],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByTestId('session-header')).toHaveLength(2); // one session, rendered once for desktop and once for mobile
+  });
+
+  it('given a reported achievement id, marks only the event that matches it', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  achievement: createAchievement({ id: 2468 }),
+                }),
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  achievement: createAchievement({ id: 1357 }),
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+        reportedAchievementId={2468}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/reported achievement/i)).toHaveLength(2); // one event, rendered once for desktop and once for mobile
+  });
+
+  it('given no reported achievement id, marks nothing', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  achievement: createAchievement({ id: 2468 }),
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/reported achievement/i)).not.toBeInTheDocument();
+  });
+
+  it('given a ticket created session, shows the ticket created event and no session header', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'ticket-created',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'ticket-created',
+                  achievement: null,
+                  description: '',
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/this ticket was created/i)).toHaveLength(2); // one event, rendered once for desktop and once for mobile
+    expect(screen.queryByTestId('session-header')).not.toBeInTheDocument();
+  });
+});

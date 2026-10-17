@@ -7,8 +7,8 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { buildEmulatorClientLabel } from '@/common/utils/buildEmulatorClientLabel';
 import { cn } from '@/common/utils/cn';
-import { buildEmulatorClientLabel } from '@/features/user-game-activity/utils/buildEmulatorClientLabel';
 
 import { ActivityBasicLabel } from '../../ActivityBasicLabel';
 import { ActivityTooltipWrapper } from '../../ActivityTooltipWrapper';

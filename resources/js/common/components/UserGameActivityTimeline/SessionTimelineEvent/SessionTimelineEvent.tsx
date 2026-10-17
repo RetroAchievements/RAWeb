@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuTicket } from 'react-icons/lu';
 
+import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 import { ResetEventContent } from './ResetEventContent';
@@ -11,6 +14,7 @@ import { UnlockEventContent } from './UnlockEventContent';
 dayjs.extend(utc);
 
 interface SessionTimelineEventProps {
+  hasReportedMarker?: boolean;
   isPreviousGrouped: boolean;
   previousEventTimestamp: string | null;
   previousEventKind: App.Enums.PlayerGameActivityEventType | 'start-session';
@@ -19,12 +23,14 @@ interface SessionTimelineEventProps {
 }
 
 export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
+  hasReportedMarker,
   isPreviousGrouped,
   previousEventKind,
   previousEventTimestamp,
   sessionEvent,
   sessionType,
 }) => {
+  const { t } = useTranslation();
   const { formatDate } = useFormatDate();
 
   const eventTime = formatDate(dayjs.utc(sessionEvent.when), 'LTS');
@@ -42,6 +48,10 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
         />
       ) : null}
 
+      {hasReportedMarker ? (
+        <BaseChip className="light:text-neutral-900">{t('Reported achievement')}</BaseChip>
+      ) : null}
+
       {sessionEvent.type === 'rich-presence' && sessionEvent.description ? (
         <RichPresenceEventContent label={sessionEvent.description} />
       ) : null}
@@ -55,6 +65,13 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
           <p className="line-clamp-1" title={sessionEvent.description}>
             {sessionEvent.description}
           </p>
+        </div>
+      ) : null}
+
+      {sessionEvent.type === 'ticket-created' ? (
+        <div className="flex items-center gap-1.5 text-text">
+          <LuTicket className="size-4 flex-none" aria-hidden="true" />
+          <p>{t('This ticket was created.')}</p>
         </div>
       ) : null}
     </div>

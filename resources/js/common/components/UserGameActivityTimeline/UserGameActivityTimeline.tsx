@@ -5,10 +5,9 @@ import { FaFileArchive } from 'react-icons/fa';
 
 import { Timeline, TimelineItem } from '@/common/components/Timeline';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { getShouldAchievementSessionBeVisible } from '@/common/utils/getShouldAchievementSessionBeVisible';
 
-import { getShouldAchievementSessionBeVisible } from '../../utils/getShouldAchievementSessionBeVisible';
 import { ClientLabel } from './ClientLabel';
 import { HashLabel } from './HashLabel';
 import { PlaytimeLabel } from './PlaytimeLabel';
@@ -17,13 +16,17 @@ import { SessionTimelineEvent } from './SessionTimelineEvent';
 dayjs.extend(utc);
 
 interface UserGameActivityTimelineProps {
+  activity: App.Platform.Data.PlayerGameActivity;
   isOnlyShowingAchievementSessions: boolean;
+
+  reportedAchievementId?: number;
 }
 
 export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
+  activity,
   isOnlyShowingAchievementSessions,
+  reportedAchievementId,
 }) => {
-  const { activity } = usePageProps<App.Platform.Data.PlayerGameActivityPageProps>();
   const { formatDate } = useFormatDate();
 
   const { sessions } = activity;
@@ -53,8 +56,12 @@ export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
 
           return (
             <TimelineItem key={`session-${index}`} label={formatDate(session.startTime, 'lll')}>
-              <SessionHeader session={session} />
-              <SessionEvents session={session} sessionIndex={index} />
+              {session.type !== 'ticket-created' ? <SessionHeader session={session} /> : null}
+              <SessionEvents
+                reportedAchievementId={reportedAchievementId}
+                session={session}
+                sessionIndex={index}
+              />
             </TimelineItem>
           );
         })}
@@ -100,11 +107,16 @@ const SessionHeader: FC<SessionHeaderProps> = ({ session }) => {
 };
 
 interface SessionEventsProps {
+  reportedAchievementId?: number;
   session: App.Platform.Data.PlayerGameActivitySession;
   sessionIndex: number;
 }
 
-const SessionEvents: FC<SessionEventsProps> = ({ session, sessionIndex }) => {
+const SessionEvents: FC<SessionEventsProps> = ({
+  reportedAchievementId,
+  session,
+  sessionIndex,
+}) => {
   return (
     <div>
       <ol className="flex flex-col">
@@ -126,6 +138,11 @@ const SessionEvents: FC<SessionEventsProps> = ({ session, sessionIndex }) => {
           const isPreviousGrouped =
             eventIndex !== 0 && previousEventTimestamp === currentEventTimestamp;
 
+          const isReportedAchievementUnlock =
+            event.type === 'unlock' &&
+            reportedAchievementId !== undefined &&
+            event.achievement?.id === reportedAchievementId;
+
           return (
             <li
               key={`sessionEvent-${sessionIndex}-${eventIndex}`}
@@ -135,9 +152,14 @@ const SessionEvents: FC<SessionEventsProps> = ({ session, sessionIndex }) => {
                 eventIndex !== session.events.length - 1 && !isGrouped
                   ? 'border-b border-neutral-700 light:border-neutral-200'
                   : null,
+
+                isReportedAchievementUnlock || event.type === 'ticket-created'
+                  ? 'rounded-sm outline-2 -outline-offset-2 outline-text'
+                  : null,
               )}
             >
               <SessionTimelineEvent
+                hasReportedMarker={isReportedAchievementUnlock}
                 isPreviousGrouped={isPreviousGrouped}
                 sessionEvent={event}
                 sessionType={session.type}
