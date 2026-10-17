@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Actions;
 
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class FindDiscordMemberAction
 {
@@ -14,9 +12,9 @@ class FindDiscordMemberAction
     private ?string $botToken;
     private ?string $guildId;
 
-    public function __construct()
+    public function __construct(?Client $client = null)
     {
-        $this->client = new Client();
+        $this->client = $client ?? new Client();
         $this->botToken = config('services.discord.rabot_token');
         $this->guildId = config('services.discord.guild_id');
     }
@@ -30,33 +28,27 @@ class FindDiscordMemberAction
             return null;
         }
 
-        try {
-            $response = $this->client->get(
-                "https://discord.com/api/v10/guilds/{$this->guildId}/members/search",
-                [
-                    'headers' => [
-                        'Authorization' => "Bot {$this->botToken}",
-                    ],
-                    'query' => ['query' => $displayName],
-                ]
-            );
+        $response = $this->client->get(
+            "https://discord.com/api/v10/guilds/{$this->guildId}/members/search",
+            [
+                'headers' => [
+                    'Authorization' => "Bot {$this->botToken}",
+                ],
+                'query' => ['query' => $displayName, 'limit' => 1000],
+            ]
+        );
 
-            $members = json_decode($response->getBody()->getContents(), true);
+        $members = json_decode($response->getBody()->getContents(), true);
 
-            // Find a case-insensitive match.
-            foreach ($members as $member) {
-                $memberNick = $member['nick'] ?? $member['user']['username'];
-                if (strcasecmp($memberNick, $displayName) === 0) {
-                    return $member;
-                }
+        // Find a case-insensitive match.
+        foreach ($members as $member) {
+            $memberNick = $member['nick'] ?? $member['user']['username'];
+            if (strcasecmp($memberNick, $displayName) === 0) {
+                return $member;
             }
-
-            // Members not being found is expected. Relatively little of our userbase is on Discord.
-            return null;
-        } catch (Throwable $e) {
-            Log::error("Discord API error while searching for member: " . $e->getMessage());
-
-            return null;
         }
+
+        // Members not being found is expected. Relatively little of our userbase is on Discord.
+        return null;
     }
 }
