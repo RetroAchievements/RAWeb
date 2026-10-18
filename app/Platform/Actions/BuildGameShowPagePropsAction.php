@@ -477,7 +477,7 @@ class BuildGameShowPagePropsAction
     }
 
     /**
-     * @return Collection<int, UserGameAchievementSetPreferenceData>
+     * @return Collection<int<0, max>, UserGameAchievementSetPreferenceData>
      */
     private function buildUserAchievementSetPreferences(Game $game, ?User $user): Collection
     {

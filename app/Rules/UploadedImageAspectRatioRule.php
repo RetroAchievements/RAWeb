@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Rules;
 
 use Closure;
-use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\UploadedFile;
 
@@ -27,13 +26,9 @@ class UploadedImageAspectRatioRule implements ValidationRule
 
         $imagePath = $value->getRealPath();
 
-        try {
-            $imageInfo = getimagesize($imagePath);
-        } catch (Exception) {
-            $fail('The :attribute must be a valid image.');
-
-            return;
-        }
+        // Laravel automatically turns warnings from this method into exceptions.
+        // Suppress any warnings and let the falsiness check below handle it instead.
+        $imageInfo = @getimagesize($imagePath);
 
         if (!$imageInfo) {
             $fail('The :attribute must be a valid image.');
