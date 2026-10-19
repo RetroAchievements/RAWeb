@@ -7,7 +7,6 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { InertiaLink } from '@/common/components/InertiaLink';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
 
@@ -36,16 +35,16 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
         {hash.resourcePageUrl ? (
           <BaseTooltip>
             <BaseTooltipTrigger asChild>
-              <InertiaLink
-                  data-testid="hash-source_link"
-                  href={`/redirect?url=${escapedResourceUrl}`}>
+              <a aria-label={t('Additional information')}
+                 data-testid="hash-source_link"
+                 href={`/redirect?url=${escapedResourceUrl}`}>
                 <LuInfo
                   className={cn(
                     'size-4 text-neutral-500 transition hover:text-neutral-300 sm:inline cursor-pointer',
                     'light:text-neutral-700',
                   )}
                 />
-              </InertiaLink>
+              </a>
             </BaseTooltipTrigger>
 
             <BaseTooltipContent className="max-w-72 leading-normal font-normal">
