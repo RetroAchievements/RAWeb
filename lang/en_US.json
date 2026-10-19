@@ -1756,5 +1756,15 @@
     "This ticket was created.": "This ticket was created.",
     "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.": "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.",
     "{{user}} has no recorded activity for <1>{{game}}</1>.": "{{user}} has no recorded activity for <1>{{game}}</1>.",
-    "{{user}}'s activity for <1>{{game}}</1>": "{{user}}'s activity for <1>{{game}}</1>"
+    "{{user}}'s activity for <1>{{game}}</1>": "{{user}}'s activity for <1>{{game}}</1>",
+    "<1>{{user}}</1> has not unlocked this achievement.": "<1>{{user}}</1> has not unlocked this achievement.",
+    "Award casual": "Award casual",
+    "Award hardcore": "Award hardcore",
+    "Awarding...": "Awarding...",
+    "Awarded!": "Awarded!",
+    "Award casual instead": "Award casual instead",
+    "Award a casual unlock?": "Award a casual unlock?",
+    "Award a hardcore unlock?": "Award a hardcore unlock?",
+    "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.",
+    "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>."
 }

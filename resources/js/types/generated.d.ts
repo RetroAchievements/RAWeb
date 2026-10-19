@@ -454,6 +454,7 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+manuallyAwardAchievements?: boolean;
 quickEditAchievement?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;

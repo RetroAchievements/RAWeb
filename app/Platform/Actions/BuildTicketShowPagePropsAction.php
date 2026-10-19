@@ -81,7 +81,11 @@ class BuildTicketShowPagePropsAction
 
             isViewerReporter: $user->is($ticket->reporter),
 
-            can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include('createTicketComments', 'viewAchievementLogic'),
+            can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include(
+                'createTicketComments',
+                'manuallyAwardAchievements',
+                'viewAchievementLogic'
+            ),
 
             relatedTickets: array_map(
                 fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket($relatedTicket),
