@@ -99,7 +99,16 @@ describe('Component: TicketAwardReporterUnlockDialog', () => {
     ]);
     await waitFor(() => {
       expect(pageReloadSpy.mock.calls).toEqual([
-        [{ only: ['reporterUnlock', 'hasReporterPlayedGame', 'reporterActivity'] }],
+        [
+          {
+            only: [
+              'hasReporterPlayedGame',
+              'reporterActivity',
+              'reporterUnlock',
+              'unlocksSinceReported',
+            ],
+          },
+        ],
       ]);
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

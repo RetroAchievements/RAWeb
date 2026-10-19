@@ -69,7 +69,14 @@ export const TicketAwardReporterUnlockDialog: FC<TicketAwardReporterUnlockDialog
         loading: t('Awarding...'),
         success: () => {
           setIsDialogOpen(false);
-          router.reload({ only: ['reporterUnlock', 'hasReporterPlayedGame', 'reporterActivity'] });
+          router.reload({
+            only: [
+              'hasReporterPlayedGame',
+              'reporterActivity',
+              'reporterUnlock',
+              'unlocksSinceReported',
+            ],
+          });
 
           return t('Awarded!');
         },
