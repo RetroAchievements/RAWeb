@@ -46,7 +46,7 @@ class BuildGameHashesPagePropsAction
     private function buildCompatibleHashes(Game $game, ?GameAchievementSet $targetAchievementSet): array
     {
         return $this->resolveHashesAction->execute($game, $targetAchievementSet)
-            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl'))
+            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl', 'resourcePageUrl'))
             ->values()
             ->all();
     }
@@ -58,7 +58,7 @@ class BuildGameHashesPagePropsAction
     {
         return $game->hashes
             ->where('compatibility', $compatibility)
-            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl'))
+            ->map(fn (GameHash $hash) => GameHashData::fromGameHash($hash)->include('labels', 'patchUrl', 'resourcePageUrl'))
             ->values()
             ->all();
     }

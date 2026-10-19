@@ -1,7 +1,15 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuInfo } from 'react-icons/lu';
 
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { cn } from '@/common/utils/cn';
 
 interface HashListingProps {
   hash: App.Platform.Data.GameHash;
@@ -9,6 +17,8 @@ interface HashListingProps {
 
 export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
   const { t } = useTranslation();
+
+  const escapedResourceUrl = hash.resourcePageUrl ? encodeURIComponent(hash.resourcePageUrl) : null;
 
   return (
     <li>
@@ -21,6 +31,27 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
               <HashLabel key={`${hash.md5}-${hashLabel.label}-${index}`} hashLabel={hashLabel} />
             ))}
           </>
+        ) : null}
+
+        {hash.resourcePageUrl ? (
+          <BaseTooltip>
+            <BaseTooltipTrigger asChild>
+              <InertiaLink
+                  data-testid="hash-source_link"
+                  href={`/redirect?url=${escapedResourceUrl}`}>
+                <LuInfo
+                  className={cn(
+                    'size-4 text-neutral-500 transition hover:text-neutral-300 sm:inline cursor-pointer',
+                    'light:text-neutral-700',
+                  )}
+                />
+              </InertiaLink>
+            </BaseTooltipTrigger>
+
+            <BaseTooltipContent className="max-w-72 leading-normal font-normal">
+              <span className="text-xs font-normal">{hash.resourcePageUrl}</span>
+            </BaseTooltipContent>
+          </BaseTooltip>
         ) : null}
       </p>
 

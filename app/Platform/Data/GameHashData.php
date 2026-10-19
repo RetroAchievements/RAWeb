@@ -20,6 +20,7 @@ class GameHashData extends Data
         /** @var GameHashLabelData[] */
         public Lazy|array $labels,
         public Lazy|string|null $patchUrl,
+        public Lazy|string|null $resourcePageUrl,
         public Lazy|bool $isMultiDisc,
     ) {
     }
@@ -32,6 +33,7 @@ class GameHashData extends Data
             name: $gameHash->name,
             labels: Lazy::create(fn () => GameHashLabelData::fromLabelsString($gameHash->labels)),
             patchUrl: Lazy::create(fn () => $gameHash->patch_url),
+            resourcePageUrl: Lazy::create(fn () => $gameHash->source),
             isMultiDisc: Lazy::create(fn () => $gameHash->isMultiDiscGameHash()),
         );
     }

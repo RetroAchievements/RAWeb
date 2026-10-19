@@ -805,6 +805,7 @@ md5: string;
 name: string | null;
 labels?: Array<App.Platform.Data.GameHashLabel>;
 patchUrl?: string | null;
+resourcePageUrl?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {
