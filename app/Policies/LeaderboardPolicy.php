@@ -97,6 +97,11 @@ class LeaderboardPolicy
             return true;
         }
 
+        // if order_column is less than 0, a claim is required to change its value
+        if ($fieldName === 'order_column' && $leaderboard?->order_column < 0) {
+            return $user->hasActiveClaimOnGameId($leaderboard->game_id);
+        }
+
         $userRoles = $user->getRoleNames();
 
         // Aggregate the allowed fields for all roles the user has.
