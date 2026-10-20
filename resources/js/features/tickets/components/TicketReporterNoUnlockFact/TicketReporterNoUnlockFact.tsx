@@ -28,7 +28,7 @@ export const TicketReporterNoUnlockFact: FC<TicketReporterNoUnlockFactProps> = (
         components={{ 1: <TicketUserValue user={reporter} /> }}
       />
 
-      {can.manuallyAwardAchievements ? (
+      {can.manuallyAwardAchievements && !reporter.isGone ? (
         <span className="mt-2 flex flex-wrap items-center gap-2">
           {isHardcoreReport ? (
             <>

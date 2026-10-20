@@ -38,6 +38,21 @@ describe('Component: TicketReporterNoUnlockFact', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('given the reporter is banned or deleted, does not render any award achievement action buttons', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketReporterNoUnlockFact
+        reporter={createUser({ isGone: true })}
+        ticket={createTicketListEntry({ hardcore: true })}
+      />,
+      { pageProps: { can: { manuallyAwardAchievements: true } } },
+    );
+
+    // ASSERT
+    expect(screen.getByText(/has not unlocked this achievement/i)).toBeVisible();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('given a hardcore session ticket, positions the hardcore award action first and the casual award second', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(
