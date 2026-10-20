@@ -329,4 +329,35 @@ describe('Component: UnlockEventContent', () => {
     expect(screen.getByText(/manually unlocked by/i)).toBeVisible();
     expect(screen.getByRole('img', { name: /snow/i })).toBeVisible();
   });
+
+  it('given a manually unlocked achievement in a manual unlock session, does not repeat the unlocker label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 1,
+      title: 'Test Achievement',
+      description: 'Test Description',
+      points: 10,
+      badgeUnlockedUrl: '/Images/1234.png',
+      isPromoted: true,
+    });
+
+    render(
+      <UnlockEventContent
+        previousEventKind="start-session"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: null,
+          unlocker: createUser({ displayName: 'Snow' }),
+        })}
+        sessionType="manual-unlock" // !!
+        whenPrevious={null}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/manually unlocked by/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /snow/i })).not.toBeInTheDocument();
+  });
 });

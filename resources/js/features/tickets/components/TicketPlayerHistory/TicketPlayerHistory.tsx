@@ -17,42 +17,14 @@ import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-const historyPanelShellClassName = cn(
-  'rounded-lg border border-neutral-700 bg-embed',
-  'light:border-neutral-200 light:bg-white',
-);
-
 export const TicketPlayerHistory: FC = () => {
-  const { hasReporterHistoryAccess, hasReporterPlayedGame } =
-    usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { hasReporterHistoryAccess } = usePageProps<App.Platform.Data.TicketShowPageProps>();
 
   if (!hasReporterHistoryAccess) {
     return null;
   }
 
-  if (!hasReporterPlayedGame) {
-    return <NoRecordedActivityNotice />;
-  }
-
   return <ReporterHistoryPanel />;
-};
-
-const NoRecordedActivityNotice: FC = () => {
-  const { ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
-
-  return (
-    <div className={cn(historyPanelShellClassName, 'flex items-start gap-3 px-3 py-2')}>
-      <LuClock className="mt-0.5 size-4 flex-none text-neutral-400" aria-hidden="true" />
-
-      <p>
-        <Trans
-          i18nKey="{{user}} has no recorded activity for <1>{{game}}</1>."
-          values={{ user: ticket.reporter?.displayName }}
-          components={{ 1: <GameTitle {...ticket.game} /> }}
-        />
-      </p>
-    </div>
-  );
 };
 
 const ReporterHistoryPanel: FC = () => {
@@ -82,7 +54,10 @@ const ReporterHistoryPanel: FC = () => {
     <BaseCollapsible
       open={isOpen}
       onOpenChange={handleExpandedChange}
-      className={historyPanelShellClassName}
+      className={cn(
+        'rounded-lg border border-neutral-700 bg-embed',
+        'light:border-neutral-200 light:bg-white',
+      )}
     >
       <BaseCollapsibleTrigger className="flex w-full items-center gap-3 px-3 py-2 text-left text-link hover:text-link-hover">
         <LuClock className="size-4 flex-none text-neutral-400" aria-hidden="true" />

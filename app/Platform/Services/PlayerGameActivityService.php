@@ -71,9 +71,14 @@ class PlayerGameActivityService
         // if this game appears as a bonus/specialty subset, pull in the sessions for the
         // parent game(s) as well in case the user is playing through multiset.
         $isSubset = false;
-        foreach (self::getMultisetParentGameIds($gameAchievementSets->first()->achievement_set_id) as $parentGameId) {
+        $parentGameAchievementSets = GameAchievementSet::query()
+            ->where('achievement_set_id', $gameAchievementSets->first()->achievement_set_id)
+            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge, AchievementSetType::Specialty])
+            ->get();
+        foreach ($parentGameAchievementSets as $parentGameAchievementSet) {
             $isSubset = true;
 
+            $parentGameId = $parentGameAchievementSet->game_id;
             $gameIds[] = $parentGameId;
 
             $coreGameAchievementSetIds[$parentGameId] = GameAchievementSet::query()
@@ -213,18 +218,6 @@ class PlayerGameActivityService
         foreach ($this->sessions as &$session) {
             $this->sortEvents($session['events']);
         }
-    }
-
-    /**
-     * @return int[]
-     */
-    public static function getMultisetParentGameIds(int $achievementSetId): array
-    {
-        return GameAchievementSet::query()
-            ->where('achievement_set_id', $achievementSetId)
-            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Challenge, AchievementSetType::Specialty])
-            ->pluck('game_id')
-            ->all();
     }
 
     private function addUnlockEvent(object $playerAchievement, Carbon $when, int $achievementSetId, bool $hardcore, ?User $unlocker = null): void

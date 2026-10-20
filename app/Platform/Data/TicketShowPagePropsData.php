@@ -36,7 +36,6 @@ class TicketShowPagePropsData extends Data
         /** @var TicketChangelogEntryData[] $changelog */
         public array $changelog,
         public bool $hasReporterHistoryAccess,
-        public bool $hasReporterPlayedGame,
         #[AutoInertiaDeferred]
         public Lazy|PlayerGameActivityData|null $reporterActivity,
     ) {

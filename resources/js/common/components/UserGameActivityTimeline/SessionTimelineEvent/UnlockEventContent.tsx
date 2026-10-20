@@ -99,7 +99,7 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
         {timingMessage}
 
         {/* Status indicators. */}
-        {sessionEvent.unlocker ? (
+        {sessionEvent.unlocker && sessionType !== 'manual-unlock' ? (
           <span className="flex items-center font-semibold">
             <Trans
               i18nKey="Manually unlocked by <1>{{user}}</1>."

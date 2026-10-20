@@ -61,7 +61,6 @@ describe('Component: TicketPlayerHistory', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
       pageProps: {
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: undefined,
         ticket: createTicketListEntry({
           game: createGame({ title: 'Streets of Rage 2' }),
@@ -89,7 +88,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: createAchievement(),
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [
             createPlayerGameClientBreakdown({
@@ -122,7 +120,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: createAchievement(),
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [
             createPlayerGameClientBreakdown({
@@ -157,7 +154,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: createAchievement(),
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
           sessions: [createPlayerGameActivitySession({ type: 'player-session' })],
@@ -185,7 +181,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: createAchievement(),
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
           sessions: [createPlayerGameActivitySession({ type: 'player-session' })],
@@ -222,7 +217,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: markedAchievement,
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
           sessions: [
@@ -250,27 +244,6 @@ describe('Component: TicketPlayerHistory', () => {
     expect(screen.getAllByText(/reported achievement/i)).toHaveLength(2);
   });
 
-  it('given the reporter has never played the game, shows the no recorded activity message immediately without awaiting the activity', () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
-      pageProps: {
-        achievement: createAchievement(),
-        hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: false,
-        reporterActivity: undefined,
-        ticket: createTicketListEntry({
-          game: createGame({ title: 'Streets of Rage 2' }),
-          reporter: createUser({ displayName: 'Scott' }),
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/scott has no recorded activity for/i)).toBeVisible();
-    expect(screen.getByText(/streets of rage 2/i)).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  });
-
   it('given the user prefers reduced motion, opens the panel at full height instead of sliding it open', async () => {
     // ARRANGE
     vi.mocked(useReducedMotion).mockReturnValue(true);
@@ -280,7 +253,6 @@ describe('Component: TicketPlayerHistory', () => {
       pageProps: {
         achievement: createAchievement(),
         hasReporterHistoryAccess: true,
-        hasReporterPlayedGame: true,
         reporterActivity: {
           clientBreakdown: [],
           sessions: [createPlayerGameActivitySession({ type: 'player-session' })],

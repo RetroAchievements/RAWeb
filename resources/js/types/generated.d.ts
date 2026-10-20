@@ -1290,7 +1290,6 @@ reportBody: string | null;
 comments: Array<App.Community.Data.Comment>;
 changelog: Array<App.Platform.Data.TicketChangelogEntry>;
 hasReporterHistoryAccess: boolean;
-hasReporterPlayedGame: boolean;
 reporterActivity?: App.Platform.Data.PlayerGameActivity | null;
 };
 export type UserCredits = {
