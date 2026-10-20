@@ -68,7 +68,7 @@ class TicketApiController extends Controller
         Ticket $ticket,
         ChangeTicketStateAction $changeState,
     ): JsonResponse {
-        abort_unless($ticket->ticketable, 404);
+        abort_if(!$ticket->ticketable, 404);
 
         $ticketAction = TicketAction::from($request->input('action'));
         $this->authorize('updateState', [$ticket, $ticketAction]);
