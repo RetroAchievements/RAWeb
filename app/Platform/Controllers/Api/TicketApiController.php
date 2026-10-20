@@ -2,15 +2,18 @@
 
 namespace App\Platform\Controllers\Api;
 
+use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
+use App\Platform\Actions\ChangeTicketStateAction;
 use App\Platform\Actions\CreateTicketAction;
 use App\Platform\Data\StoreTicketData;
 use App\Platform\Requests\StoreTicketRequest;
 use App\Platform\Requests\TicketListApiRequest;
+use App\Platform\Requests\UpdateTicketStateRequest;
 use Illuminate\Http\JsonResponse;
 
 class TicketApiController extends Controller
@@ -58,6 +61,21 @@ class TicketApiController extends Controller
             'message' => __('legacy.success.submit'),
             'ticketId' => $ticket->id,
         ]);
+    }
+
+    public function updateState(
+        UpdateTicketStateRequest $request,
+        Ticket $ticket,
+        ChangeTicketStateAction $changeState,
+    ): JsonResponse {
+        abort_unless($ticket->ticketable, 404);
+
+        $ticketAction = TicketAction::from($request->input('action'));
+        $this->authorize('updateState', [$ticket, $ticketAction]);
+
+        $changeState->execute($ticket, $ticketAction, $request->user());
+
+        return response()->json(['message' => __('legacy.success.update')]);
     }
 
     public function show(): void
