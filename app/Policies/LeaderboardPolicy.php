@@ -20,6 +20,7 @@ class LeaderboardPolicy
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
             Role::EVENT_MANAGER,
+            Role::CHEAT_INVESTIGATOR,
         ]);
     }
 
