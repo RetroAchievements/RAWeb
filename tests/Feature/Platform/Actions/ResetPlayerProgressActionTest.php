@@ -347,6 +347,40 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertHasMasteryBadge($user2, $game);
     }
 
+    public function testResetDemotedGame(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
+        /** @var User $author */
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
+        $game = $this->seedGame(withHash: false);
+        $achievements = Achievement::factory()->promoted()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['game_id' => $game->id, 'user_id' => $author->id, 'points_weighted' => 7]);
+
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
+
+        foreach ($achievements as &$achievement) {
+            $achievement->is_promoted = false;
+            $achievement->save();
+        }
+
+        $this->assertHasMasteryBadge($user, $game);
+        $playerGame = $user->playerGames()->where('game_id', $game->id)->first();
+        $this->assertEquals(0, $playerGame->achievements_unlocked);
+        $this->assertNotNull($playerGame->completed_at);
+        $this->assertNotNull($playerGame->completed_hardcore_at);
+
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->id);
+        $playerGame->refresh();
+
+        $this->assertNull($playerGame->completed_at);
+        $this->assertNull($playerGame->completed_hardcore_at);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+    }
+
     public function testResetEventGame(): void
     {
         /** @var User $user */

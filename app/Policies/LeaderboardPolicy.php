@@ -20,6 +20,7 @@ class LeaderboardPolicy
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
             Role::EVENT_MANAGER,
+            Role::CHEAT_INVESTIGATOR,
         ]);
     }
 
@@ -94,6 +95,11 @@ class LeaderboardPolicy
         // Root can edit everything.
         if ($user->hasRole(Role::ROOT)) {
             return true;
+        }
+
+        // if order_column is less than 0, a claim is required to change its value
+        if ($fieldName === 'order_column' && $leaderboard?->order_column < 0) {
+            return $user->hasActiveClaimOnGameId($leaderboard->game_id);
         }
 
         $userRoles = $user->getRoleNames();
