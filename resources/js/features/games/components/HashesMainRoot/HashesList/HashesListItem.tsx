@@ -17,7 +17,7 @@ interface HashListingProps {
 export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
   const { t } = useTranslation();
 
-  const escapedResourceUrl = hash.resourcePageUrl ? encodeURIComponent(hash.resourcePageUrl) : null;
+  const escapedResourceUrl = hash.source ? encodeURIComponent(hash.source) : null;
 
   return (
     <li>
@@ -32,11 +32,10 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
           </>
         ) : null}
 
-        {hash.resourcePageUrl ? (
+        {hash.source ? (
           <BaseTooltip>
             <BaseTooltipTrigger asChild>
               <a aria-label={t('Additional information')}
-                 data-testid="hash-source_link"
                  href={`/redirect?url=${escapedResourceUrl}`}>
                 <LuInfo
                   className={cn(
@@ -48,7 +47,7 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
             </BaseTooltipTrigger>
 
             <BaseTooltipContent className="max-w-72 leading-normal font-normal">
-              <span className="text-xs font-normal">{hash.resourcePageUrl}</span>
+              <span className="text-xs font-normal">{hash.source}</span>
             </BaseTooltipContent>
           </BaseTooltip>
         ) : null}
