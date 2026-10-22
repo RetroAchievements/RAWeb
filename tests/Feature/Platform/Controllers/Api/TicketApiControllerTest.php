@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\ClientSupportLevel;
 use App\Models\Achievement;
+use App\Models\Comment;
 use App\Models\Emulator;
 use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
@@ -605,5 +609,228 @@ describe('index', function () {
 
         // ASSERT
         $response->assertOk();
+    });
+});
+
+describe('updateState', function () {
+    beforeEach(function () {
+        $this->seed(RolesTableSeeder::class);
+    });
+
+    it('given a user the policy rejects, responds forbidden and does not mutate the ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $stranger = User::factory()->create();
+        $this->actingAs($stranger);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Open);
+        expect($ticket->resolver_id)->toBeNull();
+        expect($ticket->resolution)->toBeNull();
+    });
+
+    it('given a developer resolves an open ticket, records the state, resolver, and resolution and posts the Server comment', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Resolved->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJson(['message' => __('legacy.success.update')]);
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Resolved);
+        expect($ticket->resolver_id)->toEqual($developer->id);
+        expect($ticket->resolution)->toEqual(TicketResolution::Fixed);
+        expect($ticket->resolved_at)->not->toBeNull();
+
+        $comment = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->sole();
+        expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
+    });
+
+    it('given a developer approves a quarantined ticket, reopens it and notes the approval', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+
+        $comment = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->sole();
+        expect($comment->body)->toEqual('Ticket approved by Scott.');
+    });
+
+    it('given a developer reopens a resolved ticket, wipes the resolver and resolution', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $previousResolver = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'resolver_id' => $previousResolver->id,
+            'resolution' => TicketResolution::Fixed,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Open);
+        expect($ticket->resolver_id)->toBeNull();
+        expect($ticket->resolution)->toBeNull();
+        expect($ticket->resolved_at)->toBeNull();
+    });
+
+    it('given a reporter marks their own open ticket as mistaken, closes it', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Closed);
+        expect($ticket->resolution)->toEqual(TicketResolution::MistakenReport);
+    });
+
+    it('given a reporter tries to resolve their own ticket, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Resolved->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+    });
+
+    it('given an unknown action string, responds unprocessable', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => 'closed-eternally',
+        ]);
+
+        // ASSERT
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['action']);
+    });
+
+    it('given an action that would not mutate the ticket state, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
     });
 });

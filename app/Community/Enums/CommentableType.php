@@ -12,7 +12,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum CommentableType: string
 {
     case Achievement = 'achievement.comment';
-    case AchievementTicket = 'trigger.ticket.comment';
+    case Ticket = 'trigger.ticket.comment';
     case Forum = 'forum-topic-comment'; // Forum topic comments (posts) use ForumTopicComment table, not the comments table. This is for email notifications only.
     case Game = 'game.comment';
     case GameHash = 'game-hash.comment';
@@ -27,7 +27,7 @@ enum CommentableType: string
     {
         return match ($this) {
             self::Achievement => 'Achievement',
-            self::AchievementTicket => 'Achievement Ticket',
+            self::Ticket => 'Achievement Ticket',
             self::Forum => 'Forum',
             self::Game => 'Game',
             self::GameHash => 'Game Hash',
@@ -53,7 +53,7 @@ enum CommentableType: string
             self::User => 3,
             self::UserActivity => 5,
             self::Leaderboard => 6,
-            self::AchievementTicket => 7,
+            self::Ticket => 7,
             self::Forum => 8,
             self::UserModeration => 9,
             self::GameHash => 10,
@@ -70,7 +70,7 @@ enum CommentableType: string
             3 => self::User,
             5 => self::UserActivity,
             6 => self::Leaderboard,
-            7 => self::AchievementTicket,
+            7 => self::Ticket,
             8 => self::Forum,
             9 => self::UserModeration,
             10 => self::GameHash,
@@ -88,7 +88,7 @@ enum CommentableType: string
     {
         return match ($this) {
             self::Achievement,
-            self::AchievementTicket,
+            self::Ticket,
             self::Forum,
             self::Game,
             self::Leaderboard,

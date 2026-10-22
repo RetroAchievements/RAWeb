@@ -93,9 +93,9 @@ class AuditLog extends ResourceAuditLog
     }
 
     /**
-     * @return Collection<string, Closure(mixed): string>
+     * @return array<string, Closure(mixed): string>
      */
-    protected function createFieldValueMap(): Collection
+    protected function createFieldValueMap(): array
     {
         $fieldValueMap = parent::createFieldValueMap();
 

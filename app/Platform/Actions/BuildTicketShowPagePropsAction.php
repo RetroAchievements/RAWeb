@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Data\CommentData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\LeaderboardData;
@@ -21,7 +23,7 @@ use App\Platform\Services\TicketViewService;
 
 class BuildTicketShowPagePropsAction
 {
-    public function execute(Ticket $ticket, ?User $user): TicketShowPagePropsData
+    public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
     {
         $ticketViewService = new TicketViewService();
         $ticketViewService->load($ticket);
@@ -58,7 +60,9 @@ class BuildTicketShowPagePropsAction
             // The ticket author is whoever maintained the achievement when the ticket was filed.
             hasMaintainer: $ticketable instanceof Achievement && !$ticket->author->is($ticketable->developer),
 
-            can: UserPermissionsData::fromUser($user, triggerable: $ticketable)->include('viewAchievementLogic'),
+            isViewerReporter: $user->is($ticket->reporter),
+
+            can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include('createTicketComments', 'viewAchievementLogic'),
 
             relatedTickets: array_map(
                 fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket($relatedTicket),
@@ -75,6 +79,16 @@ class BuildTicketShowPagePropsAction
             currentTriggerVersion: $ticketViewService->currentTriggerVersion,
             reporterLeaderboardEntry: $reporterLeaderboardEntry,
             leaderboardEntryCount: $leaderboardEntryCount,
+
+            reportBody: $ticket->body !== '' ? $ticket->body : null,
+
+            // NOTE: Ticket comments from banned users are always visible, intentionally.
+            comments: array_map(
+                fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
+                $ticket->comments()->notAutomated()->with('user')->orderBy('created_at')->orderBy('id')->get()->all(),
+            ),
+
+            changelog: (new BuildTicketChangelogAction())->execute($ticket),
         );
 
         return $propsData;
@@ -83,10 +97,10 @@ class BuildTicketShowPagePropsAction
     /**
      * Only roles allowed to see player history receive it in page props.
      */
-    private function buildReporterUnlock(TicketViewService $ticketViewService, ?User $user): ?TicketReporterUnlockData
+    private function buildReporterUnlock(TicketViewService $ticketViewService, User $user): ?TicketReporterUnlockData
     {
         $unlock = $ticketViewService->existingUnlock;
-        if (!$unlock || !$user?->canAny(['manage', 'viewHistory'], Ticket::class)) {
+        if (!$unlock || !$user->canAny(['manage', 'viewHistory'], Ticket::class)) {
             return null;
         }
 

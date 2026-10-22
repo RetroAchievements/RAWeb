@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
@@ -15,15 +16,22 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LogicException;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Ticket extends BaseModel
 {
     /** @use HasFactory<TicketFactory> */
     use HasFactory;
     use SoftDeletes;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     protected $table = 'tickets';
 
@@ -61,6 +69,19 @@ class Ticket extends BaseModel
         throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
     }
 
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'state',
+                'resolution',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
     // == accessors
 
     public function getIsOpenAttribute(): bool
@@ -78,6 +99,16 @@ class Ticket extends BaseModel
     public function ticketable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<TicketComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(TicketComment::class, 'commentable_id')->where('commentable_type', CommentableType::Ticket);
     }
 
     /**

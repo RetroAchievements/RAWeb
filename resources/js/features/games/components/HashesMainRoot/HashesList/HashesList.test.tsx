@@ -56,6 +56,28 @@ describe('Component: HashesList', () => {
     expect(screen.getByText(hash.md5)).toBeVisible();
   });
 
+  it('given the hash has a source URL, adds a link to it', () => {
+    // ARRANGE
+    const hash = createGameHash({ source: 'http://google.com' });
+
+    render(<HashesList hashes={[hash]} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /additional information/i });
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', '/redirect?url=http%3A%2F%2Fgoogle.com');
+  });
+
+  it('given the hash has no source URL, does not display a link', () => {
+    // ARRANGE
+    const hash = createGameHash({ source: null });
+
+    render(<HashesList hashes={[hash]} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /additional information/i })).not.toBeInTheDocument();
+  });
+
   it('given the hash has a patch URL, adds a link to it', () => {
     // ARRANGE
     const hash = createGameHash({ patchUrl: faker.internet.url() });
