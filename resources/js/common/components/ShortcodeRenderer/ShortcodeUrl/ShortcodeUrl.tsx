@@ -1,8 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 
-import { normalizeUrl } from '@/common/utils/normalizeUrl';
+import { buildUserContentLink } from '@/common/utils/buildUserContentLink';
 
 interface ShortcodeUrlProps {
   children: ReactNode;
@@ -12,23 +11,18 @@ interface ShortcodeUrlProps {
 export const ShortcodeUrl: FC<ShortcodeUrlProps> = ({ children, href }) => {
   const { t } = useTranslation();
 
-  const normalizedHref = normalizeUrl(href);
+  const parsedLink = buildUserContentLink(href);
 
-  if (!normalizedHref) {
+  if (!parsedLink) {
     return <span className="line-through">{t('Broken Link')}</span>;
   }
 
-  // For external URLs, use the redirect route.
-  const finalUrl = normalizedHref.includes('retroachievements.org')
-    ? normalizedHref
-    : route('redirect', { url: normalizedHref });
-
   return (
     <a
-      href={finalUrl}
-      data-testid={`url-embed-${normalizedHref}`}
+      href={parsedLink.href}
+      data-testid={`url-embed-${parsedLink.destination}`}
       className="inline-block"
-      rel={!normalizedHref.includes('retroachievements.org') ? 'nofollow noopener' : undefined}
+      rel={parsedLink.isExternal ? 'nofollow noopener' : undefined}
     >
       {children}
     </a>

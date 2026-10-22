@@ -42,6 +42,18 @@ describe('Component: ShortcodeUrl', () => {
     expect(link.getAttribute('rel')).toEqual('nofollow noopener');
   });
 
+  it('given an external URL with RetroAchievements mentioned in its query string, uses the redirect route', () => {
+    // ARRANGE
+    render(
+      <ShortcodeUrl href="https://example.com/?ref=retroachievements.org">Decoy Link</ShortcodeUrl>,
+    );
+
+    // ASSERT
+    const linkEl = screen.getByText(/decoy link/i);
+    expect(linkEl.getAttribute('href')).toContain(route('redirect'));
+    expect(linkEl.getAttribute('rel')).toEqual('nofollow noopener');
+  });
+
   it('given an HTTP internal URL, upgrades it to HTTPS', () => {
     // ARRANGE
     render(
