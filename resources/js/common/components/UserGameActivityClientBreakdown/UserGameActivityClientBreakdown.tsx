@@ -7,11 +7,14 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
-export const UserGameActivityClientBreakdown: FC = () => {
-  const { activity } = usePageProps<App.Platform.Data.PlayerGameActivityPageProps>();
+interface UserGameActivityClientBreakdownProps {
+  activity: App.Platform.Data.PlayerGameActivity;
+}
 
+export const UserGameActivityClientBreakdown: FC<UserGameActivityClientBreakdownProps> = ({
+  activity,
+}) => {
   const { t } = useTranslation();
 
   const { formatPercentage } = useFormatPercentage();

@@ -13,11 +13,15 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\Trigger;
 use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\ResumePlayerSessionAction;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
@@ -386,6 +390,130 @@ describe('Reporter Unlock Props', function () {
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
             ->where('reporterUnlock.unlocker.displayName', $awarder->display_name)
+        );
+    });
+});
+
+describe('Reporter Activity Props', function () {
+    it('given a viewer who may see player history and a reporter who has played the game, defers the activity with the ticket creation event', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'title' => 'Test Achievement']);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2024-04-01 00:00:00'),
+        ]);
+        PlayerGame::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterHistoryAccess', true)
+            ->where('hasReporterPlayedGame', true)
+            ->missing('reporterActivity')
+            ->loadDeferredProps(fn (Assert $deferredPage) => $deferredPage
+                ->where('reporterActivity.sessions.0.type', 'ticket-created')
+                ->where('reporterActivity.sessions.0.events.0.type', 'ticket-created')
+                ->where('reporterActivity.sessions.0.events.0.when', '2024-04-01T00:00:00+00:00')
+            )
+        );
+    });
+
+    it('given a reporter who has never played the game, reports that up front and defers no activity', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterHistoryAccess', true)
+            ->where('hasReporterPlayedGame', false)
+            ->missing('reporterActivity')
+            ->missing('deferredProps')
+        );
+    });
+
+    it('given a subset the reporter played only through its second parent game, counts the parent sessions as played', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $reporter = User::factory()->create();
+        $firstParentGame = $this->seedGame(withHash: false);
+        $secondParentGame = $this->seedGame(withHash: false);
+        $subsetGame = $this->seedGame(achievements: 1, withHash: false);
+        (new AssociateAchievementSetToGameAction())->execute($firstParentGame, $subsetGame, AchievementSetType::Bonus, 'Bonus');
+        (new AssociateAchievementSetToGameAction())->execute($secondParentGame, $subsetGame, AchievementSetType::Bonus, 'Bonus');
+        (new ResumePlayerSessionAction())->execute($reporter, $secondParentGame);
+
+        $ticket = Ticket::factory()->forAchievement($subsetGame->achievements->first())->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        expect(PlayerGame::where('user_id', $reporter->id)->where('game_id', $subsetGame->id)->exists())->toBeFalse();
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterPlayedGame', true)
+        );
+    });
+
+    it('given a viewer who may not see player history, sends no activity even though the reporter played the game', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        PlayerGame::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterHistoryAccess', false)
+            ->where('hasReporterPlayedGame', false)
+            ->missing('reporterActivity')
+            ->missing('deferredProps')
         );
     });
 });

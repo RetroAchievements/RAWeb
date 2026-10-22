@@ -6,7 +6,9 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('TicketShowPageProps')]
@@ -33,6 +35,10 @@ class TicketShowPagePropsData extends Data
         public array $comments,
         /** @var TicketChangelogEntryData[] $changelog */
         public array $changelog,
+        public bool $hasReporterHistoryAccess,
+        public bool $hasReporterPlayedGame,
+        #[AutoInertiaDeferred]
+        public Lazy|PlayerGameActivityData|null $reporterActivity,
     ) {
     }
 }
