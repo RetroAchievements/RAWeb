@@ -31,6 +31,8 @@ class TicketShowPagePropsData extends Data
         public ?string $reportBody,
         /** @var CommentData[] $comments */
         public array $comments,
+        /** @var TicketChangelogEntryData[] $changelog */
+        public array $changelog,
     ) {
     }
 }

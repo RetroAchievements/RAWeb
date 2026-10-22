@@ -104,16 +104,16 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     }
 
     /**
-     * @return Collection<string, Closure(mixed): string>
+     * @return array<string, Closure(mixed): string>
      */
-    protected function createFieldValueMap(): Collection
+    protected function createFieldValueMap(): array
     {
-        return collect([
+        return [
             'is_promoted' => fn (mixed $value): string => $value ? __('Promoted') : __('Unpromoted'),
 
             // Support legacy audit log records that used the Flags column.
             'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PROMOTED ? __('Promoted') : __('Unpromoted'),
-        ]);
+        ];
     }
 
     protected function userDisplayNameFor(mixed $userId): string
@@ -132,8 +132,8 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         $fieldValueMap = $this->createFieldValueMap();
 
         foreach ($values as $key => $value) {
-            if ($fieldValueMap->has($key) && is_callable($fieldValueMap->get($key))) {
-                $values[$key] = $fieldValueMap->get($key)($value);
+            if (isset($fieldValueMap[$key])) {
+                $values[$key] = $fieldValueMap[$key]($value);
             }
 
             if ($this->getIsImageField($key) && is_string($value)) {

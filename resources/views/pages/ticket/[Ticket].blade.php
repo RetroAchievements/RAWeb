@@ -363,9 +363,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
     </div>
 
     <div>
-        <form method="post" action="/request/ticket/update.php" id="ticketActionForm">
-            {!! csrf_field() !!}
-            <input type="hidden" name="ticket" value="{{ $ticket->id }}">
+        <form id="ticketActionForm">
             @if ($permissions >= Permissions::Developer)
                 @if ($ticket->state->isOpen() || $ticket->state === TicketState::Quarantined)
                     <select name="action" id="ticketAction" required>
@@ -441,20 +439,6 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                         <option value="{{ TicketAction::ClosedOther }}">Close - Another reason (add comments above)</option>
                     </select>
                     <button class='btn' type="submit">Perform action</button>
-
-                    <script>
-                        document.getElementById('ticketActionForm').addEventListener('submit', function(e) {
-                            const actionSelect = document.getElementById('ticketAction');
-                            const selectedOption = actionSelect.options[actionSelect.selectedIndex];
-                            const confirmMessage = selectedOption.getAttribute('data-confirm');
-
-                            if (confirmMessage && !confirm(confirmMessage)) {
-                                e.preventDefault();
-
-                                return false;
-                            }
-                        });
-                    </script>
                 @else
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
                     <button class='btn'>Reopen this ticket</button>
@@ -466,6 +450,34 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                 @endif
             @endif
         </form>
+
+        <script>
+            document.getElementById('ticketActionForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const actionInput = this.elements.action;
+                const chosenOption = actionInput.tagName === 'SELECT' ? actionInput.options[actionInput.selectedIndex] : null;
+                const confirmationText = chosenOption?.getAttribute('data-confirm');
+                if (confirmationText && !confirm(confirmationText)) {
+                    return;
+                }
+
+                showStatusMessage('Updating...');
+
+                $.ajax({
+                    url: '{{ route('api.ticket.state.update', $ticket) }}',
+                    type: 'PATCH',
+                    data: { action: actionInput.value },
+                })
+                    .done(function (serverResponse) {
+                        showStatusMessage(serverResponse.message);
+                        location.reload();
+                    })
+                    .fail(function (failedRequest) {
+                        showStatusFailure(failedRequest.responseJSON?.message ?? @json(__('legacy.error.error')));
+                    });
+            });
+        </script>
 
         @canany(['manage', 'viewLogic',], Ticket::class)
             @php

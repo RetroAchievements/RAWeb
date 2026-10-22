@@ -37,7 +37,9 @@ class CreateTicketAction
         $achievement = $data->ticketable;
         $maintainer = $achievement->getMaintainerAt(now());
 
-        $ticket = Ticket::create([
+        // Build the ticket in memory before we save it later so duplicate activitylog
+        // records don't get inserted into the history for the record.
+        $ticket = new Ticket([
             'ticketable_type' => 'achievement',
             'ticketable_id' => $achievement->id,
             'reporter_id' => $user->id,
@@ -46,10 +48,6 @@ class CreateTicketAction
             'hardcore' => $data->mode === 'hardcore',
             'body' => $this->formatTicketNote($data, !$emulator),
         ]);
-
-        if ($maintainer) {
-            app(UserTicketCountService::class)->clearForUserId($maintainer->id);
-        }
 
         $ticket->game_hash_id = $data->gameHash->id;
         $ticket->emulator_core = $data->core ?: null;
@@ -63,6 +61,10 @@ class CreateTicketAction
         $ticket->state = $this->resolveTicketState($data, $user, $achievement, $emulator);
 
         $ticket->save();
+
+        if ($maintainer) {
+            app(UserTicketCountService::class)->clearForUserId($maintainer->id);
+        }
 
         // Don't notify developers about quarantined tickets.
         if ($ticket->state !== TicketState::Quarantined) {
