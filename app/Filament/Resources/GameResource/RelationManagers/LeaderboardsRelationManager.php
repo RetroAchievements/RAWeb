@@ -18,6 +18,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -124,6 +125,35 @@ class LeaderboardsRelationManager extends RelationManager
 
             ])
             ->headerActions([
+                Action::make('create-hidden-leaderboard')
+                    ->label('Create hidden leaderboard')
+                    ->modalDescription('This creates a new leaderboard with a negative display order.')
+                    ->modalSubmitAction(fn (Action $action) => $action->color('primary'))
+                    ->schema([
+                        Forms\Components\TextInput::make('title')
+                            ->label('Title')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('description')
+                            ->label('Description')
+                            ->maxLength(255),
+                    ])
+                    ->action(function (array $data) use ($user) {
+                        $leaderboard = Leaderboard::create([
+                            'game_id' => $this->getOwnerRecord()->id,
+                            'title' => $data['title'],
+                            'description' => $data['description'] ?? '',
+                            'trigger_definition' => '',
+                            'author_id' => $user->id,
+                            'format' => ValueFormat::Value,
+                            'order_column' => -1,
+                            'state' => LeaderboardState::Unpromoted,
+                        ]);
+                    })
+                    ->visible(function () use ($user) {
+                        return $user->can('create', Leaderboard::class);
+                    }),
+
                 Action::make('cancel-edit-display-orders')
                     ->label('Cancel')
                     ->icon('heroicon-o-x-mark')
@@ -156,13 +186,18 @@ class LeaderboardsRelationManager extends RelationManager
                         ->label('Move to Top')
                         ->icon('heroicon-o-arrow-up')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'top'))
-                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
-
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return !$this->isEditingDisplayOrders
+                                && $user->can('updateField', [$leaderboard, 'order_column']);
+                        }),
                     Action::make('move-to-bottom')
                         ->label('Move to Bottom')
                         ->icon('heroicon-o-arrow-down')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
-                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return !$this->isEditingDisplayOrders
+                                && $user->can('updateField', [$leaderboard, 'order_column']);
+                        }),
                     CloneLeaderboardAction::make('clone_leaderboard'),
                     MergeLeaderboardsAction::make('merge_leaderboards'),
                     Action::make('promote-leaderboard')

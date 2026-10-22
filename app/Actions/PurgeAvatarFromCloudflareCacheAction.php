@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Media\UserAvatarUrl;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PurgeAvatarFromCloudflareCacheAction
 {
@@ -28,9 +29,20 @@ class PurgeAvatarFromCloudflareCacheAction
             return;
         }
 
-        Http::withToken($apiToken)
+        $urls = UserAvatarUrl::purgeVariants($username, $previousAvatarUpdatedAt, $currentAvatarUpdatedAt);
+
+        $response = Http::withToken($apiToken)
             ->post("https://api.cloudflare.com/client/v4/zones/{$zoneId}/purge_cache", [
-                'files' => UserAvatarUrl::purgeVariants($username, $previousAvatarUpdatedAt, $currentAvatarUpdatedAt),
+                'files' => $urls,
             ]);
+
+        if ($response->failed() || $response->json('success') !== true) {
+            Log::warning('Cloudflare avatar cache purge failed.', [
+                'username' => $username,
+                'status' => $response->status(),
+                'errors' => $response->json('errors'),
+                'urls' => $urls,
+            ]);
+        }
     }
 }
