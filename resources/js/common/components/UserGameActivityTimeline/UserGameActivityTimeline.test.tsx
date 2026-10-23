@@ -4,6 +4,7 @@ import {
   createPlayerGameActivityEvent,
   createPlayerGameActivitySession,
   createPlayerGameActivitySummary,
+  createUser,
 } from '@/test/factories';
 
 import { UserGameActivityTimeline } from './UserGameActivityTimeline';
@@ -301,6 +302,45 @@ describe('Component: UserGameActivityTimeline', () => {
 
     // ASSERT
     expect(screen.queryByText(/reported achievement/i)).not.toBeInTheDocument();
+  });
+
+  it('given a manual unlock session contains unlocks granted by two different users, contains the name of the unlocker not contained in the header', () => {
+    // ARRANGE
+    const when = '2023-12-22T01:32:31Z';
+
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'manual-unlock',
+              startTime: when,
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when,
+                  achievement: createAchievement({ id: 1, title: "Rock 'n' Roll!" }),
+                  unlocker: createUser({ displayName: 'Searo' }),
+                }),
+                createPlayerGameActivityEvent({
+                  type: 'unlock',
+                  when,
+                  achievement: createAchievement({ id: 2, title: 'Just Throw It' }),
+                  unlocker: createUser({ displayName: 'AuburnRDM' }),
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/manually unlocked by/i)).toHaveLength(2);
+    expect(screen.getAllByRole('img', { name: /auburnrdm/i })).toHaveLength(2);
   });
 
   it('given a ticket created session, shows the ticket created event and no session header', () => {

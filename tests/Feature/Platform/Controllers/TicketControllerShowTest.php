@@ -540,6 +540,37 @@ describe('Comment Props', function () {
         );
     });
 
+    it('given a comment that was posted by a soft deleted user, does not crash', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create([
+                'display_name' => 'BenGhazi',
+                'deleted_at' => now(),
+            ])->id,
+            'body' => 'I can confirm this one.',
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('comments', 1)
+            ->where('comments.0.user.displayName', 'BenGhazi')
+            ->whereNot('comments.0.user.deletedAt', null)
+        );
+    });
+
     it('given a ticket whose state at some point was changed, includes the changelog entry and hides associated legacy Server comments', function () {
         // ARRANGE
         $game = createTicketShowPageGame();

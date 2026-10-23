@@ -330,7 +330,7 @@ describe('Component: UnlockEventContent', () => {
     expect(screen.getByRole('img', { name: /snow/i })).toBeVisible();
   });
 
-  it('given a manually unlocked achievement in a manual unlock session, does not repeat the unlocker label', () => {
+  it('given the session header already has the name of the person who manually unlocked the achievement, does not repeat the unlocker label', () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 1,
@@ -343,6 +343,7 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
+        isUnlockerInSessionHeader={true} // !!
         previousEventKind="start-session"
         sessionEvent={createPlayerGameActivityEvent({
           achievement,
@@ -351,7 +352,7 @@ describe('Component: UnlockEventContent', () => {
           when: null,
           unlocker: createUser({ displayName: 'Snow' }),
         })}
-        sessionType="manual-unlock" // !!
+        sessionType="manual-unlock"
         whenPrevious={null}
       />,
     );
