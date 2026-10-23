@@ -84,6 +84,15 @@ class Ticket extends BaseModel
 
     // == accessors
 
+    public function getHasReporterRepliedLastAttribute(): bool
+    {
+        $orderedComments = $this->discussionComments;
+
+        return
+            $orderedComments->last()?->user_id === $this->reporter_id
+            && $orderedComments->contains(fn (TicketComment $ticketComment): bool => $ticketComment->user_id !== $this->reporter_id);
+    }
+
     public function getIsOpenAttribute(): bool
     {
         return $this->state->isOpen();
@@ -109,6 +118,14 @@ class Ticket extends BaseModel
     public function comments(): HasMany
     {
         return $this->hasMany(TicketComment::class, 'commentable_id')->where('commentable_type', CommentableType::Ticket);
+    }
+
+    /**
+     * @return HasMany<TicketComment, $this>
+     */
+    public function discussionComments(): HasMany
+    {
+        return $this->comments()->notAutomated()->orderBy('created_at')->orderBy('id');
     }
 
     /**

@@ -951,7 +951,7 @@ banner: App.Platform.Data.PageBanner | null;
 targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
-userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+userGameAchievementSetPreferences: Record<number, App.Platform.Data.UserGameAchievementSetPreference>;
 activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
@@ -1290,6 +1290,8 @@ leaderboardEntryCount: number | null;
 reportBody: string | null;
 comments: Array<App.Community.Data.Comment>;
 changelog: Array<App.Platform.Data.TicketChangelogEntry>;
+allowedTicketActions: Array<App.Community.Enums.TicketAction>;
+hasReporterRepliedLast: boolean;
 };
 export type UserCredits = {
 displayName: string;

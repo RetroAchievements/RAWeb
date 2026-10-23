@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
+use App\Community\Enums\TicketAction;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -33,6 +34,9 @@ class TicketShowPagePropsData extends Data
         public array $comments,
         /** @var TicketChangelogEntryData[] $changelog */
         public array $changelog,
+        /** @var TicketAction[] $allowedTicketActions */
+        public array $allowedTicketActions,
+        public bool $hasReporterRepliedLast,
     ) {
     }
 }
