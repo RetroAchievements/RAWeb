@@ -50,7 +50,7 @@ class BuildTicketShowPagePropsAction
             $leaderboardEntryCount = $ticketable->entries()->count();
         }
 
-        $canViewReporterHistory = $user->canAny(['manage', 'viewHistory'], Ticket::class);
+        $canViewReporterHistory = $user->can('viewHistory', Ticket::class);
         $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
 
         $propsData = new TicketShowPagePropsData(

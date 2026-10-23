@@ -371,4 +371,138 @@ describe('Component: UserGameActivityTimeline', () => {
     expect(screen.getAllByText(/this ticket was created/i)).toHaveLength(2); // one event, rendered once for desktop and once for mobile
     expect(screen.queryByTestId('session-header')).not.toBeInTheDocument();
   });
+
+  it('given the ticket was created after the first session, shows the earlier sessions that exist', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-01T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'ticket-created',
+              startTime: '2024-03-02T12:00:00Z',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'ticket-created',
+                  achievement: null,
+                  description: '',
+                }),
+              ],
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-03T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-04T12:00:00Z',
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+        maxSessionsAroundTicket={1}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/mar 1, 2024/i)).toHaveLength(2);
+    expect(screen.getAllByText(/this ticket was created/i)).toHaveLength(2);
+    expect(screen.getAllByText(/mar 3, 2024/i)).toHaveLength(2);
+    expect(screen.queryAllByText(/mar 4, 2024/i)).toEqual([]);
+  });
+
+  it('given an empty manual unlock session next to the ticket, does not count it toward the sessions around the ticket', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-01T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'manual-unlock',
+              startTime: '2024-03-02T12:00:00Z',
+              events: [],
+            }),
+            createPlayerGameActivitySession({
+              type: 'ticket-created',
+              startTime: '2024-03-03T12:00:00Z',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'ticket-created',
+                  achievement: null,
+                  description: '',
+                }),
+              ],
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+        maxSessionsAroundTicket={1}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/mar 1, 2024/i)).toHaveLength(2);
+  });
+
+  it('given the ticket was created during a play session, centers the sessions around that play session', () => {
+    // ARRANGE
+    render(
+      <UserGameActivityTimeline
+        activity={{
+          sessions: [
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-01T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-02T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-03T12:00:00Z',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'ticket-created',
+                  achievement: null,
+                  description: '',
+                }),
+              ],
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-04T12:00:00Z',
+            }),
+            createPlayerGameActivitySession({
+              type: 'player-session',
+              startTime: '2024-03-05T12:00:00Z',
+            }),
+          ],
+          clientBreakdown: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+        isOnlyShowingAchievementSessions={false}
+        maxSessionsAroundTicket={1}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/this ticket was created/i)).toHaveLength(2);
+    expect(screen.queryAllByText(/mar 1, 2024/i)).toEqual([]);
+    expect(screen.getAllByText(/mar 2, 2024/i)).toHaveLength(2);
+    expect(screen.getAllByText(/mar 4, 2024/i)).toHaveLength(2);
+    expect(screen.queryAllByText(/mar 5, 2024/i)).toEqual([]);
+  });
 });

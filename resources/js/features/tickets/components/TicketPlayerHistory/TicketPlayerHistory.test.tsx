@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import type * as MotionReact from 'motion/react';
 import { useReducedMotion } from 'motion/react';
+import { route } from 'ziggy-js';
 
 import { render, screen, waitFor } from '@/test';
 import {
@@ -276,5 +277,79 @@ describe('Component: TicketPlayerHistory', () => {
       { timeout: 200 },
     );
     expect(screen.getAllByTestId('session-header')).toHaveLength(2); // one session, rendered once for desktop and once for mobile
+  });
+
+  it('given many sessions, shows the 3 sessions on each side of the ticket creation', async () => {
+    // ARRANGE
+    const playerSessions = Array.from({ length: 8 }, (_, index) =>
+      createPlayerGameActivitySession({
+        type: 'player-session',
+        startTime: `2024-05-${String(index + 1).padStart(2, '0')}T12:00:00Z`,
+      }),
+    );
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasReporterHistoryAccess: true,
+        reporterActivity: {
+          clientBreakdown: [],
+          sessions: [
+            ...playerSessions.slice(0, 4),
+            createPlayerGameActivitySession({
+              type: 'ticket-created',
+              startTime: '2024-05-04T18:00:00Z',
+              events: [
+                createPlayerGameActivityEvent({
+                  type: 'ticket-created',
+                  achievement: null,
+                  description: '',
+                }),
+              ],
+            }),
+            ...playerSessions.slice(4),
+          ],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        },
+        ticket: createTicketListEntry({
+          game: createGame({ title: 'Streets of Rage 2' }),
+          reporter: createUser({ displayName: 'Scott' }),
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /scott's activity/i }));
+
+    // ASSERT
+    expect(screen.getAllByTestId('session-header')).toHaveLength(12); // 2x due to desktop + mobile, actually just 6 sessions
+    expect(screen.queryAllByText(/may 1, 2024/i)).toEqual([]);
+    expect(screen.queryAllByText(/may 8, 2024/i)).toEqual([]);
+  });
+
+  it('links to the full activity of the given reporter player sessions', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasReporterHistoryAccess: true,
+        reporterActivity: {
+          clientBreakdown: [],
+          sessions: [createPlayerGameActivitySession({ type: 'player-session' })],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        },
+        ticket: createTicketListEntry({
+          game: createGame({ id: 1379, title: 'Streets of Rage 2' }),
+          reporter: createUser({ displayName: 'Scott' }),
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /scott's activity/i }));
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /view full activity/i })).toBeVisible();
+    expect(route).toHaveBeenCalledWith('user.game.activity.show', { user: 'Scott', game: 1379 });
   });
 });

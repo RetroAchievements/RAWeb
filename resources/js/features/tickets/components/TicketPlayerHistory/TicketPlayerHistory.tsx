@@ -3,6 +3,7 @@ import * as m from 'motion/react-m';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuChevronDown, LuClock, LuInfo } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import {
   BaseCollapsible,
@@ -11,6 +12,7 @@ import {
 } from '@/common/components/+vendor/BaseCollapsible';
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserGameActivityClientBreakdown } from '@/common/components/UserGameActivityClientBreakdown';
 import { UserGameActivityTimeline } from '@/common/components/UserGameActivityTimeline';
 import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
@@ -18,16 +20,21 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const TicketPlayerHistory: FC = () => {
-  const { hasReporterHistoryAccess } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { hasReporterHistoryAccess, ticket } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
 
-  if (!hasReporterHistoryAccess) {
+  if (!hasReporterHistoryAccess || !ticket.reporter) {
     return null;
   }
 
-  return <ReporterHistoryPanel />;
+  return <ReporterHistoryPanel reporter={ticket.reporter} />;
 };
 
-const ReporterHistoryPanel: FC = () => {
+interface ReporterHistoryPanelProps {
+  reporter: App.Data.User;
+}
+
+const ReporterHistoryPanel: FC<ReporterHistoryPanelProps> = ({ reporter }) => {
   const { achievement, reporterActivity, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
@@ -65,7 +72,7 @@ const ReporterHistoryPanel: FC = () => {
         <span className="grow">
           <Trans
             i18nKey="{{user}}'s activity for <1>{{game}}</1>"
-            values={{ user: ticket.reporter?.displayName }}
+            values={{ user: reporter.displayName }}
             components={{ 1: <GameTitle {...ticket.game} /> }}
           />
         </span>
@@ -117,8 +124,19 @@ const ReporterHistoryPanel: FC = () => {
                     <UserGameActivityTimeline
                       activity={reporterActivity}
                       isOnlyShowingAchievementSessions={false}
+                      maxSessionsAroundTicket={3}
                       reportedAchievementId={achievement?.id}
                     />
+
+                    <InertiaLink
+                      href={route('user.game.activity.show', {
+                        user: reporter.displayName,
+                        game: ticket.game.id,
+                      })}
+                      className="self-end"
+                    >
+                      {t('View full activity')}
+                    </InertiaLink>
                   </>
                 ) : (
                   <BaseSkeleton data-testid="player-history-skeleton" className="h-40 w-full" />

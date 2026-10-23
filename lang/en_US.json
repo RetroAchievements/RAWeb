@@ -1755,5 +1755,6 @@
     "Reported achievement": "Reported achievement",
     "This ticket was created.": "This ticket was created.",
     "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.": "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.",
-    "{{user}}'s activity for <1>{{game}}</1>": "{{user}}'s activity for <1>{{game}}</1>"
+    "{{user}}'s activity for <1>{{game}}</1>": "{{user}}'s activity for <1>{{game}}</1>",
+    "View full activity": "View full activity"
 }
