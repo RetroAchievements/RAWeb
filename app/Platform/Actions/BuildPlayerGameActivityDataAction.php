@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Enums\PlayerGameActivityEventType;
+use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameHashData;
@@ -26,10 +29,23 @@ class BuildPlayerGameActivityDataAction
     ) {
     }
 
-    public function execute(User $user, Game $game): PlayerGameActivityData
+    /**
+     * When a ticket is provided, its creation is appended to the timeline as an event.
+     */
+    public function execute(User $user, Game $game, ?Ticket $ticket = null): PlayerGameActivityData
     {
         $this->playerGameActivityService->initialize($user, $game);
         $this->playerGameActivityService->addResetEvents($user, $game);
+
+        if ($ticket !== null) {
+            $this->playerGameActivityService->addCustomEvent(
+                $ticket->created_at,
+                PlayerGameActivitySessionType::TicketCreated,
+                description: '',
+                eventType: PlayerGameActivityEventType::TicketCreated,
+            );
+        }
+
         $summary = $this->playerGameActivityService->summarize();
 
         /**

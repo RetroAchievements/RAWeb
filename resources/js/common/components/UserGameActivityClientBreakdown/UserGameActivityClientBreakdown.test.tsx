@@ -6,17 +6,14 @@ import { UserGameActivityClientBreakdown } from './UserGameActivityClientBreakdo
 describe('Component: UserGameActivityClientBreakdown', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Platform.Data.PlayerGameActivityPageProps>(
-      <UserGameActivityClientBreakdown />,
-      {
-        pageProps: {
-          activity: {
-            clientBreakdown: [],
-            sessions: [],
-            summarizedActivity: createPlayerGameActivitySummary(),
-          },
-        },
-      },
+    const { container } = render(
+      <UserGameActivityClientBreakdown
+        activity={{
+          clientBreakdown: [],
+          sessions: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        }}
+      />,
     );
 
     // ASSERT
@@ -25,15 +22,15 @@ describe('Component: UserGameActivityClientBreakdown', () => {
 
   it('given there is no client data, shows the correct message', () => {
     // ARRANGE
-    render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityClientBreakdown />, {
-      pageProps: {
-        activity: {
+    render(
+      <UserGameActivityClientBreakdown
+        activity={{
           clientBreakdown: [],
           sessions: [],
           summarizedActivity: createPlayerGameActivitySummary(),
-        },
-      },
-    });
+        }}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByText(/no emulator usage data is available/i));
@@ -41,9 +38,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
 
   it('given there are two clients, displays both directly', () => {
     // ARRANGE
-    render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityClientBreakdown />, {
-      pageProps: {
-        activity: {
+    render(
+      <UserGameActivityClientBreakdown
+        activity={{
           clientBreakdown: [
             createPlayerGameClientBreakdown({
               clientIdentifier: 'RALibRetro',
@@ -56,9 +53,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
           ],
           sessions: [],
           summarizedActivity: createPlayerGameActivitySummary(),
-        },
-      },
-    });
+        }}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByText(/65.50% - RALibretro/i)).toBeVisible();
@@ -67,9 +64,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
 
   it('given there are many clients, shows the top two with remainder in a tooltip', () => {
     // ARRANGE
-    render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityClientBreakdown />, {
-      pageProps: {
-        activity: {
+    render(
+      <UserGameActivityClientBreakdown
+        activity={{
           clientBreakdown: [
             createPlayerGameClientBreakdown({
               clientIdentifier: 'RALibRetro',
@@ -90,9 +87,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
           ],
           sessions: [],
           summarizedActivity: createPlayerGameActivitySummary(),
-        },
-      },
-    });
+        }}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByText(/50.00% - RALibretro/i)).toBeVisible();
@@ -102,9 +99,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
 
   it('given there are exactly three clients, shows them all directly', () => {
     // ARRANGE
-    render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityClientBreakdown />, {
-      pageProps: {
-        activity: {
+    render(
+      <UserGameActivityClientBreakdown
+        activity={{
           clientBreakdown: [
             createPlayerGameClientBreakdown({
               clientIdentifier: 'RALibRetro',
@@ -121,9 +118,9 @@ describe('Component: UserGameActivityClientBreakdown', () => {
           ],
           sessions: [],
           summarizedActivity: createPlayerGameActivitySummary(),
-        },
-      },
-    });
+        }}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByText(/50.00% - RALibretro/i)).toBeVisible();
