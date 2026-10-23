@@ -15,11 +15,12 @@ import type { TranslatedString } from '@/types/i18next';
 
 interface TicketActionConfirmDialogProps {
   confirmLabel: TranslatedString;
-  description: TranslatedString;
   isOpen: boolean;
   onConfirm: () => void;
   onOpenChange: (isOpen: boolean) => void;
   title: TranslatedString;
+
+  description?: TranslatedString;
 }
 
 export const TicketActionConfirmDialog: FC<TicketActionConfirmDialogProps> = ({
@@ -34,10 +35,10 @@ export const TicketActionConfirmDialog: FC<TicketActionConfirmDialogProps> = ({
 
   return (
     <BaseDialog open={isOpen} onOpenChange={onOpenChange}>
-      <BaseDialogContent>
+      <BaseDialogContent {...(description ? {} : { 'aria-describedby': undefined })}>
         <BaseDialogHeader>
           <BaseDialogTitle>{title}</BaseDialogTitle>
-          <BaseDialogDescription>{description}</BaseDialogDescription>
+          {description ? <BaseDialogDescription>{description}</BaseDialogDescription> : null}
         </BaseDialogHeader>
 
         <BaseDialogFooter>

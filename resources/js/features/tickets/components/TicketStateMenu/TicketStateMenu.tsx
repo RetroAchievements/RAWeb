@@ -112,7 +112,7 @@ export const TicketStateMenu: FC = () => {
   const confirmationCopyByAction: Partial<
     Record<
       App.Community.Enums.TicketAction,
-      { confirmLabel: TranslatedString; description: TranslatedString; title: TranslatedString }
+      { confirmLabel: TranslatedString; description?: TranslatedString; title: TranslatedString }
     >
   > = {
     demoted: {
@@ -128,6 +128,10 @@ export const TicketStateMenu: FC = () => {
       description: t(
         'If the player gave steps to reproduce the problem, try to reproduce it before you close the ticket.',
       ),
+      confirmLabel: t('Close ticket'),
+    },
+    'closed-mistaken': {
+      title: t('Close as a mistaken report?'),
       confirmLabel: t('Close ticket'),
     },
     ...(hasReporterRepliedLast

@@ -161,6 +161,14 @@ describe('Component: TicketStateMenu', () => {
       confirmButtonName: 'Close ticket',
     },
     {
+      pick: 'Mistaken report',
+      ticketAction: 'closed-mistaken',
+      menuItemName: 'Mistaken report',
+      reporterRepliedLast: false,
+      confirmDialogTitle: 'Close as a mistaken report?',
+      confirmButtonName: 'Close ticket',
+    },
+    {
       pick: 'Request information after the reporter replied last',
       ticketAction: 'request',
       menuItemName: 'Request information',

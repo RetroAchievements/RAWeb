@@ -1767,6 +1767,7 @@
     "This also closes the ticket.": "This also closes the ticket.",
     "Close as": "Close as",
     "Close as unable to debug?": "Close as unable to debug?",
+    "Close as a mistaken report?": "Close as a mistaken report?",
     "If the player gave steps to reproduce the problem, try to reproduce it before you close the ticket.": "If the player gave steps to reproduce the problem, try to reproduce it before you close the ticket.",
     "Close ticket": "Close ticket",
     "Unable to debug (no toolkit support)": "Unable to debug (no toolkit support)",
