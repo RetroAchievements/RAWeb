@@ -6,14 +6,14 @@ import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import { GameHeading } from '@/common/components/GameHeading';
 import { GameTitle } from '@/common/components/GameTitle';
 import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
+import { UserGameActivityClientBreakdown } from '@/common/components/UserGameActivityClientBreakdown';
+import { UserGameActivityTimeline } from '@/common/components/UserGameActivityTimeline';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { UserGameActivityClientBreakdown } from '../UserGameActivityClientBreakdown';
-import { UserGameActivityTimeline } from '../UserGameActivityTimeline';
 import { UserGameSummarizedActivity } from '../UserGameSummarizedActivity';
 
 export const UserGameActivityMainRoot: FC = () => {
-  const { game, player, playerGame } =
+  const { activity, game, player, playerGame } =
     usePageProps<App.Platform.Data.PlayerGameActivityPageProps>();
   const { t } = useTranslation();
 
@@ -30,7 +30,7 @@ export const UserGameActivityMainRoot: FC = () => {
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col items-start justify-between gap-4 rounded-lg bg-embed p-3 sm:flex-row">
-              <UserGameActivityClientBreakdown />
+              <UserGameActivityClientBreakdown activity={activity} />
 
               <div className="flex items-center">
                 <BaseLabel
@@ -50,9 +50,12 @@ export const UserGameActivityMainRoot: FC = () => {
             <UserGameSummarizedActivity />
           </div>
 
-          <UserGameActivityTimeline
-            isOnlyShowingAchievementSessions={isOnlyShowingAchievementSessions}
-          />
+          <div className="rounded-lg border border-embed-highlight bg-embed p-4">
+            <UserGameActivityTimeline
+              activity={activity}
+              isOnlyShowingAchievementSessions={isOnlyShowingAchievementSessions}
+            />
+          </div>
         </div>
       ) : (
         <Trans

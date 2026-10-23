@@ -122,7 +122,7 @@ class TicketViewService
 
     public function buildHistory(Ticket $ticket, User $actingUser): array
     {
-        $canViewHistory = $actingUser->canany(['manage', 'viewHistory'], Ticket::class);
+        $canViewHistory = $actingUser->can('viewHistory', Ticket::class);
         if (!$canViewHistory || !$ticket->reporter) {
             return [];
         }

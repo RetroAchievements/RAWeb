@@ -222,7 +222,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
     </div>
 
     @if ($isAchievementTicket && $ticket->reporter)
-      @canany(['manage', 'viewHistory'], Ticket::class)
+      @can('viewHistory', Ticket::class)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -302,7 +302,7 @@ $ticketableAssignee = $ticketable->getTicketableAssignee();
                 </div>
             </div>
         </div>
-      @endcanany
+      @endcan
     @endif
 
     <div class="mt-2">

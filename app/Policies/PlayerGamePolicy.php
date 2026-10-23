@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\Role;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -62,15 +64,26 @@ class PlayerGamePolicy
         return false;
     }
 
-    public function viewSessionHistory(User $user, ?PlayerGame $playerGame = null): bool
+    // TODO refactor to PlayerSessionPolicy
+    public function viewSessionHistory(User $user): bool
     {
-        // TODO also visible on tickets
-
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::MODERATOR,
             Role::CHEAT_INVESTIGATOR,
             Role::QUALITY_ASSURANCE,
         ]);
+    }
+
+    // TODO refactor to PlayerSessionPolicy
+    public function viewActivity(User $user, User $player, Game $game): bool
+    {
+        if ($this->viewSessionHistory($user)) {
+            return true;
+        }
+
+        return
+            $user->can('viewHistory', Ticket::class)
+            && Ticket::forGame($game)->where('reporter_id', $player->id)->exists();
     }
 }

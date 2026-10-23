@@ -93,7 +93,7 @@ describe('Component: ClientLabel', () => {
     expect(screen.getByText(/unknown emulator/i)).toBeVisible();
   });
 
-  it('given the emulator is known, shows the emulator label', () => {
+  it('given the emulator is known, shows the emulator label with the OS on its own line', () => {
     // ARRANGE
     render(
       <ClientLabel
@@ -103,6 +103,7 @@ describe('Component: ClientLabel', () => {
           parsedUserAgent: createParsedUserAgent({
             client: 'RetroArch',
             clientVersion: '1.19.1',
+            clientVariation: 'mgba',
             os: 'Linux 4.9',
           }),
         })}
@@ -110,8 +111,28 @@ describe('Component: ClientLabel', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/retroarch/i)).toBeVisible();
-    expect(screen.getByText(/1.19.1/i)).toBeVisible();
-    expect(screen.getByText(/linux 4.9/i)).toBeVisible();
+    expect(screen.getByText('RetroArch 1.19.1 - mgba')).toBeVisible();
+    expect(screen.getByText('Linux 4.9')).toBeVisible();
+  });
+
+  it('given the emulator does not report an OS, shows only the emulator label', () => {
+    // ARRANGE
+    render(
+      <ClientLabel
+        session={createPlayerGameActivitySession({
+          type: 'player-session',
+          userAgent: 'RetroArch/1.19.1 mgba_libretro/0.11-dev',
+          parsedUserAgent: createParsedUserAgent({
+            client: 'RetroArch',
+            clientVersion: '1.19.1',
+            clientVariation: 'mgba',
+            os: null,
+          }),
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button')).toHaveTextContent(/^RetroArch 1\.19\.1 - mgba$/);
   });
 });
