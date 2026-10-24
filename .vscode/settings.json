@@ -1,6 +1,6 @@
 {
-  "php.version": "8.4.15",
-  "typescript.experimental.useTsgo": true,
+  "php.version": "8.5.11",
+  "js/ts.experimental.useTsgo": true,
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"

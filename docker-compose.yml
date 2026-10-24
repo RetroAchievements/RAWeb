@@ -1,12 +1,12 @@
 services:
     laravel.test:
         build:
-            context: ./docker/8.4
+            context: ./docker/8.5
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
                 NODE_VERSION: '24'
-        image: raweb-8.4/app
+        image: raweb-8.5/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:

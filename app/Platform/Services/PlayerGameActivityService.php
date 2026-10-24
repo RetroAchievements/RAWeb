@@ -179,7 +179,9 @@ class PlayerGameActivityService
 
         foreach ($playerAchievements as $playerAchievement) {
             // Pass the pre-loaded unlocker.
-            $unlocker = $unlockers[$playerAchievement->unlocker_id] ?? null;
+            $unlocker = $playerAchievement->unlocker_id !== null
+                ? ($unlockers[$playerAchievement->unlocker_id] ?? null)
+                : null;
 
             $achievementSetId = $achievementAchievementSets[$playerAchievement->achievement_id] ?? $coreGameAchievementSetIds[$game->id];
             if ($playerAchievement->unlocked_hardcore_at) {

@@ -24,12 +24,12 @@ class UserCard extends Component
         $this->user = $user;
     }
 
-    public function render(): ?View
+    public function render(): View|string
     {
         $username = $this->getUsername($this->user);
 
         if (empty($username)) {
-            return null;
+            return '';
         }
 
         /* @var array $rawUserData */
@@ -41,7 +41,7 @@ class UserCard extends Component
         }
 
         if (!$rawUserData) {
-            return null;
+            return '';
         }
 
         $cardViewValues = $this->buildAllCardViewValues($username, $rawUserData);
