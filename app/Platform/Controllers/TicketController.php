@@ -6,6 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
 use App\Data\UserData;
+use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -66,7 +67,7 @@ class TicketController extends Controller
 
         $this->authorize('viewAny', [Ticket::class, $target]);
 
-        $props = (new BuildTicketInboxPagePropsAction())->execute($target);
+        $props = (new BuildTicketInboxPagePropsAction())->execute($target, $request->user());
 
         return Inertia::render('tickets/mine', $props);
     }
@@ -175,7 +176,7 @@ class TicketController extends Controller
         $scope = $request->getScope();
 
         $action = new BuildTicketListAction();
-        $result = $action->execute($scope, $target, $request);
+        $result = $action->execute($scope, $target, $request, $request->user());
 
         $props = new TicketListPagePropsData(
             scope: $scope,
@@ -197,6 +198,7 @@ class TicketController extends Controller
             user: $target instanceof User
                 ? UserData::fromUser($target)->include('id')
                 : null,
+            can: UserPermissionsData::fromUser($request->user())->include('viewTriageSignals'),
         );
 
         return Inertia::render($component, $props);

@@ -5,15 +5,18 @@ declare(strict_types=1);
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\seed;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -321,4 +324,65 @@ it('given the open status filter, returns only open tickets while unresolved als
 
     expect($requestCount)->toBeGreaterThan(0);
     expect($unresolvedTotal)->toEqual($openTotal + $requestCount);
+});
+
+describe('ticket signals', function () {
+    it('given a developer browsing the list page, exposes signal data where available', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', true)
+            ->where('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks'])
+        );
+    });
+
+    it('given a junior developer browsing the list page, exposes signal data where available', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        actingAs($juniorDeveloper);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', true)
+            ->where('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks'])
+        );
+    });
+
+    it('given a player without a dev role on the list page, does not expose signal data', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', false)
+            ->has('paginatedTickets.items', 1)
+            ->missing('paginatedTickets.items.0.signals')
+        );
+    });
 });

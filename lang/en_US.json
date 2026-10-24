@@ -1752,5 +1752,16 @@
     "otherResolvedTickets_other": "It has <1>{{count, number}} other resolved tickets</1>.",
     "Limitation of liability": "Limitation of liability",
     "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.": "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.",
-    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct."
+    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.",
+    "Probably not a bug": "Probably not a bug",
+    "Probably a real bug": "Probably a real bug",
+    "Nearly 9 in 10 past tickets with this verdict were closed without a logic change.": "Nearly 9 in 10 past tickets with this verdict were closed without a logic change.",
+    "Nearly 4 in 5 tickets with this verdict receive a logic change.": "Nearly 4 in 5 tickets with this verdict receive a logic change.",
+    "playersUnlockedBeforeReport_zero": "No players unlocked this achievement in the {{duration}} before the report.",
+    "playersUnlockedBeforeReport_other": "{{count, number}} players unlocked this achievement in the {{duration}} before the report.",
+    "playersUnlockedSinceLogicChange_zero": "No players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
+    "playersUnlockedSinceLogicChange_other": "{{count, number}} players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
+    "The reporter unlocked this achievement {{duration}} after the report.": "The reporter unlocked this achievement {{duration}} after the report.",
+    "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.",
+    "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already."
 }

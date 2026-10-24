@@ -15,6 +15,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
 
+import { TICKET_SIGNAL_VERDICT_APPEARANCE } from '../../utils/ticketSignalVerdictAppearance';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketFactRow } from '../TicketFactRow';
 import { TicketLeaderboardEntryFact } from '../TicketLeaderboardEntryFact';
@@ -22,6 +23,7 @@ import { TicketLogicChangedFact } from '../TicketLogicChangedFact';
 import { TicketOutcomeFact } from '../TicketOutcomeFact';
 import { TicketRelatedFact } from '../TicketRelatedFact';
 import { TicketReporterUnlockFact } from '../TicketReporterUnlockFact';
+import { TicketSignalVerdictFact } from '../TicketSignalVerdictFact';
 import { TicketUnlockCountFact } from '../TicketUnlockCountFact';
 import { TicketUserValue } from '../TicketUserValue';
 
@@ -84,6 +86,15 @@ export const TicketFactsList: FC = () => {
           {ticket.ticketableType === 'leaderboard'
             ? t('If the leaderboard still does not work for you, you can open a new ticket.')
             : t('If the achievement still does not work for you, you can open a new ticket.')}
+        </TicketFactRow>
+      ) : null}
+
+      {ticket.signals ? (
+        <TicketFactRow
+          Icon={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].Icon}
+          iconClassName={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].className}
+        >
+          <TicketSignalVerdictFact signals={ticket.signals} reportedAt={ticket.createdAt} />
         </TicketFactRow>
       ) : null}
 

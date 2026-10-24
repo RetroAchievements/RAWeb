@@ -390,6 +390,53 @@ describe('Reporter Unlock Props', function () {
     });
 });
 
+describe('Signal Props', function () {
+    it('given a developer viewing an open ticket without recent unlocks, exposes signal data', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('ticket.signals.verdict', 'probably-defect')
+            ->where('ticket.signals.kinds', ['no-recent-unlocks'])
+            ->where('ticket.signals.unlockCount', 0)
+        );
+    });
+
+    it('given a viewer without a developer role, does not expose signal data', function () {
+        // ARRANGE
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->missing('ticket.signals'));
+    });
+});
+
 describe('Comment Props', function () {
     it('given a ticket with comments, includes the data as props', function () {
         // ARRANGE

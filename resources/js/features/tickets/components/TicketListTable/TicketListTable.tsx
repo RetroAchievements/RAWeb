@@ -13,6 +13,7 @@ import { cn } from '@/common/utils/cn';
 import { useSyncedHorizontalScroll } from '../../hooks/useSyncedHorizontalScroll';
 import type { TicketListColumnDefinition } from '../../models';
 import { TicketListEmptyState } from '../TicketListEmptyState';
+import { TicketSignalVerdict } from '../TicketSignalVerdict';
 import { TicketStateGlyph } from '../TicketStateGlyph';
 import { TicketListMobileRow } from './TicketListMobileRow';
 
@@ -26,19 +27,21 @@ type TicketListTablePage = Pick<
 interface TicketListTableProps {
   columnDefinitions: TicketListColumnDefinition[];
   columnVisibility: VisibilityState;
+  hasVerdictSlot: boolean;
   paginatedTickets: TicketListTablePage;
 
-  shouldShowGameTitle?: boolean;
   emptyStateNode?: ReactNode;
   isFetching?: boolean;
   paginatorNode?: ReactNode;
+  shouldShowGameTitle?: boolean;
 }
 
 export const TicketListTable: FC<TicketListTableProps> = ({
   columnDefinitions,
   columnVisibility,
-  paginatedTickets,
   emptyStateNode,
+  hasVerdictSlot,
+  paginatedTickets,
   paginatorNode,
   isFetching = false,
   shouldShowGameTitle = true,
@@ -102,7 +105,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
             role="row"
             className="flex w-min min-w-full items-center gap-[0.6em] p-[0.6em] text-menu-link"
           >
-            {hasIdColumn ? null : <span aria-hidden="true" className={glyphSlotClassName} />}
+            {hasIdColumn ? null : <RowGlyphSlotsHeader hasVerdictSlot={hasVerdictSlot} />}
 
             {visibleColumns.map((column) => (
               <Fragment key={column.id}>
@@ -117,7 +120,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 </div>
 
                 {column.id === 'id' ? (
-                  <span aria-hidden="true" className={glyphSlotClassName} />
+                  <RowGlyphSlotsHeader hasVerdictSlot={hasVerdictSlot} />
                 ) : null}
               </Fragment>
             ))}
@@ -146,13 +149,15 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
               />
 
-              <TicketListMobileRow entry={row.original} shouldShowGameTitle={shouldShowGameTitle} />
+              <TicketListMobileRow
+                entry={row.original}
+                hasVerdictSlot={hasVerdictSlot}
+                shouldShowGameTitle={shouldShowGameTitle}
+              />
 
               <div className="max-sm:hidden sm:contents">
                 {hasIdColumn ? null : (
-                  <div role="cell" className={glyphSlotClassName}>
-                    <TicketStateGlyph state={row.original.state} />
-                  </div>
+                  <RowGlyphSlots entry={row.original} hasVerdictSlot={hasVerdictSlot} />
                 )}
 
                 {row.getVisibleCells().map((cell) => (
@@ -168,9 +173,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                     </div>
 
                     {cell.column.id === 'id' ? (
-                      <div role="cell" className={glyphSlotClassName}>
-                        <TicketStateGlyph state={row.original.state} />
-                      </div>
+                      <RowGlyphSlots entry={row.original} hasVerdictSlot={hasVerdictSlot} />
                     ) : null}
                   </Fragment>
                 ))}
@@ -184,3 +187,39 @@ export const TicketListTable: FC<TicketListTableProps> = ({
     </div>
   );
 };
+
+interface RowGlyphSlotsHeaderProps {
+  hasVerdictSlot: boolean;
+}
+
+const RowGlyphSlotsHeader: FC<RowGlyphSlotsHeaderProps> = ({ hasVerdictSlot }) => (
+  <>
+    <span aria-hidden="true" className={glyphSlotClassName} />
+    {hasVerdictSlot ? <span aria-hidden="true" className={glyphSlotClassName} /> : null}
+  </>
+);
+
+interface RowGlyphSlotsProps {
+  entry: App.Platform.Data.TicketListEntry;
+  hasVerdictSlot: boolean;
+}
+
+const RowGlyphSlots: FC<RowGlyphSlotsProps> = ({ entry, hasVerdictSlot }) => (
+  <>
+    <div role="cell" className={glyphSlotClassName}>
+      <TicketStateGlyph state={entry.state} />
+    </div>
+
+    {hasVerdictSlot ? (
+      <div role="cell" className={glyphSlotClassName}>
+        {entry.signals ? (
+          <TicketSignalVerdict
+            signals={entry.signals}
+            reportedAt={entry.createdAt}
+            hasTooltip={true}
+          />
+        ) : null}
+      </div>
+    ) : null}
+  </>
+);

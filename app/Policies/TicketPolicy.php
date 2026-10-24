@@ -75,6 +75,14 @@ class TicketPolicy
         ]);
     }
 
+    public function viewTriageSignals(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]);
+    }
+
     public function create(User $user): bool
     {
         if (!$user->hasVerifiedEmail()) {

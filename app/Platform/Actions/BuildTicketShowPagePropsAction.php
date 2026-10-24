@@ -12,17 +12,20 @@ use App\Models\Leaderboard;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\User;
+use App\Platform\Actions\Concerns\LoadsTicketListEntryRelations;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
-use App\Platform\Data\TicketListEntryData;
 use App\Platform\Data\TicketRelatedEntryData;
 use App\Platform\Data\TicketReporterUnlockData;
 use App\Platform\Data\TicketShowPagePropsData;
 use App\Platform\Services\TicketViewService;
+use Illuminate\Database\Eloquent\Collection;
 
 class BuildTicketShowPagePropsAction
 {
+    use LoadsTicketListEntryRelations;
+
     public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
     {
         $ticketViewService = new TicketViewService();
@@ -44,8 +47,14 @@ class BuildTicketShowPagePropsAction
             $leaderboardEntryCount = $ticketable->entries()->count();
         }
 
+        $singleTicketCollection = new Collection([$ticket]);
+        $ticketEntry = $this->resolveTicketListEntries(
+            $singleTicketCollection,
+            $this->resolveTicketSignalsForViewer($singleTicketCollection, $user),
+        )[0];
+
         $propsData = new TicketShowPagePropsData(
-            ticket: TicketListEntryData::fromTicket($ticket),
+            ticket: $ticketEntry,
 
             achievement: $ticketable instanceof Achievement
                 ? AchievementData::fromAchievement($ticketable)->include('points', 'developer.isGone')

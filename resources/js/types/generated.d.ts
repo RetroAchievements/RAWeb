@@ -217,6 +217,8 @@ export type RankType = 'hardcore' | 'casual' | 'retro_points';
 export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
 export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'closed-other' | 'request' | 'reopen';
 export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'demoted' | 'other';
+export type TicketSignal = 'many-recent-unlocks' | 'earned-with-same-logic' | 'earned-after-report' | 'earned-after-logic-change' | 'no-recent-unlocks';
+export type TicketSignalVerdict = 'probably-not-defect' | 'probably-defect';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
 export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' | 'did_not_trigger' | 'submitted_wrong_value' | 'triggered_at_wrong_time';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
@@ -472,6 +474,7 @@ viewAchievementLogic?: boolean;
 viewAnyAchievementSetClaim?: boolean;
 viewAnyOAuthClients?: boolean;
 viewDeveloperInterest?: boolean;
+viewTriageSignals?: boolean;
 };
 }
 declare namespace App.Enums {
@@ -951,7 +954,7 @@ banner: App.Platform.Data.PageBanner | null;
 targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
-userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+userGameAchievementSetPreferences: Record<number, App.Platform.Data.UserGameAchievementSetPreference>;
 activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
@@ -1204,6 +1207,7 @@ user: App.Data.User;
 sections: Array<App.Platform.Data.TicketInboxSection>;
 sectionLimit: number;
 attentionCount: number;
+can: App.Data.UserPermissions;
 };
 export type TicketInboxSection = {
 kind: App.Platform.Enums.TicketInboxSectionKind;
@@ -1230,6 +1234,7 @@ emulator: App.Platform.Data.Emulator | null;
 emulatorVersion: string | null;
 emulatorCore: string | null;
 gameHash: App.Platform.Data.GameHash | null;
+signals?: App.Platform.Data.TicketSignals | null;
 };
 export type TicketListFilter = {
 kind: App.Platform.Enums.TicketListFilterKind;
@@ -1247,6 +1252,7 @@ defaultStatusFilter: App.Platform.Enums.TicketListStatusFilter;
 defaultSortParam: App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`;
 hasStatusFilter: boolean;
 persistenceCookieName: string;
+can: App.Data.UserPermissions;
 persistedViewPreferences: Record<string, any> | null;
 game: App.Platform.Data.Game | null;
 achievement: App.Platform.Data.Achievement | null;
@@ -1290,6 +1296,14 @@ leaderboardEntryCount: number | null;
 reportBody: string | null;
 comments: Array<App.Community.Data.Comment>;
 changelog: Array<App.Platform.Data.TicketChangelogEntry>;
+};
+export type TicketSignals = {
+verdict: App.Community.Enums.TicketSignalVerdict;
+kinds: Array<App.Community.Enums.TicketSignal>;
+unlockCount: number;
+windowStartedAt: string;
+hasRecentLogicChange: boolean;
+reporterEarnedAt: string | null;
 };
 export type UserCredits = {
 displayName: string;
