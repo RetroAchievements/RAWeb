@@ -34,7 +34,7 @@ function seedSignalsUnlocks(Achievement $achievement, int $count, Carbon $unlock
 }
 
 /**
- * @param 'same-logic'|'newer-logic'|'unknown-logic'|'manual'|'before-report'|null $reporterUnlock
+ * @param 'same-logic'|'newer-logic'|'older-logic'|'unknown-logic'|'hardcore-later'|'manual'|'before-report'|null $reporterUnlock
  */
 function createSignalsTicket(
     int $unlocksBeforeReport,
@@ -50,7 +50,7 @@ function createSignalsTicket(
     $reportTrigger = Trigger::factory()->create([
         'triggerable_type' => TriggerableType::Achievement,
         'triggerable_id' => $achievement->id,
-        'version' => 1,
+        'version' => 2,
         'created_at' => $reportedAt->copy()->subDays(20),
     ]);
     $reporter = User::factory()->create();
@@ -70,8 +70,14 @@ function createSignalsTicket(
         'newer-logic' => Trigger::factory()->create([
             'triggerable_type' => TriggerableType::Achievement,
             'triggerable_id' => $achievement->id,
-            'version' => 2,
+            'version' => 3,
             'created_at' => $reportedAt->copy()->addDays(3),
+        ])->id,
+        'older-logic' => Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 1,
+            'created_at' => $reportedAt->copy()->subDays(40),
         ])->id,
         default => $reportTrigger->id,
     };
@@ -80,9 +86,10 @@ function createSignalsTicket(
         'achievement_id' => $achievement->id,
         'trigger_id' => $unlockTriggerId,
         'unlocker_id' => $reporterUnlock === 'manual' ? User::factory()->create()->id : null,
-        'unlocked_at' => $reporterUnlock === 'before-report'
+        'unlocked_at' => in_array($reporterUnlock, ['before-report', 'hardcore-later'], true)
             ? $reportedAt->copy()->subDays(2)
             : $reportedAt->copy()->addWeek(),
+        'unlocked_hardcore_at' => $reporterUnlock === 'hardcore-later' ? $reportedAt->copy()->addWeek() : null,
     ]);
 
     return $ticket;
@@ -120,6 +127,8 @@ it('settles the verdict from the unlock count together with the reporter unlock'
     'reporter earned it later on unchanged logic' => [5, 'same-logic', TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::EarnedWithSameLogic]],
     'reporter earned it later on newer logic' => [5, 'newer-logic', TicketSignalVerdict::ProbablyDefect, [TicketSignal::EarnedAfterLogicChange]],
     'reporter earned it later on unknown logic' => [5, 'unknown-logic', null, []],
+    'reporter earned it later on older logic' => [5, 'older-logic', null, []],
+    'reporter unlocked casual before the report and hardcore after' => [5, 'hardcore-later', null, []],
     '50 unlocks with a later unlock on unknown logic' => [50, 'unknown-logic', TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedAfterReport]],
     'zero unlocks with a later unlock on unchanged logic' => [0, 'same-logic', TicketSignalVerdict::ProbablyDefect, [TicketSignal::EarnedWithSameLogic, TicketSignal::NoRecentUnlocks]],
     'zero unlocks with a later unlock on unknown logic' => [0, 'unknown-logic', null, []],

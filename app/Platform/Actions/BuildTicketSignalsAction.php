@@ -87,7 +87,7 @@ class BuildTicketSignalsAction
             $windowUnlockCount = $unlockCountByTicketId[$ticket->id] ?? 0;
             $laterReporterUnlock = $laterReporterUnlockByTicketId[$ticket->id] ?? null;
             $unlockSignal = $laterReporterUnlock
-                ? $this->classifyUnlockAgainstReport($laterReporterUnlock, $triggersByTicketId[$ticket->id])
+                ? $this->classifyUnlockAgainstReport($laterReporterUnlock, $ticket, $triggersByTicketId[$ticket->id])
                 : null;
             $ticketable = $ticket->ticketable;
             $isPromotedAchievement = $ticketable instanceof Achievement && $ticketable->is_promoted;
@@ -161,13 +161,15 @@ class BuildTicketSignalsAction
      * Unlocks only began recording their logic version in 2026, so older
      * unlocks fall back to the plain "earned after report" signal.
      */
-    private function classifyUnlockAgainstReport(PlayerAchievement $unlock, ?Trigger $reportTrigger): TicketSignal
+    private function classifyUnlockAgainstReport(PlayerAchievement $unlock, Ticket $ticket, ?Trigger $reportTrigger): TicketSignal
     {
-        if ($unlock->trigger_id === null || $reportTrigger === null) {
+        $unlockVersion = $unlock->unlocked_at->greaterThan($ticket->created_at) ? $unlock->trigger_version : null;
+        $reportVersion = $reportTrigger?->version;
+        if ($unlockVersion === null || $reportVersion === null || $unlockVersion < $reportVersion) {
             return TicketSignal::EarnedAfterReport;
         }
 
-        return $unlock->trigger_id === $reportTrigger->id
+        return $unlockVersion === $reportVersion
             ? TicketSignal::EarnedWithSameLogic
             : TicketSignal::EarnedAfterLogicChange;
     }
@@ -191,7 +193,7 @@ class BuildTicketSignalsAction
         $triggersByTicketableId = Trigger::withTrashed()
             ->ofType(TriggerableType::Achievement)
             ->whereIn('triggerable_id', $tickets->pluck('ticketable_id')->unique()->values())
-            ->get(['id', 'triggerable_id', 'created_at'])
+            ->get(['id', 'triggerable_id', 'created_at', 'version'])
             ->groupBy('triggerable_id');
 
         $triggersByTicketId = [];
@@ -286,11 +288,19 @@ class BuildTicketSignalsAction
         }
 
         $unlocksByUserAndAchievement = PlayerAchievement::query()
+            ->leftJoin('triggers', 'triggers.id', '=', 'player_achievements.trigger_id')
             ->whereNull('unlocker_id')
-            ->whereIn('user_id', $ticketsWithReporter->pluck('reporter_id')->unique()->values())
+            ->whereIn('player_achievements.user_id', $ticketsWithReporter->pluck('reporter_id')->unique()->values())
             ->whereIn('achievement_id', $ticketsWithReporter->pluck('ticketable_id')->unique()->values())
             ->whereNotNull('unlocked_effective_at')
-            ->get(['user_id', 'achievement_id', 'unlocked_effective_at', 'trigger_id'])
+            ->get([
+                'player_achievements.user_id',
+                'achievement_id',
+                'unlocked_at',
+                'unlocked_effective_at',
+                'trigger_id',
+                'triggers.version as trigger_version',
+            ])
             ->keyBy(fn (PlayerAchievement $unlock) => "{$unlock->user_id}:{$unlock->achievement_id}");
 
         $laterReporterUnlockByTicketId = [];
