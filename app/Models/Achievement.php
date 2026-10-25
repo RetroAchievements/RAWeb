@@ -219,7 +219,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
-     * @return Collection<int, int>
+     * @return Collection<int, int<1, max>>
      */
     private static function affectedTicketUserIdsForCacheInvalidation(Achievement $achievement, bool $onlyTrashed = false): Collection
     {

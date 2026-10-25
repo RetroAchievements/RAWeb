@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Actions\ProcessDeveloperRoleChangeAction;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
+use App\Models\Role;
 use App\Models\User;
 use App\Notifications\Auth\RequestAccountDeleteNotification;
 use Illuminate\Support\Carbon;
@@ -91,10 +93,16 @@ class RequestAccountDeletionAction
             return;
         }
 
+        $priorDeveloperRole = match (true) {
+            $user->hasRole(Role::DEVELOPER) => Role::DEVELOPER,
+            $user->hasRole(Role::DEVELOPER_JUNIOR) => Role::DEVELOPER_JUNIOR,
+            default => null,
+        };
+
         $user->setAttribute('Permissions', Permissions::Registered);
         $user->roles()->detach();
         $user->permissions()->detach();
 
-        updateClaimsForPermissionChange($user, Permissions::Registered, $currentPermissions);
+        (new ProcessDeveloperRoleChangeAction())->execute($user, $priorDeveloperRole, null);
     }
 }
