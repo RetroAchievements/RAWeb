@@ -1752,5 +1752,9 @@
     "otherResolvedTickets_other": "It has <1>{{count, number}} other resolved tickets</1>.",
     "Limitation of liability": "Limitation of liability",
     "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.": "We are not liable for business losses or losses that neither you nor we could reasonably have foreseen when you agreed to these terms. These exclusions do not apply to fraud, death, or personal injury caused by our negligence, or liability that the law does not allow us to limit.",
-    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct."
+    "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.": "We may suspend or terminate accounts for serious or repeated breaches of our Code of Conduct.",
+    "Reported achievement": "Reported achievement",
+    "This ticket was created.": "This ticket was created.",
+    "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.": "The server records each timestamp when it receives the request. A player with network problems can have an unusual order of unlocks in a short time.",
+    "{{user}}'s activity for <1>{{game}}</1>": "{{user}}'s activity for <1>{{game}}</1>"
 }

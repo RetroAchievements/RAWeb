@@ -44,9 +44,6 @@ class CreateLegacyScreenshotPngAction
         imagepng($resized, $localPath);
         FilenameIterator::incrementImageIterator();
 
-        imagedestroy($sourceImage);
-        imagedestroy($resized);
-
         UploadToS3($localPath, $imagePath);
 
         return $imagePath;

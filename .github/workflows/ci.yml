@@ -101,7 +101,7 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: mbstring, :psr
           coverage: none
           ini-values: memory_limit=1G
@@ -152,7 +152,7 @@ jobs:
         if: ${{ needs.changes.outputs.openapi == 'true' }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: mbstring, :psr
           coverage: none
           ini-values: memory_limit=1G
@@ -200,7 +200,7 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: mbstring, :psr
           coverage: none
           ini-values: memory_limit=1G
@@ -282,7 +282,7 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: mbstring
           coverage: none
 
@@ -340,7 +340,7 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: mbstring
           coverage: none
 

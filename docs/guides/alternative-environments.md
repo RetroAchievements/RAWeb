@@ -9,7 +9,7 @@ If you prefer to keep your host machine untouched entirely, there is also a step
 Running RAWeb without Sail means providing these yourself:
 
 - Local web server
-- [PHP 8.4](http://php.net/manual/en/)
+- [PHP 8.5](http://php.net/manual/en/)
 - [Composer](https://getcomposer.org/) PHP dependency manager
 - [MariaDB 10](https://mariadb.com/docs/server/)
 - [Node.js 24](https://nodejs.org/)
@@ -17,7 +17,7 @@ Running RAWeb without Sail means providing these yourself:
 
 ## XAMPP (Windows, Linux, macOS)
 
-Install the [XAMPP](https://www.apachefriends.org/download.html) version packaged with PHP 8.4 to run an Apache web server, MariaDB, and PHP on your system.
+Install [XAMPP](https://www.apachefriends.org/download.html) to run an Apache web server and MariaDB on your system. XAMPP does not bundle PHP 8.5, so install PHP 8.5 separately and configure Apache to use it.
 
 You might have to enable some extensions in `php.ini` (see the `ext-*` requirements in [composer.json](../../composer.json)):
 
