@@ -59,6 +59,7 @@ class GameResource extends BaseJsonApiResource
     {
         return [
             'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
+            'hashes' => $this->relation('hashes')->withoutLinks(),
             'system' => $this->relation('system')->withoutLinks(),
         ];
     }

@@ -22,9 +22,15 @@ use App\Platform\Data\TicketRelatedEntryData;
 use App\Platform\Data\TicketReporterUnlockData;
 use App\Platform\Data\TicketShowPagePropsData;
 use App\Platform\Services\TicketViewService;
+use Spatie\LaravelData\Lazy;
 
 class BuildTicketShowPagePropsAction
 {
+    public function __construct(
+        private readonly BuildPlayerGameActivityDataAction $buildPlayerActivityData,
+    ) {
+    }
+
     public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
     {
         $ticketViewService = new TicketViewService();
@@ -48,8 +54,11 @@ class BuildTicketShowPagePropsAction
 
         // NOTE: Ticket comments from banned users are always visible, intentionally.
         // Loading the relation here lets the policy reuse it for the Request rule.
-        $ticket->load('discussionComments.user');
+        $ticket->load(['discussionComments.user' => fn ($query) => $query->withTrashed()]);
         $loadedComments = $ticket->discussionComments;
+
+        $canViewReporterHistory = $user->canAny(['manage', 'viewHistory'], Ticket::class);
+        $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
 
         $propsData = new TicketShowPagePropsData(
             ticket: TicketListEntryData::fromTicket($ticket),
@@ -76,7 +85,7 @@ class BuildTicketShowPagePropsAction
                 $ticketViewService->relatedTickets,
             ),
 
-            reporterUnlock: $this->buildReporterUnlock($ticketViewService, $user),
+            reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
 
             unlocksSinceReported: $ticketable instanceof Achievement && $ticket->state->isOpen()
                 ? $ticketViewService->unlocksSinceReported
@@ -97,9 +106,21 @@ class BuildTicketShowPagePropsAction
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
             allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
             hasReporterRepliedLast: $ticket->has_reporter_replied_last,
+
+            hasReporterHistoryAccess: $hasReporterHistoryAccess,
+            reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
         );
 
         return $propsData;
+    }
+
+    private function deferReporterActivity(Ticket $ticket, Achievement|Leaderboard $ticketable): Lazy
+    {
+        return Lazy::inertiaDeferred(fn () => $this->buildPlayerActivityData->execute(
+            $ticket->reporter,
+            $ticketable->getTicketableGame(),
+            ticket: $ticket,
+        ));
     }
 
     /**
@@ -126,10 +147,10 @@ class BuildTicketShowPagePropsAction
     /**
      * Only roles allowed to see player history receive it in page props.
      */
-    private function buildReporterUnlock(TicketViewService $ticketViewService, User $user): ?TicketReporterUnlockData
+    private function buildReporterUnlock(TicketViewService $ticketViewService, bool $canViewReporterHistory): ?TicketReporterUnlockData
     {
         $unlock = $ticketViewService->existingUnlock;
-        if (!$unlock || !$user->canAny(['manage', 'viewHistory'], Ticket::class)) {
+        if (!$unlock || !$canViewReporterHistory) {
             return null;
         }
 

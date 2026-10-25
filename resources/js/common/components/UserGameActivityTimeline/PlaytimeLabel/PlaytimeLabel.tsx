@@ -31,7 +31,7 @@ export const PlaytimeLabel: FC<PlaytimeLabelProps> = ({ session }) => {
     <div
       data-testid="playtime-label"
       className={cn(
-        'flex items-center gap-1.5 md:gap-0.5',
+        'flex shrink-0 items-center gap-1.5 whitespace-nowrap md:gap-0.5',
 
         !session.duration || isBootOnly
           ? 'text-neutral-500 light:text-neutral-400'
