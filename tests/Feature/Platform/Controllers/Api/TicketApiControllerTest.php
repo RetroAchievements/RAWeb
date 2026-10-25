@@ -713,7 +713,7 @@ describe('updateState', function () {
 
         // ASSERT
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['action' => 'Add a comment before you take this action.']);
+        $response->assertJsonValidationErrors(['action' => 'Add a comment first.']);
 
         expect($ticket->refresh()->state)->toEqual(TicketState::Open);
     })->with([
