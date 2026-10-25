@@ -23,7 +23,6 @@
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^3.0",
         "jenssegers/agent": "^2.6",
-        "jenssegers/optimus": "^1.1",
         "laravel-json-api/laravel": "^5.1",
         "laravel/folio": "^1.1",
         "laravel/fortify": "^1.31",
