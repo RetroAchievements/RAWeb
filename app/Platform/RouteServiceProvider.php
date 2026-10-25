@@ -14,6 +14,7 @@ use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
+use App\Platform\Controllers\Api\TicketReporterUnlockApiController;
 use App\Platform\Controllers\Api\UserDisplayedBadgePreferenceApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
@@ -172,6 +173,8 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('tickets', [TicketApiController::class, 'index'])->name('api.ticket.index');
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
                     Route::patch('ticket/{ticket}/state', [TicketApiController::class, 'updateState'])->name('api.ticket.state.update');
+                    Route::post('ticket/{ticket}/reporter-unlock', [TicketReporterUnlockApiController::class, 'store'])
+                        ->name('api.ticket.reporter-unlock.store');
 
                     Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
                         ->middleware('throttle:10,1')
