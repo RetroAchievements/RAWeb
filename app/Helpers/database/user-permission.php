@@ -1,9 +1,11 @@
 <?php
 
 use App\Community\Actions\ApproveUserForumPostsAction;
+use App\Community\Actions\ProcessDeveloperRoleChangeAction;
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
+use App\Models\Role;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 
@@ -77,10 +79,6 @@ function SetAccountPermissionsJSON(
         banAccountByUsername($targetUsername, $targetUserNewPermissions);
     }
 
-    if ($targetUserNewPermissions !== $targetUserCurrentPermissions) {
-        updateClaimsForPermissionChange($targetUser, $targetUserNewPermissions, $targetUserCurrentPermissions, $actingUsername);
-    }
-
     $retVal['Success'] = true;
 
     addArticleComment('Server', CommentableType::UserModeration, $targetUser->id,
@@ -106,9 +104,18 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
                 ->orWhere('is_authorized', 0);
         })->delete();
 
+        $priorDeveloperRole = match (true) {
+            $targetUser->hasRole(Role::DEVELOPER) => Role::DEVELOPER,
+            $targetUser->hasRole(Role::DEVELOPER_JUNIOR) => Role::DEVELOPER_JUNIOR,
+            default => null,
+        };
+
         // Also ban the spammy user!
         SetAccountPermissionsJSON($sourceUser->username, $sourcePermissions, $targetUser->username, Permissions::Spam);
         $targetUser->roles()->detach();
+
+        $targetUser->refresh();
+        (new ProcessDeveloperRoleChangeAction())->execute($targetUser, $priorDeveloperRole, null, $sourceUser);
 
         return true;
     }

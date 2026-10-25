@@ -6,7 +6,6 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
@@ -34,50 +33,6 @@ function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?C
     }
 
     return $query->exists();
-}
-
-function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int $permissionsBefore, ?string $actingUsername = null): void
-{
-    // Junior developers can have claims in review.
-    // When being promoted from Junior Developer, change any In Review claims to Active.
-    if ($permissionsBefore === Permissions::JuniorDeveloper && $permissionsAfter > Permissions::JuniorDeveloper) {
-        $permissionsString = Permissions::toString($permissionsAfter);
-        if (!empty($actingUsername)) {
-            $comment = "{$actingUsername} updated {$user->display_name}'s claim via promotion to {$permissionsString}.";
-        } else {
-            $comment = "{$user->display_name}'s claim updated via promotion to {$permissionsString}.";
-        }
-        $comment .= " Claim Status: " . ClaimStatus::Active->label();
-
-        $inReviewClaims = $user->achievementSetClaims()
-            ->where('status', ClaimStatus::InReview)->get();
-        foreach ($inReviewClaims as $claim) {
-            $claim->status = ClaimStatus::Active;
-            $claim->save();
-
-            addArticleComment('Server', CommentableType::SetClaim, $claim->game_id, $comment);
-        }
-    }
-
-    // If the user loses developer permissions, drop all claims held by the user.
-    if ($permissionsBefore >= Permissions::JuniorDeveloper && $permissionsAfter < Permissions::JuniorDeveloper) {
-        $permissionsString = Permissions::toString($permissionsAfter);
-
-        $activeClaims = $user->achievementSetClaims()
-            ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])->get();
-        foreach ($activeClaims as $claim) {
-            $claim->status = ClaimStatus::Dropped;
-            $claim->save();
-
-            if (!empty($actingUsername)) {
-                $comment = "{$actingUsername} dropped {$user->display_name}'s " . $claim->claim_type->label() . " claim via demotion to {$permissionsString}.";
-            } else {
-                $comment = "{$user->display_name}'s " . $claim->claim_type->label() . " claim dropped via demotion to {$permissionsString}.";
-            }
-
-            addArticleComment('Server', CommentableType::SetClaim, $claim->game_id, $comment);
-        }
-    }
 }
 
 /**

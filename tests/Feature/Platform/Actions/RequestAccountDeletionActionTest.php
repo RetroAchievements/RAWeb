@@ -11,9 +11,11 @@ use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
+use App\Models\Role;
 use App\Models\User;
 use App\Notifications\Auth\RequestAccountDeleteNotification;
 use App\Platform\Actions\RequestAccountDeletionAction;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
@@ -65,8 +67,11 @@ class RequestAccountDeletionActionTest extends TestCase
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
 
+        $this->seed(RolesTableSeeder::class);
+
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
+        $user->assignRole(Role::DEVELOPER);
 
         $game1 = $this->seedGame(withHash: false);
         $game2 = $this->seedGame(withHash: false);

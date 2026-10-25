@@ -266,9 +266,10 @@ class PlayerGameActivityService
         PlayerGameActivitySessionType $sessionType,
         string $description,
         string $header = '',
+        PlayerGameActivityEventType $eventType = PlayerGameActivityEventType::Custom,
     ): void {
         $event = [
-            'type' => PlayerGameActivityEventType::Custom,
+            'type' => $eventType,
             'header' => $header,
             'description' => $description,
             'when' => $when,
