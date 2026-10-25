@@ -39,7 +39,6 @@ use Illuminate\Support\Str;
 use Inertia\ResponseFactory;
 use Inertia\Ssr\Gateway;
 use Inertia\Ssr\HttpGateway;
-use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 use Opcodes\LogViewer\Facades\LogViewer;
@@ -61,15 +60,6 @@ class AppServiceProvider extends ServiceProvider
         // This avoids constantly dirtying users rows on request paths.
         $this->app->singleton(UserLastActivityService::class);
         $this->app->singleton(UserApiCallCountService::class);
-
-        // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
-        $this->app->singleton(Optimus::class, function () {
-            return new Optimus(
-                (int) config('optimus.prime'),
-                (int) config('optimus.inverse'),
-                (int) config('optimus.random'),
-            );
-        });
     }
 
     /**
