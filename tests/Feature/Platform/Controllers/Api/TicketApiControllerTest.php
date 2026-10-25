@@ -656,6 +656,12 @@ describe('updateState', function () {
 
         $developer = User::factory()->create(['display_name' => 'Scott']);
         $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Fixed in the latest revision.',
+        ]);
         $this->actingAs($developer);
 
         // ACT
@@ -675,9 +681,45 @@ describe('updateState', function () {
 
         $comment = Comment::where('commentable_type', CommentableType::Ticket)
             ->where('commentable_id', $ticket->id)
+            ->where('user_id', '!=', $developer->id)
             ->sole();
         expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
     });
+
+    it('given a developer resolves or closes for another reason when only the reporter has commented, requires a comment', function (TicketAction $action) {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $reporter->id,
+            'body' => 'It still does not unlock.',
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => $action->value,
+        ]);
+
+        // ASSERT
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['action' => 'Add a comment before you take this action.']);
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+    })->with([
+        'resolve' => [TicketAction::Resolved],
+        'close for another reason' => [TicketAction::ClosedOther],
+    ]);
 
     it('given a developer approves a quarantined ticket, reopens it and notes the approval', function () {
         // ARRANGE

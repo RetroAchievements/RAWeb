@@ -1292,6 +1292,7 @@ reportBody: string | null;
 comments: Array<App.Community.Data.Comment>;
 changelog: Array<App.Platform.Data.TicketChangelogEntry>;
 allowedTicketActions: Array<App.Community.Enums.TicketAction>;
+hasNonReporterComment: boolean;
 hasReporterRepliedLast: boolean;
 hasReporterHistoryAccess: boolean;
 reporterActivity?: App.Platform.Data.PlayerGameActivity | null;

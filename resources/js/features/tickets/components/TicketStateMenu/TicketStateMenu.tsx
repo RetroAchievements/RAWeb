@@ -34,7 +34,7 @@ interface StateMoveItem {
 }
 
 export const TicketStateMenu: FC = () => {
-  const { allowedTicketActions, hasReporterRepliedLast, ticket } =
+  const { allowedTicketActions, hasNonReporterComment, hasReporterRepliedLast, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -58,6 +58,9 @@ export const TicketStateMenu: FC = () => {
 
   const getIsActionPermitted = (action: App.Community.Enums.TicketAction) =>
     allowedTicketActions.includes(action);
+
+  const getIsCommentRequired = (action: App.Community.Enums.TicketAction) =>
+    !hasNonReporterComment && (action === 'resolved' || action === 'closed-other');
 
   const reopenLabelByTicketState = {
     quarantined: t('Approve'),
@@ -106,6 +109,10 @@ export const TicketStateMenu: FC = () => {
   );
 
   const closeReasons = TICKET_CLOSE_REASONS.filter(getIsActionPermitted);
+
+  const commentRequiredHint = (
+    <span className="ml-auto pl-4 text-xs">{t('Add a comment first')}</span>
+  );
 
   // Most moves are applied instantaneously on selection, kinda like status changes in Linear.
   // confirmationCopyByAction are the ones that pop a confirm.
@@ -196,10 +203,12 @@ export const TicketStateMenu: FC = () => {
             <BaseDropdownMenuItem
               key={item.action}
               className="gap-2"
+              disabled={getIsCommentRequired(item.action)}
               onSelect={() => selectAction(item.action)}
             >
               <item.Icon aria-hidden={true} className={cn('size-4', item.iconClassName)} />
               {item.label}
+              {getIsCommentRequired(item.action) ? commentRequiredHint : null}
             </BaseDropdownMenuItem>
           ))}
 
@@ -219,9 +228,11 @@ export const TicketStateMenu: FC = () => {
                 <BaseDropdownMenuItem
                   key={closeReason}
                   inset={true}
+                  disabled={getIsCommentRequired(closeReason)}
                   onSelect={() => selectAction(closeReason)}
                 >
                   {labelsByCloseReason[closeReason]}
+                  {getIsCommentRequired(closeReason) ? commentRequiredHint : null}
                 </BaseDropdownMenuItem>
               ))}
             </BaseDropdownMenuGroup>

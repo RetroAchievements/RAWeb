@@ -109,6 +109,7 @@ class BuildTicketShowPagePropsAction
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
             allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
+            hasNonReporterComment: $ticket->has_non_reporter_comment,
             hasReporterRepliedLast: $ticket->has_reporter_replied_last,
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,

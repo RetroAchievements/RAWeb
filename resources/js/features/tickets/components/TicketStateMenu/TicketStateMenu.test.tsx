@@ -14,6 +14,7 @@ describe('Component: TicketStateMenu', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: [],
+        hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({ state: 'open', resolution: null }),
       },
@@ -29,6 +30,7 @@ describe('Component: TicketStateMenu', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: ['resolved', 'request', 'demoted', 'network', 'wrong-rom'],
+        hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({
           state: 'open',
@@ -53,6 +55,39 @@ describe('Component: TicketStateMenu', () => {
     expect(screen.getByText('Close as')).toBeVisible();
   });
 
+  it('given an action that needs a comment first, shows it greyed out and does not send it when clicked', async () => {
+    // ARRANGE
+    const patchSpy = vi.spyOn(axios, 'patch');
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['resolved', 'network', 'closed-other'],
+        hasNonReporterComment: false,
+        hasReporterRepliedLast: false,
+        ticket: createTicketListEntry({
+          state: 'open',
+          resolution: null,
+          ticketableType: 'achievement',
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+    const resolveItem = screen.getByRole('menuitem', { name: /resolve as fixed/i });
+    const anotherReasonItem = screen.getByRole('menuitem', { name: /another reason/i });
+    await userEvent.click(resolveItem, { pointerEventsCheck: 0 });
+
+    // ASSERT
+    expect(resolveItem).toHaveAttribute('aria-disabled', 'true');
+    expect(resolveItem).toHaveTextContent('Add a comment first');
+    expect(anotherReasonItem).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Network problems' })).not.toHaveAttribute(
+      'aria-disabled',
+    );
+    expect(patchSpy).not.toHaveBeenCalled();
+  });
+
   it.each<{ expectedMenuItemLabel: string; ticketState: App.Community.Enums.TicketState }>([
     { ticketState: 'quarantined', expectedMenuItemLabel: 'Approve' },
     { ticketState: 'request', expectedMenuItemLabel: 'Stop waiting for the reporter' },
@@ -65,6 +100,7 @@ describe('Component: TicketStateMenu', () => {
       render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
         pageProps: {
           allowedTicketActions: ['reopen'],
+          hasNonReporterComment: true,
           hasReporterRepliedLast: false,
           ticket: createTicketListEntry({ state: ticketState, resolution: null }),
         },
@@ -86,6 +122,7 @@ describe('Component: TicketStateMenu', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: ['closed-mistaken'],
+        hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({ state: 'open', resolution: null }),
       },
@@ -116,6 +153,7 @@ describe('Component: TicketStateMenu', () => {
       render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
         pageProps: {
           allowedTicketActions: [action],
+          hasNonReporterComment: true,
           hasReporterRepliedLast: false,
           ticket,
         },
@@ -193,6 +231,7 @@ describe('Component: TicketStateMenu', () => {
       render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
         pageProps: {
           allowedTicketActions: [ticketAction],
+          hasNonReporterComment: true,
           hasReporterRepliedLast: reporterRepliedLast,
           ticket: createTicketListEntry({
             id: 6083,
@@ -230,6 +269,7 @@ describe('Component: TicketStateMenu', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: ['demoted'],
+        hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({
           state: 'open',
@@ -254,6 +294,7 @@ describe('Component: TicketStateMenu', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: ['demoted'],
+        hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({
           state: 'open',

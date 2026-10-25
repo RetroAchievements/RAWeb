@@ -13,6 +13,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserTicketCountService;
+use Illuminate\Validation\ValidationException;
 
 class ChangeTicketStateAction
 {
@@ -23,6 +24,13 @@ class ChangeTicketStateAction
 
     public function execute(Ticket $ticket, TicketAction $action, User $actor): void
     {
+        // The resolver needs to leave a comment first for these states.
+        if (in_array($action, [TicketAction::Resolved, TicketAction::ClosedOther], true) && !$ticket->has_non_reporter_comment) {
+            throw ValidationException::withMessages([
+                'action' => 'Add a comment first.', // just for observability, users are not going to see this.
+            ]);
+        }
+
         $previousState = $ticket->state;
         $newState = $action->targetState();
         $ticket->state = $newState;
