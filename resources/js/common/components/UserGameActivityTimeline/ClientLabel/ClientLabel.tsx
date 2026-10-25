@@ -7,8 +7,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { cn } from '@/common/utils/cn';
-import { buildEmulatorClientLabel } from '@/features/user-game-activity/utils/buildEmulatorClientLabel';
+import { buildEmulatorClientLabel } from '@/common/utils/buildEmulatorClientLabel';
 
 import { ActivityBasicLabel } from '../../ActivityBasicLabel';
 import { ActivityTooltipWrapper } from '../../ActivityTooltipWrapper';
@@ -58,20 +57,33 @@ export const ClientLabel: FC<ClientLabelProps> = ({ session }) => {
     );
   }
 
-  const emulatorClientLabel = buildEmulatorClientLabel(session.parsedUserAgent);
+  const emulatorClientLabel = buildEmulatorClientLabel({ ...session.parsedUserAgent, os: null });
   const isUnknown = emulatorClientLabel.includes('Unknown Unknown');
 
   return (
     <BaseTooltip>
-      <BaseTooltipTrigger>
-        <ActivityBasicLabel
-          Icon={LuMonitor}
-          label={isUnknown ? t('Unknown Emulator') : emulatorClientLabel}
-          className={cn(
-            'light:text-neutral-900',
-            isUnknown ? 'text-neutral-500 light:text-neutral-400' : null,
-          )}
-        />
+      <BaseTooltipTrigger className="text-left">
+        {isUnknown ? (
+          <ActivityBasicLabel
+            Icon={LuMonitor}
+            label={t('Unknown Emulator')}
+            className="text-neutral-500 light:text-neutral-400"
+          />
+        ) : (
+          <div className="flex items-start gap-1.5 light:text-neutral-900">
+            <LuMonitor className="mt-0.5 size-4 min-w-5 light:text-neutral-400" />
+
+            <div className="flex flex-col">
+              <span>{emulatorClientLabel}</span>
+
+              {session.parsedUserAgent.os ? (
+                <span className="text-xs text-neutral-400 light:text-neutral-600">
+                  {session.parsedUserAgent.os}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        )}
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>

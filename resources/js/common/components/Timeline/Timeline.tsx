@@ -39,7 +39,7 @@ const TimelineItem: FC<TimelineItemProps> = ({ label, children }) => {
         </div>
 
         {/* Dot marker. */}
-        <div className="absolute top-5 left-32 ml-[-4.5px] size-2.5 rounded-full bg-neutral-700" />
+        <div className="absolute top-5 left-32 -ml-1.25 size-2.75 rounded-full bg-neutral-700" />
 
         {/* Content container. */}
         <div

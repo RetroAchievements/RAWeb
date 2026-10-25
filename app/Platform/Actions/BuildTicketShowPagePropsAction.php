@@ -20,9 +20,15 @@ use App\Platform\Data\TicketRelatedEntryData;
 use App\Platform\Data\TicketReporterUnlockData;
 use App\Platform\Data\TicketShowPagePropsData;
 use App\Platform\Services\TicketViewService;
+use Spatie\LaravelData\Lazy;
 
 class BuildTicketShowPagePropsAction
 {
+    public function __construct(
+        private readonly BuildPlayerGameActivityDataAction $buildPlayerActivityData,
+    ) {
+    }
+
     public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
     {
         $ticketViewService = new TicketViewService();
@@ -43,6 +49,9 @@ class BuildTicketShowPagePropsAction
 
             $leaderboardEntryCount = $ticketable->entries()->count();
         }
+
+        $canViewReporterHistory = $user->canAny(['manage', 'viewHistory'], Ticket::class);
+        $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
 
         $propsData = new TicketShowPagePropsData(
             ticket: TicketListEntryData::fromTicket($ticket),
@@ -69,7 +78,7 @@ class BuildTicketShowPagePropsAction
                 $ticketViewService->relatedTickets,
             ),
 
-            reporterUnlock: $this->buildReporterUnlock($ticketViewService, $user),
+            reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
 
             unlocksSinceReported: $ticketable instanceof Achievement && $ticket->state->isOpen()
                 ? $ticketViewService->unlocksSinceReported
@@ -85,22 +94,40 @@ class BuildTicketShowPagePropsAction
             // NOTE: Ticket comments from banned users are always visible, intentionally.
             comments: array_map(
                 fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
-                $ticket->comments()->notAutomated()->with('user')->orderBy('created_at')->orderBy('id')->get()->all(),
+                $ticket->comments()
+                    ->notAutomated()
+                    ->with(['user' => fn ($query) => $query->withTrashed()])
+                    ->orderBy('created_at')
+                    ->orderBy('id')
+                    ->get()
+                    ->all(),
             ),
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
+
+            hasReporterHistoryAccess: $hasReporterHistoryAccess,
+            reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
         );
 
         return $propsData;
     }
 
+    private function deferReporterActivity(Ticket $ticket, Achievement|Leaderboard $ticketable): Lazy
+    {
+        return Lazy::inertiaDeferred(fn () => $this->buildPlayerActivityData->execute(
+            $ticket->reporter,
+            $ticketable->getTicketableGame(),
+            ticket: $ticket,
+        ));
+    }
+
     /**
      * Only roles allowed to see player history receive it in page props.
      */
-    private function buildReporterUnlock(TicketViewService $ticketViewService, User $user): ?TicketReporterUnlockData
+    private function buildReporterUnlock(TicketViewService $ticketViewService, bool $canViewReporterHistory): ?TicketReporterUnlockData
     {
         $unlock = $ticketViewService->existingUnlock;
-        if (!$unlock || !$user->canAny(['manage', 'viewHistory'], Ticket::class)) {
+        if (!$unlock || !$canViewReporterHistory) {
             return null;
         }
 
