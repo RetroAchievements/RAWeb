@@ -13,9 +13,12 @@ interface UnlockEventContentProps {
   sessionEvent: App.Platform.Data.PlayerGameActivityEvent;
   sessionType: App.Enums.PlayerGameActivitySessionType;
   whenPrevious: string | null;
+
+  isUnlockerInSessionHeader?: boolean;
 }
 
 export const UnlockEventContent: FC<UnlockEventContentProps> = ({
+  isUnlockerInSessionHeader,
   previousEventKind,
   sessionEvent,
   sessionType,
@@ -32,6 +35,7 @@ export const UnlockEventContent: FC<UnlockEventContentProps> = ({
       size={32}
       sublabelSlot={
         <AchievementTimingLabel
+          isUnlockerInSessionHeader={isUnlockerInSessionHeader}
           previousEventKind={previousEventKind}
           sessionEvent={sessionEvent}
           sessionType={sessionType}
@@ -47,9 +51,12 @@ interface AchievementTimingLabelProps {
   sessionEvent: App.Platform.Data.PlayerGameActivityEvent;
   sessionType: App.Enums.PlayerGameActivitySessionType;
   whenPrevious: string | null;
+
+  isUnlockerInSessionHeader?: boolean;
 }
 
 const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
+  isUnlockerInSessionHeader,
   previousEventKind,
   sessionEvent,
   sessionType,
@@ -99,7 +106,7 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
         {timingMessage}
 
         {/* Status indicators. */}
-        {sessionEvent.unlocker ? (
+        {sessionEvent.unlocker && !isUnlockerInSessionHeader ? (
           <span className="flex items-center font-semibold">
             <Trans
               i18nKey="Manually unlocked by <1>{{user}}</1>."

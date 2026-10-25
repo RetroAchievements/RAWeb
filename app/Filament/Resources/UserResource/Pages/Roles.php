@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Community\Actions\ProcessDeveloperRoleChangeAction;
 use App\Enums\Permissions;
 use App\Filament\Resources\UserResource;
-use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
 use BackedEnum;
@@ -124,11 +124,15 @@ class Roles extends ManageRelatedRecords
                         $attachedRole = Role::findById((int) $data['recordId']);
 
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
+                            $priorDeveloperRole = $targetUser->hasRole(Role::DEVELOPER) ? Role::DEVELOPER : null;
+
                             $targetUser->removeRole(Role::DEVELOPER);
                             $this->removeDeveloperStaffRoles($targetUser); // jr devs cannot be staff
 
                             $newPermissions = Permissions::JuniorDeveloper;
                         } elseif ($attachedRole->name === Role::DEVELOPER) {
+                            $priorDeveloperRole = $targetUser->hasRole(Role::DEVELOPER_JUNIOR) ? Role::DEVELOPER_JUNIOR : null;
+
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
 
                             $newPermissions = Permissions::Developer;
@@ -143,6 +147,13 @@ class Roles extends ManageRelatedRecords
                             $targetUser->setAttribute('Permissions', $newPermissions);
                             $targetUser->saveQuietly();
                         }
+
+                        (new ProcessDeveloperRoleChangeAction())->execute(
+                            $targetUser,
+                            $priorDeveloperRole,
+                            $attachedRole->name,
+                            Auth::user(),
+                        );
                     }),
             ])
             ->paginated(false)
@@ -174,17 +185,7 @@ class Roles extends ManageRelatedRecords
                             $targetUser->saveQuietly();
                         }
 
-                        // If the user is losing their developer role, also expire any active maintainerships.
-                        if ($record->name === Role::DEVELOPER) {
-                            AchievementMaintainer::query()
-                                ->where('user_id', $targetUser->id)
-                                ->where('is_active', true)
-                                ->whereNull('effective_until')
-                                ->update([
-                                    'is_active' => false,
-                                    'effective_until' => now(),
-                                ]);
-                        }
+                        (new ProcessDeveloperRoleChangeAction())->execute($targetUser, $record->name, null, Auth::user());
                     }),
             ])
             ->toolbarActions([

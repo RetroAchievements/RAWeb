@@ -8,10 +8,7 @@ use App\Community\Data\CommentData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Models\Achievement;
-use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\PlayerGame;
-use App\Models\PlayerSession;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\User;
@@ -22,8 +19,6 @@ use App\Platform\Data\TicketListEntryData;
 use App\Platform\Data\TicketRelatedEntryData;
 use App\Platform\Data\TicketReporterUnlockData;
 use App\Platform\Data\TicketShowPagePropsData;
-use App\Platform\Enums\AchievementSetType;
-use App\Platform\Services\PlayerGameActivityService;
 use App\Platform\Services\TicketViewService;
 use Spatie\LaravelData\Lazy;
 
@@ -56,12 +51,7 @@ class BuildTicketShowPagePropsAction
         }
 
         $canViewReporterHistory = $user->canAny(['manage', 'viewHistory'], Ticket::class);
-        $reporterHasActivity = $canViewReporterHistory && $ticket->reporter !== null;
-
-        // Resolving this up front avoids a layout shift that deferring the
-        // player activity prop values would otherwise introduce.
-        $reporterHasPlayedGame = $reporterHasActivity
-            && $this->getHasReporterPlayedGame($ticket->reporter_id, $ticketable->getTicketableGame());
+        $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
 
         $propsData = new TicketShowPagePropsData(
             ticket: TicketListEntryData::fromTicket($ticket),
@@ -108,14 +98,19 @@ class BuildTicketShowPagePropsAction
             // NOTE: Ticket comments from banned users are always visible, intentionally.
             comments: array_map(
                 fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
-                $ticket->comments()->notAutomated()->with('user')->orderBy('created_at')->orderBy('id')->get()->all(),
+                $ticket->comments()
+                    ->notAutomated()
+                    ->with(['user' => fn ($query) => $query->withTrashed()])
+                    ->orderBy('created_at')
+                    ->orderBy('id')
+                    ->get()
+                    ->all(),
             ),
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
 
-            hasReporterHistoryAccess: $reporterHasActivity,
-            hasReporterPlayedGame: $reporterHasPlayedGame,
-            reporterActivity: $reporterHasPlayedGame ? $this->deferReporterActivity($ticket, $ticketable) : null,
+            hasReporterHistoryAccess: $hasReporterHistoryAccess,
+            reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
         );
 
         return $propsData;
@@ -145,21 +140,5 @@ class BuildTicketShowPagePropsAction
             isHardcore: $unlock->unlocked_hardcore_at !== null,
             unlocker: $unlock->unlocker ? UserData::fromUser($unlock->unlocker) : null,
         );
-    }
-
-    private function getHasReporterPlayedGame(int $reporterId, Game $game): bool
-    {
-        if (PlayerGame::query()->where('user_id', $reporterId)->where('game_id', $game->id)->exists()) {
-            return true;
-        }
-
-        $baseAchievementSetId = (int) $game->gameAchievementSets()
-            ->where('type', AchievementSetType::Core)
-            ->value('achievement_set_id');
-
-        return PlayerSession::query()
-            ->where('user_id', $reporterId)
-            ->whereIn('game_id', PlayerGameActivityService::getMultisetParentGameIds($baseAchievementSetId))
-            ->exists();
     }
 }

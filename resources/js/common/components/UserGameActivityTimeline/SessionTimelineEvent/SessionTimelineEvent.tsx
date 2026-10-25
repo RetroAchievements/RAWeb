@@ -14,17 +14,20 @@ import { UnlockEventContent } from './UnlockEventContent';
 dayjs.extend(utc);
 
 interface SessionTimelineEventProps {
-  hasReportedMarker?: boolean;
   isPreviousGrouped: boolean;
   previousEventTimestamp: string | null;
   previousEventKind: App.Enums.PlayerGameActivityEventType | 'start-session';
   sessionEvent: App.Platform.Data.PlayerGameActivityEvent;
   sessionType: App.Enums.PlayerGameActivitySessionType;
+
+  hasReportedMarker?: boolean;
+  isUnlockerInSessionHeader?: boolean;
 }
 
 export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
   hasReportedMarker,
   isPreviousGrouped,
+  isUnlockerInSessionHeader,
   previousEventKind,
   previousEventTimestamp,
   sessionEvent,
@@ -41,6 +44,7 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
 
       {sessionEvent.type === 'unlock' && sessionEvent.achievement ? (
         <UnlockEventContent
+          isUnlockerInSessionHeader={isUnlockerInSessionHeader}
           previousEventKind={previousEventKind}
           sessionEvent={sessionEvent}
           sessionType={sessionType}

@@ -172,6 +172,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('tickets', [TicketApiController::class, 'index'])->name('api.ticket.index');
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
+                    Route::patch('ticket/{ticket}/state', [TicketApiController::class, 'updateState'])->name('api.ticket.state.update');
                     Route::post('ticket/{ticket}/reporter-unlock', [TicketReporterUnlockApiController::class, 'store'])
                         ->name('api.ticket.reporter-unlock.store');
 

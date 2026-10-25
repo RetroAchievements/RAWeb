@@ -140,6 +140,7 @@ class AuthServiceProvider extends ServiceProvider
             Role::WRITER,
             Role::GAME_EDITOR,
             Role::MEDIA_EDITOR,
+            Role::CHEAT_INVESTIGATOR,
         ]));
 
         /*

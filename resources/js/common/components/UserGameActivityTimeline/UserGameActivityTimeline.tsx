@@ -145,6 +145,13 @@ const SessionEvents: FC<SessionEventsProps> = ({
 
           const isOutlined = isReportedAchievementUnlock || event.type === 'ticket-created';
 
+          // Same-second manual unlocks granted by different users share the same player session.
+          // Any other manual unlocker in the session still needs to be named on the row itself.
+          const isUnlockerInSessionHeader =
+            session.type === 'manual-unlock' &&
+            !!event.unlocker &&
+            event.unlocker.displayName === session.events[0].unlocker?.displayName;
+
           return (
             <li
               key={`sessionEvent-${sessionIndex}-${eventIndex}`}
@@ -161,6 +168,7 @@ const SessionEvents: FC<SessionEventsProps> = ({
               <SessionTimelineEvent
                 hasReportedMarker={isReportedAchievementUnlock}
                 isPreviousGrouped={isPreviousGrouped}
+                isUnlockerInSessionHeader={isUnlockerInSessionHeader}
                 sessionEvent={event}
                 sessionType={session.type}
                 previousEventTimestamp={previousEventTimestamp}
