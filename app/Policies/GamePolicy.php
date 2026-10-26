@@ -204,6 +204,10 @@ class GamePolicy
 
     public function updateField(User $user, Game $game, string $fieldName): bool
     {
+        if ($fieldName === 'is_ticket_quarantine_enabled') {
+            return $user->hasRole(Role::ADMINISTRATOR);
+        }
+
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [

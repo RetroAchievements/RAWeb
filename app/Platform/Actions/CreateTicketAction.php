@@ -81,6 +81,17 @@ class CreateTicketAction
         Achievement $achievement,
         ?Emulator $emulator,
     ): TicketState {
+        $game = $achievement->game;
+        if ($game->is_ticket_quarantine_enabled || $game->parentGame?->is_ticket_quarantine_enabled) {
+            return TicketState::Quarantined;
+        }
+
+        // Standalone games ship their own clients, which can't necessarily debug triggers.
+        // For standalones, we intentionally bypass all the checks below.
+        if ($game->getIsStandalone()) {
+            return TicketState::Open;
+        }
+
         // The form's emulator list is the emulators table plus a synthetic "Other" entry, so a
         // name that resolves to nothing means the reporter is on a client we can't reason about.
         // Hold the ticket rather than failing open on a missing primary signal.

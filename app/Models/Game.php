@@ -102,6 +102,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'legacy_guide_url',
         'comments_locked_at',
         'is_media_restricted',
+        'is_ticket_quarantine_enabled',
         'image_icon_asset_path',
         'image_title_asset_path',
         'image_ingame_asset_path',
@@ -114,6 +115,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'developer' => NormalizedText::class,
         'genre' => NormalizedText::class,
         'is_media_restricted' => 'boolean',
+        'is_ticket_quarantine_enabled' => 'boolean',
         'last_achievement_update' => 'datetime',
         'legacy_guide_url' => NormalizedText::class,
         'parent_game_id' => 'integer',
@@ -283,6 +285,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
                 'image_ingame_asset_path',
                 'released_at',
                 'released_at_granularity',
+                'is_ticket_quarantine_enabled',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
