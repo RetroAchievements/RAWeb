@@ -279,7 +279,7 @@ describe('Component: TicketPlayerHistory', () => {
     expect(screen.getAllByTestId('session-header')).toHaveLength(2); // one session, rendered once for desktop and once for mobile
   });
 
-  it('given many sessions, shows the 3 sessions on each side of the ticket creation', async () => {
+  it('given many sessions, shows the 3 sessions on each side of the ticket creation and links the hidden ones', async () => {
     // ARRANGE
     const playerSessions = Array.from({ length: 8 }, (_, index) =>
       createPlayerGameActivitySession({
@@ -312,7 +312,7 @@ describe('Component: TicketPlayerHistory', () => {
           summarizedActivity: createPlayerGameActivitySummary(),
         },
         ticket: createTicketListEntry({
-          game: createGame({ title: 'Streets of Rage 2' }),
+          game: createGame({ id: 1379, title: 'Streets of Rage 2' }),
           reporter: createUser({ displayName: 'Scott' }),
         }),
       },
@@ -325,31 +325,8 @@ describe('Component: TicketPlayerHistory', () => {
     expect(screen.getAllByTestId('session-header')).toHaveLength(12); // 2x due to desktop + mobile, actually just 6 sessions
     expect(screen.queryAllByText(/may 1, 2024/i)).toEqual([]);
     expect(screen.queryAllByText(/may 8, 2024/i)).toEqual([]);
-  });
-
-  it('links to the full activity of the given reporter player sessions', async () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketPlayerHistory />, {
-      pageProps: {
-        achievement: createAchievement(),
-        hasReporterHistoryAccess: true,
-        reporterActivity: {
-          clientBreakdown: [],
-          sessions: [createPlayerGameActivitySession({ type: 'player-session' })],
-          summarizedActivity: createPlayerGameActivitySummary(),
-        },
-        ticket: createTicketListEntry({
-          game: createGame({ id: 1379, title: 'Streets of Rage 2' }),
-          reporter: createUser({ displayName: 'Scott' }),
-        }),
-      },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /scott's activity/i }));
-
-    // ASSERT
-    expect(screen.getByRole('link', { name: /view full activity/i })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: /1 earlier session$/i })).toHaveLength(2); // desktop + mobile
+    expect(screen.getAllByRole('link', { name: /1 later session$/i })).toHaveLength(2);
     expect(route).toHaveBeenCalledWith('user.game.activity.show', { user: 'Scott', game: 1379 });
   });
 });

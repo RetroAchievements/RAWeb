@@ -1767,5 +1767,8 @@
     "Award a hardcore unlock?": "Award a hardcore unlock?",
     "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.",
     "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.",
-    "View full activity": "View full activity"
+    "{{val, number}} earlier sessions_one": "{{val, number}} earlier session",
+    "{{val, number}} earlier sessions_other": "{{val, number}} earlier sessions",
+    "{{val, number}} later sessions_one": "{{val, number}} later session",
+    "{{val, number}} later sessions_other": "{{val, number}} later sessions"
 }

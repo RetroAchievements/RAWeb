@@ -415,6 +415,8 @@ describe('Component: UserGameActivityTimeline', () => {
     expect(screen.getAllByText(/this ticket was created/i)).toHaveLength(2);
     expect(screen.getAllByText(/mar 3, 2024/i)).toHaveLength(2);
     expect(screen.queryAllByText(/mar 4, 2024/i)).toEqual([]);
+    expect(screen.queryByText(/earlier session/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/1 later session$/i)).toHaveLength(2);
   });
 
   it('given an empty manual unlock session next to the ticket, does not count it toward the sessions around the ticket', () => {

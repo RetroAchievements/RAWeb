@@ -12,7 +12,6 @@ import {
 } from '@/common/components/+vendor/BaseCollapsible';
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 import { GameTitle } from '@/common/components/GameTitle';
-import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserGameActivityClientBreakdown } from '@/common/components/UserGameActivityClientBreakdown';
 import { UserGameActivityTimeline } from '@/common/components/UserGameActivityTimeline';
 import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
@@ -56,6 +55,11 @@ const ReporterHistoryPanel: FC<ReporterHistoryPanelProps> = ({ reporter }) => {
   const expandTransition = doesPreferReducedMotion
     ? { height: { duration: 0 }, opacity: { duration: 0.15 } }
     : { duration: 0.25, ease: [0.23, 1, 0.32, 1] as const };
+
+  const fullActivityHref = route('user.game.activity.show', {
+    user: reporter.displayName,
+    game: ticket.game.id,
+  });
 
   return (
     <BaseCollapsible
@@ -124,19 +128,10 @@ const ReporterHistoryPanel: FC<ReporterHistoryPanelProps> = ({ reporter }) => {
                     <UserGameActivityTimeline
                       activity={reporterActivity}
                       isOnlyShowingAchievementSessions={false}
+                      fullActivityHref={fullActivityHref}
                       maxSessionsAroundTicket={3}
                       reportedAchievementId={achievement?.id}
                     />
-
-                    <InertiaLink
-                      href={route('user.game.activity.show', {
-                        user: reporter.displayName,
-                        game: ticket.game.id,
-                      })}
-                      className="self-end"
-                    >
-                      {t('View full activity')}
-                    </InertiaLink>
                   </>
                 ) : (
                   <BaseSkeleton data-testid="player-history-skeleton" className="h-40 w-full" />
