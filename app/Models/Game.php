@@ -148,6 +148,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
         'points_total',
         'players_total',
         'parent_game_id',
+        'is_ticket_quarantine_enabled',
     ];
 
     protected static function newFactory(): GameFactory
