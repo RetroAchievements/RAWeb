@@ -615,6 +615,11 @@ describe('index', function () {
         // ARRANGE
         $this->seed(RolesTableSeeder::class);
         $fixture = createTicketIndexFixture(1);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $fixture['game']->id,
+            'rich_presence_updated_at' => Carbon::parse('2023-12-25'),
+        ]);
 
         $viewer = User::factory()->create();
         $viewer->assignRole(Role::DEVELOPER);

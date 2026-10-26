@@ -9,6 +9,7 @@ use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerSession;
 use App\Models\Ticket;
 use App\Models\Trigger;
 use App\Platform\Data\TicketSignalsData;
@@ -16,6 +17,7 @@ use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * This action judges whether an open "did not trigger" ticket is most likely
@@ -41,16 +43,23 @@ use Illuminate\Database\Eloquent\Collection;
  * tickets at about 87% closed. A threshold of 100 covers only 3,135 tickets
  * at about 89% closed, so we're asymptoting by that point.
  *
+ * Zero unlocks only means something when enough other people played the
+ * game. With fewer than 5 other players in the window, only ~55% of
+ * zero-unlock tickets got a logic change (effectively, a coin flip),
+ * against ~79% with 5 or more players.
+ *
  * "The reporter earned it in play after the report" was barely better than
  * the average on its own, so it never decides a verdict by itself. It becomes
  * useful when both the reporter's unlock and the ticket record a logic
  * version. Unlocks only started recording a logic version in 2026.
- * - The same version means the reported logic works for the reporter, so the
- *   ticket is likely not a bug.
+ * - The same version shows the reported logic can trigger, but not that it
+ *   always does. An achievement can work most of the time and still fail in
+ *   rare cases, therefore this does not decide a verdict by itself either.
  * - A newer version means a fix likely shipped while the ticket stayed open.
  *   In other words, the ticket is likely a real bug that is already fixed.
- * - An unknown version cancels "no unlocks", as the two together were a
- *   real bug only ~60% of the time.
+ * - A same or unknown version cancels "no unlocks". The reporter's own unlock
+ *   shows the logic can trigger, and with an unknown version the two together
+ *   were a real bug only ~60% of the time.
  *
  * The backtest counted only reporter unlocks from before each ticket was
  * finished. About half of all reporter unlocks came after the ticket was
@@ -62,6 +71,7 @@ class BuildTicketSignalsAction
 {
     private const LOOKBACK_DAYS = 90;
     private const MANY_UNLOCKS_FLOOR = 50;
+    private const MIN_OTHER_PLAYERS = 5;
 
     /**
      * @param Collection<int, Ticket> $tickets
@@ -82,6 +92,10 @@ class BuildTicketSignalsAction
         $windowStartByTicketId = $this->computeWindowStarts($signalEligibleTickets, $triggersByTicketId);
         $unlockCountByTicketId = $this->countWindowUnlocks($signalEligibleTickets, $windowStartByTicketId);
         $laterReporterUnlockByTicketId = $this->findLaterReporterUnlocks($signalEligibleTickets);
+        $hasEnoughPlayersByTicketId = $this->findTicketsWithEnoughOtherPlayers(
+            $signalEligibleTickets->filter(fn (Ticket $ticket) => ($unlockCountByTicketId[$ticket->id] ?? 0) === 0),
+            $windowStartByTicketId,
+        );
 
         foreach ($signalEligibleTickets as $ticket) {
             $windowUnlockCount = $unlockCountByTicketId[$ticket->id] ?? 0;
@@ -97,7 +111,9 @@ class BuildTicketSignalsAction
                 TicketSignal::EarnedWithSameLogic->value => $unlockSignal === TicketSignal::EarnedWithSameLogic,
                 TicketSignal::EarnedAfterReport->value => $unlockSignal === TicketSignal::EarnedAfterReport,
                 TicketSignal::EarnedAfterLogicChange->value => $unlockSignal === TicketSignal::EarnedAfterLogicChange,
-                TicketSignal::NoRecentUnlocks->value => $windowUnlockCount === 0 && $isPromotedAchievement,
+                TicketSignal::NoRecentUnlocks->value => $windowUnlockCount === 0
+                    && $isPromotedAchievement
+                    && isset($hasEnoughPlayersByTicketId[$ticket->id]),
             ];
 
             $signalVerdict = $this->decideVerdict($matchedSignals);
@@ -129,9 +145,8 @@ class BuildTicketSignalsAction
      * Whenever a defect signal and a not-defect signal both apply, the defect
      * signal takes precedence.
      *
-     * "Earned after report" with no recorded logic version never decides a
-     * verdict, and it cancels "no recent unlocks", because together they were
-     * a real bug only ~60% of the time in the backtest.
+     * A later reporter unlock on the same or an unknown logic version never
+     * decides a verdict, and it cancels "no recent unlocks".
      *
      * @param array<string, bool> $matchedSignals keyed by a TicketSignal value
      */
@@ -142,15 +157,12 @@ class BuildTicketSignalsAction
         }
 
         if ($matchedSignals[TicketSignal::NoRecentUnlocks->value]) {
-            return $matchedSignals[TicketSignal::EarnedAfterReport->value]
+            return $matchedSignals[TicketSignal::EarnedAfterReport->value] || $matchedSignals[TicketSignal::EarnedWithSameLogic->value]
                 ? null
                 : TicketSignalVerdict::ProbablyDefect;
         }
 
-        if (
-            $matchedSignals[TicketSignal::EarnedWithSameLogic->value]
-            || $matchedSignals[TicketSignal::ManyRecentUnlocks->value]
-        ) {
+        if ($matchedSignals[TicketSignal::ManyRecentUnlocks->value]) {
             return TicketSignalVerdict::ProbablyNotDefect;
         }
 
@@ -274,6 +286,48 @@ class BuildTicketSignalsAction
         }
 
         return $unlockCountByTicketId;
+    }
+
+    /**
+     * @param Collection<int, Ticket> $tickets
+     * @param array<int, Carbon> $windowStartByTicketId
+     * @return array<int, true> keyed by ticket id, only for tickets whose game had enough other players in the window
+     */
+    private function findTicketsWithEnoughOtherPlayers(Collection $tickets, array $windowStartByTicketId): array
+    {
+        if ($tickets->isEmpty()) {
+            return [];
+        }
+
+        $perTicketQueries = $tickets->map(function (Ticket $ticket) use ($windowStartByTicketId) {
+            $otherPlayers = PlayerSession::query()
+                ->select('user_id')
+                ->distinct()
+                ->where('game_id', $ticket->ticketable->game_id)
+                ->when($ticket->reporter_id, fn ($query, int $reporterId) => $query->where('user_id', '!=', $reporterId))
+                ->whereBetween('rich_presence_updated_at', [
+                    $windowStartByTicketId[$ticket->id],
+                    Carbon::parse($ticket->created_at),
+                ])
+                ->limit(self::MIN_OTHER_PLAYERS) // stop scanning popular games once they have enough players
+                ->toBase();
+
+            return DB::query()
+                ->fromSub($otherPlayers, 'other_players')
+                ->selectRaw('? as ticket_id, COUNT(*) as player_count', [$ticket->id]);
+        });
+
+        $unionQuery = $perTicketQueries->first();
+        $perTicketQueries->skip(1)->each(fn ($perTicketQuery) => $unionQuery->unionAll($perTicketQuery));
+
+        $hasEnoughPlayersByTicketId = [];
+        foreach ($unionQuery->get() as $countRow) {
+            if ((int) $countRow->player_count >= self::MIN_OTHER_PLAYERS) {
+                $hasEnoughPlayersByTicketId[(int) $countRow->ticket_id] = true;
+            }
+        }
+
+        return $hasEnoughPlayersByTicketId;
     }
 
     /**

@@ -623,17 +623,17 @@ describe('Component: TicketListTable', () => {
     );
   });
 
-  it('given a verdict slot and a real-bug row where the reporter later earned it on the same logic, lists both reasons', () => {
+  it('given a verdict slot and a not-a-bug row where the reporter later earned it on the same logic, lists both reasons', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       id: 8103,
       createdAt: '2026-06-17T12:00:00Z',
       signals: {
-        verdict: 'probably-defect',
-        kinds: ['earned-with-same-logic', 'no-recent-unlocks'],
-        unlockCount: 0,
-        windowStartedAt: '2026-06-14T12:00:00Z',
-        hasRecentLogicChange: true,
+        verdict: 'probably-not-defect',
+        kinds: ['many-recent-unlocks', 'earned-with-same-logic'],
+        unlockCount: 316,
+        windowStartedAt: '2026-03-19T12:00:00Z',
+        hasRecentLogicChange: false,
         reporterEarnedAt: '2026-06-23T12:00:00Z',
       },
     });
@@ -641,8 +641,8 @@ describe('Component: TicketListTable', () => {
     render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
 
     // ASSERT
-    expect(screen.getByRole('button', { name: 'Probably a real bug' })).toHaveAccessibleDescription(
-      'The reporter unlocked this achievement 6 days after the report, with the same logic they reported. No players unlocked this achievement since its logic was last updated, 3 days before the report. Nearly 4 in 5 tickets with this verdict receive a logic change.',
+    expect(screen.getByRole('button', { name: 'Probably not a bug' })).toHaveAccessibleDescription(
+      '316 players unlocked this achievement in the 90 days before the report. The reporter unlocked this achievement 6 days after the report, with the same logic they reported. Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
     );
   });
 

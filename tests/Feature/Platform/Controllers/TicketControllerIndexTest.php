@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -335,6 +336,11 @@ describe('ticket signals', function () {
         $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
         actingAs($developer);
 
         // ACT
@@ -356,6 +362,11 @@ describe('ticket signals', function () {
         $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
         actingAs($juniorDeveloper);
 
         // ACT

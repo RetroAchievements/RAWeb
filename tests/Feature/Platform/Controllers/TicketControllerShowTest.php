@@ -14,6 +14,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -461,6 +462,11 @@ describe('Signal Props', function () {
             'ticketable_author_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
             'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $achievement->game_id,
+            'rich_presence_updated_at' => Carbon::parse('2026-05-25 12:00:00'),
         ]);
 
         $viewer = User::factory()->create();

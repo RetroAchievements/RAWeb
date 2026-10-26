@@ -7,6 +7,7 @@ use App\Community\Enums\TicketSignalVerdict;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\Trigger;
@@ -33,6 +34,17 @@ function seedSignalsUnlocks(Achievement $achievement, int $count, Carbon $unlock
     ])->all());
 }
 
+function seedSignalsPlayers(int $gameId, int $count, Carbon $playedAt): void
+{
+    foreach (User::factory()->count($count)->create() as $user) {
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $gameId,
+            'rich_presence_updated_at' => $playedAt,
+        ]);
+    }
+}
+
 /**
  * @param 'same-logic'|'newer-logic'|'older-logic'|'unknown-logic'|'hardcore-later'|'manual'|'before-report'|null $reporterUnlock
  */
@@ -41,6 +53,7 @@ function createSignalsTicket(
     ?string $reporterUnlock = null,
     bool $isTicketLinkedToTrigger = true,
     bool $isPublished = true,
+    int $otherPlayers = 5,
 ): Ticket {
     $reportedAt = Carbon::parse('2026-06-01 12:00:00');
     $achievement = Achievement::factory()->promoted()->create([
@@ -60,6 +73,7 @@ function createSignalsTicket(
         'created_at' => $reportedAt,
     ]);
     seedSignalsUnlocks($achievement, $unlocksBeforeReport, $reportedAt->copy()->subDays(5));
+    seedSignalsPlayers($achievement->game_id, $otherPlayers, $reportedAt->copy()->subDays(3));
 
     if ($reporterUnlock === null) {
         return $ticket;
@@ -124,13 +138,14 @@ it('settles the verdict from the unlock count together with the reporter unlock'
     'exactly 50 unlocks' => [50, null, TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::ManyRecentUnlocks]],
     'just under 50 unlocks' => [49, null, null, []],
     'zero unlocks' => [0, null, TicketSignalVerdict::ProbablyDefect, [TicketSignal::NoRecentUnlocks]],
-    'reporter earned it later on unchanged logic' => [5, 'same-logic', TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::EarnedWithSameLogic]],
+    'reporter earned it later on unchanged logic' => [5, 'same-logic', null, []],
     'reporter earned it later on newer logic' => [5, 'newer-logic', TicketSignalVerdict::ProbablyDefect, [TicketSignal::EarnedAfterLogicChange]],
     'reporter earned it later on unknown logic' => [5, 'unknown-logic', null, []],
     'reporter earned it later on older logic' => [5, 'older-logic', null, []],
     'reporter unlocked casual before the report and hardcore after' => [5, 'hardcore-later', null, []],
     '50 unlocks with a later unlock on unknown logic' => [50, 'unknown-logic', TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedAfterReport]],
-    'zero unlocks with a later unlock on unchanged logic' => [0, 'same-logic', TicketSignalVerdict::ProbablyDefect, [TicketSignal::EarnedWithSameLogic, TicketSignal::NoRecentUnlocks]],
+    '50 unlocks with a later unlock on unchanged logic' => [50, 'same-logic', TicketSignalVerdict::ProbablyNotDefect, [TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedWithSameLogic]],
+    'zero unlocks with a later unlock on unchanged logic' => [0, 'same-logic', null, []],
     'zero unlocks with a later unlock on unknown logic' => [0, 'unknown-logic', null, []],
 ]);
 
@@ -163,6 +178,7 @@ it('given no logic change within the 90 days before the report, the window falls
         'created_at' => $reportedAt,
     ]);
     seedSignalsUnlocks($achievement, 1, $reportedAt->copy()->subDays(91));
+    seedSignalsPlayers($achievement->game_id, 5, $reportedAt->copy()->subDays(10));
 
     // ACT
     $signals = buildSignals($ticket)[$ticket->id];
@@ -173,29 +189,45 @@ it('given no logic change within the 90 days before the report, the window falls
     expect($signals->hasRecentLogicChange)->toBeFalse();
 });
 
+it('given fewer than 5 other players on the game in the window, zero unlocks does not receive a verdict', function () {
+    // ARRANGE
+    $ticket = createSignalsTicket(0, otherPlayers: 4);
+    PlayerSession::factory()->create([
+        'user_id' => $ticket->reporter_id,
+        'game_id' => Achievement::findOrFail($ticket->ticketable_id)->game_id,
+        'rich_presence_updated_at' => Carbon::parse('2026-05-29 12:00:00'),
+    ]);
+
+    // ACT
+    $result = buildSignals($ticket);
+
+    // ASSERT
+    expect($result)->toEqual([$ticket->id => null]);
+});
+
 it('given a ticket with no linked logic version, measures the reporter unlock against the version live at report time', function () {
     // ARRANGE
-    $ticket = createSignalsTicket(5, 'same-logic', isTicketLinkedToTrigger: false);
+    $ticket = createSignalsTicket(50, 'same-logic', isTicketLinkedToTrigger: false);
 
     // ACT
     $signals = buildSignals($ticket)[$ticket->id];
 
     // ASSERT
-    expect($signals->kinds)->toEqual([TicketSignal::EarnedWithSameLogic]);
+    expect($signals->kinds)->toEqual([TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedWithSameLogic]);
 });
 
 it('given reporter unlocks that are manual or predate the report, ignores them', function () {
     // ARRANGE
-    $inPlay = createSignalsTicket(5, 'same-logic');
-    $manual = createSignalsTicket(5, 'manual');
-    $beforeReport = createSignalsTicket(5, 'before-report');
+    $inPlay = createSignalsTicket(50, 'same-logic');
+    $manual = createSignalsTicket(50, 'manual');
+    $beforeReport = createSignalsTicket(50, 'before-report');
 
     // ACT
     $result = buildSignals($inPlay, $manual, $beforeReport);
 
     // ASSERT
     expect($result)->toHaveCount(3);
-    expect($result[$inPlay->id]->kinds)->toEqual([TicketSignal::EarnedWithSameLogic]);
-    expect($result[$manual->id])->toBeNull();
-    expect($result[$beforeReport->id])->toBeNull();
+    expect($result[$inPlay->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedWithSameLogic]);
+    expect($result[$manual->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks]);
+    expect($result[$beforeReport->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks]);
 });
