@@ -454,6 +454,7 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+manuallyAwardAchievements?: boolean;
 quickEditAchievement?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
@@ -805,6 +806,7 @@ md5: string;
 name: string | null;
 labels?: Array<App.Platform.Data.GameHashLabel>;
 patchUrl?: string | null;
+source?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {

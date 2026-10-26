@@ -102,6 +102,9 @@ importers:
       linkify-html:
         specifier: ^4.3.2
         version: 4.3.2(linkifyjs@4.3.2)
+      linkifyjs:
+        specifier: ^4.3.2
+        version: 4.3.2
       motion:
         specifier: ^12.35.0
         version: 12.35.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
