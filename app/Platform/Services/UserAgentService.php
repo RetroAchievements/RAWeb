@@ -59,26 +59,29 @@ class UserAgentService
                 }
 
                 if ($part[0] === '(') {
-                    // system information - match until closing parenthesis
-                    if ($part[-1] === ')') {
-                        $os = substr($part, 1, -1);
-                    } else {
-                        $os = substr($part, 1);
-
+                    // system information - match until the parenthesis that closes the opening one,
+                    // so nested parens such as "(25H2)" stay inside the OS
+                    $systemInformationStart = $i;
+                    $systemInformation = $part;
+                    while (($closingIndex = $this->findClosingParenthesis($systemInformation)) === null && $i + 1 < count($parts)) {
                         $i++;
-                        while ($i < count($parts)) {
-                            $os .= ' ';
-
-                            $part = $parts[$i];
-                            if (!empty($part) && $part[-1] === ')') {
-                                $os .= substr($part, 0, -1);
-                                break;
-                            }
-
-                            $os .= $part;
-                            $i++;
-                        }
+                        $systemInformation .= ' ' . $parts[$i];
                     }
+
+                    if ($closingIndex === null) {
+                        // some clients cut the OS short and leave a nested parens open
+                        // stop at the first word that ends with a paren
+                        $i = $systemInformationStart;
+                        $systemInformation = $part;
+                        while (!str_ends_with($systemInformation, ')') && $i + 1 < count($parts)) {
+                            $i++;
+                            $systemInformation .= ' ' . $parts[$i];
+                        }
+
+                        $closingIndex = str_ends_with($systemInformation, ')') ? strlen($systemInformation) - 1 : null;
+                    }
+
+                    $os = substr($systemInformation, 1, $closingIndex === null ? null : $closingIndex - 1);
 
                     if (!array_key_exists('os', $data)) {
                         $data['os'] = $this->trimOperatingSystem($os);
@@ -206,6 +209,22 @@ class UserAgentService
     private function trimOperatingSystem(string $os): string
     {
         return trim(strtok($os, ';'));
+    }
+
+    private function findClosingParenthesis(string $text): ?int
+    {
+        $depth = 0;
+        $length = strlen($text);
+
+        for ($i = 0; $i < $length; $i++) {
+            if ($text[$i] === '(') {
+                $depth++;
+            } elseif ($text[$i] === ')' && --$depth === 0) {
+                return $i;
+            }
+        }
+
+        return null;
     }
 
     public static function versionCompare(string $versionOne, string $versionTwo): int

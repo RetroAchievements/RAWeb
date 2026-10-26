@@ -11,6 +11,7 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\OAuthClient;
+use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\User;
@@ -51,6 +52,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $manuallyAwardAchievements,
         public Lazy|bool $quickEditAchievement,
         public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
@@ -135,6 +137,7 @@ class UserPermissionsData extends Data
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            manuallyAwardAchievements: Lazy::create(fn () => $user ? $user->can('manuallyAward', PlayerAchievement::class) : false),
             resetEntireAccount: Lazy::create(fn () => $user ? $user->can('resetEntireAccount', $user) : false),
             reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
                 ? $user->can('review', $claim)

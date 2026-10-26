@@ -208,6 +208,66 @@ describe('Component: TicketFactsList', () => {
     );
   });
 
+  it('given reporter history access and no unlock, renders the no unlock row', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        hasReporterHistoryAccess: true,
+        relatedTickets: [],
+        reporterUnlock: null,
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          reporter: createUser({ displayName: 'Curator' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/has not unlocked this achievement/i)).toBeVisible();
+  });
+
+  it('given no reporter history access, omits the no unlock row', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        hasReporterHistoryAccess: false,
+        relatedTickets: [],
+        reporterUnlock: null,
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          reporter: createUser({ displayName: 'Wayfarer' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/has not unlocked this achievement/i)).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard ticket, omits the no unlock row', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        hasReporterHistoryAccess: true,
+        relatedTickets: [],
+        reporterUnlock: null,
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'leaderboard',
+          reporter: createUser({ displayName: 'Mason' }),
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/has not unlocked this achievement/i)).not.toBeInTheDocument();
+  });
+
   it('given an unlock count of zero, still shows the unlock count row', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {

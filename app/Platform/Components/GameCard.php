@@ -30,12 +30,12 @@ class GameCard extends Component
         $this->userContext = User::whereName($targetUsername)->first() ?? Auth::user() ?? null;
     }
 
-    public function render(): ?View
+    public function render(): View|string
     {
         $rawGameData = $this->getGameData($this->gameId);
 
         if (!$rawGameData) {
-            return null;
+            return '';
         }
 
         if ($this->userContext) {

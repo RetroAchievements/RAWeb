@@ -171,4 +171,25 @@ describe('Component: SessionTimelineEvent', () => {
     expect(screen.getByText(/12:34:56/i)).toBeVisible();
     expect(screen.getByText(/game beaten/i)).toBeVisible();
   });
+
+  it('given the event has the reported marker, shows the label alongside it', () => {
+    // ARRANGE
+    render(
+      <SessionTimelineEvent
+        hasReportedMarker={true}
+        isPreviousGrouped={false}
+        previousEventKind="start-session"
+        previousEventTimestamp={null}
+        sessionType="player-session"
+        sessionEvent={createPlayerGameActivityEvent({
+          type: 'unlock',
+          when: '2025-09-14T07:08:09Z',
+          achievement: createAchievement(),
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/reported achievement/i)).toBeVisible();
+  });
 });

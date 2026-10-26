@@ -456,6 +456,7 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+manuallyAwardAchievements?: boolean;
 quickEditAchievement?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
@@ -481,7 +482,7 @@ declare namespace App.Enums {
 export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type OAuthScope = 'data:read' | 'follows:read' | 'game-lists:read';
-export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
+export type PlayerGameActivityEventType = 'custom' | 'reset' | 'rich-presence' | 'ticket-created' | 'unlock';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type SetClaimChangeAction = 'create' | 'extend' | 'drop' | 'update';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
@@ -1203,10 +1204,10 @@ state?: App.Community.Enums.TicketState;
 ticketable?: App.Platform.Data.Achievement | App.Platform.Data.Leaderboard | App.Platform.Data.Game;
 };
 export type TicketInboxPageProps = {
-user: App.Data.User;
 sections: Array<App.Platform.Data.TicketInboxSection>;
-sectionLimit: number;
 attentionCount: number;
+sectionLimit: number;
+user: App.Data.User;
 can: App.Data.UserPermissions;
 };
 export type TicketInboxSection = {
@@ -1296,6 +1297,8 @@ leaderboardEntryCount: number | null;
 reportBody: string | null;
 comments: Array<App.Community.Data.Comment>;
 changelog: Array<App.Platform.Data.TicketChangelogEntry>;
+hasReporterHistoryAccess: boolean;
+reporterActivity?: App.Platform.Data.PlayerGameActivity | null;
 };
 export type TicketSignals = {
 verdict: App.Community.Enums.TicketSignalVerdict;

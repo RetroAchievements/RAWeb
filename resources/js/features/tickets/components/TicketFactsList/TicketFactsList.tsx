@@ -4,6 +4,7 @@ import {
   LuArrowUpRight,
   LuCode,
   LuInfo,
+  LuLock,
   LuLockOpen,
   LuMessageCircleQuestion,
   LuShieldAlert,
@@ -22,6 +23,7 @@ import { TicketLeaderboardEntryFact } from '../TicketLeaderboardEntryFact';
 import { TicketLogicChangedFact } from '../TicketLogicChangedFact';
 import { TicketOutcomeFact } from '../TicketOutcomeFact';
 import { TicketRelatedFact } from '../TicketRelatedFact';
+import { TicketReporterNoUnlockFact } from '../TicketReporterNoUnlockFact';
 import { TicketReporterUnlockFact } from '../TicketReporterUnlockFact';
 import { TicketSignalVerdictFact } from '../TicketSignalVerdictFact';
 import { TicketUnlockCountFact } from '../TicketUnlockCountFact';
@@ -30,6 +32,7 @@ import { TicketUserValue } from '../TicketUserValue';
 export const TicketFactsList: FC = () => {
   const {
     currentTriggerVersion,
+    hasReporterHistoryAccess,
     isViewerReporter,
     leaderboardEntryCount,
     relatedTickets,
@@ -46,6 +49,11 @@ export const TicketFactsList: FC = () => {
     typeof reportedTriggerVersion === 'number' &&
     typeof currentTriggerVersion === 'number' &&
     currentTriggerVersion !== reportedTriggerVersion;
+
+  const isReporterMissingUnlock =
+    !reporterUnlock && ticket.ticketableType === 'achievement' && hasReporterHistoryAccess
+      ? ticket.reporter
+      : null;
 
   return (
     <ul
@@ -101,6 +109,12 @@ export const TicketFactsList: FC = () => {
       {reporterUnlock ? (
         <TicketFactRow Icon={LuLockOpen}>
           <TicketReporterUnlockFact reporterUnlock={reporterUnlock} ticket={ticket} />
+        </TicketFactRow>
+      ) : null}
+
+      {isReporterMissingUnlock ? (
+        <TicketFactRow Icon={LuLock}>
+          <TicketReporterNoUnlockFact reporter={isReporterMissingUnlock} ticket={ticket} />
         </TicketFactRow>
       ) : null}
 

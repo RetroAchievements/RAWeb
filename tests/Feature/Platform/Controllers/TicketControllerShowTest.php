@@ -13,6 +13,7 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -390,6 +391,67 @@ describe('Reporter Unlock Props', function () {
     });
 });
 
+describe('Reporter Activity Props', function () {
+    it('given a viewer who may see player history and a reporter with no recorded activity, defers the activity with the ticket creation event', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'title' => 'Test Achievement']);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2024-04-01 00:00:00'),
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterHistoryAccess', true)
+            ->missing('reporterActivity')
+            ->loadDeferredProps(fn (Assert $deferredPage) => $deferredPage
+                ->has('reporterActivity.sessions', 1)
+                ->where('reporterActivity.sessions.0.type', 'ticket-created')
+                ->where('reporterActivity.sessions.0.events.0.type', 'ticket-created')
+                ->where('reporterActivity.sessions.0.events.0.when', '2024-04-01T00:00:00+00:00')
+            )
+        );
+    });
+
+    it('given a viewer who may not see player history, sends no activity even though the reporter played the game', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        PlayerGame::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('hasReporterHistoryAccess', false)
+            ->missing('reporterActivity')
+            ->missing('deferredProps')
+        );
+    });
+});
+
 describe('Signal Props', function () {
     it('given a developer viewing an open ticket without recent unlocks, exposes signal data', function () {
         // ARRANGE
@@ -522,6 +584,37 @@ describe('Comment Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('comments', 1)
             ->where('comments.0.payload', 'The save state is attached.')
+        );
+    });
+
+    it('given a comment that was posted by a soft deleted user, does not crash', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create([
+                'display_name' => 'BenGhazi',
+                'deleted_at' => now(),
+            ])->id,
+            'body' => 'I can confirm this one.',
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('comments', 1)
+            ->where('comments.0.user.displayName', 'BenGhazi')
+            ->whereNot('comments.0.user.deletedAt', null)
         );
     });
 
