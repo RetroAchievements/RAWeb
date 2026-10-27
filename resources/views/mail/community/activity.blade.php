@@ -3,11 +3,7 @@
 @php
     $body = '';
     if (!empty($payload)) {
-        $body = $payload;
-        $body = Shortcode::stripAndClamp($body, 1850, preserveWhitespace: true);
-        $body = str_replace(["\r\n", "\r"], "\n", $body); // Convert to Unix newlines.
-        $body = preg_replace('/\n{3,}|(<br\s*\/?>\s*){3,}/i', "\n\n", $body);
-        $body = Shortcode::sanitizeForMailMarkdown($body);
+        $body = Shortcode::prepareForMailPanel($payload);
     }
 
     $url = $urlTarget;

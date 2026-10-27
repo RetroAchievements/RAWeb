@@ -10,6 +10,7 @@ enum TicketAction: string
     case Resolved = 'resolved';
     case Demoted = 'demoted';
     case NotEnoughInfo = 'not-enough-info';
+    case NoReplyFromReporter = 'no-reply-from-reporter';
     case WrongRom = 'wrong-rom';
     case Network = 'network';
     case UnableToReproduce = 'unable-to-reproduce';
@@ -29,6 +30,7 @@ enum TicketAction: string
             self::Resolved => TicketResolution::Fixed,
             self::Demoted => TicketResolution::Demoted,
             self::NotEnoughInfo => TicketResolution::NotEnoughInformation,
+            self::NoReplyFromReporter => TicketResolution::NoReplyFromReporter,
             self::WrongRom => TicketResolution::WrongRom,
             self::Network => TicketResolution::NetworkProblems,
             self::UnableToReproduce => TicketResolution::UnableToReproduce,

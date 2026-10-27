@@ -13,6 +13,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserTicketCountService;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 class ChangeTicketStateAction
 {
@@ -26,6 +27,8 @@ class ChangeTicketStateAction
         $previousState = $ticket->state;
         $newState = $action->targetState();
         $ticket->state = $newState;
+
+        CauserResolver::setCauser($actor);
 
         if ($newState->isResolved()) {
             $ticket->resolved_at = now();
@@ -88,6 +91,7 @@ class ChangeTicketStateAction
             TicketAction::ClosedMistaken,
             TicketAction::Demoted,
             TicketAction::NotEnoughInfo,
+            TicketAction::NoReplyFromReporter,
             TicketAction::WrongRom,
             TicketAction::Network,
             TicketAction::UnableToReproduce,

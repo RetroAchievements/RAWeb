@@ -35,6 +35,11 @@ class Ticket extends BaseModel
 
     protected $table = 'tickets';
 
+    /**
+     * The audit log event written when the reporter is reminded to answer a request for more information.
+     */
+    public const REPORTER_REMINDED_EVENT = 'reporterReminded';
+
     protected $fillable = [
         'ticketable_type',
         'ticketable_id',
@@ -87,6 +92,13 @@ class Ticket extends BaseModel
     public function getIsOpenAttribute(): bool
     {
         return $this->state->isOpen();
+    }
+
+    public function getIsWaitingOnReporterAttribute(): bool
+    {
+        return
+            $this->state === TicketState::Request
+            || $this->resolution === TicketResolution::NoReplyFromReporter;
     }
 
     // == mutators

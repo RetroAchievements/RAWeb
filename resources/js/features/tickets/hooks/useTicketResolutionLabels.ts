@@ -16,6 +16,7 @@ export function useTicketResolutionLabels(): Record<
     fixed: t('Fixed'),
     mistaken_report: t('Mistaken report'),
     not_enough_information: t('Not enough information'),
+    no_reply_from_reporter: t('No reply from reporter'),
     wrong_rom: t('Wrong ROM'),
     network_problems: t('Network problems'),
     unable_to_reproduce: t('Unable to reproduce'),

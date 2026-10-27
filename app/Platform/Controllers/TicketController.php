@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Data\UserData;
 use App\Http\Controller;
@@ -16,12 +17,16 @@ use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Platform\Actions\BuildTicketInboxPagePropsAction;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Actions\BuildTicketShowPagePropsAction;
+use App\Platform\Actions\ChangeTicketStateAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\TicketListPagePropsData;
+use App\Platform\Data\TicketNoLongerAProblemPagePropsData;
 use App\Platform\Requests\TicketListRequest;
 use App\Support\Concerns\HandlesResources;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -153,6 +158,35 @@ class TicketController extends Controller
         return Inertia::render('ticket/[ticket]', $props);
     }
 
+    /**
+     * The person who created the ticket will land here from a signed link in a
+     * reminder email. Opening the link itself must _never_ close the ticket.
+     * Mail scanners visit every link a message even if the user doesn't click on them.
+     */
+    public function noLongerAProblem(Ticket $ticket): InertiaResponse
+    {
+        abort_if(!$ticket->ticketable || !$ticket->reporter, 404);
+
+        $ticketableModel = $ticket->getTicketableModel();
+
+        return Inertia::render('ticket/[ticket]/no-longer-a-problem', new TicketNoLongerAProblemPagePropsData(
+            ticketableTitle: $ticketableModel->title,
+            gameTitle: $ticketableModel->getTicketableGame()->title,
+            canClose: $this->canReporterClose($ticket),
+            closeUrl: URL::temporarySignedRoute('ticket.no-longer-a-problem.close', now()->addDay(), ['ticket' => $ticket->id]),
+        ));
+    }
+
+    public function closeAsNoLongerAProblem(Ticket $ticket, ChangeTicketStateAction $changeTicketStateAction): JsonResponse
+    {
+        abort_if(!$ticket->ticketable || !$ticket->reporter, 404);
+        abort_if(!$this->canReporterClose($ticket), 409);
+
+        $changeTicketStateAction->execute($ticket, TicketAction::ClosedMistaken, $ticket->reporter);
+
+        return response()->json(['success' => true]);
+    }
+
     public function edit(Ticket $ticket): void
     {
     }
@@ -200,5 +234,12 @@ class TicketController extends Controller
         );
 
         return Inertia::render($component, $props);
+    }
+
+    private function canReporterClose(Ticket $ticket): bool
+    {
+        return
+            $ticket->state->isOpen()
+            && $ticket->reporter->can('updateState', [$ticket, TicketAction::ClosedMistaken]);
     }
 }

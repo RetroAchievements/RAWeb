@@ -26,6 +26,7 @@ class BuildTicketShowPagePropsAction
 {
     public function __construct(
         private readonly BuildPlayerGameActivityDataAction $buildPlayerActivityData,
+        private readonly GetTicketAutoCloseScheduleAction $getTicketAutoCloseScheduleAction,
     ) {
     }
 
@@ -111,6 +112,7 @@ class BuildTicketShowPagePropsAction
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
+            autoCloseAt: $this->getTicketAutoCloseScheduleAction->execute($ticket)?->closeAt,
         );
 
         return $propsData;
