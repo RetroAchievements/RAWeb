@@ -616,6 +616,226 @@ describe('Comment Props', function () {
     });
 });
 
+describe('Ticket Action Props', function () {
+    it('given a developer on an open ticket, allows resolving, demoting, and every close reason', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allowedTicketActions', [
+                'closed-mistaken',
+                'resolved',
+                'demoted',
+                'not-enough-info',
+                'wrong-rom',
+                'network',
+                'unable-to-reproduce',
+                'unable-to-debug',
+                'closed-other',
+            ])
+        );
+    });
+
+    it('given a developer on a quarantined ticket, allows only approving and the close reasons', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allowedTicketActions', [
+                'closed-mistaken',
+                'not-enough-info',
+                'wrong-rom',
+                'network',
+                'unable-to-reproduce',
+                'unable-to-debug',
+                'closed-other',
+                'reopen',
+            ])
+        );
+    });
+
+    it('given a developer on a resolved ticket, allows only reopening', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+            'resolution' => TicketResolution::Fixed,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allowedTicketActions', ['reopen'])
+        );
+    });
+
+    it('given the reporter views their Request ticket, allows only closing as a mistaken report', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+
+        actingAs($reporter);
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allowedTicketActions', ['closed-mistaken'])
+        );
+    });
+
+    it('given the reporter posted the newest non-automated comment, sets hasReporterRepliedLast to true', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create()->id,
+            'body' => 'Which level were you on?',
+            'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $reporter->id,
+            'body' => 'Level 3.',
+            'created_at' => Carbon::parse('2024-05-02 00:00:00'),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create(['id' => Comment::SYSTEM_USER_ID])->id,
+            'body' => 'Ticket reopened by Scott.',
+            'created_at' => Carbon::parse('2024-05-03 00:00:00'),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('hasReporterRepliedLast', true));
+    });
+
+    it('given someone other than the reporter wrote the latest comment, sets hasReporterRepliedLast to false', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $reporter->id,
+            'body' => 'It still does not unlock.',
+            'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create()->id,
+            'body' => 'Which level were you on?',
+            'created_at' => Carbon::parse('2024-05-02 00:00:00'),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('hasReporterRepliedLast', false));
+    });
+
+    it('given only the reporter has commented, sets hasReporterRepliedLast to false because they did not actually reply to anything', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $reporter->id,
+            'body' => 'It still does not unlock.',
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('hasReporterRepliedLast', false));
+    });
+});
+
 describe('Auto-close Props', function () {
     it('given a ticket waiting on the reporter, sends the close date only when the reporter is able to reply', function (array $reporterAttributes, bool $hasCloseDate) {
         // ARRANGE
