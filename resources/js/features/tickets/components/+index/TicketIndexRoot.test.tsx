@@ -39,6 +39,7 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
       persistedViewPreferences: null,
+      can: {},
       ziggy: createZiggyProps({ query: {} }),
       ...pageProps,
     },

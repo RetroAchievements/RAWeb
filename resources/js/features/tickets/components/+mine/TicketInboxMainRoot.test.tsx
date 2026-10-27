@@ -89,6 +89,7 @@ describe('Component: TicketInboxMainRoot', () => {
         ],
         sectionLimit: 8,
         attentionCount: 0,
+        can: {},
         user: createUser({ displayName: 'Scott' }),
       },
     });
@@ -114,6 +115,7 @@ describe('Component: TicketInboxMainRoot', () => {
         ],
         sectionLimit: 8,
         attentionCount: 0,
+        can: {},
         user: createUser({ displayName: 'Dugtrio' }),
       },
     });

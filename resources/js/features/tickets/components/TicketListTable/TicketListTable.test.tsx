@@ -29,6 +29,7 @@ const noneVisible = Object.fromEntries(
 interface TestHarnessProps {
   columnVisibility?: VisibilityState;
   emptyStateNode?: React.ReactNode;
+  hasVerdictSlot?: boolean;
   isFetching?: boolean;
   lastPage?: number;
   paginatorNode?: React.ReactNode;
@@ -41,6 +42,7 @@ const TestHarness: FC<TestHarnessProps> = ({
   isFetching,
   paginatorNode,
   columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
+  hasVerdictSlot = false,
   lastPage = 1,
   shouldShowGameTitle = true,
   tickets = [createTicketListEntry()],
@@ -59,6 +61,7 @@ const TestHarness: FC<TestHarnessProps> = ({
     <TicketListTable
       columnDefinitions={columnDefinitions}
       columnVisibility={columnVisibility}
+      hasVerdictSlot={hasVerdictSlot}
       emptyStateNode={emptyStateNode}
       isFetching={isFetching}
       paginatedTickets={paginatedTickets}
@@ -570,5 +573,109 @@ describe('Component: TicketListTable', () => {
     const [, emulatorCell, hashCell] = within(row).getAllByRole('cell');
     expect(emulatorCell.textContent).toEqual('');
     expect(hashCell.textContent).toEqual('');
+  });
+
+  it('given a verdict slot and a probably-not-a-bug row, shows the verdict with the evidence', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 8101,
+      createdAt: '2026-06-17T12:00:00Z',
+      signals: {
+        verdict: 'probably-not-defect',
+        kinds: ['many-recent-unlocks'],
+        unlockCount: 316,
+        windowStartedAt: '2026-03-19T12:00:00Z',
+        hasRecentLogicChange: false,
+        reporterEarnedAt: null,
+      },
+    });
+
+    render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
+
+    // ASSERT
+    const verdictButton = screen.getByRole('button', { name: 'Probably not a bug' });
+    expect(verdictButton).toBeVisible();
+    expect(verdictButton).toHaveAccessibleDescription(
+      '316 players unlocked this achievement in the 90 days before the report. Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
+    );
+  });
+
+  it('given a verdict slot and a probably-a-real-bug row, shows the verdict with the evidence', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 8102,
+      createdAt: '2026-06-17T12:00:00Z',
+      signals: {
+        verdict: 'probably-defect',
+        kinds: ['no-recent-unlocks'],
+        unlockCount: 0,
+        windowStartedAt: '2026-06-14T12:00:00Z',
+        hasRecentLogicChange: true,
+        reporterEarnedAt: null,
+      },
+    });
+
+    render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Probably a real bug' })).toHaveAccessibleDescription(
+      'No players unlocked this achievement since its logic was last updated, 3 days before the report. Nearly 4 in 5 tickets with this verdict receive a logic change.',
+    );
+  });
+
+  it('given a verdict slot and a not-a-bug row where the reporter later earned it on the same logic, lists both reasons', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 8103,
+      createdAt: '2026-06-17T12:00:00Z',
+      signals: {
+        verdict: 'probably-not-defect',
+        kinds: ['many-recent-unlocks', 'earned-with-same-logic'],
+        unlockCount: 316,
+        windowStartedAt: '2026-03-19T12:00:00Z',
+        hasRecentLogicChange: false,
+        reporterEarnedAt: '2026-06-23T12:00:00Z',
+      },
+    });
+
+    render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Probably not a bug' })).toHaveAccessibleDescription(
+      '316 players unlocked this achievement in the 90 days before the report. The reporter unlocked this achievement 6 days after the report, with the same logic they reported. Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
+    );
+  });
+
+  it('given a verdict slot and a row where the reporter earned it after a logic change, notes it was probably fixed already', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      id: 8107,
+      createdAt: '2026-06-17T12:00:00Z',
+      signals: {
+        verdict: 'probably-defect',
+        kinds: ['earned-after-logic-change'],
+        unlockCount: 23,
+        windowStartedAt: '2026-03-19T12:00:00Z',
+        hasRecentLogicChange: false,
+        reporterEarnedAt: '2026-06-23T12:00:00Z',
+      },
+    });
+
+    render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Probably a real bug' })).toHaveAccessibleDescription(
+      'The reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already. Nearly 4 in 5 tickets with this verdict receive a logic change.',
+    );
+  });
+
+  it('given a row without signals, renders no verdict', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({ id: 8106 });
+
+    render(<TestHarness tickets={[ticket]} hasVerdictSlot={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /probably/i })).not.toBeInTheDocument();
   });
 });

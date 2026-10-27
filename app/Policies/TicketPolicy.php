@@ -77,6 +77,14 @@ class TicketPolicy
         ]);
     }
 
+    public function viewTriageSignals(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]);
+    }
+
     public function create(User $user): bool
     {
         if (!$user->hasVerifiedEmail()) {
@@ -164,7 +172,22 @@ class TicketPolicy
         }
 
         if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
-            return true;
+            return match ($action) {
+                TicketAction::Reopen => true,
+                TicketAction::Request => $ticket->state === TicketState::Open && $this->canAskReporterForMoreInfo($user, $ticket),
+
+                TicketAction::Resolved,
+                TicketAction::Demoted => $ticket->state->isOpen(),
+
+                TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
+
+                TicketAction::ClosedMistaken,
+                TicketAction::NotEnoughInfo,
+                TicketAction::WrongRom,
+                TicketAction::Network,
+                TicketAction::UnableToReproduce,
+                TicketAction::ClosedOther => !$ticket->state->isResolved(),
+            };
         }
 
         if ($user->id !== $ticket->reporter_id) {
@@ -180,5 +203,25 @@ class TicketPolicy
             TicketAction::Reopen => $ticket->state === TicketState::Request,
             default => false,
         };
+    }
+
+    private function canAskReporterForMoreInfo(User $user, Ticket $ticket): bool
+    {
+        $lastCommenterId = $ticket->discussionComments->last()?->user_id;
+        if ($lastCommenterId === null) {
+            return false;
+        }
+
+        if ($lastCommenterId === $user->id) {
+            return true;
+        }
+
+        if ($lastCommenterId === $ticket->reporter_id) {
+            return $ticket->has_reporter_replied_last;
+        }
+
+        $ticketAssignee = $ticket->getTicketableModel()->getTicketableAssignee() ?? $ticket->author;
+
+        return $lastCommenterId === $ticketAssignee?->id;
     }
 }

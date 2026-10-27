@@ -35,6 +35,7 @@ class BuildTicketListAction
         TicketListScope $scope,
         Game|Achievement|User|null $target,
         TicketListRequest $request,
+        ?User $viewer,
     ): array {
         $service = new TicketListService();
 
@@ -74,8 +75,10 @@ class BuildTicketListAction
         $this->applySort($query, $sort, TicketListStatusFilter::from($filterOptions['status']));
         $this->applyTicketListEntryEagerLoads($query);
 
+        $pageTickets = $query->forPage($page, self::PER_PAGE)->get();
+
         $paginator = new LengthAwarePaginator(
-            items: $this->fetchTicketListEntries($query->forPage($page, self::PER_PAGE)),
+            items: $this->resolveTicketListEntries($pageTickets, $this->resolveTicketSignalsForViewer($pageTickets, $viewer)),
             total: $total,
             perPage: self::PER_PAGE,
             currentPage: $page,
