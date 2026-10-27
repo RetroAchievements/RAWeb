@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
+use App\Community\Enums\TicketAction;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\User;
@@ -49,6 +51,11 @@ class BuildTicketShowPagePropsAction
 
             $leaderboardEntryCount = $ticketable->entries()->count();
         }
+
+        // NOTE: Ticket comments from banned users are always visible, intentionally.
+        // Loading the relation here lets the policy reuse it for the Request rule.
+        $ticket->load(['discussionComments.user' => fn ($query) => $query->withTrashed()]);
+        $loadedComments = $ticket->discussionComments;
 
         $canViewReporterHistory = $user->canAny(['manage', 'viewHistory'], Ticket::class);
         $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
@@ -95,19 +102,15 @@ class BuildTicketShowPagePropsAction
 
             reportBody: $ticket->body !== '' ? $ticket->body : null,
 
-            // NOTE: Ticket comments from banned users are always visible, intentionally.
             comments: array_map(
                 fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
-                $ticket->comments()
-                    ->notAutomated()
-                    ->with(['user' => fn ($query) => $query->withTrashed()])
-                    ->orderBy('created_at')
-                    ->orderBy('id')
-                    ->get()
-                    ->all(),
+                $loadedComments->all(),
             ),
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
+            allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
+            hasNonReporterComment: $ticket->has_non_reporter_comment,
+            hasReporterRepliedLast: $ticket->has_reporter_replied_last,
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
@@ -123,6 +126,27 @@ class BuildTicketShowPagePropsAction
             $ticketable->getTicketableGame(),
             ticket: $ticket,
         ));
+    }
+
+    /**
+     * @return TicketAction[]
+     */
+    private function collectAllowedTicketActions(Ticket $ticket, User $user): array
+    {
+        $allowedActions = array_values(array_filter(
+            TicketAction::cases(),
+            fn (TicketAction $ticketAction): bool => $user->can('updateState', [$ticket, $ticketAction]),
+        ));
+
+        // Reporters shouldn't be able to ad-hoc reopen tickets.
+        if (!$user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            return array_values(array_filter(
+                $allowedActions,
+                fn (TicketAction $ticketAction): bool => $ticketAction !== TicketAction::Reopen,
+            ));
+        }
+
+        return $allowedActions;
     }
 
     /**
