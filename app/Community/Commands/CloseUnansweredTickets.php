@@ -31,7 +31,7 @@ class CloseUnansweredTickets extends Command
     {
         $serverUser = User::whereName('Server')->firstOrFail();
 
-        $allPendingTickets = Ticket::where('state', TicketState::Request)->with('reporter')->get();
+        $allPendingTickets = Ticket::where('state', TicketState::Request)->with(['reporter', 'ticketable'])->get();
 
         foreach ($allPendingTickets as $pendingTicket) {
             $autoCloseSchedule = $this->getTicketAutoCloseScheduleAction->execute($pendingTicket);
