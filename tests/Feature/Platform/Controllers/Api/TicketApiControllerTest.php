@@ -610,6 +610,42 @@ describe('index', function () {
         // ASSERT
         $response->assertOk();
     });
+
+    it('given the user is a developer, exposes signal data', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        $fixture = createTicketIndexFixture(1);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $fixture['game']->id,
+            'rich_presence_updated_at' => Carbon::parse('2023-12-25'),
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        $this->actingAs($viewer);
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks']);
+    });
+
+    it('given the user has no developer role, does not expose signal data', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(1);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonCount(1, 'paginatedTickets.items');
+        $response->assertJsonMissingPath('paginatedTickets.items.0.signals');
+    });
 });
 
 describe('updateState', function () {

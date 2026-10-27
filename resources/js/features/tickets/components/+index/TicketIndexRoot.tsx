@@ -28,6 +28,7 @@ export const TicketIndexRoot: FC = () => {
   const {
     achievement,
     availableFilters,
+    can,
     defaultSortParam,
     defaultStatusFilter,
     facetCounts,
@@ -180,6 +181,7 @@ export const TicketIndexRoot: FC = () => {
 
       <TicketListTable
         shouldShowGameTitle={shouldShowGameTitle}
+        hasVerdictSlot={!!can.viewTriageSignals}
         columnDefinitions={columnDefinitions}
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}

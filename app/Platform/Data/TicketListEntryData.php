@@ -12,6 +12,7 @@ use App\Models\Ticket;
 use App\Platform\Enums\TicketableType;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('TicketListEntry')]
@@ -37,10 +38,11 @@ class TicketListEntryData extends Data
         public ?string $emulatorVersion,
         public ?string $emulatorCore,
         public ?GameHashData $gameHash,
+        public Lazy|TicketSignalsData|null $signals,
     ) {
     }
 
-    public static function fromTicket(Ticket $ticket): self
+    public static function fromTicket(Ticket $ticket, ?TicketSignalsData $signals = null): self
     {
         $ticketable = $ticket->getTicketableModel();
 
@@ -64,6 +66,7 @@ class TicketListEntryData extends Data
             emulatorVersion: $ticket->emulator_version,
             emulatorCore: $ticket->emulator_core,
             gameHash: $ticket->gameHash ? GameHashData::fromGameHash($ticket->gameHash) : null,
+            signals: Lazy::create(fn () => $signals),
         );
     }
 }

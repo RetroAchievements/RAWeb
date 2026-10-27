@@ -25,7 +25,7 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
   t_heading,
   viewAllHref,
 }) => {
-  const { sectionLimit } = usePageProps<App.Platform.Data.TicketInboxPageProps>();
+  const { can, sectionLimit } = usePageProps<App.Platform.Data.TicketInboxPageProps>();
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
 
@@ -65,6 +65,7 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
       <TicketListTable
         columnDefinitions={columnDefinitions}
         columnVisibility={columnVisibility}
+        hasVerdictSlot={!!can.viewTriageSignals}
         paginatedTickets={{
           items: section.tickets,
           currentPage: 1,

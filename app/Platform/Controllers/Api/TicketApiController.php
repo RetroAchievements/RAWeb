@@ -25,7 +25,7 @@ class TicketApiController extends Controller
 
         $this->authorize('viewAny', [Ticket::class, $target instanceof User ? $target : null]);
 
-        $result = (new BuildTicketListAction())->execute($scope, $target, $request);
+        $result = (new BuildTicketListAction())->execute($scope, $target, $request, $request->user());
 
         return response()->json([
             'paginatedTickets' => $result['paginatedTickets'],
