@@ -17,6 +17,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
@@ -32,6 +33,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement({ id: 4120, title: 'Crate Crusher', points: 15 }),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -56,6 +58,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: null,
         leaderboard: createLeaderboard({ id: 92 }),
         ticket: createTicketListEntry({
@@ -80,6 +83,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -105,6 +109,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -130,6 +135,7 @@ describe('Component: TicketShowHeader', () => {
       // ARRANGE
       render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
         pageProps: {
+          allowedTicketActions: [],
           achievement: createAchievement(),
           leaderboard: null,
           ticket: createTicketListEntry({ state, resolution, ticketableType: 'achievement' }),
@@ -146,6 +152,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -165,6 +172,7 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
+        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({

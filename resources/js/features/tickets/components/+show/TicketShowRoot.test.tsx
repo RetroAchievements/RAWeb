@@ -14,6 +14,7 @@ describe('Component: TicketShowRoot', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -31,6 +32,7 @@ describe('Component: TicketShowRoot', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -58,6 +60,7 @@ describe('Component: TicketShowRoot', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowRoot />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],

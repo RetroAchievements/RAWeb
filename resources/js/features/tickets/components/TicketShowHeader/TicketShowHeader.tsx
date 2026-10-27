@@ -8,10 +8,9 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
 import { useTicketTypeLabels } from '../../hooks/useTicketTypeLabels';
 import { ticketShowEntityLinkClassNames } from '../../utils/ticketShowEntityLinkClassNames';
-import { TicketStateGlyph } from '../TicketStateGlyph';
+import { TicketStateMenu } from '../TicketStateMenu';
 import { TicketUserValue } from '../TicketUserValue';
 
 const titleLabelClassName =
@@ -20,11 +19,10 @@ const titleLabelClassName =
 export const TicketShowHeader: FC = () => {
   const { achievement, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
 
-  const { buildTicketStateLabel } = useTicketStateLabel();
   const ticketTypeLabels = useTicketTypeLabels();
 
   return (
-    <div className="flex gap-3">
+    <div className="flex items-start gap-3">
       {achievement ? (
         <AchievementAvatar {...achievement} showLabel={false} size={48} />
       ) : (
@@ -79,11 +77,10 @@ export const TicketShowHeader: FC = () => {
           <span>{ticket.game.system!.nameShort}</span>
         </p>
 
-        <div className="overflow-x-clip text-neutral-400">
+        <div className="-ml-1.5 overflow-x-clip pl-1.5 text-neutral-400">
           <div className="-ml-5 flex flex-wrap items-center gap-y-1">
             <span className="flex items-center gap-1.5 pl-5 text-neutral-200 light:text-neutral-800">
-              <TicketStateGlyph state={ticket.state} />
-              {buildTicketStateLabel(ticket.state, ticket.resolution)}
+              <TicketStateMenu />
             </span>
 
             <span className="flex items-center">
