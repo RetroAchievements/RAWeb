@@ -47,7 +47,7 @@ describe('Redirects and Errors', function () {
         $ticket = Ticket::factory()->forAchievement($achievement)->create();
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertRedirect(route('login'));
@@ -63,7 +63,7 @@ describe('Redirects and Errors', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertNotFound();
@@ -130,7 +130,7 @@ describe('Achievement Ticket Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -197,7 +197,7 @@ describe('Achievement Ticket Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -220,7 +220,7 @@ describe('Achievement Ticket Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -264,7 +264,7 @@ describe('Leaderboard Ticket Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -304,7 +304,7 @@ describe('Leaderboard Ticket Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -342,7 +342,7 @@ describe('Reporter Unlock Props', function () {
         actingAs($viewer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -382,7 +382,7 @@ describe('Reporter Unlock Props', function () {
         actingAs($viewer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -411,7 +411,7 @@ describe('Reporter Activity Props', function () {
         actingAs($viewer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -441,7 +441,7 @@ describe('Reporter Activity Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -474,7 +474,7 @@ describe('Signal Props', function () {
         actingAs($viewer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -497,7 +497,7 @@ describe('Signal Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -535,7 +535,7 @@ describe('Comment Props', function () {
         actingAs($reporter);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -559,7 +559,7 @@ describe('Comment Props', function () {
         actingAs(User::factory()->create(['muted_until' => now()->addWeek()]));
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -583,7 +583,7 @@ describe('Comment Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -613,7 +613,7 @@ describe('Comment Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -654,7 +654,7 @@ describe('Comment Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -686,7 +686,7 @@ describe('Ticket Action Props', function () {
         actingAs($developer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -721,7 +721,7 @@ describe('Ticket Action Props', function () {
         actingAs($developer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -756,7 +756,7 @@ describe('Ticket Action Props', function () {
         actingAs($developer);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -778,7 +778,7 @@ describe('Ticket Action Props', function () {
         actingAs($reporter);
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -821,7 +821,7 @@ describe('Ticket Action Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -855,7 +855,7 @@ describe('Ticket Action Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
@@ -881,7 +881,7 @@ describe('Ticket Action Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
