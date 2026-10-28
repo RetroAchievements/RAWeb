@@ -209,6 +209,66 @@ describe('Achievement Ticket Props', function () {
         );
     });
 
+    it('given manual unlocks and a later logic change, counts only unlocks before the logic change', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        $originalTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 1,
+            'created_at' => Carbon::parse('2025-02-01 12:00:00'),
+        ]);
+        $reportedTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 2,
+            'parent_id' => $originalTrigger->id,
+            'created_at' => Carbon::parse('2025-03-01 12:00:00'),
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'created_at' => Carbon::parse('2025-04-01 12:00:00'),
+        ]);
+        Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 3,
+            'parent_id' => $reportedTrigger->id,
+            'created_at' => Carbon::parse('2025-04-20 12:00:00'),
+        ]);
+
+        PlayerAchievement::factory()->create([
+            'user_id' => User::factory()->create()->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::parse('2025-04-05 12:00:00'), // !! before logic change
+        ]);
+        PlayerAchievement::factory()->create([
+            'user_id' => User::factory()->create()->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::parse('2025-04-06 12:00:00'),
+            'unlocker_id' => User::factory()->create()->id, // !! manual unlock
+        ]);
+        PlayerAchievement::factory()->create([
+            'user_id' => User::factory()->create()->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::parse('2025-04-25 12:00:00'), // !! after logic change
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('unlocksSinceReported', 1)
+            ->where('logicChangedAfterReportAt', fn (string $changedAt) => Carbon::parse($changedAt)->equalTo('2025-04-20 12:00:00'))
+        );
+    });
+
     it('given a quarantined achievement ticket, omits unlocksSinceReported', function () {
         // ARRANGE
         $game = createTicketShowPageGame();
