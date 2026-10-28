@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Data;
 
 use App\Data\UserData;
+use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -15,10 +16,11 @@ class TicketInboxPagePropsData extends Data
      * @param TicketInboxSectionData[] $sections
      */
     public function __construct(
-        public UserData $user,
         public array $sections,
-        public int $sectionLimit,
         public int $attentionCount,
+        public int $sectionLimit,
+        public UserData $user,
+        public UserPermissionsData $can,
     ) {
     }
 }

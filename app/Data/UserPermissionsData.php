@@ -71,6 +71,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $viewAnyAchievementSetClaim,
         public Lazy|bool $viewAnyOAuthClients,
         public Lazy|bool $viewDeveloperInterest,
+        public Lazy|bool $viewTriageSignals,
     ) {
     }
 
@@ -182,6 +183,7 @@ class UserPermissionsData extends Data
                 ? $user->can('viewDeveloperInterest', $game)
                 : false
             ),
+            viewTriageSignals: Lazy::create(fn () => $user ? $user->can('viewTriageSignals', Ticket::class) : false),
         );
     }
 }

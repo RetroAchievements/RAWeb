@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
+use App\Community\Enums\TicketAction;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
@@ -35,6 +36,10 @@ class TicketShowPagePropsData extends Data
         public array $comments,
         /** @var TicketChangelogEntryData[] $changelog */
         public array $changelog,
+        /** @var TicketAction[] $allowedTicketActions */
+        public array $allowedTicketActions,
+        public bool $hasNonReporterComment,
+        public bool $hasReporterRepliedLast,
         public bool $hasReporterHistoryAccess,
         #[AutoInertiaDeferred]
         public Lazy|PlayerGameActivityData|null $reporterActivity,

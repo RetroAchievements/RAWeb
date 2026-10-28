@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Data\PaginatedData;
 use App\Data\UserData;
+use App\Data\UserPermissionsData;
 use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListStatusFilter;
 use Spatie\LaravelData\Data;
@@ -32,6 +33,7 @@ class TicketListPagePropsData extends Data
         public string $defaultSortParam,
         public bool $hasStatusFilter,
         public string $persistenceCookieName,
+        public UserPermissionsData $can,
         #[LiteralTypeScriptType('Record<string, any> | null')]
         public ?array $persistedViewPreferences = null,
         public ?GameData $game = null,

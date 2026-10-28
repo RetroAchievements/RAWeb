@@ -3,6 +3,7 @@ import * as m from 'motion/react-m';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuChevronDown, LuClock, LuInfo } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import {
   BaseCollapsible,
@@ -18,16 +19,21 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const TicketPlayerHistory: FC = () => {
-  const { hasReporterHistoryAccess } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { hasReporterHistoryAccess, ticket } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
 
-  if (!hasReporterHistoryAccess) {
+  if (!hasReporterHistoryAccess || !ticket.reporter) {
     return null;
   }
 
-  return <ReporterHistoryPanel />;
+  return <ReporterHistoryPanel reporter={ticket.reporter} />;
 };
 
-const ReporterHistoryPanel: FC = () => {
+interface ReporterHistoryPanelProps {
+  reporter: App.Data.User;
+}
+
+const ReporterHistoryPanel: FC<ReporterHistoryPanelProps> = ({ reporter }) => {
   const { achievement, reporterActivity, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
@@ -50,6 +56,11 @@ const ReporterHistoryPanel: FC = () => {
     ? { height: { duration: 0 }, opacity: { duration: 0.15 } }
     : { duration: 0.25, ease: [0.23, 1, 0.32, 1] as const };
 
+  const fullActivityHref = route('user.game.activity.show', {
+    user: reporter.displayName,
+    game: ticket.game.id,
+  });
+
   return (
     <BaseCollapsible
       open={isOpen}
@@ -65,7 +76,7 @@ const ReporterHistoryPanel: FC = () => {
         <span className="grow">
           <Trans
             i18nKey="{{user}}'s activity for <1>{{game}}</1>"
-            values={{ user: ticket.reporter?.displayName }}
+            values={{ user: reporter.displayName }}
             components={{ 1: <GameTitle {...ticket.game} /> }}
           />
         </span>
@@ -117,6 +128,8 @@ const ReporterHistoryPanel: FC = () => {
                     <UserGameActivityTimeline
                       activity={reporterActivity}
                       isOnlyShowingAchievementSessions={false}
+                      fullActivityHref={fullActivityHref}
+                      maxSessionsAroundTicket={3}
                       reportedAchievementId={achievement?.id}
                     />
                   </>

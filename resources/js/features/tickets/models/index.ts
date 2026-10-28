@@ -1,3 +1,4 @@
+export * from './ticket-close-reason.model';
 export * from './ticket-list-column-definition.model';
 export * from './ticket-list-column-id.model';
 export * from './ticket-list-filter-property.model';

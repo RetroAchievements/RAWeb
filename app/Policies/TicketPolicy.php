@@ -66,12 +66,22 @@ class TicketPolicy
         ]);
     }
 
-    // Gives additional roles ability to view player history on tickets, does not include compare unlocks view
+    /**
+     * Everyone who can see the reporter's session history on a ticket.
+     */
     public function viewHistory(User $user): bool
     {
-        return $user->hasAnyRole([
+        return $this->manage($user) || $user->hasAnyRole([
             Role::CHEAT_INVESTIGATOR,
             Role::MANUAL_UNLOCKER,
+        ]);
+    }
+
+    public function viewTriageSignals(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
         ]);
     }
 
@@ -162,7 +172,22 @@ class TicketPolicy
         }
 
         if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
-            return true;
+            return match ($action) {
+                TicketAction::Reopen => true,
+                TicketAction::Request => $ticket->state === TicketState::Open && $this->canAskReporterForMoreInfo($user, $ticket),
+
+                TicketAction::Resolved,
+                TicketAction::Demoted => $ticket->state->isOpen(),
+
+                TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
+
+                TicketAction::ClosedMistaken,
+                TicketAction::NotEnoughInfo,
+                TicketAction::WrongRom,
+                TicketAction::Network,
+                TicketAction::UnableToReproduce,
+                TicketAction::ClosedOther => !$ticket->state->isResolved(),
+            };
         }
 
         if ($user->id !== $ticket->reporter_id) {
@@ -178,5 +203,25 @@ class TicketPolicy
             TicketAction::Reopen => $ticket->state === TicketState::Request,
             default => false,
         };
+    }
+
+    private function canAskReporterForMoreInfo(User $user, Ticket $ticket): bool
+    {
+        $lastCommenterId = $ticket->discussionComments->last()?->user_id;
+        if ($lastCommenterId === null) {
+            return false;
+        }
+
+        if ($lastCommenterId === $user->id) {
+            return true;
+        }
+
+        if ($lastCommenterId === $ticket->reporter_id) {
+            return $ticket->has_reporter_replied_last;
+        }
+
+        $ticketAssignee = $ticket->getTicketableModel()->getTicketableAssignee() ?? $ticket->author;
+
+        return $lastCommenterId === $ticketAssignee?->id;
     }
 }
