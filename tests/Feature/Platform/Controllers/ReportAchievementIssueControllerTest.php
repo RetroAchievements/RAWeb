@@ -181,6 +181,26 @@ it('given a game with no hashes or emulators, the page sets ticketBlockReason co
     );
 });
 
+it('given a Standalone game with no hashes or associated emulators, the page still offers ticket creation', function () {
+    // Arrange
+    $system = System::factory()->create(['id' => System::Standalones, 'name' => 'Standalone', 'active' => true]);
+    $game = Game::factory()->create(['title' => 'Cattopia', 'system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+    $user = playerForReportIssueTest($achievement);
+    $this->actingAs($user);
+
+    // Act
+    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('can.createTicket', true)
+        ->missing('ticketBlockReason')
+        ->etc()
+    );
+});
+
 it('given a casual unlock from a client that cannot award hardcore unlocks, hasCasualUnlockFromRestrictedClient is set to true', function () {
     // Arrange
     $this->seedEmulatorUserAgents();

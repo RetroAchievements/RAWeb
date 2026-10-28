@@ -32,7 +32,7 @@ class CreateTicketAction
             throw new InvalidArgumentException('Ticket creation supports achievements only.');
         }
 
-        $emulator = Emulator::where('name', $data->emulator)->first();
+        $emulator = $data->emulator ? Emulator::where('name', $data->emulator)->first() : null;
 
         $achievement = $data->ticketable;
         $maintainer = $achievement->getMaintainerAt(now());
@@ -46,10 +46,10 @@ class CreateTicketAction
             'ticketable_author_id' => $maintainer?->id,
             'type' => $data->issue,
             'hardcore' => $data->mode === 'hardcore',
-            'body' => $this->formatTicketNote($data, !$emulator),
+            'body' => $this->formatTicketNote($data, $data->emulator && !$emulator),
         ]);
 
-        $ticket->game_hash_id = $data->gameHash->id;
+        $ticket->game_hash_id = $data->gameHash?->id;
         $ticket->emulator_core = $data->core ?: null;
         $ticket->trigger_id = $achievement->trigger_id;
 

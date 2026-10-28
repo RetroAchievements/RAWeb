@@ -34,7 +34,6 @@ export const CreateAchievementTicketForm: FC = () => {
     selectedMode,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
-
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useCreateAchievementTicketForm({
@@ -83,11 +82,18 @@ export const CreateAchievementTicketForm: FC = () => {
           </p>
 
           <IssueSelectField />
-          <EmulatorSelectField />
-          <EmulatorVersionField />
-          <EmulatorCoreField />
+
+          {emulators.length ? (
+            <>
+              <EmulatorSelectField />
+              <EmulatorVersionField />
+              <EmulatorCoreField />
+            </>
+          ) : null}
+
           <SessionModeToggleGroup />
-          <GameHashSelectField />
+
+          {gameHashes.length ? <GameHashSelectField /> : null}
           <DescriptionField />
         </div>
 

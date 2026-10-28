@@ -9,30 +9,48 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useCreateTicketMutation } from '@/features/achievements/hooks/mutations/useCreateTicketMutation';
 import { shouldTicketTypeOfferManualUnlock } from '@/features/achievements/utils/shouldTicketTypeOfferManualUnlock';
 
-const createAchievementTicketFormSchema = z.object({
+export interface CreateAchievementTicketFormValues {
   /** @see TicketType.php */
-  issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
-  emulator: z.string().min(1),
-  emulatorVersion: z.string().optional(),
-  core: z.string().optional(),
-  mode: z.enum(['hardcore', 'casual']),
-  hash: z.string().min(1),
-  description: z.string().min(25, { message: 'Please be more detailed in your description.' }),
-});
+  issue: 'DidNotTrigger' | 'TriggeredAtWrongTime' | 'NetworkIssue';
+  mode: 'hardcore' | 'casual';
+  description: string;
 
-export type CreateAchievementTicketFormValues = z.infer<typeof createAchievementTicketFormSchema>;
+  core?: string;
+  emulator?: string;
+  emulatorVersion?: string;
+  hash?: string;
+}
+
+function buildCreateAchievementTicketFormSchema(
+  hasEmulatorOptions: boolean,
+  hasGameHashOptions: boolean,
+): z.ZodType<CreateAchievementTicketFormValues> {
+  return z.object({
+    issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
+    emulator: hasEmulatorOptions ? z.string().min(1) : z.string().optional(),
+    emulatorVersion: z.string().optional(),
+    core: z.string().optional(),
+    mode: z.enum(['hardcore', 'casual']),
+    hash: hasGameHashOptions ? z.string().min(1) : z.string().optional(),
+    description: z.string().min(25, { message: 'Please be more detailed in your description.' }),
+  });
+}
 
 export function useCreateAchievementTicketForm(
   initialValues: Partial<CreateAchievementTicketFormValues>,
 ) {
   const {
     achievement,
+    emulators,
+    gameHashes,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
   const { t } = useTranslation();
 
   const form = useForm<CreateAchievementTicketFormValues>({
-    resolver: zodResolver(createAchievementTicketFormSchema),
+    resolver: zodResolver(
+      buildCreateAchievementTicketFormSchema(emulators.length > 0, gameHashes.length > 0),
+    ),
     defaultValues: initialValues,
   });
 
@@ -49,10 +67,10 @@ export function useCreateAchievementTicketForm(
           mode: formValues.mode,
           issue: ticketType,
           description: formValues.description,
-          emulator: formValues.emulator,
+          emulator: formValues.emulator ?? null,
           emulatorVersion: formValues.emulatorVersion?.trim() ? formValues.emulatorVersion : null,
           core: formValues.core,
-          gameHashId: Number(formValues.hash),
+          gameHashId: formValues.hash ? Number(formValues.hash) : null,
           extra: query.extra ?? null,
         },
       }),
