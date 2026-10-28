@@ -91,7 +91,12 @@ class TicketViewService
             $this->unlocksSinceReported = PlayerAchievement::where('achievement_id', $ticketable->id)
                 ->whereNull('unlocker_id')
                 ->where('unlocked_effective_at', '>', $ticket->created_at)
-                ->when($this->logicChangedAfterReportAt, fn ($query, Carbon $changedAt) => $query->where('unlocked_effective_at', '<', $changedAt))
+                ->when($this->logicChangedAfterReportAt, fn ($query, Carbon $changedAt) => $query->where(
+                    // A casual unlock inside the window still counts even if a hardcore unlock came later.
+                    fn ($window) => $window
+                        ->where(fn ($casual) => $casual->where('unlocked_at', '>', $ticket->created_at)->where('unlocked_at', '<', $changedAt))
+                        ->orWhere(fn ($hardcore) => $hardcore->where('unlocked_hardcore_at', '>', $ticket->created_at)->where('unlocked_hardcore_at', '<', $changedAt))
+                ))
                 ->count();
         }
 

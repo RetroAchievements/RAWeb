@@ -255,6 +255,12 @@ describe('Achievement Ticket Props', function () {
             'achievement_id' => $achievement->id,
             'unlocked_at' => Carbon::parse('2025-04-25 12:00:00'), // !! after logic change
         ]);
+        PlayerAchievement::factory()->create([
+            'user_id' => User::factory()->create()->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::parse('2025-04-10 12:00:00'), // !! casual before logic change
+            'unlocked_hardcore_at' => Carbon::parse('2025-04-28 12:00:00'), // !! hardcore after logic change
+        ]);
 
         actingAs(User::factory()->create());
 
@@ -264,7 +270,7 @@ describe('Achievement Ticket Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('unlocksSinceReported', 1)
+            ->where('unlocksSinceReported', 2)
             ->where('logicChangedAfterReportAt', fn (string $changedAt) => Carbon::parse($changedAt)->equalTo('2025-04-20 12:00:00'))
         );
     });
