@@ -182,7 +182,7 @@ class TicketController extends Controller
             scope: $scope,
             paginatedTickets: $result['paginatedTickets'],
             stateCounts: $result['stateCounts'],
-            availableFilters: $action->getAvailableFilters($scope, $scope->systemId($target)),
+            availableFilters: $action->getAvailableFilters($scope, $request->user(), $scope->systemId($target)),
             facetCounts: $result['facetCounts'],
             defaultStatusFilter: $scope->defaultStatusFilter(),
             defaultSortParam: $scope->defaultSortParam(),

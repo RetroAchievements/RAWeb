@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Platform\Enums\LeaderboardState;
@@ -49,6 +50,7 @@ class Ticket extends BaseModel
         'type' => TicketType::class,
         'state' => TicketState::class,
         'resolution' => TicketResolution::class,
+        'signal_verdict' => TicketSignalVerdict::class,
         'resolved_at' => 'datetime',
     ];
 
