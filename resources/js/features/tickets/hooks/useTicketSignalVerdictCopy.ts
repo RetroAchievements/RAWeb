@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useFormatCoarseDuration } from '@/common/hooks/useFormatCoarseDuration';
 import type { TranslatedString } from '@/types/i18next';
 
+import { getIsUnlockWindowSignal } from '../utils/getIsUnlockWindowSignal';
+
 export function useTicketSignalVerdictCopy(
   signals: App.Platform.Data.TicketSignals,
   reportedAt: string,
@@ -41,7 +43,7 @@ export function useTicketSignalVerdictCopy(
   };
 
   const describeSignal = (kind: App.Community.Enums.TicketSignal): string => {
-    if (kind === 'many-recent-unlocks' || kind === 'no-recent-unlocks') {
+    if (getIsUnlockWindowSignal(kind)) {
       return t(
         // A logic change shortens the window.
         signals.hasRecentLogicChange
