@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaFileArchive } from 'react-icons/fa';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { Timeline, TimelineItem } from '@/common/components/Timeline';
 import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
@@ -19,52 +21,83 @@ interface UserGameActivityTimelineProps {
   activity: App.Platform.Data.PlayerGameActivity;
   isOnlyShowingAchievementSessions: boolean;
 
+  fullActivityHref?: string;
+  maxSessionsAroundTicket?: number;
   reportedAchievementId?: number;
 }
 
 export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
   activity,
   isOnlyShowingAchievementSessions,
+  fullActivityHref,
+  maxSessionsAroundTicket,
   reportedAchievementId,
 }) => {
+  const { t } = useTranslation();
   const { formatDate } = useFormatDate();
 
   const { sessions } = activity;
 
-  // If it's a manual unlock session but there are no events in the session,
-  // then there's nothing we can show.
-  const filteredSessions = sessions.filter((s) => {
-    if (s.type === 'manual-unlock' && !s.events.length) {
+  const visibleSessions = sessions.filter((session) => {
+    // If it's a manual unlock session but there are no events in the session,
+    // then there's nothing we can show.
+    if (session.type === 'manual-unlock' && !session.events.length) {
       return false;
     }
 
-    return true;
+    return getShouldAchievementSessionBeVisible(session, isOnlyShowingAchievementSessions);
   });
+
+  let startIndex = 0;
+  let endIndex = visibleSessions.length;
+  if (maxSessionsAroundTicket) {
+    const ticketSessionIndex = visibleSessions.findIndex((session) =>
+      session.events.some((event) => event.type === 'ticket-created'),
+    );
+
+    startIndex = Math.max(0, ticketSessionIndex - maxSessionsAroundTicket);
+    endIndex = Math.min(endIndex, ticketSessionIndex + maxSessionsAroundTicket + 1);
+  }
+  const displayedSessions = visibleSessions.slice(startIndex, endIndex);
+  const hiddenLaterCount = visibleSessions.length - endIndex;
+
+  const linkToFullActivity = (label: string) =>
+    fullActivityHref ? <InertiaLink href={fullActivityHref}>{label}</InertiaLink> : label;
 
   return (
     <div className="text-gray-200">
       <Timeline>
-        {filteredSessions.map((session, index) => {
-          const isVisible = getShouldAchievementSessionBeVisible(
-            session,
-            isOnlyShowingAchievementSessions,
-          );
+        {displayedSessions.map((session, index) => (
+          <TimelineItem
+            key={`session-${index}`}
+            label={formatDate(session.startTime, 'lll')}
+            moreBefore={
+              index === 0 && startIndex > 0
+                ? linkToFullActivity(
+                    t('{{val, number}} earlier sessions', { val: startIndex, count: startIndex }),
+                  )
+                : null
+            }
+            moreAfter={
+              index === displayedSessions.length - 1 && hiddenLaterCount > 0
+                ? linkToFullActivity(
+                    t('{{val, number}} later sessions', {
+                      val: hiddenLaterCount,
+                      count: hiddenLaterCount,
+                    }),
+                  )
+                : null
+            }
+          >
+            {session.type !== 'ticket-created' ? <SessionHeader session={session} /> : null}
 
-          if (!isVisible) {
-            return null;
-          }
-
-          return (
-            <TimelineItem key={`session-${index}`} label={formatDate(session.startTime, 'lll')}>
-              {session.type !== 'ticket-created' ? <SessionHeader session={session} /> : null}
-              <SessionEvents
-                reportedAchievementId={reportedAchievementId}
-                session={session}
-                sessionIndex={index}
-              />
-            </TimelineItem>
-          );
-        })}
+            <SessionEvents
+              reportedAchievementId={reportedAchievementId}
+              session={session}
+              sessionIndex={index}
+            />
+          </TimelineItem>
+        ))}
       </Timeline>
     </div>
   );

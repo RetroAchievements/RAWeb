@@ -15,7 +15,7 @@ function renderSection(
       t_heading={'Waiting on you' as TranslatedString}
       {...props}
     />,
-    { pageProps: { sectionLimit, sections: [], attentionCount: 0 } },
+    { pageProps: { sectionLimit, sections: [], attentionCount: 0, can: {} } },
   );
 }
 
@@ -58,6 +58,44 @@ describe('Component: TicketInboxSection', () => {
     );
     expect(screen.getAllByText('First Blood').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Second Wind').length).toBeGreaterThan(0);
+  });
+
+  it('given the user is a developer and a row has signal data attached to it, it shows the signal data', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketInboxPageProps>(
+      <TicketInboxSection
+        counterpartyColumnId="reporter"
+        t_heading={'Waiting on you' as TranslatedString}
+        section={createTicketInboxSection({
+          count: 1,
+          tickets: [
+            createTicketListEntry({
+              id: 1003,
+              createdAt: '2026-06-17T12:00:00Z',
+              signals: {
+                verdict: 'probably-not-defect',
+                kinds: ['many-recent-unlocks'],
+                unlockCount: 316,
+                windowStartedAt: '2026-06-14T12:00:00Z',
+                hasRecentLogicChange: true,
+                reporterEarnedAt: null,
+              },
+            }),
+          ],
+        })}
+      />,
+      {
+        pageProps: {
+          can: { viewTriageSignals: true },
+          sectionLimit: 8,
+          sections: [],
+          attentionCount: 0,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Probably not a bug' })).toBeVisible();
   });
 
   it('given the count is above the section hard limit, shows a View all link', () => {

@@ -66,12 +66,22 @@ class TicketPolicy
         ]);
     }
 
-    // Gives additional roles ability to view player history on tickets, does not include compare unlocks view
+    /**
+     * Everyone who can see the reporter's session history on a ticket.
+     */
     public function viewHistory(User $user): bool
     {
-        return $user->hasAnyRole([
+        return $this->manage($user) || $user->hasAnyRole([
             Role::CHEAT_INVESTIGATOR,
             Role::MANUAL_UNLOCKER,
+        ]);
+    }
+
+    public function viewTriageSignals(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
         ]);
     }
 

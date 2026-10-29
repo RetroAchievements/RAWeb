@@ -91,6 +91,7 @@ describe('scope default values', function () {
             TicketListRequest::create('/internal-api/tickets', 'GET', [
                 'filter' => ['emulator' => 'unknown'],
             ]),
+            viewer: null,
         );
 
         // ASSERT
@@ -134,6 +135,7 @@ describe('scope default values', function () {
             TicketListScope::Game,
             $game,
             TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
         );
 
         // ASSERT
@@ -171,6 +173,7 @@ describe('scope default values', function () {
             TicketListScope::AssignedTo,
             $developer,
             TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
         );
 
         // ASSERT
@@ -213,6 +216,7 @@ describe('scope default values', function () {
             TicketListScope::ResolvedBy,
             $user,
             TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
         );
 
         // ASSERT
@@ -328,6 +332,7 @@ it('given a closed ticket with a resolution, includes the resolution value in pr
         TicketListScope::All,
         null,
         TicketListRequest::create('/tickets', 'GET', ['filter' => ['status' => 'closed']]),
+        viewer: null,
     );
 
     // ASSERT

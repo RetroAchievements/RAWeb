@@ -1797,5 +1797,20 @@
     "Award a casual unlock?": "Award a casual unlock?",
     "Award a hardcore unlock?": "Award a hardcore unlock?",
     "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a casual unlock for <2>{{achievement}}</2>.",
-    "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>."
+    "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.": "<1>{{user}}</1> will get a hardcore unlock for <2>{{achievement}}</2>.",
+    "{{val, number}} earlier sessions_one": "{{val, number}} earlier session",
+    "{{val, number}} earlier sessions_other": "{{val, number}} earlier sessions",
+    "{{val, number}} later sessions_one": "{{val, number}} later session",
+    "{{val, number}} later sessions_other": "{{val, number}} later sessions",
+    "Probably not a bug": "Probably not a bug",
+    "Probably a real bug": "Probably a real bug",
+    "Nearly 9 in 10 past tickets with this verdict were closed without a logic change.": "Nearly 9 in 10 past tickets with this verdict were closed without a logic change.",
+    "Nearly 4 in 5 tickets with this verdict receive a logic change.": "Nearly 4 in 5 tickets with this verdict receive a logic change.",
+    "playersUnlockedBeforeReport_zero": "No players unlocked this achievement in the {{duration}} before the report.",
+    "playersUnlockedBeforeReport_other": "{{count, number}} players unlocked this achievement in the {{duration}} before the report.",
+    "playersUnlockedSinceLogicChange_zero": "No players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
+    "playersUnlockedSinceLogicChange_other": "{{count, number}} players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
+    "The reporter unlocked this achievement {{duration}} after the report.": "The reporter unlocked this achievement {{duration}} after the report.",
+    "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.",
+    "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already."
 }
