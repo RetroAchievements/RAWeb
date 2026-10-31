@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -135,6 +136,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         $achievement = Achievement::find($this->achievementId);
         if (!$achievement) {
             return $this->resourceNotFound('achievement');
+        }
+
+        if ($achievement->game?->system_id === System::Events && !$this->user->can('update', $achievement)) {
+            return $this->accessDenied('Event achievements are not managed through the Connect API.');
         }
 
         // Check if user has permission to update the achievement.
@@ -270,6 +275,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         $game = Game::find($this->gameId);
         if (!$game) {
             return $this->gameNotFound();
+        }
+
+        if ($game->system_id === System::Events) {
+            return $this->accessDenied('Event achievements are not managed through the Connect API.');
         }
 
         // Check if user has permission to create an achievement.
