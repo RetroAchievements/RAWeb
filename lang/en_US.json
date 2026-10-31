@@ -1752,6 +1752,15 @@
     "playersUnlockedSinceReport_zero": "No one has unlocked this achievement in the <1>{{duration}}</1> since the report.",
     "playersUnlockedSinceReport_one": "{{count, number}} player has unlocked this achievement in the <1>{{duration}}</1> since the report.",
     "playersUnlockedSinceReport_other": "{{count, number}} players have unlocked this achievement in the <1>{{duration}}</1> since the report.",
+    "playersUnlockedBeforeLogicChange_zero": "No one unlocked this achievement in the <1>{{duration}}</1> before the logic was updated.",
+    "playersUnlockedBeforeLogicChange_one": "{{count, number}} player unlocked this achievement in the <1>{{duration}}</1> before the logic was updated.",
+    "playersUnlockedBeforeLogicChange_other": "{{count, number}} players unlocked this achievement in the <1>{{duration}}</1> before the logic was updated.",
+    "playersUnlockedSinceReportFollowUp_zero": "No one has unlocked it in the <1>{{duration}}</1> since.",
+    "playersUnlockedSinceReportFollowUp_one": "{{count, number}} player has unlocked it in the <1>{{duration}}</1> since.",
+    "playersUnlockedSinceReportFollowUp_other": "{{count, number}} players have unlocked it in the <1>{{duration}}</1> since.",
+    "playersUnlockedBeforeLogicChangeFollowUp_zero": "No one unlocked it in the <1>{{duration}}</1> after the report, before the logic was updated.",
+    "playersUnlockedBeforeLogicChangeFollowUp_one": "{{count, number}} player unlocked it in the <1>{{duration}}</1> after the report, before the logic was updated.",
+    "playersUnlockedBeforeLogicChangeFollowUp_other": "{{count, number}} players unlocked it in the <1>{{duration}}</1> after the report, before the logic was updated.",
     "achievementOtherOpenTickets_zero": "This achievement has no other open tickets.",
     "achievementOtherOpenTickets_one": "This achievement has <1>{{count, number}} other open ticket</1>.",
     "achievementOtherOpenTickets_other": "This achievement has <1>{{count, number}} other open tickets</1>.",
@@ -1812,5 +1821,7 @@
     "playersUnlockedSinceLogicChange_other": "{{count, number}} players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
     "The reporter unlocked this achievement {{duration}} after the report.": "The reporter unlocked this achievement {{duration}} after the report.",
     "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.",
-    "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already."
+    "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.",
+    "Signal": "Signal",
+    "No signal": "No signal"
 }

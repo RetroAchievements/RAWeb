@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { TranslatedString } from '@/types/i18next';
 
 import { useTicketResolutionLabels } from './useTicketResolutionLabels';
+import { useTicketSignalVerdictLabels } from './useTicketSignalVerdictLabels';
 
 type FilterKind = App.Platform.Enums.TicketListFilterKind;
 
@@ -13,6 +14,7 @@ export function useTicketListFilterLabels() {
   const { t } = useTranslation();
 
   const resolutionLabels = useTicketResolutionLabels();
+  const signalVerdictLabels = useTicketSignalVerdictLabels();
 
   const kindLabels: Record<FilterKind, TranslatedString> = {
     type: t('Issue type'),
@@ -22,6 +24,7 @@ export function useTicketListFilterLabels() {
     developer: t('Developer'),
     reporter: t('Reporter'),
     resolution: t('Resolution'),
+    signal: t('Signal'),
     emulator: t('Emulator'),
     core: t('Core'),
     system: t('System'),
@@ -65,6 +68,11 @@ export function useTicketListFilterLabels() {
     resolution: {
       all: t('All'),
       ...resolutionLabels,
+    },
+    signal: {
+      all: t('All'),
+      ...signalVerdictLabels,
+      none: t('No signal'),
     },
     emulator: {
       all: t('All'),

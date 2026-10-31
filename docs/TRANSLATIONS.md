@@ -94,6 +94,12 @@ Some translation strings contain special elements that must be handled carefully
 
 Thank you for helping make RetroAchievements accessible to more people around the world! Your contributions help build a stronger, more inclusive community.
 
+## Developer Guide: Fixing a Translation in the Repo
+
+Every week the Crowdin sync PR rewrites all translated files in `lang/`. The _crowdin-upload-fixes.yml_ workflow pushes applied fixes in the sync PR back to Crowdin. The workflow runs on any push to the sync PR's branch, `chore/sync-translations`, that changes a translated file such as _lang/fr_FR.json_. Each key a person edited is added to Crowdin and then approved, ensuring later resyncs keep the fix.
+
+This workflow makes it safe to apply automated review suggestions directly on the sync PR.
+
 ## Developer Guide: Adding a New Language
 
 When a language reaches sufficient translation coverage and approval on Crowdin, developers can enable it in the user interface by following these steps:

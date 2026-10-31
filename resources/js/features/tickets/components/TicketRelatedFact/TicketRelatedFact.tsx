@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { getIsTicketStateOpen } from '@/common/utils/getIsTicketStateOpen';
 
 import { buildAchievementTicketListHref } from '../../utils/buildAchievementTicketListHref';
@@ -41,8 +42,9 @@ export const TicketRelatedFact: FC<RelatedFactProps> = ({ relatedTickets, ticket
           isLeaderboardTicket ? 'leaderboardOtherOpenTickets' : 'achievementOtherOpenTickets'
         }
         count={unresolvedCount}
-        // eslint-disable-next-line jsx-a11y/anchor-has-content -- the Trans component passes in the link text.
-        components={{ 1: unresolvedListHref ? <a href={unresolvedListHref} /> : <span /> }}
+        components={{
+          1: unresolvedListHref ? <InertiaLink href={unresolvedListHref} /> : <span />,
+        }}
       />
 
       {resolvedCount ? (
@@ -51,8 +53,9 @@ export const TicketRelatedFact: FC<RelatedFactProps> = ({ relatedTickets, ticket
           <Trans
             i18nKey="otherResolvedTickets"
             count={resolvedCount}
-            // eslint-disable-next-line jsx-a11y/anchor-has-content -- the Trans component passes in the link text.
-            components={{ 1: resolvedListHref ? <a href={resolvedListHref} /> : <span /> }}
+            components={{
+              1: resolvedListHref ? <InertiaLink href={resolvedListHref} /> : <span />,
+            }}
           />
         </>
       ) : null}

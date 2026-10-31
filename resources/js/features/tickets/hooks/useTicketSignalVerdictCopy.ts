@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useFormatCoarseDuration } from '@/common/hooks/useFormatCoarseDuration';
 import type { TranslatedString } from '@/types/i18next';
 
+import { getIsUnlockWindowSignal } from '../utils/getIsUnlockWindowSignal';
+import { useTicketSignalVerdictLabels } from './useTicketSignalVerdictLabels';
+
 export function useTicketSignalVerdictCopy(
   signals: App.Platform.Data.TicketSignals,
   reportedAt: string,
@@ -11,10 +14,7 @@ export function useTicketSignalVerdictCopy(
   const { t, i18n } = useTranslation();
   const { formatCoarseDuration } = useFormatCoarseDuration();
 
-  const verdictLabels: Record<App.Community.Enums.TicketSignalVerdict, TranslatedString> = {
-    'probably-not-defect': t('Probably not a bug'),
-    'probably-defect': t('Probably a real bug'),
-  };
+  const verdictLabels = useTicketSignalVerdictLabels();
 
   /**
    * TODO these numbers come from a one-off backtest run on Oct 22 2026
@@ -41,7 +41,7 @@ export function useTicketSignalVerdictCopy(
   };
 
   const describeSignal = (kind: App.Community.Enums.TicketSignal): string => {
-    if (kind === 'many-recent-unlocks' || kind === 'no-recent-unlocks') {
+    if (getIsUnlockWindowSignal(kind)) {
       return t(
         // A logic change shortens the window.
         signals.hasRecentLogicChange

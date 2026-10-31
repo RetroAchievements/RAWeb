@@ -17,6 +17,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
 
+import { getIsUnlockWindowSignal } from '../../utils/getIsUnlockWindowSignal';
 import { TICKET_SIGNAL_VERDICT_APPEARANCE } from '../../utils/ticketSignalVerdictAppearance';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketFactRow } from '../TicketFactRow';
@@ -37,6 +38,7 @@ export const TicketFactsList: FC = () => {
     hasReporterHistoryAccess,
     isViewerReporter,
     leaderboardEntryCount,
+    logicChangedAfterReportAt,
     relatedTickets,
     reportedTriggerVersion,
     reporterLeaderboardEntry,
@@ -59,6 +61,16 @@ export const TicketFactsList: FC = () => {
       : null;
 
   const formattedAutoCloseDate = autoCloseAt ? formatDate(autoCloseAt, 'll') : null;
+  const hasUnlockWindowSignal = ticket.signals?.kinds.some(getIsUnlockWindowSignal) ?? false;
+  const unlockCountFact =
+    typeof unlocksSinceReported === 'number' ? (
+      <TicketUnlockCountFact
+        isFollowUp={hasUnlockWindowSignal}
+        logicChangedAt={logicChangedAfterReportAt}
+        reportedAt={ticket.createdAt}
+        unlocksSinceReported={unlocksSinceReported}
+      />
+    ) : null;
 
   return (
     <ul
@@ -116,7 +128,11 @@ export const TicketFactsList: FC = () => {
           Icon={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].Icon}
           iconClassName={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].className}
         >
-          <TicketSignalVerdictFact signals={ticket.signals} reportedAt={ticket.createdAt} />
+          <TicketSignalVerdictFact
+            signals={ticket.signals}
+            reportedAt={ticket.createdAt}
+            unlockCountFollowUp={hasUnlockWindowSignal ? unlockCountFact : null}
+          />
         </TicketFactRow>
       ) : null}
 
@@ -132,13 +148,8 @@ export const TicketFactsList: FC = () => {
         </TicketFactRow>
       ) : null}
 
-      {typeof unlocksSinceReported === 'number' ? (
-        <TicketFactRow Icon={LuArrowUpRight}>
-          <TicketUnlockCountFact
-            reportedAt={ticket.createdAt}
-            unlocksSinceReported={unlocksSinceReported}
-          />
-        </TicketFactRow>
+      {unlockCountFact && !hasUnlockWindowSignal ? (
+        <TicketFactRow Icon={LuArrowUpRight}>{unlockCountFact}</TicketFactRow>
       ) : null}
 
       <TicketFactRow Icon={LuTickets}>

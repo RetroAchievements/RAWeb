@@ -28,6 +28,7 @@ class TicketShowPagePropsData extends Data
         public array $relatedTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
+        public ?Carbon $logicChangedAfterReportAt,
         public ?int $reportedTriggerVersion,
         public ?int $currentTriggerVersion,
         public ?LeaderboardEntryData $reporterLeaderboardEntry,

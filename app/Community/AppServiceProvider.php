@@ -11,6 +11,7 @@ use App\Community\Commands\DeactivateOAuthClient;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\ProcessExpiredMutes;
+use App\Community\Commands\RefreshTicketSignalVerdicts;
 use App\Community\Commands\SendDailyDigest;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
                 ProcessExpiredMutes::class,
+                RefreshTicketSignalVerdicts::class,
                 SendDailyDigest::class,
                 UpdateGameActivitySnapshots::class,
             ]);
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(CloseUnansweredTickets::class)->daily();
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
+            $schedule->command(RefreshTicketSignalVerdicts::class)->daily();
         });
 
         Relation::morphMap([

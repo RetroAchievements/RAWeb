@@ -13,6 +13,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Facades\CauserResolver;
 
@@ -50,6 +51,8 @@ class ChangeTicketStateAction
         }
 
         $ticket->save();
+
+        (new RefreshTicketSignalVerdictsAction())->execute(new Collection([$ticket]));
 
         if ($action === TicketAction::Demoted && $ticket->ticketable) {
             $ticket->getTicketableModel()->demoteForTicket($actor);

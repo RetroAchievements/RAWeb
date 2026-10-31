@@ -1,24 +1,29 @@
 import { useTranslation } from 'react-i18next';
 
-import type { TicketListFilterProperty } from '../models';
+import type { TicketListFilterProperty, TicketListFilterPropertyOption } from '../models';
+import { TICKET_SIGNAL_VERDICT_APPEARANCE } from '../utils/ticketSignalVerdictAppearance';
+import { TICKET_STATE_GLYPHS } from '../utils/ticketStateGlyphs';
 import { useTicketListFilterLabels } from './useTicketListFilterLabels';
 
-const STATUS_GLYPH_STATES: Record<
-  App.Platform.Enums.TicketListStatusFilter,
-  App.Community.Enums.TicketState | undefined
-> = {
+type OptionGlyph = TicketListFilterPropertyOption['glyph'];
+
+const STATUS_GLYPHS: Record<App.Platform.Enums.TicketListStatusFilter, OptionGlyph> = {
   unresolved: undefined,
-  open: 'open',
-  request: 'request',
-  resolved: 'resolved',
-  closed: 'closed',
-  quarantined: 'quarantined',
+  open: TICKET_STATE_GLYPHS.open,
+  request: TICKET_STATE_GLYPHS.request,
+  resolved: TICKET_STATE_GLYPHS.resolved,
+  closed: TICKET_STATE_GLYPHS.closed,
+  quarantined: TICKET_STATE_GLYPHS.quarantined,
   all: undefined,
 };
 
-const STATUS_VALUES = Object.keys(
-  STATUS_GLYPH_STATES,
-) as App.Platform.Enums.TicketListStatusFilter[];
+const STATUS_VALUES = Object.keys(STATUS_GLYPHS) as App.Platform.Enums.TicketListStatusFilter[];
+
+const GLYPHS_BY_FILTER_VALUE: Partial<
+  Record<App.Platform.Enums.TicketListFilterKind, Record<string, OptionGlyph>>
+> = {
+  signal: TICKET_SIGNAL_VERDICT_APPEARANCE,
+};
 
 export function useTicketListFilterProperties(
   availableFilters: App.Platform.Data.TicketListFilter[],
@@ -38,9 +43,9 @@ export function useTicketListFilterProperties(
 
     options: STATUS_VALUES.map((value) => ({
       value,
-      label: getStatusValueLabel(value),
       count: stateCounts[value],
-      glyphState: STATUS_GLYPH_STATES[value],
+      glyph: STATUS_GLYPHS[value],
+      label: getStatusValueLabel(value),
     })),
   };
 
@@ -66,8 +71,9 @@ export function useTicketListFilterProperties(
         noFilterValue: filter.values[0],
         options: filter.values.map((value) => ({
           value,
-          label: getFilterValueLabel(filter.kind, value, filter.valueLabels),
           count: countsByValue ? (countsByValue[value] ?? 0) : undefined,
+          glyph: GLYPHS_BY_FILTER_VALUE[filter.kind]?.[value],
+          label: getFilterValueLabel(filter.kind, value, filter.valueLabels),
         })),
       };
     }),

@@ -30,7 +30,7 @@ class TicketListService
     private ?array $emulatorNamesById = null;
 
     /**
-     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string, resolution: string}
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string, resolution: string, signal: string}
      */
     public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
@@ -54,6 +54,7 @@ class TicketListService
             'core' => trim($validatedData['filter']['core'] ?? ''),
             'system' => $validatedData['filter']['system'] ?? 'all',
             'resolution' => $validatedData['filter']['resolution'] ?? 'all',
+            'signal' => $validatedData['filter']['signal'] ?? 'all',
         ];
 
         foreach (TicketListFilterKind::cases() as $kind) {
@@ -200,6 +201,13 @@ class TicketListService
             $tickets->where('tickets.resolution', $filterOptions['resolution']);
         }
 
+        $signalFilter = $filterOptions['signal'];
+        if ($signalFilter === 'none') {
+            $tickets->whereNull('tickets.signal_verdict');
+        } elseif ($signalFilter !== 'all') {
+            $tickets->where('tickets.signal_verdict', $signalFilter);
+        }
+
         return $tickets;
     }
 
@@ -281,6 +289,12 @@ class TicketListService
                     $kind,
                     'tickets.resolution',
                     fn (?string $value): ?string => $value,
+                ),
+                TicketListFilterKind::Signal => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.signal_verdict',
+                    fn (?string $storedVerdict): string => $storedVerdict ?? 'none',
                 ),
             };
         }

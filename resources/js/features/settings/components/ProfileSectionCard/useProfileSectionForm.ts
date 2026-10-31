@@ -9,11 +9,7 @@ import { useUpdateProfileMutation } from '@/features/settings/hooks/mutations/us
 const profileFormSchema = z.object({
   isUserWallActive: z.boolean(),
   motto: z.string().max(50),
-  visibleRoleId: z.coerce
-    .number() // The incoming value is a string from a select field.
-    .nullable()
-    .pipe(z.number().nullable())
-    .optional(),
+  visibleRoleId: z.coerce.number<number>().nullable().pipe(z.number().nullable()).optional(),
 });
 
 export type FormValues = z.infer<typeof profileFormSchema>;

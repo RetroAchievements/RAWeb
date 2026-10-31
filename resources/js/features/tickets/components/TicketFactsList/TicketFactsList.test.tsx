@@ -447,6 +447,38 @@ describe('Component: TicketFactsList', () => {
     );
   });
 
+  it('given an unlock window signal and an unlock count, continues the verdict line with the count instead of its own row', () => {
+    // ARRANGE
+    vi.setSystemTime(new Date('2026-07-17T12:00:00Z'));
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        relatedTickets: [],
+        unlocksSinceReported: 0,
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          createdAt: '2026-06-17T12:00:00Z',
+          signals: {
+            verdict: 'probably-defect',
+            kinds: ['no-recent-unlocks'],
+            unlockCount: 0,
+            windowStartedAt: '2026-03-19T12:00:00Z',
+            hasRecentLogicChange: false,
+            reporterEarnedAt: null,
+          },
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
+      'No players unlocked this achievement in the 90 days before the report. No one has unlocked it in the 4 weeks since.',
+    );
+    expect(screen.queryByText(/No one has unlocked this achievement/)).not.toBeInTheDocument();
+  });
+
   it('given a ticket without signals, does not show signal data', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {

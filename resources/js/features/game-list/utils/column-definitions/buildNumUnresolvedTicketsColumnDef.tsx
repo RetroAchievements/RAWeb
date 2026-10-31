@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -49,12 +50,12 @@ export function buildNumUnresolvedTicketsColumnDef<TEntry extends App.Platform.D
       const gameId = row.original.game.id;
 
       return (
-        <a
+        <InertiaLink
           href={route('game.tickets', { game: gameId })}
           className={numUnresolvedTickets === 0 ? 'text-muted' : ''}
         >
           {formatNumber(numUnresolvedTickets)}
-        </a>
+        </InertiaLink>
       );
     },
 

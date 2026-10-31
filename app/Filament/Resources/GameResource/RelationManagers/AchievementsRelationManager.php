@@ -11,6 +11,7 @@ use App\Models\AchievementAuthor;
 use App\Models\AchievementGroup;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetAchievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\System;
@@ -558,7 +559,13 @@ class AchievementsRelationManager extends RelationManager
                         }),
                 ])
                     ->label('Bulk promote or demote')
-                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'is_promoted'])),
+                    ->visible(function () use ($user): bool {
+                        if ($this->getOwnerRecord()->system_id === System::Events) {
+                            return false;
+                        }
+
+                        return $user->can('updateField', [Achievement::class, null, 'is_promoted']);
+                    }),
 
                 BulkActionGroup::make([
                     BulkAction::make('type-progression')
@@ -805,7 +812,7 @@ class AchievementsRelationManager extends RelationManager
                     return null;
                 }
 
-                if ($this->canUpdateAnyAchievement() || $user->can('update', $record)) {
+                if ($user->can('update', $record)) {
                     return route('filament.admin.resources.achievements.edit', ['record' => $record]);
                 }
 
@@ -910,6 +917,8 @@ class AchievementsRelationManager extends RelationManager
 
     public function startEditingDisplayOrders(): void
     {
+        abort_unless($this->canReorderAchievements(), 403);
+
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
@@ -926,6 +935,8 @@ class AchievementsRelationManager extends RelationManager
 
     public function saveDisplayOrders(): void
     {
+        abort_unless($this->canReorderAchievements(), 403);
+
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
@@ -934,8 +945,13 @@ class AchievementsRelationManager extends RelationManager
 
         $changedAchievements = [];
         foreach ($this->pendingDisplayOrders as $id => $newOrder) {
+            // Only this game's achievements can be reordered here.
+            if (!array_key_exists($id, $originalOrders)) {
+                continue;
+            }
+
             $newOrderInt = (int) $newOrder;
-            if (!isset($originalOrders[$id]) || $originalOrders[$id] !== $newOrderInt) {
+            if ($originalOrders[$id] !== $newOrderInt) {
                 $changedAchievements[$id] = $newOrderInt;
             }
         }
@@ -985,15 +1001,20 @@ class AchievementsRelationManager extends RelationManager
         $user = Auth::user();
 
         return once(function () use ($user) {
+            /** @var Game $game */
+            $game = $this->getOwnerRecord();
+
+            // Event achievements are managed by event managers, not regular achievement editors.
+            if ($game->system_id === System::Events) {
+                return $user->can('update', EventAchievement::class);
+            }
+
             if ($user->can('updateField', [Achievement::class, null, 'order_column'])) {
                 return true;
             }
 
             // Junior developers can reorder if they have an active claim on this game.
             if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-                /** @var Game $game */
-                $game = $this->getOwnerRecord();
-
                 return $user->hasActiveClaimOnGameId($game->id);
             }
 
@@ -1015,14 +1036,6 @@ class AchievementsRelationManager extends RelationManager
         $user = Auth::user();
 
         return once(fn () => $user->can('manage', AchievementGroup::class));
-    }
-
-    private function canUpdateAnyAchievement(): bool
-    {
-        /** @var User */
-        $user = Auth::user();
-
-        return once(fn () => $user->can('updateAny', Achievement::class));
     }
 
     private function invalidateCoreAchievementSetCache(): void

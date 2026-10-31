@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\ClientSupportLevel;
@@ -357,4 +358,22 @@ it('given a quarantined ticket, still records the trigger id', function () {
     // Assert
     expect($ticket->state)->toEqual(TicketState::Quarantined);
     expect($ticket->trigger_id)->toEqual($trigger->id);
+});
+
+it('given no recent unlocks while other players played the game, writes the correct signal verdict on the new ticket', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true]);
+    foreach (User::factory()->count(5)->create() as $player) {
+        PlayerSession::factory()->create([
+            'user_id' => $player->id,
+            'game_id' => $this->game->id,
+            'rich_presence_updated_at' => now()->subDays(3),
+        ]);
+    }
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter);
+
+    // Assert
+    expect($ticket->fresh()->signal_verdict)->toEqual(TicketSignalVerdict::ProbablyDefect);
 });
