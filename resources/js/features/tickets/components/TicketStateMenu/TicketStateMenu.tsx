@@ -187,9 +187,9 @@ export const TicketStateMenu: FC = () => {
           aria-label={t('Change status (currently {{status}})', { status: stateLabel })}
           className={cn(
             'flex items-center gap-1.5 rounded-md border px-2 py-1',
-            'border-neutral-700 bg-neutral-800/50',
-            'hover:border-neutral-600 hover:bg-neutral-800',
-            'data-[state=open]:border-neutral-600 data-[state=open]:bg-neutral-800',
+            'border-neutral-600 bg-neutral-800/50',
+            'hover:border-neutral-500 hover:bg-neutral-800',
+            'data-[state=open]:border-neutral-500 data-[state=open]:bg-neutral-800',
             'light:border-neutral-300 light:bg-white',
             'light:hover:border-neutral-400 light:hover:bg-neutral-100',
             'light:data-[state=open]:border-neutral-400 light:data-[state=open]:bg-neutral-100',
