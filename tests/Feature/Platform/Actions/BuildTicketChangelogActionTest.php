@@ -122,6 +122,23 @@ describe('Activitylog Entries', function () {
         'reopened from resolved' => [['state' => 'resolved', 'resolution' => 'fixed'], ['state' => 'open', 'resolution' => null], TicketChangelogEntryType::Reopened, null],
     ]);
 
+    it('given the reporter was reminded to reply, logs the reminder correctly', function () {
+        // Arrange
+        $serverUser = createTicketSystemUser();
+        $ticket = createTicketWithoutLog(['state' => 'request']);
+
+        createTicketActivity($ticket, Ticket::REPORTER_REMINDED_EVENT, '2026-10-01 12:00:00', $serverUser);
+
+        // Act
+        $result = (new BuildTicketChangelogAction())->execute($ticket);
+
+        // Assert
+        $entries = ticketEntriesOfType($result, TicketChangelogEntryType::Reminded);
+        expect($entries)->toHaveCount(1);
+        expect($entries[0]->user->displayName)->toEqual($serverUser->display_name);
+        expect($entries[0]->resolution)->toBeNull();
+    });
+
     it('ignores lifecycle events', function (string $event) {
         // Arrange
         $user = User::factory()->create();

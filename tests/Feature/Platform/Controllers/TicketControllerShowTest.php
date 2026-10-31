@@ -954,3 +954,40 @@ describe('Ticket Action Props', function () {
         $response->assertInertia(fn (Assert $page) => $page->where('hasReporterRepliedLast', false));
     });
 });
+
+describe('Auto-close Props', function () {
+    it('given a ticket waiting on the reporter, sends the close date only when the reporter is able to reply', function (array $reporterAttributes, bool $hasCloseDate) {
+        // ARRANGE
+        $this->freezeTime();
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create($reporterAttributes);
+        $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
+            'reporter_id' => $reporter->id,
+            'ticketable_author_id' => User::factory()->create()->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => User::factory()->create()->id,
+            'body' => 'Can you share a save file?',
+            'created_at' => now()->subDays(2),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $hasCloseDate
+            ? $page->where('autoCloseAt', now()->addDays(12)->toIso8601String())
+            : $page->missing('autoCloseAt')
+        );
+    })->with([
+        'reporter can reply' => [[], true],
+        'reporter is muted' => [['muted_until' => now()->addMonth()], false],
+    ]);
+});

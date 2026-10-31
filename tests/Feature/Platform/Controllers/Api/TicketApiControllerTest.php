@@ -8,6 +8,7 @@ use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\ClientSupportLevel;
+use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Emulator;
@@ -21,9 +22,11 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -720,6 +723,31 @@ describe('updateState', function () {
             ->where('user_id', '!=', $developer->id)
             ->sole();
         expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
+    });
+
+    it('given a reporter closes their own ticket, does not send them an email notification', function () {
+        // ARRANGE
+        Notification::fake();
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Closed);
+        Notification::assertNotSentTo($reporter, TicketStatusUpdatedNotification::class);
     });
 
     it('given a developer resolves or closes for another reason when only the reporter has commented, requires a comment', function (TicketAction $action) {

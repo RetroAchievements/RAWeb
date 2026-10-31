@@ -43,6 +43,7 @@ class TicketShowPagePropsData extends Data
         public bool $hasNonReporterComment,
         public bool $hasReporterRepliedLast,
         public bool $hasReporterHistoryAccess,
+        public ?Carbon $autoCloseAt,
         #[AutoInertiaDeferred]
         public Lazy|PlayerGameActivityData|null $reporterActivity,
     ) {

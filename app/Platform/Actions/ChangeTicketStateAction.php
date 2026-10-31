@@ -15,6 +15,7 @@ use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserTicketCountService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 class ChangeTicketStateAction
 {
@@ -35,6 +36,8 @@ class ChangeTicketStateAction
         $previousState = $ticket->state;
         $newState = $action->targetState();
         $ticket->state = $newState;
+
+        CauserResolver::setCauser($actor);
 
         if ($newState->isResolved()) {
             $ticket->resolved_at = now();
@@ -76,7 +79,11 @@ class ChangeTicketStateAction
             $this->userTicketCountService->clearForUserId($ticket->reporter->id);
 
             // Only send email if the reporter has email notifications enabled for ticket activity.
-            if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
+            // Also: don't tell reporters about any change they made themselves.
+            if (
+                $actor->id !== $ticket->reporter_id
+                && BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
+            ) {
                 $ticket->reporter->notify(
                     new TicketStatusUpdatedNotification($ticket, $actor, $newState->label(), $comment)
                 );
@@ -99,6 +106,7 @@ class ChangeTicketStateAction
             TicketAction::ClosedMistaken,
             TicketAction::Demoted,
             TicketAction::NotEnoughInfo,
+            TicketAction::NoReplyFromReporter,
             TicketAction::WrongRom,
             TicketAction::Network,
             TicketAction::UnableToReproduce,

@@ -39,7 +39,7 @@ class BuildTicketChangelogAction
         $activities = Activity::query()
             ->where('subject_type', 'ticket')
             ->where('subject_id', $ticket->id)
-            ->where('event', 'updated')
+            ->whereIn('event', ['updated', Ticket::REPORTER_REMINDED_EVENT])
             ->orderBy('created_at')
             ->orderBy('id')
             ->get();
@@ -84,23 +84,30 @@ class BuildTicketChangelogAction
         return $entries;
     }
 
-    private function transformActivityToEntry(Activity $activity, ?User $causer): ?TicketChangelogEntryData
+    private function mapStateChangeToEntryType(?string $incomingState, ?string $previousState): ?TicketChangelogEntryType
     {
-        $properties = $activity->properties->toArray();
-        $newValues = $properties['attributes'] ?? [];
-        $oldValues = $properties['old'] ?? [];
-
-        $type = match ($newValues['state'] ?? null) {
+        return match ($incomingState) {
             'resolved' => TicketChangelogEntryType::Resolved,
             'closed' => TicketChangelogEntryType::Closed,
             'request' => TicketChangelogEntryType::Requested,
-            'open' => match ($oldValues['state'] ?? null) {
+            'open' => match ($previousState) {
                 'request' => TicketChangelogEntryType::Returned,
                 'quarantined' => TicketChangelogEntryType::Approved,
                 default => TicketChangelogEntryType::Reopened,
             },
             default => null,
         };
+    }
+
+    private function transformActivityToEntry(Activity $activity, ?User $causer): ?TicketChangelogEntryData
+    {
+        $properties = $activity->properties->toArray();
+        $newValues = $properties['attributes'] ?? [];
+        $oldValues = $properties['old'] ?? [];
+
+        $type = $activity->event === Ticket::REPORTER_REMINDED_EVENT
+            ? TicketChangelogEntryType::Reminded
+            : $this->mapStateChangeToEntryType($newValues['state'] ?? null, $oldValues['state'] ?? null);
 
         if ($type === null) {
             return null;

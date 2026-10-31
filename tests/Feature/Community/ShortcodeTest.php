@@ -959,4 +959,20 @@ final class ShortcodeTest extends TestCase
             Shortcode::sanitizeForMailMarkdown('Just a normal comment about the game.')
         );
     }
+
+    public function testPrepareForMailPanelTurnsNewlinesIntoLineBreaksAfterEscaping(): void
+    {
+        $this->assertSame(
+            "First line.<br />\nSecond line &lt;b&gt;not bold&lt;/b&gt;",
+            Shortcode::prepareForMailPanel("First line.\r\nSecond line <b>not bold</b>")
+        );
+    }
+
+    public function testPrepareForMailPanelCollapsesRunsOfBlankLines(): void
+    {
+        $this->assertSame(
+            "Before the gap.<br />\n<br />\nAfter the gap.",
+            Shortcode::prepareForMailPanel("Before the gap.\n\n\n\n\nAfter the gap.")
+        );
+    }
 }

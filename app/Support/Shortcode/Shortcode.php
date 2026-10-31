@@ -782,6 +782,15 @@ final class Shortcode
         );
     }
 
+    public static function prepareForMailPanel(string $input): string
+    {
+        $input = self::stripAndClamp($input, 1850, preserveWhitespace: true);
+        $input = str_replace(["\r\n", "\r"], "\n", $input);
+        $input = preg_replace('/\n{3,}/', "\n\n", $input);
+
+        return nl2br(self::sanitizeForMailMarkdown($input));
+    }
+
     private function protocolPrefix(?string $href): string
     {
         if (empty($href)) {

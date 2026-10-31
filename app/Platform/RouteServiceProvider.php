@@ -117,6 +117,17 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/random', [GameController::class, 'random'])->name('game.random');
 
+            /**
+             * @see Middleware\ValidateSignature::class
+             * These are deliberately unauthenticated routes that require a signature to use.
+             */
+            Route::get('ticket/{ticket}/no-longer-a-problem', [TicketController::class, 'noLongerAProblem'])
+                ->middleware(['inertia', 'signed'])
+                ->name('ticket.no-longer-a-problem');
+            Route::post('ticket/{ticket}/no-longer-a-problem', [TicketController::class, 'closeAsNoLongerAProblem'])
+                ->middleware('signed')
+                ->name('ticket.no-longer-a-problem.close');
+
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
 

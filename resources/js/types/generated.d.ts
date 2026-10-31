@@ -215,8 +215,8 @@ export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopic
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type RankType = 'hardcore' | 'casual' | 'retro_points';
 export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
-export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'closed-other' | 'request' | 'reopen';
-export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'demoted' | 'other';
+export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'no-reply-from-reporter' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'closed-other' | 'request' | 'reopen';
+export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'no_reply_from_reporter' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'demoted' | 'other';
 export type TicketSignal = 'many-recent-unlocks' | 'earned-with-same-logic' | 'earned-after-report' | 'earned-after-logic-change' | 'no-recent-unlocks';
 export type TicketSignalVerdict = 'probably-not-defect' | 'probably-defect';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
@@ -1268,6 +1268,12 @@ closed: number;
 quarantined: number;
 all: number;
 };
+export type TicketNoLongerAProblemPageProps = {
+ticketableTitle: string;
+gameTitle: string;
+canClose: boolean;
+closeUrl: string;
+};
 export type TicketRelatedEntry = {
 id: number;
 state: App.Community.Enums.TicketState;
@@ -1302,6 +1308,7 @@ allowedTicketActions: Array<App.Community.Enums.TicketAction>;
 hasNonReporterComment: boolean;
 hasReporterRepliedLast: boolean;
 hasReporterHistoryAccess: boolean;
+autoCloseAt: string | null;
 reporterActivity?: App.Platform.Data.PlayerGameActivity | null;
 };
 export type TicketSignals = {
@@ -1362,7 +1369,7 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
-export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 'returned' | 'approved' | 'reopened';
+export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 'returned' | 'approved' | 'reopened' | 'reminded';
 export type TicketCreationBlockReason = 'game_not_ticketable' | 'no_play_session';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'signal' | 'system' | 'emulator' | 'core';
