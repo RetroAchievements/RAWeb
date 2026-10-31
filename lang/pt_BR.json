@@ -1518,7 +1518,7 @@
     "Unable to debug": "Não é possível depurar",
     "Other": "Outro",
     "Ticket {{ticketId}}: {{title}} ({{type}})": "Ticket {{ticketId}}: {{title}} ({{type}})",
-    "Logic at filing": "Lógico no arquivo",
+    "Logic at filing": "Lógica no momento do reporte",
     "Current logic": "Lógica atual",
     "v{{version}}": "v{{version}}",
     "Format": "Formato",
