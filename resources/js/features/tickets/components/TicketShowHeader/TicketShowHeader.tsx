@@ -77,7 +77,7 @@ export const TicketShowHeader: FC = () => {
           <span>{ticket.game.system!.nameShort}</span>
         </p>
 
-        <div className="-ml-1.5 overflow-x-clip pl-1.5 text-neutral-400">
+        <div className="overflow-x-clip text-neutral-400">
           <div className="-ml-5 flex flex-wrap items-center gap-y-1">
             <span className="flex items-center gap-1.5 pl-5 text-neutral-200 light:text-neutral-800">
               <TicketStateMenu />

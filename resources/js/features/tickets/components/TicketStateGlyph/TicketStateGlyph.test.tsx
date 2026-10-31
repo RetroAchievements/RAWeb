@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { act, render, screen } from '@/test';
 
 import { TicketStateGlyph } from './TicketStateGlyph';
 
@@ -33,6 +33,20 @@ describe('Component: TicketStateGlyph', () => {
 
     // ASSERT
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Quarantined');
+  });
+
+  it('given hasTooltip is false, does not show a tooltip on hover', async () => {
+    // ARRANGE
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    render(<TicketStateGlyph state="resolved" hasTooltip={false} />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('img', { name: 'Resolved' }));
+    await act(() => vi.advanceTimersByTimeAsync(1500)); // past Radix's 700ms tooltip delay
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it.each([
