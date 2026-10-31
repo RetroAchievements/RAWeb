@@ -103,6 +103,7 @@ class BuildTicketShowPagePropsAction
             unlocksSinceReported: $ticketable instanceof Achievement && $ticket->state->isOpen()
                 ? $ticketViewService->unlocksSinceReported
                 : null,
+            logicChangedAfterReportAt: $ticketViewService->logicChangedAfterReportAt,
 
             reportedTriggerVersion: $ticketViewService->reportedTriggerVersion,
             currentTriggerVersion: $ticketViewService->currentTriggerVersion,

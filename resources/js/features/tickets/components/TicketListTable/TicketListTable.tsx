@@ -8,6 +8,7 @@ import { type FC, Fragment, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { cn } from '@/common/utils/cn';
 
 import { useSyncedHorizontalScroll } from '../../hooks/useSyncedHorizontalScroll';
@@ -143,7 +144,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 shouldShowGameTitle && hasTicketableColumn ? 'sm:h-[3.6em]' : null,
               )}
             >
-              <a
+              <InertiaLink
                 href={route('ticket.show', { ticket: row.original.id })}
                 aria-label={t('Ticket #{{ticketId}}', { ticketId: row.original.id })}
                 className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"

@@ -4,33 +4,25 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Enums\PlayerGameActivityEventType;
-use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Achievement;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
-use App\Models\User;
+use App\Models\Trigger;
 use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\TriggerableType;
+use Carbon\Carbon;
 
 class TicketViewService
 {
     public int $unlocksSinceReported = 0;
-    public array $openTickets = [];
-    public array $closedTickets = [];
+    public ?Carbon $logicChangedAfterReportAt = null;
     /** @var Ticket[] */
     public array $relatedTickets = [];
-    public string $contactReporterUrl = '';
     public ?PlayerAchievement $existingUnlock = null;
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
-    public string $ticketNotes = '';
     public ?int $reportedTriggerVersion = null;
     public ?int $currentTriggerVersion = null;
-
-    public function __construct(
-        protected PlayerGameActivityService $activity = new PlayerGameActivityService(),
-    ) {
-    }
 
     public function load(Ticket $ticket): void
     {
@@ -38,11 +30,6 @@ class TicketViewService
         $isAchievement = $ticket->ticketable_type === TicketableType::Achievement->value;
 
         if ($ticket->reporter) {
-            $msgTitle = rawurlencode("Bug Report ({$ticketable->getTicketableGame()->title})");
-            $msgPayload = "Hi [user={$ticket->reporter->display_name}], I'm contacting you about [ticket={$ticket->id}]";
-            $msgPayload = rawurlencode($msgPayload);
-            $this->contactReporterUrl = route('message-thread.create') . "?to={$ticket->reporter->display_name}&subject=$msgTitle&message=$msgPayload";
-
             if ($isAchievement) {
                 $this->existingUnlock = PlayerAchievement::where('user_id', $ticket->reporter->id)
                     ->where('achievement_id', $ticketable->id)
@@ -54,46 +41,40 @@ class TicketViewService
             }
         }
 
-        $this->openTickets = [];
-        $this->closedTickets = [];
-        $siblingTickets = Ticket::query()
+        $this->relatedTickets = Ticket::query()
             ->where('ticketable_id', $ticket->ticketable_id)
             ->where('ticketable_type', $ticket->ticketable_type)
             ->where('id', '!=', $ticket->id)
             ->orderBy('state_sort_order')
             ->orderByDesc('created_at')
-            ->get();
-        $this->relatedTickets = $siblingTickets->all();
-        foreach ($siblingTickets as $sibling) {
-            if ($sibling->state->isOpen()) {
-                $this->openTickets[] = $sibling->id;
-            } else {
-                $this->closedTickets[] = $sibling->id;
-            }
-        }
+            ->get()
+            ->all();
 
         $this->unlocksSinceReported = 0;
+        $this->logicChangedAfterReportAt = null;
         if ($isAchievement && $ticket->state->isOpen()) {
+            $logicChangedAt = Trigger::ofType(TriggerableType::Achievement)
+                ->where('triggerable_id', $ticketable->id)
+                ->whereNotNull('parent_id')
+                ->where('created_at', '>=', Trigger::VERSIONING_CUTOFF)
+                ->where('created_at', '>', $ticket->created_at)
+                ->min('created_at');
+            $this->logicChangedAfterReportAt = $logicChangedAt ? Carbon::parse($logicChangedAt) : null;
+
+            // Manual unlocks and unlocks after a logic change don't tell us much about the reported logic.
             $this->unlocksSinceReported = PlayerAchievement::where('achievement_id', $ticketable->id)
-                ->where(function ($query) use ($ticket) {
-                    $query->where('unlocked_at', '>', $ticket->created_at)
-                        ->orWhere('unlocked_hardcore_at', '>', $ticket->created_at);
-                })->count();
+                ->whereNull('unlocker_id')
+                ->where('unlocked_effective_at', '>', $ticket->created_at)
+                ->when($this->logicChangedAfterReportAt, fn ($query, Carbon $changedAt) => $query->where(
+                    // A casual unlock inside the window still counts even if a hardcore unlock came later.
+                    fn ($window) => $window
+                        ->where(fn ($casual) => $casual->where('unlocked_at', '>', $ticket->created_at)->where('unlocked_at', '<', $changedAt))
+                        ->orWhere(fn ($hardcore) => $hardcore->where('unlocked_hardcore_at', '>', $ticket->created_at)->where('unlocked_hardcore_at', '<', $changedAt))
+                ))
+                ->count();
         }
 
         $this->loadReportedTrigger($ticket, $isAchievement ? $ticketable : null);
-
-        $this->ticketNotes = nl2br($ticket->body);
-        $game = $ticketable->getTicketableGame();
-        foreach ($game->hashes as $hash) {
-            if (stripos($this->ticketNotes, $hash->md5) !== false) {
-                $hashesRoute = route('game.hashes.index', ['game' => $game]);
-                $escapedHashName = attributeEscape($hash->name);
-                $replacement = "<a href='{$hashesRoute}' title='{$escapedHashName}'>{$hash->md5}</a>";
-
-                $this->ticketNotes = str_ireplace($hash->md5, $replacement, $this->ticketNotes);
-            }
-        }
     }
 
     /**
@@ -118,37 +99,5 @@ class TicketViewService
         $this->currentTriggerVersion = $achievement->trigger_id === $ticket->trigger_id
             ? $this->reportedTriggerVersion
             : $achievement->currentTrigger?->version;
-    }
-
-    public function buildHistory(Ticket $ticket, User $actingUser): array
-    {
-        $canViewHistory = $actingUser->can('viewHistory', Ticket::class);
-        if (!$canViewHistory || !$ticket->reporter) {
-            return [];
-        }
-
-        $ticketable = $ticket->getTicketableModel();
-        $this->activity->initialize($ticket->reporter, $ticketable->getTicketableGame());
-
-        $this->activity->addCustomEvent($ticket->created_at, PlayerGameActivitySessionType::TicketCreated,
-            "Ticket created - " . $ticket->type->label() . ": {$ticketable->getTicketableTitle()}");
-
-        if ($ticket->ticketable_type === TicketableType::Achievement->value) {
-            foreach ($this->activity->sessions as &$session) {
-                foreach ($session['events'] as &$event) {
-                    if ($event['type'] === PlayerGameActivityEventType::Unlock
-                        && $event['id'] === $ticketable->id) {
-                        $event['note'] = 'reported achievement';
-                    }
-                }
-            }
-        }
-
-        return $this->activity->sessions;
-    }
-
-    public function getClientBreakdown(UserAgentService $userAgentService): array
-    {
-        return $this->activity->getClientBreakdown($userAgentService);
     }
 }

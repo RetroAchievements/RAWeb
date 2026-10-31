@@ -3,9 +3,7 @@
 use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
-use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Actions\ReopenTicketOnReporterReplyAction;
 use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +32,6 @@ if ($commentableType === null) {
 }
 
 $commentable = match ($commentableType) {
-    CommentableType::Ticket => Ticket::find($commentableId),
     CommentableType::User, CommentableType::UserModeration => User::find($commentableId),
     default => null,
 };
@@ -45,10 +42,6 @@ if (!$userModel->can('create', [Comment::class, $commentable, $commentableType])
 }
 
 if (addArticleComment($userModel->username, $commentableType, $commentableId, $input['body'])) {
-    if ($commentableType === CommentableType::Ticket) {
-        app(ReopenTicketOnReporterReplyAction::class)->execute($commentable, $userModel);
-    }
-
     return back()->with('success', __('legacy.success.send'));
 }
 
