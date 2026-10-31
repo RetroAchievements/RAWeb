@@ -1,7 +1,9 @@
+import type { IconType } from 'react-icons';
+
 export interface TicketListFilterPropertyOption {
   label: string;
   value: string;
 
   count?: number;
-  glyphState?: App.Community.Enums.TicketState;
+  glyph?: { Icon: IconType; className: string };
 }

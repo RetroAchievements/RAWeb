@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
+
 import { RequestManualUnlockLink } from './RequestManualUnlockLink';
 
 interface TicketSubmittedPanelProps {
@@ -18,8 +20,6 @@ export const TicketSubmittedPanel: FC<TicketSubmittedPanelProps> = ({ ticketId }
   useEffect(() => {
     titleRef.current?.focus();
   }, []);
-
-  const ticketDetailUrl = route('ticket.show', { ticket: ticketId });
 
   return (
     <section className="flex flex-col gap-3 rounded-sm bg-embed p-3">
@@ -48,7 +48,9 @@ export const TicketSubmittedPanel: FC<TicketSubmittedPanelProps> = ({ ticketId }
       <div className="flex flex-wrap items-center gap-3">
         <RequestManualUnlockLink ticketId={ticketId} />
 
-        <a href={ticketDetailUrl}>{t('View your ticket')}</a>
+        <InertiaLink href={route('ticket.show', { ticket: ticketId })}>
+          {t('View your ticket')}
+        </InertiaLink>
       </div>
     </section>
   );

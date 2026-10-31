@@ -2,26 +2,15 @@ import { CrowdinError, SourceFiles, UploadStorage } from '@crowdin/crowdin-api-c
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const CROWDIN = {
-  PROJECT_ID: 734399,
-  SOURCE_FILE: 'en_US.json',
-  OUTPUT_DIR: 'lang',
-} as const;
+import { CROWDIN } from './crowdin-project';
+import { getCrowdinToken } from './get-crowdin-token';
 
 async function uploadSourceFile() {
-  const token = process.env.CROWDIN_PERSONAL_TOKEN;
-  if (!token) {
-    throw new Error(
-      '\n' +
-        '🔑 Missing Crowdin API Token\n' +
-        'Please set the CROWDIN_PERSONAL_TOKEN environment variable.\n' +
-        'You can get this from: https://crowdin.com/settings#api-key\n',
-    );
-  }
+  const token = getCrowdinToken();
 
   try {
     console.log('📁 Reading RAWeb en_US.json source file...');
-    const sourcePath = join(CROWDIN.OUTPUT_DIR, CROWDIN.SOURCE_FILE);
+    const sourcePath = join(CROWDIN.LANG_DIR, CROWDIN.SOURCE_FILE);
     const sourceContent = readFileSync(sourcePath, 'utf-8');
 
     // Never attempt to upload invalid JSON.

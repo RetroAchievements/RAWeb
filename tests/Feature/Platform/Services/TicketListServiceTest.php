@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
@@ -35,6 +36,7 @@ function defaultTicketListFilterOptions(array $overrides = []): array
         'core' => '',
         'system' => 'all',
         'resolution' => 'all',
+        'signal' => 'all',
     ], $overrides);
 }
 
@@ -332,6 +334,26 @@ it('given tickets with and without a resolution, the resolution facet counts mat
 
     // ASSERT
     expect($counts['resolution'])->toEqual(['all' => 5, 'unable_to_reproduce' => 2, 'fixed' => 1]);
+});
+
+it('given tickets with and without a signal verdict, the signal facet counts match the list filter', function () {
+    // ARRANGE
+    $achievement = createTicketableAchievement();
+    Ticket::factory()->forAchievement($achievement)->open()->count(2)->create(['signal_verdict' => TicketSignalVerdict::ProbablyNotDefect]);
+    Ticket::factory()->forAchievement($achievement)->open()->create(['signal_verdict' => TicketSignalVerdict::ProbablyDefect]);
+    Ticket::factory()->forAchievement($achievement)->open()->create();
+    $service = new TicketListService();
+    $options = defaultTicketListFilterOptions(['signal' => 'probably-defect']);
+
+    // ACT
+    $counts = $service->getFacetCounts($options, Ticket::query(), [TicketListFilterKind::Signal]);
+
+    // ASSERT
+    expect($counts['signal'])->toEqual(['all' => 4, 'probably-not-defect' => 2, 'probably-defect' => 1, 'none' => 1]);
+    foreach (TicketListFilterKind::Signal->values() as $value) {
+        $filteredCount = $service->applyFilters(Ticket::query(), array_merge($options, ['signal' => $value]))->count();
+        expect($counts['signal'][$value])->toEqual($filteredCount);
+    }
 });
 
 it('given a status that does not allow a resolution, no resolution facet counts are inserted into page props', function () {

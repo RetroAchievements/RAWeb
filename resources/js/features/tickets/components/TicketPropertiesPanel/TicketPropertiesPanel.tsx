@@ -17,6 +17,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildAchievementLogicHref } from '@/common/utils/buildAchievementLogicHref';
 import type { TranslatedString } from '@/types/i18next';
 
 import { useLeaderboardFormatLabels } from '../../hooks/useLeaderboardFormatLabels';
@@ -25,7 +26,7 @@ import { TicketLogicVersionLink } from '../TicketLogicVersionLink';
 import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketPropertiesPanel: FC = () => {
-  const { currentTriggerVersion, hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
+  const { can, currentTriggerVersion, hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -33,6 +34,8 @@ export const TicketPropertiesPanel: FC = () => {
 
   const author = leaderboard ? (leaderboard.developer ?? null) : ticket.author;
   const resolvedEmulatorName = ticket.emulator?.name ?? t('Unknown');
+
+  const shouldShowViewLogicRow = !reportedTriggerVersion && can.viewAchievementLogic;
 
   return (
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
@@ -103,6 +106,18 @@ export const TicketPropertiesPanel: FC = () => {
                 />
               </PropertyRow>
             </>
+          ) : null}
+
+          {shouldShowViewLogicRow ? (
+            <PropertyRow t_label={t('Logic')}>
+              <a
+                href={buildAchievementLogicHref(ticket.ticketableId)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t('View logic')}
+              </a>
+            </PropertyRow>
           ) : null}
 
           {leaderboard ? (

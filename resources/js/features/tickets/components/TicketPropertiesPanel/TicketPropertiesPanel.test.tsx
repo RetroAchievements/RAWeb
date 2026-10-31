@@ -16,7 +16,7 @@ describe('Component: TicketPropertiesPanel', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry() },
+      pageProps: { can: {}, leaderboard: null, ticket: createTicketListEntry() },
     });
 
     // ASSERT
@@ -27,6 +27,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
         hasMaintainer: false,
@@ -43,6 +44,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
         hasMaintainer: true,
@@ -58,6 +60,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ author: null }),
         hasMaintainer: false,
@@ -72,6 +75,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           emulator: createEmulator({ name: 'RetroArch' }),
@@ -88,6 +92,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           emulator: createEmulator({ name: 'RetroArch' }),
@@ -104,6 +109,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           emulator: null,
@@ -120,7 +126,11 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given an emulator core, displays the core row', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry({ emulatorCore: 'snes9x' }) },
+      pageProps: {
+        can: {},
+        leaderboard: null,
+        ticket: createTicketListEntry({ emulatorCore: 'snes9x' }),
+      },
     });
 
     // ASSERT
@@ -131,7 +141,11 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given no emulator core, omits the core row', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry({ emulatorCore: null }) },
+      pageProps: {
+        can: {},
+        leaderboard: null,
+        ticket: createTicketListEntry({ emulatorCore: null }),
+      },
     });
 
     // ASSERT
@@ -142,6 +156,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           game: createGame({ id: 654 }),
@@ -165,6 +180,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           gameHash: createGameHash({
@@ -186,6 +202,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({
           gameHash: createGameHash({ md5: '0123456789abcdef0123456789abcdef', name: null }),
@@ -202,6 +219,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ emulator: createEmulator(), gameHash: null }),
       },
@@ -215,7 +233,7 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given a hardcore ticket flag, displays hardcore mode', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry({ hardcore: true }) },
+      pageProps: { can: {}, leaderboard: null, ticket: createTicketListEntry({ hardcore: true }) },
     });
 
     // ASSERT
@@ -225,7 +243,7 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given a casual ticket, displays casual mode', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry({ hardcore: false }) },
+      pageProps: { can: {}, leaderboard: null, ticket: createTicketListEntry({ hardcore: false }) },
     });
 
     // ASSERT
@@ -235,7 +253,7 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given an older ticket with no recorded mode, omits the mode row', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry({ hardcore: null }) },
+      pageProps: { can: {}, leaderboard: null, ticket: createTicketListEntry({ hardcore: null }) },
     });
 
     // ASSERT
@@ -324,7 +342,7 @@ describe('Component: TicketPropertiesPanel', () => {
   it('given an older ticket with no recorded trigger version, omits both logic version rows', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
-      pageProps: { leaderboard: null, ticket: createTicketListEntry() },
+      pageProps: { can: {}, leaderboard: null, ticket: createTicketListEntry() },
     });
 
     // ASSERT
@@ -332,10 +350,57 @@ describe('Component: TicketPropertiesPanel', () => {
     expect(screen.queryByText('Current logic')).not.toBeInTheDocument();
   });
 
+  it('given an old achievement ticket and a user with logic viewing permission, links to the current logic in a new tab', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        leaderboard: null,
+        ticket: createTicketListEntry({ ticketableId: 88, ticketableType: 'achievement' }),
+        can: { viewAchievementLogic: true },
+      },
+    });
+
+    // ASSERT
+    const viewLogicLink = screen.getByRole('link', { name: 'View logic' });
+    expect(viewLogicLink).toHaveAttribute('href', '/manage/achievements/88/logic');
+    expect(viewLogicLink).toHaveAttribute('target', '_blank');
+  });
+
+  it('given an old achievement ticket and a user without logic viewing permission, does not link to the logic', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        leaderboard: null,
+        ticket: createTicketListEntry({ ticketableId: 88, ticketableType: 'achievement' }),
+        can: {},
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'View logic' })).not.toBeInTheDocument();
+  });
+
+  it('given a recorded logic version and a user with logic viewing permission, does not add a separate View logic row', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        leaderboard: null,
+        ticket: createTicketListEntry({ ticketableId: 88, ticketableType: 'achievement' }),
+        can: { viewAchievementLogic: true },
+        reportedTriggerVersion: 5,
+        currentTriggerVersion: 6,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'View logic' })).not.toBeInTheDocument();
+  });
+
   it('given a leaderboard with a configured format, displays the format label', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: createLeaderboard({ format: 'SCORE' }),
         ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
       },
@@ -350,6 +415,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: createLeaderboard({ rankAsc: true }),
         ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
       },
@@ -364,6 +430,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: createLeaderboard({ rankAsc: false }),
         ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
       },
@@ -377,6 +444,7 @@ describe('Component: TicketPropertiesPanel', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
       },

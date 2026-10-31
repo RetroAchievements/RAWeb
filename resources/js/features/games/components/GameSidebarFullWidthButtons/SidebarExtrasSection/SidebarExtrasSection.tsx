@@ -36,6 +36,7 @@ export const SidebarExtrasSection: FC<SidebarExtrasSectionProps> = ({ game }) =>
           <PlayableSidebarButton
             href={route('game.tickets', { game: backingGame.id })}
             IconComponent={LuTickets}
+            isInertiaLink={true}
             count={numOpenTickets}
             showSubsetIndicator={showSubsetIndicator}
           >

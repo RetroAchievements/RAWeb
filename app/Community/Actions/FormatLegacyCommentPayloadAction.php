@@ -6,36 +6,7 @@ namespace App\Community\Actions;
 
 class FormatLegacyCommentPayloadAction
 {
-    // Only allow `href` and `title` attributes. Anything else is malicious.
-    private const LINK_PATTERN = '/<a\s+href=[\'"](?:https?:\/\/[^\/]+)?\/game\/[\w\-]+\/hashes[\'"](?:\s+title=[\'"][^"\']*[\'"])?\s*>[^<>]*<\/a>/i';
-
-    public function execute(string $payload, bool $isTicketComment): string
-    {
-        if (!$isTicketComment) {
-            return $this->formatText($payload);
-        }
-
-        // Store original link tags with angle brackets in markers.
-        $marker = '@@LINK_PLACEHOLDER_' . uniqid() . '_@@';
-        $links = [];
-
-        // Replace each link with a marker, storing the full HTML tag.
-        $text = preg_replace_callback(self::LINK_PATTERN, function ($match) use (&$links, $marker) {
-            $links[] = $match[0];
-
-            return $marker . (count($links) - 1) . $marker;
-        }, $payload);
-
-        // Process the text and restore links.
-        $text = $this->formatText($text);
-        foreach ($links as $i => $link) {
-            $text = str_replace($marker . $i . $marker, $link, $text);
-        }
-
-        return $text;
-    }
-
-    private function formatText(string $text): string
+    public function execute(string $text): string
     {
         // First, normalize all existing <br /> tags to \n for consistent processing.
         $text = preg_replace('/<br\s*\/?>\s*/', "\n", $text);

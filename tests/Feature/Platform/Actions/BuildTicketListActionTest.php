@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -17,6 +19,7 @@ use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 uses(LazilyRefreshDatabase::class);
@@ -231,7 +234,7 @@ describe('available filters', function () {
         $action = new BuildTicketListAction();
 
         // ACT
-        $filters = $action->getAvailableFilters($scope);
+        $filters = $action->getAvailableFilters($scope, viewer: null);
 
         // ASSERT
         expect(array_map(fn ($filter) => $filter->kind, $filters))->toEqual($expectedKinds);
@@ -262,7 +265,7 @@ describe('available filters', function () {
         System::factory()->create(['name' => 'Retired System', 'active' => false]);
 
         // ACT
-        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::All);
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::All, viewer: null);
 
         // ASSERT
         $systemFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::System);
@@ -284,7 +287,7 @@ describe('available filters', function () {
         $otherEmulator->systems()->attach($otherSystem->id);
 
         // ACT
-        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::Game, $system->id);
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::Game, viewer: null, systemId: $system->id);
 
         // ASSERT
         $emulatorFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::Emulator);
@@ -338,4 +341,57 @@ it('given a closed ticket with a resolution, includes the resolution value in pr
     // ASSERT
     expect(entryIds($result))->toEqual([$ticket->id]);
     expect($result['paginatedTickets']->items[0]->resolution)->toEqual(TicketResolution::UnableToReproduce);
+});
+
+it('given a viewer who can see signal verdicts, the signal filter is available and usable', function () {
+    // ARRANGE
+    $this->seed(RolesTableSeeder::class);
+    $viewer = User::factory()->create();
+    $viewer->assignRole(Role::DEVELOPER);
+    $fixture = createTicketListFixture(0);
+    $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
+        'signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+    ]);
+    Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
+    $action = new BuildTicketListAction();
+
+    // ACT
+    $result = $action->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['signal' => 'probably-not-defect']]),
+        viewer: $viewer,
+    );
+    $filters = $action->getAvailableFilters(TicketListScope::All, $viewer);
+
+    // ASSERT
+    expect(entryIds($result))->toEqual([$flaggedTicket->id]);
+    expect($result['facetCounts']['signal'])->toEqual(['all' => 2, 'probably-not-defect' => 1, 'none' => 1]);
+    expect(collect($filters)->pluck('kind'))->toContain(TicketListFilterKind::Signal);
+});
+
+it('given a viewer who cannot see signal verdicts, the signal filter is not available or usable', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    $fixture = createTicketListFixture(0);
+    $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
+        'signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+    ]);
+    $unflaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
+    $action = new BuildTicketListAction();
+
+    // ACT
+    $result = $action->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['signal' => 'probably-not-defect']]),
+        viewer: $viewer,
+    );
+    $filters = $action->getAvailableFilters(TicketListScope::All, $viewer);
+
+    // ASSERT
+    expect(entryIds($result))->toEqualCanonicalizing([$flaggedTicket->id, $unflaggedTicket->id]);
+    expect($result['stateCounts']->unresolved)->toEqual(2);
+    expect($result['facetCounts'])->not->toHaveKey('signal');
+    expect(collect($filters)->pluck('kind'))->not->toContain(TicketListFilterKind::Signal);
 });

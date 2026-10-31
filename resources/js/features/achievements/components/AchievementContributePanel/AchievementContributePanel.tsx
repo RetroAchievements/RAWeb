@@ -7,6 +7,7 @@ import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildAchievementLogicHref } from '@/common/utils/buildAchievementLogicHref';
 
 import { useAchievementQuickEditActions } from '../../hooks/useAchievementQuickEditActions';
 import { isEditModeAtom } from '../../state/achievements.atoms';
@@ -61,7 +62,7 @@ export const AchievementContributePanel: FC = () => {
 
               {can.viewAchievementLogic ? (
                 <PlayableSidebarButton
-                  href={`/manage/achievements/${achievement.id}/logic`}
+                  href={buildAchievementLogicHref(achievement.id)}
                   target="_blank"
                   IconComponent={LuCode}
                 >

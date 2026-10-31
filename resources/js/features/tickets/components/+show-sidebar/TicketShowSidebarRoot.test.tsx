@@ -8,6 +8,7 @@ describe('Component: TicketShowSidebarRoot', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowSidebarRoot />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [],
@@ -22,6 +23,7 @@ describe('Component: TicketShowSidebarRoot', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowSidebarRoot />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
@@ -39,6 +41,7 @@ describe('Component: TicketShowSidebarRoot', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowSidebarRoot />, {
       pageProps: {
+        can: {},
         leaderboard: null,
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [],

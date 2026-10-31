@@ -58,14 +58,6 @@ class TicketPolicy
         return true;
     }
 
-    // Gives additional roles ability to view achievement logic on tickets and management page
-    public function viewLogic(User $user): bool
-    {
-        return $user->hasAnyRole([
-            Role::MANUAL_UNLOCKER,
-        ]);
-    }
-
     /**
      * Everyone who can see the reporter's session history on a ticket.
      */

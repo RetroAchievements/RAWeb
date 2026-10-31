@@ -20,6 +20,7 @@ use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Platform\Data\StoreTicketData;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
 class CreateTicketAction
@@ -61,6 +62,8 @@ class CreateTicketAction
         $ticket->state = $this->resolveTicketState($data, $user, $achievement, $emulator);
 
         $ticket->save();
+
+        (new RefreshTicketSignalVerdictsAction())->execute(new Collection([$ticket]));
 
         if ($maintainer) {
             app(UserTicketCountService::class)->clearForUserId($maintainer->id);

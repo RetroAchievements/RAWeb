@@ -321,11 +321,6 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->title;
     }
 
-    public function getTicketableUrl(): string
-    {
-        return $this->getCanonicalUrlAttribute();
-    }
-
     public function getTicketableIconUrl(): string
     {
         return $this->getBadgeUrlAttribute();

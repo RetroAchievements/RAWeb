@@ -361,7 +361,7 @@ class BuildGameShowPagePropsAction
             numMasters: $numMasters,
             numOpenTickets: $this->gameOpenTicketCountService->count($backingGame, $isPromoted),
 
-            activeEventAchievements: $this->buildActiveEventAchievements($game, $user),
+            activeEventAchievements: $this->buildActiveEventAchievements($backingGame, $user),
 
             numScreenshots: $game->gameScreenshots()->approved()->count(),
             screenshots: Lazy::inertiaDeferred(fn () => $game->gameScreenshots()

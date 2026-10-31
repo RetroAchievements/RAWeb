@@ -14,6 +14,7 @@ import {
 } from '@/common/components/+vendor/BaseDropdownMenu';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildAchievementLogicHref } from '@/common/utils/buildAchievementLogicHref';
 
 import { useAchievementQuickEditActions } from '../../hooks/useAchievementQuickEditActions';
 import {
@@ -57,12 +58,12 @@ export const AchievementInlineActions: FC = () => {
             <>
               <span className="text-neutral-700 light:text-neutral-300">{'·'}</span>
 
-              <a href={route('achievement.tickets', { achievement: reportSubject.id })}>
+              <InertiaLink href={route('achievement.tickets', { achievement: reportSubject.id })}>
                 {t('openTicketCount', {
                   count: ticketCount,
                   val: ticketCount,
                 })}
-              </a>
+              </InertiaLink>
             </>
           ) : null}
         </div>
@@ -134,7 +135,7 @@ export const AchievementInlineActions: FC = () => {
                     {/* Logic button: visible if not an event game and can.viewAchievementLogic */}
                     {!isEventGame && can?.viewAchievementLogic ? (
                       <BaseDropdownMenuItem asChild className="cursor-pointer gap-2">
-                        <a href={`/manage/achievements/${achievement.id}/logic`} target="_blank">
+                        <a href={buildAchievementLogicHref(achievement.id)} target="_blank">
                           <LuCode className="size-3.5" />
                           {t('Logic')}
                         </a>

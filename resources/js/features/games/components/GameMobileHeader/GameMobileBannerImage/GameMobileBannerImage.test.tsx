@@ -44,6 +44,8 @@ describe('Component: GameMobileBannerImage', () => {
     });
     const game = createGame();
 
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(false);
+
     render(<GameMobileBannerImage />, {
       pageProps: { banner, game },
     });
@@ -150,6 +152,8 @@ describe('Component: GameMobileBannerImage', () => {
       imageIngameUrl: 'https://example.com/ingame.jpg',
     });
 
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(false);
+
     const { container } = render(<GameMobileBannerImage />, {
       pageProps: { banner, game },
     });
@@ -186,10 +190,7 @@ describe('Component: GameMobileBannerImage', () => {
     });
 
     // ... mock the image as already complete ...
-    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
-      configurable: true,
-      get: () => true, // !! image is already loaded
-    });
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
 
     const { container } = render(<GameMobileBannerImage />, {
       pageProps: { banner, game },
@@ -201,9 +202,6 @@ describe('Component: GameMobileBannerImage', () => {
 
     expect(placeholderImg).toHaveClass('opacity-0'); // immediately hidden
     expect(picture).toHaveClass('opacity-100'); // immediately visible
-
-    // ... don't cause a memory leak in vitest ...
-    delete (HTMLImageElement.prototype as any).complete;
   });
 
   it('given mobileSmAvif is null, renders the picture with only webp srcSet', () => {

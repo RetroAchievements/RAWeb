@@ -4,7 +4,6 @@ use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\PlayerGame;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 function getIsCommentDoublePost(int $userID, array|int $commentableId, string $body): bool
 {
@@ -91,66 +90,4 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
     }
 
     return count($dataOut);
-}
-
-function getArticleComments(
-    CommentableType $commentableType,
-    int $commentableId,
-    int $offset,
-    int $count,
-    array &$dataOut,
-    bool $recent = false,
-): int {
-    $dataOut = [];
-    $numArticleComments = 0;
-    $direction = $recent ? 'desc' : 'asc';
-
-    $submittedStatement = unixTimestampStatement('c.created_at', 'Submitted');
-
-    $query = DB::table('comments as c')
-        ->select([
-            'ua.username as User',
-            'ua.banned_at',
-            'c.id as ID',
-            'c.user_id',
-            'c.body as CommentPayload',
-            DB::raw($submittedStatement),
-            'c.updated_at as Edited',
-        ])
-        ->leftJoin('users as ua', 'ua.id', '=', 'c.user_id')
-        ->where('c.commentable_type', $commentableType->value)
-        ->where('c.commentable_id', $commentableId)
-        ->whereNull('c.deleted_at')
-        ->orderBy('c.created_at', $direction)
-        ->orderBy('c.id', $direction)
-        ->offset($offset)
-        ->limit($count);
-
-    foreach ($query->get() as $dbEntry) {
-        $dataOut[$numArticleComments] = (array) $dbEntry;
-        $numArticleComments++;
-    }
-
-    if ($offset != 0 || $numArticleComments >= $count) {
-        $numArticleComments = Comment::query()
-            ->where('commentable_type', $commentableType->value)
-            ->where('commentable_id', $commentableId)
-            ->count();
-    }
-
-    return (int) $numArticleComments;
-}
-
-function getRecentArticleComments(
-    CommentableType $commentableType,
-    int $commentableId,
-    array &$dataOut,
-    int $count = 20,
-): int {
-    $numArticleComments = getArticleComments($commentableType, $commentableId, 0, $count, $dataOut, true);
-
-    // Fetch the last elements by submitted, but return them here in top-down order.
-    $dataOut = array_reverse($dataOut);
-
-    return $numArticleComments;
 }

@@ -7,6 +7,7 @@ namespace App\Platform\Data;
 use App\Community\Data\CommentData;
 use App\Community\Enums\TicketAction;
 use App\Data\UserPermissionsData;
+use Carbon\Carbon;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -27,6 +28,7 @@ class TicketShowPagePropsData extends Data
         public array $relatedTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
+        public ?Carbon $logicChangedAfterReportAt,
         public ?int $reportedTriggerVersion,
         public ?int $currentTriggerVersion,
         public ?LeaderboardEntryData $reporterLeaderboardEntry,

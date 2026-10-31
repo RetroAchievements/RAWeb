@@ -5,6 +5,7 @@ import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketListFilterProperty } from '../../models';
 import { openPropertySubmenu } from '../../test/openPropertySubmenu';
+import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketListFilterControl } from './TicketListFilterControl';
 
 const statusProperty: TicketListFilterProperty = {
@@ -12,9 +13,9 @@ const statusProperty: TicketListFilterProperty = {
   label: 'Status',
   noFilterValue: 'all',
   options: [
-    { value: 'unresolved', label: 'Open', count: 487, glyphState: 'open' },
-    { value: 'resolved', label: 'Resolved', count: 0, glyphState: 'resolved' },
-    { value: 'closed', label: 'Closed', count: 12, glyphState: 'closed' },
+    { value: 'unresolved', label: 'Open', count: 487, glyph: TICKET_STATE_GLYPHS.open },
+    { value: 'resolved', label: 'Resolved', count: 0, glyph: TICKET_STATE_GLYPHS.resolved },
+    { value: 'closed', label: 'Closed', count: 12, glyph: TICKET_STATE_GLYPHS.closed },
     { value: 'all', label: 'All', count: 607 },
   ],
 };
@@ -205,7 +206,7 @@ describe('Component: TicketListFilterControl', () => {
     ]);
   });
 
-  it('given a status option, shows the same glyph the ticket rows use', async () => {
+  it('given some options have glyphs, displays the glyphs', async () => {
     // ARRANGE
     render(
       <TicketListFilterControl

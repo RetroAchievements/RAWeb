@@ -42,6 +42,11 @@ class BuildTicketListAction
         $filterOptions = $service->getFilterOptions($request, $scope->defaultStatusFilter());
         $comparisonUser = $scope->comparisonUser($target);
 
+        $visibleFilterKinds = $this->getVisibleFilterKinds($scope, $viewer);
+        if (!in_array(TicketListFilterKind::Signal, $visibleFilterKinds, true)) {
+            $filterOptions[TicketListFilterKind::Signal->value] = TicketListFilterKind::Signal->noFilterValue();
+        }
+
         $scopedTickets = $scope->baseQuery($target);
         $renderableTickets = (clone $scopedTickets)->withLiveTicketable();
 
@@ -52,7 +57,7 @@ class BuildTicketListAction
         $facetCounts = $service->getFacetCounts(
             $filterOptions,
             clone $scopedTickets,
-            $scope->filterKinds(),
+            $visibleFilterKinds,
             $comparisonUser,
             $total,
         );
@@ -104,12 +109,27 @@ class BuildTicketListAction
     /**
      * @return TicketListFilterData[]
      */
-    public function getAvailableFilters(TicketListScope $scope, ?int $systemId = null): array
+    public function getAvailableFilters(TicketListScope $scope, ?User $viewer, ?int $systemId = null): array
     {
         return array_map(
             fn (TicketListFilterKind $kind): TicketListFilterData => $this->buildFilterData($kind, $systemId),
-            $scope->filterKinds(),
+            $this->getVisibleFilterKinds($scope, $viewer),
         );
+    }
+
+    /**
+     * @return TicketListFilterKind[]
+     */
+    private function getVisibleFilterKinds(TicketListScope $scope, ?User $viewer): array
+    {
+        if ($viewer?->can('viewTriageSignals', Ticket::class)) {
+            return $scope->filterKinds();
+        }
+
+        return array_values(array_filter(
+            $scope->filterKinds(),
+            fn (TicketListFilterKind $filterKind): bool => $filterKind !== TicketListFilterKind::Signal,
+        ));
     }
 
     private function buildFilterData(TicketListFilterKind $kind, ?int $systemId): TicketListFilterData
