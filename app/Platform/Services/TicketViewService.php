@@ -8,11 +8,15 @@ use App\Models\Achievement;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
+use App\Models\Trigger;
 use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\TriggerableType;
+use Carbon\Carbon;
 
 class TicketViewService
 {
     public int $unlocksSinceReported = 0;
+    public ?Carbon $logicChangedAfterReportAt = null;
     /** @var Ticket[] */
     public array $relatedTickets = [];
     public ?PlayerAchievement $existingUnlock = null;
@@ -47,12 +51,27 @@ class TicketViewService
             ->all();
 
         $this->unlocksSinceReported = 0;
+        $this->logicChangedAfterReportAt = null;
         if ($isAchievement && $ticket->state->isOpen()) {
+            $logicChangedAt = Trigger::ofType(TriggerableType::Achievement)
+                ->where('triggerable_id', $ticketable->id)
+                ->whereNotNull('parent_id')
+                ->where('created_at', '>=', Trigger::VERSIONING_CUTOFF)
+                ->where('created_at', '>', $ticket->created_at)
+                ->min('created_at');
+            $this->logicChangedAfterReportAt = $logicChangedAt ? Carbon::parse($logicChangedAt) : null;
+
+            // Manual unlocks and unlocks after a logic change don't tell us much about the reported logic.
             $this->unlocksSinceReported = PlayerAchievement::where('achievement_id', $ticketable->id)
-                ->where(function ($query) use ($ticket) {
-                    $query->where('unlocked_at', '>', $ticket->created_at)
-                        ->orWhere('unlocked_hardcore_at', '>', $ticket->created_at);
-                })->count();
+                ->whereNull('unlocker_id')
+                ->where('unlocked_effective_at', '>', $ticket->created_at)
+                ->when($this->logicChangedAfterReportAt, fn ($query, Carbon $changedAt) => $query->where(
+                    // A casual unlock inside the window still counts even if a hardcore unlock came later.
+                    fn ($window) => $window
+                        ->where(fn ($casual) => $casual->where('unlocked_at', '>', $ticket->created_at)->where('unlocked_at', '<', $changedAt))
+                        ->orWhere(fn ($hardcore) => $hardcore->where('unlocked_hardcore_at', '>', $ticket->created_at)->where('unlocked_hardcore_at', '<', $changedAt))
+                ))
+                ->count();
         }
 
         $this->loadReportedTrigger($ticket, $isAchievement ? $ticketable : null);
