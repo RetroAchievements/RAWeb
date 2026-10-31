@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
@@ -1180,8 +1181,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     // ARRANGE
     const mockTicketId = 456;
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: mockTicketId } });
-    const locationHrefSpy = vi.spyOn(window.location, 'href', 'set').mockImplementation(() => {});
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementation(vi.fn());
 
     const targetAchievement = createAchievement({
       id: 25,
@@ -1227,18 +1227,14 @@ Ticket: [ticket=456]`,
 
     expect(screen.getByRole('link', { name: /view your ticket/i })).toBeVisible();
     expect(route).toHaveBeenCalledWith('ticket.show', { ticket: mockTicketId });
-
-    await vi.advanceTimersByTimeAsync(2000);
-
-    expect(locationHrefSpy).not.toHaveBeenCalled();
+    expect(visitSpy).not.toHaveBeenCalled();
   });
 
-  it('given the user is submitting a "triggered at the wrong time" ticket, maintains the form and redirects to the ticket view on submit', async () => {
+  it('given the user is submitting a "triggered at the wrong time" ticket, maintains the form and visits the ticket page on submit', async () => {
     // ARRANGE
     const mockTicketId = 789;
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: mockTicketId } });
-    const locationHrefSpy = vi.spyOn(window.location, 'href', 'set').mockImplementation(() => {});
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementation(vi.fn());
 
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -1257,8 +1253,9 @@ Ticket: [ticket=456]`,
     await fillOutAndSubmitTicketForm(/triggered at the wrong time/i);
 
     // ASSERT
-    await vi.advanceTimersByTimeAsync(2000);
-    expect(locationHrefSpy).toHaveBeenCalledWith(['ticket.show', { ticket: mockTicketId }]);
+    await waitFor(() => {
+      expect(visitSpy).toHaveBeenCalledWith(['ticket.show', { ticket: mockTicketId }]);
+    });
 
     expect(screen.queryByRole('heading', { name: /ticket submitted/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit/i })).toBeVisible();

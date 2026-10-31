@@ -16,7 +16,6 @@ import { useHoverIntent } from '@/common/hooks/useHoverIntent';
 import { cn } from '@/common/utils/cn';
 
 import type { TicketListFilterProperty, TicketListFilterPropertyOption } from '../../models';
-import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketListFilterTextInput } from './TicketListFilterTextInput';
 
 interface TicketListFilterValueListProps {
@@ -39,7 +38,7 @@ export const TicketListFilterValueList: FC<TicketListFilterValueListProps> = ({
 
   const hoverIntent = useHoverIntent();
 
-  const hasGlyphSlot = property.options.some((option) => option.glyphState);
+  const hasGlyphSlot = property.options.some((option) => option.glyph);
 
   if (property.isFreeText) {
     return (
@@ -119,8 +118,6 @@ const TicketListFilterValueRow: FC<TicketListFilterValueRowProps> = ({
 }) => {
   const { formatNumber } = useFormatNumber();
 
-  const glyph = option.glyphState ? TICKET_STATE_GLYPHS[option.glyphState] : null;
-
   return (
     <span className={cn('flex w-full items-center', option.count === 0 ? 'opacity-50' : null)}>
       <span
@@ -143,11 +140,11 @@ const TicketListFilterValueRow: FC<TicketListFilterValueRowProps> = ({
 
       {hasGlyphSlot ? (
         <span className="mr-2 flex size-4 min-w-4 items-center justify-center">
-          {glyph ? (
-            <glyph.Icon
+          {option.glyph ? (
+            <option.glyph.Icon
               aria-hidden={true}
               data-testid={`glyph-${option.value}`}
-              className={cn('size-4', glyph.className)}
+              className={cn('size-4', option.glyph.className)}
             />
           ) : null}
         </span>

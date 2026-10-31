@@ -118,8 +118,7 @@ class TicketController extends Controller
             ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
-            // TODO stop using Inertia::location() after ticket.show is migrated to React
-            return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
+            return redirect()->route('ticket.show', ['ticket' => $existingTicket->id]);
         }
 
         $props = $buildTicketCreationData->execute($achievement, $request->user());
@@ -182,7 +181,7 @@ class TicketController extends Controller
             scope: $scope,
             paginatedTickets: $result['paginatedTickets'],
             stateCounts: $result['stateCounts'],
-            availableFilters: $action->getAvailableFilters($scope, $scope->systemId($target)),
+            availableFilters: $action->getAvailableFilters($scope, $request->user(), $scope->systemId($target)),
             facetCounts: $result['facetCounts'],
             defaultStatusFilter: $scope->defaultStatusFilter(),
             defaultSortParam: $scope->defaultSortParam(),

@@ -15,19 +15,14 @@ use App\Community\Enums\CommentableType;
 use Illuminate\Support\Facades\Auth;
 
 $commentTypeLabel = match ($commentableType) {
-    CommentableType::Game => 'Game Wall Comment',
-    CommentableType::Achievement => 'Achievement Wall Comment',
     CommentableType::User => 'User Wall Comment',
     CommentableType::Leaderboard => 'Leaderboard Comment',
-    CommentableType::Ticket => 'Ticket Comment',
     default => 'Wall Comment',
 };
 
 $nonReportableCommentableTypes = [
     CommentableType::UserModeration,
-    CommentableType::GameHash,
     CommentableType::SetClaim,
-    CommentableType::GameModification,
 ];
 
 $userModel = Auth::user();
@@ -36,7 +31,6 @@ $canCreateModerationReports = (
     && $userModel->can('createModerationReports', $userModel)
     && $author
     && $author->id !== auth()->user()->id
-    && $author->username !== 'Server'
     && !in_array($commentableType, $nonReportableCommentableTypes, true)
 );
 
@@ -45,11 +39,9 @@ $canCreateModerationReports = (
 @if ($author && $author->username === 'Server')
     <tr class="comment system">
         <td class="align-top py-2">
-            @if ($commentId > 0)
-                <div class="relative">
-                    <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
-                </div>
-            @endif
+            <div class="relative">
+                <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
+            </div>
         </td>
         <td class="w-full py-2" colspan="3">
             <div>
@@ -61,17 +53,14 @@ $canCreateModerationReports = (
             </div>
         </td>
     </tr>
-@elseif ($commentableType !== CommentableType::Ticket &&
-         $author && $author->banned_at && !request()->user()?->can('manage', $author))
+@elseif ($author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
-    <tr class="comment group" @if ($commentId > 0) id="comment_{{ $commentId }}_highlight" @endif>
+    <tr class="comment group" id="comment_{{ $commentId }}_highlight">
         <td class="align-top py-2">
-            @if ($commentId > 0)
-                <div class="relative">
-                    <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
-                </div>
-            @endif
+            <div class="relative">
+                <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
+            </div>
             
             {!! userAvatar($author ?? 'Deleted User', label: false) !!}
         </td>
@@ -125,10 +114,7 @@ $canCreateModerationReports = (
 
             {{-- Specially handle newlines in comments, render everything else as plain text. --}}
             @php
-                $formattedPayload = (new FormatLegacyCommentPayloadAction())->execute(
-                    $payload,
-                    isTicketComment: $commentableType === CommentableType::Ticket,
-                );
+                $formattedPayload = (new FormatLegacyCommentPayloadAction())->execute($payload);
             @endphp
             <div style="word-break: break-word;">
                 {!! $formattedPayload !!}

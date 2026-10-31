@@ -55,6 +55,6 @@ jobs:
             This PR was automatically created by _crowdin-download.yml_.
             
             It synchronizes our translations with the latest versions from Crowdin.
-          branch: chore/sync-translations
+          branch: chore/sync-translations # read by crowdin-upload-fixes.yml
           base: master
           delete-branch: true

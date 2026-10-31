@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  upload-translations:
+  upload-source:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Upload source translations
-        run: pnpm crowdin:upload
+        run: pnpm crowdin:upload-source
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
