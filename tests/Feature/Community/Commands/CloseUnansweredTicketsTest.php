@@ -74,6 +74,30 @@ it('given a week or more of silence from the reporter, nudges them', function (i
     'long past the threshold on the first ever run' => [240],
 ]);
 
+it('given a third-party left a comment after the ticket status was changed to Request, quotes the comment that came before the state change', function () {
+    // Arrange
+    $ticketGame = Game::factory()->create(['system_id' => System::factory()]);
+    $ticketAchievement = Achievement::factory()->promoted()->create(['game_id' => $ticketGame->id]);
+    $reporterUser = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+    $developerUser = User::factory()->create();
+    $bystanderUser = User::factory()->create();
+    $ticket = Ticket::factory()->forAchievement($ticketAchievement)->request()->create(['reporter_id' => $reporterUser->id]);
+
+    addTicketComment($ticket, $developerUser->id, 'Did you do anything different on your successful attempt?', 9);
+    addTicketComment($ticket, Comment::SYSTEM_USER_ID, 'Ticket reassigned to reporter by Scott.', 9);
+    addTicketComment($ticket, $bystanderUser->id, 'Any advice on this? I have the same problem.', 8);
+
+    // Act
+    $this->artisan(CloseUnansweredTickets::class)->assertExitCode(0);
+
+    // Assert
+    Notification::assertSentTo(
+        $reporterUser,
+        TicketReplyReminderNotification::class,
+        fn (TicketReplyReminderNotification $notification) => $notification->toMail($reporterUser)->viewData['question']->user_id === $developerUser->id,
+    );
+});
+
 it('given the nudge went out 7 days ago and there is no reply, closes the ticket', function () {
     // Arrange
     $ticketGame = Game::factory()->create(['system_id' => System::factory()]);

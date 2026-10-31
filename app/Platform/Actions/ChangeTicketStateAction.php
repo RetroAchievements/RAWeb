@@ -76,7 +76,11 @@ class ChangeTicketStateAction
             $this->userTicketCountService->clearForUserId($ticket->reporter->id);
 
             // Only send email if the reporter has email notifications enabled for ticket activity.
-            if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
+            // Also: don't tell reporters about any change they made themselves.
+            if (
+                $actor->id !== $ticket->reporter_id
+                && BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
+            ) {
                 $ticket->reporter->notify(
                     new TicketStatusUpdatedNotification($ticket, $actor, $newState->label(), $comment)
                 );

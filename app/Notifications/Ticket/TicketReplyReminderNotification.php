@@ -46,10 +46,16 @@ class TicketReplyReminderNotification extends Notification implements ShouldQueu
 
         $ticketableModel = $this->ticket->getTicketableModel();
 
-        // We'll directly quote the person who last asked the reporter something.
+        // We'll directly quote the person who last asked the reporter something before the ticket moved to Request.
+        $requestedCommentId = $this->ticket->comments()
+            ->automated()
+            ->where('body', 'like', 'Ticket reassigned to reporter by %')
+            ->max('id');
+
         $latestQuestion = $this->ticket->comments()
             ->notAutomated()
             ->where('user_id', '!=', $this->ticket->reporter_id)
+            ->when($requestedCommentId, fn ($query, $commentId) => $query->where('id', '<', $commentId))
             ->with('user')
             ->latest()
             ->latest('id')
