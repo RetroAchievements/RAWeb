@@ -116,6 +116,60 @@ describe('Authorization', function () {
         'promoted achievement' => [true],
         'unpromoted achievement' => [false],
     ]);
+
+    it('given the achievement belongs to an event, returns a 403 for regular achievement editors', function (string $role) {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create(['system_id' => System::Events]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => User::factory()->create()->id,
+            'title' => 'Old Title',
+        ]);
+
+        $user = User::factory()->create();
+        $user->assignRole($role);
+
+        // ACT
+        $response = actingAs($user)->patchJson(route('api.achievement.update', ['achievement' => $achievement]), [
+            'title' => 'New Title',
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+        expect($achievement->refresh()->title)->toEqual('Old Title');
+    })->with([
+        'developer' => [Role::DEVELOPER],
+        'writer' => [Role::WRITER],
+        'artist' => [Role::ARTIST],
+    ]);
+
+    it('given the user is an event manager, they can update an event achievement', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create(['system_id' => System::Events]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => User::factory()->create()->id,
+            'title' => 'Old Title',
+        ]);
+
+        $eventManager = User::factory()->create();
+        $eventManager->assignRole(Role::EVENT_MANAGER);
+
+        // ACT
+        $response = actingAs($eventManager)->patchJson(route('api.achievement.update', ['achievement' => $achievement]), [
+            'title' => 'New Title',
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        expect($achievement->refresh()->title)->toEqual('New Title');
+    });
 });
 
 describe('Validation', function () {
