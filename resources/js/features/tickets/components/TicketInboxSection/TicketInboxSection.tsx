@@ -2,6 +2,7 @@ import type { VisibilityState } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { TranslatedString } from '@/types/i18next';
@@ -56,9 +57,9 @@ export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
         </h2>
 
         {viewAllHref && section.count > sectionLimit ? (
-          <a href={viewAllHref} className="text-link">
+          <InertiaLink href={viewAllHref} className="text-link">
             {t('View all')}
-          </a>
+          </InertiaLink>
         ) : null}
       </div>
 

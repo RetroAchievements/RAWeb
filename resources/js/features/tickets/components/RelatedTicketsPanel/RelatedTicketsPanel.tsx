@@ -62,7 +62,7 @@ export const RelatedTicketsPanel: FC = () => {
                       <TicketStateGlyph state={listedTicket.state} />
 
                       <InertiaLink
-                        href={route('ticket2.show', { ticket: listedTicket.id })}
+                        href={route('ticket.show', { ticket: listedTicket.id })}
                         prefetch="desktop-hover-only"
                       >
                         {`#${listedTicket.id}`}

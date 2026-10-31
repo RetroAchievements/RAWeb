@@ -54,9 +54,9 @@ describe('Component: RelatedTicketsPanel', () => {
     expect(orderedLinkTexts).toEqual(['#3', '#1', '#4']);
     expect(screen.getByRole('link', { name: '#3' })).toHaveAttribute(
       'href',
-      expect.stringContaining('ticket2.show'),
+      expect.stringContaining('ticket.show'),
     );
-    expect(route).toHaveBeenCalledWith('ticket2.show', { ticket: 3 });
+    expect(route).toHaveBeenCalledWith('ticket.show', { ticket: 3 });
   });
 
   it('given a resolved ticket and an open ticket, shows the resolution/state with a relative filing date', () => {

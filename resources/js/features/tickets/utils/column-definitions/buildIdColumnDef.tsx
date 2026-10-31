@@ -1,5 +1,6 @@
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketListColumnDefinition } from '../../models';
@@ -19,9 +20,12 @@ export function buildIdColumnDef({ t_label }: BuildIdColumnDefProps): TicketList
     },
 
     cell: ({ row }) => (
-      <a href={route('ticket.show', { ticket: row.original.id })} className="relative z-10">
+      <InertiaLink
+        href={route('ticket.show', { ticket: row.original.id })}
+        className="relative z-10"
+      >
         {row.original.id}
-      </a>
+      </InertiaLink>
     ),
   };
 }

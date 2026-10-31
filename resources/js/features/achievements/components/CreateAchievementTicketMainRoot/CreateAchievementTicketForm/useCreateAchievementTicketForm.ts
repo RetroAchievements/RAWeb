@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -60,13 +61,7 @@ export function useCreateAchievementTicketForm(
         loading: t('Submitting...'),
         success: (submitResponse) => {
           if (!shouldTicketTypeOfferManualUnlock(ticketType)) {
-            setTimeout(() => {
-              const { ticketId } = submitResponse.data;
-
-              // TODO use router.visit after migrating this page to React
-              // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional. Eventually when ticket.show is powered by Inertia, this can be changed.
-              window.location.href = route('ticket.show', { ticket: ticketId });
-            }, 1000);
+            router.visit(route('ticket.show', { ticket: submitResponse.data.ticketId }));
           }
 
           return t('Submitted!');
