@@ -1,0 +1,45 @@
+name: Upload Translation Fixes to Crowdin
+
+on:
+  push:
+    branches:
+      - chore/sync-translations # pushed by crowdin-download.yml
+    paths:
+      - 'lang/*.json'
+      - '!lang/en_US.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.deleted }}
+  cancel-in-progress: true
+
+jobs:
+  upload-fixes:
+    if: ${{ !github.event.deleted }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Node.js Setup
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.17
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Upload translation fixes
+        run: pnpm crowdin:upload-fixes
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
