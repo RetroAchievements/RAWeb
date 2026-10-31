@@ -11,6 +11,7 @@ import ReactDOMServer from 'react-dom/server';
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { configureZod } from './common/utils/configureZod';
 import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import { createServerI18nInstance } from './i18n-server';
 // @ts-expect-error -- this isn't a real ts module
@@ -18,6 +19,8 @@ import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
 globalThis.Ziggy = Ziggy;
+
+configureZod();
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;

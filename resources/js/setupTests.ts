@@ -10,6 +10,7 @@ import {
   setupIntersectionMocking,
 } from 'react-intersection-observer/test-utils';
 
+import { configureZod } from './common/utils/configureZod';
 import i18n from './i18n-client';
 import { loadFaker } from './test/createFactory';
 // @ts-expect-error -- this isn't a real ts module
@@ -18,6 +19,14 @@ import { Ziggy } from './ziggy';
 // @ts-expect-error -- we're injecting this on purpose
 globalThis.Ziggy = Ziggy;
 process.env.TZ = 'UTC';
+
+configureZod();
+
+/**
+ * happy-dom 20.9+ implements Element.prototype.animate(), and its implementation is not
+ * great. We delete it to keep using our own stuff.
+ */
+Reflect.deleteProperty(Element.prototype, 'animate');
 
 /**
  * Suppress ECONNREFUSED errors from happy-dom's fetch/iframe teardown.
