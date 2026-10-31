@@ -1568,7 +1568,7 @@
     "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because they could not debug the problem.": "<1>{{user}}</1> a fermé ce ticket <2>{{duration}}</2> après le rapport car il n'a pas pu déboguer le problème.",
     "<1>{{user}}</1> closed this ticket and demoted the achievement <2>{{duration}}</2> after the report.": "<1>{{user}}</1> a fermé ce ticket et rétrogradé le succès <2>{{duration}}</2> après le rapport.",
     "<1>{{user}}</1> closed this ticket and demoted the leaderboard <2>{{duration}}</2> after the report.": "<1>{{user}}</1> a fermé ce ticket et rétrogradé le classement <2>{{duration}}</2> après le rapport.",
-    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report.": "<1>{{user}}</1> a résolu ce ticket comme fixé à <2>{{duration}}</2> après le rapport.",
+    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report.": "<1>{{user}}</1> a fermé ce ticket <2>{{duration}}</2> après le rapport.",
     "<1>{{user}}</1> resolved this ticket as fixed.": "<1>{{user}}</1> a résolu ce ticket comme réglé.",
     "<1>{{user}}</1> closed this ticket.": "<1>{{user}}</1> a fermé ce ticket.",
     "<1>{{user}}</1> closed this ticket. See the comments for a reason.": "<1>{{user}}</1> a fermé ce ticket. Voir les commentaires pour une raison.",
