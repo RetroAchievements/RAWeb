@@ -760,6 +760,57 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     });
   });
 
+  it('given there are no emulators or hashes to pick from, hides those fields and still allows the user to submit the form', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+
+    const achievement = createAchievement();
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators: [],
+          gameHashes: [],
+          auth: { user: createAuthenticatedUser({ points: 500, pointsSoftcore: 0 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    expect(screen.queryByRole('combobox', { name: /emulator/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /emulator version/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: /supported game hash/i }),
+    ).not.toBeInTheDocument();
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /triggered at the wrong time/i }));
+    await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
+    await userEvent.paste('The achievement unlocked before I finished the first journey.');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
+      core: '',
+      description: 'The achievement unlocked before I finished the first journey.',
+      emulator: null,
+      emulatorVersion: null,
+      extra: null,
+      gameHashId: null,
+      issue: 'triggered_at_wrong_time',
+      mode: 'hardcore',
+      ticketableId: achievement.id,
+      ticketableModel: 'achievement',
+    });
+  });
+
   it('sends along data from the ?extra query param if that data is provided', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });

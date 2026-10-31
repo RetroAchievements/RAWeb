@@ -144,6 +144,11 @@ class GameResource extends Resource
 
                                 return [];
                             }),
+
+                        Infolists\Components\IconEntry::make('is_ticket_quarantine_enabled')
+                            ->label('Quarantine All New Tickets')
+                            ->boolean()
+                            ->visible(fn (Game $record): bool => $user->can('updateField', [$record, 'is_ticket_quarantine_enabled'])),
                     ]),
 
                 Schemas\Components\Section::make('Metadata')
@@ -307,6 +312,11 @@ class GameResource extends Resource
                             ->rules([new ExistsInForumTopics()])
                             ->visible(fn ($operation): bool => $operation !== 'create')
                             ->disabled(fn ($operation): bool => $operation !== 'create' && !$user->can('updateField', [$schema->model, 'forum_topic_id'])),
+
+                        Forms\Components\Toggle::make('is_ticket_quarantine_enabled')
+                            ->label('Quarantine All New Tickets')
+                            ->helperText('New tickets for this game and its subsets are automatically quarantined. Existing tickets are not changed.')
+                            ->visible(fn ($operation): bool => $operation !== 'create' && $user->can('updateField', [$schema->model, 'is_ticket_quarantine_enabled'])),
                     ]),
 
                 Schemas\Components\Section::make('Metadata')

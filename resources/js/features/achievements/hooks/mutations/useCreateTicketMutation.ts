@@ -9,9 +9,9 @@ interface Variables {
     mode: 'hardcore' | 'casual';
     issue: App.Community.Enums.TicketType;
     description: string;
-    emulator: string;
+    emulator: string | null;
     emulatorVersion: string | null;
-    gameHashId: number;
+    gameHashId: number | null;
 
     core?: string;
     extra?: string | Record<string, string>;

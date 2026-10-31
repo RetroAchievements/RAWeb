@@ -33,7 +33,7 @@ class CreateTicketAction
             throw new InvalidArgumentException('Ticket creation supports achievements only.');
         }
 
-        $emulator = Emulator::where('name', $data->emulator)->first();
+        $emulator = $data->emulator ? Emulator::where('name', $data->emulator)->first() : null;
 
         $achievement = $data->ticketable;
         $maintainer = $achievement->getMaintainerAt(now());
@@ -47,10 +47,10 @@ class CreateTicketAction
             'ticketable_author_id' => $maintainer?->id,
             'type' => $data->issue,
             'hardcore' => $data->mode === 'hardcore',
-            'body' => $this->formatTicketNote($data, !$emulator),
+            'body' => $this->formatTicketNote($data, $data->emulator && !$emulator),
         ]);
 
-        $ticket->game_hash_id = $data->gameHash->id;
+        $ticket->game_hash_id = $data->gameHash?->id;
         $ticket->emulator_core = $data->core ?: null;
         $ticket->trigger_id = $achievement->trigger_id;
 
@@ -84,6 +84,17 @@ class CreateTicketAction
         Achievement $achievement,
         ?Emulator $emulator,
     ): TicketState {
+        $game = $achievement->game;
+        if ($game->is_ticket_quarantine_enabled || $game->parentGame?->is_ticket_quarantine_enabled) {
+            return TicketState::Quarantined;
+        }
+
+        // Standalone games ship their own clients, which can't necessarily debug triggers.
+        // For standalones, we intentionally bypass all the checks below.
+        if ($game->getIsStandalone()) {
+            return TicketState::Open;
+        }
+
         // The form's emulator list is the emulators table plus a synthetic "Other" entry, so a
         // name that resolves to nothing means the reporter is on a client we can't reason about.
         // Hold the ticket rather than failing open on a missing primary signal.
