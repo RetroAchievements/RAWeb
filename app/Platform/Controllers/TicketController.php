@@ -118,8 +118,7 @@ class TicketController extends Controller
             ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
-            // TODO stop using Inertia::location() after ticket.show is migrated to React
-            return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
+            return redirect()->route('ticket.show', ['ticket' => $existingTicket->id]);
         }
 
         $props = $buildTicketCreationData->execute($achievement, $request->user());

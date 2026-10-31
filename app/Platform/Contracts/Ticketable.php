@@ -25,8 +25,6 @@ interface Ticketable
 
     public function getTicketableTitle(): string;
 
-    public function getTicketableUrl(): string;
-
     public function getTicketableIconUrl(): string;
 
     public function getTicketableBadgeUrl(): ?string;

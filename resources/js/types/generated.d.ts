@@ -1290,6 +1290,7 @@ can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
+logicChangedAfterReportAt: string | null;
 reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;
 reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
