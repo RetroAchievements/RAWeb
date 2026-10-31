@@ -20,7 +20,8 @@
         "test:watch": "TZ=UTC LC_ALL=en_US.UTF-8 vitest",
         "verify": "pnpm fix && pnpm tsc && pnpm test",
         "crowdin:download": "tsx resources/js/tools/crowdin-download.ts",
-        "crowdin:upload": "tsx resources/js/tools/crowdin-upload.ts",
+        "crowdin:upload-fixes": "tsx resources/js/tools/crowdin-upload-fixes.ts",
+        "crowdin:upload-source": "tsx resources/js/tools/crowdin-upload-source.ts",
         "ziggy:generate": "php artisan ziggy:generate --types"
     },
     "dependencies": {
