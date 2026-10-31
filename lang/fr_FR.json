@@ -1555,7 +1555,7 @@
     "Related Tickets": "Tickets liés",
     "View all {{val, number}} tickets": "Voir tous les tickets {{val, number}}",
     "Something else is wrong with the achievement": "Il y a autre chose qui ne va pas avec le succès",
-    "Waiting for <1>{{user}}</1> to reply.": "En attente de réponse à <1>{{user}}</1>.",
+    "Waiting for <1>{{user}}</1> to reply.": "En attente d’une réponse de <1>{{user}}</1>.",
     "We need more information from you. Reply in the comments below.": "Nous avons besoin de plus d'informations de votre part. Répondez dans les commentaires ci-dessous.",
     "We did not send this quarantined ticket to the author because we do not fully support this emulator or core.": "Nous n'avons pas envoyé ce ticket mis en quarantaine à l'auteur parce que nous ne supportons pas totalement cet émulateur ou ce noyau.",
     "<1>{{user}}</1> resolved this ticket as fixed <2>{{duration}}</2> after the report.": "<1>{{user}}</1> a résolu ce ticket comme fixé à <2>{{duration}}</2> après le rapport.",
