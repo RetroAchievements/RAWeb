@@ -3622,6 +3622,33 @@ describe('Active Event Achievements', function () {
         );
     });
 
+    it('given a subset achievement is in an active time-limited event, exposes the event to everyone', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetGame' => $subsetGame] = createGameWithSubset(
+            $system,
+            'Dragon Quest III',
+            'Dragon Quest III [Subset - Bonus]'
+        );
+
+        $subsetCoreSet = GameAchievementSet::where('game_id', $subsetGame->id)
+            ->where('type', AchievementSetType::Core)
+            ->first();
+
+        $sourceAchievement = $subsetGame->achievements->first();
+        createActiveEventForSourceAchievement($sourceAchievement, now()->addWeek());
+
+        // ACT
+        $response = get(route('game.show', ['game' => $baseGame, 'set' => $subsetCoreSet->achievement_set_id]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('activeEventAchievements', 1)
+            ->where('activeEventAchievements.0.achievementId', $sourceAchievement->id)
+            ->where('activeEventAchievements.0.userUnlocked', false)
+        );
+    });
+
     it('given an achievement is in an event that has not started yet, does not show the event to guests and most authenticated users', function () {
         // ARRANGE
         $system = System::factory()->create();
