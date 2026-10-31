@@ -1730,7 +1730,7 @@
     "{{visible, number}} of {{total, number}} tickets_other": "{{visible, number}} trên {{total, number}} phiếu",
     "{{val, number}} tickets need your attention._other": "{{val, number}} phiếu cần bạn xem xét.",
     "playersUnlockedSinceReport_other": "{{count, number}} người chơi đã mở khoá thành tựu này trong <1>{{duration}}</1> kể từ khi nhận được báo cáo.",
-    "playersUnlockedBeforeLogicChange_other": "{{count, number}} người chơi đã mở khoá thành tựu này trong <1>{{duration}}</1> kể từ khi logic được cập nhật.",
+    "playersUnlockedBeforeLogicChange_other": "{{count, number}} người chơi đã mở khoá thành tựu này trong <1>{{duration}}</1> trước khi logic được cập nhật.",
     "playersUnlockedSinceReportFollowUp_other": "{{count, number}} người chơi đã mở khoá nó trong khoảng thời gian <1>{{duration}}</1> qua.",
     "playersUnlockedBeforeLogicChangeFollowUp_other": "{{count, number}} người chơi đã mở khoá nó trong khoảng thời gian <1>{{duration}}</1> sau khi nhận được báo cáo, trước khi logic được cập nhật.",
     "achievementOtherOpenTickets_other": "Thành tựu này đang có <1>{{count, number}} phiếu khác đang được mở</1>.",

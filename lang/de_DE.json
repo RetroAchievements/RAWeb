@@ -1803,8 +1803,8 @@
     "{{val, number}} earlier sessions_other": "{{val, number}} frühere Sitzungen",
     "{{val, number}} later sessions_one": "{{val, number}} spätere Sitzung",
     "{{val, number}} later sessions_other": "{{val, number}} spätere Sitzungen",
-    "playersUnlockedBeforeReport_one": "{{count, number}} Spieler hat diese Errungenschaft im {{duration}} seit dem Bericht freigeschaltet.",
-    "playersUnlockedBeforeReport_other": "{{count, number}} Spieler haben diese Errungenschaft im {{duration}} seit der Meldung freigeschaltet.",
+    "playersUnlockedBeforeReport_one": "{{count, number}} Spieler hat diese Errungenschaft im {{duration}} vor dem Bericht freigeschaltet.",
+    "playersUnlockedBeforeReport_other": "{{count, number}} Spieler haben diese Errungenschaft im {{duration}} vor dem Bericht freigeschaltet.",
     "playersUnlockedSinceLogicChange_one": "{{count, number}} Spieler hat diese Errungenschaft freigeschaltet, seit dessen Logik {{duration}} bevor der Meldung aktualisiert wurde.",
     "playersUnlockedSinceLogicChange_other": "{{count, number}} Spieler haben diese Errungenschaft freigeschaltet, seit dessen Logik {{duration}} bevor der Meldung aktualisiert wurde."
 }
