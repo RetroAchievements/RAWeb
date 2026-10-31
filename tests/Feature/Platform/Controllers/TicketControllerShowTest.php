@@ -978,7 +978,7 @@ describe('Auto-close Props', function () {
         actingAs(User::factory()->create());
 
         // ACT
-        $response = get(route('ticket2.show', ['ticket' => $ticket]));
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
         $response->assertOk();
