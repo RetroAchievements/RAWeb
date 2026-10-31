@@ -7,7 +7,7 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useGateForumTopicMutation } from '@/features/forums/hooks/mutations/useGateForumTopicMutation';
 
 const formSchema = z.object({
-  permissions: z.coerce.number().int().min(0).max(4), // legacy permissions
+  permissions: z.coerce.number<number>().int().min(0).max(4), // legacy permissions
 });
 type FormValues = z.infer<typeof formSchema>;
 
