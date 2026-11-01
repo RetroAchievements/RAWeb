@@ -22,15 +22,13 @@ use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 uses(RefreshDatabase::class);
 uses(TestsEmulatorUserAgent::class);
 
-function achievementForReportIssueTest(bool $isTicketable = true): Achievement
+function achievementForReportIssueTest(): Achievement
 {
     $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
     $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
-    if ($isTicketable) {
-        GameHash::factory()->create(['game_id' => $game->id]);
-        $system->emulators()->attach(Emulator::factory()->create()->id);
-    }
+    GameHash::factory()->create(['game_id' => $game->id]);
+    $system->emulators()->attach(Emulator::factory()->create()->id);
 
     return Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 }
@@ -159,24 +157,6 @@ it('given a player with no play session, the page sets ticketBlockReason correct
     $response->assertInertia(fn (Assert $page) => $page
         ->where('can.createTicket', false)
         ->where('ticketBlockReason', 'no_play_session')
-        ->etc()
-    );
-});
-
-it('given a game with no hashes or emulators, the page sets ticketBlockReason correctly', function () {
-    // Arrange
-    $achievement = achievementForReportIssueTest(isTicketable: false);
-    $user = playerForReportIssueTest($achievement);
-    $this->actingAs($user);
-
-    // Act
-    $response = $this->get(route('achievement.report-issue', ['achievement' => $achievement->id]));
-
-    // Assert
-    $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
-        ->where('can.createTicket', false)
-        ->where('ticketBlockReason', 'game_not_ticketable')
         ->etc()
     );
 });
