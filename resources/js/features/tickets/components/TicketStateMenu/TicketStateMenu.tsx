@@ -50,7 +50,7 @@ export const TicketStateMenu: FC = () => {
   if (!allowedTicketActions.length) {
     return (
       <>
-        <TicketStateGlyph state={ticket.state} />
+        <TicketStateGlyph state={ticket.state} hasTooltip={false} />
         {stateLabel}
       </>
     );
@@ -186,16 +186,23 @@ export const TicketStateMenu: FC = () => {
         <BaseDropdownMenuTrigger
           aria-label={t('Change status (currently {{status}})', { status: stateLabel })}
           className={cn(
-            '-mx-1.5 flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors',
-            'hover:bg-neutral-800 data-[state=open]:bg-neutral-800',
-            'light:hover:bg-neutral-200 light:data-[state=open]:bg-neutral-200',
+            'flex items-center gap-1.5 rounded-md border px-2 py-1',
+            'border-neutral-600 bg-neutral-800/50',
+            'hover:border-neutral-500 hover:bg-neutral-800',
+            'data-[state=open]:border-neutral-500 data-[state=open]:bg-neutral-800',
+            'light:border-neutral-300 light:bg-white',
+            'light:hover:border-neutral-400 light:hover:bg-neutral-100',
+            'light:data-[state=open]:border-neutral-400 light:data-[state=open]:bg-neutral-100',
             'outline-hidden focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-neutral-300',
             'light:focus-visible:ring-neutral-950',
           )}
         >
-          <TicketStateGlyph state={ticket.state} />
+          <TicketStateGlyph state={ticket.state} hasTooltip={false} />
           {stateLabel}
-          <LuChevronDown aria-hidden={true} className="size-3.5 text-neutral-500" />
+          <LuChevronDown
+            aria-hidden={true}
+            className="size-3.5 text-neutral-400 light:text-neutral-600"
+          />
         </BaseDropdownMenuTrigger>
 
         <BaseDropdownMenuContent align="start" className="min-w-56">
