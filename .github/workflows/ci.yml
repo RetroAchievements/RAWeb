@@ -66,7 +66,7 @@ jobs:
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
 
@@ -99,7 +99,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: 8.5
           extensions: mbstring, :psr
@@ -150,7 +150,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.openapi == 'true' }}
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: 8.5
           extensions: mbstring, :psr
@@ -198,7 +198,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: 8.5
           extensions: mbstring, :psr
@@ -270,7 +270,7 @@ jobs:
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
 
@@ -280,7 +280,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: 8.5
           extensions: mbstring
@@ -328,7 +328,7 @@ jobs:
 
       - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
 
@@ -338,7 +338,7 @@ jobs:
 
       - name: Setup PHP
         if: ${{ needs.changes.outputs.node == 'true' }}
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: 8.5
           extensions: mbstring
@@ -362,7 +362,7 @@ jobs:
 
       - name: Upload blob report
         if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blob-report-${{ matrix.shardIndex }}
           path: .vitest-reports/*
@@ -387,7 +387,7 @@ jobs:
           version: 10.17
 
       - name: Use Node 24
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
 
@@ -395,7 +395,7 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Download blob reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: .vitest-reports
           pattern: blob-report-*
