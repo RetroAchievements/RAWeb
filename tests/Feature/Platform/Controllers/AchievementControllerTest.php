@@ -324,6 +324,30 @@ describe('Permissions Props', function () {
             ->where('can.viewAchievementLogic', true) // they can still view logic
         );
     });
+
+    it('given the user is a developer and the achievement belongs to an event, denies editing', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['id' => System::Events]);
+        [, $achievement] = createGameWithAchievementAndSet($system);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+
+        // ACT
+        $response = actingAs($developer)->get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.quickEditAchievement', false)
+            ->where('can.updateAchievementDescription', false)
+            ->where('can.updateAchievementIsPromoted', false)
+            ->where('can.updateAchievementPoints', false)
+            ->where('can.updateAchievementTitle', false)
+            ->where('can.updateAchievementType', false)
+        );
+    });
 });
 
 describe('Comments Props', function () {

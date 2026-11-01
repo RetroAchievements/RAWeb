@@ -2298,6 +2298,92 @@ describe('behavior', function () {
     });
 });
 
+describe('event achievements', function () {
+    test('developer cannot update an event achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventAchievement = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement);
+        $originalTitle = $eventAchievement->refresh()->title;
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $eventAchievement->id,
+            'g' => $eventAchievement->game_id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 1,
+            'm' => '',
+            'f' => 3, // keep promoted state unchanged
+            'b' => '002345',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Event achievements are not managed through the Connect API.',
+            ]);
+
+        $eventAchievement->refresh();
+        $this->assertEquals($originalTitle, $eventAchievement->title);
+    });
+
+    test('event manager can update an event achievement', function () {
+        Role::create(['name' => Role::EVENT_MANAGER, 'display' => 3]);
+        $this->user->assignRole([Role::DEVELOPER, Role::EVENT_MANAGER]);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventAchievement = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $eventAchievement->id,
+            'g' => $eventAchievement->game_id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 1,
+            'm' => '',
+            'f' => 3,
+            'b' => '002345',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $eventAchievement->id,
+            ]);
+
+        $eventAchievement->refresh();
+        $this->assertEquals('Title2', $eventAchievement->title);
+    });
+
+    test('developer cannot create an achievement in an event game, even with a claim', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventGame = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement)->game;
+        UploadAchievementTestHelpers::addClaim($eventGame, $this->user);
+        $achievementCountBefore = Achievement::where('game_id', $eventGame->id)->count();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $eventGame->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 1,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '001234',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Event achievements are not managed through the Connect API.',
+            ]);
+
+        $this->assertEquals($achievementCountBefore, Achievement::where('game_id', $eventGame->id)->count());
+    });
+});
+
 describe('validation', function () {
     test('g or s is required', function () {
         $this->user->assignRole(Role::DEVELOPER);
