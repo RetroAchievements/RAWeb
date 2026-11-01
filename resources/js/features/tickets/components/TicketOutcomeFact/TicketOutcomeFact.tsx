@@ -15,6 +15,8 @@ const resolutionSentences = {
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because it was a mistaken report.',
   not_enough_information:
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because the report did not have enough information.',
+  no_reply_from_reporter:
+    'We closed this ticket <2>{{duration}}</2> after the report because the reporter did not reply. A reply from the reporter will reopen it.',
   wrong_rom:
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because the reporter used the wrong ROM.',
   network_problems:

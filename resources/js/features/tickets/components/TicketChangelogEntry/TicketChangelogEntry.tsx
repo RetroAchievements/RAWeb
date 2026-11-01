@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
@@ -8,11 +8,17 @@ import type { TranslationKey } from '@/types/i18next';
 
 import { TicketStateGlyph } from '../TicketStateGlyph';
 
-interface EntrySentences {
+interface PersonEntrySentences {
   asCommentFooter: TranslationKey;
   withoutUser: TranslationKey;
   withUser: TranslationKey;
 }
+
+interface AutomatedEntrySentences {
+  automated: TranslationKey;
+}
+
+type EntrySentences = PersonEntrySentences | AutomatedEntrySentences;
 
 const typeSentences = {
   resolved: {
@@ -40,6 +46,9 @@ const typeSentences = {
     withoutUser: 'This ticket was reopened.',
     withUser: '<1>{{user}}</1> reopened this ticket.',
   },
+  reminded: {
+    automated: 'We reminded the reporter to reply.',
+  },
 } as const satisfies Record<
   Exclude<App.Platform.Enums.TicketChangelogEntryType, 'closed'>,
   EntrySentences
@@ -62,6 +71,10 @@ const resolutionSentences = {
     withoutUser: 'This ticket was closed because the report did not have enough information.',
     withUser:
       '<1>{{user}}</1> closed this ticket because the report did not have enough information.',
+  },
+  no_reply_from_reporter: {
+    automated:
+      'We closed this ticket because the reporter did not reply. A reply from the reporter will reopen it.',
   },
   wrong_rom: {
     asCommentFooter: 'Closed this ticket because the reporter used the wrong ROM.',
@@ -110,6 +123,7 @@ const typeStates = {
   returned: 'open',
   approved: 'open',
   reopened: 'open',
+  reminded: 'request',
 } as const satisfies Record<
   App.Platform.Enums.TicketChangelogEntryType,
   App.Community.Enums.TicketState
@@ -136,9 +150,25 @@ export const TicketChangelogEntry: FC<TicketChangelogEntryProps> = ({
       <p className="flex items-center gap-1.5 text-xs text-neutral-500">
         <TicketStateGlyph state={typeStates[entry.type]} className="[&>svg]:size-3.5" />
 
-        <span>{t(sentences.asCommentFooter)}</span>
+        <span>{t('automated' in sentences ? sentences.automated : sentences.asCommentFooter)}</span>
       </p>
     );
+  }
+
+  let sentence: ReactNode;
+  if ('automated' in sentences) {
+    sentence = t(sentences.automated);
+  } else if (entry.user) {
+    sentence = (
+      <Trans
+        i18nKey={sentences.withUser}
+        components={{
+          1: <UserAvatar {...entry.user} showImage={false} wrapperClassName="inline-flex" />,
+        }}
+      />
+    );
+  } else {
+    sentence = t(sentences.withoutUser);
   }
 
   return (
@@ -148,17 +178,7 @@ export const TicketChangelogEntry: FC<TicketChangelogEntryProps> = ({
       </div>
 
       <p className="text-xs text-neutral-500">
-        {entry.user ? (
-          <Trans
-            i18nKey={sentences.withUser}
-            components={{
-              1: <UserAvatar {...entry.user} showImage={false} wrapperClassName="inline-flex" />,
-            }}
-          />
-        ) : (
-          t(sentences.withoutUser)
-        )}{' '}
-        <EntryTimestamp at={entry.createdAt} />
+        {sentence} <EntryTimestamp at={entry.createdAt} />
       </p>
     </li>
   );

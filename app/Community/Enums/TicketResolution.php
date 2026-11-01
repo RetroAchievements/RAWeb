@@ -12,6 +12,7 @@ enum TicketResolution: string
     case Fixed = 'fixed';
     case MistakenReport = 'mistaken_report';
     case NotEnoughInformation = 'not_enough_information';
+    case NoReplyFromReporter = 'no_reply_from_reporter';
     case WrongRom = 'wrong_rom';
     case NetworkProblems = 'network_problems';
     case UnableToReproduce = 'unable_to_reproduce';
@@ -36,6 +37,7 @@ enum TicketResolution: string
             self::Fixed => null,
             self::MistakenReport => 'Mistaken report',
             self::NotEnoughInformation => 'Not enough information',
+            self::NoReplyFromReporter => 'No reply from reporter',
             self::WrongRom => 'Wrong ROM',
             self::NetworkProblems => 'Network problems',
             self::UnableToReproduce => 'Unable to reproduce',

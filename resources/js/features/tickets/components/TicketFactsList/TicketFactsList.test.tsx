@@ -83,6 +83,31 @@ describe('Component: TicketFactsList', () => {
     expect(container).not.toHaveTextContent('Waiting for');
   });
 
+  it.each([true, false])(
+    'given a request ticket with a close date, and a viewer who is the reporter (%s), states when the ticket will close',
+    (isViewerReporter) => {
+      // ARRANGE
+      const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+        pageProps: {
+          can: {},
+          relatedTickets: [],
+          isViewerReporter,
+          autoCloseAt: '2026-11-19T12:00:00Z',
+          ticket: createTicketListEntry({
+            state: 'request',
+            ticketableType: 'achievement',
+            reporter: createUser({ displayName: 'Reporter' }),
+          }),
+        },
+      });
+
+      // ASSERT
+      expect(container).toHaveTextContent(
+        'If there is no reply by Nov 19, 2026, we will close this ticket.',
+      );
+    },
+  );
+
   it('given a quarantined ticket, shows an explanation', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {

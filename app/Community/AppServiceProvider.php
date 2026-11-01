@@ -6,6 +6,7 @@ namespace App\Community;
 
 use App\Community\Commands\BackfillModerationActions;
 use App\Community\Commands\BackfillTicketResolutions;
+use App\Community\Commands\CloseUnansweredTickets;
 use App\Community\Commands\DeactivateOAuthClient;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
@@ -51,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 BackfillModerationActions::class,
                 BackfillTicketResolutions::class,
+                CloseUnansweredTickets::class,
                 DeactivateOAuthClient::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
@@ -66,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateGameActivitySnapshots::class)->everyFifteenMinutes()->withoutOverlapping();
+            $schedule->command(CloseUnansweredTickets::class)->daily();
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
             $schedule->command(RefreshTicketSignalVerdicts::class)->daily();

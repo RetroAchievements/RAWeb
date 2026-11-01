@@ -30,6 +30,13 @@ describe('Component: TicketChangelogEntry', () => {
     ['returned', null, 'Scott moved this ticket from Request back to Open.', 'Open'],
     ['approved', null, 'Scott approved this ticket.', 'Open'],
     ['reopened', null, 'Scott reopened this ticket.', 'Open'],
+    ['reminded', null, 'We reminded the reporter to reply.', 'Request'],
+    [
+      'closed',
+      'no_reply_from_reporter',
+      'We closed this ticket because the reporter did not reply. A reply from the reporter will reopen it.',
+      'Closed',
+    ],
     [
       'closed',
       'unable_to_reproduce',

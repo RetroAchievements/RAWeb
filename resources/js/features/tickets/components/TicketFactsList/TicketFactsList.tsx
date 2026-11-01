@@ -12,6 +12,7 @@ import {
   LuTrophy,
 } from 'react-icons/lu';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
@@ -32,6 +33,7 @@ import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketFactsList: FC = () => {
   const {
+    autoCloseAt,
     currentTriggerVersion,
     hasReporterHistoryAccess,
     isViewerReporter,
@@ -45,6 +47,7 @@ export const TicketFactsList: FC = () => {
     unlocksSinceReported,
   } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const hasLogicChangedSinceReport =
     !getIsTicketStateFinished(ticket.state) &&
@@ -57,6 +60,7 @@ export const TicketFactsList: FC = () => {
       ? ticket.reporter
       : null;
 
+  const formattedAutoCloseDate = autoCloseAt ? formatDate(autoCloseAt, 'll') : null;
   const hasUnlockWindowSignal = ticket.signals?.kinds.some(getIsUnlockWindowSignal) ?? false;
   const unlockCountFact =
     typeof unlocksSinceReported === 'number' ? (
@@ -85,6 +89,15 @@ export const TicketFactsList: FC = () => {
               components={{ 1: <TicketUserValue user={ticket.reporter} /> }}
             />
           )}
+
+          {formattedAutoCloseDate ? (
+            <>
+              {' '}
+              {t('If there is no reply by {{date}}, we will close this ticket.', {
+                date: formattedAutoCloseDate,
+              })}
+            </>
+          ) : null}
         </TicketFactRow>
       ) : null}
 
