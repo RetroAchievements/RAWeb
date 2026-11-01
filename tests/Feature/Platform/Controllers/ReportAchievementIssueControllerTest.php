@@ -22,15 +22,13 @@ use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 uses(RefreshDatabase::class);
 uses(TestsEmulatorUserAgent::class);
 
-function achievementForReportIssueTest(bool $isTicketable = true): Achievement
+function achievementForReportIssueTest(): Achievement
 {
     $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
     $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
-    if ($isTicketable) {
-        GameHash::factory()->create(['game_id' => $game->id]);
-        $system->emulators()->attach(Emulator::factory()->create()->id);
-    }
+    GameHash::factory()->create(['game_id' => $game->id]);
+    $system->emulators()->attach(Emulator::factory()->create()->id);
 
     return Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 }
@@ -163,9 +161,11 @@ it('given a player with no play session, the page sets ticketBlockReason correct
     );
 });
 
-it('given a game with no hashes or emulators, the page sets ticketBlockReason correctly', function () {
+it('given a Standalone game with no hashes or associated emulators, the page still offers ticket creation', function () {
     // Arrange
-    $achievement = achievementForReportIssueTest(isTicketable: false);
+    $system = System::factory()->create(['id' => System::Standalones, 'name' => 'Standalone', 'active' => true]);
+    $game = Game::factory()->create(['title' => 'Cattopia', 'system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
     $user = playerForReportIssueTest($achievement);
     $this->actingAs($user);
 
@@ -175,8 +175,8 @@ it('given a game with no hashes or emulators, the page sets ticketBlockReason co
     // Assert
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
-        ->where('can.createTicket', false)
-        ->where('ticketBlockReason', 'game_not_ticketable')
+        ->where('can.createTicket', true)
+        ->missing('ticketBlockReason')
         ->etc()
     );
 });

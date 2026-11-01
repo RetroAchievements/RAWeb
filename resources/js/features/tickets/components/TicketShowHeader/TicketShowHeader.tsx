@@ -17,14 +17,15 @@ const titleLabelClassName =
   'font-semibold text-neutral-100 [a:hover_&]:underline light:text-neutral-900';
 
 export const TicketShowHeader: FC = () => {
-  const { achievement, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { achievement, ticket, ticketableDescription } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
 
   const ticketTypeLabels = useTicketTypeLabels();
 
   return (
     <div className="flex items-start gap-3">
       {achievement ? (
-        <AchievementAvatar {...achievement} showLabel={false} size={48} />
+        <AchievementAvatar {...achievement} hasTooltip={false} showLabel={false} size={48} />
       ) : (
         <a
           href={route('leaderboard.show', { leaderboard: ticket.ticketableId })}
@@ -63,6 +64,10 @@ export const TicketShowHeader: FC = () => {
           )}
         </h1>
 
+        {ticketableDescription ? (
+          <p className="text-neutral-300 light:text-neutral-700">{ticketableDescription}</p>
+        ) : null}
+
         <p className="flex items-center gap-1 text-neutral-400">
           <InertiaLink
             href={route('game.show', { game: ticket.game.id })}
@@ -77,7 +82,7 @@ export const TicketShowHeader: FC = () => {
           <span>{ticket.game.system!.nameShort}</span>
         </p>
 
-        <div className="-ml-1.5 overflow-x-clip pl-1.5 text-neutral-400">
+        <div className="overflow-x-clip text-neutral-400">
           <div className="-ml-5 flex flex-wrap items-center gap-y-1">
             <span className="flex items-center gap-1.5 pl-5 text-neutral-200 light:text-neutral-800">
               <TicketStateMenu />
