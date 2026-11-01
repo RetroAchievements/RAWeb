@@ -7,6 +7,7 @@ namespace App\Platform\Actions\Concerns;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
+use App\Models\TicketVerdictAccuracyResult;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketSignalsAction;
 use App\Platform\Data\TicketListEntryData;
@@ -43,7 +44,8 @@ trait LoadsTicketListEntryRelations
     }
 
     /**
-     * Builds the triage signals for every ticket in the collection.
+     * Builds the triage signals for every ticket in the collection, then
+     * attaches the historical hit rate of each verdict to its signals.
      *
      * @param Collection<int, Ticket> $tickets
      * @return array<int, TicketSignalsData|null>|null null when the viewer may not see signals
@@ -54,7 +56,18 @@ trait LoadsTicketListEntryRelations
             return null;
         }
 
-        return (new BuildTicketSignalsAction())->execute($tickets);
+        $signalsByTicketId = (new BuildTicketSignalsAction())->execute($tickets);
+
+        $shownAccuracyByVerdict = TicketVerdictAccuracyResult::findShownAccuracyByVerdict();
+        foreach ($signalsByTicketId as $signals) {
+            if ($signals === null) {
+                continue;
+            }
+
+            $signals->accuracy = $shownAccuracyByVerdict[$signals->verdict->value] ?? null;
+        }
+
+        return $signalsByTicketId;
     }
 
     /**

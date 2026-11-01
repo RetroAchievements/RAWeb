@@ -22,7 +22,7 @@ class RefreshTicketSignalVerdictsAction
         // Recalculated verdicts aren't really edits to the ticket. Don't touch updated_at.
         Ticket::withoutTimestamps(function () use ($tickets, $signalsForTickets) {
             foreach ($tickets as $ticket) {
-                $ticket->signal_verdict = $signalsForTickets[$ticket->id]?->verdict;
+                $ticket->current_signal_verdict = $signalsForTickets[$ticket->id]?->verdict;
                 $ticket->save();
             }
         });

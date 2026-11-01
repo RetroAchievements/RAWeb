@@ -50,7 +50,8 @@ class Ticket extends BaseModel
         'type' => TicketType::class,
         'state' => TicketState::class,
         'resolution' => TicketResolution::class,
-        'signal_verdict' => TicketSignalVerdict::class,
+        'current_signal_verdict' => TicketSignalVerdict::class, // only open tickets have one of these
+        'resolved_signal_verdict' => TicketSignalVerdict::class, // the verdict a ticket had when it was resolved or closed - cleared on reopen
         'resolved_at' => 'datetime',
     ];
 

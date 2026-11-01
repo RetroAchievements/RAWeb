@@ -79,6 +79,7 @@ describe('Component: TicketInboxSection', () => {
                 windowStartedAt: '2026-06-14T12:00:00Z',
                 hasRecentLogicChange: true,
                 reporterEarnedAt: null,
+                accuracy: null,
               },
             }),
           ],

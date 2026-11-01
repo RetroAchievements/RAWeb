@@ -1304,6 +1304,10 @@ hasReporterRepliedLast: boolean;
 hasReporterHistoryAccess: boolean;
 reporterActivity?: App.Platform.Data.PlayerGameActivity | null;
 };
+export type TicketSignalAccuracy = {
+ticketCount: number;
+correctCount: number;
+};
 export type TicketSignals = {
 verdict: App.Community.Enums.TicketSignalVerdict;
 kinds: Array<App.Community.Enums.TicketSignal>;
@@ -1311,6 +1315,7 @@ unlockCount: number;
 windowStartedAt: string;
 hasRecentLogicChange: boolean;
 reporterEarnedAt: string | null;
+accuracy: App.Platform.Data.TicketSignalAccuracy | null;
 };
 export type UserCredits = {
 displayName: string;

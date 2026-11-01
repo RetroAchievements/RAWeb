@@ -8,6 +8,7 @@ use App\Community\Commands\BackfillModerationActions;
 use App\Community\Commands\BackfillTicketResolutions;
 use App\Community\Commands\DeactivateOAuthClient;
 use App\Community\Commands\GenerateAnnualRecap;
+use App\Community\Commands\MeasureTicketVerdictAccuracy;
 use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\ProcessExpiredMutes;
 use App\Community\Commands\RefreshTicketSignalVerdicts;
@@ -53,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillTicketResolutions::class,
                 DeactivateOAuthClient::class,
                 GenerateAnnualRecap::class,
+                MeasureTicketVerdictAccuracy::class,
                 MigrateTicketCommentMetadata::class,
                 ProcessExpiredMutes::class,
                 RefreshTicketSignalVerdicts::class,
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
             $schedule->command(RefreshTicketSignalVerdicts::class)->daily();
+            $schedule->command(MeasureTicketVerdictAccuracy::class)->monthlyOn(1, '04:00');
         });
 
         Relation::morphMap([

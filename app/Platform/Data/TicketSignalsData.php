@@ -21,6 +21,7 @@ class TicketSignalsData extends Data
         public Carbon $windowStartedAt,
         public bool $hasRecentLogicChange, // the window opens at a logic change rather than the 90-day cap
         public ?Carbon $reporterEarnedAt, // only set alongside one of the three "earned" kinds
+        public ?TicketSignalAccuracyData $accuracy = null,
     ) {
     }
 }

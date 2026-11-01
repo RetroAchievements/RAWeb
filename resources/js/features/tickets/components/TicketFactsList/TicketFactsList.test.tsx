@@ -411,6 +411,7 @@ describe('Component: TicketFactsList', () => {
             windowStartedAt: '2026-06-14T12:00:00Z',
             hasRecentLogicChange: true,
             reporterEarnedAt: '2026-06-23T12:00:00Z',
+            accuracy: { ticketCount: 1950, correctCount: 1600 },
           },
         }),
       },
@@ -418,7 +419,36 @@ describe('Component: TicketFactsList', () => {
 
     // ASSERT
     expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
-      'Probably a real bugThe reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already.No players unlocked this achievement since its logic was last updated, 3 days before the report.Nearly 4 in 5 tickets with this verdict receive a logic change.',
+      'Probably a real bugThe reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already.No players unlocked this achievement since its logic was last updated, 3 days before the report.82% of tickets with this verdict receive a logic change.',
+    );
+  });
+
+  it('given signals with no stored accuracy, falls back to the estimated accuracy', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        relatedTickets: [],
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          createdAt: '2026-06-17T12:00:00Z',
+          signals: {
+            verdict: 'probably-not-defect',
+            kinds: ['many-recent-unlocks'],
+            unlockCount: 316,
+            windowStartedAt: '2026-03-19T12:00:00Z',
+            hasRecentLogicChange: false,
+            reporterEarnedAt: null,
+            accuracy: null,
+          },
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
+      'Probably not a bug316 players unlocked this achievement in the 90 days before the report.Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
     );
   });
 
@@ -442,6 +472,7 @@ describe('Component: TicketFactsList', () => {
             windowStartedAt: '2026-03-19T12:00:00Z',
             hasRecentLogicChange: false,
             reporterEarnedAt: null,
+            accuracy: null,
           },
         }),
       },

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -18,6 +19,7 @@ use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
+use App\Models\TicketVerdictAccuracyResult;
 use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Enums\TriggerableType;
@@ -568,6 +570,41 @@ describe('Signal Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page->missing('ticket.signals'));
+    });
+
+    it('given a stored accuracy result, returns it along with the ticket signal verdict', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => User::factory()->create()->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $achievement->game_id,
+            'rich_presence_updated_at' => Carbon::parse('2026-05-25 12:00:00'),
+        ]);
+        TicketVerdictAccuracyResult::factory()->create([
+            'verdict' => TicketSignalVerdict::ProbablyDefect,
+            'ticket_count' => 1950,
+            'correct_count' => 1600,
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        actingAs($viewer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('ticket.signals.verdict', 'probably-defect')
+            ->where('ticket.signals.accuracy', ['ticketCount' => 1950, 'correctCount' => 1600])
+        );
     });
 });
 
