@@ -568,41 +568,4 @@ describe('Component: ReportIssueMainRoot', () => {
       screen.queryByRole('link', { name: 'Read about emulator support' }),
     ).not.toBeInTheDocument();
   });
-
-  it('given the game has no hashes or emulators, shows the reason without a link', () => {
-    // ARRANGE
-    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: {
-        achievement: createAchievement(),
-        hasSession: true,
-        ticketType: 'did_not_trigger',
-        ticketBlockReason: 'game_not_ticketable',
-        can: { createTicket: false },
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/tickets are not available for this game/i)).toBeVisible();
-    expect(
-      screen.queryByRole('link', { name: 'Read about emulator support' }),
-    ).not.toBeInTheDocument();
-    expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
-  });
-
-  it('given a block reason exists, keeps the manual unlock option', () => {
-    // ARRANGE
-    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: {
-        achievement: createAchievement(),
-        hasSession: true,
-        ticketType: 'did_not_trigger',
-        ticketBlockReason: 'game_not_ticketable',
-        can: { createTicket: false },
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
-    expect(screen.getByRole('link', { name: /request manual unlock/i })).toBeVisible();
-  });
 });

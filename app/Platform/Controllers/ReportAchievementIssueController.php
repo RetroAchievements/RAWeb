@@ -12,9 +12,9 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerSession;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Actions\DetermineTicketCreationBlockReasonAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\ReportAchievementIssuePagePropsData;
+use App\Platform\Enums\TicketCreationBlockReason;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -24,11 +24,8 @@ use Inertia\Response as InertiaResponse;
 
 class ReportAchievementIssueController extends Controller
 {
-    public function index(
-        Request $request,
-        Achievement $achievement,
-        DetermineTicketCreationBlockReasonAction $determineTicketCreationBlockReason,
-    ): InertiaResponse {
+    public function index(Request $request, Achievement $achievement): InertiaResponse
+    {
         $this->authorize('view', $achievement);
         $this->authorize('viewAny', Ticket::class);
         $this->authorize('create', Ticket::class);
@@ -51,7 +48,7 @@ class ReportAchievementIssueController extends Controller
         );
 
         $hasSession = $foundPlayerAchievement !== null || $user->hasPlayedGameForAchievement($achievement);
-        $blockReason = $determineTicketCreationBlockReason->execute($user, $achievement, $hasSession);
+        $blockReason = $hasSession ? null : TicketCreationBlockReason::NoPlaySession;
 
         $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTicket');
         $can->createTicket = $blockReason === null; // intentional shadowing

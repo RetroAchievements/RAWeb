@@ -205,6 +205,36 @@ class TicketControllerTest extends TestCase
         $response->assertRedirect(route('achievement.report-issue', $achievement->id));
     }
 
+    public function testCreateGivenAStandaloneGameWithNoHashesOrEmulatorsItRendersTheForm(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => System::Standalones, 'name' => 'Standalone', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'Cattopia', 'system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $achievement]));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('achievement/[achievement]/tickets/create')
+            ->has('emulators', 0)
+            ->has('gameHashes', 0)
+        );
+    }
+
     public function testCreateGivenUserHasNoPlayerSessionReturnsCorrectProps(): void
     {
         // Arrange

@@ -142,6 +142,43 @@ it('given a valid submission, it creates the ticket', function () {
     ]);
 });
 
+it('given a Standalone game, creates the ticket even though there is no associated emulator or hash', function () {
+    // Arrange
+    $system = System::factory()->create(['id' => System::Standalones, 'name' => 'Standalone', 'active' => true]);
+    $game = Game::factory()->create(['title' => 'Cattopia', 'system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    /** @var User $user */
+    $user = User::factory()->create([
+        'email_verified_at' => Carbon::parse('2013-01-01'),
+        'created_at' => Carbon::now()->subWeeks(2),
+    ]);
+    $this->actingAs($user);
+
+    PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+
+    // Act
+    $response = $this->postJson(route('api.ticket.store'), [
+        'ticketableModel' => 'achievement',
+        'ticketableId' => $achievement->id,
+        'mode' => 'hardcore',
+        'issue' => TicketType::DidNotTrigger->value,
+        'description' => 'The achievement did not unlock after the first journey.',
+        'emulator' => null,
+        'emulatorVersion' => null,
+        'gameHashId' => null,
+    ]);
+
+    // Assert
+    $response->assertOk();
+
+    $ticket = Ticket::find($response->json('ticketId'));
+    expect($ticket->state)->toEqual(TicketState::Open);
+    expect($ticket->emulator_id)->toBeNull();
+    expect($ticket->game_hash_id)->toBeNull();
+    expect($ticket->body)->toEqual('The achievement did not unlock after the first journey.');
+});
+
 it('given rich presence and an emulator with no record, it formats the ticket note', function () {
     // Arrange
     $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
