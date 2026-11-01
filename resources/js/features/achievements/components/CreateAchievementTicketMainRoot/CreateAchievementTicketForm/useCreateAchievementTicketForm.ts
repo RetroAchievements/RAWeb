@@ -25,7 +25,7 @@ export interface CreateAchievementTicketFormValues {
 function buildCreateAchievementTicketFormSchema(
   hasEmulatorOptions: boolean,
   hasGameHashOptions: boolean,
-): z.ZodType<CreateAchievementTicketFormValues> {
+): z.ZodType<CreateAchievementTicketFormValues, CreateAchievementTicketFormValues> {
   return z.object({
     issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
     emulator: hasEmulatorOptions ? z.string().min(1) : z.string().optional(),
