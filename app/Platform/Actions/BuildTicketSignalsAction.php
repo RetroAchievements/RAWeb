@@ -66,12 +66,20 @@ use Illuminate\Support\Facades\DB;
  * finished, often because the fix made the unlock possible. Counting those
  * unlocks would make the logic version rules look far better than they
  * actually are.
+ *
+ * Tickets created within the first 30 days after a set is published receive
+ * no signal verdict. Of the "did not trigger" tickets finished between
+ * 2025-10-23 and 2026-10-23, 71% of those filed in a set's first 30 live days
+ * were fixed. This falls to 43% for sets 30 to 90 days old and 38% for older
+ * sets. On a new set, nearly every report should be looked into, so a verdict
+ * there mostly adds noise.
  */
 class BuildTicketSignalsAction
 {
     private const LOOKBACK_DAYS = 90;
     private const MANY_UNLOCKS_FLOOR = 50;
     private const MIN_OTHER_PLAYERS = 5;
+    private const NEW_SET_DAYS = 30;
 
     /**
      * @param Collection<int, Ticket> $tickets
@@ -86,7 +94,11 @@ class BuildTicketSignalsAction
             return $signalsForTickets;
         }
 
-        $signalEligibleTickets->loadMissing('ticketable');
+        $signalEligibleTickets->loadMissing('ticketable.achievementSet');
+        $signalEligibleTickets = $signalEligibleTickets->reject(fn (Ticket $ticket) => $this->isFiledOnNewSet($ticket))->values();
+        if ($signalEligibleTickets->isEmpty()) {
+            return $signalsForTickets;
+        }
 
         $triggersByTicketId = $this->findReportTriggersByTicket($signalEligibleTickets);
         $windowStartByTicketId = $this->computeWindowStarts($signalEligibleTickets, $triggersByTicketId);
@@ -192,6 +204,15 @@ class BuildTicketSignalsAction
             $ticket->ticketable_type === TicketableType::Achievement->value
             && $ticket->type === TicketType::DidNotTrigger
             && !$ticket->state->isResolved();
+    }
+
+    private function isFiledOnNewSet(Ticket $ticket): bool
+    {
+        $firstPublishedAt = $ticket->ticketable?->achievementSet?->achievements_first_published_at;
+
+        return
+            $firstPublishedAt !== null
+            && $ticket->created_at->lt($firstPublishedAt->copy()->addDays(self::NEW_SET_DAYS));
     }
 
     /**

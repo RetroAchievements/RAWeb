@@ -205,6 +205,23 @@ it('given fewer than 5 other players on the game in the window, zero unlocks doe
     expect($result)->toEqual([$ticket->id => null]);
 });
 
+it('given a ticket created in the first 30 days of its set being published, gives no verdict', function (int $daysSincePublish, ?TicketSignalVerdict $expectedVerdict) {
+    // ARRANGE
+    $ticket = createSignalsTicket(50);
+    Achievement::findOrFail($ticket->ticketable_id)->achievementSet->update([
+        'achievements_first_published_at' => Carbon::parse('2026-06-01 12:00:00')->subDays($daysSincePublish),
+    ]);
+
+    // ACT
+    $signals = buildSignals($ticket)[$ticket->id];
+
+    // ASSERT
+    expect($signals?->verdict)->toEqual($expectedVerdict);
+})->with([
+    'set published 29 days before the report' => [29, null],
+    'set published 30 days before the report' => [30, TicketSignalVerdict::ProbablyNotDefect],
+]);
+
 it('given a ticket with no linked logic version, measures the reporter unlock against the version live at report time', function () {
     // ARRANGE
     $ticket = createSignalsTicket(50, 'same-logic', isTicketLinkedToTrigger: false);

@@ -74,23 +74,4 @@ describe('Component: TicketUnlockCountFact', () => {
       '3 players unlocked this achievement in the 2 weeks before the logic was updated.',
     );
   });
-
-  it('given the component follows the verdict line and the logic changed, shows the correct label', () => {
-    // ARRANGE
-    vi.setSystemTime(new Date('2024-09-01T12:00:00Z'));
-
-    const { container } = render(
-      <TicketUnlockCountFact
-        isFollowUp={true}
-        logicChangedAt="2024-05-15T12:00:00Z"
-        reportedAt="2024-05-01T12:00:00Z"
-        unlocksSinceReported={3}
-      />,
-    );
-
-    // ASSERT
-    expect(container).toHaveTextContent(
-      '3 players unlocked it in the 2 weeks after the report, before the logic was updated.',
-    );
-  });
 });

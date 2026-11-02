@@ -20,6 +20,8 @@ interface CommentListProps {
 
   footerSlot?: (comment: App.Community.Data.Comment) => ReactNode;
   hasEmptyState?: boolean;
+  /** Extra controls shown next to the comment Submit button. */
+  inputActionsSlot?: ReactNode;
   interleavedItems?: CommentListInterleavedItem[];
   onDeleteSuccess?: () => void;
   onSubmitSuccess?: () => void;
@@ -31,6 +33,7 @@ export const CommentList: FC<CommentListProps> = ({
   commentableId,
   commentableType,
   comments,
+  inputActionsSlot,
   interleavedItems,
   onDeleteSuccess,
   onSubmitSuccess,
@@ -60,6 +63,7 @@ export const CommentList: FC<CommentListProps> = ({
       canComment={canComment}
       commentableId={commentableId}
       commentableType={commentableType}
+      inputActionsSlot={inputActionsSlot}
       onDeleteSuccess={onDeleteSuccess}
       onSubmitSuccess={onSubmitSuccess}
       targetUserDisplayName={targetUserDisplayName}
