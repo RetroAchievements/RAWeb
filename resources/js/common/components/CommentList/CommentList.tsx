@@ -87,6 +87,10 @@ export const CommentList: FC<CommentListProps> = ({
           <CommentInput />
         )}
 
+        {auth?.user.isMuted && auth.user.mutedUntil && inputActionsSlot ? (
+          <div className="flex justify-end p-2">{inputActionsSlot}</div>
+        ) : null}
+
         {!auth?.user ? <SignInMessage /> : null}
       </div>
     </CommentListProvider>

@@ -787,6 +787,50 @@ describe('updateState', function () {
         Notification::assertNotSentTo($reporter, TicketStatusUpdatedNotification::class);
     });
 
+    it('given a reporter is muted, allows them to close their own ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['muted_until' => Carbon::now()->addWeek()]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Closed);
+    });
+
+    it('given a muted reporter tries to reopen their ticket, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['muted_until' => Carbon::now()->addWeek()]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Request);
+    });
+
     it('given a developer resolves or closes for another reason when only the reporter has commented, requires a comment', function (TicketAction $action) {
         // ARRANGE
         $system = System::factory()->create();

@@ -279,6 +279,29 @@ describe('Component: TicketComments', () => {
     expect(screen.queryByRole('button', { name: /change status/i })).not.toBeInTheDocument();
   });
 
+  it('given a muted reporter, shows the status control', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ isMuted: true, mutedUntil: '2030-01-01T00:00:00Z' }),
+        },
+        allowedTicketActions: ['closed-mistaken'],
+        can: { createTicketComments: false },
+        comments: [],
+        changelog: [],
+        hasNonReporterComment: false,
+        hasReporterRepliedLast: false,
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/you are muted/i)).toBeVisible();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /change status/i })).toBeVisible();
+  });
+
   it('given the user can both comment and change the status, shows the status control in the comment form', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
