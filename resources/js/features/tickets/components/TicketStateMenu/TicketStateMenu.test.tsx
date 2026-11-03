@@ -37,7 +37,7 @@ describe('Component: TicketStateMenu', () => {
           'wrong-rom',
           'emulator-problem',
           'already-fixed',
-          'belongs-elsewhere',
+          'manual-unlock-request',
           'closed-mistaken',
         ],
         hasNonReporterComment: true,
@@ -63,7 +63,7 @@ describe('Component: TicketStateMenu', () => {
       'Wrong ROM',
       'Emulator or core problem',
       'Already fixed',
-      'Belongs elsewhere',
+      'Manual unlock request',
       'Mistaken report',
     ]);
     expect(screen.getByText('Close as')).toBeVisible();

@@ -185,7 +185,7 @@ class TicketPolicy
                 TicketAction::UnableToReproduce,
                 TicketAction::AlreadyFixed,
                 TicketAction::EmulatorProblem,
-                TicketAction::BelongsElsewhere,
+                TicketAction::ManualUnlockRequest,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }

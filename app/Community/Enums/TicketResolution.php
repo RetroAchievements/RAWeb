@@ -19,7 +19,7 @@ enum TicketResolution: string
     case UnableToDebug = 'unable_to_debug';
     case AlreadyFixed = 'already_fixed';
     case EmulatorProblem = 'emulator_problem';
-    case BelongsElsewhere = 'belongs_elsewhere';
+    case ManualUnlockRequest = 'manual_unlock_request';
     case Demoted = 'demoted';
     case Other = 'other';
 
@@ -47,7 +47,7 @@ enum TicketResolution: string
             self::UnableToDebug => 'Unable to debug due to no toolkit support',
             self::AlreadyFixed => 'Already fixed',
             self::EmulatorProblem => 'Emulator or core problem',
-            self::BelongsElsewhere => 'Belongs elsewhere',
+            self::ManualUnlockRequest => 'Manual unlock request',
             self::Demoted => 'Demoted',
             self::Other => 'See the comments',
         };

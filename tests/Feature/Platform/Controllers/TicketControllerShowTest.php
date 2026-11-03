@@ -768,7 +768,7 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
-                'belongs-elsewhere',
+                'manual-unlock-request',
                 'closed-other',
             ])
         );
@@ -804,7 +804,7 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
-                'belongs-elsewhere',
+                'manual-unlock-request',
                 'closed-other',
                 'reopen',
             ])

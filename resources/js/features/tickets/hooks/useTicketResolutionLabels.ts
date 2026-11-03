@@ -23,7 +23,7 @@ export function useTicketResolutionLabels(): Record<
     unable_to_debug: t('Unable to debug'),
     already_fixed: t('Already fixed'),
     emulator_problem: t('Emulator or core problem'),
-    belongs_elsewhere: t('Belongs elsewhere'),
+    manual_unlock_request: t('Manual unlock request'),
     demoted: t('Demoted'),
     other: t('Other'),
   };

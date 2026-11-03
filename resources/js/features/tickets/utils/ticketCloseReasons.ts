@@ -8,7 +8,7 @@ export const TICKET_CLOSE_REASONS: TicketCloseReason[] = [
   'unable-to-debug',
   'emulator-problem',
   'already-fixed',
-  'belongs-elsewhere',
+  'manual-unlock-request',
   'closed-mistaken',
   'closed-other',
 ];
