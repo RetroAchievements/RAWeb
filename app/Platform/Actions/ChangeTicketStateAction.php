@@ -111,6 +111,9 @@ class ChangeTicketStateAction
             TicketAction::Network,
             TicketAction::UnableToReproduce,
             TicketAction::UnableToDebug,
+            TicketAction::AlreadyFixed,
+            TicketAction::EmulatorProblem,
+            TicketAction::BelongsElsewhere,
             TicketAction::ClosedOther => $action->resolution()->closeCommentBody($actorName),
         };
     }

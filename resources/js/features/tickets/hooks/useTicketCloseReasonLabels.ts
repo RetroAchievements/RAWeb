@@ -8,8 +8,11 @@ export function useTicketCloseReasonLabels(): Record<TicketCloseReason, Translat
   const { t } = useTranslation();
 
   return {
+    'already-fixed': t('Already fixed'),
+    'belongs-elsewhere': t('Belongs elsewhere'),
     'closed-mistaken': t('Mistaken report'),
     'closed-other': t('Another reason'),
+    'emulator-problem': t('Emulator or core problem'),
     network: t('Network problems'),
     'not-enough-info': t('Not enough information'),
     'unable-to-debug': t('Unable to debug (no toolkit support)'),

@@ -766,6 +766,9 @@ describe('Ticket Action Props', function () {
                 'network',
                 'unable-to-reproduce',
                 'unable-to-debug',
+                'already-fixed',
+                'emulator-problem',
+                'belongs-elsewhere',
                 'closed-other',
             ])
         );
@@ -799,6 +802,9 @@ describe('Ticket Action Props', function () {
                 'network',
                 'unable-to-reproduce',
                 'unable-to-debug',
+                'already-fixed',
+                'emulator-problem',
+                'belongs-elsewhere',
                 'closed-other',
                 'reopen',
             ])

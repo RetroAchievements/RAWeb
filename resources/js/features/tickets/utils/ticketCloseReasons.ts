@@ -6,6 +6,9 @@ export const TICKET_CLOSE_REASONS: TicketCloseReason[] = [
   'wrong-rom',
   'unable-to-reproduce',
   'unable-to-debug',
+  'emulator-problem',
+  'already-fixed',
+  'belongs-elsewhere',
   'closed-mistaken',
   'closed-other',
 ];

@@ -21,6 +21,9 @@ export function useTicketResolutionLabels(): Record<
     network_problems: t('Network problems'),
     unable_to_reproduce: t('Unable to reproduce'),
     unable_to_debug: t('Unable to debug'),
+    already_fixed: t('Already fixed'),
+    emulator_problem: t('Emulator or core problem'),
+    belongs_elsewhere: t('Belongs elsewhere'),
     demoted: t('Demoted'),
     other: t('Other'),
   };

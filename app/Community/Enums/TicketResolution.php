@@ -17,6 +17,9 @@ enum TicketResolution: string
     case NetworkProblems = 'network_problems';
     case UnableToReproduce = 'unable_to_reproduce';
     case UnableToDebug = 'unable_to_debug';
+    case AlreadyFixed = 'already_fixed';
+    case EmulatorProblem = 'emulator_problem';
+    case BelongsElsewhere = 'belongs_elsewhere';
     case Demoted = 'demoted';
     case Other = 'other';
 
@@ -42,6 +45,9 @@ enum TicketResolution: string
             self::NetworkProblems => 'Network problems',
             self::UnableToReproduce => 'Unable to reproduce',
             self::UnableToDebug => 'Unable to debug due to no toolkit support',
+            self::AlreadyFixed => 'Already fixed',
+            self::EmulatorProblem => 'Emulator or core problem',
+            self::BelongsElsewhere => 'Belongs elsewhere',
             self::Demoted => 'Demoted',
             self::Other => 'See the comments',
         };

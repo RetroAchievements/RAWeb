@@ -1822,5 +1822,20 @@
     "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.",
     "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.",
     "Signal": "Signal",
-    "No signal": "No signal"
+    "No signal": "No signal",
+    "Already fixed": "Already fixed",
+    "Emulator or core problem": "Emulator or core problem",
+    "Belongs elsewhere": "Belongs elsewhere",
+    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because the bug was already fixed.": "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because the bug was already fixed.",
+    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because of an emulator or core problem.": "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because of an emulator or core problem.",
+    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because it belongs elsewhere.": "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because it belongs elsewhere.",
+    "Closed this ticket because the bug was already fixed.": "Closed this ticket because the bug was already fixed.",
+    "This ticket was closed because the bug was already fixed.": "This ticket was closed because the bug was already fixed.",
+    "<1>{{user}}</1> closed this ticket because the bug was already fixed.": "<1>{{user}}</1> closed this ticket because the bug was already fixed.",
+    "Closed this ticket because of an emulator or core problem.": "Closed this ticket because of an emulator or core problem.",
+    "This ticket was closed because of an emulator or core problem.": "This ticket was closed because of an emulator or core problem.",
+    "<1>{{user}}</1> closed this ticket because of an emulator or core problem.": "<1>{{user}}</1> closed this ticket because of an emulator or core problem.",
+    "Closed this ticket because it belongs elsewhere.": "Closed this ticket because it belongs elsewhere.",
+    "This ticket was closed because it belongs elsewhere.": "This ticket was closed because it belongs elsewhere.",
+    "<1>{{user}}</1> closed this ticket because it belongs elsewhere.": "<1>{{user}}</1> closed this ticket because it belongs elsewhere."
 }

@@ -25,6 +25,12 @@ const resolutionSentences = {
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because they could not reproduce the problem.',
   unable_to_debug:
     '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because they could not debug the problem.',
+  already_fixed:
+    '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because the bug was already fixed.',
+  emulator_problem:
+    '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because of an emulator or core problem.',
+  belongs_elsewhere:
+    '<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because it belongs elsewhere.',
   demoted:
     '<1>{{user}}</1> closed this ticket and demoted the achievement <2>{{duration}}</2> after the report.',
 } as const satisfies Record<App.Community.Enums.TicketResolution, TranslationKey>;

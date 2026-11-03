@@ -96,6 +96,21 @@ const resolutionSentences = {
     withoutUser: 'This ticket was closed because the problem could not be debugged.',
     withUser: '<1>{{user}}</1> closed this ticket because they could not debug the problem.',
   },
+  already_fixed: {
+    asCommentFooter: 'Closed this ticket because the bug was already fixed.',
+    withoutUser: 'This ticket was closed because the bug was already fixed.',
+    withUser: '<1>{{user}}</1> closed this ticket because the bug was already fixed.',
+  },
+  emulator_problem: {
+    asCommentFooter: 'Closed this ticket because of an emulator or core problem.',
+    withoutUser: 'This ticket was closed because of an emulator or core problem.',
+    withUser: '<1>{{user}}</1> closed this ticket because of an emulator or core problem.',
+  },
+  belongs_elsewhere: {
+    asCommentFooter: 'Closed this ticket because it belongs elsewhere.',
+    withoutUser: 'This ticket was closed because it belongs elsewhere.',
+    withUser: '<1>{{user}}</1> closed this ticket because it belongs elsewhere.',
+  },
   demoted: {
     asCommentFooter: 'Closed this ticket and demoted the achievement.',
     withoutUser: 'This ticket was closed and the achievement was demoted.',

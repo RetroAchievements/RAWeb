@@ -183,6 +183,9 @@ class TicketPolicy
                 TicketAction::WrongRom,
                 TicketAction::Network,
                 TicketAction::UnableToReproduce,
+                TicketAction::AlreadyFixed,
+                TicketAction::EmulatorProblem,
+                TicketAction::BelongsElsewhere,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }

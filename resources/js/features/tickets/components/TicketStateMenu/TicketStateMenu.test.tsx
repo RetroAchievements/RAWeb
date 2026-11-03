@@ -29,7 +29,17 @@ describe('Component: TicketStateMenu', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
-        allowedTicketActions: ['resolved', 'request', 'demoted', 'network', 'wrong-rom'],
+        allowedTicketActions: [
+          'resolved',
+          'request',
+          'demoted',
+          'network',
+          'wrong-rom',
+          'emulator-problem',
+          'already-fixed',
+          'belongs-elsewhere',
+          'closed-mistaken',
+        ],
         hasNonReporterComment: true,
         hasReporterRepliedLast: false,
         ticket: createTicketListEntry({
@@ -51,6 +61,10 @@ describe('Component: TicketStateMenu', () => {
       'Demote achievement',
       'Network problems',
       'Wrong ROM',
+      'Emulator or core problem',
+      'Already fixed',
+      'Belongs elsewhere',
+      'Mistaken report',
     ]);
     expect(screen.getByText('Close as')).toBeVisible();
   });
