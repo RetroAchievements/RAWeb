@@ -67,19 +67,19 @@ use Illuminate\Support\Facades\DB;
  * unlocks would make the logic version rules look far better than they
  * actually are.
  *
- * Tickets created within the first 30 days after a set is published receive
- * no signal verdict. Of the "did not trigger" tickets finished between
- * 2025-10-23 and 2026-10-23, 71% of those filed in a set's first 30 live days
- * were fixed. This falls to 43% for sets 30 to 90 days old and 38% for older
- * sets. On a new set, nearly every report should be looked into, so a verdict
- * there mostly adds noise.
+ * "Probably not a bug" is not shown when the set was published less than 30
+ * days before the report, or when the reported logic version is less than 30
+ * days older than the report. Brand new and freshly edited logic breaks more
+ * often. Of the "did not trigger" tickets finished between 2025-10-23 and
+ * 2026-10-23, this verdict was right 72.5% of the time on new sets and 77.4%
+ * of the time after a recent logic edit, against 83.3% everywhere else.
  */
 class BuildTicketSignalsAction
 {
     private const LOOKBACK_DAYS = 90;
     private const MANY_UNLOCKS_FLOOR = 50;
     private const MIN_OTHER_PLAYERS = 5;
-    private const NEW_SET_DAYS = 30;
+    private const NEW_LOGIC_DAYS = 30;
 
     /**
      * @param Collection<int, Ticket> $tickets
@@ -95,10 +95,6 @@ class BuildTicketSignalsAction
         }
 
         $signalEligibleTickets->loadMissing('ticketable.achievementSet');
-        $signalEligibleTickets = $signalEligibleTickets->reject(fn (Ticket $ticket) => $this->isFiledOnNewSet($ticket))->values();
-        if ($signalEligibleTickets->isEmpty()) {
-            return $signalsForTickets;
-        }
 
         $triggersByTicketId = $this->findReportTriggersByTicket($signalEligibleTickets);
         $windowStartByTicketId = $this->computeWindowStarts($signalEligibleTickets, $triggersByTicketId);
@@ -129,7 +125,13 @@ class BuildTicketSignalsAction
             ];
 
             $signalVerdict = $this->decideVerdict($matchedSignals);
-            if ($signalVerdict === null) {
+            if (
+                $signalVerdict === null
+                || (
+                    $signalVerdict === TicketSignalVerdict::ProbablyNotDefect
+                    && $this->isReportedLogicNew($ticket, $triggersByTicketId[$ticket->id])
+                )
+            ) {
                 continue;
             }
 
@@ -206,13 +208,21 @@ class BuildTicketSignalsAction
             && !$ticket->state->isResolved();
     }
 
-    private function isFiledOnNewSet(Ticket $ticket): bool
+    /**
+     * This logic is more likely to be broken.
+     */
+    private function isReportedLogicNew(Ticket $ticket, ?Trigger $reportTrigger): bool
     {
         $firstPublishedAt = $ticket->ticketable?->achievementSet?->achievements_first_published_at;
+        if ($firstPublishedAt && $ticket->created_at->lt($firstPublishedAt->copy()->addDays(self::NEW_LOGIC_DAYS))) {
+            return true;
+        }
+
+        $logicChangedAt = $reportTrigger?->created_at;
 
         return
-            $firstPublishedAt !== null
-            && $ticket->created_at->lt($firstPublishedAt->copy()->addDays(self::NEW_SET_DAYS));
+            $logicChangedAt !== null
+            && $ticket->created_at->lt($logicChangedAt->copy()->addDays(self::NEW_LOGIC_DAYS));
     }
 
     /**

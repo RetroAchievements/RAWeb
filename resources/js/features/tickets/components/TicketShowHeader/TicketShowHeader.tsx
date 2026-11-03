@@ -88,7 +88,7 @@ export const TicketShowHeader: FC = () => {
         <div className="overflow-x-clip text-neutral-400">
           <div className="-ml-5 flex flex-wrap items-center gap-y-1">
             <span className="pl-5">
-              <span className="flex items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-800/60 px-2 py-0.5 text-neutral-200 light:border-neutral-300 light:bg-neutral-100 light:text-neutral-800">
+              <span className="flex items-center gap-1.5 text-neutral-200 light:text-neutral-800">
                 <span aria-hidden="true">
                   <TicketStateGlyph state={ticket.state} hasTooltip={false} />
                 </span>
