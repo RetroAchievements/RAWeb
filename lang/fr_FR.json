@@ -1813,7 +1813,7 @@
     "{{val, number}} later sessions_one": "{{val, number}} session ultérieure",
     "{{val, number}} later sessions_other": "{{val, number}} sessions ultérieures",
     "playersUnlockedBeforeReport_one": "{{count, number}} joueur a débloqué ce succès dans les {{duration}} avant le rapport.",
-    "playersUnlockedBeforeReport_other": "{{count, number}} joueurs ont débloqué ce succès dans les {{duration}} depuis le rapport.",
+    "playersUnlockedBeforeReport_other": "{{count, number}} joueurs ont débloqué ce succès dans les {{duration}} avant le rapport.",
     "playersUnlockedSinceLogicChange_one": "{{count, number}} joueur a débloqué ce succès depuis que sa logique a été mise à jour pour la dernière fois, {{duration}} avant le rapport.",
     "playersUnlockedSinceLogicChange_other": "{{count, number}} joueurs ont débloqué ce succès depuis que sa logique a été mise à jour pour la dernière fois, {{duration}} avant le rapport."
 }
