@@ -102,6 +102,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     protected $casts = [
         'modified_at' => 'datetime',
         'game_id' => 'integer',
+        'demoted_at' => 'datetime',
         'is_promoted' => 'boolean',
         'points' => 'integer',
         'points_weighted' => 'integer',
@@ -137,12 +138,26 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
      */
     public const FLAG_UNPROMOTED = 5;
 
+    /**
+     * Players who unlock a demoted achievement whose demotion happened on or
+     * after this date still keep the points they earned from the achievement.
+     */
+    public const POINTS_RETAINED_FOR_DEMOTIONS_SINCE = '2027-01-01 00:00:00';
+
     public static function boot()
     {
         parent::boot();
 
         static::created(function (Achievement $achievement) {
             AchievementCreated::dispatch($achievement);
+        });
+
+        static::updating(function (Achievement $achievement) {
+            if (!$achievement->isDirty('is_promoted')) {
+                return;
+            }
+
+            $achievement->demoted_at = $achievement->is_promoted ? null : now();
         });
 
         static::updated(function (Achievement $achievement) {
@@ -345,6 +360,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             "{$byUser->display_name} demoted this achievement to Unofficial.",
             $byUser->display_name,
         );
+    }
+
+    public function retainsPointsForPriorUnlocks(): bool
+    {
+        if ($this->is_promoted || !$this->demoted_at) {
+            return false;
+        }
+
+        return $this->demoted_at->gte(Carbon::parse(self::POINTS_RETAINED_FOR_DEMOTIONS_SINCE));
     }
 
     // == helpers
