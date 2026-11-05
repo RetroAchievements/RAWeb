@@ -12,10 +12,15 @@ export function useFormatCoarseDuration() {
 
   // Callers word "before" or "after" themselves.
   // This measures the gap in either direction.
-  const formatCoarseDuration = (start: string, end: string): string => {
+  const formatCoarseDuration = (
+    start: string,
+    end: string,
+    unitDisplayStyle: 'long' | 'narrow' = 'long',
+  ): string => {
     return formatCoarseDurationUtil(
       Math.abs(dayjs(end).diff(dayjs(start), 'second')),
       i18n.language,
+      unitDisplayStyle,
     );
   };
 

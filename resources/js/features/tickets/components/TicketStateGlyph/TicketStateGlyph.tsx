@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import {
   BaseTooltip,
@@ -8,7 +7,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { cn } from '@/common/utils/cn';
 
-import { getTicketStateLabel } from '../../utils/getTicketStateLabel';
+import { useTicketStateLabels } from '../../hooks/useTicketStateLabels';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 
 interface TicketStateGlyphProps {
@@ -23,9 +22,7 @@ export const TicketStateGlyph: FC<TicketStateGlyphProps> = ({
   className,
   hasTooltip = true,
 }) => {
-  const { t } = useTranslation();
-
-  const label = getTicketStateLabel(state, t);
+  const label = useTicketStateLabels()[state];
   const { Icon, className: stateClassName } = TICKET_STATE_GLYPHS[state];
 
   const glyph = (
