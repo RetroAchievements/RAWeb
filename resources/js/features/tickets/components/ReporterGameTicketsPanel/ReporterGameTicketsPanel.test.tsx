@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createTicketListEntry } from '@/test/factories';
 
 import { ReporterGameTicketsPanel } from './ReporterGameTicketsPanel';
@@ -100,5 +100,47 @@ describe('Component: ReporterGameTicketsPanel', () => {
 
     // ASSERT
     expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(5);
+  });
+
+  it('given the browser has measured the table, keeps the extra tickets in view until the table finishes shrinking', async () => {
+    // ARRANGE
+    const originalResizeObserver = window.ResizeObserver;
+    window.ResizeObserver = class MockResizeObserver {
+      private callback: ResizeObserverCallback;
+      constructor(callback: ResizeObserverCallback) {
+        this.callback = callback;
+      }
+      observe() {
+        this.callback([], this as unknown as ResizeObserver);
+      }
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(300);
+
+    render<App.Platform.Data.TicketShowPageProps>(<ReporterGameTicketsPanel />, {
+      pageProps: {
+        ticket: createTicketListEntry(),
+        reporterGameTickets: [1, 2, 3, 4, 5, 6, 7].map((id) => ({
+          id,
+          state: 'open' as const,
+          resolution: null,
+          createdAt: '2024-05-01T12:00:00Z',
+          ticketableTitle: `Challenge ${id}`,
+        })),
+      },
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'See 2 more' }));
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'See 2 more' }));
+
+    // ASSERT
+    expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(7);
+    await waitFor(() => {
+      expect(screen.getAllByRole('link', { name: /^#\d+$/ })).toHaveLength(5);
+    });
+
+    window.ResizeObserver = originalResizeObserver;
   });
 });

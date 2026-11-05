@@ -14,7 +14,8 @@ export function useTableHeights(visibleRowCount: number) {
     }
 
     const resizeWatcher = new ResizeObserver(() => {
-      const firstClippedRow = tableNode.tBodies[0]?.rows[visibleRowCount];
+      const firstClippedRow =
+        tableNode.querySelectorAll<HTMLTableRowElement>('tbody > tr')[visibleRowCount];
 
       setMeasuredHeights({
         collapsed: firstClippedRow?.offsetTop ?? tableNode.offsetHeight,
