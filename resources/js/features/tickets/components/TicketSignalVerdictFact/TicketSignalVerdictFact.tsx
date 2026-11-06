@@ -1,36 +1,36 @@
-import type { FC, ReactNode } from 'react';
+import type { FC } from 'react';
 
 import { useTicketSignalVerdictCopy } from '../../hooks/useTicketSignalVerdictCopy';
-import { getIsUnlockWindowSignal } from '../../utils/getIsUnlockWindowSignal';
+import { TICKET_SIGNAL_VERDICT_APPEARANCE } from '../../utils/ticketSignalVerdictAppearance';
+import { TicketCollapsibleSection } from '../TicketCollapsibleSection';
 
 interface TicketSignalVerdictFactProps {
   reportedAt: string;
   signals: App.Platform.Data.TicketSignals;
-
-  unlockCountFollowUp?: ReactNode;
 }
 
 export const TicketSignalVerdictFact: FC<TicketSignalVerdictFactProps> = ({
   reportedAt,
   signals,
-  unlockCountFollowUp,
 }) => {
   const { accuracy, label, reasons } = useTicketSignalVerdictCopy(signals, reportedAt);
 
+  const { Icon, className } = TICKET_SIGNAL_VERDICT_APPEARANCE[signals.verdict];
+
   return (
-    <>
-      <span className="block font-semibold">{label}</span>
+    <li>
+      <TicketCollapsibleSection
+        Icon={Icon}
+        iconClassName={className}
+        label={label}
+        contentClassName="gap-1 py-2 pl-10"
+      >
+        {reasons.map((reason) => (
+          <p key={reason}>{reason}</p>
+        ))}
 
-      {reasons.map((reason, index) => (
-        <span key={reason} className="block">
-          {reason}
-          {unlockCountFollowUp && getIsUnlockWindowSignal(signals.kinds[index]) ? (
-            <> {unlockCountFollowUp}</>
-          ) : null}
-        </span>
-      ))}
-
-      <span className="block text-neutral-400 light:text-neutral-500">{accuracy}</span>
-    </>
+        <p className="text-neutral-400 light:text-neutral-500">{accuracy}</p>
+      </TicketCollapsibleSection>
+    </li>
   );
 };
