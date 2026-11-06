@@ -54,6 +54,7 @@ function createSignalsTicket(
     bool $isTicketLinkedToTrigger = true,
     bool $isPublished = true,
     int $otherPlayers = 5,
+    int $logicDaysBeforeReport = 40,
 ): Ticket {
     $reportedAt = Carbon::parse('2026-06-01 12:00:00');
     $achievement = Achievement::factory()->promoted()->create([
@@ -64,7 +65,7 @@ function createSignalsTicket(
         'triggerable_type' => TriggerableType::Achievement,
         'triggerable_id' => $achievement->id,
         'version' => 2,
-        'created_at' => $reportedAt->copy()->subDays(20),
+        'created_at' => $reportedAt->copy()->subDays($logicDaysBeforeReport),
     ]);
     $reporter = User::factory()->create();
     $ticket = Ticket::factory()->forAchievement($achievement)->create([
@@ -91,7 +92,7 @@ function createSignalsTicket(
             'triggerable_type' => TriggerableType::Achievement,
             'triggerable_id' => $achievement->id,
             'version' => 1,
-            'created_at' => $reportedAt->copy()->subDays(40),
+            'created_at' => $reportedAt->copy()->subDays(60),
         ])->id,
         default => $reportTrigger->id,
     };
@@ -149,17 +150,17 @@ it('settles the verdict from the unlock count together with the reporter unlock'
     'zero unlocks with a later unlock on unknown logic' => [0, 'unknown-logic', null, []],
 ]);
 
-it('given a logic change 20 days before the report, counts unlocks only from that point and exposes the evidence', function () {
+it('given a logic change 40 days before the report, counts unlocks only from that point and exposes the evidence', function () {
     // ARRANGE
     $ticket = createSignalsTicket(50, 'unknown-logic');
-    seedSignalsUnlocks(Achievement::findOrFail($ticket->ticketable_id), 30, Carbon::parse('2026-05-01 12:00:00'));
+    seedSignalsUnlocks(Achievement::findOrFail($ticket->ticketable_id), 30, Carbon::parse('2026-04-01 12:00:00'));
 
     // ACT
     $signals = buildSignals($ticket)[$ticket->id];
 
     // ASSERT
     expect($signals->unlockCount)->toEqual(50);
-    expect($signals->windowStartedAt->toDateTimeString())->toEqual('2026-05-12 12:00:00');
+    expect($signals->windowStartedAt->toDateTimeString())->toEqual('2026-04-22 12:00:00');
     expect($signals->hasRecentLogicChange)->toBeTrue();
     expect($signals->reporterEarnedAt->toDateTimeString())->toEqual('2026-06-08 12:00:00');
 });
@@ -204,6 +205,33 @@ it('given fewer than 5 other players on the game in the window, zero unlocks doe
     // ASSERT
     expect($result)->toEqual([$ticket->id => null]);
 });
+
+it('given new or freshly edited logic, hides "probably not a bug" but keeps "probably a real bug"', function (
+    int $unlocksBeforeReport,
+    int $logicDaysBeforeReport,
+    ?int $setPublishedDaysBeforeReport,
+    ?TicketSignalVerdict $expectedVerdict,
+) {
+    // ARRANGE
+    $ticket = createSignalsTicket($unlocksBeforeReport, logicDaysBeforeReport: $logicDaysBeforeReport);
+    Achievement::findOrFail($ticket->ticketable_id)->achievementSet->update([
+        'achievements_first_published_at' => $setPublishedDaysBeforeReport === null
+            ? null
+            : Carbon::parse('2026-06-01 12:00:00')->subDays($setPublishedDaysBeforeReport),
+    ]);
+
+    // ACT
+    $signals = buildSignals($ticket)[$ticket->id];
+
+    // ASSERT
+    expect($signals?->verdict)->toEqual($expectedVerdict);
+})->with([
+    'set published 29 days before the report' => [50, 40, 29, null],
+    'set published 30 days before the report' => [50, 40, 30, TicketSignalVerdict::ProbablyNotDefect],
+    'logic edited 29 days before the report' => [50, 29, null, null],
+    'logic edited 30 days before the report' => [50, 30, null, TicketSignalVerdict::ProbablyNotDefect],
+    'zero unlocks on a set published 10 days before the report' => [0, 40, 10, TicketSignalVerdict::ProbablyDefect],
+]);
 
 it('given a ticket with no linked logic version, measures the reporter unlock against the version live at report time', function () {
     // ARRANGE

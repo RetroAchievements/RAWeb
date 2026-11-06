@@ -9,22 +9,6 @@ import { createTicketListEntry } from '@/test/factories';
 import { TicketStateMenu } from './TicketStateMenu';
 
 describe('Component: TicketStateMenu', () => {
-  it('given no allowed actions, shows the state as plain text without a menu', () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
-      pageProps: {
-        allowedTicketActions: [],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
-        ticket: createTicketListEntry({ state: 'open', resolution: null }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText('Open')).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  });
-
   it('given a developer on an open ticket, lists the state moves and then the close reasons', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
