@@ -7,14 +7,21 @@ import { getRelativeTimeUnit } from './getRelativeTimeUnit';
  *
  * @example formatCoarseDuration(5520, 'en_US') -> "1 hour 32 minutes"
  * @example formatCoarseDuration(19 * 86400, 'en_US') -> "2 weeks"
+ * @example formatCoarseDuration(5520, 'en_US', 'narrow') -> "1h 32m"
  */
-export function formatCoarseDuration(seconds: number, locale: string): string {
+export function formatCoarseDuration(
+  seconds: number,
+  locale: string,
+  unitDisplayStyle: 'long' | 'narrow' = 'long',
+): string {
   const browserLocale = locale.replace('_', '-');
 
   const renderUnit = (unit: Exclude<RelativeTimeUnit, 'second'>, value: number) =>
-    new Intl.NumberFormat(browserLocale, { style: 'unit', unit, unitDisplay: 'long' }).format(
-      value,
-    );
+    new Intl.NumberFormat(browserLocale, {
+      style: 'unit',
+      unit,
+      unitDisplay: unitDisplayStyle,
+    }).format(value);
 
   const { unit, value } = getRelativeTimeUnit(seconds);
 
