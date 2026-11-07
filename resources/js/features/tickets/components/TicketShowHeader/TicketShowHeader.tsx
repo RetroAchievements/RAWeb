@@ -8,23 +8,27 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
 import { useTicketTypeLabels } from '../../hooks/useTicketTypeLabels';
 import { ticketShowEntityLinkClassNames } from '../../utils/ticketShowEntityLinkClassNames';
-import { TicketStateMenu } from '../TicketStateMenu';
+import { TicketStateGlyph } from '../TicketStateGlyph';
 import { TicketUserValue } from '../TicketUserValue';
 
 const titleLabelClassName =
   'font-semibold text-neutral-100 [a:hover_&]:underline light:text-neutral-900';
 
 export const TicketShowHeader: FC = () => {
-  const { achievement, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { achievement, ticket, ticketableDescription } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
+
+  const { buildTicketStateLabel } = useTicketStateLabel();
 
   const ticketTypeLabels = useTicketTypeLabels();
 
   return (
     <div className="flex items-start gap-3">
       {achievement ? (
-        <AchievementAvatar {...achievement} showLabel={false} size={48} />
+        <AchievementAvatar {...achievement} hasTooltip={false} showLabel={false} size={48} />
       ) : (
         <a
           href={route('leaderboard.show', { leaderboard: ticket.ticketableId })}
@@ -63,6 +67,10 @@ export const TicketShowHeader: FC = () => {
           )}
         </h1>
 
+        {ticketableDescription ? (
+          <p className="text-neutral-300 light:text-neutral-700">{ticketableDescription}</p>
+        ) : null}
+
         <p className="flex items-center gap-1 text-neutral-400">
           <InertiaLink
             href={route('game.show', { game: ticket.game.id })}
@@ -77,15 +85,23 @@ export const TicketShowHeader: FC = () => {
           <span>{ticket.game.system!.nameShort}</span>
         </p>
 
-        <div className="-ml-1.5 overflow-x-clip pl-1.5 text-neutral-400">
+        <div className="overflow-x-clip text-neutral-400">
           <div className="-ml-5 flex flex-wrap items-center gap-y-1">
-            <span className="flex items-center gap-1.5 pl-5 text-neutral-200 light:text-neutral-800">
-              <TicketStateMenu />
+            <span className="pl-5">
+              <span className="flex items-center gap-1.5 text-neutral-200 light:text-neutral-800">
+                <span aria-hidden="true">
+                  <TicketStateGlyph state={ticket.state} hasTooltip={false} />
+                </span>
+
+                {buildTicketStateLabel(ticket.state, ticket.resolution)}
+              </span>
             </span>
 
             <span className="flex items-center">
-              <StatusSeparator />
-              {ticketTypeLabels[ticket.type]}
+              <span aria-hidden="true" className="w-5 flex-none" />
+              <span className="font-semibold text-neutral-100 light:text-neutral-900">
+                {ticketTypeLabels[ticket.type]}
+              </span>
             </span>
 
             <span className="flex items-center">

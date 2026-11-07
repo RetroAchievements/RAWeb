@@ -151,6 +151,73 @@ it('given a fully supported emulator and no session, it leaves the ticket open',
     'no core' => [null],
 ]);
 
+it('given a standalone game, the ticket state is set to open even though the client fails our emulator checks', function (string $emulatorName) {
+    // Arrange
+    $standalonesSystem = System::factory()->create(['id' => System::Standalones]);
+    $standaloneGame = Game::factory()->create(['title' => 'Undertale', 'system_id' => $standalonesSystem->id]);
+    $standaloneAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $standaloneGame->id,
+        'user_id' => $this->developer->id,
+    ]);
+
+    Emulator::factory()->create(['name' => 'Undertale', 'can_debug_triggers' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(
+        ticketData(['ticketable' => $standaloneAchievement, 'emulator' => $emulatorName]),
+        $this->reporter,
+    );
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Open);
+})->with([
+    'a client that cannot debug triggers' => ['Undertale'],
+    'an emulator name that matches no record' => ['Other'],
+]);
+
+it('given a game set to quarantine new tickets, it quarantines the ticket even from a fully supported emulator', function () {
+    // Arrange
+    $this->game->update(['is_ticket_quarantine_enabled' => true]);
+
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true, 'softcore_only' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter);
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+});
+
+it('given a standalone subset whose base game is set to quarantine new tickets, it quarantines subset tickets too', function () {
+    // Arrange
+    $standalonesSystem = System::factory()->create(['id' => System::Standalones]);
+    $baseGame = Game::factory()->create([
+        'title' => 'Final Fantasy XI',
+        'system_id' => $standalonesSystem->id,
+        'is_ticket_quarantine_enabled' => true,
+    ]);
+    $subset = Game::factory()->create([
+        'title' => 'Final Fantasy XI [Subset - Hero of Nations]',
+        'system_id' => $standalonesSystem->id,
+        'parent_game_id' => $baseGame->id,
+    ]);
+    $subsetAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $subset->id,
+        'user_id' => $this->developer->id,
+    ]);
+
+    Emulator::factory()->create(['name' => 'HorizonXI', 'can_debug_triggers' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(
+        ticketData(['ticketable' => $subsetAchievement, 'emulator' => 'HorizonXI']),
+        $this->reporter,
+    );
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+});
+
 it('given an emulator name that matches no record, it quarantines the ticket and keeps the name in the body', function () {
     // Act
     $ticket = (new CreateTicketAction())->execute(

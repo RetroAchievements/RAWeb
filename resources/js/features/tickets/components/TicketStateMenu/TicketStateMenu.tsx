@@ -23,7 +23,6 @@ import { useTicketCloseReasonLabels } from '../../hooks/useTicketCloseReasonLabe
 import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
 import { TICKET_CLOSE_REASONS } from '../../utils/ticketCloseReasons';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
-import { TicketStateGlyph } from '../TicketStateGlyph';
 import { TicketActionConfirmDialog } from './TicketActionConfirmDialog';
 
 interface StateMoveItem {
@@ -46,15 +45,6 @@ export const TicketStateMenu: FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const stateLabel = buildTicketStateLabel(ticket.state, ticket.resolution);
-
-  if (!allowedTicketActions.length) {
-    return (
-      <>
-        <TicketStateGlyph state={ticket.state} />
-        {stateLabel}
-      </>
-    );
-  }
 
   const getIsActionPermitted = (action: App.Community.Enums.TicketAction) =>
     allowedTicketActions.includes(action);
@@ -186,19 +176,25 @@ export const TicketStateMenu: FC = () => {
         <BaseDropdownMenuTrigger
           aria-label={t('Change status (currently {{status}})', { status: stateLabel })}
           className={cn(
-            '-mx-1.5 flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors',
-            'hover:bg-neutral-800 data-[state=open]:bg-neutral-800',
-            'light:hover:bg-neutral-200 light:data-[state=open]:bg-neutral-200',
+            'flex items-center gap-1.5 rounded-md border px-2 py-1 text-neutral-200 light:text-neutral-800',
+            'border-neutral-600 bg-neutral-800/50',
+            'hover:border-neutral-500 hover:bg-neutral-800',
+            'data-[state=open]:border-neutral-500 data-[state=open]:bg-neutral-800',
+            'light:border-neutral-300 light:bg-white',
+            'light:hover:border-neutral-400 light:hover:bg-neutral-100',
+            'light:data-[state=open]:border-neutral-400 light:data-[state=open]:bg-neutral-100',
             'outline-hidden focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-neutral-300',
             'light:focus-visible:ring-neutral-950',
           )}
         >
-          <TicketStateGlyph state={ticket.state} />
-          {stateLabel}
-          <LuChevronDown aria-hidden={true} className="size-3.5 text-neutral-500" />
+          {t('Status')}
+          <LuChevronDown
+            aria-hidden={true}
+            className="size-3.5 text-neutral-400 light:text-neutral-600"
+          />
         </BaseDropdownMenuTrigger>
 
-        <BaseDropdownMenuContent align="start" className="min-w-56">
+        <BaseDropdownMenuContent align="end" className="min-w-56">
           {stateMoveItems.map((item) => (
             <BaseDropdownMenuItem
               key={item.action}

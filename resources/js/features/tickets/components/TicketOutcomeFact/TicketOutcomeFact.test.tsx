@@ -76,6 +76,10 @@ describe('Component: TicketOutcomeFact', () => {
       'Scott closed this ticket 2 days after the report because the report did not have enough information.',
     ],
     [
+      'no_reply_from_reporter',
+      'We closed this ticket 2 days after the report because the reporter did not reply. A reply from the reporter will reopen it.',
+    ],
+    [
       'wrong_rom',
       'Scott closed this ticket 2 days after the report because the reporter used the wrong ROM.',
     ],

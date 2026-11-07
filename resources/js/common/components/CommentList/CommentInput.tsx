@@ -26,7 +26,8 @@ export const CommentInput: FC = () => {
 
   const { t } = useTranslation();
 
-  const { canComment, commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
+  const { canComment, commentableId, commentableType, inputActionsSlot, onSubmitSuccess } =
+    useCommentListContext();
 
   const { form, mutation, onSubmit } = useSubmitCommentForm({
     commentableId,
@@ -86,7 +87,9 @@ export const CommentInput: FC = () => {
               )}
             />
 
-            <div className="-mt-3 flex justify-end">
+            <div className="-mt-3 flex items-center justify-end gap-2">
+              {inputActionsSlot}
+
               <MetaKeySubmitTooltip>
                 <BaseButton type="submit" disabled={mutation.isPending || !form.formState.isValid}>
                   {t('Submit')}

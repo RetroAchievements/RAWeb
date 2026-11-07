@@ -12,10 +12,14 @@ enum TicketResolution: string
     case Fixed = 'fixed';
     case MistakenReport = 'mistaken_report';
     case NotEnoughInformation = 'not_enough_information';
+    case NoReplyFromReporter = 'no_reply_from_reporter';
     case WrongRom = 'wrong_rom';
     case NetworkProblems = 'network_problems';
     case UnableToReproduce = 'unable_to_reproduce';
     case UnableToDebug = 'unable_to_debug';
+    case AlreadyFixed = 'already_fixed';
+    case EmulatorProblem = 'emulator_problem';
+    case ManualUnlockRequest = 'manual_unlock_request';
     case Demoted = 'demoted';
     case Other = 'other';
 
@@ -36,10 +40,14 @@ enum TicketResolution: string
             self::Fixed => null,
             self::MistakenReport => 'Mistaken report',
             self::NotEnoughInformation => 'Not enough information',
+            self::NoReplyFromReporter => 'No reply from reporter',
             self::WrongRom => 'Wrong ROM',
             self::NetworkProblems => 'Network problems',
             self::UnableToReproduce => 'Unable to reproduce',
             self::UnableToDebug => 'Unable to debug due to no toolkit support',
+            self::AlreadyFixed => 'Already fixed',
+            self::EmulatorProblem => 'Emulator or core problem',
+            self::ManualUnlockRequest => 'Manual unlock request',
             self::Demoted => 'Demoted',
             self::Other => 'See the comments',
         };

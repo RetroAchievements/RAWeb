@@ -12,12 +12,11 @@ import {
   LuTrophy,
 } from 'react-icons/lu';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinished';
 
-import { getIsUnlockWindowSignal } from '../../utils/getIsUnlockWindowSignal';
-import { TICKET_SIGNAL_VERDICT_APPEARANCE } from '../../utils/ticketSignalVerdictAppearance';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketFactRow } from '../TicketFactRow';
 import { TicketLeaderboardEntryFact } from '../TicketLeaderboardEntryFact';
@@ -32,6 +31,7 @@ import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketFactsList: FC = () => {
   const {
+    autoCloseAt,
     currentTriggerVersion,
     hasReporterHistoryAccess,
     isViewerReporter,
@@ -45,6 +45,7 @@ export const TicketFactsList: FC = () => {
     unlocksSinceReported,
   } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const hasLogicChangedSinceReport =
     !getIsTicketStateFinished(ticket.state) &&
@@ -57,16 +58,8 @@ export const TicketFactsList: FC = () => {
       ? ticket.reporter
       : null;
 
-  const hasUnlockWindowSignal = ticket.signals?.kinds.some(getIsUnlockWindowSignal) ?? false;
-  const unlockCountFact =
-    typeof unlocksSinceReported === 'number' ? (
-      <TicketUnlockCountFact
-        isFollowUp={hasUnlockWindowSignal}
-        logicChangedAt={logicChangedAfterReportAt}
-        reportedAt={ticket.createdAt}
-        unlocksSinceReported={unlocksSinceReported}
-      />
-    ) : null;
+  const formattedAutoCloseDate = autoCloseAt ? formatDate(autoCloseAt, 'll') : null;
+  const isUnlockCountShown = typeof unlocksSinceReported === 'number';
 
   return (
     <ul
@@ -85,6 +78,15 @@ export const TicketFactsList: FC = () => {
               components={{ 1: <TicketUserValue user={ticket.reporter} /> }}
             />
           )}
+
+          {formattedAutoCloseDate ? (
+            <>
+              {' '}
+              {t('If there is no reply by {{date}}, we will close this ticket.', {
+                date: formattedAutoCloseDate,
+              })}
+            </>
+          ) : null}
         </TicketFactRow>
       ) : null}
 
@@ -111,16 +113,7 @@ export const TicketFactsList: FC = () => {
       ) : null}
 
       {ticket.signals ? (
-        <TicketFactRow
-          Icon={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].Icon}
-          iconClassName={TICKET_SIGNAL_VERDICT_APPEARANCE[ticket.signals.verdict].className}
-        >
-          <TicketSignalVerdictFact
-            signals={ticket.signals}
-            reportedAt={ticket.createdAt}
-            unlockCountFollowUp={hasUnlockWindowSignal ? unlockCountFact : null}
-          />
-        </TicketFactRow>
+        <TicketSignalVerdictFact signals={ticket.signals} reportedAt={ticket.createdAt} />
       ) : null}
 
       {reporterUnlock ? (
@@ -135,8 +128,14 @@ export const TicketFactsList: FC = () => {
         </TicketFactRow>
       ) : null}
 
-      {unlockCountFact && !hasUnlockWindowSignal ? (
-        <TicketFactRow Icon={LuArrowUpRight}>{unlockCountFact}</TicketFactRow>
+      {isUnlockCountShown ? (
+        <TicketFactRow Icon={LuArrowUpRight}>
+          <TicketUnlockCountFact
+            logicChangedAt={logicChangedAfterReportAt}
+            reportedAt={ticket.createdAt}
+            unlocksSinceReported={unlocksSinceReported}
+          />
+        </TicketFactRow>
       ) : null}
 
       <TicketFactRow Icon={LuTickets}>

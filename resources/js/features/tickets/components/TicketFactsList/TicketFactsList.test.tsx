@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createLeaderboardEntry, createTicketListEntry, createUser } from '@/test/factories';
 
@@ -82,6 +84,31 @@ describe('Component: TicketFactsList', () => {
     );
     expect(container).not.toHaveTextContent('Waiting for');
   });
+
+  it.each([true, false])(
+    'given a request ticket with a close date, and a viewer who is the reporter (%s), states when the ticket will close',
+    (isViewerReporter) => {
+      // ARRANGE
+      const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+        pageProps: {
+          can: {},
+          relatedTickets: [],
+          isViewerReporter,
+          autoCloseAt: '2026-11-19T12:00:00Z',
+          ticket: createTicketListEntry({
+            state: 'request',
+            ticketableType: 'achievement',
+            reporter: createUser({ displayName: 'Reporter' }),
+          }),
+        },
+      });
+
+      // ASSERT
+      expect(container).toHaveTextContent(
+        'If there is no reply by Nov 19, 2026, we will close this ticket.',
+      );
+    },
+  );
 
   it('given a quarantined ticket, shows an explanation', () => {
     // ARRANGE
@@ -394,7 +421,7 @@ describe('Component: TicketFactsList', () => {
     expect(container).not.toHaveTextContent('on this leaderboard');
   });
 
-  it('given a ticket with signals, shows the signal data', () => {
+  it('given a ticket with signals, shows the verdict and reveals the verdict reasoning on click', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
       pageProps: {
@@ -417,7 +444,15 @@ describe('Component: TicketFactsList', () => {
       },
     });
 
+    const verdictToggle = screen.getByRole('button', { name: /probably a real bug/i });
+    expect(verdictToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/nearly 4 in 5 tickets/i)).not.toBeInTheDocument();
+
+    // ACT
+    await userEvent.click(verdictToggle);
+
     // ASSERT
+    expect(verdictToggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
       'Probably a real bugThe reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already.No players unlocked this achievement since its logic was last updated, 3 days before the report.82% of tickets with this verdict receive a logic change.',
     );
@@ -450,9 +485,10 @@ describe('Component: TicketFactsList', () => {
     expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
       'Probably not a bug316 players unlocked this achievement in the 90 days before the report.Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
     );
+    expect(screen.getByText(/nearly 4 in 5 tickets/i)).toBeVisible();
   });
 
-  it('given an unlock window signal and an unlock count, continues the verdict line with the count instead of its own row', () => {
+  it('given an unlock window signal and an unlock count, shows the count in its own row while the verdict is collapsed', () => {
     // ARRANGE
     vi.setSystemTime(new Date('2026-07-17T12:00:00Z'));
 
@@ -479,10 +515,11 @@ describe('Component: TicketFactsList', () => {
     });
 
     // ASSERT
-    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
-      'No players unlocked this achievement in the 90 days before the report. No one has unlocked it in the 4 weeks since.',
+    expect(screen.getByRole('button', { name: /probably a real bug/i })).toHaveAttribute(
+      'aria-expanded',
+      'false',
     );
-    expect(screen.queryByText(/No one has unlocked this achievement/)).not.toBeInTheDocument();
+    expect(screen.getByText(/no one has unlocked this achievement/i)).toBeVisible();
   });
 
   it('given a ticket without signals, does not show signal data', () => {
