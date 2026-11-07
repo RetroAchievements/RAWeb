@@ -24,7 +24,7 @@ class UserObserver
 {
     public function updating(User $user): void
     {
-        $mutedRoleId = config('services.discord.muted');
+        $mutedRoleId = config('services.discord.muted_role');
         $actionedBy = Auth::user();
 
         // Handle muting (new mute or extension).
