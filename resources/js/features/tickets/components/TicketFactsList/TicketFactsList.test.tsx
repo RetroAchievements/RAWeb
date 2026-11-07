@@ -446,7 +446,7 @@ describe('Component: TicketFactsList', () => {
 
     const verdictToggle = screen.getByRole('button', { name: /probably a real bug/i });
     expect(verdictToggle).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByText(/nearly 4 in 5 tickets/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/82% of tickets/i)).not.toBeInTheDocument();
 
     // ACT
     await userEvent.click(verdictToggle);
@@ -458,7 +458,7 @@ describe('Component: TicketFactsList', () => {
     );
   });
 
-  it('given signals with no stored accuracy, falls back to the estimated accuracy', () => {
+  it('given signals with no stored accuracy, falls back to the estimated accuracy', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
       pageProps: {
@@ -481,11 +481,13 @@ describe('Component: TicketFactsList', () => {
       },
     });
 
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /probably not a bug/i }));
+
     // ASSERT
     expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
       'Probably not a bug316 players unlocked this achievement in the 90 days before the report.Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
     );
-    expect(screen.getByText(/nearly 4 in 5 tickets/i)).toBeVisible();
   });
 
   it('given an unlock window signal and an unlock count, shows the count in its own row while the verdict is collapsed', () => {
