@@ -28,7 +28,7 @@ export const TicketCloseDialog: FC<TicketCloseDialogProps> = ({ isOpen, onOpenCh
     <BaseDialog open={isOpen} onOpenChange={onOpenChange}>
       <BaseDialogContent
         aria-describedby={undefined}
-        className="max-sm:top-4 max-sm:max-h-[calc(100dvh-2rem)] max-sm:translate-y-0 max-sm:overflow-y-auto sm:max-w-3xl"
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto max-sm:top-4 max-sm:translate-y-0 sm:max-w-3xl"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <BaseDialogHeader>
