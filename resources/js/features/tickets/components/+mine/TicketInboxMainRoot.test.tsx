@@ -10,6 +10,7 @@ function buildEmptySections(): App.Platform.Data.TicketInboxSection[] {
     createTicketInboxSection({ kind: 'toResolve' }),
     createTicketInboxSection({ kind: 'awaitingYourFeedback' }),
     createTicketInboxSection({ kind: 'awaitingReporter' }),
+    createTicketInboxSection({ kind: 'subscribedByYou' }),
     createTicketInboxSection({ kind: 'reportedByYou' }),
     createTicketInboxSection({ kind: 'resolvedByYou' }),
   ];
@@ -132,6 +133,36 @@ describe('Component: TicketInboxMainRoot', () => {
     expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
       'href',
       expect.stringContaining('user.tickets.created,'),
+    );
+  });
+
+  it('given open tickets on games subscribed to by the user, shows and links to them', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketInboxPageProps>(<TicketInboxMainRoot />, {
+      pageProps: {
+        sections: [
+          createTicketInboxSection({
+            kind: 'subscribedByYou',
+            count: 10,
+            tickets: [createTicketListEntry({ id: 1001 })],
+          }),
+        ],
+        sectionLimit: 8,
+        attentionCount: 0,
+        can: {},
+        user: createUser({ displayName: 'Dugtrio' }),
+      },
+    });
+
+    // ASSERT
+    expect(route).toHaveBeenCalledWith('tickets.subscribed', { 'filter[status]': 'open' });
+    expect(
+      screen.getByRole('heading', { level: 2, name: /Subscribed to by you/ }),
+    ).toHaveTextContent('10');
+    expect(screen.getByRole('row', { name: /1001/ })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('tickets.subscribed,'),
     );
   });
 });

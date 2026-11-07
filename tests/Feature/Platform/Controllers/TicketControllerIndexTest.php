@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\PlayerSession;
 use App\Models\Role;
+use App\Models\Subscription;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\TicketVerdictAccuracyResult;
@@ -245,7 +248,7 @@ it('given an authenticated user, inbox renders every section for that user', fun
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
         ->component('tickets/mine')
-        ->has('sections', 5)
+        ->has('sections', 6)
         ->where('sectionLimit', 8)
         ->where('attentionCount', 0)
         ->where('user.displayName', $viewer->display_name)
