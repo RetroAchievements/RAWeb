@@ -12,15 +12,19 @@ class StoreCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => [
-                'required',
-                'string',
-                'min:3',
-                'max:2000',
-                new ContainsRegularCharacter(),
-            ],
+            'body' => ['required', ...self::bodyRules()],
             'commentableId' => 'required|integer',
             'commentableType' => 'required|string',
+        ];
+    }
+
+    public static function bodyRules(): array
+    {
+        return [
+            'string',
+            'min:3',
+            'max:2000',
+            new ContainsRegularCharacter(),
         ];
     }
 }

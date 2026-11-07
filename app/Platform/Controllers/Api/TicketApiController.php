@@ -2,10 +2,12 @@
 
 namespace App\Platform\Controllers\Api;
 
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Actions\ChangeTicketStateAction;
@@ -73,7 +75,18 @@ class TicketApiController extends Controller
         $ticketAction = TicketAction::from($request->input('action'));
         $this->authorize('updateState', [$ticket, $ticketAction]);
 
-        $changeState->execute($ticket, $ticketAction, $request->user());
+        /** @var User $actingUser */
+        $actingUser = $request->user();
+
+        /** @var string|null $note */
+        $note = $request->validated('note');
+
+        if ($note !== null) {
+            $this->authorize('create', [TicketComment::class, $ticket]);
+            addArticleComment($actingUser->username, CommentableType::Ticket, $ticket->id, $note);
+        }
+
+        $changeState->execute($ticket, $ticketAction, $actingUser);
 
         return response()->json(['message' => __('legacy.success.update')]);
     }

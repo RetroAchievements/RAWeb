@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
 import { useDraftForm } from '@/common/hooks/useDraftForm';
+import { buildCommentBodySchema } from '@/common/utils/buildCommentBodySchema';
 
 import { useCommentListContext } from './CommentListContext';
 
@@ -25,14 +26,7 @@ export function useSubmitCommentForm({
 
   const { targetUserDisplayName } = useCommentListContext();
 
-  const addCommentFormSchema = z.object({
-    body: z
-      .string()
-      .min(3, { message: t('Must be at least {{val, number}} characters.', { val: 3 }) })
-      .max(2000, {
-        message: t('Must not be longer than {{val, number}} characters.', { val: 2000 }),
-      }),
-  });
+  const addCommentFormSchema = z.object({ body: buildCommentBodySchema(t) });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
   const { form, clearDraft } = useDraftForm<FormValues>(
