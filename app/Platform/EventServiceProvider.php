@@ -68,9 +68,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         AchievementDeleted::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementRestored::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,

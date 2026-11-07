@@ -58,6 +58,7 @@ use App\Platform\Commands\SyncUnrankedUsersTable;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
+use App\Platform\Commands\UpdateDemotedAchievementPlayerMetrics;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
@@ -95,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
+                UpdateDemotedAchievementPlayerMetrics::class,
 
                 // Games
                 BackfillMissingPlayerGames::class,

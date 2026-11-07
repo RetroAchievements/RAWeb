@@ -181,8 +181,9 @@ class PlayerAchievement extends BasePivot
     }
 
     /**
-     * Unlocks that were earned before a retention-eligible demotion, so the
-     * player keeps their points. See Achievement::POINTS_RETAINED_FOR_DEMOTIONS_SINCE.
+     * Unlocks that happened before a demotion that let players retain their points.
+     *
+     * @see Achievement::MIN_PUBLISHED_DAYS_TO_KEEP_POINTS
      *
      * @param Builder<PlayerAchievement> $query
      * @return Builder<PlayerAchievement>
@@ -193,8 +194,8 @@ class PlayerAchievement extends BasePivot
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->join('games', 'games.id', '=', 'achievements.game_id')
             ->whereNotIn('games.system_id', [System::Hubs, System::Events])
-            ->where('achievements.is_promoted', false)
-            ->where('achievements.demoted_at', '>=', Achievement::POINTS_RETAINED_FOR_DEMOTIONS_SINCE)
+            ->where('achievements.should_keep_demoted_points', true)
+            ->whereNull('achievements.deleted_at')
             ->whereColumn('player_achievements.unlocked_at', '<', 'achievements.demoted_at');
     }
 }

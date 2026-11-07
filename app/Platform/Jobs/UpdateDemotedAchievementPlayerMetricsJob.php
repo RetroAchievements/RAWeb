@@ -43,6 +43,6 @@ class UpdateDemotedAchievementPlayerMetricsJob implements ShouldQueue, ShouldBeU
     public function handle(): void
     {
         app(UpdateDemotedAchievementPlayerMetricsAction::class)
-            ->execute(Achievement::findOrFail($this->achievementId));
+            ->execute(Achievement::withTrashed()->findOrFail($this->achievementId));
     }
 }

@@ -15,22 +15,22 @@ use Illuminate\Support\Collection;
  */
 class UpdateDemotedAchievementPlayerMetricsAction
 {
-    private const PLAYERS_PER_CHUNK = 1000;
+    private const UNLOCK_ROWS_PER_CHUNK = 1000;
 
     public function execute(Achievement $achievement): void
     {
-        if (!$achievement->retainsPointsForPriorUnlocks()) {
+        if (!$achievement->should_keep_demoted_points) {
             return;
         }
 
         PlayerAchievement::query()
-            ->retainedFromDemotion()
-            ->where('achievements.id', $achievement->id)
-            ->select(['player_achievements.id', 'player_achievements.user_id'])
-            ->chunkById(self::PLAYERS_PER_CHUNK, function (Collection $playerChunk): void {
-                foreach ($playerChunk as $playerUnlock) {
-                    dispatch(new UpdatePlayerMetricsJob($playerUnlock->user_id))->onQueue('player-metrics');
+            ->where('achievement_id', $achievement->id)
+            ->where('unlocked_at', '<', $achievement->demoted_at)
+            ->select(['id', 'user_id'])
+            ->chunkById(self::UNLOCK_ROWS_PER_CHUNK, function (Collection $unlockBatch): void {
+                foreach ($unlockBatch as $unlockRow) {
+                    dispatch(new UpdatePlayerMetricsJob($unlockRow->user_id))->onQueue('player-metrics');
                 }
-            }, 'player_achievements.id', 'id');
+            });
     }
 }

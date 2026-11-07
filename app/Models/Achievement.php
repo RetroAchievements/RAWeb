@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
@@ -103,6 +104,7 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         'modified_at' => 'datetime',
         'game_id' => 'integer',
         'demoted_at' => 'datetime',
+        'should_keep_demoted_points' => 'boolean',
         'is_promoted' => 'boolean',
         'points' => 'integer',
         'points_weighted' => 'integer',
@@ -139,10 +141,10 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     public const FLAG_UNPROMOTED = 5;
 
     /**
-     * Players who unlock a demoted achievement whose demotion happened on or
-     * after this date still keep the points they earned from the achievement.
+     * Demoted achievements retain points for earlier unlocks only when they
+     * were published for at least this many days.
      */
-    public const POINTS_RETAINED_FOR_DEMOTIONS_SINCE = '2027-01-01 00:00:00';
+    public const MIN_PUBLISHED_DAYS_TO_KEEP_POINTS = 7;
 
     public static function boot()
     {
@@ -157,7 +159,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
                 return;
             }
 
-            $achievement->demoted_at = $achievement->is_promoted ? null : now();
+            if ($achievement->is_promoted) {
+                $achievement->demoted_at = null;
+                $achievement->should_keep_demoted_points = false;
+
+                return;
+            }
+
+            $achievement->demoted_at = now();
+            $achievement->should_keep_demoted_points = !$achievement->wasPromotedWithinRetentionWindow();
         });
 
         static::updated(function (Achievement $achievement) {
@@ -362,13 +372,13 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
         );
     }
 
-    public function retainsPointsForPriorUnlocks(): bool
+    private function wasPromotedWithinRetentionWindow(): bool
     {
-        if ($this->is_promoted || !$this->demoted_at) {
-            return false;
-        }
-
-        return $this->demoted_at->gte(Carbon::parse(self::POINTS_RETAINED_FOR_DEMOTIONS_SINCE));
+        return Activity::query()
+            ->forSubject($this)
+            ->where('created_at', '>', now()->subDays(self::MIN_PUBLISHED_DAYS_TO_KEEP_POINTS))
+            ->get()
+            ->contains(fn (Activity $activity) => $activity->getExtraProperty('attributes.is_promoted') === true);
     }
 
     // == helpers
