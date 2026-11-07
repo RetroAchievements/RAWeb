@@ -203,9 +203,9 @@ class TicketListService
 
         $signalFilter = $filterOptions['signal'];
         if ($signalFilter === 'none') {
-            $tickets->whereNull('tickets.signal_verdict');
+            $tickets->whereNull('tickets.current_signal_verdict');
         } elseif ($signalFilter !== 'all') {
-            $tickets->where('tickets.signal_verdict', $signalFilter);
+            $tickets->where('tickets.current_signal_verdict', $signalFilter);
         }
 
         return $tickets;
@@ -293,7 +293,7 @@ class TicketListService
                 TicketListFilterKind::Signal => $this->countGroupedFacet(
                     $query,
                     $kind,
-                    'tickets.signal_verdict',
+                    'tickets.current_signal_verdict',
                     fn (?string $storedVerdict): string => $storedVerdict ?? 'none',
                 ),
             };

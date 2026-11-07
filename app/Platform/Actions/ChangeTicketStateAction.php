@@ -35,6 +35,11 @@ class ChangeTicketStateAction
 
         $previousState = $ticket->state;
         $newState = $action->targetState();
+
+        if ($newState->isResolved() && !$previousState->isResolved()) {
+            $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
+        }
+
         $ticket->state = $newState;
 
         CauserResolver::setCauser($actor);
@@ -48,6 +53,7 @@ class ChangeTicketStateAction
             $ticket->resolved_at = null;
             $ticket->resolver_id = null;
             $ticket->resolution = null;
+            $ticket->resolved_signal_verdict = null;
         }
 
         $ticket->save();

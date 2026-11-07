@@ -1817,6 +1817,8 @@
     "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.",
     "Signal": "Signal",
     "No signal": "No signal",
+    "{{percentage}} of past tickets with this verdict were closed without a logic change.": "{{percentage}} of past tickets with this verdict were closed without a logic change.",
+    "{{percentage}} of tickets with this verdict receive a logic change.": "{{percentage}} of tickets with this verdict receive a logic change.",
     "Already fixed": "Already fixed",
     "Emulator or core problem": "Emulator or core problem",
     "Manual unlock request": "Manual unlock request",

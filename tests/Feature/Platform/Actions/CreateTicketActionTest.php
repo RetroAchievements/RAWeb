@@ -442,5 +442,5 @@ it('given no recent unlocks while other players played the game, writes the corr
     $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter);
 
     // Assert
-    expect($ticket->fresh()->signal_verdict)->toEqual(TicketSignalVerdict::ProbablyDefect);
+    expect($ticket->fresh()->current_signal_verdict)->toEqual(TicketSignalVerdict::ProbablyDefect);
 });
