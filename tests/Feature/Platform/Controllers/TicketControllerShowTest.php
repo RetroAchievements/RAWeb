@@ -572,7 +572,7 @@ describe('Signal Props', function () {
         $response->assertInertia(fn (Assert $page) => $page->missing('ticket.signals'));
     });
 
-    it('given a stored accuracy result, returns it along with the ticket signal verdict', function () {
+    it('given a newer accuracy result with too few tickets, returns the newest one with enough tickets', function () {
         // ARRANGE
         seed(RolesTableSeeder::class);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
@@ -590,6 +590,11 @@ describe('Signal Props', function () {
             'verdict' => TicketSignalVerdict::ProbablyDefect,
             'ticket_count' => 1950,
             'correct_count' => 1600,
+        ]);
+        TicketVerdictAccuracyResult::factory()->create([
+            'verdict' => TicketSignalVerdict::ProbablyDefect,
+            'ticket_count' => 80,
+            'correct_count' => 70,
         ]);
 
         $viewer = User::factory()->create();

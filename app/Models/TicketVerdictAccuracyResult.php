@@ -49,16 +49,15 @@ class TicketVerdictAccuracyResult extends BaseModel
     // == helpers
 
     /**
-     * @return array<string, TicketSignalAccuracyData> keyed by verdict value, only for verdicts whose newest result has enough tickets to show
+     * @return array<string, TicketSignalAccuracyData> keyed by verdict value, from the newest result per verdict that has enough tickets to show
      */
     public static function findShownAccuracyByVerdict(): array
     {
         return self::query()
+            ->where('ticket_count', '>=', self::MIN_TICKETS_TO_SHOW)
             ->orderByDesc('id')
-            ->limit(count(TicketSignalVerdict::cases()))
             ->get()
             ->unique(fn (self $accuracyRow) => $accuracyRow->verdict->value)
-            ->filter(fn (self $accuracyRow) => $accuracyRow->ticket_count >= self::MIN_TICKETS_TO_SHOW)
             ->mapWithKeys(fn (self $accuracyRow) => [
                 $accuracyRow->verdict->value => new TicketSignalAccuracyData(
                     ticketCount: $accuracyRow->ticket_count,
