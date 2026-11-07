@@ -34,6 +34,7 @@ use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchIncrementDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
+use App\Platform\Listeners\DispatchUpdateDemotedAchievementPlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameAchievementUnlockMediansJob;
 use App\Platform\Listeners\DispatchUpdateGameBeatenMetricsJob;
@@ -96,6 +97,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class,
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             DispatchUpdateAchievementMetricsJob::class,
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
