@@ -4,12 +4,16 @@ import { route } from 'ziggy-js';
 
 interface Variables {
   ticketId: number;
-  action: App.Community.Enums.TicketAction;
+  payload: {
+    action: App.Community.Enums.TicketAction;
+
+    note?: string | null;
+  };
 }
 
 export function useUpdateTicketStateMutation() {
   return useMutation({
-    mutationFn: ({ ticketId, action }: Variables) =>
-      axios.patch(route('api.ticket.state.update', { ticket: ticketId }), { action }),
+    mutationFn: ({ ticketId, payload }: Variables) =>
+      axios.patch(route('api.ticket.state.update', { ticket: ticketId }), payload),
   });
 }
