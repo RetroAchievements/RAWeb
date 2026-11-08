@@ -20,7 +20,6 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class SubmitAchievementAction extends BaseAuthenticatedApiAction
 {
@@ -169,7 +168,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->mustBeDeveloper();
         }
 
-        if ($this->badgeName !== $achievement->image_name && !$this->isUploadedBadge($this->badgeName)) {
+        if ($this->badgeName !== $achievement->image_name && !$this->isAllowedBadge($this->badgeName)) {
             return $this->invalidParameter("Unknown badge: $this->badgeName");
         }
 
@@ -301,7 +300,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->mustHaveActiveClaim();
         }
 
-        if (!$this->isUploadedBadge($this->badgeName)) {
+        if (!$this->isAllowedBadge($this->badgeName)) {
             return $this->invalidParameter("Unknown badge: $this->badgeName");
         }
 
@@ -348,18 +347,15 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
     /**
      * New badge numbers are "highest badge on any achievement + 1".
-     * An achievement may only reference a badge that was actually uploaded.
-     * Otherwise, one bad value causes a cascade of data corruption.
      */
-    private function isUploadedBadge(string $badgeName): bool
+    private function isAllowedBadge(string $badgeName): bool
     {
-        // "00000" is our reserved placeholder badge.
-        if ($badgeName === '00000') {
-            return true;
+        if (preg_match('/^\d{5,7}$/', $badgeName) !== 1) {
+            return false;
         }
 
-        return
-            preg_match('/^\d{5,7}$/', $badgeName) === 1
-            && Storage::disk('media')->exists("Badge/{$badgeName}.png");
+        $nextBadge = (new GetBadgeIdRangeAction())->execute()['NextBadge'];
+
+        return (int) $badgeName < $nextBadge + 1000;
     }
 }
