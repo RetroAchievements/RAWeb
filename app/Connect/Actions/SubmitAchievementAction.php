@@ -121,6 +121,11 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
+        // Normalize "0" to "00000".
+        if (preg_match('/^0+$/', $this->badgeName) === 1) {
+            $this->badgeName = '00000';
+        }
+
         if (!$this->achievementId) {
             return $this->createAchievement();
         }
@@ -349,7 +354,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
     private function isUploadedBadge(string $badgeName): bool
     {
         // "00000" is our reserved placeholder badge.
-        if (preg_match('/^0+$/', $badgeName) === 1) {
+        if ($badgeName === '00000') {
             return true;
         }
 
