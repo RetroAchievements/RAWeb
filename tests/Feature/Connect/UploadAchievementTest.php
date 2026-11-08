@@ -24,6 +24,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 
@@ -136,6 +137,10 @@ beforeEach(function () {
 
     Role::create(['name' => Role::DEVELOPER, 'display' => 1]);
     Role::create(['name' => Role::DEVELOPER_JUNIOR, 'display' => 2]);
+
+    Storage::fake('media');
+    Storage::disk('media')->put('Badge/001234.png', 'badge');
+    Storage::disk('media')->put('Badge/002345.png', 'badge');
 });
 
 describe('developer', function () {
@@ -221,6 +226,105 @@ describe('developer', function () {
         $game->refresh();
         $this->assertEquals(0, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
+    });
+
+    test('cannot create new achievement with an out-of-range badge', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+        Storage::disk('media')->put('Badge/21474836.png', 'badge');
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '21474836',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Unknown badge: 21474836',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('can create new achievement with the placeholder badge', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '00000',
+        ])))
+            ->assertStatus(200)
+            ->assertJson(['Success' => true]);
+
+        $this->assertEquals('00000', Achievement::first()->image_name);
+    });
+
+    test('cannot change a badge to one that was never uploaded', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
+        $achievement->update(['image_name' => '001234']);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $achievement->id,
+            'g' => $game->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 5,
+            'b' => '999999',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Unknown badge: 999999',
+            ]);
+
+        $achievement->refresh();
+        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertNotEquals('Title2', $achievement->title);
+    });
+
+    test('can keep an existing badge whose file is missing', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
+        $achievement->update(['image_name' => '009876']);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $achievement->id,
+            'g' => $game->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 5,
+            'b' => '009876',
+        ])))
+            ->assertStatus(200)
+            ->assertJson(['Success' => true]);
+
+        $achievement->refresh();
+        $this->assertEquals('009876', $achievement->image_name);
+        $this->assertEquals('Title2', $achievement->title);
     });
 
     test('can create new achievement for collaboration claim', function () {

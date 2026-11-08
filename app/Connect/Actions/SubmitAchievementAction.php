@@ -20,6 +20,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SubmitAchievementAction extends BaseAuthenticatedApiAction
 {
@@ -163,6 +164,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->mustBeDeveloper();
         }
 
+        if ($this->badgeName !== $achievement->image_name && !$this->isUploadedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
+        }
+
         $fields = [];
 
         if ($achievement->points !== $this->points) {
@@ -291,6 +296,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->mustHaveActiveClaim();
         }
 
+        if (!$this->isUploadedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
+        }
+
         if (!AchievementPoints::isValid($this->points)) {
             return $this->invalidParameter("Invalid points value: $this->points");
         }
@@ -330,5 +339,22 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             'Success' => true,
             'AchievementID' => $achievement->id,
         ];
+    }
+
+    /**
+     * New badge numbers are "highest badge on any achievement + 1".
+     * An achievement may only reference a badge that was actually uploaded.
+     * Otherwise, one bad value causes a cascade of data corruption.
+     */
+    private function isUploadedBadge(string $badgeName): bool
+    {
+        // "00000" is our reserved placeholder badge.
+        if ($badgeName === '00000') {
+            return true;
+        }
+
+        return
+            preg_match('/^\d{5,6}$/', $badgeName) === 1
+            && Storage::disk('media')->exists("Badge/{$badgeName}.png");
     }
 }
