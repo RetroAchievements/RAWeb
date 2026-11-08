@@ -52,6 +52,7 @@ use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\RecalculateMultisetGameMetricsForResets;
 use App\Platform\Commands\RegenerateGameScreenshotConversions;
+use App\Platform\Commands\RenumberOutOfRangeAchievementBadges;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncUnrankedUsersTable;
@@ -95,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
+                RenumberOutOfRangeAchievementBadges::class,
 
                 // Games
                 BackfillMissingPlayerGames::class,
