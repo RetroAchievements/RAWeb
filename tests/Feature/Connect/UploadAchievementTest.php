@@ -266,12 +266,12 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '00000',
+            'b' => '0',
         ])))
             ->assertStatus(200)
             ->assertJson(['Success' => true]);
 
-        $this->assertEquals('00000', Achievement::first()->image_name);
+        $this->assertEquals('0', Achievement::first()->image_name);
     });
 
     test('cannot change a badge to one that was never uploaded', function () {

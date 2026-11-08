@@ -349,12 +349,12 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
     private function isUploadedBadge(string $badgeName): bool
     {
         // "00000" is our reserved placeholder badge.
-        if ($badgeName === '00000') {
+        if (preg_match('/^0+$/', $badgeName) === 1) {
             return true;
         }
 
         return
-            preg_match('/^\d{5,6}$/', $badgeName) === 1
+            preg_match('/^\d{5,7}$/', $badgeName) === 1
             && Storage::disk('media')->exists("Badge/{$badgeName}.png");
     }
 }
