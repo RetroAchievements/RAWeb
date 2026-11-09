@@ -7,6 +7,7 @@ use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
+use App\Models\AchievementMaintainer;
 use App\Models\Comment;
 use App\Models\Emulator;
 use App\Models\Game;
@@ -101,7 +102,7 @@ describe('Achievement Ticket Props', function () {
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => 'e7b1a2c3d4f560718293a4b5c6d7e8f9']);
 
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'reporter_id' => $reporter->id,
             'trigger_id' => $reportedTrigger->id,
             'emulator_id' => $emulator->id,
@@ -149,7 +150,8 @@ describe('Achievement Ticket Props', function () {
             ->where('ticket.reporter.isGone', false)
             ->missing('ticket.reporter.id')
             ->where('isViewerReporter', false)
-            ->where('ticket.author.displayName', $developer->display_name)
+            ->where('ticket.assignee.displayName', $developer->display_name)
+            ->where('ticket.isClaimed', false)
             ->missing('ticket.resolver')
             ->where('ticket.emulator.name', 'RetroArch')
             ->where('ticket.emulatorVersion', '1.20.0')
@@ -178,21 +180,28 @@ describe('Achievement Ticket Props', function () {
             ->where('unlocksSinceReported', 1)
             ->where('reportedTriggerVersion', 1)
             ->where('currentTriggerVersion', 2)
-            ->where('ticket.author.isGone', false)
-            ->where('hasMaintainer', false)
+            ->where('ticket.assignee.isGone', false)
+            ->missing('maintainer')
+            ->missing('claimExpiresAt')
             ->missing('reporterLeaderboardEntry')
             ->missing('leaderboardEntryCount')
         );
     });
 
-    it('given an achievement ticket whose author is not the achievement developer, sets hasMaintainer to true', function () {
+    it('given an active maintainer who is not the achievement developer, the maintainer is included', function () {
         // ARRANGE
         $developer = User::factory()->create();
         $maintainer = User::factory()->create();
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        AchievementMaintainer::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $maintainer->id,
+            'effective_from' => now()->subDay(),
+            'is_active' => true,
+        ]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $maintainer->id,
+            'assignee_id' => $maintainer->id,
             'reporter_id' => User::factory()->create()->id,
         ]);
 
@@ -204,10 +213,42 @@ describe('Achievement Ticket Props', function () {
         // ASSERT
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('ticket.author.displayName', $maintainer->display_name)
+            ->where('ticket.assignee.displayName', $maintainer->display_name)
+            ->where('ticket.isClaimed', false)
             ->where('achievement.developer.displayName', $developer->display_name)
             ->where('achievement.developer.isGone', false)
-            ->where('hasMaintainer', true)
+            ->where('maintainer.displayName', $maintainer->display_name)
+        );
+    });
+
+    it('given a ticket claimed by another developer, it is marked claimed and shows when the claim expires', function () {
+        // ARRANGE
+        Carbon::setTestNow(Carbon::parse('2026-06-01 12:00:00'));
+        seed(RolesTableSeeder::class);
+
+        $developer = User::factory()->create();
+        $claimant = User::factory()->create();
+        $claimant->assignRole(Role::DEVELOPER);
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $claimant->id,
+            'reporter_id' => User::factory()->create()->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('ticket.assignee.displayName', $claimant->display_name)
+            ->where('ticket.isClaimed', true)
+            ->missing('maintainer')
+            ->where('claimExpiresAt', Carbon::parse('2026-06-15 23:59:59')->toIso8601String())
         );
     });
 
@@ -230,7 +271,7 @@ describe('Achievement Ticket Props', function () {
             'created_at' => Carbon::parse('2025-03-01 12:00:00'),
         ]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'created_at' => Carbon::parse('2025-04-01 12:00:00'),
         ]);
         Trigger::factory()->create([
@@ -282,7 +323,7 @@ describe('Achievement Ticket Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
 
         actingAs(User::factory()->create());
@@ -324,7 +365,7 @@ describe('Leaderboard Ticket Props', function () {
         ]);
 
         $ticket = Ticket::factory()->forLeaderboard($leaderboard)->resolved()->create([
-            'ticketable_author_id' => null,
+            'assignee_id' => null,
             'reporter_id' => $reporter->id,
             'resolver_id' => $developer->id,
         ]);
@@ -357,7 +398,7 @@ describe('Leaderboard Ticket Props', function () {
             ->missing('unlocksSinceReported')
             ->missing('reportedTriggerVersion')
             ->missing('currentTriggerVersion')
-            ->where('hasMaintainer', false)
+            ->missing('maintainer')
         );
     });
 
@@ -392,7 +433,7 @@ describe('Reporter Unlock Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
             'created_at' => Carbon::parse('2024-04-01 00:00:00'),
         ]);
@@ -436,7 +477,7 @@ describe('Reporter Unlock Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
         PlayerAchievement::factory()->create([
@@ -469,7 +510,7 @@ describe('Reporter Activity Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'title' => 'Test Achievement']);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
             'created_at' => Carbon::parse('2024-04-01 00:00:00'),
         ]);
@@ -501,7 +542,7 @@ describe('Reporter Activity Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
         PlayerGame::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id]);
@@ -527,7 +568,7 @@ describe('Signal Props', function () {
         seed(RolesTableSeeder::class);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
             'created_at' => Carbon::parse('2026-06-01 12:00:00'),
         ]);
@@ -557,7 +598,7 @@ describe('Signal Props', function () {
         // ARRANGE
         $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
             'created_at' => Carbon::parse('2026-06-01 12:00:00'),
         ]);
@@ -577,7 +618,7 @@ describe('Signal Props', function () {
         seed(RolesTableSeeder::class);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
             'created_at' => Carbon::parse('2026-06-01 12:00:00'),
         ]);
@@ -621,7 +662,7 @@ describe('Comment Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
             'body' => "It never unlocks.\nI tried twice.",
         ]);
@@ -661,7 +702,7 @@ describe('Comment Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
 
         actingAs(User::factory()->create(['muted_until' => now()->addWeek()]));
@@ -679,7 +720,7 @@ describe('Comment Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
         Comment::factory()->create([
             'commentable_type' => CommentableType::Ticket,
@@ -706,7 +747,7 @@ describe('Comment Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
         Comment::factory()->create([
             'commentable_type' => CommentableType::Ticket,
@@ -737,7 +778,7 @@ describe('Comment Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
         Comment::factory()->create([
             'commentable_type' => CommentableType::Ticket,
@@ -785,7 +826,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
         ]);
 
@@ -823,7 +864,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
         ]);
 
@@ -860,7 +901,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
             'resolution' => TicketResolution::Fixed,
         ]);
@@ -885,7 +926,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
 
@@ -907,7 +948,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
         Comment::factory()->create([
@@ -948,7 +989,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
         Comment::factory()->create([
@@ -982,7 +1023,7 @@ describe('Ticket Action Props', function () {
         $game = createTicketShowPageGame();
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => $reporter->id,
         ]);
         Comment::factory()->create([
@@ -1013,7 +1054,7 @@ describe('Auto-close Props', function () {
         $reporter = User::factory()->create($reporterAttributes);
         $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
         ]);
         Comment::factory()->create([
             'commentable_type' => CommentableType::Ticket,

@@ -12,6 +12,7 @@ use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\GetTicketClaimStatusAction;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -210,6 +211,28 @@ class TicketPolicy
         };
     }
 
+    public function claim(User $user, Ticket $ticket): bool
+    {
+        if (!$user->hasRole(Role::DEVELOPER) || $user->isMuted()) {
+            return false;
+        }
+
+        if (!$ticket->state->isOpen() || $ticket->assignee_id === $user->id) {
+            return false;
+        }
+
+        // Devs still working on tickets won't have them claimed away from underneath them.
+        return (new GetTicketClaimStatusAction())->execute($ticket)->isClaimable;
+    }
+
+    public function releaseClaim(User $user, Ticket $ticket): bool
+    {
+        return
+            $ticket->assignee_id === $user->id
+            && $ticket->state->isOpen()
+            && $ticket->isClaimed();
+    }
+
     private function canAskReporterForMoreInfo(User $user, Ticket $ticket): bool
     {
         $lastCommenterId = $ticket->discussionComments->last()?->user_id;
@@ -225,8 +248,6 @@ class TicketPolicy
             return $ticket->has_reporter_replied_last;
         }
 
-        $ticketAssignee = $ticket->getTicketableModel()->getTicketableAssignee() ?? $ticket->author;
-
-        return $lastCommenterId === $ticketAssignee?->id;
+        return $lastCommenterId === $ticket->assignee_id;
     }
 }

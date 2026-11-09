@@ -7,6 +7,7 @@ namespace App\Platform\Services;
 use App\Community\Enums\TicketState;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\TicketableType;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -18,23 +19,21 @@ class UserTicketCountService
     private const TTL_HOURS = 20;
 
     /**
-     * Count a dev's open and pending response tickets (where they are the assignee).
-     *
      * @return array{string: int}
      */
-    public function countOpenForDev(User $dev): array
+    public function countOpenForAssignee(User $ticketAssignee): array
     {
         return Cache::remember(
-            CacheKey::buildUserOpenTicketsCacheKey($dev->id),
+            CacheKey::buildUserOpenTicketsCacheKey($ticketAssignee->id),
             Carbon::now()->addHours(self::TTL_HOURS),
-            function () use ($dev): array {
+            function () use ($ticketAssignee): array {
                 $retVal = [
                     TicketState::Open->value => 0,
                     TicketState::Request->value => 0,
                 ];
 
                 $counts = Ticket::query()
-                    ->where('ticketable_author_id', $dev->id)
+                    ->forAssignee($ticketAssignee)
                     ->whereHas('achievement')
                     ->whereIn('state', [TicketState::Open, TicketState::Request])
                     ->select('state', DB::raw('count(*) as Count'))
@@ -48,6 +47,15 @@ class UserTicketCountService
                 return $retVal;
             },
         );
+    }
+
+    public function countOpenForMaintainer(User $maintainerUser): int
+    {
+        return Ticket::query()
+            ->forMaintainer($maintainerUser)
+            ->forTicketableType(TicketableType::Achievement)
+            ->whereIn('state', [TicketState::Open, TicketState::Request])
+            ->count();
     }
 
     /**

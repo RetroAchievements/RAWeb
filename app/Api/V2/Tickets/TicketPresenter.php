@@ -64,9 +64,9 @@ final class TicketPresenter
         return $this->ticket->resolver?->display_name;
     }
 
-    public function authorDisplayName(): ?string
+    public function assigneeDisplayName(): ?string
     {
-        return $this->ticket->author?->display_name;
+        return $this->ticket->assignee?->display_name;
     }
 
     private function achievement(): ?Achievement

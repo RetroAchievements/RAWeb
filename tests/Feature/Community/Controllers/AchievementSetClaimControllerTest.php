@@ -43,7 +43,7 @@ class AchievementSetClaimControllerTest extends TestCase
             Ticket::factory()->create([
                 'ticketable_id' => $achievement->id,
                 'reporter_id' => $reporters[$i]->id,
-                'ticketable_author_id' => $developer->id,
+                'assignee_id' => $developer->id,
             ]);
         }
     }
@@ -1218,6 +1218,65 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->fakeClaimAlertQueue();
         [$user, $game] = $this->createDeveloperAndClaimableGame();
         $this->createOpenTicketsForDeveloper($user, 1);
+
+        // Act
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
+    }
+
+    public function testClaimCreationCountsTicketsAnotherDeveloperClaimedFromTheClaimingDeveloper(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$user, $game] = $this->createDeveloperAndClaimableGame();
+        $this->createOpenTicketsForDeveloper($user, 1);
+
+        // ... another developer claimed a ticket on one of the user's achievements ...
+        $otherDeveloper = User::factory()->create();
+        $otherDeveloper->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->create(['user_id' => $user->id]);
+        Ticket::factory()->create([
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $otherDeveloper->id,
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        // Assert
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) use ($user) {
+            return
+                $job->alert instanceof ClaimWithUnresolvedTicketsAlert
+                && $job->alert->user->is($user)
+                && $job->alert->ticketCount === 2;
+        });
+    }
+
+    public function testClaimCreationDoesNotCountTicketsTheDeveloperClaimedFromOthers(): void
+    {
+        // Arrange
+        $this->fakeClaimAlertQueue();
+        [$user, $game] = $this->createDeveloperAndClaimableGame();
+        $this->createOpenTicketsForDeveloper($user, 1);
+
+        // ... the user claimed tickets on another developer's achievements ...
+        $otherDeveloper = User::factory()->create();
+        $otherDeveloper->assignRole(Role::DEVELOPER);
+        for ($i = 0; $i < 2; $i++) {
+            $achievement = Achievement::factory()->create(['user_id' => $otherDeveloper->id]);
+            Ticket::factory()->create([
+                'ticketable_id' => $achievement->id,
+                'reporter_id' => User::factory()->create()->id,
+                'assignee_id' => $user->id,
+            ]);
+        }
 
         // Act
         $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));

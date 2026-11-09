@@ -13,9 +13,12 @@ interface BuildUserColumnDefProps {
   getUser: (entry: App.Platform.Data.TicketListEntry) => App.Data.User | null;
   id: 'developer' | 'reporter' | 'resolver';
   t_label: TranslatedString;
+
+  getIsRowClaimed?: (entry: App.Platform.Data.TicketListEntry) => boolean;
 }
 
 export function buildUserColumnDef({
+  getIsRowClaimed,
   getUser,
   id,
   t_label,
@@ -33,6 +36,7 @@ export function buildUserColumnDef({
     cell: ({ row }) => (
       <UserCell
         user={getUser(row.original)}
+        isRowClaimed={getIsRowClaimed?.(row.original) ?? false}
         shouldHideWhenUserIsMissing={
           id === 'resolver' && !getIsTicketStateFinished(row.original.state)
         }
@@ -42,11 +46,12 @@ export function buildUserColumnDef({
 }
 
 interface UserCellProps {
+  isRowClaimed: boolean;
   shouldHideWhenUserIsMissing: boolean;
   user: App.Data.User | null;
 }
 
-const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
+const UserCell: FC<UserCellProps> = ({ isRowClaimed, shouldHideWhenUserIsMissing, user }) => {
   const { t } = useTranslation();
 
   if (!user && shouldHideWhenUserIsMissing) {
@@ -63,7 +68,7 @@ const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
 
   // The user is secondary info about the ticket. Therefore, we mark the link
   // as neutral at rest and we only give it the link color on hover.
-  return (
+  const userAvatar = (
     <UserAvatar
       {...user}
       size={16}
@@ -73,5 +78,17 @@ const UserCell: FC<UserCellProps> = ({ shouldHideWhenUserIsMissing, user }) => {
         ticketListCellClassNames.truncate,
       )}
     />
+  );
+
+  if (!isRowClaimed) {
+    return userAvatar;
+  }
+
+  return (
+    <span className="flex max-w-full min-w-0 items-center gap-1.5">
+      {userAvatar}
+
+      <span className="flex-none text-2xs text-neutral-500">{t('Claimed')}</span>
+    </span>
   );
 };

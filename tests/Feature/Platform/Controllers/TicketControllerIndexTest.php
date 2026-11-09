@@ -51,7 +51,7 @@ function createTicketListPageTickets(int $ticketCount): array
         $tickets[] = Ticket::factory()
             ->forAchievement($achievement)
             ->create([
-                'ticketable_author_id' => $developer->id,
+                'assignee_id' => $developer->id,
                 'reporter_id' => $reporter->id,
                 'state' => $state,
                 'created_at' => Carbon::parse('2024-01-01 00:00:00')->addHours($i),

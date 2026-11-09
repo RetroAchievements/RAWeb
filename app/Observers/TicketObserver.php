@@ -24,7 +24,7 @@ class TicketObserver
 
     public function updated(Ticket $ticket): void
     {
-        if (!$ticket->wasChanged(['state', 'ticketable_type', 'ticketable_id', 'ticketable_author_id', 'reporter_id'])) {
+        if (!$ticket->wasChanged(['state', 'ticketable_type', 'ticketable_id', 'assignee_id', 'reporter_id'])) {
             return;
         }
 
@@ -40,10 +40,10 @@ class TicketObserver
         $this->clearForCurrentUsers($ticket);
 
         // When the assignee or reporter changed, also bust the prior user's caches.
-        if ($ticket->wasChanged('ticketable_author_id')) {
-            $priorAuthorId = $this->priorUserId($ticket, 'ticketable_author_id');
-            if ($priorAuthorId !== null) {
-                $this->userTicketCountService->clearForUserId($priorAuthorId);
+        if ($ticket->wasChanged('assignee_id')) {
+            $previousAssigneeId = $this->priorUserId($ticket, 'assignee_id');
+            if ($previousAssigneeId !== null) {
+                $this->userTicketCountService->clearForUserId($previousAssigneeId);
             }
         }
         if ($ticket->wasChanged('reporter_id')) {
@@ -74,8 +74,8 @@ class TicketObserver
 
     private function clearForCurrentUsers(Ticket $ticket): void
     {
-        if ($ticket->ticketable_author_id !== null) {
-            $this->userTicketCountService->clearForUserId($ticket->ticketable_author_id);
+        if ($ticket->assignee_id !== null) {
+            $this->userTicketCountService->clearForUserId($ticket->assignee_id);
         }
         if ($ticket->reporter_id !== null) {
             $this->userTicketCountService->clearForUserId($ticket->reporter_id);

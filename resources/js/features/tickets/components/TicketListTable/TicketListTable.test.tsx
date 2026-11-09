@@ -259,7 +259,7 @@ describe('Component: TicketListTable', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       ticketableTitle: 'Ring Collector',
-      author: createUser({ displayName: 'Dev' }),
+      assignee: createUser({ displayName: 'Dev' }),
       reporter: createUser({ displayName: 'Scott' }),
     });
 
@@ -286,11 +286,11 @@ describe('Component: TicketListTable', () => {
     expect(route).toHaveBeenCalledWith('user.show', ['Dev']);
   });
 
-  it('given a null reporter and a null author, shows the deleted user fallback and no user links', () => {
+  it('given a null reporter and a null assignee, falls back to the deleted user text with no links', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       id: 640,
-      author: null,
+      assignee: null,
       reporter: null,
       ticketableTitle: 'Some achievement',
     });
@@ -315,6 +315,37 @@ describe('Component: TicketListTable', () => {
     expect(screen.getByRole('link', { name: '640' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Some achievement' })).toBeVisible();
     expect(route).not.toHaveBeenCalledWith('user.show', expect.anything());
+  });
+
+  it('given a claimed ticket, the developer column marks the assignee', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      assignee: createUser({ displayName: 'Batman' }),
+      isClaimed: true,
+    });
+
+    render(
+      <TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, developer: true }} />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /batman/i })).toBeVisible();
+    expect(screen.getByText('Claimed')).toBeVisible();
+  });
+
+  it('given a ticket still with its maintainer, the assignee stays unmarked', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      assignee: createUser({ displayName: 'Maintainer' }),
+      isClaimed: false,
+    });
+
+    render(
+      <TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, developer: true }} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText('Claimed')).not.toBeInTheDocument();
   });
 
   it('leaves an unassigned resolver empty but labels a deleted resolver', () => {

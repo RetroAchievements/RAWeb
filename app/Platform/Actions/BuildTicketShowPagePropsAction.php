@@ -32,6 +32,7 @@ class BuildTicketShowPagePropsAction
     public function __construct(
         private readonly BuildPlayerGameActivityDataAction $buildPlayerActivityData,
         private readonly GetTicketAutoCloseScheduleAction $getTicketAutoCloseScheduleAction,
+        private readonly GetTicketClaimStatusAction $getTicketClaimStatusAction,
     ) {
     }
 
@@ -83,14 +84,15 @@ class BuildTicketShowPagePropsAction
 
             ticketableDescription: $ticketable->description,
 
-            // The ticket author is whoever maintained the achievement when the ticket was filed.
-            hasMaintainer: $ticketable instanceof Achievement && !$ticket->author->is($ticketable->developer),
+            maintainer: $this->buildMaintainerData($ticketable),
 
             isViewerReporter: $user->is($ticket->reporter),
 
             can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include(
+                'claimTicket',
                 'createTicketComments',
                 'manuallyAwardAchievements',
+                'releaseTicketClaim',
                 'viewAchievementLogic'
             ),
 
@@ -126,9 +128,25 @@ class BuildTicketShowPagePropsAction
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
             autoCloseAt: $this->getTicketAutoCloseScheduleAction->execute($ticket)?->closeAt,
+            claimExpiresAt: $this->getTicketClaimStatusAction->execute($ticket)->expiresAt,
         );
 
         return $propsData;
+    }
+
+    private function buildMaintainerData(Achievement|Leaderboard $ticketable): ?UserData
+    {
+        // Leaderboards don't support maintainers yet.
+        if (!$ticketable instanceof Achievement) {
+            return null;
+        }
+
+        $currentMaintainer = $ticketable->getMaintainerAt(now());
+        if (!$currentMaintainer || $currentMaintainer->is($ticketable->developer)) {
+            return null;
+        }
+
+        return UserData::fromUser($currentMaintainer)->include('isGone');
     }
 
     private function deferReporterActivity(Ticket $ticket, Achievement|Leaderboard $ticketable): Lazy

@@ -23,7 +23,7 @@ import { useTicketCloseReasonLabels } from '../../hooks/useTicketCloseReasonLabe
 import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
 import { TICKET_CLOSE_REASONS } from '../../utils/ticketCloseReasons';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
-import { TicketActionConfirmDialog } from './TicketActionConfirmDialog';
+import { TicketActionConfirmDialog } from '../TicketActionConfirmDialog';
 
 interface StateMoveItem {
   action: App.Community.Enums.TicketAction;

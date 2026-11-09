@@ -30,12 +30,12 @@ trait LoadsTicketListEntryRelations
             'ticketable' => function (Relation $relation) {
                 if ($relation instanceof MorphTo) {
                     $relation->morphWith([
-                        Achievement::class => ['game.system'],
+                        Achievement::class => ['game.system', 'activeMaintainer'],
                         Leaderboard::class => ['game.system'],
                     ]);
                 }
             },
-            'author',
+            'assignee',
             'reporter',
             'resolver',
             'emulator',

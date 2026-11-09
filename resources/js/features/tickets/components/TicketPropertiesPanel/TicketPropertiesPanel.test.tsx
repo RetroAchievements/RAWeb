@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
 import {
+  createAchievement,
   createEmulator,
   createGame,
   createGameHash,
@@ -23,14 +24,14 @@ describe('Component: TicketPropertiesPanel', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the achievement has no maintainer, identifies the author as the developer', () => {
+  it('given an achievement without a maintainer, the author is shown as the developer', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        achievement: createAchievement({ developer: createUser({ displayName: 'CoreDev' }) }),
         can: {},
         leaderboard: null,
-        ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
-        hasMaintainer: false,
+        ticket: createTicketListEntry(),
       },
     });
 
@@ -40,35 +41,134 @@ describe('Component: TicketPropertiesPanel', () => {
     expect(screen.queryByRole('rowheader', { name: 'Maintainer' })).not.toBeInTheDocument();
   });
 
-  it('given the achievement has an assigned maintainer, identifies the author as the maintainer', () => {
+  it('given an achievement with a maintainer, that maintainer is shown instead of the author', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
+        achievement: createAchievement({ developer: createUser({ displayName: 'CoreDev' }) }),
         can: {},
         leaderboard: null,
-        ticket: createTicketListEntry({ author: createUser({ displayName: 'CoreDev' }) }),
-        hasMaintainer: true,
+        maintainer: createUser({ displayName: 'Keeper' }),
+        ticket: createTicketListEntry(),
       },
     });
 
     // ASSERT
     expect(screen.getByRole('rowheader', { name: 'Maintainer' })).toBeVisible();
-    expect(screen.queryByRole('rowheader', { name: 'Developer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Keeper/i })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /CoreDev/i })).not.toBeInTheDocument();
   });
 
-  it('given a "gone" author, displays the deleted user attribution', () => {
+  it('given a leaderboard ticket, the leaderboard developer is shown as the developer', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
       pageProps: {
         can: {},
+        leaderboard: createLeaderboard({ developer: createUser({ displayName: 'BoardDev' }) }),
+        ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: 'Developer' })).toBeVisible();
+    expect(screen.getByRole('link', { name: /BoardDev/i })).toBeVisible();
+  });
+
+  it('given a "gone" developer, the deleted user attribution is shown', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement({ developer: undefined }),
+        can: {},
         leaderboard: null,
-        ticket: createTicketListEntry({ author: null }),
-        hasMaintainer: false,
+        ticket: createTicketListEntry(),
       },
     });
 
     // ASSERT
     expect(screen.getByText('Deleted user')).toBeVisible();
+  });
+
+  it('given a ticket still with its maintainer, no claimant row appears', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement(),
+        can: {},
+        leaderboard: null,
+        ticket: createTicketListEntry({ isClaimed: false }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('rowheader', { name: 'Claimed by' })).not.toBeInTheDocument();
+  });
+
+  it('given a claimed ticket, the claimant and the expiry date are shown', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement({ developer: createUser({ displayName: 'CoreDev' }) }),
+        can: {},
+        claimExpiresAt: '2026-11-21T12:00:00Z',
+        leaderboard: null,
+        ticket: createTicketListEntry({
+          assignee: createUser({ displayName: 'Batman' }),
+          isClaimed: true,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: 'Claimed by' })).toBeVisible();
+    expect(screen.getByRole('link', { name: /Batman/i })).toBeVisible();
+    expect(screen.getByText('Claim expires Nov 21, 2026')).toBeVisible();
+  });
+
+  it('given a claimed ticket waiting on the reporter, no expiry date appears', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement(),
+        can: {},
+        leaderboard: null,
+        ticket: createTicketListEntry({ isClaimed: true, state: 'request' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: 'Claimed by' })).toBeVisible();
+    expect(screen.queryByText(/claim expires/i)).not.toBeInTheDocument();
+  });
+
+  it('given the viewer can claim an unclaimed ticket, the claim button is shown', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement(),
+        can: { claimTicket: true },
+        leaderboard: null,
+        ticket: createTicketListEntry({ isClaimed: false }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Claim ticket' })).toBeVisible();
+  });
+
+  it('given the viewer holds the claim, the button to release the claim is shown', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketPropertiesPanel />, {
+      pageProps: {
+        achievement: createAchievement(),
+        can: { releaseTicketClaim: true },
+        leaderboard: null,
+        ticket: createTicketListEntry({ isClaimed: true }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Release claim' })).toBeVisible();
   });
 
   it('given an emulator with version information, displays the name and version together', () => {
