@@ -1279,6 +1279,7 @@ id: number;
 state: App.Community.Enums.TicketState;
 resolution: App.Community.Enums.TicketResolution | null;
 createdAt: string;
+ticketableTitle: string;
 };
 export type TicketReporterUnlock = {
 unlockedAt: string;
@@ -1294,6 +1295,7 @@ hasMaintainer: boolean;
 isViewerReporter: boolean;
 can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
 logicChangedAfterReportAt: string | null;

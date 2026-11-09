@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
@@ -19,6 +21,8 @@ class TicketViewService
     public ?Carbon $logicChangedAfterReportAt = null;
     /** @var Ticket[] */
     public array $relatedTickets = [];
+    /** @var Ticket[] */
+    public array $reporterGameTickets = [];
     public ?PlayerAchievement $existingUnlock = null;
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
     public ?int $reportedTriggerVersion = null;
@@ -50,6 +54,8 @@ class TicketViewService
             ->get()
             ->all();
 
+        $this->reporterGameTickets = $this->collectSameReporterTickets($ticket, $ticketable->getTicketableGame());
+
         $this->unlocksSinceReported = 0;
         $this->logicChangedAfterReportAt = null;
         if ($isAchievement && $ticket->state->isOpen()) {
@@ -75,6 +81,44 @@ class TicketViewService
         }
 
         $this->loadReportedTrigger($ticket, $isAchievement ? $ticketable : null);
+    }
+
+    /**
+     * Gather the reporter's other tickets for this game and any of its subsets,
+     * nearest in time to this ticket first, since those typically come from the
+     * same play session.
+     *
+     * @return Ticket[]
+     */
+    private function collectSameReporterTickets(Ticket $ticket, Game $ticketableGame): array
+    {
+        if (!$ticket->reporter || $ticket->reporter->trashed()) {
+            return [];
+        }
+
+        $rootGameId = $ticketableGame->parent_game_id ?? $ticketableGame->id;
+        $scopeGameIds = Game::query()
+            ->where('id', $rootGameId)
+            ->orWhere('parent_game_id', $rootGameId)
+            ->pluck('id');
+
+        return Ticket::query()
+            ->with('ticketable')
+            ->where('reporter_id', $ticket->reporter_id)
+            ->where('id', '!=', $ticket->id)
+            ->whereNot(fn ($exclusionQuery) => $exclusionQuery
+                ->where('ticketable_type', $ticket->ticketable_type)
+                ->where('ticketable_id', $ticket->ticketable_id)
+            )
+            ->whereHasMorph(
+                'ticketable',
+                [Achievement::class, Leaderboard::class],
+                fn ($morphQuery) => $morphQuery->whereIn('game_id', $scopeGameIds),
+            )
+            ->get()
+            ->sortBy(fn (Ticket $comparisonTicket) => abs($comparisonTicket->created_at->diffInSeconds($ticket->created_at)))
+            ->values()
+            ->all();
     }
 
     /**
