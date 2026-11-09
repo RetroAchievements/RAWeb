@@ -24,11 +24,7 @@ class ClaimTicketAction
             ->event(Ticket::CLAIMED_EVENT)
             ->log(Ticket::CLAIMED_EVENT);
 
-        // Make sure notifications actually flow to the claimant.
-        $subscriptionService = new SubscriptionService();
-        if (!$subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id)) {
-            $subscriptionService->updateSubscription($developer, SubscriptionSubjectType::Ticket, $ticket->id, true);
-        }
+        (new SubscriptionService())->updateSubscription($developer, SubscriptionSubjectType::Ticket, $ticket->id, true);
 
         $ticketMaintainer = $ticket->getTicketableModel()->getTicketableAssignee();
         if ($ticketMaintainer && !$ticketMaintainer->is($developer)) {

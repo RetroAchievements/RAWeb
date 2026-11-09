@@ -11,11 +11,14 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainer;
 use App\Models\AchievementSetClaim;
+use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\ReleaseTicketClaimAction;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class ProcessDeveloperRoleChangeAction
@@ -38,6 +41,7 @@ class ProcessDeveloperRoleChangeAction
 
         if ($developerRoleAfter === null) {
             $this->dropOpenClaims($user, $permissionsName, $actingUser);
+            $this->releaseTicketClaims($user);
         }
 
         if ($developerRoleBefore === Role::DEVELOPER) {
@@ -79,6 +83,34 @@ class ProcessDeveloperRoleChangeAction
 
                 addArticleComment('Server', CommentableType::SetClaim, $openClaim->game_id, $claimComment);
             });
+    }
+
+    private function releaseTicketClaims(User $user): void
+    {
+        $claimedTickets = Ticket::query()
+            ->where('assignee_id', $user->id)
+            ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Quarantined])
+            ->withLiveTicketable()
+            ->with([
+                'assignee',
+                'ticketable' => fn (MorphTo $ticketable) => $ticketable->morphWith([
+                    Achievement::class => ['developer'],
+                    Leaderboard::class => ['developer'],
+                ]),
+            ])
+            ->get()
+            ->filter(fn (Ticket $ticket): bool => $ticket->getTicketableModel()->getTicketableAssignee()?->id !== $user->id);
+
+        if ($claimedTickets->isEmpty()) {
+            return;
+        }
+
+        $serverAccount = User::whereName('Server')->firstOrFail();
+        $releaseTicketClaimAction = new ReleaseTicketClaimAction();
+
+        foreach ($claimedTickets as $claimedTicket) {
+            $releaseTicketClaimAction->execute($claimedTicket, $serverAccount, isExpired: true);
+        }
     }
 
     private function expireActiveMaintainerships(User $user): void

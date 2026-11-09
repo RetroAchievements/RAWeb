@@ -24,6 +24,7 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\Ticket\TicketClaimChangedNotification;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
@@ -1155,6 +1156,86 @@ describe('updateState', function () {
         $ticket->refresh();
         expect($ticket->state)->toEqual(TicketState::Request);
         expect($ticket->assignee_id)->toEqual($developer->id);
+        expect($ticket->auditLog()->where('event', Ticket::CLAIMED_EVENT)->where('causer_id', $developer->id)->count())->toEqual(1);
+    });
+
+    it('given the commenter had unsubscribed from the ticket, requesting information subscribes them again', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $formerDeveloper = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $formerDeveloper->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $formerDeveloper->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+
+        $subscriptionService = new SubscriptionService();
+        $subscriptionService->updateSubscription($developer, SubscriptionSubjectType::Ticket, $ticket->id, false);
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeFalse();
+
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeTrue();
+    });
+
+    it('given an idle developer maintains the achievement, requesting information notifies them that the ticket was claimed', function () {
+        // ARRANGE
+        Notification::fake();
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now(),
+        ]);
+
+        $this->travel(14)->days();
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+        Notification::assertSentTo($maintainer, TicketClaimChangedNotification::class);
     });
 
     it('given the assignee is a developer who commented an hour ago, another dev asking for information does not auto-reassign the ticket', function () {

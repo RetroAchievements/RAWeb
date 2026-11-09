@@ -23,6 +23,7 @@ class ChangeTicketStateAction
     public function __construct(
         private readonly UserTicketCountService $userTicketCountService,
         private readonly GetTicketClaimStatusAction $getTicketClaimStatusAction,
+        private readonly ClaimTicketAction $claimTicketAction,
     ) {
     }
 
@@ -40,11 +41,16 @@ class ChangeTicketStateAction
 
         // If a full dev asks the reporter a question, they become the ticket's assignee, unless
         // the author/maintainer has already commented on the ticket.
-        $shouldAssignToAsker = $action === TicketAction::Request
+        $shouldAssignToCommenter =
+            $action === TicketAction::Request
             && $actor->hasRole(Role::DEVELOPER)
             && $ticket->assignee_id !== $actor->id
             && $ticket->discussionComments->last()?->user_id === $actor->id
             && $this->getTicketClaimStatusAction->execute($ticket)->isClaimable;
+
+        if ($shouldAssignToCommenter) {
+            $this->claimTicketAction->execute($ticket, $actor);
+        }
 
         if ($newState->isResolved() && !$previousState->isResolved()) {
             $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
@@ -64,10 +70,6 @@ class ChangeTicketStateAction
             $ticket->resolver_id = null;
             $ticket->resolution = null;
             $ticket->resolved_signal_verdict = null;
-        }
-
-        if ($shouldAssignToAsker) {
-            $ticket->assignee_id = $actor->id;
         }
 
         $ticket->save();
