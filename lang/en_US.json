@@ -1837,5 +1837,8 @@
     "<1>{{user}}</1> closed this ticket because of an emulator or core problem.": "<1>{{user}}</1> closed this ticket because of an emulator or core problem.",
     "Closed this ticket because it was a manual unlock request.": "Closed this ticket because it was a manual unlock request.",
     "This ticket was closed because it was a manual unlock request.": "This ticket was closed because it was a manual unlock request.",
-    "<1>{{user}}</1> closed this ticket because it was a manual unlock request.": "<1>{{user}}</1> closed this ticket because it was a manual unlock request."
+    "<1>{{user}}</1> closed this ticket because it was a manual unlock request.": "<1>{{user}}</1> closed this ticket because it was a manual unlock request.",
+    "Subscribed to by you": "Subscribed to by you",
+    "Subscribed Tickets": "Subscribed Tickets",
+    "Subscribed Tickets - {{title}}": "Subscribed Tickets - {{title}}"
 }

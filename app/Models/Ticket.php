@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
@@ -314,6 +315,34 @@ class Ticket extends BaseModel
     public function scopeForAssignee(Builder $query, User $user): Builder
     {
         return $query->where('ticketable_author_id', $user->id);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeOnGamesSubscribedToBy(Builder $query, User $user): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereIn('game_id', Subscription::query()
+                ->select('subject_id')
+                ->where('subject_type', SubscriptionSubjectType::GameTickets)
+                ->where('user_id', $user->id)
+                ->where('state', true)),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeNotAssignedTo(Builder $query, User $user): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->whereNull('ticketable_author_id')
+            ->orWhere('ticketable_author_id', '!=', $user->id));
     }
 
     /**

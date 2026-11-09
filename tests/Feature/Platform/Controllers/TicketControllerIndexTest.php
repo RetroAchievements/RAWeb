@@ -245,7 +245,7 @@ it('given an authenticated user, inbox renders every section for that user', fun
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
         ->component('tickets/mine')
-        ->has('sections', 5)
+        ->has('sections', 6)
         ->where('sectionLimit', 8)
         ->where('attentionCount', 0)
         ->where('user.displayName', $viewer->display_name)
