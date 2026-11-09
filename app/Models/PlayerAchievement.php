@@ -193,7 +193,7 @@ class PlayerAchievement extends BasePivot
         return $query
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->join('games', 'games.id', '=', 'achievements.game_id')
-            ->whereNotIn('games.system_id', [System::Hubs, System::Events])
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->where('achievements.should_keep_demoted_points', true)
             ->whereNull('achievements.deleted_at')
             ->whereColumn('player_achievements.unlocked_at', '<', 'achievements.demoted_at');

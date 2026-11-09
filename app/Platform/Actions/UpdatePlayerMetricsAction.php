@@ -16,7 +16,7 @@ class UpdatePlayerMetricsAction
     {
         $playerGames = $user->playerGames()
             ->join('games', 'games.id', '=', 'player_games.game_id')
-            ->whereNotIn('games.system_id', [System::Hubs, System::Events])
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->where('achievements_unlocked', '>', 0);
         $user->achievements_unlocked = $playerGames->sum('player_games.achievements_unlocked');
         $user->achievements_unlocked_hardcore = $playerGames->sum('player_games.achievements_unlocked_hardcore');

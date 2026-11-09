@@ -130,7 +130,7 @@ class System extends BaseModel implements HasMedia
     // TODO add attribute accessor ($system->is_game_system)
     public static function isGameSystem(int $systemId): bool
     {
-        return $systemId !== System::Hubs && $systemId !== System::Events;
+        return !in_array($systemId, self::getNonGameSystems(), true);
     }
 
     // TODO add attribute accessor ($system->is_homebrew_system)
