@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createLeaderboardEntry, createTicketListEntry, createUser } from '@/test/factories';
 
@@ -419,7 +421,7 @@ describe('Component: TicketFactsList', () => {
     expect(container).not.toHaveTextContent('on this leaderboard');
   });
 
-  it('given a ticket with signals, shows the signal data', () => {
+  it('given a ticket with signals, shows the verdict and reveals the verdict reasoning on click', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
       pageProps: {
@@ -436,18 +438,59 @@ describe('Component: TicketFactsList', () => {
             windowStartedAt: '2026-06-14T12:00:00Z',
             hasRecentLogicChange: true,
             reporterEarnedAt: '2026-06-23T12:00:00Z',
+            accuracy: { ticketCount: 1950, correctCount: 1600 },
           },
         }),
       },
     });
 
+    const verdictToggle = screen.getByRole('button', { name: /probably a real bug/i });
+    expect(verdictToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/82% of tickets/i)).not.toBeInTheDocument();
+
+    // ACT
+    await userEvent.click(verdictToggle);
+
     // ASSERT
+    expect(verdictToggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
-      'Probably a real bugThe reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already.No players unlocked this achievement since its logic was last updated, 3 days before the report.Nearly 4 in 5 tickets with this verdict receive a logic change.',
+      'Probably a real bugThe reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already.No players unlocked this achievement since its logic was last updated, 3 days before the report.82% of tickets with this verdict receive a logic change.',
     );
   });
 
-  it('given an unlock window signal and an unlock count, continues the verdict line with the count instead of its own row', () => {
+  it('given signals with no stored accuracy, falls back to the estimated accuracy', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        relatedTickets: [],
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          createdAt: '2026-06-17T12:00:00Z',
+          signals: {
+            verdict: 'probably-not-defect',
+            kinds: ['many-recent-unlocks'],
+            unlockCount: 316,
+            windowStartedAt: '2026-03-19T12:00:00Z',
+            hasRecentLogicChange: false,
+            reporterEarnedAt: null,
+            accuracy: null,
+          },
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /probably not a bug/i }));
+
+    // ASSERT
+    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
+      'Probably not a bug316 players unlocked this achievement in the 90 days before the report.Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
+    );
+  });
+
+  it('given an unlock window signal and an unlock count, shows the count in its own row while the verdict is collapsed', () => {
     // ARRANGE
     vi.setSystemTime(new Date('2026-07-17T12:00:00Z'));
 
@@ -467,16 +510,18 @@ describe('Component: TicketFactsList', () => {
             windowStartedAt: '2026-03-19T12:00:00Z',
             hasRecentLogicChange: false,
             reporterEarnedAt: null,
+            accuracy: null,
           },
         }),
       },
     });
 
     // ASSERT
-    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
-      'No players unlocked this achievement in the 90 days before the report. No one has unlocked it in the 4 weeks since.',
+    expect(screen.getByRole('button', { name: /probably a real bug/i })).toHaveAttribute(
+      'aria-expanded',
+      'false',
     );
-    expect(screen.queryByText(/No one has unlocked this achievement/)).not.toBeInTheDocument();
+    expect(screen.getByText(/no one has unlocked this achievement/i)).toBeVisible();
   });
 
   it('given a ticket without signals, does not show signal data', () => {

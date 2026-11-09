@@ -172,7 +172,7 @@ describe('Component: TicketPlayerHistory', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByTestId('player-history-content')).toHaveStyle({ height: 'auto' });
+      expect(screen.getByTestId('collapsible-section-content')).toHaveStyle({ height: 'auto' });
     });
   });
 
@@ -272,7 +272,7 @@ describe('Component: TicketPlayerHistory', () => {
     // ASSERT
     await waitFor(
       () => {
-        expect(screen.getByTestId('player-history-content')).toHaveStyle({ height: 'auto' });
+        expect(screen.getByTestId('collapsible-section-content')).toHaveStyle({ height: 'auto' });
       },
       { timeout: 200 },
     );

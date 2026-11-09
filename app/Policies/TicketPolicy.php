@@ -163,6 +163,11 @@ class TicketPolicy
             return false;
         }
 
+        // Muted users can't participate in a ticket beyond closing their own mistaken reports.
+        if ($user->isMuted() && $action !== TicketAction::ClosedMistaken) {
+            return false;
+        }
+
         // Tickets cannot be reassigned to deleted users.
         if ($action === TicketAction::Request && (!$ticket->reporter || $ticket->reporter->trashed())) {
             return false;
@@ -183,6 +188,9 @@ class TicketPolicy
                 TicketAction::WrongRom,
                 TicketAction::Network,
                 TicketAction::UnableToReproduce,
+                TicketAction::AlreadyFixed,
+                TicketAction::EmulatorProblem,
+                TicketAction::ManualUnlockRequest,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }

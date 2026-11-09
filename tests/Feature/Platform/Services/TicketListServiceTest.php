@@ -339,8 +339,8 @@ it('given tickets with and without a resolution, the resolution facet counts mat
 it('given tickets with and without a signal verdict, the signal facet counts match the list filter', function () {
     // ARRANGE
     $achievement = createTicketableAchievement();
-    Ticket::factory()->forAchievement($achievement)->open()->count(2)->create(['signal_verdict' => TicketSignalVerdict::ProbablyNotDefect]);
-    Ticket::factory()->forAchievement($achievement)->open()->create(['signal_verdict' => TicketSignalVerdict::ProbablyDefect]);
+    Ticket::factory()->forAchievement($achievement)->open()->count(2)->create(['current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect]);
+    Ticket::factory()->forAchievement($achievement)->open()->create(['current_signal_verdict' => TicketSignalVerdict::ProbablyDefect]);
     Ticket::factory()->forAchievement($achievement)->open()->create();
     $service = new TicketListService();
     $options = defaultTicketListFilterOptions(['signal' => 'probably-defect']);
