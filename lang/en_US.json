@@ -1817,6 +1817,10 @@
     "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.",
     "Signal": "Signal",
     "No signal": "No signal",
+    "Same Reporter, Same Game": "Same Reporter, Same Game",
+    "Opened": "Opened",
+    "{{duration}} earlier": "{{duration}} earlier",
+    "{{duration}} later": "{{duration}} later",
     "{{percentage}} of past tickets with this verdict were closed without a logic change.": "{{percentage}} of past tickets with this verdict were closed without a logic change.",
     "{{percentage}} of tickets with this verdict receive a logic change.": "{{percentage}} of tickets with this verdict receive a logic change.",
     "Already fixed": "Already fixed",
@@ -1833,5 +1837,8 @@
     "<1>{{user}}</1> closed this ticket because of an emulator or core problem.": "<1>{{user}}</1> closed this ticket because of an emulator or core problem.",
     "Closed this ticket because it was a manual unlock request.": "Closed this ticket because it was a manual unlock request.",
     "This ticket was closed because it was a manual unlock request.": "This ticket was closed because it was a manual unlock request.",
-    "<1>{{user}}</1> closed this ticket because it was a manual unlock request.": "<1>{{user}}</1> closed this ticket because it was a manual unlock request."
+    "<1>{{user}}</1> closed this ticket because it was a manual unlock request.": "<1>{{user}}</1> closed this ticket because it was a manual unlock request.",
+    "Subscribed to by you": "Subscribed to by you",
+    "Subscribed Tickets": "Subscribed Tickets",
+    "Subscribed Tickets - {{title}}": "Subscribed Tickets - {{title}}"
 }

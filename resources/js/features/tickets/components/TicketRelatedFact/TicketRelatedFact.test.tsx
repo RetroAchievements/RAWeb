@@ -50,10 +50,34 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'request', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 3, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
-          { id: 4, state: 'closed', resolution: 'other', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'request',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 3,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 4,
+            state: 'closed',
+            resolution: 'other',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement', ticketableId: 77 })}
       />,
@@ -80,24 +104,33 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
           {
             id: 2,
             state: 'closed',
             resolution: 'mistaken_report',
             createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
           },
           {
             id: 3,
             state: 'closed',
             resolution: 'network_problems',
             createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
           },
           {
             id: 4,
             state: 'closed',
             resolution: 'unable_to_reproduce',
             createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
           },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement' })}
@@ -120,8 +153,15 @@ describe('Component: TicketRelatedFact', () => {
             state: 'closed',
             resolution: 'unable_to_debug',
             createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
           },
-          { id: 2, state: 'closed', resolution: 'demoted', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 2,
+            state: 'closed',
+            resolution: 'demoted',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement' })}
       />,
@@ -136,9 +176,27 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
-          { id: 3, state: 'quarantined', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 3,
+            state: 'quarantined',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement' })}
       />,
@@ -155,7 +213,13 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement' })}
       />,
@@ -171,8 +235,20 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'achievement' })}
       />,
@@ -191,8 +267,20 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'leaderboard' })}
       />,
@@ -210,7 +298,13 @@ describe('Component: TicketRelatedFact', () => {
     const { container } = render(
       <TicketRelatedFact
         relatedTickets={[
-          { id: 1, state: 'closed', resolution: 'other', createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'closed',
+            resolution: 'other',
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ]}
         ticket={createTicketListEntry({ ticketableType: 'leaderboard' })}
       />,

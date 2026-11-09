@@ -25,6 +25,7 @@ enum TicketListScope: string
     case Achievement = 'achievement';
     case AssignedTo = 'assignedTo';
     case ReportedBy = 'reportedBy';
+    case SubscribedBy = 'subscribedBy';
     case AwaitingReporter = 'awaitingReporter';
     case ResolvedBy = 'resolvedBy';
 
@@ -36,6 +37,7 @@ enum TicketListScope: string
             self::Achievement => Achievement::findOrFail((int) $request->input('achievement')),
             self::AssignedTo => User::withTrashed()->findOrFail((int) $request->input('user')),
             self::ReportedBy, self::AwaitingReporter, self::ResolvedBy => User::findOrFail((int) $request->input('user')),
+            self::SubscribedBy => $request->user(), // subscriptions are private - this list only ever shows the user's own stuff
         };
     }
 
@@ -51,6 +53,8 @@ enum TicketListScope: string
             self::AssignedTo => Ticket::forAssignee($target),
             self::ReportedBy => Ticket::query()
                 ->where('reporter_id', $target->id),
+            self::SubscribedBy => Ticket::onGamesSubscribedToBy($target)
+                ->notAssignedTo($target),
             self::AwaitingReporter => Ticket::query()
                 ->where('reporter_id', $target->id),
             self::ResolvedBy => Ticket::query()
@@ -67,7 +71,7 @@ enum TicketListScope: string
     public function filterKinds(): array
     {
         return match ($this) {
-            self::All => [
+            self::All, self::SubscribedBy => [
                 TicketListFilterKind::Type,
                 TicketListFilterKind::Mode,
                 TicketListFilterKind::PublishedStatus,

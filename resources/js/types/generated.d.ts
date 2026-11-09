@@ -1279,6 +1279,7 @@ id: number;
 state: App.Community.Enums.TicketState;
 resolution: App.Community.Enums.TicketResolution | null;
 createdAt: string;
+ticketableTitle: string;
 };
 export type TicketReporterUnlock = {
 unlockedAt: string;
@@ -1294,6 +1295,7 @@ hasMaintainer: boolean;
 isViewerReporter: boolean;
 can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
 logicChangedAfterReportAt: string | null;
@@ -1376,9 +1378,9 @@ export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gal
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
 export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 'returned' | 'approved' | 'reopened' | 'reminded';
 export type TicketCreationBlockReason = 'no_play_session';
-export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'reportedByYou' | 'resolvedByYou';
+export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'subscribedByYou' | 'reportedByYou' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'signal' | 'system' | 'emulator' | 'core';
-export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'awaitingReporter' | 'resolvedBy';
+export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'subscribedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
 export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';

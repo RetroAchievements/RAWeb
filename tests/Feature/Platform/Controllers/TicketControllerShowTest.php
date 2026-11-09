@@ -22,6 +22,9 @@ use App\Models\Ticket;
 use App\Models\TicketVerdictAccuracyResult;
 use App\Models\Trigger;
 use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
@@ -379,6 +382,96 @@ describe('Leaderboard Ticket Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->missing('reporterLeaderboardEntry')
             ->missing('leaderboardEntryCount')
+        );
+    });
+});
+
+describe('Same Reporter Ticket Props', function () {
+    it('given the reporter created other tickets for the game and/or its subsets, lists the nearest ones first', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $baseGame = createTicketShowPageGame();
+        $subsetGame = Game::factory()->create(['system_id' => $baseGame->system_id]);
+        $otherGame = createTicketShowPageGame();
+        $viewedAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
+        $nearbyAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id, 'title' => 'Hookshot']);
+        $subsetAchievement = Achievement::factory()->promoted()->create(['game_id' => $subsetGame->id, 'title' => 'Zora Tunic']);
+        $otherGameAchievement = Achievement::factory()->promoted()->create(['game_id' => $otherGame->id]);
+        $baseLeaderboard = Leaderboard::factory()->create(['game_id' => $baseGame->id, 'title' => 'Time Attack']);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($subsetGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $subsetGame, AchievementSetType::Bonus, 'Bonus');
+
+        $ticket = Ticket::factory()->forAchievement($viewedAchievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-10 12:00:00'),
+        ]);
+        $sameAchievementTicket = Ticket::factory()->forAchievement($viewedAchievement)->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-10 12:05:00'),
+        ]);
+        $subsetTicket = Ticket::factory()->forAchievement($subsetAchievement)->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-03-01 12:00:00'),
+        ]);
+        $nearbyTicket = Ticket::factory()->forAchievement($nearbyAchievement)->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-10 12:20:00'),
+        ]);
+        $laterLeaderboardTicket = Ticket::factory()->forLeaderboard($baseLeaderboard)->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-12-01 12:00:00'),
+        ]);
+        Ticket::factory()->forAchievement($nearbyAchievement)->create(['reporter_id' => User::factory()->create()->id]);
+        Ticket::factory()->forAchievement($otherGameAchievement)->create(['reporter_id' => $reporter->id]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('reporterGameTickets', 3)
+            ->where('reporterGameTickets.0.id', $nearbyTicket->id)
+            ->where('reporterGameTickets.0.ticketableTitle', 'Hookshot')
+            ->where('reporterGameTickets.1.id', $subsetTicket->id)
+            ->where('reporterGameTickets.1.ticketableTitle', 'Zora Tunic')
+            ->where('reporterGameTickets.2.id', $laterLeaderboardTicket->id)
+            ->where('reporterGameTickets.2.ticketableTitle', 'Time Attack')
+            ->where('relatedTickets.0.id', $sameAchievementTicket->id)
+        );
+    });
+
+    it('given a subset ticket, also sends the reporter\'s tickets for the base game', function () {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $baseGame = createTicketShowPageGame();
+        $subsetGame = Game::factory()->create(['system_id' => $baseGame->system_id]);
+        $baseAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
+        $subsetAchievement = Achievement::factory()->promoted()->create(['game_id' => $subsetGame->id]);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($subsetGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $subsetGame, AchievementSetType::Bonus, 'Bonus');
+
+        $ticket = Ticket::factory()->forAchievement($subsetAchievement)->create([
+            'ticketable_author_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+        ]);
+        $baseGameTicket = Ticket::factory()->forAchievement($baseAchievement)->create(['reporter_id' => $reporter->id]);
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('reporterGameTickets', 1)
+            ->where('reporterGameTickets.0.id', $baseGameTicket->id)
         );
     });
 });

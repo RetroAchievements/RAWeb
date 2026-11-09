@@ -26,6 +26,7 @@ export const TicketListHeading: FC = () => {
     achievement: t('Tickets'),
     assignedTo: t('Tickets'),
     reportedBy: t('Tickets Created'),
+    subscribedBy: t('Subscribed Tickets'),
     awaitingReporter: t('Tickets Awaiting Feedback'),
     resolvedBy: t('Tickets Resolved'),
   };

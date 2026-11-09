@@ -12,7 +12,13 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
@@ -27,7 +33,13 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
@@ -42,9 +54,27 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 3, state: 'request', resolution: null, createdAt: '2024-03-01T12:00:00Z' },
-          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-05T12:00:00Z' },
-          { id: 4, state: 'closed', resolution: 'other', createdAt: '2024-04-01T12:00:00Z' },
+          {
+            id: 3,
+            state: 'request',
+            resolution: null,
+            createdAt: '2024-03-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 1,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-05T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 4,
+            state: 'closed',
+            resolution: 'other',
+            createdAt: '2024-04-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
@@ -67,16 +97,28 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 1, state: 'resolved', resolution: 'fixed', createdAt: '2024-05-05T12:00:00Z' },
-          { id: 2, state: 'open', resolution: null, createdAt: '2024-05-08T12:00:00Z' },
+          {
+            id: 1,
+            state: 'resolved',
+            resolution: 'fixed',
+            createdAt: '2024-05-05T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-08T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
 
     // ASSERT
-    expect(screen.getByTitle('Fixed')).toHaveTextContent('Fixed');
+    expect(screen.getByRole('cell', { name: 'Fixed' })).toBeVisible();
     expect(screen.queryByText(/Resolved:/)).not.toBeInTheDocument();
-    expect(screen.getByTitle('Open')).toHaveTextContent('Open');
+    expect(screen.getByRole('cell', { name: 'Open' })).toBeVisible();
     expect(screen.getByText('5d ago')).toBeVisible();
     expect(screen.getByText('2d ago')).toBeVisible();
   });
@@ -87,16 +129,76 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement', ticketableId: 9001 }),
         relatedTickets: [
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'open', resolution: null, createdAt: '2024-05-02T12:00:00Z' },
-          { id: 3, state: 'open', resolution: null, createdAt: '2024-05-03T12:00:00Z' },
-          { id: 4, state: 'open', resolution: null, createdAt: '2024-05-04T12:00:00Z' },
-          { id: 5, state: 'open', resolution: null, createdAt: '2024-05-05T12:00:00Z' },
-          { id: 6, state: 'open', resolution: null, createdAt: '2024-05-06T12:00:00Z' },
-          { id: 7, state: 'open', resolution: null, createdAt: '2024-05-07T12:00:00Z' },
-          { id: 8, state: 'open', resolution: null, createdAt: '2024-05-08T12:00:00Z' },
-          { id: 9, state: 'open', resolution: null, createdAt: '2024-05-09T12:00:00Z' },
-          { id: 10, state: 'open', resolution: null, createdAt: '2024-05-10T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-02T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 3,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-03T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 4,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-04T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 5,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-05T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 6,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-06T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 7,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-07T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 8,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-08T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 9,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-09T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 10,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-10T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
@@ -121,14 +223,62 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'achievement' }),
         relatedTickets: [
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'open', resolution: null, createdAt: '2024-05-02T12:00:00Z' },
-          { id: 3, state: 'open', resolution: null, createdAt: '2024-05-03T12:00:00Z' },
-          { id: 4, state: 'open', resolution: null, createdAt: '2024-05-04T12:00:00Z' },
-          { id: 5, state: 'open', resolution: null, createdAt: '2024-05-05T12:00:00Z' },
-          { id: 6, state: 'open', resolution: null, createdAt: '2024-05-06T12:00:00Z' },
-          { id: 7, state: 'open', resolution: null, createdAt: '2024-05-07T12:00:00Z' },
-          { id: 8, state: 'open', resolution: null, createdAt: '2024-05-08T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-02T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 3,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-03T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 4,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-04T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 5,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-05T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 6,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-06T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 7,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-07T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 8,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-08T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
@@ -145,15 +295,69 @@ describe('Component: RelatedTicketsPanel', () => {
       pageProps: {
         ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
         relatedTickets: [
-          { id: 1, state: 'open', resolution: null, createdAt: '2024-05-01T12:00:00Z' },
-          { id: 2, state: 'open', resolution: null, createdAt: '2024-05-02T12:00:00Z' },
-          { id: 3, state: 'open', resolution: null, createdAt: '2024-05-03T12:00:00Z' },
-          { id: 4, state: 'open', resolution: null, createdAt: '2024-05-04T12:00:00Z' },
-          { id: 5, state: 'open', resolution: null, createdAt: '2024-05-05T12:00:00Z' },
-          { id: 6, state: 'open', resolution: null, createdAt: '2024-05-06T12:00:00Z' },
-          { id: 7, state: 'open', resolution: null, createdAt: '2024-05-07T12:00:00Z' },
-          { id: 8, state: 'open', resolution: null, createdAt: '2024-05-08T12:00:00Z' },
-          { id: 9, state: 'open', resolution: null, createdAt: '2024-05-09T12:00:00Z' },
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 2,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-02T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 3,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-03T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 4,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-04T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 5,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-05T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 6,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-06T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 7,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-07T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 8,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-08T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
+          {
+            id: 9,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-09T12:00:00Z',
+            ticketableTitle: 'Hookshot',
+          },
         ],
       },
     });
