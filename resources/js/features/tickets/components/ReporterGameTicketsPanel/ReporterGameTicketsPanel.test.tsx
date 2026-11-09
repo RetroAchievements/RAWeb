@@ -31,7 +31,7 @@ describe('Component: ReporterGameTicketsPanel', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { level: 2, name: 'From the Same Reporter' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: 'Same Reporter, Same Game' })).toBeVisible();
     expect(screen.getByRole('link', { name: '#51' })).toBeVisible();
     expect(screen.getByRole('link', { name: '#52' })).toBeVisible();
     expect(screen.getByText('Hookshot')).toBeVisible();

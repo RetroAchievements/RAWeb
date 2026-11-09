@@ -20,7 +20,7 @@ export const ReporterGameTicketsPanel: FC = () => {
 
   return (
     <section>
-      <h2 className="mb-0 border-0 text-lg font-semibold">{t('From the Same Reporter')}</h2>
+      <h2 className="mb-0 border-0 text-lg font-semibold">{t('Same Reporter, Same Game')}</h2>
 
       <TicketEntriesTable
         entries={reporterGameTickets}

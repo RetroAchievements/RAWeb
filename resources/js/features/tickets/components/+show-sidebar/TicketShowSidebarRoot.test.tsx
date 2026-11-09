@@ -83,6 +83,6 @@ describe('Component: TicketShowSidebarRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { level: 2, name: 'From the Same Reporter' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: 'Same Reporter, Same Game' })).toBeVisible();
   });
 });
