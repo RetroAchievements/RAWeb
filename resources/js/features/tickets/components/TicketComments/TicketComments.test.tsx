@@ -290,8 +290,6 @@ describe('Component: TicketComments', () => {
         can: { createTicketComments: false },
         comments: [],
         changelog: [],
-        hasNonReporterComment: false,
-        hasReporterRepliedLast: false,
         ticket: createTicketListEntry({ state: 'open', resolution: null }),
       },
     });
@@ -311,8 +309,6 @@ describe('Component: TicketComments', () => {
         can: { createTicketComments: true },
         comments: [],
         changelog: [],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
         ticket: createTicketListEntry({ state: 'open', resolution: null }),
       },
     });

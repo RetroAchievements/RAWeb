@@ -42,8 +42,6 @@ class TicketShowPagePropsData extends Data
         public array $changelog,
         /** @var TicketAction[] $allowedTicketActions */
         public array $allowedTicketActions,
-        public bool $hasNonReporterComment,
-        public bool $hasReporterRepliedLast,
         public bool $hasReporterHistoryAccess,
         public ?Carbon $autoCloseAt,
         #[AutoInertiaDeferred]

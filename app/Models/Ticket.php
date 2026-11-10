@@ -93,16 +93,6 @@ class Ticket extends BaseModel
 
     // == accessors
 
-    public function getHasNonReporterCommentAttribute(): bool
-    {
-        return $this->discussionComments->contains(fn (TicketComment $ticketComment): bool => $ticketComment->user_id !== $this->reporter_id);
-    }
-
-    public function getHasReporterRepliedLastAttribute(): bool
-    {
-        return $this->discussionComments->last()?->user_id === $this->reporter_id && $this->has_non_reporter_comment;
-    }
-
     public function getIsOpenAttribute(): bool
     {
         return $this->state->isOpen();

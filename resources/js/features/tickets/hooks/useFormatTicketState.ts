@@ -5,13 +5,13 @@ import type { TranslatedString } from '@/types/i18next';
 import { useTicketResolutionLabels } from './useTicketResolutionLabels';
 import { useTicketStateLabels } from './useTicketStateLabels';
 
-export function useTicketStateLabel() {
+export function useFormatTicketState() {
   const { t } = useTranslation();
 
   const resolutionLabels = useTicketResolutionLabels();
   const stateLabels = useTicketStateLabels();
 
-  const buildTicketStateLabel = (
+  const formatTicketState = (
     ticketState: App.Community.Enums.TicketState,
     ticketResolution: App.Community.Enums.TicketResolution | null | undefined,
   ): TranslatedString => {
@@ -27,5 +27,5 @@ export function useTicketStateLabel() {
     });
   };
 
-  return { buildTicketStateLabel };
+  return { formatTicketState };
 }

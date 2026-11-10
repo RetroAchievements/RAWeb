@@ -57,7 +57,6 @@ class BuildTicketShowPagePropsAction
         }
 
         // NOTE: Ticket comments from banned users are always visible, intentionally.
-        // Loading the relation here lets the policy reuse it for the Request rule.
         $ticket->load(['discussionComments.user' => fn ($query) => $query->withTrashed()]);
         $loadedComments = $ticket->discussionComments;
 
@@ -74,11 +73,11 @@ class BuildTicketShowPagePropsAction
             ticket: $ticketEntry,
 
             achievement: $ticketable instanceof Achievement
-                ? AchievementData::fromAchievement($ticketable)->include('points', 'developer.isGone')
+                ? AchievementData::fromAchievement($ticketable)->include('points', 'isPromoted', 'developer.isGone')
                 : null,
 
             leaderboard: $ticketable instanceof Leaderboard
-                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'developer.isGone')
+                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'state', 'developer.isGone')
                 : null,
 
             ticketableDescription: $ticketable->description,
@@ -125,8 +124,6 @@ class BuildTicketShowPagePropsAction
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
             allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
-            hasNonReporterComment: $ticket->has_non_reporter_comment,
-            hasReporterRepliedLast: $ticket->has_reporter_replied_last,
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,

@@ -3,13 +3,19 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createTicketListEntry } from '@/test/factories';
+import {
+  createAchievement,
+  createComment,
+  createTicketListEntry,
+  createUser,
+} from '@/test/factories';
 
 import { TicketStateMenu } from './TicketStateMenu';
 
 describe('Component: TicketStateMenu', () => {
-  it('given a developer on an open ticket, lists the state moves and then the close reasons', async () => {
+  it('given a developer on an open ticket, the menu shows one state move and one close item, with no resolve or demote', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
@@ -23,9 +29,11 @@ describe('Component: TicketStateMenu', () => {
           'already-fixed',
           'manual-unlock-request',
           'closed-mistaken',
+          'closed-other',
         ],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: true },
+        comments: [createComment({ user: createUser({ displayName: 'Scott' }) })],
         ticket: createTicketListEntry({
           state: 'open',
           resolution: null,
@@ -39,29 +47,19 @@ describe('Component: TicketStateMenu', () => {
 
     // ASSERT
     const itemNames = screen.getAllByRole('menuitem').map((item) => item.textContent);
-    expect(itemNames).toEqual([
-      'Resolve as fixed',
-      'Request information',
-      'Demote achievement',
-      'Network problems',
-      'Wrong ROM',
-      'Emulator or core problem',
-      'Already fixed',
-      'Manual unlock request',
-      'Mistaken report',
-    ]);
-    expect(screen.getByText('Close as')).toBeVisible();
+    expect(itemNames).toEqual(['Request information', 'Close…']);
   });
 
-  it('given an action that needs a comment first, shows it greyed out and does not send it when clicked', async () => {
+  it('given the Close option is picked, the close dialog appears', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch');
 
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
-        allowedTicketActions: ['resolved', 'network', 'closed-other'],
-        hasNonReporterComment: false,
-        hasReporterRepliedLast: false,
+        achievement: createAchievement(),
+        allowedTicketActions: ['resolved', 'network'],
+        can: { createTicketComments: true },
+        comments: [],
         ticket: createTicketListEntry({
           state: 'open',
           resolution: null,
@@ -72,18 +70,34 @@ describe('Component: TicketStateMenu', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-    const resolveItem = screen.getByRole('menuitem', { name: /resolve as fixed/i });
-    const anotherReasonItem = screen.getByRole('menuitem', { name: /another reason/i });
-    await userEvent.click(resolveItem, { pointerEventsCheck: 0 });
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Close…' }));
 
     // ASSERT
-    expect(resolveItem).toHaveAttribute('aria-disabled', 'true');
-    expect(resolveItem).toHaveTextContent('Add a comment first');
-    expect(anotherReasonItem).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: 'Network problems' })).not.toHaveAttribute(
-      'aria-disabled',
-    );
+    expect(await screen.findByRole('dialog', { name: 'Close ticket' })).toBeVisible();
+    expect(
+      screen.getByRole('radiogroup', { name: 'Was something wrong with the achievement?' }),
+    ).toBeVisible();
     expect(patchSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user cannot close the ticket, the menu has no Close option', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['request'],
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: true },
+        comments: [createComment({ user: createUser({ displayName: 'Scott' }) })],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+
+    // ASSERT
+    const itemNames = screen.getAllByRole('menuitem').map((item) => item.textContent);
+    expect(itemNames).toEqual(['Request information']);
   });
 
   it.each<{ expectedMenuItemLabel: string; ticketState: App.Community.Enums.TicketState }>([
@@ -95,33 +109,41 @@ describe('Component: TicketStateMenu', () => {
     'labels the reopen action "$expectedMenuItemLabel" on a $ticketState ticket',
     async ({ expectedMenuItemLabel, ticketState }) => {
       // ARRANGE
+      const patchSpy = vi
+        .spyOn(axios, 'patch')
+        .mockResolvedValueOnce({ data: { message: 'Updated' } });
+
       render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
         pageProps: {
           allowedTicketActions: ['reopen'],
-          hasNonReporterComment: true,
-          hasReporterRepliedLast: false,
-          ticket: createTicketListEntry({ state: ticketState, resolution: null }),
+          can: {},
+          comments: [],
+          ticket: createTicketListEntry({ id: 5170, state: ticketState, resolution: null }),
         },
       });
 
       // ACT
       await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-
-      // ASSERT
       const menuItemLabels = screen
         .getAllByRole('menuitem')
         .map((menuItem) => menuItem.textContent);
+      await userEvent.click(screen.getByRole('menuitem', { name: expectedMenuItemLabel }));
+
+      // ASSERT
       expect(menuItemLabels).toEqual([expectedMenuItemLabel]);
+      expect(patchSpy).toHaveBeenCalledWith(route('api.ticket.state.update', { ticket: 5170 }), {
+        action: 'reopen',
+      });
     },
   );
 
-  it('given the user is the reporter, offers only closing the ticket as a mistaken report', async () => {
+  it('given the user may only close the ticket as a mistaken report, shows only that option', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
         allowedTicketActions: ['closed-mistaken'],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
+        can: {},
+        comments: [],
         ticket: createTicketListEntry({ state: 'open', resolution: null }),
       },
     });
@@ -134,131 +156,132 @@ describe('Component: TicketStateMenu', () => {
     expect(itemNames).toEqual(['Mistaken report']);
   });
 
-  it.each<[string, App.Community.Enums.TicketAction, string]>([
-    ['a state move', 'resolved', 'Resolve as fixed'],
-    ['a close reason', 'wrong-rom', 'Wrong ROM'],
-    ['Request information when the reporter did not reply last', 'request', 'Request information'],
-  ])(
-    'given the user picks %s, sends it right away and reloads the page',
-    async (_description, action, itemName) => {
-      // ARRANGE
-      const patchSpy = vi
-        .spyOn(axios, 'patch')
-        .mockResolvedValueOnce({ data: { message: 'Updated' } });
+  it('given the newest comment was left by the current user, picking Request information then makes an immediate API call and reloads the page', async () => {
+    // ARRANGE
+    const patchSpy = vi
+      .spyOn(axios, 'patch')
+      .mockResolvedValueOnce({ data: { message: 'Updated' } });
 
-      const ticket = createTicketListEntry({ id: 7731, state: 'open', resolution: null });
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['request'],
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: true },
+        comments: [
+          createComment({ user: createUser({ displayName: 'Reporter' }) }),
+          createComment({ user: createUser({ displayName: 'Scott' }) }),
+        ],
+        ticket: createTicketListEntry({ id: 7731, state: 'open', resolution: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Request information' }));
+
+    // ASSERT
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(patchSpy).toHaveBeenCalledWith(route('api.ticket.state.update', { ticket: 7731 }), {
+      action: 'request',
+    });
+    await waitFor(() => {
+      expect(router.reload).toHaveBeenCalled();
+    });
+  });
+
+  it.each<{ case: string; commenterNames: string[] }>([
+    { case: 'there are no comments yet', commenterNames: [] },
+    { case: 'the reporter wrote the newest comment', commenterNames: ['Scott', 'Reporter'] },
+  ])(
+    'given $case, Request information is disabled with a hint to leave a comment first',
+    async ({ commenterNames }) => {
+      // ARRANGE
+      const patchSpy = vi.spyOn(axios, 'patch');
 
       render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
         pageProps: {
-          allowedTicketActions: [action],
-          hasNonReporterComment: true,
-          hasReporterRepliedLast: false,
-          ticket,
+          allowedTicketActions: ['request', 'network'],
+          auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+          can: { createTicketComments: true },
+          comments: commenterNames.map((displayName) =>
+            createComment({ user: createUser({ displayName }) }),
+          ),
+          ticket: createTicketListEntry({ state: 'open', resolution: null }),
         },
       });
 
       // ACT
       await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-      await userEvent.click(screen.getByRole('menuitem', { name: itemName }));
+      const requestItem = screen.getByRole('menuitem', {
+        name: /request information.*add a comment first/i,
+      });
+      await userEvent.click(requestItem);
 
       // ASSERT
+      expect(requestItem).toHaveAttribute('aria-disabled', 'true');
+      expect(patchSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  it('given the user cannot comment, excludes Request information from the menu', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['request', 'network'],
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: false },
+        comments: [],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+
+    // ASSERT
+    const itemNames = screen.getAllByRole('menuitem').map((item) => item.textContent);
+    expect(itemNames).toEqual(['Close…']);
+  });
+
+  it('given Mistaken report is picked, pops a confirm', async () => {
+    // ARRANGE
+    const patchSpy = vi
+      .spyOn(axios, 'patch')
+      .mockResolvedValueOnce({ data: { message: 'State updated' } });
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['closed-mistaken'],
+        can: {},
+        comments: [],
+        ticket: createTicketListEntry({
+          id: 6083,
+          state: 'open',
+          resolution: null,
+          ticketableType: 'achievement',
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Mistaken report' }));
+
+    // ASSERT
+    expect(
+      await screen.findByRole('dialog', { name: 'Close as a mistaken report?' }),
+    ).toBeVisible();
+    expect(patchSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close ticket' }));
+
+    expect(patchSpy).toHaveBeenCalledWith(route('api.ticket.state.update', { ticket: 6083 }), {
+      action: 'closed-mistaken',
+    });
+    await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      expect(patchSpy).toHaveBeenCalledWith(route('api.ticket.state.update', { ticket: 7731 }), {
-        action,
-      });
-      await waitFor(() => {
-        expect(router.reload).toHaveBeenCalled();
-      });
-    },
-  );
-
-  it.each<{
-    confirmButtonName: string;
-    confirmDialogTitle: string;
-    menuItemName: string;
-    pick: string;
-    reporterRepliedLast: boolean;
-    ticketAction: App.Community.Enums.TicketAction;
-  }>([
-    {
-      pick: 'Demote',
-      ticketAction: 'demoted',
-      menuItemName: 'Demote achievement',
-      reporterRepliedLast: false,
-      confirmDialogTitle: 'Demote this achievement to unpublished?',
-      confirmButtonName: 'Demote',
-    },
-    {
-      pick: 'Unable to debug',
-      ticketAction: 'unable-to-debug',
-      menuItemName: 'Unable to debug (no toolkit support)',
-      reporterRepliedLast: false,
-      confirmDialogTitle: 'Close as unable to debug?',
-      confirmButtonName: 'Close ticket',
-    },
-    {
-      pick: 'Mistaken report',
-      ticketAction: 'closed-mistaken',
-      menuItemName: 'Mistaken report',
-      reporterRepliedLast: false,
-      confirmDialogTitle: 'Close as a mistaken report?',
-      confirmButtonName: 'Close ticket',
-    },
-    {
-      pick: 'Request information after the reporter replied last',
-      ticketAction: 'request',
-      menuItemName: 'Request information',
-      reporterRepliedLast: true,
-      confirmDialogTitle: 'Request information from the reporter?',
-      confirmButtonName: 'Request information',
-    },
-  ])(
-    'asks for confirmation before submitting the $pick pick',
-    async ({
-      confirmButtonName,
-      confirmDialogTitle,
-      menuItemName,
-      reporterRepliedLast,
-      ticketAction,
-    }) => {
-      // ARRANGE
-      const patchRequestSpy = vi
-        .spyOn(axios, 'patch')
-        .mockResolvedValueOnce({ data: { message: 'State updated' } });
-
-      render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
-        pageProps: {
-          allowedTicketActions: [ticketAction],
-          hasNonReporterComment: true,
-          hasReporterRepliedLast: reporterRepliedLast,
-          ticket: createTicketListEntry({
-            id: 6083,
-            state: 'open',
-            resolution: null,
-            ticketableType: 'achievement',
-          }),
-        },
-      });
-
-      // ACT
-      await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-      await userEvent.click(screen.getByRole('menuitem', { name: menuItemName }));
-
-      // ASSERT
-      expect(await screen.findByRole('dialog', { name: confirmDialogTitle })).toBeVisible();
-      expect(patchRequestSpy).not.toHaveBeenCalled();
-
-      await userEvent.click(screen.getByRole('button', { name: confirmButtonName }));
-
-      expect(patchRequestSpy).toHaveBeenCalledWith(
-        route('api.ticket.state.update', { ticket: 6083 }),
-        { action: ticketAction },
-      );
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      });
-    },
-  );
+    });
+  });
 
   it('sends no API request when the confirmation is cancelled', async () => {
     // ARRANGE
@@ -266,9 +289,9 @@ describe('Component: TicketStateMenu', () => {
 
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
       pageProps: {
-        allowedTicketActions: ['demoted'],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
+        allowedTicketActions: ['closed-mistaken'],
+        can: {},
+        comments: [],
         ticket: createTicketListEntry({
           state: 'open',
           resolution: null,
@@ -279,36 +302,11 @@ describe('Component: TicketStateMenu', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Demote achievement' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Mistaken report' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
 
     // ASSERT
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(patchSpy).not.toHaveBeenCalled();
-  });
-
-  it('given a leaderboard ticket, the demote item and confirmation specify the name of the leaderboard', async () => {
-    // ARRANGE
-    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
-      pageProps: {
-        allowedTicketActions: ['demoted'],
-        hasNonReporterComment: true,
-        hasReporterRepliedLast: false,
-        ticket: createTicketListEntry({
-          state: 'open',
-          resolution: null,
-          ticketableType: 'leaderboard',
-        }),
-      },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Demote leaderboard' }));
-
-    // ASSERT
-    expect(
-      await screen.findByRole('dialog', { name: 'Demote this leaderboard to unpromoted?' }),
-    ).toBeVisible();
   });
 });
