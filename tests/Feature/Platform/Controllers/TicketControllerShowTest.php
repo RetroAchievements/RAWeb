@@ -10,6 +10,7 @@ use App\Models\Achievement;
 use App\Models\AchievementMaintainer;
 use App\Models\Comment;
 use App\Models\Emulator;
+use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -638,6 +639,48 @@ describe('Reporter Manual Unlock Request Prop', function () {
         'a close reason that offers no request' => [TicketResolution::WrongRom, false, null, true, false],
         'viewer is somebody other than the reporter' => [TicketResolution::NetworkProblems, false, null, false, false],
     ]);
+
+    it('given a hardcore ticket and a casual unlock from a client that cannot award hardcore unlocks, does not show the manual unlock CTA', function () {
+        // ARRANGE
+        EmulatorUserAgent::create([
+            'emulator_id' => Emulator::create(['name' => 'Test Client'])->id,
+            'client' => 'MyClient',
+            'minimum_allowed_version' => '1.2',
+            'minimum_hardcore_version' => '1.5',
+        ]);
+
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->closed()->create([
+            'assignee_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'resolution' => TicketResolution::NetworkProblems,
+            'hardcore' => true,
+        ]);
+
+        $restrictedSession = PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'user_agent' => 'MyClient/1.2',
+        ]);
+        PlayerAchievement::factory()->create([
+            'user_id' => $reporter->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => now()->subHour(),
+            'unlocked_hardcore_at' => null,
+            'player_session_id' => $restrictedSession->id,
+        ]);
+
+        actingAs($reporter);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('shouldOfferManualUnlock', false));
+    });
 });
 
 describe('Reporter Activity Props', function () {

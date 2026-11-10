@@ -1864,7 +1864,7 @@
     "Subscribed to by you": "Subscribed to by you",
     "Subscribed Tickets": "Subscribed Tickets",
     "Subscribed Tickets - {{title}}": "Subscribed Tickets - {{title}}",
-    "The reporter will see a button to request a manual unlock.": "The reporter will see a button to request a manual unlock.",
+    "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.": "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
     "Start a manual unlock request": "Start a manual unlock request",
     "You can request a manual unlock.": "You can request a manual unlock.",
     "You'll need proof you should've been granted this unlock, such as a screenshot or a video.": "You'll need proof you should've been granted this unlock, such as a screenshot or a video."

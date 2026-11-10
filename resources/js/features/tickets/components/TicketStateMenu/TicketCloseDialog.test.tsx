@@ -559,7 +559,9 @@ describe('Component: TicketCloseDialog', () => {
 
     // ASSERT
     expect(
-      screen.getByText('The reporter will see a button to request a manual unlock.'),
+      screen.getByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
     ).not.toHaveAttribute('aria-hidden', 'true');
   });
 
@@ -583,7 +585,9 @@ describe('Component: TicketCloseDialog', () => {
 
     // ASSERT
     expect(
-      screen.getByText('The reporter will see a button to request a manual unlock.'),
+      screen.getByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
     ).toHaveAttribute('aria-hidden', 'true');
   });
 
@@ -608,7 +612,9 @@ describe('Component: TicketCloseDialog', () => {
 
     // ASSERT
     expect(
-      screen.queryByText('The reporter will see a button to request a manual unlock.'),
+      screen.queryByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
     ).not.toBeInTheDocument();
   });
 });

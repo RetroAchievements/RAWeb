@@ -10,6 +10,7 @@ use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Platform\Actions\GetHasCasualUnlockFromRestrictedClientAction;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -124,7 +125,14 @@ class Ticket extends BaseModel
             return true;
         }
 
-        return $this->hardcore && $reporterAchievementUnlock->unlocked_hardcore_at === null;
+        if (!$this->hardcore || $reporterAchievementUnlock->unlocked_hardcore_at !== null) {
+            return false;
+        }
+
+        /** @var Achievement $achievement */
+        $achievement = $this->ticketable;
+
+        return !(new GetHasCasualUnlockFromRestrictedClientAction())->execute($reporterAchievementUnlock, $achievement);
     }
 
     // == logging

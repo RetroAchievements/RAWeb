@@ -17,7 +17,7 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
 {
     use Queueable;
 
-    private bool $shouldOfferManualUnlock;
+    private bool $shouldOfferManualUnlock = false;
 
     public function __construct(
         private Ticket $ticket,

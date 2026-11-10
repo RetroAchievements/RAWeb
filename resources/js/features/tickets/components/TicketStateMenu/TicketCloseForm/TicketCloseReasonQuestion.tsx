@@ -84,7 +84,9 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
       {isAchievementTicket && actions.includes('network')
         ? renderInlineHint(
             'network',
-            t('The reporter will see a button to request a manual unlock.'),
+            t(
+              "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+            ),
           )
         : null}
     </TicketCloseQuestion>
