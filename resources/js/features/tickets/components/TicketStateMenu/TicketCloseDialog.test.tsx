@@ -45,7 +45,7 @@ describe('Component: TicketCloseDialog', () => {
       {
         pageProps: {
           achievement: createAchievement(),
-          allowedTicketActions: ['wrong-rom', 'network'],
+          allowedTicketActions: ['wrong-rom', 'unable-to-reproduce'],
           can: { createTicketComments: true },
           ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
         },
@@ -58,7 +58,7 @@ describe('Component: TicketCloseDialog', () => {
     await userEvent.click(screen.getByRole('radio', { name: "Can't tell" }));
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: 'Network problems' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Unable to reproduce' })).not.toBeChecked();
     expect(screen.getByLabelText(/^Note for the reporter/)).toHaveValue('');
     expect(screen.getByLabelText(/^Note for the reporter/)).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Close ticket' })).toBeDisabled();
@@ -258,7 +258,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: "Can't tell" }));
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
     await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
     await userEvent.type(
       screen.getByLabelText(/^Note for the reporter/),
@@ -370,7 +370,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: "Can't tell" }));
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
     await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
     await userEvent.click(screen.getByRole('button', { name: 'Close ticket' }));
 
@@ -472,7 +472,7 @@ describe('Component: TicketCloseDialog', () => {
       {
         pageProps: {
           achievement: createAchievement(),
-          allowedTicketActions: ['wrong-rom', 'closed-other', 'network'],
+          allowedTicketActions: ['wrong-rom', 'closed-other', 'unable-to-reproduce'],
           can: { createTicketComments: false },
           ticket: createTicketListEntry({ id: 9214, state: 'open', ticketableType: 'achievement' }),
         },

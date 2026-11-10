@@ -910,6 +910,43 @@ describe('Ticket Action Props', function () {
         );
     });
 
+    it('given an open leaderboard ticket, manual unlock request is not an allowed close reason', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forLeaderboard($leaderboard)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allowedTicketActions', [
+                'closed-mistaken',
+                'resolved',
+                'demoted',
+                'not-enough-info',
+                'wrong-rom',
+                'network',
+                'unable-to-reproduce',
+                'unable-to-debug',
+                'already-fixed',
+                'emulator-problem',
+                'closed-other',
+                'request',
+            ])
+        );
+    });
+
     it('given a developer on a quarantined ticket, allows only approving and the close reasons', function () {
         // ARRANGE
         seed(RolesTableSeeder::class);

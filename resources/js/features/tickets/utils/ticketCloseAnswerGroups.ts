@@ -8,18 +8,13 @@ export const TICKET_CLOSE_ANSWER_GROUPS: TicketCloseAnswerGroup[] = [
       'closed-mistaken',
       'emulator-problem',
       'wrong-rom',
+      'network',
       'manual-unlock-request',
       'closed-other',
     ],
   },
   {
     answer: 'cant-tell',
-    actions: [
-      'unable-to-reproduce',
-      'network',
-      'not-enough-info',
-      'unable-to-debug',
-      'closed-other',
-    ],
+    actions: ['unable-to-reproduce', 'not-enough-info', 'unable-to-debug', 'closed-other'],
   },
 ];
