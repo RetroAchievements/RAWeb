@@ -201,6 +201,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
 
                     Route::get('tickets/mine', [TicketController::class, 'mine'])->name('tickets.mine');
+                    Route::get('tickets/subscribed', [TicketController::class, 'subscribed'])
+                        ->defaults('scope', TicketListScope::SubscribedBy->value)
+                        ->name('tickets.subscribed');
                     Route::get('tickets', [TicketController::class, 'index'])
                         ->defaults('scope', TicketListScope::All->value)
                         ->name('tickets.index');

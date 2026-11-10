@@ -26,6 +26,8 @@ class TicketShowPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
+        /** @var TicketRelatedEntryData[] $reporterGameTickets */
+        public array $reporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
         public ?Carbon $logicChangedAfterReportAt,

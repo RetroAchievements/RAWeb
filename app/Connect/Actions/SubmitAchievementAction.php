@@ -120,6 +120,11 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
+        // Normalize "0" to "00000".
+        if (preg_match('/^0+$/', $this->badgeName) === 1) {
+            $this->badgeName = '00000';
+        }
+
         if (!$this->achievementId) {
             return $this->createAchievement();
         }
@@ -161,6 +166,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             // Technically, writers can change the title and description and artists can change the
             // badge, but they probably won't use the client to do so. they'll use the management pages.
             return $this->mustBeDeveloper();
+        }
+
+        if ($this->badgeName !== $achievement->image_name && !$this->isAllowedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
         }
 
         $fields = [];
@@ -291,6 +300,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->mustHaveActiveClaim();
         }
 
+        if (!$this->isAllowedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
+        }
+
         if (!AchievementPoints::isValid($this->points)) {
             return $this->invalidParameter("Invalid points value: $this->points");
         }
@@ -330,5 +343,19 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             'Success' => true,
             'AchievementID' => $achievement->id,
         ];
+    }
+
+    /**
+     * New badge numbers are "highest badge on any achievement + 1".
+     */
+    private function isAllowedBadge(string $badgeName): bool
+    {
+        if (preg_match('/^\d{5,7}$/', $badgeName) !== 1) {
+            return false;
+        }
+
+        $nextBadge = (new GetBadgeIdRangeAction())->execute()['NextBadge'];
+
+        return (int) $badgeName < $nextBadge + 1000;
     }
 }

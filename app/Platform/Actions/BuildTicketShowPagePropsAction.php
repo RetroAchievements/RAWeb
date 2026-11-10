@@ -94,9 +94,14 @@ class BuildTicketShowPagePropsAction
             ),
 
             relatedTickets: array_map(
-                fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket($relatedTicket),
+                fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                    $relatedTicket,
+                    $ticketable->getTicketableTitle(),
+                ),
                 $ticketViewService->relatedTickets,
             ),
+
+            reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
 
             reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
 
@@ -156,6 +161,27 @@ class BuildTicketShowPagePropsAction
         }
 
         return $allowedActions;
+    }
+
+    /**
+     * @return TicketRelatedEntryData[]
+     */
+    private function buildSameReporterTicketProps(TicketViewService $viewService, Ticket $ticket, User $viewer): array
+    {
+        if (
+            $ticket->reporter?->isBanned()
+            && !$viewer->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+        ) {
+            return [];
+        }
+
+        return array_map(
+            fn (Ticket $sameReporterTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                $sameReporterTicket,
+                $sameReporterTicket->getTicketableModel()->getTicketableTitle(),
+            ),
+            $viewService->reporterGameTickets,
+        );
     }
 
     /**

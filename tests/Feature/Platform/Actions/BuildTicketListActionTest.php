@@ -350,7 +350,7 @@ it('given a viewer who can see signal verdicts, the signal filter is available a
     $viewer->assignRole(Role::DEVELOPER);
     $fixture = createTicketListFixture(0);
     $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
-        'signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+        'current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
     ]);
     Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
     $action = new BuildTicketListAction();
@@ -375,7 +375,7 @@ it('given a viewer who cannot see signal verdicts, the signal filter is not avai
     $viewer = User::factory()->create();
     $fixture = createTicketListFixture(0);
     $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
-        'signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+        'current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
     ]);
     $unflaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
     $action = new BuildTicketListAction();
