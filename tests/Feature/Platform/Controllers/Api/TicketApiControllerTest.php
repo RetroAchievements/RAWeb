@@ -1427,6 +1427,75 @@ describe('claim', function () {
 
         expect($ticket->refresh()->assignee_id)->toEqual($maintainer->id);
     });
+
+    it('given a dev claimed, closed, reopened, and then released a ticket, they may claim it again right away', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        $this->postJson(route('api.ticket.claim.store', $ticket))->assertNoContent();
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Fixed in the latest logic.',
+        ]);
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Resolved->value])->assertOk();
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Reopen->value])->assertOk();
+        $this->deleteJson(route('api.ticket.claim.destroy', $ticket))->assertNoContent();
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+    });
+
+    it('given a developer assignee whose ticket was just reopened, another dev may not claim it yet', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Reopen->value])->assertOk();
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($maintainer->id);
+    });
 });
 
 describe('releaseClaim', function () {

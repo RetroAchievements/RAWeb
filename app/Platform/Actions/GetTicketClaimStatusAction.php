@@ -59,6 +59,10 @@ class GetTicketClaimStatusAction
 
     private function getLastAssigneeActivityAt(Ticket $ticket): Carbon
     {
+        $lastHandOffId = $ticket->auditLog()
+            ->whereIn('event', [Ticket::CLAIMED_EVENT, Ticket::CLAIM_RELEASED_EVENT, Ticket::CLAIM_EXPIRED_EVENT])
+            ->max('id');
+
         $activityTimestamps = [
             $ticket->created_at,
             $ticket->comments()->where('user_id', $ticket->assignee_id)->max('created_at'),
@@ -67,6 +71,7 @@ class GetTicketClaimStatusAction
             $ticket->auditLog()
                 ->where('event', 'updated')
                 ->where('properties->attributes->state', TicketState::Open->value)
+                ->when($lastHandOffId, fn ($query) => $query->where('id', '>', $lastHandOffId))
                 ->max('created_at'),
             Trigger::query()
                 ->where('triggerable_type', $ticket->ticketable_type)
