@@ -16,8 +16,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { useUpdateTicketStateMutation } from '../../hooks/mutations/useUpdateTicketStateMutation';
-import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
-import { getTicketStateLabel } from '../../utils/getTicketStateLabel';
+import { useFormatTicketState } from '../../hooks/useFormatTicketState';
+import { useTicketStateLabels } from '../../hooks/useTicketStateLabels';
 import { TICKET_CLOSE_REASON_LABELS } from '../../utils/ticketCloseReasonLabels';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketActionConfirmDialog } from './TicketActionConfirmDialog';
@@ -28,13 +28,15 @@ export const TicketStateMenu: FC = () => {
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
-  const { buildTicketStateLabel } = useTicketStateLabel();
+  const { formatTicketState } = useFormatTicketState();
+  const ticketStateLabels = useTicketStateLabels();
+
   const mutation = useUpdateTicketStateMutation();
 
   const [isMistakenReportDialogOpen, setIsMistakenReportDialogOpen] = useState(false);
   const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false);
 
-  const stateLabel = buildTicketStateLabel(ticket.state, ticket.resolution);
+  const stateLabel = formatTicketState(ticket.state, ticket.resolution);
 
   const getIsActionPermitted = (action: App.Community.Enums.TicketAction) =>
     allowedTicketActions.includes(action);
@@ -98,7 +100,7 @@ export const TicketStateMenu: FC = () => {
               className={cn('size-4', TICKET_STATE_GLYPHS[ticket.state].className)}
             />
 
-            {getTicketStateLabel(ticket.state, t)}
+            {ticketStateLabels[ticket.state]}
 
             <LuChevronDown
               aria-hidden={true}
