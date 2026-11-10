@@ -49,6 +49,19 @@ const typeSentences = {
   reminded: {
     automated: 'We reminded the reporter to reply.',
   },
+  claimed: {
+    asCommentFooter: 'Claimed this ticket.',
+    withoutUser: 'This ticket was claimed.',
+    withUser: '<1>{{user}}</1> claimed this ticket.',
+  },
+  'claim-released': {
+    asCommentFooter: 'Released their claim on this ticket.',
+    withoutUser: 'The claim on this ticket was released.',
+    withUser: '<1>{{user}}</1> released their claim on this ticket.',
+  },
+  'claim-expired': {
+    automated: 'We reassigned this ticket back to the maintainer because the claim expired.',
+  },
 } as const satisfies Record<
   Exclude<App.Platform.Enums.TicketChangelogEntryType, 'closed'>,
   EntrySentences
@@ -139,6 +152,9 @@ const typeStates = {
   approved: 'open',
   reopened: 'open',
   reminded: 'request',
+  claimed: 'open',
+  'claim-released': 'open',
+  'claim-expired': 'open',
 } as const satisfies Record<
   App.Platform.Enums.TicketChangelogEntryType,
   App.Community.Enums.TicketState

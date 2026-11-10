@@ -31,6 +31,14 @@ describe('Component: TicketChangelogEntry', () => {
     ['approved', null, 'Scott approved this ticket.', 'Open'],
     ['reopened', null, 'Scott reopened this ticket.', 'Open'],
     ['reminded', null, 'We reminded the reporter to reply.', 'Request'],
+    ['claimed', null, 'Scott claimed this ticket.', 'Open'],
+    ['claim-released', null, 'Scott released their claim on this ticket.', 'Open'],
+    [
+      'claim-expired',
+      null,
+      'We reassigned this ticket back to the maintainer because the claim expired.',
+      'Open',
+    ],
     [
       'closed',
       'no_reply_from_reporter',
@@ -93,6 +101,8 @@ describe('Component: TicketChangelogEntry', () => {
 
   it.each([
     ['returned', null, 'achievement', 'This ticket was moved from Request back to Open.'],
+    ['claimed', null, 'achievement', 'This ticket was claimed.'],
+    ['claim-released', null, 'achievement', 'The claim on this ticket was released.'],
     [
       'closed',
       'wrong_rom',

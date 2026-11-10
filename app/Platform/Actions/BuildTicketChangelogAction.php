@@ -39,7 +39,13 @@ class BuildTicketChangelogAction
         $activities = Activity::query()
             ->where('subject_type', 'ticket')
             ->where('subject_id', $ticket->id)
-            ->whereIn('event', ['updated', Ticket::REPORTER_REMINDED_EVENT])
+            ->whereIn('event', [
+                'updated',
+                Ticket::REPORTER_REMINDED_EVENT,
+                Ticket::CLAIMED_EVENT,
+                Ticket::CLAIM_RELEASED_EVENT,
+                Ticket::CLAIM_EXPIRED_EVENT,
+            ])
             ->orderBy('created_at')
             ->orderBy('id')
             ->get();
@@ -105,9 +111,13 @@ class BuildTicketChangelogAction
         $newValues = $properties['attributes'] ?? [];
         $oldValues = $properties['old'] ?? [];
 
-        $type = $activity->event === Ticket::REPORTER_REMINDED_EVENT
-            ? TicketChangelogEntryType::Reminded
-            : $this->mapStateChangeToEntryType($newValues['state'] ?? null, $oldValues['state'] ?? null);
+        $type = match ($activity->event) {
+            Ticket::REPORTER_REMINDED_EVENT => TicketChangelogEntryType::Reminded,
+            Ticket::CLAIMED_EVENT => TicketChangelogEntryType::Claimed,
+            Ticket::CLAIM_RELEASED_EVENT => TicketChangelogEntryType::ClaimReleased,
+            Ticket::CLAIM_EXPIRED_EVENT => TicketChangelogEntryType::ClaimExpired,
+            default => $this->mapStateChangeToEntryType($newValues['state'] ?? null, $oldValues['state'] ?? null),
+        };
 
         if ($type === null) {
             return null;

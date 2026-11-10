@@ -59,16 +59,16 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $openTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         $requestTicket = Ticket::factory()->forAchievement($achievement)->request()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         Ticket::factory()->forAchievement($achievement)->resolved()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         Ticket::factory()->forAchievement($achievement)->closed()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -92,9 +92,9 @@ class TicketsTest extends TestCase
         User::factory()->create(['web_api_key' => 'test-key']);
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
-        Ticket::factory()->forAchievement($achievement)->open()->create(['ticketable_author_id' => $author->id]);
-        Ticket::factory()->forAchievement($achievement)->resolved()->create(['ticketable_author_id' => $author->id]);
-        Ticket::factory()->forAchievement($achievement)->closed()->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->resolved()->create(['assignee_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->closed()->create(['assignee_id' => $author->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -113,9 +113,9 @@ class TicketsTest extends TestCase
         User::factory()->create(['web_api_key' => 'test-key']);
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
-        Ticket::factory()->forAchievement($achievement)->open()->create(['ticketable_author_id' => $author->id]);
-        $resolved = Ticket::factory()->forAchievement($achievement)->resolved()->create(['ticketable_author_id' => $author->id]);
-        $closed = Ticket::factory()->forAchievement($achievement)->closed()->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
+        $resolved = Ticket::factory()->forAchievement($achievement)->resolved()->create(['assignee_id' => $author->id]);
+        $closed = Ticket::factory()->forAchievement($achievement)->closed()->create(['assignee_id' => $author->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -203,11 +203,11 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $didNotTrigger = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'type' => TicketType::DidNotTrigger,
         ]);
         Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'type' => TicketType::TriggeredAtWrongTime,
         ]);
 
@@ -230,9 +230,9 @@ class TicketsTest extends TestCase
         ['game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
-        Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
         $leaderboardTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -259,11 +259,11 @@ class TicketsTest extends TestCase
         User::factory()->create();
 
         $ticket1 = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'reporter_id' => $reporter1->id,
         ]);
         $ticket2 = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'reporter_id' => $reporter2->id,
         ]);
 
@@ -300,9 +300,9 @@ class TicketsTest extends TestCase
         ]);
 
         $achievementTicket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
-        Ticket::factory()->forLeaderboard($leaderboard)->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forLeaderboard($leaderboard)->create(['assignee_id' => $author->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -327,9 +327,9 @@ class TicketsTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
         $leaderboardTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -351,10 +351,10 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $openTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         $quarantinedTicket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -380,7 +380,7 @@ class TicketsTest extends TestCase
 
         $reporter = User::factory()->create(['display_name' => 'TestReporter']);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'reporter_id' => $reporter->id,
         ]);
 
@@ -403,6 +403,29 @@ class TicketsTest extends TestCase
         $this->assertEquals('TestReporter', $attributes['reporterDisplayName']);
     }
 
+    public function testItReportsTheAssignee(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement] = $this->makeGameContext();
+
+        $claimant = User::factory()->create(['display_name' => 'TicketClaimant']);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'assignee_id' => $claimant->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets/{$ticket->id}?include=assignee");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertEquals('TicketClaimant', $response->json('data.attributes.assigneeDisplayName'));
+        $this->assertEquals($claimant->ulid, $response->json('data.relationships.assignee.data.id'));
+    }
+
     public function testItInlinesLeaderboardContextOnLeaderboardTickets(): void
     {
         // Arrange
@@ -414,7 +437,7 @@ class TicketsTest extends TestCase
         ]);
 
         $ticket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -442,7 +465,7 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -464,7 +487,7 @@ class TicketsTest extends TestCase
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $leaderboardTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -498,7 +521,7 @@ class TicketsTest extends TestCase
             'user_id' => $author->id,
         ]);
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -524,7 +547,7 @@ class TicketsTest extends TestCase
         ['game' => $game, 'ticketAuthor' => $author] = $this->makeGameContext();
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
         $ticket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -551,10 +574,10 @@ class TicketsTest extends TestCase
         $otherAchievement = Achievement::factory()->create();
 
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         Ticket::factory()->forAchievement($otherAchievement)->create([
-            'ticketable_author_id' => $otherAchievement->user_id,
+            'assignee_id' => $otherAchievement->user_id,
         ]);
 
         // Act
@@ -577,17 +600,17 @@ class TicketsTest extends TestCase
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $achTicket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         $lbTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // ... a ticket on a different game's content should not be returned ...
         $otherGame = Game::factory()->create(['system_id' => $game->system_id]);
         $otherAchievement = Achievement::factory()->create(['game_id' => $otherGame->id]);
         Ticket::factory()->forAchievement($otherAchievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -610,9 +633,9 @@ class TicketsTest extends TestCase
         ['game' => $game, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
         $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
-        Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
         $lbTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // Act
@@ -639,17 +662,17 @@ class TicketsTest extends TestCase
 
         // ... the author has both an achievement ticket and a leaderboard ticket ...
         $achTicket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
         $lbTicket = Ticket::factory()->forLeaderboard($leaderboard)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
         ]);
 
         // ... a ticket where the author is the reporter but not the ticketable_author should be excluded ...
         $otherAuthor = User::factory()->create();
         $otherAchievement = Achievement::factory()->create(['user_id' => $otherAuthor->id]);
         Ticket::factory()->forAchievement($otherAchievement)->create([
-            'ticketable_author_id' => $otherAuthor->id,
+            'assignee_id' => $otherAuthor->id,
             'reporter_id' => $author->id,
         ]);
 
@@ -673,11 +696,11 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $older = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'created_at' => Carbon::parse('2024-01-01 00:00:00'),
         ]);
         $newer = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'created_at' => Carbon::parse('2026-01-01 00:00:00'),
         ]);
 
@@ -699,9 +722,9 @@ class TicketsTest extends TestCase
         User::factory()->create(['web_api_key' => 'test-key']);
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
-        $first = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
-        $second = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
-        $third = Ticket::factory()->forAchievement($achievement)->create(['ticketable_author_id' => $author->id]);
+        $first = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
+        $second = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
+        $third = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
 
         // Act
         $ascending = $this->jsonApi('v2')
@@ -735,7 +758,7 @@ class TicketsTest extends TestCase
         ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
 
         $ticket = Ticket::factory()->forAchievement($achievement)->create([
-            'ticketable_author_id' => $author->id,
+            'assignee_id' => $author->id,
             'type' => TicketType::DidNotTrigger,
             'state' => TicketState::Open,
         ]);

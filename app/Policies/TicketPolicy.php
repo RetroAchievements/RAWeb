@@ -12,6 +12,7 @@ use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\GetTicketClaimStatusAction;
 use App\Platform\Enums\TicketableType;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -210,5 +211,27 @@ class TicketPolicy
             TicketAction::Reopen => $ticket->is_waiting_on_reporter,
             default => false,
         };
+    }
+
+    public function claim(User $user, Ticket $ticket): bool
+    {
+        if (!$user->hasRole(Role::DEVELOPER) || $user->isMuted()) {
+            return false;
+        }
+
+        if (!$ticket->state->isOpen() || $ticket->assignee_id === $user->id) {
+            return false;
+        }
+
+        // Devs still working on tickets won't have them claimed away from underneath them.
+        return (new GetTicketClaimStatusAction())->execute($ticket)->isClaimable;
+    }
+
+    public function releaseClaim(User $user, Ticket $ticket): bool
+    {
+        return
+            $ticket->assignee_id === $user->id
+            && $ticket->state->isOpen()
+            && $ticket->isClaimed();
     }
 }

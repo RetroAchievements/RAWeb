@@ -6,6 +6,7 @@ import {
   BaseDialog,
   BaseDialogClose,
   BaseDialogContent,
+  BaseDialogDescription,
   BaseDialogFooter,
   BaseDialogHeader,
   BaseDialogTitle,
@@ -18,10 +19,13 @@ interface TicketActionConfirmDialogProps {
   onConfirm: () => void;
   onOpenChange: (isOpen: boolean) => void;
   title: TranslatedString;
+
+  description?: TranslatedString;
 }
 
 export const TicketActionConfirmDialog: FC<TicketActionConfirmDialogProps> = ({
   confirmLabel,
+  description,
   isOpen,
   onConfirm,
   onOpenChange,
@@ -31,9 +35,10 @@ export const TicketActionConfirmDialog: FC<TicketActionConfirmDialogProps> = ({
 
   return (
     <BaseDialog open={isOpen} onOpenChange={onOpenChange}>
-      <BaseDialogContent aria-describedby={undefined}>
+      <BaseDialogContent {...(description ? {} : { 'aria-describedby': undefined })}>
         <BaseDialogHeader>
           <BaseDialogTitle>{title}</BaseDialogTitle>
+          {description ? <BaseDialogDescription>{description}</BaseDialogDescription> : null}
         </BaseDialogHeader>
 
         <BaseDialogFooter>

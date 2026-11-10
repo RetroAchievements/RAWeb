@@ -46,7 +46,8 @@ export function useTicketListColumnDefinitions(
     buildUserColumnDef({
       id: 'developer',
       t_label: t('Developer'),
-      getUser: (entry) => entry.author,
+      getUser: (entry) => entry.assignee,
+      getIsRowClaimed: (entry) => entry.isClaimed,
     }),
     buildUserColumnDef({
       id: 'reporter',

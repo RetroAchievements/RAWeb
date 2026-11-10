@@ -11,12 +11,16 @@ use App\Models\TicketComment;
 use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Actions\ChangeTicketStateAction;
+use App\Platform\Actions\ClaimTicketAction;
 use App\Platform\Actions\CreateTicketAction;
+use App\Platform\Actions\ReleaseTicketClaimAction;
 use App\Platform\Data\StoreTicketData;
 use App\Platform\Requests\StoreTicketRequest;
 use App\Platform\Requests\TicketListApiRequest;
 use App\Platform\Requests\UpdateTicketStateRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TicketApiController extends Controller
 {
@@ -89,6 +93,28 @@ class TicketApiController extends Controller
         $changeState->execute($ticket, $ticketAction, $actingUser);
 
         return response()->json(['message' => __('legacy.success.update')]);
+    }
+
+    public function claim(Request $request, Ticket $ticket, ClaimTicketAction $claimTicketAction): Response
+    {
+        abort_if(!$ticket->ticketable, 404);
+
+        $this->authorize('claim', $ticket);
+
+        $claimTicketAction->execute($ticket, $request->user());
+
+        return response()->noContent();
+    }
+
+    public function releaseClaim(Request $request, Ticket $ticket, ReleaseTicketClaimAction $releaseTicketClaimAction): Response
+    {
+        abort_if(!$ticket->ticketable, 404);
+
+        $this->authorize('releaseClaim', $ticket);
+
+        $releaseTicketClaimAction->execute($ticket, $request->user());
+
+        return response()->noContent();
     }
 
     public function show(): void

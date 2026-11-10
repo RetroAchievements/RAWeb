@@ -20,7 +20,7 @@ import { useFormatTicketState } from '../../hooks/useFormatTicketState';
 import { useTicketStateLabels } from '../../hooks/useTicketStateLabels';
 import { TICKET_CLOSE_REASON_LABELS } from '../../utils/ticketCloseReasonLabels';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
-import { TicketActionConfirmDialog } from './TicketActionConfirmDialog';
+import { TicketActionConfirmDialog } from '../TicketActionConfirmDialog';
 import { TicketCloseDialog } from './TicketCloseDialog';
 
 export const TicketStateMenu: FC = () => {

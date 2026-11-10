@@ -43,7 +43,7 @@ class CreateTicketAction
             'ticketable_type' => 'achievement',
             'ticketable_id' => $achievement->id,
             'reporter_id' => $user->id,
-            'ticketable_author_id' => $maintainer?->id,
+            'assignee_id' => $maintainer?->id,
             'type' => $data->issue,
             'hardcore' => $data->mode === 'hardcore',
             'body' => $this->formatTicketNote($data, $data->emulator && !$emulator),

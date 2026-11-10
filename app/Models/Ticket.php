@@ -42,10 +42,19 @@ class Ticket extends BaseModel
      */
     public const REPORTER_REMINDED_EVENT = 'reporterReminded';
 
+    /**
+     * The audit log events written when a dev claims a ticket, releases their own claim,
+     * is notified about an upcoming expiry, or allows their own claim to expire.
+     */
+    public const CLAIMED_EVENT = 'claimed';
+    public const CLAIM_RELEASED_EVENT = 'claimReleased';
+    public const CLAIM_EXPIRED_EVENT = 'claimExpired'; // the Server account is the causer
+    public const CLAIM_EXPIRY_WARNED_EVENT = 'claimExpiryWarned';
+
     protected $fillable = [
         'ticketable_type',
         'ticketable_id',
-        'ticketable_author_id',
+        'assignee_id',
         'reporter_id',
         'type',
         'hardcore',
@@ -76,6 +85,24 @@ class Ticket extends BaseModel
         }
 
         throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
+    }
+
+    /**
+     * Only truthy when the ticket is assigned to a user other than the triggerable's maintainer.
+     * Only assignments like these can actually expire.
+     */
+    public function isClaimed(): bool
+    {
+        if ($this->assignee_id === null || !$this->state->isOpen()) {
+            return false;
+        }
+
+        $ticketableModel = $this->getTicketableModel();
+        $maintainerUserId = $ticketableModel instanceof Achievement
+            ? ($ticketableModel->activeMaintainer->user_id ?? $ticketableModel->user_id)
+            : $ticketableModel->author_id;
+
+        return $this->assignee_id !== $maintainerUserId;
     }
 
     // == logging
@@ -160,9 +187,9 @@ class Ticket extends BaseModel
     /**
      * @return BelongsTo<User, $this>
      */
-    public function author(): BelongsTo
+    public function assignee(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'ticketable_author_id')->withTrashed();
+        return $this->belongsTo(User::class, 'assignee_id')->withTrashed();
     }
 
     /**
@@ -304,7 +331,30 @@ class Ticket extends BaseModel
      */
     public function scopeForAssignee(Builder $query, User $user): Builder
     {
-        return $query->where('ticketable_author_id', $user->id);
+        return $query->where('assignee_id', $user->id);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForMaintainer(Builder $query, User $user): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $morphQuery, string $ticketableType) => match ($ticketableType) {
+                Achievement::class => $morphQuery->where(fn (Builder $achievementQuery) => $achievementQuery
+                    ->whereHas('activeMaintainer', fn (Builder $maintainerQuery) => $maintainerQuery->where('user_id', $user->id))
+                    ->orWhere(fn (Builder $unmaintainedQuery) => $unmaintainedQuery
+                        ->whereDoesntHave('activeMaintainer')
+                        ->where('user_id', $user->id)
+                    )
+                ),
+                Leaderboard::class => $morphQuery->where('author_id', $user->id),
+                default => throw new LogicException("Unexpected ticketable type: {$ticketableType}"),
+            },
+        );
     }
 
     /**
@@ -331,8 +381,8 @@ class Ticket extends BaseModel
     public function scopeNotAssignedTo(Builder $query, User $user): Builder
     {
         return $query->where(fn (Builder $q) => $q
-            ->whereNull('ticketable_author_id')
-            ->orWhere('ticketable_author_id', '!=', $user->id));
+            ->whereNull('assignee_id')
+            ->orWhere('assignee_id', '!=', $user->id));
     }
 
     /**

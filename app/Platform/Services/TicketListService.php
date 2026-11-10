@@ -121,13 +121,13 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('author.roles', function ($query) {
+                $tickets->whereHas('assignee.roles', function ($query) {
                     $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
                 });
                 break;
 
             case 'junior':
-                $tickets->whereHas('author.roles', function ($query) {
+                $tickets->whereHas('assignee.roles', function ($query) {
                     $query->where('name', Role::DEVELOPER_JUNIOR);
                 });
                 break;
@@ -144,7 +144,7 @@ class TicketListService
                                 $ticketableQuery->whereDoesntHave('activeMaintainer');
                             });
                     })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
-                })->whereHas('author', function ($query) {
+                })->whereHas('assignee', function ($query) {
                     $query->whereDoesntHave('roles', fn ($roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
                 });
                 break;
@@ -156,11 +156,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->where('ticketable_author_id', '=', $comparisonUser->id);
+                    $tickets->where('assignee_id', '=', $comparisonUser->id);
                     break;
 
                 case 'others':
-                    $tickets->where('ticketable_author_id', '!=', $comparisonUser->id);
+                    $tickets->where('assignee_id', '!=', $comparisonUser->id);
                     break;
             }
 
@@ -402,26 +402,26 @@ class TicketListService
             ->join('auth_roles', 'auth_roles.id', '=', 'auth_model_roles.role_id')
             ->where('model_type', (new User())->getMorphClass())
             ->whereIn('auth_roles.name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
-            ->select('model_id as facet_author_id')
+            ->select('model_id as assignee_facet_id')
             ->selectRaw('max(auth_roles.name = ?) as facet_junior', [Role::DEVELOPER_JUNIOR])
             ->groupBy('model_id');
 
         $rows = $query->selectRaw('count(*) as aggregate')
-            ->withExists('author')
-            ->leftJoinSub($developerRoles, 'facet_roles', 'facet_author_id', '=', 'tickets.ticketable_author_id')
-            ->selectRaw('(facet_author_id is not null) as active, coalesce(facet_junior, 0) as junior')
+            ->withExists('assignee')
+            ->leftJoinSub($developerRoles, 'facet_roles', 'assignee_facet_id', '=', 'tickets.assignee_id')
+            ->selectRaw('(assignee_facet_id is not null) as active, coalesce(facet_junior, 0) as junior')
             ->withExists(['achievement as unmaintained' => fn ($achievement) => $achievement
                 ->where('tickets.ticketable_type', TicketableType::Achievement->value)
                 ->whereDoesntHave('activeMaintainer')])
             ->addSelect('tickets.ticketable_type')
-            ->groupBy('author_exists', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
+            ->groupBy('assignee_exists', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
 
         $counts = array_fill_keys($kind->values(), 0);
         foreach ($rows as $row) {
             $count = (int) $row->aggregate;
             $counts[$kind->noFilterValue()] += $count;
 
-            if (!$row->author_exists) {
+            if (!$row->assignee_exists) {
                 continue;
             }
 

@@ -231,8 +231,8 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
 
         return $tickets
             ->whereIn('state', [TicketState::Open->value, TicketState::Request->value])
-            ->get(['ticketable_author_id', 'reporter_id'])
-            ->flatMap(fn (Ticket $ticket): array => [$ticket->ticketable_author_id, $ticket->reporter_id])
+            ->get(['assignee_id', 'reporter_id'])
+            ->flatMap(fn (Ticket $ticket): array => [$ticket->assignee_id, $ticket->reporter_id])
             ->filter()
             ->map(fn ($userId): int => (int) $userId)
             ->unique()

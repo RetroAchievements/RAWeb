@@ -82,7 +82,7 @@ describe('Component: TicketIndexRoot', () => {
         state: 'open',
         ticketableTitle: 'First Blood',
         game: createGame({ title: 'Sonic the Hedgehog', system: createSystem() }),
-        author: createUser({ displayName: 'Dev' }),
+        assignee: createUser({ displayName: 'Dev' }),
         reporter: createUser({ displayName: 'Scott' }),
       }),
       createTicketListEntry({
@@ -90,7 +90,7 @@ describe('Component: TicketIndexRoot', () => {
         state: 'quarantined',
         ticketableTitle: 'Second Wind',
         game: createGame({ title: 'Streets of Rage', system: createSystem() }),
-        author: createUser({ displayName: 'Kiterra' }),
+        assignee: createUser({ displayName: 'Kiterra' }),
         reporter: createUser({ displayName: 'Salsa' }),
       }),
     ];

@@ -2407,8 +2407,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -2582,14 +2582,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -4572,8 +4572,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -4747,14 +4747,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -5731,12 +5731,12 @@
                                     "ticketableTitle",
                                     "reporterDisplayName",
                                     "resolverDisplayName",
-                                    "authorDisplayName",
+                                    "assigneeDisplayName",
                                     "achievement",
                                     "leaderboard",
                                     "reporter",
                                     "resolver",
-                                    "author"
+                                    "assignee"
                                 ],
                                 "type": "string"
                             }
@@ -5880,8 +5880,8 @@
                                     "reporter.lastGame",
                                     "resolver",
                                     "resolver.lastGame",
-                                    "author",
-                                    "author.lastGame"
+                                    "assignee",
+                                    "assignee.lastGame"
                                 ],
                                 "type": "string"
                             }
@@ -14196,8 +14196,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -14371,14 +14371,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -15481,8 +15481,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -15656,14 +15656,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -16969,12 +16969,12 @@
                                     "ticketableTitle",
                                     "reporterDisplayName",
                                     "resolverDisplayName",
-                                    "authorDisplayName",
+                                    "assigneeDisplayName",
                                     "achievement",
                                     "leaderboard",
                                     "reporter",
                                     "resolver",
-                                    "author"
+                                    "assignee"
                                 ],
                                 "type": "string"
                             }
@@ -17118,8 +17118,8 @@
                                     "reporter.lastGame",
                                     "resolver",
                                     "resolver.lastGame",
-                                    "author",
-                                    "author.lastGame"
+                                    "assignee",
+                                    "assignee.lastGame"
                                 ],
                                 "type": "string"
                             }
@@ -23061,12 +23061,12 @@
                                     "ticketableTitle",
                                     "reporterDisplayName",
                                     "resolverDisplayName",
-                                    "authorDisplayName",
+                                    "assigneeDisplayName",
                                     "achievement",
                                     "leaderboard",
                                     "reporter",
                                     "resolver",
-                                    "author"
+                                    "assignee"
                                 ],
                                 "type": "string"
                             }
@@ -23210,8 +23210,8 @@
                                     "reporter.lastGame",
                                     "resolver",
                                     "resolver.lastGame",
-                                    "author",
-                                    "author.lastGame"
+                                    "assignee",
+                                    "assignee.lastGame"
                                 ],
                                 "type": "string"
                             }
@@ -25268,8 +25268,8 @@
                                                         }
                                                     },
                                                     {
-                                                        "title": "Resource/Author/Fetch",
-                                                        "description": "May not be present unless \"author\" is in the \"include\" header. See `.data[].relationships.author.data` for the lists of IDs which have been included here.",
+                                                        "title": "Resource/Assignee/Fetch",
+                                                        "description": "May not be present unless \"assignee\" is in the \"include\" header. See `.data[].relationships.assignee.data` for the lists of IDs which have been included here.",
                                                         "type": "object",
                                                         "required": [
                                                             "type",
@@ -26005,12 +26005,12 @@
                                     "ticketableTitle",
                                     "reporterDisplayName",
                                     "resolverDisplayName",
-                                    "authorDisplayName",
+                                    "assigneeDisplayName",
                                     "achievement",
                                     "leaderboard",
                                     "reporter",
                                     "resolver",
-                                    "author"
+                                    "assignee"
                                 ],
                                 "type": "string"
                             }
@@ -26154,8 +26154,8 @@
                                     "reporter.lastGame",
                                     "resolver",
                                     "resolver.lastGame",
-                                    "author",
-                                    "author.lastGame"
+                                    "assignee",
+                                    "assignee.lastGame"
                                 ],
                                 "type": "string"
                             }
@@ -28169,8 +28169,8 @@
                                                         }
                                                     },
                                                     {
-                                                        "title": "Resource/Author/Fetch",
-                                                        "description": "May not be present unless \"author\" is in the \"include\" header. See `.data[].relationships.author.data` for the lists of IDs which have been included here.",
+                                                        "title": "Resource/Assignee/Fetch",
+                                                        "description": "May not be present unless \"assignee\" is in the \"include\" header. See `.data[].relationships.assignee.data` for the lists of IDs which have been included here.",
                                                         "type": "object",
                                                         "required": [
                                                             "type",
@@ -32279,8 +32279,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -32454,14 +32454,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -34859,8 +34859,8 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
-                                                                    "authorDisplayName": {
-                                                                        "title": "authorDisplayName",
+                                                                    "assigneeDisplayName": {
+                                                                        "title": "assigneeDisplayName",
                                                                         "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
@@ -35034,14 +35034,14 @@
                                                                             }
                                                                         }
                                                                     },
-                                                                    "author": {
-                                                                        "title": "author",
-                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                                                                    "assignee": {
+                                                                        "title": "assignee",
+                                                                        "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "data": {
-                                                                                "title": "author",
-                                                                                "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                                                                "title": "assignee",
+                                                                                "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                                                                 "type": "object",
                                                                                 "required": [
                                                                                     "type",
@@ -39003,12 +39003,12 @@
                                     "ticketableTitle",
                                     "reporterDisplayName",
                                     "resolverDisplayName",
-                                    "authorDisplayName",
+                                    "assigneeDisplayName",
                                     "achievement",
                                     "leaderboard",
                                     "reporter",
                                     "resolver",
-                                    "author"
+                                    "assignee"
                                 ],
                                 "type": "string"
                             }
@@ -39152,8 +39152,8 @@
                                     "reporter.lastGame",
                                     "resolver",
                                     "resolver.lastGame",
-                                    "author",
-                                    "author.lastGame"
+                                    "assignee",
+                                    "assignee.lastGame"
                                 ],
                                 "type": "string"
                             }
@@ -43193,8 +43193,8 @@
                                 "nullable": true,
                                 "readOnly": true
                             },
-                            "authorDisplayName": {
-                                "title": "authorDisplayName",
+                            "assigneeDisplayName": {
+                                "title": "assigneeDisplayName",
                                 "type": "string",
                                 "nullable": true,
                                 "readOnly": true
@@ -43368,14 +43368,14 @@
                                     }
                                 }
                             },
-                            "author": {
-                                "title": "author",
-                                "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"author\" to the \"include\" query parameter; results will be found in `.included`.",
+                            "assignee": {
+                                "title": "assignee",
+                                "description": "May include a list of IDs of relevant items in the `data` field. To retrieve these listed items as well, add \"assignee\" to the \"include\" query parameter; results will be found in `.included`.",
                                 "type": "object",
                                 "properties": {
                                     "data": {
-                                        "title": "author",
-                                        "description": "Related item with type and ID. Add \"author\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
+                                        "title": "assignee",
+                                        "description": "Related item with type and ID. Add \"assignee\" to the \"include\" query parameter to get the full object; results will be found in `.included`.",
                                         "type": "object",
                                         "required": [
                                             "type",

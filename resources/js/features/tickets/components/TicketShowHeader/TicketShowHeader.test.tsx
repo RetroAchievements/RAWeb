@@ -20,7 +20,6 @@ describe('Component: TicketShowHeader', () => {
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
-        hasMaintainer: false,
       },
     });
 
@@ -39,7 +38,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           ticketableTitle: 'Crate Crusher',
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -65,7 +63,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableTitle: 'Grand Prix Record',
           game: createGame({ title: 'F-Zero' }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -91,7 +88,6 @@ describe('Component: TicketShowHeader', () => {
             system: createSystem({ nameShort: 'SNES' }),
           }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -112,7 +108,6 @@ describe('Component: TicketShowHeader', () => {
           resolution: 'fixed',
           ticketableType: 'achievement',
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -133,7 +128,6 @@ describe('Component: TicketShowHeader', () => {
           achievement: createAchievement(),
           leaderboard: null,
           ticket: createTicketListEntry({ state, resolution, ticketableType: 'achievement' }),
-          hasMaintainer: false,
         },
       });
 
@@ -153,7 +147,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           reporter: createUser({ displayName: 'PixelHero' }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -172,7 +165,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           reporter: null,
         }),
-        hasMaintainer: false,
       },
     });
 

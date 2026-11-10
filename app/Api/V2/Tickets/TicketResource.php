@@ -43,20 +43,20 @@ class TicketResource extends BaseJsonApiResource
             'systemName' => $presenter->systemName(),
             'reporterDisplayName' => $presenter->reporterDisplayName(),
             'resolverDisplayName' => $presenter->resolverDisplayName(),
-            'authorDisplayName' => $presenter->authorDisplayName(),
+            'assigneeDisplayName' => $presenter->assigneeDisplayName(),
         ];
     }
 
     /**
      * Emit only the polymorphic side matching `ticketable_type` (the underlying
-     * BelongsTo relations are unguarded). Reporter, resolver, author are always
+     * BelongsTo relations are unguarded). Reporter, resolver, assignee are always
      * candidates. Every relationship is still gated by `?include=`.
      *
      * @param Request|null $request
      */
     public function relationships($request): iterable
     {
-        $candidates = ['reporter', 'resolver', 'author'];
+        $candidates = ['reporter', 'resolver', 'assignee'];
         $matchingTicketable = match ($this->resource->ticketable_type) {
             TicketableType::Achievement->value => 'achievement',
             TicketableType::Leaderboard->value => 'leaderboard',

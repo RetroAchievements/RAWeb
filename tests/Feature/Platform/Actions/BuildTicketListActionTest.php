@@ -53,7 +53,7 @@ function createTicketListFixture(int $ticketCount = 12): array
         $tickets[] = Ticket::factory()
             ->forAchievement($i % 2 === 0 ? $achievement : $otherAchievement)
             ->create([
-                'ticketable_author_id' => $developer->id,
+                'assignee_id' => $developer->id,
                 'reporter_id' => $reporter->id,
                 'resolver_id' => $isTerminal ? $resolver->id : null,
                 'state' => $state,
@@ -115,7 +115,7 @@ describe('scope default values', function () {
         $otherGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
         $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $otherGame->id, 'user_id' => $developer->id]);
-        $attributes = ['ticketable_author_id' => $developer->id, 'reporter_id' => $reporter->id];
+        $attributes = ['assignee_id' => $developer->id, 'reporter_id' => $reporter->id];
 
         $oldest = Ticket::factory()->forAchievement($achievement)->open()->create([
             ...$attributes,
@@ -157,17 +157,17 @@ describe('scope default values', function () {
         $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $otherDeveloper->id]);
 
         $assigned = Ticket::factory()->forAchievement($ownAchievement)->open()->create([
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'reporter_id' => $reporter->id,
         ]);
 
         Ticket::factory()->forAchievement($ownAchievement)->closed()->create([
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'reporter_id' => $reporter->id,
         ]);
 
         Ticket::factory()->forAchievement($otherAchievement)->open()->create([
-            'ticketable_author_id' => $otherDeveloper->id,
+            'assignee_id' => $otherDeveloper->id,
             'reporter_id' => $developer->id,
         ]);
 
@@ -190,7 +190,7 @@ describe('scope default values', function () {
         $reporter = User::factory()->create();
         $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $user->id]);
-        $attributes = ['ticketable_author_id' => $user->id, 'reporter_id' => $reporter->id];
+        $attributes = ['assignee_id' => $user->id, 'reporter_id' => $reporter->id];
 
         $resolved = Ticket::factory()->forAchievement($achievement)->resolved()->create([
             ...$attributes,

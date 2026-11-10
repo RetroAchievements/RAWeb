@@ -165,11 +165,11 @@ describe('applyFilters', function () {
         $otherAchievement = createTicketableAchievement($otherUser);
         $tickets = [
             'own' => Ticket::factory()->forAchievement($ownAchievement)->open()->create([
-                'ticketable_author_id' => $comparisonUser->id,
+                'assignee_id' => $comparisonUser->id,
                 'reporter_id' => $comparisonUser->id,
             ]),
             'other' => Ticket::factory()->forAchievement($otherAchievement)->open()->create([
-                'ticketable_author_id' => $otherUser->id,
+                'assignee_id' => $otherUser->id,
                 'reporter_id' => $otherUser->id,
             ]),
         ];
@@ -193,11 +193,11 @@ describe('applyFilters', function () {
         $reporter = User::factory()->create();
         $achievement = createTicketableAchievement($developer);
         $ticketA = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'reporter_id' => $reporter->id,
         ]);
         $ticketB = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'ticketable_author_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
             'reporter_id' => User::factory()->create()->id,
         ]);
         $service = new TicketListService();
@@ -387,11 +387,11 @@ it('given a facet filter, its counts always match the corresponding list filters
         $achievement = createTicketableAchievement($author);
         $achievement->is_promoted = $author !== $juniorDeveloper;
         $achievement->save();
-        Ticket::factory()->forAchievement($achievement)->open()->create(['ticketable_author_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
     }
     foreach ([LeaderboardState::Active, LeaderboardState::Unpromoted] as $state) {
         $leaderboard = Leaderboard::factory()->create(['game_id' => $achievement->game_id, 'state' => $state]);
-        Ticket::factory()->forLeaderboard($leaderboard)->open()->create(['ticketable_author_id' => $inactiveDeveloper->id]);
+        Ticket::factory()->forLeaderboard($leaderboard)->open()->create(['assignee_id' => $inactiveDeveloper->id]);
     }
 
     $service = new TicketListService();
