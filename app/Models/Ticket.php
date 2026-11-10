@@ -105,6 +105,28 @@ class Ticket extends BaseModel
         return $this->assignee_id !== $maintainerUserId;
     }
 
+    public function canReporterRequestManualUnlock(): bool
+    {
+        if (
+            $this->resolution !== TicketResolution::NetworkProblems
+            || $this->ticketable_type !== TicketableType::Achievement->value
+            || $this->reporter_id === null
+        ) {
+            return false;
+        }
+
+        $reporterAchievementUnlock = PlayerAchievement::query()
+            ->where('user_id', $this->reporter_id)
+            ->where('achievement_id', $this->ticketable_id)
+            ->first();
+
+        if ($reporterAchievementUnlock === null) {
+            return true;
+        }
+
+        return $this->hardcore && $reporterAchievementUnlock->unlocked_hardcore_at === null;
+    }
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions

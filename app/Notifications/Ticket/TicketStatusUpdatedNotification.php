@@ -17,12 +17,15 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
 {
     use Queueable;
 
+    private bool $shouldOfferManualUnlock;
+
     public function __construct(
         private Ticket $ticket,
         private User $updatedBy,
         private string $newStatus,
         private string $comment,
     ) {
+        $this->shouldOfferManualUnlock = $ticket->canReporterRequestManualUnlock();
     }
 
     /**
@@ -55,6 +58,7 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
                 'newStatus' => $this->newStatus,
                 'comment' => $this->comment,
                 'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
+                'shouldOfferManualUnlock' => $this->shouldOfferManualUnlock,
                 'ticketable' => $ticketable,
                 'game' => $ticketable->getTicketableGame(),
                 'categoryUrl' => $categoryUrl,

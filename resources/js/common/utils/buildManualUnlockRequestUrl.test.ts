@@ -5,11 +5,6 @@ import { createAchievement, createGame } from '@/test/factories';
 import { buildManualUnlockRequestUrl } from './buildManualUnlockRequestUrl';
 
 describe('Util: buildManualUnlockRequestUrl', () => {
-  it('is defined', () => {
-    // ASSERT
-    expect(buildManualUnlockRequestUrl).toBeDefined();
-  });
-
   it('given no ticket id, builds a message to UnlockTeam that does not mention a ticket', () => {
     // ARRANGE
     const achievement = createAchievement({
