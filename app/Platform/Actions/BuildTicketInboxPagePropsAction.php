@@ -32,8 +32,11 @@ class BuildTicketInboxPagePropsAction
         $uniqueTickets = new Collection();
         $sectionCounts = [];
         $sectionTickets = [];
+        $isOwnInbox = $viewer?->is($target) ?? false;
         foreach (TicketInboxSectionKind::cases() as $kind) {
-            $sectionCounts[$kind->value] = $this->sectionQuery($kind, $target)->count();
+            $sectionCounts[$kind->value] = $kind === TicketInboxSectionKind::SubscribedByYou && !$isOwnInbox
+                ? 0 // subscriptions are private - don't list them when the ?user= param is applied
+                : $this->sectionQuery($kind, $target)->count();
             $sectionTickets[$kind->value] = $sectionCounts[$kind->value] === 0
                 ? new Collection()
                 : $this->fetchTicketsForSection($kind, $target);
@@ -100,6 +103,11 @@ class BuildTicketInboxPagePropsAction
             TicketInboxSectionKind::AwaitingReporter => $query
                 ->forAssignee($target)
                 ->where('state', TicketState::Request),
+
+            TicketInboxSectionKind::SubscribedByYou => $query
+                ->onGamesSubscribedToBy($target)
+                ->notAssignedTo($target) // they're already shown in "Waiting on you"
+                ->where('state', TicketState::Open),
 
             TicketInboxSectionKind::ReportedByYou => $query
                 ->where('reporter_id', $target->id),

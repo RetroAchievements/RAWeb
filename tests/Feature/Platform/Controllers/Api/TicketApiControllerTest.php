@@ -834,20 +834,56 @@ describe('updateState', function () {
         expect($ticket->refresh()->state)->toEqual(TicketState::Request);
     });
 
-    it('given a developer resolves or closes for another reason when only the reporter has commented, requires a comment', function (TicketAction $action) {
+    it('given a developer closes a ticket and includes a note, the note is posted ahead of the automated Server comment', function () {
         // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
-        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedOther->value,
+            'note' => 'This is being replaced by a revision.',
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Closed);
+        expect($ticket->resolution)->toEqual(TicketResolution::Other);
+
+        $comments = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->orderBy('id')
+            ->pluck('body')
+            ->all();
+        expect($comments)->toEqual([
+            'This is being replaced by a revision.',
+            'Ticket closed by Scott. Reason: "See the comments".',
+        ]);
+    });
+
+    it('given a developer closes a ticket and includes a note, the reporter receives a status email', function () {
+        // ARRANGE
+        Notification::fake();
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
         $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
             'reporter_id' => $reporter->id,
-        ]);
-        Comment::factory()->create([
-            'commentable_type' => CommentableType::Ticket,
-            'commentable_id' => $ticket->id,
-            'user_id' => $reporter->id,
-            'body' => 'It still does not unlock.',
         ]);
 
         $developer = User::factory()->create();
@@ -856,18 +892,15 @@ describe('updateState', function () {
 
         // ACT
         $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
-            'action' => $action->value,
+            'action' => TicketAction::WrongRom->value,
+            'note' => 'Please use the No-Intro ROM linked on the game page.',
         ]);
 
         // ASSERT
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['action' => 'Add a comment first.']);
+        $response->assertOk();
 
-        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
-    })->with([
-        'resolve' => [TicketAction::Resolved],
-        'close for another reason' => [TicketAction::ClosedOther],
-    ]);
+        Notification::assertSentTo($reporter, TicketStatusUpdatedNotification::class);
+    });
 
     it('given a developer approves a quarantined ticket, reopens it and notes the approval', function () {
         // ARRANGE
@@ -1032,38 +1065,7 @@ describe('updateState', function () {
         'demote a resolved ticket' => [TicketState::Resolved, TicketAction::Demoted],
     ]);
 
-    it('given a developer who requests information when the latest comment is from someone else, responds forbidden', function () {
-        // ARRANGE
-        $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->id]);
-        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
-        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
-            'reporter_id' => User::factory()->create()->id,
-            'assignee_id' => User::factory()->create()->id,
-        ]);
-        Comment::factory()->create([
-            'commentable_type' => CommentableType::Ticket,
-            'commentable_id' => $ticket->id,
-            'user_id' => User::factory()->create()->id,
-            'body' => 'I see the same problem.',
-        ]);
-
-        $developer = User::factory()->create();
-        $developer->assignRole(Role::DEVELOPER);
-        $this->actingAs($developer);
-
-        // ACT
-        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
-            'action' => TicketAction::Request->value,
-        ]);
-
-        // ASSERT
-        $response->assertForbidden();
-
-        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
-    });
-
-    it('given a developer who requests information after their own comment, moves the ticket to Request', function () {
+    it('given a developer requests more information on a ticket with no comments, the ticket moves to Request', function () {
         // ARRANGE
         User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
 
@@ -1077,12 +1079,6 @@ describe('updateState', function () {
 
         $developer = User::factory()->create();
         $developer->assignRole(Role::DEVELOPER);
-        Comment::factory()->create([
-            'commentable_type' => CommentableType::Ticket,
-            'commentable_id' => $ticket->id,
-            'user_id' => $developer->id,
-            'body' => 'Which level were you on?',
-        ]);
         $this->actingAs($developer);
 
         // ACT

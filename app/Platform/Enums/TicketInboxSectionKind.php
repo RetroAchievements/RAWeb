@@ -12,6 +12,7 @@ enum TicketInboxSectionKind: string
     case ToResolve = 'toResolve';
     case AwaitingYourFeedback = 'awaitingYourFeedback';
     case AwaitingReporter = 'awaitingReporter';
+    case SubscribedByYou = 'subscribedByYou';
     case ReportedByYou = 'reportedByYou';
     case ResolvedByYou = 'resolvedByYou';
 

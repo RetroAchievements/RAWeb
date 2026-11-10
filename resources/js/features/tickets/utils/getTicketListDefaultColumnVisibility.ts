@@ -34,6 +34,7 @@ const visibleColumnIdsByScope: Record<
   achievement: ['id', 'type', 'reporter', 'age'],
   assignedTo: ['id', 'ticketable', 'reporter', 'age'],
   reportedBy: ['id', 'ticketable', 'developer', 'age'],
+  subscribedBy: ['id', 'ticketable', 'developer', 'reporter', 'age'],
   awaitingReporter: ['id', 'ticketable', 'developer', 'age'],
   resolvedBy: ['id', 'ticketable', 'reporter', 'age', 'resolvedAt'],
 };

@@ -27,6 +27,8 @@ class TicketShowPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
+        /** @var TicketRelatedEntryData[] $reporterGameTickets */
+        public array $reporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
         public ?Carbon $logicChangedAfterReportAt,
@@ -41,8 +43,6 @@ class TicketShowPagePropsData extends Data
         public array $changelog,
         /** @var TicketAction[] $allowedTicketActions */
         public array $allowedTicketActions,
-        public bool $hasNonReporterComment,
-        public bool $hasReporterRepliedLast,
         public bool $hasReporterHistoryAccess,
         public ?Carbon $autoCloseAt,
         public ?Carbon $claimExpiresAt,

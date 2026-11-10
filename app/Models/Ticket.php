@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
@@ -118,16 +119,6 @@ class Ticket extends BaseModel
     }
 
     // == accessors
-
-    public function getHasNonReporterCommentAttribute(): bool
-    {
-        return $this->discussionComments->contains(fn (TicketComment $ticketComment): bool => $ticketComment->user_id !== $this->reporter_id);
-    }
-
-    public function getHasReporterRepliedLastAttribute(): bool
-    {
-        return $this->discussionComments->last()?->user_id === $this->reporter_id && $this->has_non_reporter_comment;
-    }
 
     public function getIsOpenAttribute(): bool
     {
@@ -364,6 +355,34 @@ class Ticket extends BaseModel
                 default => throw new LogicException("Unexpected ticketable type: {$ticketableType}"),
             },
         );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeOnGamesSubscribedToBy(Builder $query, User $user): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereIn('game_id', Subscription::query()
+                ->select('subject_id')
+                ->where('subject_type', SubscriptionSubjectType::GameTickets)
+                ->where('user_id', $user->id)
+                ->where('state', true)),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeNotAssignedTo(Builder $query, User $user): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->whereNull('assignee_id')
+            ->orWhere('assignee_id', '!=', $user->id));
     }
 
     /**

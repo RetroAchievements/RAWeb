@@ -58,7 +58,6 @@ class BuildTicketShowPagePropsAction
         }
 
         // NOTE: Ticket comments from banned users are always visible, intentionally.
-        // Loading the relation here lets the policy reuse it for the Request rule.
         $ticket->load(['discussionComments.user' => fn ($query) => $query->withTrashed()]);
         $loadedComments = $ticket->discussionComments;
 
@@ -75,11 +74,11 @@ class BuildTicketShowPagePropsAction
             ticket: $ticketEntry,
 
             achievement: $ticketable instanceof Achievement
-                ? AchievementData::fromAchievement($ticketable)->include('points', 'developer.isGone')
+                ? AchievementData::fromAchievement($ticketable)->include('points', 'isPromoted', 'developer.isGone')
                 : null,
 
             leaderboard: $ticketable instanceof Leaderboard
-                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'developer.isGone')
+                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'state', 'developer.isGone')
                 : null,
 
             ticketableDescription: $ticketable->description,
@@ -97,9 +96,14 @@ class BuildTicketShowPagePropsAction
             ),
 
             relatedTickets: array_map(
-                fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket($relatedTicket),
+                fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                    $relatedTicket,
+                    $ticketable->getTicketableTitle(),
+                ),
                 $ticketViewService->relatedTickets,
             ),
+
+            reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
 
             reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
 
@@ -122,8 +126,6 @@ class BuildTicketShowPagePropsAction
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
             allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
-            hasNonReporterComment: $ticket->has_non_reporter_comment,
-            hasReporterRepliedLast: $ticket->has_reporter_replied_last,
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
@@ -177,6 +179,27 @@ class BuildTicketShowPagePropsAction
         }
 
         return $allowedActions;
+    }
+
+    /**
+     * @return TicketRelatedEntryData[]
+     */
+    private function buildSameReporterTicketProps(TicketViewService $viewService, Ticket $ticket, User $viewer): array
+    {
+        if (
+            $ticket->reporter?->isBanned()
+            && !$viewer->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+        ) {
+            return [];
+        }
+
+        return array_map(
+            fn (Ticket $sameReporterTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                $sameReporterTicket,
+                $sameReporterTicket->getTicketableModel()->getTicketableTitle(),
+            ),
+            $viewService->reporterGameTickets,
+        );
     }
 
     /**

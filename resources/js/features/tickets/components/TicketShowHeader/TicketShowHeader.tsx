@@ -8,7 +8,7 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
+import { useFormatTicketState } from '../../hooks/useFormatTicketState';
 import { useTicketTypeLabels } from '../../hooks/useTicketTypeLabels';
 import { ticketShowEntityLinkClassNames } from '../../utils/ticketShowEntityLinkClassNames';
 import { TicketStateGlyph } from '../TicketStateGlyph';
@@ -21,7 +21,7 @@ export const TicketShowHeader: FC = () => {
   const { achievement, ticket, ticketableDescription } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
 
-  const { buildTicketStateLabel } = useTicketStateLabel();
+  const { formatTicketState } = useFormatTicketState();
 
   const ticketTypeLabels = useTicketTypeLabels();
 
@@ -93,7 +93,7 @@ export const TicketShowHeader: FC = () => {
                   <TicketStateGlyph state={ticket.state} hasTooltip={false} />
                 </span>
 
-                {buildTicketStateLabel(ticket.state, ticket.resolution)}
+                {formatTicketState(ticket.state, ticket.resolution)}
               </span>
             </span>
 

@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\GetTicketClaimStatusAction;
+use App\Platform\Enums\TicketableType;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -177,12 +178,14 @@ class TicketPolicy
         if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
             return match ($action) {
                 TicketAction::Reopen => true,
-                TicketAction::Request => $ticket->state === TicketState::Open && $this->canAskReporterForMoreInfo($user, $ticket),
+                TicketAction::Request => $ticket->state === TicketState::Open,
 
                 TicketAction::Resolved,
                 TicketAction::Demoted => $ticket->state->isOpen(),
 
                 TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
+
+                TicketAction::ManualUnlockRequest => !$ticket->state->isResolved() && $ticket->ticketable_type !== TicketableType::Leaderboard->value,
 
                 TicketAction::ClosedMistaken,
                 TicketAction::NotEnoughInfo,
@@ -191,7 +194,6 @@ class TicketPolicy
                 TicketAction::UnableToReproduce,
                 TicketAction::AlreadyFixed,
                 TicketAction::EmulatorProblem,
-                TicketAction::ManualUnlockRequest,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }
@@ -231,23 +233,5 @@ class TicketPolicy
             $ticket->assignee_id === $user->id
             && $ticket->state->isOpen()
             && $ticket->isClaimed();
-    }
-
-    private function canAskReporterForMoreInfo(User $user, Ticket $ticket): bool
-    {
-        $lastCommenterId = $ticket->discussionComments->last()?->user_id;
-        if ($lastCommenterId === null) {
-            return false;
-        }
-
-        if ($lastCommenterId === $user->id) {
-            return true;
-        }
-
-        if ($lastCommenterId === $ticket->reporter_id) {
-            return $ticket->has_reporter_replied_last;
-        }
-
-        return $lastCommenterId === $ticket->assignee_id;
     }
 }
