@@ -1560,7 +1560,7 @@
     "If there is no reply by {{date}}, we will close this ticket.": "Nếu không có hồi âm trước {{date}}, chúng tôi sẽ đóng phiếu này lại.",
     "Close Your Ticket": "Đóng phiếu của bạn",
     "Is {{ticketableTitle}} (<1>{{gameTitle}}</1>) working for you now?": "Hiện {{ticketableTitle}} (<1>{{gameTitle}}</1>) đã hoạt động với bạn chưa?",
-    "Yes, close my ticket": "Phải, hãy đóng phiéu của tôi lại",
+    "Yes, close my ticket": "Phải, hãy đóng phiếu của tôi lại",
     "Thanks for letting us know. Your ticket is closed.": "Cảm ơn vì đã cho chúng tôi biết. Phiếu của bạn đã đóng.",
     "This ticket is already closed.": "Phiếu này đã đóng rồi.",
     "We did not send this quarantined ticket to the author because we do not fully support this emulator or core.": "Chúng tôi sẽ không gửi phiếu bị cô lập cho tác giả vì chúng tôi không hoàn toàn hỗ trợ trình giả lập hoặc nhân này.",
