@@ -1,9 +1,10 @@
+import type { ActiveVisit, PendingVisit } from '@inertiajs/core';
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
-import { render, screen, waitFor, within } from '@/test';
+import { act, render, screen, waitFor, within } from '@/test';
 import {
   createAchievement,
   createLeaderboard,
@@ -710,6 +711,44 @@ describe('Component: TicketCloseDialog', () => {
     expect(router.reload).toHaveBeenCalledWith(
       expect.objectContaining({ only: ['otherReporterGameTickets'] }),
     );
+  });
+
+  it('a loading message shows until the reporters request is done', async () => {
+    // ARRANGE
+    let reloadOptions: Parameters<typeof router.reload>[0];
+    vi.mocked(router.reload).mockImplementation((options) => {
+      reloadOptions = options;
+    });
+
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['covered-by-another-ticket'],
+          can: { createTicketComments: true },
+          relatedTickets: [],
+          reporterGameTickets: [],
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
+    act(() => {
+      reloadOptions?.onStart?.({} as PendingVisit);
+    });
+
+    // ASSERT
+    expect(screen.getByRole('status')).toHaveTextContent("Loading other reporters' tickets…");
+
+    act(() => {
+      reloadOptions?.onFinish?.({} as ActiveVisit);
+    });
+
+    expect(screen.queryByText("Loading other reporters' tickets…")).not.toBeInTheDocument();
   });
 
   it('given the other reporters are already loaded, the list is searchable by reporter name without another server request', async () => {
