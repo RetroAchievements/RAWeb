@@ -1557,7 +1557,7 @@
     "Something else is wrong with the achievement": "Há algo de errado com essa conquista",
     "Waiting for <1>{{user}}</1> to reply.": "Esperando por <1>{{user}}</1> responder",
     "We need more information from you. Reply in the comments below.": "Precisamos de mais informações. Responda nos comentários abaixo.",
-    "If there is no reply by {{date}}, we will close this ticket.": "Se não houver nenhuma resposta de {{date}}, Nós vamos fechar esse ticket.",
+    "If there is no reply by {{date}}, we will close this ticket.": "Se não houver resposta até {{date}}, vamos fechar este ticket.",
     "Close Your Ticket": "Close Your Ticket",
     "Is {{ticketableTitle}} (<1>{{gameTitle}}</1>) working for you now?": "Is {{ticketableTitle}} (<1>{{gameTitle}}</1>) working for you now?",
     "Yes, close my ticket": "Sim, feche meu ticket",
