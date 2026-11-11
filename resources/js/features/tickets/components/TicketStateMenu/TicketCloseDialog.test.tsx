@@ -277,6 +277,39 @@ describe('Component: TicketCloseDialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it('closing the ticket does not submit the comment form', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: { message: 'Updated' } });
+    const outerCommentFormSubmitHandler = vi.fn((formEvent: React.FormEvent) =>
+      formEvent.preventDefault(),
+    );
+
+    render<App.Platform.Data.TicketShowPageProps>(
+      <form onSubmit={outerCommentFormSubmitHandler}>
+        <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />
+      </form>,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['network'],
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close ticket' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(router.reload).toHaveBeenCalled();
+    });
+    expect(outerCommentFormSubmitHandler).not.toHaveBeenCalled();
+  });
+
   it('given the note is empty, no note is sent in the API payload', async () => {
     // ARRANGE
     const patchSpy = vi
@@ -504,5 +537,84 @@ describe('Component: TicketCloseDialog', () => {
       action: 'wrong-rom',
       note: null,
     });
+  });
+
+  it('given "Network problems" is picked, shows the correct hint label', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['wrong-rom', 'network'],
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).not.toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('given the picked reason is not "Network problems", no manual unlock hint is shown', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['wrong-rom', 'network'],
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Wrong ROM' }));
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('given a leaderboard ticket, no manual unlock hint is shown', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: null,
+          leaderboard: createLeaderboard(),
+          allowedTicketActions: ['network'],
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'leaderboard' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+
+    // ASSERT
+    expect(
+      screen.queryByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).not.toBeInTheDocument();
   });
 });

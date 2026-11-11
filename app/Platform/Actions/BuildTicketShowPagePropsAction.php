@@ -87,6 +87,8 @@ class BuildTicketShowPagePropsAction
 
             isViewerReporter: $user->is($ticket->reporter),
 
+            shouldOfferManualUnlock: $user->is($ticket->reporter) && $ticket->canReporterRequestManualUnlock(),
+
             can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include(
                 'claimTicket',
                 'createTicketComments',
