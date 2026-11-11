@@ -79,6 +79,7 @@ describe('Component: TicketInboxSection', () => {
                 windowStartedAt: '2026-06-14T12:00:00Z',
                 hasRecentLogicChange: true,
                 reporterEarnedAt: null,
+                accuracy: null,
               },
             }),
           ],
@@ -151,14 +152,14 @@ describe('Component: TicketInboxSection', () => {
 
   it('given a "gone" developer, does not show a profile link or hover link styling', () => {
     // ARRANGE
-    const author = createUser({ displayName: 'Banned', isGone: true });
+    const assignee = createUser({ displayName: 'Banned', isGone: true });
 
     // ACT
     renderSection({
       counterpartyColumnId: 'developer',
       section: createTicketInboxSection({
         count: 1,
-        tickets: [createTicketListEntry({ author })],
+        tickets: [createTicketListEntry({ assignee })],
       }),
     });
 
@@ -169,14 +170,14 @@ describe('Component: TicketInboxSection', () => {
 
   it('given an active developer, shows a profile link with hover link styling', () => {
     // ARRANGE
-    const author = createUser({ displayName: 'Active', isGone: false });
+    const assignee = createUser({ displayName: 'Active', isGone: false });
 
     // ACT
     renderSection({
       counterpartyColumnId: 'developer',
       section: createTicketInboxSection({
         count: 1,
-        tickets: [createTicketListEntry({ author })],
+        tickets: [createTicketListEntry({ assignee })],
       }),
     });
 

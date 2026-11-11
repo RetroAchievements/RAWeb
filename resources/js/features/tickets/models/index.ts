@@ -1,4 +1,5 @@
-export * from './ticket-close-reason.model';
+export * from './ticket-close-answer.model';
+export * from './ticket-close-answer-group.model';
 export * from './ticket-list-column-definition.model';
 export * from './ticket-list-column-id.model';
 export * from './ticket-list-filter-property.model';

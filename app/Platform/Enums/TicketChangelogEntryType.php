@@ -16,4 +16,7 @@ enum TicketChangelogEntryType: string
     case Approved = 'approved';
     case Reopened = 'reopened';
     case Reminded = 'reminded';
+    case Claimed = 'claimed';
+    case ClaimReleased = 'claim-released';
+    case ClaimExpired = 'claim-expired';
 }

@@ -1699,13 +1699,13 @@ describe('Open Tickets Props', function () {
         Ticket::factory()->create([
             'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
             'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
 
@@ -1745,19 +1745,19 @@ describe('Open Tickets Props', function () {
         Ticket::factory()->create([
             'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
             'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
             'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
 
@@ -1790,13 +1790,13 @@ describe('Open Tickets Props', function () {
         Ticket::factory()->create([
             'ticketable_id' => $achievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
             'ticketable_id' => $achievement->id,
             'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Resolved, // !!
         ]);
 
@@ -1833,7 +1833,7 @@ describe('Open Tickets Props', function () {
         Ticket::factory()->create([
             'ticketable_id' => $achievement->id,
             'reporter_id' => $reporter->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'state' => TicketState::Open,
         ]);
 
@@ -1841,7 +1841,7 @@ describe('Open Tickets Props', function () {
         Ticket::factory()->create([
             'ticketable_type' => TicketableType::Leaderboard->value,
             'ticketable_id' => $leaderboard->id,
-            'ticketable_author_id' => $developer->id,
+            'assignee_id' => $developer->id,
             'reporter_id' => $reporter->id,
             'state' => TicketState::Open,
         ]);

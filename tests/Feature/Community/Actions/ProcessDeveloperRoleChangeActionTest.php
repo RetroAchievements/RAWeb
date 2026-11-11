@@ -14,8 +14,10 @@ use App\Models\Comment;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\System;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -130,4 +132,102 @@ it('given a developer is demoted to junior developer, keeps their claims but exp
     $activeMaintainership->refresh();
     expect($activeMaintainership->is_active)->toBeFalse();
     expect($activeMaintainership->effective_until)->not->toBeNull();
+});
+
+it('given a maintainer loses the developer role, reassigns their unresolved tickets back to the original author', function () {
+    // Arrange
+    User::factory()->create(['id' => Comment::SYSTEM_USER_ID, 'username' => 'Server']);
+    $author = User::factory()->create();
+    $demotedMaintainer = User::factory()->create(['Permissions' => Permissions::Registered]);
+    $claimant = User::factory()->create();
+
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
+    AchievementMaintainer::create([
+        'achievement_id' => $achievement->id,
+        'user_id' => $demotedMaintainer->id,
+        'effective_from' => now()->subDays(30),
+        'is_active' => true,
+    ]);
+
+    $openTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
+        'assignee_id' => $demotedMaintainer->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+    $resolvedTicket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+        'assignee_id' => $demotedMaintainer->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+    $claimedTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
+        'assignee_id' => $claimant->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+
+    // Act
+    (new ProcessDeveloperRoleChangeAction())->execute($demotedMaintainer, Role::DEVELOPER, null);
+
+    // Assert
+    expect($openTicket->fresh()->assignee_id)->toEqual($author->id);
+    expect($resolvedTicket->fresh()->assignee_id)->toEqual($demotedMaintainer->id);
+    expect($claimedTicket->fresh()->assignee_id)->toEqual($claimant->id);
+});
+
+it('given a developer is demoted, reassigns every unresolved claimed ticket back to its maintainer', function () {
+    // Arrange
+    Notification::fake();
+    User::factory()->create(['id' => Comment::SYSTEM_USER_ID, 'username' => 'Server']);
+    $author = User::factory()->create();
+    $demotedClaimant = User::factory()->create(['Permissions' => Permissions::Registered]);
+
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $authorsAchievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
+    $claimantsOwnAchievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $demotedClaimant->id]);
+
+    $openClaim = Ticket::factory()->forAchievement($authorsAchievement)->open()->create([
+        'assignee_id' => $demotedClaimant->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+    $requestClaim = Ticket::factory()->forAchievement($authorsAchievement)->request()->create([
+        'assignee_id' => $demotedClaimant->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+    $quarantinedClaim = Ticket::factory()->forAchievement($authorsAchievement)->quarantined()->create([
+        'assignee_id' => $demotedClaimant->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+    $ownTicket = Ticket::factory()->forAchievement($claimantsOwnAchievement)->request()->create([
+        'assignee_id' => $demotedClaimant->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+
+    // Act
+    (new ProcessDeveloperRoleChangeAction())->execute($demotedClaimant, Role::DEVELOPER, null);
+
+    // Assert
+    expect($openClaim->fresh()->assignee_id)->toEqual($author->id);
+    expect($requestClaim->fresh()->assignee_id)->toEqual($author->id);
+    expect($requestClaim->auditLog()->where('event', Ticket::CLAIM_EXPIRED_EVENT)->count())->toEqual(1);
+    expect($quarantinedClaim->fresh()->assignee_id)->toEqual($author->id);
+    expect($ownTicket->fresh()->assignee_id)->toEqual($demotedClaimant->id);
+    expect($ownTicket->auditLog()->where('event', Ticket::CLAIM_EXPIRED_EVENT)->exists())->toBeFalse();
+});
+
+it('given a developer who holds a ticket claim is demoted to junior developer, keeps the claim', function () {
+    // Arrange
+    User::factory()->create(['id' => Comment::SYSTEM_USER_ID, 'username' => 'Server']);
+    $author = User::factory()->create();
+    $demotedDeveloper = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
+
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
+    $claimedTicket = Ticket::factory()->forAchievement($achievement)->request()->create([
+        'assignee_id' => $demotedDeveloper->id,
+        'reporter_id' => User::factory()->create()->id,
+    ]);
+
+    // Act
+    (new ProcessDeveloperRoleChangeAction())->execute($demotedDeveloper, Role::DEVELOPER, Role::DEVELOPER_JUNIOR);
+
+    // Assert
+    expect($claimedTicket->fresh()->assignee_id)->toEqual($demotedDeveloper->id);
 });

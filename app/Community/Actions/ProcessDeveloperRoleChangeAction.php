@@ -6,11 +6,20 @@ namespace App\Community\Actions;
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\AchievementMaintainer;
 use App\Models\AchievementSetClaim;
+use App\Models\Leaderboard;
 use App\Models\Role;
+use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\ReleaseTicketClaimAction;
+use App\Platform\Enums\TicketableType;
+use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\DB;
 
 class ProcessDeveloperRoleChangeAction
 {
@@ -32,6 +41,7 @@ class ProcessDeveloperRoleChangeAction
 
         if ($developerRoleAfter === null) {
             $this->dropOpenClaims($user, $permissionsName, $actingUser);
+            $this->releaseTicketClaims($user);
         }
 
         if ($developerRoleBefore === Role::DEVELOPER) {
@@ -75,15 +85,64 @@ class ProcessDeveloperRoleChangeAction
             });
     }
 
+    private function releaseTicketClaims(User $user): void
+    {
+        $claimedTickets = Ticket::query()
+            ->where('assignee_id', $user->id)
+            ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Quarantined])
+            ->withLiveTicketable()
+            ->with([
+                'assignee',
+                'ticketable' => fn (MorphTo $ticketable) => $ticketable->morphWith([
+                    Achievement::class => ['developer'],
+                    Leaderboard::class => ['developer'],
+                ]),
+            ])
+            ->get()
+            ->filter(fn (Ticket $ticket): bool => $ticket->getTicketableModel()->getTicketableAssignee()?->id !== $user->id);
+
+        if ($claimedTickets->isEmpty()) {
+            return;
+        }
+
+        $serverAccount = User::whereName('Server')->firstOrFail();
+        $releaseTicketClaimAction = new ReleaseTicketClaimAction();
+
+        foreach ($claimedTickets as $claimedTicket) {
+            $releaseTicketClaimAction->execute($claimedTicket, $serverAccount, isExpired: true);
+        }
+    }
+
     private function expireActiveMaintainerships(User $user): void
     {
-        AchievementMaintainer::query()
+        $maintainershipQuery = AchievementMaintainer::query()
             ->where('user_id', $user->id)
             ->where('is_active', true)
-            ->whereNull('effective_until')
+            ->whereNull('effective_until');
+
+        $maintainedAchievementIds = $maintainershipQuery->clone()->pluck('achievement_id');
+
+        $maintainershipQuery->update([
+            'is_active' => false,
+            'effective_until' => now(),
+        ]);
+
+        if ($maintainedAchievementIds->isEmpty()) {
+            return;
+        }
+
+        // Reassign tickets back to the triggerable's author.
+        Ticket::query()
+            ->forTicketableType(TicketableType::Achievement)
+            ->whereIn('ticketable_id', $maintainedAchievementIds)
+            ->where('assignee_id', $user->id)
+            ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Quarantined])
             ->update([
-                'is_active' => false,
-                'effective_until' => now(),
+                'assignee_id' => DB::raw('(SELECT achievements.user_id FROM achievements WHERE achievements.id = tickets.ticketable_id)'),
             ]);
+
+        // Eloquent bulk updates don't trigger events. We'll manually bust the caches ourselves.
+        $achievementAuthorIds = Achievement::whereIn('id', $maintainedAchievementIds)->pluck('user_id');
+        app(UserTicketCountService::class)->clearForUserIds($achievementAuthorIds->push($user->id)->unique());
     }
 }

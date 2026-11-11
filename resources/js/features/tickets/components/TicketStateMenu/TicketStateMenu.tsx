@@ -1,66 +1,49 @@
 import { router } from '@inertiajs/react';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { IconType } from 'react-icons';
-import { LuChevronDown, LuCircleArrowDown } from 'react-icons/lu';
+import { LuChevronDown } from 'react-icons/lu';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
   BaseDropdownMenu,
   BaseDropdownMenuContent,
-  BaseDropdownMenuGroup,
   BaseDropdownMenuItem,
-  BaseDropdownMenuLabel,
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import type { TranslatedString } from '@/types/i18next';
 
 import { useUpdateTicketStateMutation } from '../../hooks/mutations/useUpdateTicketStateMutation';
-import { useTicketCloseReasonLabels } from '../../hooks/useTicketCloseReasonLabels';
-import { useTicketStateLabel } from '../../hooks/useTicketStateLabel';
-import { TICKET_CLOSE_REASONS } from '../../utils/ticketCloseReasons';
+import { useFormatTicketState } from '../../hooks/useFormatTicketState';
+import { useTicketStateLabels } from '../../hooks/useTicketStateLabels';
+import { TICKET_CLOSE_REASON_LABELS } from '../../utils/ticketCloseReasonLabels';
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
-import { TicketStateGlyph } from '../TicketStateGlyph';
-import { TicketActionConfirmDialog } from './TicketActionConfirmDialog';
-
-interface StateMoveItem {
-  action: App.Community.Enums.TicketAction;
-  Icon: IconType;
-  iconClassName: string;
-  label: TranslatedString;
-}
+import { TicketActionConfirmDialog } from '../TicketActionConfirmDialog';
+import { TicketCloseDialog } from './TicketCloseDialog';
 
 export const TicketStateMenu: FC = () => {
-  const { allowedTicketActions, hasNonReporterComment, hasReporterRepliedLast, ticket } =
+  const { allowedTicketActions, auth, can, comments, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
-  const { buildTicketStateLabel } = useTicketStateLabel();
-  const labelsByCloseReason = useTicketCloseReasonLabels();
+  const { formatTicketState } = useFormatTicketState();
+  const ticketStateLabels = useTicketStateLabels();
+
   const mutation = useUpdateTicketStateMutation();
 
-  const [pendingAction, setPendingAction] = useState<App.Community.Enums.TicketAction | null>(null);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isMistakenReportDialogOpen, setIsMistakenReportDialogOpen] = useState(false);
+  const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false);
 
-  const stateLabel = buildTicketStateLabel(ticket.state, ticket.resolution);
-
-  if (!allowedTicketActions.length) {
-    return (
-      <>
-        <TicketStateGlyph state={ticket.state} hasTooltip={false} />
-        {stateLabel}
-      </>
-    );
-  }
+  const stateLabel = formatTicketState(ticket.state, ticket.resolution);
 
   const getIsActionPermitted = (action: App.Community.Enums.TicketAction) =>
     allowedTicketActions.includes(action);
 
-  const getIsCommentRequired = (action: App.Community.Enums.TicketAction) =>
-    !hasNonReporterComment && (action === 'resolved' || action === 'closed-other');
+  const canRequestInfo = getIsActionPermitted('request') && !!can.createTicketComments;
+  const isViewerLatestCommenter =
+    !!auth?.user && comments.at(-1)?.user.displayName === auth.user.displayName;
 
   const reopenLabelByTicketState = {
     quarantined: t('Approve'),
@@ -68,94 +51,18 @@ export const TicketStateMenu: FC = () => {
     resolved: t('Reopen'),
     closed: t('Reopen'),
   };
+  const reopenMenuItemLabel =
+    ticket.state === 'open' || !getIsActionPermitted('reopen')
+      ? null
+      : reopenLabelByTicketState[ticket.state];
 
-  const reopenItems: StateMoveItem[] =
-    ticket.state === 'open'
-      ? []
-      : [
-          {
-            action: 'reopen',
-            label: reopenLabelByTicketState[ticket.state],
-            Icon: TICKET_STATE_GLYPHS.open.Icon,
-            iconClassName: TICKET_STATE_GLYPHS.open.className,
-          },
-        ];
-
-  // Each move shows the glyph of the state the ticket ends up in.
-  const candidateStateMoveItems: StateMoveItem[] = [
-    {
-      action: 'resolved',
-      label: t('Resolve as fixed'),
-      Icon: TICKET_STATE_GLYPHS.resolved.Icon,
-      iconClassName: TICKET_STATE_GLYPHS.resolved.className,
-    },
-    {
-      action: 'request',
-      label: t('Request information'),
-      Icon: TICKET_STATE_GLYPHS.request.Icon,
-      iconClassName: TICKET_STATE_GLYPHS.request.className,
-    },
-    ...reopenItems,
-    {
-      action: 'demoted',
-      label:
-        ticket.ticketableType === 'achievement' ? t('Demote achievement') : t('Demote leaderboard'),
-      Icon: LuCircleArrowDown,
-      iconClassName: 'text-neutral-400 light:text-neutral-600',
-    },
-  ];
-  const stateMoveItems = candidateStateMoveItems.filter((item) =>
-    getIsActionPermitted(item.action),
+  const hasStaffCloseReasons = allowedTicketActions.some(
+    (action) => action !== 'closed-mistaken' && action in TICKET_CLOSE_REASON_LABELS,
   );
-
-  const closeReasons = TICKET_CLOSE_REASONS.filter(getIsActionPermitted);
-
-  const commentRequiredHint = (
-    <span className="ml-auto pl-4 text-xs">{t('Add a comment first')}</span>
-  );
-
-  // Most moves are applied instantaneously on selection, kinda like status changes in Linear.
-  // confirmationCopyByAction are the ones that pop a confirm.
-  const confirmationCopyByAction: Partial<
-    Record<
-      App.Community.Enums.TicketAction,
-      { confirmLabel: TranslatedString; description?: TranslatedString; title: TranslatedString }
-    >
-  > = {
-    demoted: {
-      title:
-        ticket.ticketableType === 'achievement'
-          ? t('Demote this achievement to unpublished?')
-          : t('Demote this leaderboard to unpromoted?'),
-      description: t('This also closes the ticket.'),
-      confirmLabel: t('Demote'),
-    },
-    'unable-to-debug': {
-      title: t('Close as unable to debug?'),
-      description: t(
-        'If the player gave steps to reproduce the problem, try to reproduce it before you close the ticket.',
-      ),
-      confirmLabel: t('Close ticket'),
-    },
-    'closed-mistaken': {
-      title: t('Close as a mistaken report?'),
-      confirmLabel: t('Close ticket'),
-    },
-    ...(hasReporterRepliedLast
-      ? {
-          request: {
-            title: t('Request information from the reporter?'),
-            description: t(
-              'The reporter made the latest comment. Do you want to hand the ticket back to the reporter without a new comment?',
-            ),
-            confirmLabel: t('Request information'),
-          },
-        }
-      : {}),
-  };
+  const canCloseAsMistakenReport = !hasStaffCloseReasons && getIsActionPermitted('closed-mistaken');
 
   const runAction = (action: App.Community.Enums.TicketAction) => {
-    toastMessage.promise(mutation.mutateAsync({ ticketId: ticket.id, action }), {
+    toastMessage.promise(mutation.mutateAsync({ ticketId: ticket.id, payload: { action } }), {
       loading: t('Updating...'),
       success: () => {
         router.reload();
@@ -166,94 +73,114 @@ export const TicketStateMenu: FC = () => {
     });
   };
 
-  const selectAction = (action: App.Community.Enums.TicketAction) => {
-    if (confirmationCopyByAction[action]) {
-      setPendingAction(action);
-      setIsConfirmDialogOpen(true);
+  const CurrentTicketStateGlyph = TICKET_STATE_GLYPHS[ticket.state].Icon;
 
-      return;
-    }
-
-    runAction(action);
-  };
-
-  const pendingConfirmationCopy = pendingAction ? confirmationCopyByAction[pendingAction] : null;
+  // Each move shows the glyph of the state the ticket will end up in.
+  const RequestInfoGlyph = TICKET_STATE_GLYPHS.request.Icon;
+  const ReopenGlyph = TICKET_STATE_GLYPHS.open.Icon;
   const ClosedIcon = TICKET_STATE_GLYPHS.closed.Icon;
+  const closedMenuGlyph = (
+    <ClosedIcon aria-hidden={true} className={cn('size-4', TICKET_STATE_GLYPHS.closed.className)} />
+  );
 
   return (
     <>
       <BaseDropdownMenu>
-        <BaseDropdownMenuTrigger
-          aria-label={t('Change status (currently {{status}})', { status: stateLabel })}
-          className={cn(
-            'flex items-center gap-1.5 rounded-md border px-2 py-1',
-            'border-neutral-600 bg-neutral-800/50',
-            'hover:border-neutral-500 hover:bg-neutral-800',
-            'data-[state=open]:border-neutral-500 data-[state=open]:bg-neutral-800',
-            'light:border-neutral-300 light:bg-white',
-            'light:hover:border-neutral-400 light:hover:bg-neutral-100',
-            'light:data-[state=open]:border-neutral-400 light:data-[state=open]:bg-neutral-100',
-            'outline-hidden focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-neutral-300',
-            'light:focus-visible:ring-neutral-950',
-          )}
-        >
-          <TicketStateGlyph state={ticket.state} hasTooltip={false} />
-          {stateLabel}
-          <LuChevronDown
-            aria-hidden={true}
-            className="size-3.5 text-neutral-400 light:text-neutral-600"
-          />
+        <BaseDropdownMenuTrigger asChild>
+          <BaseButton
+            aria-label={t('Change status (currently {{status}})', { status: stateLabel })}
+            className={cn(
+              'gap-2 px-3 lg:transition-none lg:active:translate-y-0 lg:active:scale-100',
+              'text-neutral-200 hover:text-neutral-50 data-[state=open]:bg-embed-highlight',
+              'light:border-neutral-300 light:text-neutral-800 light:hover:text-neutral-950',
+            )}
+          >
+            <CurrentTicketStateGlyph
+              aria-hidden={true}
+              className={cn('size-4', TICKET_STATE_GLYPHS[ticket.state].className)}
+            />
+
+            {ticketStateLabels[ticket.state]}
+
+            <LuChevronDown
+              aria-hidden={true}
+              className="size-3.5 text-neutral-400 light:text-neutral-600"
+            />
+          </BaseButton>
         </BaseDropdownMenuTrigger>
 
-        <BaseDropdownMenuContent align="start" className="min-w-56">
-          {stateMoveItems.map((item) => (
+        <BaseDropdownMenuContent align="end" className="min-w-56">
+          {canRequestInfo ? (
             <BaseDropdownMenuItem
-              key={item.action}
-              className="gap-2"
-              disabled={getIsCommentRequired(item.action)}
-              onSelect={() => selectAction(item.action)}
+              disabled={!isViewerLatestCommenter}
+              className="items-start gap-2"
+              onSelect={() => runAction('request')}
             >
-              <item.Icon aria-hidden={true} className={cn('size-4', item.iconClassName)} />
-              {item.label}
-              {getIsCommentRequired(item.action) ? commentRequiredHint : null}
-            </BaseDropdownMenuItem>
-          ))}
-
-          {stateMoveItems.length && closeReasons.length ? <BaseDropdownMenuSeparator /> : null}
-
-          {closeReasons.length ? (
-            <BaseDropdownMenuGroup>
-              <BaseDropdownMenuLabel className="flex items-center gap-2 font-normal text-neutral-400 light:text-neutral-600">
-                <ClosedIcon
+              <span className="flex h-lh items-center">
+                <RequestInfoGlyph
                   aria-hidden={true}
-                  className={cn('size-4', TICKET_STATE_GLYPHS.closed.className)}
+                  className={cn('size-4', TICKET_STATE_GLYPHS.request.className)}
                 />
-                {t('Close as')}
-              </BaseDropdownMenuLabel>
+              </span>
 
-              {closeReasons.map((closeReason) => (
-                <BaseDropdownMenuItem
-                  key={closeReason}
-                  inset={true}
-                  disabled={getIsCommentRequired(closeReason)}
-                  onSelect={() => selectAction(closeReason)}
-                >
-                  {labelsByCloseReason[closeReason]}
-                  {getIsCommentRequired(closeReason) ? commentRequiredHint : null}
-                </BaseDropdownMenuItem>
-              ))}
-            </BaseDropdownMenuGroup>
+              <span className="flex flex-col">
+                <span>{t('Request information')}</span>
+
+                {isViewerLatestCommenter ? null : (
+                  <span className="text-xs text-neutral-400 light:text-neutral-600">
+                    {t('Add a comment first')}
+                  </span>
+                )}
+              </span>
+            </BaseDropdownMenuItem>
+          ) : null}
+
+          {reopenMenuItemLabel ? (
+            <BaseDropdownMenuItem className="gap-2" onSelect={() => runAction('reopen')}>
+              <ReopenGlyph
+                aria-hidden={true}
+                className={cn('size-4', TICKET_STATE_GLYPHS.open.className)}
+              />
+              {reopenMenuItemLabel}
+            </BaseDropdownMenuItem>
+          ) : null}
+
+          {(canRequestInfo || reopenMenuItemLabel) &&
+          (hasStaffCloseReasons || canCloseAsMistakenReport) ? (
+            <BaseDropdownMenuSeparator />
+          ) : null}
+
+          {hasStaffCloseReasons ? (
+            <BaseDropdownMenuItem className="gap-2" onSelect={() => setIsCloseDialogOpen(true)}>
+              {closedMenuGlyph}
+              {t('Close…')}
+            </BaseDropdownMenuItem>
+          ) : null}
+
+          {canCloseAsMistakenReport ? (
+            <BaseDropdownMenuItem
+              className="gap-2"
+              onSelect={() => setIsMistakenReportDialogOpen(true)}
+            >
+              {closedMenuGlyph}
+              {t('Mistaken report')}
+            </BaseDropdownMenuItem>
           ) : null}
         </BaseDropdownMenuContent>
       </BaseDropdownMenu>
 
-      {pendingAction && pendingConfirmationCopy ? (
+      {canCloseAsMistakenReport ? (
         <TicketActionConfirmDialog
-          {...pendingConfirmationCopy}
-          isOpen={isConfirmDialogOpen}
-          onOpenChange={setIsConfirmDialogOpen}
-          onConfirm={() => runAction(pendingAction)}
+          title={t('Close as a mistaken report?')}
+          confirmLabel={t('Close ticket')}
+          isOpen={isMistakenReportDialogOpen}
+          onOpenChange={setIsMistakenReportDialogOpen}
+          onConfirm={() => runAction('closed-mistaken')}
         />
+      ) : null}
+
+      {hasStaffCloseReasons ? (
+        <TicketCloseDialog isOpen={isCloseDialogOpen} onOpenChange={setIsCloseDialogOpen} />
       ) : null}
     </>
   );

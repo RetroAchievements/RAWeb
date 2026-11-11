@@ -117,7 +117,7 @@ class UserSchema extends Schema
             HasMany::make('playerAchievements')->type('player-achievements')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerAchievementSets')->type('player-achievement-sets')->cannotEagerLoad()->readOnly(),
             HasMany::make('playerGames')->type('player-games')->cannotEagerLoad()->readOnly(),
-            HasMany::make('tickets', 'authoredTickets')
+            HasMany::make('tickets', 'assignedTickets')
                 ->type('tickets')
                 ->cannotEagerLoad()
                 ->withFilters(

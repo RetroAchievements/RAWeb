@@ -105,6 +105,13 @@ class TicketController extends Controller
         return $this->renderTicketList($request, 'user/[user]/tickets/resolved', $user);
     }
 
+    public function subscribed(TicketListRequest $request): InertiaResponse
+    {
+        $this->authorize('viewAny', Ticket::class);
+
+        return $this->renderTicketList($request, 'tickets/subscribed', $request->user());
+    }
+
     /*
      * TODO support all triggerables, eg: achievements, leaderboards, RP ...
      */

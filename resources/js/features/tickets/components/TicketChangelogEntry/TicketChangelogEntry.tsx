@@ -49,6 +49,19 @@ const typeSentences = {
   reminded: {
     automated: 'We reminded the reporter to reply.',
   },
+  claimed: {
+    asCommentFooter: 'Claimed this ticket.',
+    withoutUser: 'This ticket was claimed.',
+    withUser: '<1>{{user}}</1> claimed this ticket.',
+  },
+  'claim-released': {
+    asCommentFooter: 'Released their claim on this ticket.',
+    withoutUser: 'The claim on this ticket was released.',
+    withUser: '<1>{{user}}</1> released their claim on this ticket.',
+  },
+  'claim-expired': {
+    automated: 'We reassigned this ticket back to the maintainer because the claim expired.',
+  },
 } as const satisfies Record<
   Exclude<App.Platform.Enums.TicketChangelogEntryType, 'closed'>,
   EntrySentences
@@ -96,6 +109,21 @@ const resolutionSentences = {
     withoutUser: 'This ticket was closed because the problem could not be debugged.',
     withUser: '<1>{{user}}</1> closed this ticket because they could not debug the problem.',
   },
+  already_fixed: {
+    asCommentFooter: 'Closed this ticket because the bug was already fixed.',
+    withoutUser: 'This ticket was closed because the bug was already fixed.',
+    withUser: '<1>{{user}}</1> closed this ticket because the bug was already fixed.',
+  },
+  emulator_problem: {
+    asCommentFooter: 'Closed this ticket because of an emulator or core problem.',
+    withoutUser: 'This ticket was closed because of an emulator or core problem.',
+    withUser: '<1>{{user}}</1> closed this ticket because of an emulator or core problem.',
+  },
+  manual_unlock_request: {
+    asCommentFooter: 'Closed this ticket because it was a manual unlock request.',
+    withoutUser: 'This ticket was closed because it was a manual unlock request.',
+    withUser: '<1>{{user}}</1> closed this ticket because it was a manual unlock request.',
+  },
   demoted: {
     asCommentFooter: 'Closed this ticket and demoted the achievement.',
     withoutUser: 'This ticket was closed and the achievement was demoted.',
@@ -124,6 +152,9 @@ const typeStates = {
   approved: 'open',
   reopened: 'open',
   reminded: 'request',
+  claimed: 'open',
+  'claim-released': 'open',
+  'claim-expired': 'open',
 } as const satisfies Record<
   App.Platform.Enums.TicketChangelogEntryType,
   App.Community.Enums.TicketState

@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Community\Enums\TicketAction;
+use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use Carbon\Carbon;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
@@ -21,11 +22,13 @@ class TicketShowPagePropsData extends Data
         public ?AchievementData $achievement,
         public ?LeaderboardData $leaderboard,
         public string $ticketableDescription,
-        public bool $hasMaintainer,
+        public ?UserData $maintainer,
         public bool $isViewerReporter,
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
+        /** @var TicketRelatedEntryData[] $reporterGameTickets */
+        public array $reporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
         public ?Carbon $logicChangedAfterReportAt,
@@ -40,10 +43,9 @@ class TicketShowPagePropsData extends Data
         public array $changelog,
         /** @var TicketAction[] $allowedTicketActions */
         public array $allowedTicketActions,
-        public bool $hasNonReporterComment,
-        public bool $hasReporterRepliedLast,
         public bool $hasReporterHistoryAccess,
         public ?Carbon $autoCloseAt,
+        public ?Carbon $claimExpiresAt,
         #[AutoInertiaDeferred]
         public Lazy|PlayerGameActivityData|null $reporterActivity,
     ) {

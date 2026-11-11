@@ -17,11 +17,9 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
-        hasMaintainer: false,
       },
     });
 
@@ -33,7 +31,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement({ id: 4120, title: 'Crate Crusher', points: 15 }),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -41,7 +38,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           ticketableTitle: 'Crate Crusher',
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -58,7 +54,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: null,
         leaderboard: createLeaderboard({ id: 92 }),
         ticket: createTicketListEntry({
@@ -68,7 +63,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableTitle: 'Grand Prix Record',
           game: createGame({ title: 'F-Zero' }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -83,7 +77,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -95,7 +88,6 @@ describe('Component: TicketShowHeader', () => {
             system: createSystem({ nameShort: 'SNES' }),
           }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -109,7 +101,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -117,7 +108,6 @@ describe('Component: TicketShowHeader', () => {
           resolution: 'fixed',
           ticketableType: 'achievement',
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -135,11 +125,9 @@ describe('Component: TicketShowHeader', () => {
       // ARRANGE
       render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
         pageProps: {
-          allowedTicketActions: [],
           achievement: createAchievement(),
           leaderboard: null,
           ticket: createTicketListEntry({ state, resolution, ticketableType: 'achievement' }),
-          hasMaintainer: false,
         },
       });
 
@@ -152,7 +140,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -160,7 +147,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           reporter: createUser({ displayName: 'PixelHero' }),
         }),
-        hasMaintainer: false,
       },
     });
 
@@ -172,7 +158,6 @@ describe('Component: TicketShowHeader', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketShowHeader />, {
       pageProps: {
-        allowedTicketActions: [],
         achievement: createAchievement(),
         leaderboard: null,
         ticket: createTicketListEntry({
@@ -180,7 +165,6 @@ describe('Component: TicketShowHeader', () => {
           ticketableType: 'achievement',
           reporter: null,
         }),
-        hasMaintainer: false,
       },
     });
 

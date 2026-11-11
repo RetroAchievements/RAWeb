@@ -16,23 +16,34 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildAchievementLogicHref } from '@/common/utils/buildAchievementLogicHref';
 import type { TranslatedString } from '@/types/i18next';
 
 import { useLeaderboardFormatLabels } from '../../hooks/useLeaderboardFormatLabels';
 import { getGameHashDisplayLabel } from '../../utils/getGameHashDisplayLabel';
+import { getTicketResponsibleDeveloper } from '../../utils/getTicketResponsibleDeveloper';
+import { TicketClaimActions } from '../TicketClaimActions';
 import { TicketLogicVersionLink } from '../TicketLogicVersionLink';
 import { TicketUserValue } from '../TicketUserValue';
 
 export const TicketPropertiesPanel: FC = () => {
-  const { can, currentTriggerVersion, hasMaintainer, leaderboard, reportedTriggerVersion, ticket } =
-    usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const ticketPageProps = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const {
+    can,
+    claimExpiresAt,
+    currentTriggerVersion,
+    leaderboard,
+    maintainer,
+    reportedTriggerVersion,
+    ticket,
+  } = ticketPageProps;
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const leaderboardFormatLabels = useLeaderboardFormatLabels();
 
-  const author = leaderboard ? (leaderboard.developer ?? null) : ticket.author;
   const resolvedEmulatorName = ticket.emulator?.name ?? t('Unknown');
 
   const shouldShowViewLogicRow = !reportedTriggerVersion && can.viewAchievementLogic;
@@ -41,9 +52,28 @@ export const TicketPropertiesPanel: FC = () => {
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
         <BaseTableBody>
-          <PropertyRow t_label={hasMaintainer ? t('Maintainer') : t('Developer')}>
-            <TicketUserValue user={author} />
+          <PropertyRow t_label={maintainer ? t('Maintainer') : t('Developer')}>
+            <span className="flex flex-col items-start gap-1">
+              <TicketUserValue user={getTicketResponsibleDeveloper(ticketPageProps)} />
+              {ticket.isClaimed ? null : <TicketClaimActions />}
+            </span>
           </PropertyRow>
+
+          {ticket.isClaimed ? (
+            <PropertyRow t_label={t('Claimed by')}>
+              <span className="flex flex-col items-start gap-1">
+                <TicketUserValue user={ticket.assignee} />
+
+                {claimExpiresAt ? (
+                  <span className="text-neutral-500">
+                    {t('Claim expires {{date}}', { date: formatDate(claimExpiresAt, 'll') })}
+                  </span>
+                ) : null}
+
+                <TicketClaimActions />
+              </span>
+            </PropertyRow>
+          ) : null}
 
           <PropertyRow t_label={t('Emulator')}>
             {ticket.emulatorVersion

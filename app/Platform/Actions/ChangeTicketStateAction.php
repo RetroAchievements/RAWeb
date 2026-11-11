@@ -9,32 +9,45 @@ use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Enums\UserPreference;
 use App\Models\Comment;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use App\Platform\Services\UserTicketCountService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Facades\CauserResolver;
 
 class ChangeTicketStateAction
 {
     public function __construct(
         private readonly UserTicketCountService $userTicketCountService,
+        private readonly GetTicketClaimStatusAction $getTicketClaimStatusAction,
+        private readonly ClaimTicketAction $claimTicketAction,
     ) {
     }
 
     public function execute(Ticket $ticket, TicketAction $action, User $actor): void
     {
-        // The resolver needs to leave a comment first for these states.
-        if (in_array($action, [TicketAction::Resolved, TicketAction::ClosedOther], true) && !$ticket->has_non_reporter_comment) {
-            throw ValidationException::withMessages([
-                'action' => 'Add a comment first.', // just for observability, users are not going to see this.
-            ]);
-        }
-
         $previousState = $ticket->state;
         $newState = $action->targetState();
+
+        // If a full dev asks the reporter a question, they become the ticket's assignee, unless
+        // the author/maintainer has already commented on the ticket.
+        $shouldAssignToCommenter =
+            $action === TicketAction::Request
+            && $actor->hasRole(Role::DEVELOPER)
+            && $ticket->assignee_id !== $actor->id
+            && $ticket->discussionComments->last()?->user_id === $actor->id
+            && $this->getTicketClaimStatusAction->execute($ticket)->isClaimable;
+
+        if ($shouldAssignToCommenter) {
+            $this->claimTicketAction->execute($ticket, $actor);
+        }
+
+        if ($newState->isResolved() && !$previousState->isResolved()) {
+            $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
+        }
+
         $ticket->state = $newState;
 
         CauserResolver::setCauser($actor);
@@ -48,6 +61,7 @@ class ChangeTicketStateAction
             $ticket->resolved_at = null;
             $ticket->resolver_id = null;
             $ticket->resolution = null;
+            $ticket->resolved_signal_verdict = null;
         }
 
         $ticket->save();
@@ -58,7 +72,7 @@ class ChangeTicketStateAction
             $ticket->getTicketableModel()->demoteForTicket($actor);
         }
 
-        $comment = $this->buildServerComment($action, $previousState, $actor);
+        $comment = $this->buildServerComment($ticket, $action, $previousState, $actor);
 
         // add the system comment without generating an email. subscribers get an email below.
         $serverUser = User::whereName('Server')->first();
@@ -71,8 +85,8 @@ class ChangeTicketStateAction
             ]);
         }
 
-        if ($ticket->ticketable_author_id) {
-            $this->userTicketCountService->clearForUserId($ticket->ticketable_author_id);
+        if ($ticket->assignee_id) {
+            $this->userTicketCountService->clearForUserId($ticket->assignee_id);
         }
 
         if ($ticket->reporter) {
@@ -91,7 +105,7 @@ class ChangeTicketStateAction
         }
     }
 
-    private function buildServerComment(TicketAction $action, TicketState $previousState, User $actor): string
+    private function buildServerComment(Ticket $ticket, TicketAction $action, TicketState $previousState, User $actor): string
     {
         $actorName = $actor->display_name;
 
@@ -99,7 +113,7 @@ class ChangeTicketStateAction
             TicketAction::Resolved => "Ticket resolved as fixed by {$actorName}.",
             TicketAction::Request => "Ticket reassigned to reporter by {$actorName}.",
             TicketAction::Reopen => match ($previousState) {
-                TicketState::Request => "Ticket reassigned to author by {$actorName}.",
+                TicketState::Request => 'Ticket reassigned to ' . ($ticket->assignee->display_name ?? 'the developer') . " by {$actorName}.",
                 TicketState::Quarantined => "Ticket approved by {$actorName}.",
                 default => "Ticket reopened by {$actorName}.",
             },
@@ -111,6 +125,9 @@ class ChangeTicketStateAction
             TicketAction::Network,
             TicketAction::UnableToReproduce,
             TicketAction::UnableToDebug,
+            TicketAction::AlreadyFixed,
+            TicketAction::EmulatorProblem,
+            TicketAction::ManualUnlockRequest,
             TicketAction::ClosedOther => $action->resolution()->closeCommentBody($actorName),
         };
     }

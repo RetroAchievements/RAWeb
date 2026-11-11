@@ -67,9 +67,9 @@ trait ActsAsDeveloper
     /**
      * @return HasMany<Ticket, $this>
      */
-    public function authoredTickets(): HasMany
+    public function assignedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'ticketable_author_id');
+        return $this->hasMany(Ticket::class, 'assignee_id');
     }
 
     /**

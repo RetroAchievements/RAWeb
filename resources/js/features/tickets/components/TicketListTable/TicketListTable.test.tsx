@@ -259,7 +259,7 @@ describe('Component: TicketListTable', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       ticketableTitle: 'Ring Collector',
-      author: createUser({ displayName: 'Dev' }),
+      assignee: createUser({ displayName: 'Dev' }),
       reporter: createUser({ displayName: 'Scott' }),
     });
 
@@ -286,11 +286,11 @@ describe('Component: TicketListTable', () => {
     expect(route).toHaveBeenCalledWith('user.show', ['Dev']);
   });
 
-  it('given a null reporter and a null author, shows the deleted user fallback and no user links', () => {
+  it('given a null reporter and a null assignee, falls back to the deleted user text with no links', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       id: 640,
-      author: null,
+      assignee: null,
       reporter: null,
       ticketableTitle: 'Some achievement',
     });
@@ -315,6 +315,37 @@ describe('Component: TicketListTable', () => {
     expect(screen.getByRole('link', { name: '640' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Some achievement' })).toBeVisible();
     expect(route).not.toHaveBeenCalledWith('user.show', expect.anything());
+  });
+
+  it('given a claimed ticket, the developer column marks the assignee', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      assignee: createUser({ displayName: 'Batman' }),
+      isClaimed: true,
+    });
+
+    render(
+      <TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, developer: true }} />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /batman/i })).toBeVisible();
+    expect(screen.getByText('Claimed')).toBeVisible();
+  });
+
+  it('given a ticket still with its maintainer, the assignee stays unmarked', () => {
+    // ARRANGE
+    const ticket = createTicketListEntry({
+      assignee: createUser({ displayName: 'Maintainer' }),
+      isClaimed: false,
+    });
+
+    render(
+      <TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, developer: true }} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText('Claimed')).not.toBeInTheDocument();
   });
 
   it('leaves an unassigned resolver empty but labels a deleted resolver', () => {
@@ -587,6 +618,7 @@ describe('Component: TicketListTable', () => {
         windowStartedAt: '2026-03-19T12:00:00Z',
         hasRecentLogicChange: false,
         reporterEarnedAt: null,
+        accuracy: { ticketCount: 4000, correctCount: 3480 },
       },
     });
 
@@ -596,11 +628,11 @@ describe('Component: TicketListTable', () => {
     const verdictButton = screen.getByRole('button', { name: 'Probably not a bug' });
     expect(verdictButton).toBeVisible();
     expect(verdictButton).toHaveAccessibleDescription(
-      '316 players unlocked this achievement in the 90 days before the report. Nearly 9 in 10 past tickets with this verdict were closed without a logic change.',
+      '316 players unlocked this achievement in the 90 days before the report. 87% of past tickets with this verdict were closed without a logic change.',
     );
   });
 
-  it('given a verdict slot and a probably-a-real-bug row, shows the verdict with the evidence', () => {
+  it('given a verdict slot and a probably-a-real-bug row without stored accuracy, falls back to the estimated accuracy alongside the evidence', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       id: 8102,
@@ -612,6 +644,7 @@ describe('Component: TicketListTable', () => {
         windowStartedAt: '2026-06-14T12:00:00Z',
         hasRecentLogicChange: true,
         reporterEarnedAt: null,
+        accuracy: null,
       },
     });
 
@@ -635,6 +668,7 @@ describe('Component: TicketListTable', () => {
         windowStartedAt: '2026-03-19T12:00:00Z',
         hasRecentLogicChange: false,
         reporterEarnedAt: '2026-06-23T12:00:00Z',
+        accuracy: null,
       },
     });
 
@@ -658,6 +692,7 @@ describe('Component: TicketListTable', () => {
         windowStartedAt: '2026-03-19T12:00:00Z',
         hasRecentLogicChange: false,
         reporterEarnedAt: '2026-06-23T12:00:00Z',
+        accuracy: { ticketCount: 1950, correctCount: 1600 },
       },
     });
 
@@ -665,7 +700,7 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: 'Probably a real bug' })).toHaveAccessibleDescription(
-      'The reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already. Nearly 4 in 5 tickets with this verdict receive a logic change.',
+      'The reporter unlocked this achievement 6 days after the report, after its logic changed. This was probably fixed already. 82% of tickets with this verdict receive a logic change.',
     );
   });
 

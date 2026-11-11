@@ -50,7 +50,7 @@ class TicketSchema extends Schema
         'leaderboard.game.system',
         'reporter',
         'resolver',
-        'author',
+        'assignee',
     ];
 
     public static function type(): string
@@ -97,13 +97,13 @@ class TicketSchema extends Schema
             Str::make('ticketableTitle')->readOnly(),
             Str::make('reporterDisplayName')->readOnly(),
             Str::make('resolverDisplayName')->readOnly(),
-            Str::make('authorDisplayName')->readOnly(),
+            Str::make('assigneeDisplayName')->readOnly(),
 
             BelongsTo::make('achievement')->type('achievements')->readOnly(),
             BelongsTo::make('leaderboard')->type('leaderboards')->readOnly(),
             BelongsTo::make('reporter')->type('users')->readOnly(),
             BelongsTo::make('resolver')->type('users')->readOnly(),
-            BelongsTo::make('author')->type('users')->readOnly(),
+            BelongsTo::make('assignee')->type('users')->readOnly(),
         ];
     }
 
@@ -130,7 +130,7 @@ class TicketSchema extends Schema
             'ticketableTitle' => true,
             'reporterDisplayName' => true,
             'resolverDisplayName' => true,
-            'authorDisplayName' => true,
+            'assigneeDisplayName' => true,
         ];
     }
 

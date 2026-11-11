@@ -11,7 +11,6 @@ use App\Enums\ClientSupportLevel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Emulator;
-use App\Models\EmulatorCoreRestriction;
 use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -44,7 +43,7 @@ class CreateTicketAction
             'ticketable_type' => 'achievement',
             'ticketable_id' => $achievement->id,
             'reporter_id' => $user->id,
-            'ticketable_author_id' => $maintainer?->id,
+            'assignee_id' => $maintainer?->id,
             'type' => $data->issue,
             'hardcore' => $data->mode === 'hardcore',
             'body' => $this->formatTicketNote($data, $data->emulator && !$emulator),
@@ -107,15 +106,12 @@ class CreateTicketAction
             return TicketState::Quarantined;
         }
 
-        // Quarantine a ticket when the reported core is restricted.
-        if (!empty($data->core) && EmulatorCoreRestriction::forCore($data->core)->exists()) {
-            return TicketState::Quarantined;
-        }
-
         // Fall back to the session's user agent. It carries signals the form can't:
-        // client version thresholds and offline submission clients.
+        // how old the client is, offline submissions, and which core was used.
+        $relatedGameIds = $achievement->getRelatedGameIds();
+
         $latestSession = PlayerSession::where('user_id', $user->id)
-            ->where('game_id', $achievement->game_id)
+            ->whereIn('game_id', $relatedGameIds)
             ->latest()
             ->first();
         if ($latestSession?->user_agent) {

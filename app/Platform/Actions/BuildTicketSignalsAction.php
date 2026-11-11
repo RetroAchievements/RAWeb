@@ -66,12 +66,20 @@ use Illuminate\Support\Facades\DB;
  * finished, often because the fix made the unlock possible. Counting those
  * unlocks would make the logic version rules look far better than they
  * actually are.
+ *
+ * "Probably not a bug" is not shown when the set was published less than 30
+ * days before the report, or when the reported logic version is less than 30
+ * days older than the report. Brand new and freshly edited logic breaks more
+ * often. Of the "did not trigger" tickets finished between 2025-10-23 and
+ * 2026-10-23, this verdict was right 72.5% of the time on new sets and 77.4%
+ * of the time after a recent logic edit, against 83.3% everywhere else.
  */
 class BuildTicketSignalsAction
 {
     private const LOOKBACK_DAYS = 90;
     private const MANY_UNLOCKS_FLOOR = 50;
     private const MIN_OTHER_PLAYERS = 5;
+    private const NEW_LOGIC_DAYS = 30;
 
     /**
      * @param Collection<int, Ticket> $tickets
@@ -86,7 +94,7 @@ class BuildTicketSignalsAction
             return $signalsForTickets;
         }
 
-        $signalEligibleTickets->loadMissing('ticketable');
+        $signalEligibleTickets->loadMissing('ticketable.achievementSet');
 
         $triggersByTicketId = $this->findReportTriggersByTicket($signalEligibleTickets);
         $windowStartByTicketId = $this->computeWindowStarts($signalEligibleTickets, $triggersByTicketId);
@@ -117,7 +125,13 @@ class BuildTicketSignalsAction
             ];
 
             $signalVerdict = $this->decideVerdict($matchedSignals);
-            if ($signalVerdict === null) {
+            if (
+                $signalVerdict === null
+                || (
+                    $signalVerdict === TicketSignalVerdict::ProbablyNotDefect
+                    && $this->isReportedLogicNew($ticket, $triggersByTicketId[$ticket->id])
+                )
+            ) {
                 continue;
             }
 
@@ -192,6 +206,23 @@ class BuildTicketSignalsAction
             $ticket->ticketable_type === TicketableType::Achievement->value
             && $ticket->type === TicketType::DidNotTrigger
             && !$ticket->state->isResolved();
+    }
+
+    /**
+     * This logic is more likely to be broken.
+     */
+    private function isReportedLogicNew(Ticket $ticket, ?Trigger $reportTrigger): bool
+    {
+        $firstPublishedAt = $ticket->ticketable?->achievementSet?->achievements_first_published_at;
+        if ($firstPublishedAt && $ticket->created_at->lt($firstPublishedAt->copy()->addDays(self::NEW_LOGIC_DAYS))) {
+            return true;
+        }
+
+        $logicChangedAt = $reportTrigger?->created_at;
+
+        return
+            $logicChangedAt !== null
+            && $ticket->created_at->lt($logicChangedAt->copy()->addDays(self::NEW_LOGIC_DAYS));
     }
 
     /**

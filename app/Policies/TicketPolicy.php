@@ -12,6 +12,8 @@ use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\GetTicketClaimStatusAction;
+use App\Platform\Enums\TicketableType;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -163,6 +165,11 @@ class TicketPolicy
             return false;
         }
 
+        // Muted users can't participate in a ticket beyond closing their own mistaken reports.
+        if ($user->isMuted() && $action !== TicketAction::ClosedMistaken) {
+            return false;
+        }
+
         // Tickets cannot be reassigned to deleted users.
         if ($action === TicketAction::Request && (!$ticket->reporter || $ticket->reporter->trashed())) {
             return false;
@@ -171,18 +178,22 @@ class TicketPolicy
         if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
             return match ($action) {
                 TicketAction::Reopen => true,
-                TicketAction::Request => $ticket->state === TicketState::Open && $this->canAskReporterForMoreInfo($user, $ticket),
+                TicketAction::Request => $ticket->state === TicketState::Open,
 
                 TicketAction::Resolved,
                 TicketAction::Demoted => $ticket->state->isOpen(),
 
                 TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
 
+                TicketAction::ManualUnlockRequest => !$ticket->state->isResolved() && $ticket->ticketable_type !== TicketableType::Leaderboard->value,
+
                 TicketAction::ClosedMistaken,
                 TicketAction::NotEnoughInfo,
                 TicketAction::WrongRom,
                 TicketAction::Network,
                 TicketAction::UnableToReproduce,
+                TicketAction::AlreadyFixed,
+                TicketAction::EmulatorProblem,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }
@@ -202,23 +213,25 @@ class TicketPolicy
         };
     }
 
-    private function canAskReporterForMoreInfo(User $user, Ticket $ticket): bool
+    public function claim(User $user, Ticket $ticket): bool
     {
-        $lastCommenterId = $ticket->discussionComments->last()?->user_id;
-        if ($lastCommenterId === null) {
+        if (!$user->hasRole(Role::DEVELOPER) || $user->isMuted()) {
             return false;
         }
 
-        if ($lastCommenterId === $user->id) {
-            return true;
+        if (!$ticket->state->isOpen() || $ticket->assignee_id === $user->id) {
+            return false;
         }
 
-        if ($lastCommenterId === $ticket->reporter_id) {
-            return $ticket->has_reporter_replied_last;
-        }
+        // Devs still working on tickets won't have them claimed away from underneath them.
+        return (new GetTicketClaimStatusAction())->execute($ticket)->isClaimable;
+    }
 
-        $ticketAssignee = $ticket->getTicketableModel()->getTicketableAssignee() ?? $ticket->author;
-
-        return $lastCommenterId === $ticketAssignee?->id;
+    public function releaseClaim(User $user, Ticket $ticket): bool
+    {
+        return
+            $ticket->assignee_id === $user->id
+            && $ticket->state->isOpen()
+            && $ticket->isClaimed();
     }
 }

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, within } from '@/test';
 import { createComment, createTicketListEntry, createUser } from '@/test/factories';
 
 import { TicketComments } from './TicketComments';
@@ -13,6 +13,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -28,6 +29,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [
           createComment({ id: 1, payload: 'First comment.' }),
@@ -50,6 +52,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -65,6 +68,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -82,6 +86,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [createComment({ id: 1, payload: 'First comment.' })],
         changelog: [],
@@ -102,6 +107,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [
           createComment({ id: 1, payload: 'Which ROM?', createdAt: '2024-05-01T00:00:00.000000Z' }),
@@ -135,6 +141,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [
           createComment({
@@ -167,6 +174,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [
           createComment({
@@ -201,6 +209,7 @@ describe('Component: TicketComments', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
+        allowedTicketActions: [],
         can: {},
         comments: [
           createComment({
@@ -240,6 +249,7 @@ describe('Component: TicketComments', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
         can: {},
         comments: [],
         changelog: [],
@@ -251,6 +261,64 @@ describe('Component: TicketComments', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
+  it('given the user can comment but for some reason cannot change the status, does not show the status control and does not crash', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
+        can: { createTicketComments: true },
+        comments: [],
+        changelog: [],
+        ticket: createTicketListEntry(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('textbox')).toBeVisible();
+    expect(screen.queryByRole('button', { name: /change status/i })).not.toBeInTheDocument();
+  });
+
+  it('given a muted reporter, shows the status control', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ isMuted: true, mutedUntil: '2030-01-01T00:00:00Z' }),
+        },
+        allowedTicketActions: ['closed-mistaken'],
+        can: { createTicketComments: false },
+        comments: [],
+        changelog: [],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/you are muted/i)).toBeVisible();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /change status/i })).toBeVisible();
+  });
+
+  it('given the user can both comment and change the status, shows the status control in the comment form', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: ['resolved', 'network'],
+        can: { createTicketComments: true },
+        comments: [],
+        changelog: [],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ASSERT
+    const commentForm = screen.getByRole('textbox').closest('form')!;
+    expect(within(commentForm).getByRole('button', { name: /change status/i })).toBeVisible();
+    expect(screen.getAllByRole('button', { name: /change status/i })).toHaveLength(1);
+  });
+
   it('given the user submits a comment, posts it and reloads the page client-side', async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
@@ -259,6 +327,7 @@ describe('Component: TicketComments', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
         can: { createTicketComments: true },
         comments: [],
         changelog: [],
@@ -288,6 +357,7 @@ describe('Component: TicketComments', () => {
     render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
         can: { createTicketComments: true },
         comments: [
           createComment({

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -9,6 +10,7 @@ use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
+use App\Models\TicketVerdictAccuracyResult;
 use App\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
@@ -49,7 +51,7 @@ function createTicketListPageTickets(int $ticketCount): array
         $tickets[] = Ticket::factory()
             ->forAchievement($achievement)
             ->create([
-                'ticketable_author_id' => $developer->id,
+                'assignee_id' => $developer->id,
                 'reporter_id' => $reporter->id,
                 'state' => $state,
                 'created_at' => Carbon::parse('2024-01-01 00:00:00')->addHours($i),
@@ -243,7 +245,7 @@ it('given an authenticated user, inbox renders every section for that user', fun
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
         ->component('tickets/mine')
-        ->has('sections', 5)
+        ->has('sections', 6)
         ->where('sectionLimit', 8)
         ->where('attentionCount', 0)
         ->where('user.displayName', $viewer->display_name)
@@ -376,6 +378,42 @@ describe('ticket signals', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->where('can.viewTriageSignals', true)
             ->where('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks'])
+        );
+    });
+
+    it('given a stored accuracy result, attaches it to every row that has a signal verdict', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        Ticket::factory()->forAchievement(Achievement::factory()->promoted()->create(['game_id' => $game->id]))->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+        Ticket::factory()->forAchievement(Achievement::factory()->promoted()->create(['game_id' => $game->id]))->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
+        TicketVerdictAccuracyResult::factory()->create([
+            'verdict' => TicketSignalVerdict::ProbablyDefect,
+            'ticket_count' => 1950,
+            'correct_count' => 1600,
+        ]);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('paginatedTickets.items', 2)
+            ->where('paginatedTickets.items.0.signals.accuracy', ['ticketCount' => 1950, 'correctCount' => 1600])
+            ->where('paginatedTickets.items.1.signals.accuracy', ['ticketCount' => 1950, 'correctCount' => 1600])
         );
     });
 

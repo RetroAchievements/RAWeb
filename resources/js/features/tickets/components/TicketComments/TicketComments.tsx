@@ -9,9 +9,10 @@ import type { CommentListInterleavedItem } from '@/common/models';
 
 import { TicketChangelogEntry } from '../TicketChangelogEntry';
 import { TicketReport } from '../TicketReport';
+import { TicketStateMenu } from '../TicketStateMenu';
 
 export const TicketComments: FC = () => {
-  const { can, changelog, comments, reportBody, ticket } =
+  const { allowedTicketActions, can, changelog, comments, reportBody, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -72,6 +73,7 @@ export const TicketComments: FC = () => {
         hasEmptyState={!reportBody}
         interleavedItems={mappedRowEntries}
         footerSlot={renderCommentFooter}
+        inputActionsSlot={allowedTicketActions.length ? <TicketStateMenu /> : undefined}
         commentableId={ticket.id}
         commentableType="trigger.ticket.comment"
         onDeleteSuccess={reloadPage}
